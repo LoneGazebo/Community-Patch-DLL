@@ -55,7 +55,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Art/Improvements/GlobalSpiceIslandsArt.xml</FileName>
+        <FileName>Art/Resources/GlobalSpiceIslandsArt.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -845,22 +845,22 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>More Luxuries/XML/NewLuxuries_Art_Icons.xml</Filename>
+        <Filename>Art/Resources/NewLuxuries_Art_Icons.xml</Filename>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>More Luxuries/XML/NewLuxuries_Art_Terrain.xml</Filename>
+        <Filename>Art/Resources/NewLuxuries_Art_Terrain.xml</Filename>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>More Luxuries/XML/NewLuxuries_Resources.xml</Filename>
+        <Filename>Balance Changes/Terrain/NewLuxuries_Resources.xml</Filename>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>More Luxuries/XML/NewLuxuries_Text.xml</Filename>
+        <Filename>Balance Changes/Terrain/NewLuxuries_Text.xml</Filename>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -983,15 +983,15 @@
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
-        <Name>Vassalage Overview</Name>
-        <Description>Vassalage Overview</Description>
-        <FileName>C4DF/LUA/VassalageOverview.lua</FileName>
+        <Name>Terra</Name>
+        <Description />
+        <FileName>Mapscripts/Terra.lua</FileName>
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
-        <Name>Terra</Name>
-        <Description />
-        <FileName>More Luxuries/Lua/Maps/Terra.lua</FileName>
+        <Name>Vassalage Overview</Name>
+        <Description>Vassalage Overview</Description>
+        <FileName>C4DF/LUA/VassalageOverview.lua</FileName>
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
@@ -1013,16 +1013,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Art\" />
-    <Folder Include="Art\Hacienda\" />
     <Folder Include="Art\Improvements" />
     <Folder Include="Art\Improvements\Eki" />
     <Folder Include="Art\Improvements\Encampment" />
+    <Folder Include="Art\Improvements\Hacienda\" />
     <Folder Include="Art\Improvements\Kuna" />
     <Folder Include="Art\Icons" />
     <Folder Include="Art\Improvements\Inca" />
     <Folder Include="Art\Improvements\Ordo\" />
-    <Folder Include="Art\Improvements\Spices" />
     <Folder Include="Art\Resources" />
+    <Folder Include="Art\Resources\Font Icon Atlas" />
+    <Folder Include="Art\Resources\Icon Atlas" />
+    <Folder Include="Art\Resources\Amber" />
+    <Folder Include="Art\Resources\Coffee" />
+    <Folder Include="Art\Resources\Coral" />
+    <Folder Include="Art\Resources\Jade" />
+    <Folder Include="Art\Resources\Lapis Lazuli" />
+    <Folder Include="Art\Resources\Olives" />
+    <Folder Include="Art\Resources\Perfume" />
+    <Folder Include="Art\Resources\Tea" />
+    <Folder Include="Art\Resources\Tobacco" />
+    <Folder Include="Art\Resources\Sugar" />
+    <Folder Include="Art\Resources\Spices" />
     <Folder Include="Art\Splash" />
     <Folder Include="Art\Units" />
     <Folder Include="Art\Units\Commando\" />
@@ -1129,23 +1141,6 @@
     <Folder Include="C4DF\SQL" />
     <Folder Include="C4DF\XML\Gameplay" />
     <Folder Include="C4DF\XML\Text" />
-    <Folder Include="More Luxuries\" />
-    <Folder Include="More Luxuries\Art" />
-    <Folder Include="More Luxuries\Art\Font Icon Atlas" />
-    <Folder Include="More Luxuries\Art\Icon Atlas" />
-    <Folder Include="More Luxuries\Art\Luxury Amber" />
-    <Folder Include="More Luxuries\Art\Luxury Coffee" />
-    <Folder Include="More Luxuries\Art\Luxury Coral" />
-    <Folder Include="More Luxuries\Art\Luxury Jade" />
-    <Folder Include="More Luxuries\Art\Luxury Lapis Lazuli" />
-    <Folder Include="More Luxuries\Art\Luxury Olives" />
-    <Folder Include="More Luxuries\Art\Luxury Perfume" />
-    <Folder Include="More Luxuries\Art\Luxury Tea" />
-    <Folder Include="More Luxuries\Art\Luxury Tobacco" />
-    <Folder Include="More Luxuries\Art\Update Sugar" />
-    <Folder Include="More Luxuries\Lua" />
-    <Folder Include="More Luxuries\Lua\Maps" />
-    <Folder Include="More Luxuries\XML" />
     <Folder Include="Compatibility\Corporations" />
     <Folder Include="Compatibility\Corporations\Text" />
     <Folder Include="Compatibility\CSD" />
@@ -1203,59 +1198,59 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda.fxsxml">
+    <Content Include="Art\Improvements\Hacienda\hacienda.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda.gr2">
+    <Content Include="Art\Improvements\Hacienda\hacienda.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\HaciendaIcons_045.dds">
+    <Content Include="Art\Improvements\Hacienda\HaciendaIcons_045.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\HaciendaIcons_064.dds">
+    <Content Include="Art\Improvements\Hacienda\HaciendaIcons_064.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\HaciendaIcons_128.dds">
+    <Content Include="Art\Improvements\Hacienda\HaciendaIcons_128.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\HaciendaIcons_256.dds">
+    <Content Include="Art\Improvements\Hacienda\HaciendaIcons_256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_decal.dds">
+    <Content Include="Art\Improvements\Hacienda\hacienda_decal.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_diff.dds">
+    <Content Include="Art\Improvements\Hacienda\hacienda_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_hb.fxsxml">
+    <Content Include="Art\Improvements\Hacienda\hacienda_hb.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_hb.gr2">
+    <Content Include="Art\Improvements\Hacienda\hacienda_hb.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_pl.fxsxml">
+    <Content Include="Art\Improvements\Hacienda\hacienda_pl.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_pl.gr2">
+    <Content Include="Art\Improvements\Hacienda\hacienda_pl.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_pl_decal.dds">
+    <Content Include="Art\Improvements\Hacienda\hacienda_pl_decal.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Hacienda\hacienda_pl_diff.dds">
+    <Content Include="Art\Improvements\Hacienda\hacienda_pl_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1395,10 +1390,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\GlobalSpiceIslandsArt.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Art\Improvements\Inca\CBP_Improvements.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1499,263 +1490,251 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\cloves_diff.dds">
+    <Content Include="Art\Resources\GlobalSpiceIslandsArt.xml">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Improvements\Spices\cloves_sref.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Improvements\Spices\fx_triggers_pl_plantation_ind_cloves.ftsxml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Improvements\Spices\fx_triggers_pl_plantation_ind_nutmeg.ftsxml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\fx_triggers_pl_plantation_mid_cloves.ftsxml">
+    <Content Include="Art\Resources\Spices\cloves_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\fx_triggers_pl_plantation_mid_nutmeg.ftsxml">
+    <Content Include="Art\Resources\Spices\cloves_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\fx_triggers_pl_plantation_ind_cloves.ftsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_cloves.gr2">
+    <Content Include="Art\Resources\Spices\fx_triggers_pl_plantation_ind_nutmeg.ftsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\fx_triggers_pl_plantation_mid_cloves.ftsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\fx_triggers_pl_plantation_mid_nutmeg.ftsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_ind_pepper.gr2">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_cloves.gr2">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\hb_plantation_ind_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\hb_plantation_mid_pepper.gr2">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\nutmeg_diff.dds">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\nutmeg_sref.dds">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pepper_diff.dds">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pepper_sref.dds">
+    <Content Include="Art\Resources\Spices\hb_plantation_mid_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\nutmeg_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_cloves.gr2">
+    <Content Include="Art\Resources\Spices\nutmeg_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\pepper_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\pepper_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\plantation_ind_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_ind_pepper.gr2">
+    <Content Include="Art\Resources\Spices\plantation_ind_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\plantation_ind_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_cloves.gr2">
+    <Content Include="Art\Resources\Spices\plantation_ind_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\plantation_ind_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\plantation_ind_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\plantation_mid_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\plantation_mid_pepper.gr2">
+    <Content Include="Art\Resources\Spices\plantation_mid_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_cloves_diff.dds">
+    <Content Include="Art\Resources\Spices\plantation_mid_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_nutmeg_diff.dds">
+    <Content Include="Art\Resources\Spices\plantation_mid_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_pepper_diff.dds">
+    <Content Include="Art\Resources\Spices\plantation_mid_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\plantation_mid_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_cloves.gr2">
+    <Content Include="Art\Resources\Spices\pl_cloves_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_nutmeg_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\pl_pepper_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_ind_pepper.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_cloves.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_ind_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\pl_plantation_mid_pepper.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_cloves.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_cloves.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_nutmeg.fxsxml">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_nutmeg.gr2">
+    <Content Include="Art\Resources\Spices\pl_plantation_mid_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_pepper.fxsxml">
+    <Content Include="Art\Resources\Spices\resource_cloves.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Spices\resource_pepper.gr2">
+    <Content Include="Art\Resources\Spices\resource_cloves.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\SV_Cloves.dds">
+    <Content Include="Art\Resources\Spices\resource_nutmeg.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\SV_Nutmeg.dds">
+    <Content Include="Art\Resources\Spices\resource_nutmeg.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\SV_Pepper.dds">
+    <Content Include="Art\Resources\Spices\resource_pepper.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood.dds">
+    <Content Include="Art\Resources\Spices\resource_pepper.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood256.dds">
+    <Content Include="Art\Resources\Spices\SV_Cloves.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood45.dds">
+    <Content Include="Art\Resources\Spices\SV_Nutmeg.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood64.dds">
+    <Content Include="Art\Resources\Spices\SV_Pepper.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood80.dds">
+    <Content Include="Art\Resources\Font Icon Atlas\Brazilwood.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood.ggxml">
+    <Content Include="Art\Resources\Font Icon Atlas\Brazilwood.ggxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Resources\Brazilwood.lua">
+    <Content Include="Art\Resources\Resources.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -2951,11 +2930,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiscussionDialog.lua">
+    <Content Include="Core Files\CoreLua\DiscussionDialog.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\DiscussionDialog.xml">
+    <Content Include="Core Files\CoreLua\DiscussionDialog.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -3114,6 +3093,10 @@
     <Content Include="Mapscripts\Communitu_79a.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Terra.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\ArchaeologistUIMods\GlobalArchaeologistDigSites.lua">
       <SubType>Lua</SubType>
@@ -3663,743 +3646,739 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Font Icon Atlas\fonticons_newluxuries.dds">
+    <Content Include="Art\Resources\Font Icon Atlas\fonticons_newluxuries.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Font Icon Atlas\FontIcons_NewLuxuries.ggxml">
+    <Content Include="Art\Resources\Font Icon Atlas\FontIcons_NewLuxuries.ggxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas256.dds">
+    <Content Include="Art\Resources\Icon Atlas\VP_ResourceAtlas256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas45.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas64.dds">
+    </Content>	
+    <Content Include="Art\Resources\Icon Atlas\VP_ResourceAtlas45.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Icon Atlas\NewLuxuries_ResourceAtlas80.dds">
+    <Content Include="Art\Resources\Icon Atlas\VP_ResourceAtlas64.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\amber.fxsxml">
+    <Content Include="Art\Resources\Icon Atlas\VP_ResourceAtlas80.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\amber.gr2">
+    <Content Include="Art\Resources\Amber\amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\amber_diff.dds">
+    <Content Include="Art\Resources\Amber\amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\amber_mine_decal_d.dds">
+    <Content Include="Art\Resources\Amber\amber_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\amber_rubble_diff.dds">
+    <Content Include="Art\Resources\Amber\amber_mine_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\hb_ind_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\amber_rubble_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\hb_ind_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\hb_ind_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\hb_med_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\hb_ind_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\hb_med_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\hb_med_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\ind_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\hb_med_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\ind_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\ind_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\med_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\ind_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\med_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\med_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\pl_amber_mine_decal_d.dds">
+    <Content Include="Art\Resources\Amber\med_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\pl_ind_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\pl_amber_mine_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\pl_ind_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\pl_ind_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\pl_med_mine_amber.fxsxml">
+    <Content Include="Art\Resources\Amber\pl_ind_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\pl_med_mine_amber.gr2">
+    <Content Include="Art\Resources\Amber\pl_med_mine_amber.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Amber\sv_amber.dds">
+    <Content Include="Art\Resources\Amber\pl_med_mine_amber.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\coffee_diff.dds">
+    <Content Include="Art\Resources\Amber\sv_amber.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\coffee_vineyard_diff.dds">
+    <Content Include="Art\Resources\Coffee\coffee_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_ind_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\coffee_vineyard_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_ind_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\hb_plantation_ind_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_mid_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\hb_plantation_ind_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\hb_plantation_mid_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\hb_plantation_mid_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_ind_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\hb_plantation_mid_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_ind_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\plantation_ind_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_mid_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\plantation_ind_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\plantation_mid_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\plantation_mid_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\pl_coffee_diff.dds">
+    <Content Include="Art\Resources\Coffee\plantation_mid_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_ind_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\pl_coffee_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_ind_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\pl_plantation_ind_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_mid_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\pl_plantation_ind_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\pl_plantation_mid_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\pl_plantation_mid_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\resource_coffee.fxsxml">
+    <Content Include="Art\Resources\Coffee\pl_plantation_mid_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\resource_coffee.gr2">
+    <Content Include="Art\Resources\Coffee\resource_coffee.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coffee\sv_coffee.dds">
+    <Content Include="Art\Resources\Coffee\resource_coffee.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral.fxsxml">
+    <Content Include="Art\Resources\Coffee\sv_coffee.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral.gr2">
+    <Content Include="Art\Resources\Coral\coral.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_built.gr2">
+    <Content Include="Art\Resources\Coral\coral.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_diff.dds">
+    <Content Include="Art\Resources\Coral\coral_built.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial.fxsxml">
+    <Content Include="Art\Resources\Coral\coral_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial.gr2">
+    <Content Include="Art\Resources\Coral\coral_industrial.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_industrial_built.gr2">
+    <Content Include="Art\Resources\Coral\coral_industrial.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\coral_sref.dds">
+    <Content Include="Art\Resources\Coral\coral_industrial_built.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_d.dds">
+    <Content Include="Art\Resources\Coral\coral_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_h.dds">
+    <Content Include="Art\Resources\Coral\decal_coralreef_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\decal_coralreef_s.dds">
+    <Content Include="Art\Resources\Coral\decal_coralreef_h.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Coral\sv_coral.dds">
+    <Content Include="Art\Resources\Coral\decal_coralreef_s.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\hb_ind_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Coral\sv_coral.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\hb_ind_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\hb_ind_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\hb_med_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Jade\hb_ind_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\hb_med_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\hb_med_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\ind_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Jade\hb_med_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\ind_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\ind_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\jade.fxsxml">
+    <Content Include="Art\Resources\Jade\ind_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\jade.gr2">
+    <Content Include="Art\Resources\Jade\jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\jade_diff.dds">
+    <Content Include="Art\Resources\Jade\jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\jade_mine_decal_d.dds">
+    <Content Include="Art\Resources\Jade\jade_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\jade_rubble_diff.dds">
+    <Content Include="Art\Resources\Jade\jade_mine_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\med_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Jade\jade_rubble_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\med_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\med_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\pl_ind_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Jade\med_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\pl_ind_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\pl_ind_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\pl_jade_mine_decal_d.dds">
+    <Content Include="Art\Resources\Jade\pl_ind_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\pl_med_mine_jade.fxsxml">
+    <Content Include="Art\Resources\Jade\pl_jade_mine_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\pl_med_mine_jade.gr2">
+    <Content Include="Art\Resources\Jade\pl_med_mine_jade.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Jade\sv_jade.dds">
+    <Content Include="Art\Resources\Jade\pl_med_mine_jade.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_ind_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Jade\sv_jade.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_ind_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\hb_ind_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_med_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\hb_ind_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\hb_med_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\hb_med_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\ind_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\hb_med_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\ind_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\ind_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\ind_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_decal_diff.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_ore_diff.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis_decal_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_ore_sref.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis_ore_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\lapis_rubble_diff.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis_ore_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\med_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\lapis_rubble_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\med_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\med_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\mine_lapis_decal_d.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\med_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_ind_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\mine_lapis_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_ind_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\pl_ind_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_med_mine_lapis.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\pl_ind_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_med_mine_lapis.gr2">
+    <Content Include="Art\Resources\Lapis Lazuli\pl_med_mine_lapis.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\pl_mine_lapis_decal_d.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\pl_med_mine_lapis.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Lapis Lazuli\sv_lapis.dds">
+    <Content Include="Art\Resources\Lapis Lazuli\pl_mine_lapis_decal_d.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\olive.fxsxml">
+    <Content Include="Art\Resources\Lapis Lazuli\sv_lapis.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\olive.gr2">
+    <Content Include="Art\Resources\Olives\olive.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\olive_trees_diff.dds">
+    <Content Include="Art\Resources\Olives\olive.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\olive_trees_sref.dds">
+    <Content Include="Art\Resources\Olives\olive_trees_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\pil_olive_trees_diff.dds">
+    <Content Include="Art\Resources\Olives\olive_trees_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive.fxsxml">
+    <Content Include="Art\Resources\Olives\pil_olive_trees_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive.gr2">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_hb.fxsxml">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_hb.gr2">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive_hb.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_pil.fxsxml">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive_hb.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_ind_olive_pil.gr2">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive_pil.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive.fxsxml">
+    <Content Include="Art\Resources\Olives\plantation_ind_olive_pil.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive.gr2">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_hb.fxsxml">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_hb.gr2">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive_hb.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_pil.fxsxml">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive_hb.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\plantation_mid_olive_pil.gr2">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive_pil.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Olives\sv_olive.dds">
+    <Content Include="Art\Resources\Olives\plantation_mid_olive_pil.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_ind_perfume.fxsxml">
+    <Content Include="Art\Resources\Olives\sv_olive.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_ind_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\hb_plantation_ind_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_mid_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\hb_plantation_ind_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\hb_plantation_mid_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\hb_plantation_mid_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\perfume_diff.dds">
+    <Content Include="Art\Resources\Perfume\hb_plantation_mid_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_ind_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\perfume_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_ind_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\plantation_ind_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_mid_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\plantation_ind_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\plantation_mid_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\plantation_mid_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\pl_perfume_diff.dds">
+    <Content Include="Art\Resources\Perfume\plantation_mid_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_ind_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\pl_perfume_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_ind_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\pl_plantation_ind_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_mid_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\pl_plantation_ind_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\pl_plantation_mid_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\pl_plantation_mid_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\resource_perfume.fxsxml">
+    <Content Include="Art\Resources\Perfume\pl_plantation_mid_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\resource_perfume.gr2">
+    <Content Include="Art\Resources\Perfume\resource_perfume.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Perfume\sv_perfume.dds">
+    <Content Include="Art\Resources\Perfume\resource_perfume.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_ind_tea.fxsxml">
+    <Content Include="Art\Resources\Perfume\sv_perfume.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_ind_tea.gr2">
+    <Content Include="Art\Resources\Tea\hb_plantation_ind_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_mid_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\hb_plantation_ind_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\hb_plantation_mid_tea.gr2">
+    <Content Include="Art\Resources\Tea\hb_plantation_mid_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\plantation_ind_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\hb_plantation_mid_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\plantation_ind_tea.gr2">
+    <Content Include="Art\Resources\Tea\plantation_ind_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\plantation_mid_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\plantation_ind_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\plantation_mid_tea.gr2">
+    <Content Include="Art\Resources\Tea\plantation_mid_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_ind_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\plantation_mid_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_ind_tea.gr2">
+    <Content Include="Art\Resources\Tea\pl_plantation_ind_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_mid_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\pl_plantation_ind_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\pl_plantation_mid_tea.gr2">
+    <Content Include="Art\Resources\Tea\pl_plantation_mid_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\pl_tea_diff.dds">
+    <Content Include="Art\Resources\Tea\pl_plantation_mid_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\resource_tea.fxsxml">
+    <Content Include="Art\Resources\Tea\pl_tea_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\resource_tea.gr2">
+    <Content Include="Art\Resources\Tea\resource_tea.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\sv_tea.dds">
+    <Content Include="Art\Resources\Tea\resource_tea.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tea\tea_diff.dds">
+    <Content Include="Art\Resources\Tea\sv_tea.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_ind_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tea\tea_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_ind_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\hb_plantation_ind_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_mid_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\hb_plantation_ind_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\hb_plantation_mid_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\hb_plantation_mid_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_ind_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\hb_plantation_mid_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_ind_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\plantation_ind_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_mid_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\plantation_ind_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\plantation_mid_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\plantation_mid_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_ind_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\plantation_mid_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_ind_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\pl_plantation_ind_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_mid_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\pl_plantation_ind_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_plantation_mid_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\pl_plantation_mid_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\pl_tobacco_diff.dds">
+    <Content Include="Art\Resources\Tobacco\pl_plantation_mid_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\resource_tobacco.fxsxml">
+    <Content Include="Art\Resources\Tobacco\pl_tobacco_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\resource_tobacco.gr2">
+    <Content Include="Art\Resources\Tobacco\resource_tobacco.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\sv_tobacco.dds">
+    <Content Include="Art\Resources\Tobacco\resource_tobacco.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\tobacco_diff.dds">
+    <Content Include="Art\Resources\Tobacco\sv_tobacco.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Luxury Tobacco\tobacco_sref.dds">
+    <Content Include="Art\Resources\Tobacco\tobacco_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_ind_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Tobacco\tobacco_sref.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_ind_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\hb_plantation_ind_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_mid_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\hb_plantation_ind_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\hb_plantation_mid_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\hb_plantation_mid_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\plantation_ind_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\hb_plantation_mid_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\plantation_ind_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\plantation_ind_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\plantation_mid_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\plantation_ind_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\plantation_mid_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\plantation_mid_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_ind_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\plantation_mid_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_ind_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\pl_plantation_ind_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_mid_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\pl_plantation_ind_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\pl_plantation_mid_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\pl_plantation_mid_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\resource_sugar_alt.fxsxml">
+    <Content Include="Art\Resources\Sugar\pl_plantation_mid_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\resource_sugar_alt.gr2">
+    <Content Include="Art\Resources\Sugar\resource_sugar_alt.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Art\Update Sugar\sugar_alt_diff.dds">
+    <Content Include="Art\Resources\Sugar\resource_sugar_alt.gr2">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\Lua\Maps\Terra.lua">
+    <Content Include="Art\Resources\Sugar\sugar_alt_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\XML\NewLuxuries_Art_Icons.xml">
+    <Content Include="Art\Resources\NewLuxuries_Art_Icons.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\XML\NewLuxuries_Art_Terrain.xml">
+    <Content Include="Art\Resources\NewLuxuries_Art_Terrain.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\XML\NewLuxuries_Resources.xml">
+    <Content Include="Balance Changes\Terrain\NewLuxuries_Resources.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="More Luxuries\XML\NewLuxuries_Text.xml">
+    <Content Include="Balance Changes\Terrain\NewLuxuries_Text.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

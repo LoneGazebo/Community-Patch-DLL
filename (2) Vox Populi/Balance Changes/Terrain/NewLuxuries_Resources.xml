@@ -44,7 +44,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_COFFEE]</IconString>
 			<PortraitIndex>1</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_TEA</Type>
@@ -66,7 +66,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_TEA]</IconString>
 			<PortraitIndex>2</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_TOBACCO</Type>
@@ -88,7 +88,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_TOBACCO]</IconString>
 			<PortraitIndex>3</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_AMBER</Type>
@@ -110,7 +110,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_AMBER]</IconString>
 			<PortraitIndex>4</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_JADE</Type>
@@ -132,7 +132,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_JADE]</IconString>
 			<PortraitIndex>5</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_OLIVE</Type>
@@ -154,7 +154,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_OLIVE]</IconString>
 			<PortraitIndex>6</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_PERFUME</Type>
@@ -176,7 +176,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_PERFUME]</IconString>
 			<PortraitIndex>7</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_CORAL</Type>
@@ -197,7 +197,7 @@
 			<GroupRand>15</GroupRand>
 			<IconString>[ICON_RES_CORAL]</IconString>
 			<PortraitIndex>8</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<Row>
 			<Type>RESOURCE_LAPIS</Type>
@@ -218,7 +218,7 @@
 			<Hills>true</Hills>
 			<IconString>[ICON_RES_LAPIS]</IconString>
 			<PortraitIndex>9</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<!-- City-State -->
 		<Row>
@@ -240,7 +240,7 @@
 			<OnlyMinorCivs>true</OnlyMinorCivs>
 			<IconString>[ICON_RES_GLASS]</IconString>
 			<PortraitIndex>10</PortraitIndex>
-			<IconAtlas>NEWLUXURIES_RESOURCE_ATLAS</IconAtlas>
+			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
 		</Row>
 		<!-- Existing -->
 		<Update>

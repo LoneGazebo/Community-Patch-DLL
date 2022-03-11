@@ -4,30 +4,30 @@
 
 	<IconTextureAtlases>
 		<Row>
-			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<Atlas>VP_RESOURCE_ATLAS</Atlas>
 			<IconSize>256</IconSize>
-			<Filename>NewLuxuries_ResourceAtlas256.dds</Filename>
+			<Filename>VP_ResourceAtlas256.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
 			<IconsPerColumn>4</IconsPerColumn>
 		</Row>
 		<Row>
-			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<Atlas>VP_RESOURCE_ATLAS</Atlas>
 			<IconSize>80</IconSize>
-			<Filename>NewLuxuries_ResourceAtlas80.dds</Filename>
+			<Filename>VP_ResourceAtlas80.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
 			<IconsPerColumn>4</IconsPerColumn>
 		</Row>
 		<Row>
-			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<Atlas>VP_RESOURCE_ATLAS</Atlas>
 			<IconSize>64</IconSize>
-			<Filename>NewLuxuries_ResourceAtlas64.dds</Filename>
+			<Filename>VP_ResourceAtlas64.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
 			<IconsPerColumn>4</IconsPerColumn>
 		</Row>
 		<Row>
-			<Atlas>NEWLUXURIES_RESOURCE_ATLAS</Atlas>
+			<Atlas>VP_RESOURCE_ATLAS</Atlas>
 			<IconSize>45</IconSize>
-			<Filename>NewLuxuries_ResourceAtlas45.dds</Filename>
+			<Filename>VP_ResourceAtlas45.dds</Filename>
 			<IconsPerRow>4</IconsPerRow>
 			<IconsPerColumn>4</IconsPerColumn>
 		</Row>
@@ -37,6 +37,10 @@
 		<Row>
 			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
 			<IconFontTextureFile>fonticons_newluxuries</IconFontTextureFile>
+		</Row>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
+			<IconFontTextureFile>Brazilwood</IconFontTextureFile>
 		</Row>
 	</IconFontTextures>
 
@@ -109,6 +113,11 @@
 			<IconName>ICON_RES_GLASS</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
 			<IconMapping>11</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_BRAZILWOOD</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
+			<IconMapping>1</IconMapping>
 		</Row>
 	</IconFontMapping>
 	

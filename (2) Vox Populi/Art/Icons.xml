@@ -226,43 +226,11 @@
 			<IconsPerRow>1</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
-		<Row>
-			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
-			<IconSize>256</IconSize>
-			<Filename>Brazilwood256.dds</Filename>
-			<IconsPerRow>1</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
-		</Row>
-		<Row>
-			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
-			<IconSize>80</IconSize>
-			<Filename>Brazilwood80.dds</Filename>
-			<IconsPerRow>1</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
-		</Row>
-		<Row>
-			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
-			<IconSize>64</IconSize>
-			<Filename>Brazilwood64.dds</Filename>
-			<IconsPerRow>1</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
-		</Row>
-		<Row>
-			<Atlas>CBP_RESOURCE_ATLAS</Atlas>
-			<IconSize>45</IconSize>
-			<Filename>Brazilwood45.dds</Filename>
-			<IconsPerRow>1</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
-		</Row>
 	</IconTextureAtlases>
 	<IconFontTextures>
 		<Row>
 			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
 			<IconFontTextureFile>Austria</IconFontTextureFile>
-		</Row>
-		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
-			<IconFontTextureFile>Brazilwood</IconFontTextureFile>
 		</Row>
 		<Row>
 			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
@@ -273,11 +241,6 @@
 		<Row>
 			<IconName>ICON_RES_MARRIAGE</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
-			<IconMapping>1</IconMapping>
-		</Row>
-		<Row>
-			<IconName>ICON_RES_BRAZILWOOD</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_BRAZILWOOD</IconFontTexture>
 			<IconMapping>1</IconMapping>
 		</Row>
 		<Row>
