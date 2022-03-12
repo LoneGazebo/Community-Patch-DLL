@@ -31,7 +31,10 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 4c. Remove the version numbers at the end of the mod folder names.
 
 
-5. Cut and paste the LUA folder in the (1) Community Patch mod into the CP LUA folder.
+5. Cut and paste the LUA folder in the (1) Community Patch mod into the "LUA for (1) CP" folder.
+
+
+6. Cut and paste the LUA folder in the (2) Vox Populi mod into the "LUA for (2) VP" folder.
 
 
 6. If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
