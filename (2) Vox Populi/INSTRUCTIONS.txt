@@ -1,0 +1,14 @@
+-- INSTRUCTIONS --
+
+Vox Populi cannot be used without the (1) Community Patch mod.
+
+If you installed the EUI version of the mod, you must enable (3a) VP - EUI Compatibility Files or Vox Populi will not function.
+
+
+-- MANUAL INSTALLATION NOTE --
+
+Make sure to DELETE the LUA folders in the (1) Community Patch folder.
+
+If you want to play with EUI, you must also:
+a) Download the (3a) VP - EUI Compatibility Files folder, AND
+b) DELETE the LUA folder in (2) Vox Populi.

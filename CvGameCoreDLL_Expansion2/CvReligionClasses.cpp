@@ -6511,8 +6511,13 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 /// Find the city where a missionary should next spread his religion
 CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
 {
-	ReligionTypes eMyReligion = GetReligionToSpread();
-	if(eMyReligion <= RELIGION_PANTHEON)
+	ReligionTypes eOwnedReligion = m_pPlayer->GetReligions()->GetOwnedReligion();
+	ReligionTypes eSpreadReligion = GetReligionToSpread();
+	if(eSpreadReligion <= RELIGION_PANTHEON)
+		return NULL;
+
+	//do not use captured missionaries with weird religions
+	if (pUnit->GetReligionData()->GetReligion() != eSpreadReligion)
 		return NULL;
 
 	std::vector<SPlotWithScore> vTargets;
@@ -6523,6 +6528,10 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive())
 		{
+			//do not spread other players' religion to non-owned cities
+			if (eSpreadReligion != eOwnedReligion && kPlayer.GetID() != m_pPlayer->GetID())
+				continue;
+
 			// Loop through each of their cities
 			int iLoop;
 			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -10070,13 +10079,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 
 	//don't target inquisitor-protected cities ...
 	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
-	{
-		return 0;
-	}
-
-	//If this religion is not our founder or majority faith, ignore it
-	ReligionTypes eDesiredReligion = m_pPlayer->GetReligionAI()->GetReligionToSpread();
-	if(eSpreadReligion != eDesiredReligion)
 	{
 		return 0;
 	}

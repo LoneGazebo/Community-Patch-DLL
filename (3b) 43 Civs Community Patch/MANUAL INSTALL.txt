@@ -1,0 +1,6 @@
+-- MANUAL INSTALLATION INSTRUCTIONS -- 
+1. Replace the CvGameCore_Expansion2.dll file in (1) Community Patch with the version in this folder.
+
+2. If using the EUI compatibility version:
+- Download EUI compatibility files for the standard version.
+- Delete the LUA folder from the (2) Vox Populi mod.

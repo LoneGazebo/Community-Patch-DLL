@@ -6,8 +6,8 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 
 
 1. Copy the following folders from the repository and place them in this folder:
-- (7a) Promotion Icons for VP
-- (7b) UI - Promotion Tree for VP
+- (4a) Promotion Icons for VP
+- (4b) UI - Promotion Tree for VP
 
 
 2a. Build the CvGameCore_Expansion2.dll file (instructions are on the main repository page).
@@ -17,28 +17,24 @@ Tip: You may wish to create the autoinstaller in a *COPY* of your repository fol
 
 3a. Build the 43 Civ version of the game core (uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, then build normally).
 
-3b. Place the compiled 43 Civ DLL file in the "43 Civs CP/43 Civs CP" folder, replacing the existing DLL there.
+3b. Place the compiled 43 Civ DLL file in the "(3b) 43 Civs Community Patch" folder, replacing the existing DLL there.
 
 
 4a. Build the following mods in ModBuddy:
 - (1) Community Patch
-- (2) Community Balance Overhaul
-- (3) CSD for VP
-- (4) Civ IV Diplomatic Features
-- (5) More Luxuries
-- (6a) Vox Populi - Compatibility Files (EUI)
-- (6b) Vox Populi - Compatibility Files (No-EUI)
-- (6c) 43 Civs Community Patch
+- (2) Vox Populi
+- (3a) VP - EUI Compatibility Files
+- (3b) 43 Civs Community Patch
 
 4b. Copy the compiled mods from your MODS folder and place them in this folder.
 
 4c. Remove the version numbers at the end of the mod folder names.
 
 
-5. Cut and paste the LUA folder in the (1) Community Patch mod into the CP LUA folder.
+5. Cut and paste the LUA folder in the (1) Community Patch mod into the "LUA for (1) CP" folder.
 
 
-6. Cut and paste the LUA folder in the (2) Community Balance Overhaul mod into the CBO LUA folder.
+6. Cut and paste the LUA folder in the (2) Vox Populi mod into the "LUA for (2) VP" folder.
 
 
-7. If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
+6. If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.

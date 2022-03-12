@@ -422,6 +422,7 @@ CvCity::CvCity() :
 	, m_aiYieldFromMinors()
 	, m_aiResourceQuantityPerXFranchises()
 	, m_aiYieldChangeFromCorporationFranchises()
+	, m_aiResourceQuantityFromPOP()
 	, m_aiNeedsFlatReduction()
 	, m_iLandTourismBonus()
 	, m_iSeaTourismBonus()
@@ -1771,6 +1772,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiResourceQuantityPerXFranchises.clear();
 		m_aiResourceQuantityPerXFranchises.resize(iNumResources);
 #endif
+		m_aiResourceQuantityFromPOP.clear();
+		m_aiResourceQuantityFromPOP.resize(iNumResources);
 		for (iI = 0; iI < iNumResources; iI++)
 		{
 			m_paiNoResource[iI] = 0;
@@ -1780,8 +1783,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 			m_aiResourceQuantityPerXFranchises[iI] = 0;
 #endif
+			m_aiResourceQuantityFromPOP[iI] = 0;
 		}
-
 		int iNumProjectInfos = GC.getNumProjectInfos();
 		m_paiProjectProduction.clear();
 		m_paiProjectProduction.resize(iNumProjectInfos);
@@ -11370,7 +11373,7 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 				if (AmountComplete >= AmountNeeded)
 				{
 					int iProductionDifference = getProductionDifference(iNumProductionNeeded, AmountComplete, getProductionModifier(), false, false);
-					return max(1, AmountComplete - iProductionDifference); //allow one turn of overflow
+					return max(AmountNeeded, AmountComplete - iProductionDifference); //allow one turn of overflow
 				}
 			}
 #endif
@@ -11658,17 +11661,16 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		return 0;
 	}
 
-	int iModifier = pkUnitInfo->GetHurryCostModifier();
-
-	if (iModifier == -1)
-	{
-		return -1;
-	}
-
 	bool bIsSpaceshipPart = pkUnitInfo->GetSpaceshipProject() != NO_PROJECT;
 
 	if (bIsSpaceshipPart && !GET_PLAYER(getOwner()).IsEnablesSSPartPurchase())
 		return -1;
+
+	int iModifier = pkUnitInfo->GetHurryCostModifier();
+	if (!bIsSpaceshipPart && iModifier == -1)
+	{
+		return -1;
+	}
 
 	int iCost = GetPurchaseCostFromProduction(getProductionNeeded(eUnit));
 	iCost *= (100 + iModifier);
@@ -11678,8 +11680,8 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+	{
 		int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
 		if (bIsSpaceshipPart && iLimitSpaceshipPurchase != 0)
 		{
@@ -11687,9 +11689,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost /= 100;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
 		//Increase cost based on # of techs researched.
@@ -11702,9 +11702,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost /= 100;
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
@@ -11756,7 +11754,6 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			}
 		}
 	}
-#endif
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
@@ -15410,6 +15407,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (MOD_BALANCE_CORE && (pBuildingInfo->GetResourceQuantityPerXFranchises(iResourceLoop) > 0))
 			{
 				ChangeResourceQuantityPerXFranchises(eResource, pBuildingInfo->GetResourceQuantityPerXFranchises(iResourceLoop) * iChange);
+			}
+			if (MOD_BALANCE_CORE && (pBuildingInfo->GetResourceQuantityFromPOP(iResourceLoop) > 0))
+			{
+				ChangeResourceQuantityFromPOP(eResource, pBuildingInfo->GetResourceQuantityFromPOP(iResourceLoop) * iChange);
 			}
 #endif
 
@@ -24832,7 +24833,6 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	if (iNonSpecialist != 0)
 	{
 		int iBonusTimes100 = (iNonSpecialist * (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()));
-		iBonusTimes100 /= 100;
 		iBaseYield += iBonusTimes100;
 	}
 
@@ -26519,11 +26519,27 @@ void CvCity::SetResourceQuantityPerXFranchises(ResourceTypes eResource, int iVal
 	}
 }
 //	--------------------------------------------------------------------------------
+int CvCity::GetResourceQuantityFromPOP(ResourceTypes eResource) const
+{
+	VALIDATE_OBJECT
+	return m_aiResourceQuantityFromPOP[eResource];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeResourceQuantityFromPOP(ResourceTypes eResource, int iChange)
+{
+	VALIDATE_OBJECT
+	SetResourceQuantityFromPOP(eResource, GetResourceQuantityFromPOP(eResource) + iChange);
+}
+void CvCity::SetResourceQuantityFromPOP(ResourceTypes eResource, int iValue)
+{
+	m_aiResourceQuantityFromPOP[eResource] = iValue;
+}
+//	--------------------------------------------------------------------------------
 /// Trade Route Religious Spread Boost
 int CvCity::GetReligiousTradeModifier() const
 {
 	VALIDATE_OBJECT
-		return m_iReligiousTradeModifier;
+	return m_iReligiousTradeModifier;
 }
 void CvCity::ChangeReligiousTradeModifier(int iChange)
 {
@@ -32680,6 +32696,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromMinors);
 	visitor(city.m_aiResourceQuantityPerXFranchises);
 	visitor(city.m_aiYieldChangeFromCorporationFranchises);
+	visitor(city.m_aiResourceQuantityFromPOP);
 	visitor(city.m_aiNeedsFlatReduction);
 	visitor(city.m_iLandTourismBonus);
 	visitor(city.m_iSeaTourismBonus);

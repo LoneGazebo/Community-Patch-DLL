@@ -2421,12 +2421,9 @@ public:
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);
-	unsigned int getNumReplayDataSets() const;
-	const char* getReplayDataSetName(unsigned int uiDataSet) const;
-	unsigned int getReplayDataSetIndex(const char* szDataSetName);
-	int getReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn) const;
-	void setReplayDataValue(unsigned int uiDataSet, unsigned int uiTurn, int iValue);
-	TurnData getReplayDataHistory(unsigned int uiDataSet) const;
+	const std::map<CvString,TurnData>& getReplayData() const;
+	int getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const;
+	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
 	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
 	void updateYieldPerTurnHistory();
@@ -3634,8 +3631,7 @@ protected:
 	std::vector< std::pair<int, PlayerVoteTypes> > m_aVote;
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
 
-	std::vector<CvString> m_ReplayDataSets;
-	std::vector<TurnData> m_ReplayDataSetValues;
+	std::map<CvString,TurnData> m_ReplayData;
 
 	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
 	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;

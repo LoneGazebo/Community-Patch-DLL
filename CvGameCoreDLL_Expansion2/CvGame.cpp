@@ -1784,10 +1784,7 @@ void CvGame::updateScore(bool bForce)
 		setPlayerRank(eBestPlayer, iI);
 		setPlayerScore(eBestPlayer, iBestScore);
 
-		CvPlayerAI& player = GET_PLAYER(eBestPlayer);
-
-		unsigned int uiDataSetIndex = player.getReplayDataSetIndex("REPLAYDATASET_SCORE");
-		player.setReplayDataValue(uiDataSetIndex, getGameTurn(), iBestScore);
+		GET_PLAYER(eBestPlayer).setReplayDataValue("REPLAYDATASET_SCORE", getGameTurn(), iBestScore);
 	}
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -11902,11 +11899,11 @@ void CvGame::Read(FDataStream& kStream)
 		}
 
 		//check the commit id that was used when generating this file
-		char save_commit_id[41];
-		kStream.ReadIt(41, save_commit_id);
+		CvString save_gamecore_version;
+		kStream >> save_gamecore_version;
 
-		CUSTOMLOG("Savefile was generated from a gamecore with commit id %s (plus maybe uncommited changes)", save_commit_id);
-		if (strcmp(save_commit_id, CURRENT_COMMIT_ID)!=0)
+		CUSTOMLOG("Savefile was generated from gamecore version %s", save_gamecore_version.c_str());
+		if (strcmp(save_gamecore_version.c_str(), CURRENT_GAMECORE_VERSION)!=0)
 			CUSTOMLOG("----> Save version mismatch!");
 	}
 
@@ -11985,13 +11982,7 @@ void CvGame::Write(FDataStream& kStream) const
 		GC.setSaveVersion(CvGlobals::SAVE_VERSION_LATEST);
 		kStream << GC.getSaveVersion();
 		kStream << GC.getGameDataHash();
-
-		//make sure the commit id has the expected length ...
-		//no point in putting sentinels around it, the serialized file seems to be compressed or obfuscated or both
-		if (sizeof(CURRENT_COMMIT_ID)==41)
-			kStream.WriteIt(41, CURRENT_COMMIT_ID);
-		else
-			kStream.WriteIt(41, "commit id must be 40 bytes and one zero!");
+		kStream << CvString(CURRENT_GAMECORE_VERSION); //cannot store naked char*
 	}
 
 	CvStreamSaveVisitor serialVisitor(kStream);

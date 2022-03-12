@@ -545,6 +545,7 @@ public:
 	int GetResourceQuantityPerXFranchises(int i) const;
 	int GetYieldPerFranchise(int i) const;
 #endif
+	int GetResourceQuantityFromPOP(int i) const;
 	int GetHurryModifier(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetHurryModifierLocal(int i) const;
@@ -985,6 +986,7 @@ private:
 	int m_iGPRateModifierPerXFranchises;
 	int* m_piResourceQuantityPerXFranchises;
 #endif
+	int* m_piResourceQuantityFromPOP;
 	int* m_paiHurryModifier;
 
 	bool* m_pbBuildingClassNeededInCity;

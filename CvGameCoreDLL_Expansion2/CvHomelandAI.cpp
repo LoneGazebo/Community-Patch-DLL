@@ -643,7 +643,8 @@ void CvHomelandAI::PlotGarrisonMoves()
 		{
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			if (!pGarrison->TurnProcessed())
+			//do not touch units which are under human control
+			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman() || pGarrison->IsAutomated()))
 				UnitProcessed(pGarrison->GetID());
 		}
 		else

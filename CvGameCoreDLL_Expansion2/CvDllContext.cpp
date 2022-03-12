@@ -154,7 +154,7 @@ void CvDllGameContext::InitializeSingleton()
 	CUSTOMLOG("%s - Startup (Version %u%s - Build %s %s%s)", MOD_DLL_NAME, MOD_DLL_VERSION_NUMBER, MOD_DLL_VERSION_STATUS, __DATE__, __TIME__, MOD_DLL_CUSTOM_BUILD_NAME);
 	CUSTOMLOG("Supporting %i major civilizations", MAX_MAJOR_CIVS);
 	//identify the build
-	CUSTOMLOG("Gamecore was built from git commit id %s (plus maybe uncommited changes)\n", CURRENT_COMMIT_ID);
+	CUSTOMLOG("Gamecore was built from git version %s\n", CURRENT_GAMECORE_VERSION);
 #endif
 }
 //------------------------------------------------------------------------------

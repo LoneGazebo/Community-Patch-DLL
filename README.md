@@ -4,16 +4,15 @@ This is the repository for the Civ V SDK + Vox Populi Mod.
 
 ## What is Vox Populi
 
-Started in 2014, Vox Populi (formerly known as the "Community Balance Patch") is a collaborative effort to improve Civilization V's AI and gameplay. It consists of a collection of mods (see below) that are designed to work together seamlessly.
+Started in 2014, Vox Populi (formerly known as the "Community Balance Patch/Overhaul") is a collaborative effort to improve Civilization V's AI and gameplay. It consists of a collection of mods (see below) that are designed to work together seamlessly.
 
 * The Community Patch (CP) is the base mod
 	* Contains the gamecore DLL, which is based on C++ code linked against the official Civ V SDK
     * Contains bugfixes (also for multiplayer), performance improvements and many AI enhancements, but minimal gameplay changes
     * Can be used standalone and is the basis for many other mods
-* The Community Balance Overhaul (CBO)
+* Vox Populi
 	* Expands and changes the core mechanics of the game, offering an entirely new Civilization V experience that feels and plays like an evolution of the series
-* City State Diplomacy, Civ4 Diplomacy Features and More Luxuries
-	* Additional optional features
+	* Includes City-State Diplomacy by Gazebo, Civ 4 Diplomacy Features by Putmalk and More Luxuries by Barathor
 * EUI (optional)
 	* Enhanced User Interface
 
@@ -23,12 +22,12 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 
 ## How can I play this
 
-* You can subscribe to CP on the Steam Workshop, but that version is relatively old.
+* You can subscribe to CP on the Steam Workshop, but that version is very old.
 * One-click installers for the complete VP pack are available on the forum.
 * Do not mix both options!
 * You need the latest version of Civilization V (1.0.3.279) with all expansions and DLC.
 
-## How can I build this
+## How can I build the GameCoreDLL
 
 * Install the git command line client and make sure it's in your path (it is needed for a pre-build script to run).
 * Clone the repo. The Visual Studio solution file VoxPopuli_vs2013.sln is included in the repository folder
