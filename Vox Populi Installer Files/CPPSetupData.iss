@@ -49,8 +49,8 @@ FinishedLabel=Setup has finished installing [name] on your computer. To launch t
 Source: "(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
 Source: "(2) Vox Populi\*"; DestDir: "{app}\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
 Source: "(3a) VP - EUI Compatibility Files\*"; DestDir: "{app}\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\(3b) 43 Civs Community Patch\AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
 Source: "(4a) Promotion Icons for VP\*"; DestDir: "{app}\(4a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 Source: "(4b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(4b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
