@@ -32852,8 +32852,7 @@ void CvPlayer::DoMilitaryRatingDecay()
 {
 	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (/*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE) * GC.getGame().getStartEra()) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
 	int iCurrentRating = GetMilitaryRating();
-	float fDecay = 2.000f;
-	fDecay *= 100;
+	float fDecay = 200.0f;
 	fDecay /= max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
 
 	if (iCurrentRating < iStartingRating)
@@ -32879,14 +32878,12 @@ void CvPlayer::updateMightStatistics()
 	m_iEconomicMight = calculateEconomicMight();
 	m_iProductionMight = calculateProductionMight();
 
-#if defined(MOD_BATTLE_ROYALE)
 	if (MOD_BATTLE_ROYALE)
 	{
 		m_iMilitarySeaMight = calculateMilitaryMight(DOMAIN_SEA);
 		m_iMilitaryAirMight = calculateMilitaryMight(DOMAIN_AIR);
 		m_iMilitaryLandMight = calculateMilitaryMight(DOMAIN_LAND);
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------

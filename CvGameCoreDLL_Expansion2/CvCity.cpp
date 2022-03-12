@@ -22549,7 +22549,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	if (iYieldGold >= iNeedGold)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", max(1.0f, iGoldDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappy, max(1.0f, iGoldDef), getUnhappinessFromGoldRaw() + iReductionGold, iReductionGold, GetMinYieldNeededToReduceUnhappiness(iYieldGold, iNeedGold, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappy, max(1.0f, iGoldDef), getUnhappinessFromGoldRaw() + iReductionGold, iReductionGold, GetMinYieldNeededToReduceUnhappiness(iYieldGold, iNeedGold, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY)));
 
 	if (iConnectionUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappy);
@@ -22564,13 +22564,13 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	if (iYieldSci >= iNeedSci)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", max(1.0f, iSciDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iSciUnhappy, max(1.0f, iSciDef), getUnhappinessFromScienceRaw() + iReductionScience, iReductionScience, GetMinYieldNeededToReduceUnhappiness(iYieldSci, iNeedSci, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iSciUnhappy, max(1.0f, iSciDef), getUnhappinessFromScienceRaw() + iReductionScience, iReductionScience, GetMinYieldNeededToReduceUnhappiness(iYieldSci, iNeedSci, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY)));
 
 	/*Boredom*/
 	if (iYieldCul >= iNeedCul)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", max(1.0f, iCulDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, max(1.0f, iCulDef), getUnhappinessFromCultureRaw() + iReductionCulture, iReductionCulture, GetMinYieldNeededToReduceUnhappiness(iYieldCul, iNeedCul, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, max(1.0f, iCulDef), getUnhappinessFromCultureRaw() + iReductionCulture, iReductionCulture, GetMinYieldNeededToReduceUnhappiness(iYieldCul, iNeedCul, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM)));
 
 	if (iSpecialistUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
@@ -22826,7 +22826,7 @@ int CvCity::getUnhappinessFromCultureRaw(int iLimit, int iPopMod, bool bForceGlo
 	if (iThreshold > iCityCulture)
 	{
 		iUnhappiness = iThreshold - iCityCulture;
-		iUnhappiness /= max(1, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM));
+		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_CULTURE);
 		if (iReduction != 0)
@@ -22926,7 +22926,7 @@ int CvCity::getUnhappinessFromScienceRaw(int iLimit, int iPopMod, bool bForceGlo
 	if (iThreshold > iCityResearch)
 	{
 		iUnhappiness = iThreshold - iCityResearch;
-		iUnhappiness /= max(1, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY));
+		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_SCIENCE);
 		if (iReduction != 0)
@@ -23113,7 +23113,7 @@ int CvCity::getUnhappinessFromGoldRaw(int iLimit, int iPopMod, bool bForceGlobal
 	if (iThreshold > iGold)
 	{
 		iUnhappiness = iThreshold - iGold;
-		iUnhappiness /= max(1, /*50*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY));
+		iUnhappiness /= max(1, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_GOLD);
 		if (iReduction != 0)
