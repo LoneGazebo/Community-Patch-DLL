@@ -3,3 +3,4 @@
 
 2. If using the EUI compatibility version:
 - Download EUI compatibility files for the standard version.
+- Delete the LUA folder from the (2) Vox Populi mod.

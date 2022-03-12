@@ -1,10 +1,14 @@
 -- INSTRUCTIONS --
 
-The Community Balance Overhaul cannot be used without the (1) Community Patch mod.
+Vox Populi cannot be used without the (1) Community Patch mod.
 
-To use the Community Balance Overhaul with CSD, C4DF, or EUI, you must use ALL THREE of these mods, and install the Community Balance Overhaul - Compatibility Files Mod (EUI). If not using EUI, use the (non-EUI) version of this mod.
+If you installed the EUI version of the mod, you must enable (3a) VP - EUI Compatibility Files or Vox Populi will not function.
 
 
 -- MANUAL INSTALLATION NOTE --
 
-Once these mods are installed, DELETE the LUA folders in the Community Balance Overhaul and the Community Patch.
+Make sure to DELETE the LUA folders in the (1) Community Patch folder.
+
+If you want to play with EUI, you must also:
+a) Download the (3a) VP - EUI Compatibility Files folder, AND
+b) DELETE the LUA folder in (2) Vox Populi.
