@@ -44593,64 +44593,64 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	// Free Buildings from Policies
-	if(MOD_BALANCE_CORE)
+
+	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if (pkBuildingClassInfo)
 		{
-			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(pkBuildingClassInfo)
+			int iNumFreeBuildings = pPolicy->GetFreeChosenBuilding(eBuildingClass);
+			if (iNumFreeBuildings > 0 || (pPolicy->GetAllCityFreeBuilding() == eBuildingClass))
 			{
-				int iNumFreeBuildings = pPolicy->GetFreeChosenBuilding(eBuildingClass);
-				if(iNumFreeBuildings > 0 || (pPolicy->GetAllCityFreeBuilding() == eBuildingClass))
+				BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+				if (NO_BUILDING != eBuilding || (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings()))
 				{
-					BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
-					if(NO_BUILDING != eBuilding || (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings()))
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if (pkBuildingInfo)
 					{
-						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if(pkBuildingInfo)
+						ChangeNumCitiesFreeChosenBuilding(eBuildingClass, iNumFreeBuildings);
+						ChangeAllCityFreeBuilding(eBuildingClass, (pPolicy->GetAllCityFreeBuilding() == eBuildingClass) * iChange > 0);
+						int iLoopTwo;
+						for (pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
 						{
-							ChangeNumCitiesFreeChosenBuilding(eBuildingClass, iNumFreeBuildings);
-							ChangeAllCityFreeBuilding(eBuildingClass, (pPolicy->GetAllCityFreeBuilding() == eBuildingClass) * iChange > 0);
-							int iLoopTwo;
-							for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
+							if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
 							{
-								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GetPlayerTraits()->IsKeepConqueredBuildings())
+								if (pLoopCity->HasBuildingClass(eBuildingClass))
 								{
-									if (pLoopCity->HasBuildingClass(eBuildingClass))
+									eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
+									if (eBuilding == NO_BUILDING)
 									{
-										eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-										if (eBuilding == NO_BUILDING)
-										{
-											continue;
-										}
+										continue;
 									}
 								}
-								if(pLoopCity->isValidBuildingLocation(eBuilding))
+							}
+							if (pLoopCity->isValidBuildingLocation(eBuilding))
+							{
+								if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeBuildingAllCity(eBuildingClass))
 								{
-									if (GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0 || IsFreeBuildingAllCity(eBuildingClass))
+									if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 									{
-										if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
-										{
-											int iProductionValue = pLoopCity->getProductionNeeded(eBuilding);
-											doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
-											pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-										}
+										int iProductionValue = pLoopCity->getProductionNeeded(eBuilding);
+										doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
+										pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+									}
 
-										pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+									// Already have this building for free in this city? Skip!
+									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+										continue;
 
-										if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-										{
-											ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
-										}
-										if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-										{
-											pLoopCity->clearOrderQueue();
-											pLoopCity->chooseProduction();
-											// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-										}
+									pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+									{
+										ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+									}
+									if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+									{
+										pLoopCity->clearOrderQueue();
+										pLoopCity->chooseProduction();
+										// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 									}
 								}
 							}
@@ -44672,7 +44672,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeNewFoundCityFreeUnit(pPolicy->GetNewFoundCityFreeUnit(), iChange > 0);
 	}
-#endif
 
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
