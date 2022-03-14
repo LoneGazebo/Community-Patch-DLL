@@ -245,10 +245,6 @@ WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT';
 
-INSERT INTO UnitPromotions 
-		(Type,						AttackFullyHealedMod,	CannotBeChosen, LostWithUpgrade, PortraitIndex,	IconAtlas,			PediaType,		PediaEntry,							Description,						Help,									Sound)
-VALUES	('PROMOTION_DOPPELSOLDNER',	30,						1,				0,				 56,			'extraPromo_Atlas',	'PEDIA_MELEE',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER_HELP',	'AS2D_IF_LEVELUP');
-
 ---------------------------
 -- Greece
 ---------------------------

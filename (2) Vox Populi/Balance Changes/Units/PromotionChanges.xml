@@ -2102,11 +2102,11 @@
 			<Help>TXT_KEY_PROMOTION_HEAL_IF_DESTROY_ENEMY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<HPHealedIfDestroyEnemy>50</HPHealedIfDestroyEnemy>
-			<HealIfDestroyExcludesBarbarians>true</HealIfDestroyExcludesBarbarians>
+			<HealIfDestroyExcludesBarbarians>false</HealIfDestroyExcludesBarbarians>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_HEAL_IF_DESTROY_ENEMY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_HEAL_IF_DESTROY_ENEMY</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY</Type>
@@ -2118,7 +2118,7 @@
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ATTACK_BONUS</Type>
@@ -4029,8 +4029,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<AOEDamageOnKill>15</AOEDamageOnKill>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
-			<PortraitIndex>8</PortraitIndex>
 			<OrderPriority>3</OrderPriority>
+			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BREACHER</PediaEntry>
@@ -4042,8 +4042,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
-			<PortraitIndex>3</PortraitIndex>
 			<OrderPriority>3</OrderPriority>
+			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENCIRCLEMENT</PediaEntry>
@@ -4054,11 +4054,11 @@
 			<Help>TXT_KEY_PROMOTION_BOARDED_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>1</PortraitIndex>
 			<MovesChange>-2</MovesChange>
 			<PromotionDuration>1</PromotionDuration>
 			<PlagueID>1</PlagueID>
 			<PlaguePriority>0</PlaguePriority>
+			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDED_I</PediaEntry>
@@ -4069,14 +4069,26 @@
 			<Help>TXT_KEY_PROMOTION_BOARDED_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>1</PortraitIndex>
 			<MovesChange>-4</MovesChange>
 			<PromotionDuration>1</PromotionDuration>
 			<PlagueID>1</PlagueID>
 			<PlaguePriority>1</PlaguePriority>
+			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOARDED_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_DOPPELSOLDNER</Type>
+			<Description>TXT_KEY_PROMOTION_DOPPELSOLDNER</Description>
+			<Help>TXT_KEY_PROMOTION_DOPPELSOLDNER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>1</CannotBeChosen>
+			<AttackFullyHealedMod>30</AttackFullyHealedMod>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_DOPPELSOLDNER</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_SLINGER</Type>
@@ -4084,10 +4096,10 @@
 			<Help>TXT_KEY_PROMOTION_SLINGER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>59</PortraitIndex>
 			<PlagueChance>100</PlagueChance>
 			<IgnoreZOC>true</IgnoreZOC>
 			<PlaguePromotion>PROMOTION_DAZED</PlaguePromotion>
+			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SLINGER</PediaEntry>
@@ -4098,10 +4110,10 @@
 			<Help>TXT_KEY_PROMOTION_REPEATER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>59</PortraitIndex>
 			<NearbyCityCombatMod>25</NearbyCityCombatMod>
 			<NearbyRange>1</NearbyRange>
 			<SplashDamage>5</SplashDamage>
+			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_REPEATER</PediaEntry>
@@ -4112,11 +4124,11 @@
 			<Help>TXT_KEY_PROMOTION_DAZED_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<PortraitIndex>1</PortraitIndex>
 			<CombatPercent>-15</CombatPercent>
 			<PromotionDuration>5</PromotionDuration>
 			<PlagueID>2</PlagueID>
 			<PlaguePriority>0</PlaguePriority>
+			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DAZED</PediaEntry>
@@ -4130,8 +4142,8 @@
 			<AdjacentEnemySapMovement>120</AdjacentEnemySapMovement>
 			<RangedDefenseMod>-10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
-			<PortraitIndex>20</PortraitIndex>
 			<OrderPriority>3</OrderPriority>
+			<PortraitIndex>20</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MINELAYER</PediaEntry>

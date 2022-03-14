@@ -76,7 +76,7 @@
 	-- added Expeditionary Warfare (Foreign Lands Bonus)
 	UPDATE Language_en_US
 	SET Text = 'Expeditionary Warfare'
-	WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS';;
+	WHERE Tag = 'TXT_KEY_PROMOTION_FOREIGN_LANDS';
 
 	UPDATE Language_en_US
 	SET Text = '+20% [ICON_STRENGTH] Combat Strength when fighting [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
@@ -297,7 +297,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOMBARDMENT_3_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (I)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 2 for 1 Turn.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (I)[ENDCOLOR] status on Enemy Units during melee combat, reducing their [ICON_MOVES] Movement by 2 for 1 Turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP';
 
 	UPDATE Language_en_US
@@ -305,7 +305,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_2_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (II)[ENDCOLOR] status on enemies during melee combat, reducing their [ICON_MOVES] Movement by 4 for 1 Turn.'
+	SET Text = '+15% [ICON_STRENGTH] Combat Strength.[NEWLINE]Inflicts the [COLOR_POSITIVE_TEXT]Boarded (II)[ENDCOLOR] status on Enemy Units during melee combat, reducing their [ICON_MOVES] Movement by 4 for 1 Turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_3_HELP';
 
 	UPDATE Language_en_US
@@ -484,11 +484,11 @@
 
 	-- Survivalism
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]+5 HP healed per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]Heals +5 HP per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_1_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]+5 HP healed per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	SET Text = '+25% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]Heals +5 HP per turn [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SURVIVALISM_2_HELP';
 
 	-- Amphibious Change
@@ -499,13 +499,28 @@
 
 	-- Medic I/II
 	UPDATE Language_en_US
-	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn.'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 5 Additional HP[ENDCOLOR] per turn.[NEWLINE]This Unit [COLOR_POSITIVE_TEXT]Heals 5 Additional HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength while defending.[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.[NEWLINE]This Unit [COLOR_POSITIVE_TEXT]Heals +5 HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP';
+	
+	-- Heal on Kill Promotions
+	UPDATE Language_en_US
+	SET Text = 'Tenacity'
+	WHERE Tag = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY';
+	UPDATE Language_en_US
+	SET Text = 'Heal 25 HP after defeating an Enemy Unit.'
+	WHERE Tag = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY_HELP';
 
+	UPDATE Language_en_US
+	SET Text = 'Resolve'
+	WHERE Tag = 'PROMOTION_HEAL_IF_DESTROY_ENEMY';
+	UPDATE Language_en_US
+	SET Text = 'Heal 50 HP after defeating an Enemy Unit.'
+	WHERE Tag = 'PROMOTION_HEAL_IF_DESTROY_ENEMY_HELP';
+	
 	UPDATE Language_en_US
 	SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Compass[ENDCOLOR].[NEWLINE]May move through Ocean tiles if ending on a Coastal tile.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
@@ -516,7 +531,7 @@
 	
 	-- Text change for Khan ability
 	UPDATE Language_en_US
-	SET Text = 'Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.'
+	SET Text = 'Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +10 HP[ENDCOLOR] per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 	-- Fix Anti-Air Promotion Info
@@ -565,7 +580,7 @@
 
 	-- Supply
 	UPDATE Language_en_US
-	SET Text = 'May heal damage [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]+5 HP healed per turn.'
+	SET Text = 'May heal damage [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Heals +5 HP per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SUPPLY_HELP';
 	
 	-- Air Repair
@@ -640,7 +655,7 @@
 	
 	-- Golden Age Points from Kills
 	UPDATE Language_en_US
-	SET Text = 'Earn [ICON_GOLDEN_AGE] Golden Age Points for each Enemy killed.'
+	SET Text = 'Earn [ICON_GOLDEN_AGE] Golden Age Points for each Enemy Unit defeated.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GOLDEN_AGE_POINTS_HELP';
 	
 	-- Naval Leadership
@@ -658,7 +673,6 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_HAKA_WAR_DANCE_HELP';
 
 	-- Adjusted Buffalo stuff
-
 	UPDATE Language_en_US
 	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 33%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP';
@@ -683,7 +697,7 @@
 
 	INSERT INTO Language_en_US (Tag, Text)
 	VALUES ('TXT_KEY_PROMOTION_FASTER_HEAL_HELP', 
-	'This Unit [COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn.');
+	'This Unit [COLOR_POSITIVE_TEXT]Heals +10 HP[ENDCOLOR] per turn.');
 
 	UPDATE UnitPromotions
 	SET Help = 'TXT_KEY_PROMOTION_FASTER_HEAL_HELP'

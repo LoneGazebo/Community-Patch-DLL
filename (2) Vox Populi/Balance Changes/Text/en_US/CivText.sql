@@ -121,6 +121,10 @@ UPDATE Language_en_US
 SET Text = 'Fairly weak early-game military Unit. Only the Aztecs may build it. This Unit has higher [ICON_STRENGTH] Combat Strength than the Warrior, fights more effectively in Forests and Jungles, and heals damage when it kills an enemy Unit.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_JAGUAR';
 
+UPDATE Language_en_US
+SET Text = 'The Jaguar is the Aztec Unique Unit, replacing the Warrior. Create several units as early as possible and fight with the nearest neighbour to make best use of the Aztecs'' [ICON_GOLD] Gold and [ICON_PEACE] Faith on kill, preferably luring enemies into Jungles and Forests where the Jaguar can make best use of its bonuses.'
+WHERE Tag = 'TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY';
+
 --------------------
 -- Babylon
 --------------------

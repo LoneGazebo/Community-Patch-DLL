@@ -613,6 +613,11 @@ UPDATE UnitPromotions SET PortraitIndex = '62' WHERE Type = 'PROMOTION_KNOCKOUT_
 --UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = '';
 
 
+-- extraPromo_atlas
+
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_DOPPELSOLDNER';  --						 -> Doppelsoldner
+UPDATE UnitPromotions SET PortraitIndex = '56' WHERE Type = 'PROMOTION_DOPPELSOLDNER';
+
 
 --
 -- Firaxis Icons reassignment
