@@ -52,7 +52,7 @@ WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 -- Austria
 ---------------------------
 -- Hussar now a Cuirassier unit
-UPDATE Units SET Moves = '4', Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', PrereqTech = 'TECH_METALLURGY', ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', PrereqTech = 'TECH_METALLURGY', ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_CUIRASSIER' WHERE UnitType = 'UNIT_AUSTRIAN_HUSSAR';
 

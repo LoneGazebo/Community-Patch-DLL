@@ -95,7 +95,10 @@
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_WWI_TANK' WHERE UnitType = 'UNIT_LANCER';
 	UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER' WHERE Type = 'UNIT_KNIGHT';
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_LANCER' WHERE UnitType = 'UNIT_KNIGHT';
-
+	--Uniques
+	UPDATE Units SET Moves = 4 WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI';
+	UPDATE Units SET Moves = 5 WHERE UnitType = 'UNIT_SWEDISH_HAKKAPELIITTA';
+	
 -- Tech
 
 	UPDATE Units SET PrereqTech = 'TECH_ARCHERY' WHERE Type = 'UNIT_HORSEMAN';

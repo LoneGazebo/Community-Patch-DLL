@@ -2760,6 +2760,19 @@
 		<!--   New Promotions   -->
 		<!--                    -->
 		<Row>
+			<Type>PROMOTION_FLANK_ATTACK_BONUS_STRONG</Type>
+			<Description>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG</Description>
+			<Help>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<FlankAttackModifier>25</FlankAttackModifier>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_CHARGE_II</Type>
 			<Description>TXT_KEY_PROMOTION_CHARGE_II</Description>
 			<Help>TXT_KEY_PROMOTION_CHARGE_II_HELP</Help>
@@ -3057,6 +3070,20 @@
 			<DefenseMod>15</DefenseMod>
 			<StrongerDamaged>true</StrongerDamaged>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
+		</Row>
+		<Row>
+			<Type>PROMOTION_HAKKAA_PAALLE</Type>
+			<Description>TXT_KEY_PROMOTION_HAKKAA_PAALLE</Description>
+			<Help>TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<HPHealedIfDestroyEnemy>50</HPHealedIfDestroyEnemy>
+			<AttackWoundedMod>20</AttackWoundedMod>
+			<OrderPriority>1</OrderPriority>
+			<PortraitIndex>13</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HAKKAA_PAALLE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>

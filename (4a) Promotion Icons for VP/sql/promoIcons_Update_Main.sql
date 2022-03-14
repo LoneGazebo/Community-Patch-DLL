@@ -158,7 +158,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '51' WHERE Type = 'PROMOTION_ATLATL_ATTACK';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_HONOR_BONUS'; --                            ->  Conscription
 UPDATE UnitPromotions SET PortraitIndex = '52' WHERE Type = 'PROMOTION_HONOR_BONUS';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN'; --                    ->  No Retreat
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN'; --                    ->  Gå-På
 UPDATE UnitPromotions SET PortraitIndex = '53' WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ADJACENT_BONUS'; --                         ->  Discipline
 UPDATE UnitPromotions SET PortraitIndex = '54' WHERE Type = 'PROMOTION_ADJACENT_BONUS';
@@ -312,10 +312,10 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '52' WHERE Type = 'PROMOTION_ENSLAVEMENT';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_FLANK_ATTACK_BONUS'; --                     ->  Enhanced Flank Attack
 UPDATE UnitPromotions SET PortraitIndex = '53' WHERE Type = 'PROMOTION_FLANK_ATTACK_BONUS';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_FLANK_ATTACK_BONUS_STRONG'; --              ->  Superior Flank Attack
+UPDATE UnitPromotions SET PortraitIndex = '54' WHERE Type = 'PROMOTION_FLANK_ATTACK_BONUS_STRONG';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_RAIDER'; --                                 ->  Raider
-UPDATE UnitPromotions SET PortraitIndex = '54' WHERE Type = 'PROMOTION_RAIDER';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_ESPRIT_DE_CORPS'; --                        ->  Withering Fire
-UPDATE UnitPromotions SET PortraitIndex = '55' WHERE Type = 'PROMOTION_ESPRIT_DE_CORPS';
+UPDATE UnitPromotions SET PortraitIndex = '55' WHERE Type = 'PROMOTION_RAIDER';
 
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_INDIRECT_FIRE'; --                          ->  Indirect Fire
 UPDATE UnitPromotions SET PortraitIndex = '56' WHERE Type = 'PROMOTION_INDIRECT_FIRE';
@@ -609,12 +609,14 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '61' WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE_I';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_KNOCKOUT_III'; --                           ->  Attack Bonus (25)
 UPDATE UnitPromotions SET PortraitIndex = '62' WHERE Type = 'PROMOTION_KNOCKOUT_III';
---UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = ''; --                                               ->  
---UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = '';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION_ESPRIT_DE_CORPS'; --                        ->  Withering Fire
+UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = 'PROMOTION_ESPRIT_DE_CORPS';
 
 
 -- extraPromo_atlas
 
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_HAKKAA_PAALLE';  --                         -> Hakkaa Päälle!
+UPDATE UnitPromotions SET PortraitIndex = '23' WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_DOPPELSOLDNER';  --						 -> Doppelsoldner
 UPDATE UnitPromotions SET PortraitIndex = '56' WHERE Type = 'PROMOTION_DOPPELSOLDNER';
 

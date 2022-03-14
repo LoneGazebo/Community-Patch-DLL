@@ -57,6 +57,12 @@
 	UPDATE Language_en_US
 	SET Text = '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_HELP';
+	
+-- added Enhanced Flank Attack
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG', 'Superior Flank Attack');
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES ('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG_HELP', '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.');
 
  -- added Combat Bonus in forest/jungle (33) Mohawk Warrior
 	UPDATE Language_en_US
