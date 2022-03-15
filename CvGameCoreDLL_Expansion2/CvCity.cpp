@@ -10098,7 +10098,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	{
 #if defined(MOD_BALANCE_CORE)
 
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
 		{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
 			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
@@ -10185,7 +10185,7 @@ void CvCity::DoTestResourceDemanded()
 				if (pNotifications)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+					if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
 						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
@@ -24395,7 +24395,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CORPORATION", iTempMod);
 	}
-	if (eIndex == YIELD_FOOD && GetWeLoveTheKingDayCounter() > 0 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+	if (eIndex == YIELD_FOOD && GetWeLoveTheKingDayCounter() > 0 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
 	{
 		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 		iModifier += iTempMod;
