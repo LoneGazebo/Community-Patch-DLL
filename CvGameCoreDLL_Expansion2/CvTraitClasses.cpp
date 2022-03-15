@@ -4112,7 +4112,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		GetNaturalWonderSubsequentFinderGold() != 0 ||
 		GetNaturalWonderYieldModifier() != 0 ||
 		GetNaturalWonderHappinessModifier() != 0 ||
-		GetGrowthBoon() != 0 ||
+		GetGrowthBoon() > 0 ||
 		GetGAUnhappinesNeedMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
