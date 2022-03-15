@@ -4880,14 +4880,15 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 				if (canCrossOceans())
 					return true;
 
-				PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY);
-				bool bOceanImpassableUntilAstronomy = isHasPromotion(ePromotionOceanImpassableUntilAstronomy) || 
-					(eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean());
+				// tech-locked promotion
+				if (m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(),getTeam()))
+					return true;
 
-				if(bOceanImpassableUntilAstronomy )
+				// tech limited embarkation
+				if (eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean())
 				{
 					CvTeam& kTeam = GET_TEAM(getTeam());
-					return kTeam.GetTeamTechs()->HasTech( GC.getGame().getOceanPassableTech() );
+					return kTeam.canEmbarkAllWaterPassage();
 				}
 			}
 		}
