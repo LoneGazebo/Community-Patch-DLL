@@ -1640,16 +1640,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			UnitProcessed(pGarrison->GetID());
 		}
 
-		//frontline check, do we even need a garrison here right now
-		//we might still put one but that will be handled in homeland AI
-		if (iEnemyCount == 0 && pCity->getDamage() == 0)
-			continue;
-
-		//prefer land garrisons ...
-		if ( !pCity->isInDangerOfFalling() && (pGarrison==NULL || pGarrison->getDomainType()!=DOMAIN_LAND) )
+		//prefer ranged land units as garrisons ...
+		bool bWantGarrison = (m_pPlayer->getNumCities() < 2 || pCity->isCapital() || !pCity->isInDangerOfFalling());
+		bool bNeedGarrison = (pGarrison == NULL || !pGarrison->isNativeDomain(pPlot) || !pGarrison->IsCanAttackRanged());
+		if ( bWantGarrison && bNeedGarrison )
 		{
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
+
+			//todo: switch garrison ...
 
 			if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
 			{
@@ -2783,25 +2782,17 @@ void CvTacticalAI::IdentifyPriorityTargets()
 			}
 		}
 
-		// If they can take the city down and they are a melee unit, then they are a high priority target
-		if (iExpectedTotalDamage > (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()))
+		for (size_t i = 0; i < possibleAttackers.size(); i++)
 		{
-			for (size_t i = 0; i < possibleAttackers.size(); i++)
-			{
-				CvPlot* pPlot = GC.getMap().plot( possibleAttackers[i]->GetTargetX(), possibleAttackers[i]->GetTargetY() );
-				CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
-				if (pEnemyUnit && pEnemyUnit->IsCanAttackRanged())
-					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-				else
-					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-			}
-		}
-		// If they can damage a city they are a medium priority target
-		else if(possibleAttackers.size() > 0)
-		{
-			for (size_t i = 0; i < possibleAttackers.size(); i++)
-				if(possibleAttackers[i]->GetTargetType() != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
-					possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
+			CvPlot* pPlot = GC.getMap().plot( possibleAttackers[i]->GetTargetX(), possibleAttackers[i]->GetTargetY() );
+			CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
+
+			//the siege units are the dangerous ones! cities should target them first
+			//for counterattack with units the tactical combat simulation chooses attacks based on estimated damage
+			if (pEnemyUnit && pEnemyUnit->AI_getUnitAIType()==UNITAI_CITY_BOMBARD)
+				possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+			else
+				possibleAttackers[i]->SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 		}
 	}
 }
@@ -2897,17 +2888,6 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 		if (!pUnit)
 			continue;
 
-		// Don't consider units that are already medium priority
-		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-		{
-			// Ranged units will always be medium priority targets
-			if(pUnit->IsCanAttackRanged())
-			{
-				m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-			}
-		}
-
 		// Carriers are always high prio
 		if (pUnit->hasCargo())
 			m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
@@ -2924,39 +2904,14 @@ void CvTacticalAI::IdentifyPriorityTargetsByType()
 				m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
 			}
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY) 
+
+		// Don't consider units that are already higher than low priority
+		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
 		{
-			// Don't consider units that are already higher than low priority
-			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-			{
-				//units which are in the front line should be medium at least
-				if (pUnit->plot()->GetNumSpecificPlayerUnitsAdjacent(m_pPlayer->GetID())>0)
-					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
-			}
-
-			// Don't consider units that are already high priority
-			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-					m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
-			{
-				// Units defending forts will always be high priority targets
-				ImprovementTypes eImprovement = pUnit->plot()->getImprovementType();
-				if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetDefenseModifier() >= 25)
-				{
-					m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-				}
-
-				//Is a unit below 1/4 health? If so, make it a high-priority target.
-				if(pUnit->getOwner() != m_pPlayer->GetID())
-				{
-					if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() / 4)
-					{
-						m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
-					}
-				}
-			}
+			//units which are in the front line should be medium at least
+			if (pUnit->plot()->GetNumSpecificPlayerUnitsAdjacent(m_pPlayer->GetID())>0)
+				m_AllTargets[iI].SetTargetType(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT);
 		}
-#endif
 	}
 }
 
@@ -4729,7 +4684,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 					iExtraScore += 30;
 
 				//naval garrisons cannot attack inside cities ...
-				if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+				if (!pLoopUnit->isNativeDomain(pTarget))
 					iExtraScore += 50;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
@@ -4815,8 +4770,12 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 			continue;
 
 		//don't pull out garrisons when we need them - they have separate moves
-		if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->isUnderSiege())
-			continue;
+		if (pLoopUnit->IsGarrisoned())
+		{
+			CvCity* pCity = pLoopUnit->GetGarrisonedCity();
+			if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity, NO_PLAYER) || pCity->isUnderSiege())
+				continue;
+		}
 
 		bool bCanReach = false;
 		if ( pLoopUnit->IsCanAttackRanged() )
