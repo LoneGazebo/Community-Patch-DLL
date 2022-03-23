@@ -505,7 +505,7 @@ private:
 	// Lists of targets for the turn
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
-	TacticalList m_NavalTargets;
+	TacticalList m_NavalBlockadePoints;
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
