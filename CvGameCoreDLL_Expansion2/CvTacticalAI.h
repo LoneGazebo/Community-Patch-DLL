@@ -127,13 +127,12 @@ public:
 	CvTacticalCity()
 	{
 		m_iID = 0;
-		m_iAttackStrength = 0;
 		m_iExpectedTargetDamage = 0;
 	}
 
 	bool operator<(const CvTacticalCity& city) const
 	{
-		return (GetAttackPriority() > city.GetAttackPriority());
+		return (GetExpectedTargetDamage() > city.GetExpectedTargetDamage());
 	}
 
 	// Accessors
@@ -154,15 +153,8 @@ public:
 		return m_iExpectedTargetDamage;
 	};
 
-	// Derived
-	int GetAttackPriority() const
-	{
-		return m_iAttackStrength;
-	}
-
 private:
 	int m_iID;
-	int m_iAttackStrength;
 	int m_iExpectedTargetDamage;
 };
 
@@ -445,6 +437,7 @@ private:
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
 	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
+	bool ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender);
 	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);

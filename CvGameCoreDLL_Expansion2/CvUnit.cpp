@@ -24324,12 +24324,12 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 bool CvUnit::isOutOfAttacks() const
 {
 	VALIDATE_OBJECT
+	if (!canMove())
+		return true;
 
 	// Units with blitz don't run out of attacks!
 	if(isBlitz())
-	{
 		return false;
-	}
 
 	return getNumAttacksMadeThisTurn() >= getNumAttacks();
 }

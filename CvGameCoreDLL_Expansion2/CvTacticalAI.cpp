@@ -1082,37 +1082,6 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 		FindUnitsWithinStrikingDistance(targets[i].pPlot);
 		FindCitiesWithinStrikingDistance(targets[i].pPlot);
 
-		// Start by applying damage from city bombards
-		for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
-		{
-			CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
-			if(!pCity)
-				continue;
-
-			pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), 0);
-			if (pDefender->GetCurrHitPoints() < 1)
-				break;
-
-			//special handling for ranged garrison as it is ignored by FindUnitsWithinStrikingDistance()
-			//note: melee garrison and advanced logic is handled in PlotGarrisonMoves()
-			if (pCity->HasGarrison())
-			{
-				CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-				//may have multiple attacks ...
-				while (pGarrison->canRangeStrikeAt(pDefender->getX(), pDefender->getY()))
-					pGarrison->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
-
-				if (pGarrison->isOutOfAttacks())
-					UnitProcessed(pGarrison->GetID());
-			}
-
-			if (pDefender->GetCurrHitPoints() < 1)
-				break;
-		}
-
-		if (pDefender->GetCurrHitPoints() < 1)
-			continue;
-
 		if(!bMustBeAbleToKill)
 		{
 			// Put in any attacks where we'll inflict at least equal damage
@@ -1146,6 +1115,10 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 
 			//mark the target no matter if the attack succeeds
 			targets[i].pTarget->SetLastAggLvl(aggLvl);
+
+			//return true if target was killed
+			if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
+				continue;
 
 			ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
 		}
@@ -1181,6 +1154,10 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 
 				//mark the target no matter if the attack succeeds
 				targets[i].pTarget->SetLastAggLvl(aggLvl);
+
+				//return true if target was killed
+				if (ExecuteAttackWithCitiesAndGarrisons(pDefender))
+					continue;
 
 				ExecuteAttackWithUnits(targets[i].pPlot, aggLvl);
 			}
@@ -1926,6 +1903,10 @@ void CvTacticalAI::PlotNavalEscortMoves()
 void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* /*pZone*/)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_ATTRITION);
+
+	//todo: the targets are sorted in a very rough "how bad can they hit us" order
+	//but we should probably sort them in a "how bad can we hit them" order
+	//ExecuteAttritionAttacks() considers only the given target for city/garrison attacks
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteAttritionAttacks(*pTarget);
@@ -3512,6 +3493,43 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 	return true;
 }
 
+bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
+{
+	// Start by applying damage from city bombards
+	for (unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
+	{
+		CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
+		if (!pCity)
+			continue;
+
+		if (pCity->canRangeStrikeAt(pCity->getX(), pCity->getY()) && !pCity->isMadeAttack())
+		{
+			pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), 0);
+			if (pDefender->GetCurrHitPoints() < 1)
+				return true;
+		}
+
+		//special handling for ranged garrison as it is ignored by FindUnitsWithinStrikingDistance()
+		//note: melee garrison and advanced logic is handled in PlotGarrisonMoves()
+		if (pCity->HasGarrison())
+		{
+			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+			//may have multiple attacks ...
+			while (pGarrison->canRangeStrikeAt(pDefender->getX(), pDefender->getY()))
+				pGarrison->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
+
+			if (pGarrison->isOutOfAttacks())
+				UnitProcessed(pGarrison->GetID());
+		}
+
+		if (pDefender->GetCurrHitPoints() < 1)
+			return true;
+	}
+
+	//not killed
+	return false;
+}
+
 //evaluate many possible unit assignments around the target plot and choose the best one
 //will not necessarily attack only the target plot when other targets are present!
 //todos:
@@ -4355,52 +4373,17 @@ bool CvTacticalAI::ExecuteAttritionAttacks(CvTacticalTarget& kTarget)
 	CvUnit* pDefender = pTargetPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 	if(pDefender)
 	{
-		if(pDefender->GetCurrHitPoints() <= 0)
+		if(pDefender->GetCurrHitPoints() < 1)
 			return false;
 
 		// If this is a unit target we might also be able to hit it with a city
 		bool bCityCanAttack = FindCitiesWithinStrikingDistance(pTargetPlot);
-		if(bCityCanAttack)
-		{
-			// Start by applying damage from city bombards
-			for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
-			{
-				CvCity* pCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
-				if(!pCity)
-					continue;
-
-				pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), 0);
-
-				// Need to keep hitting the target?
-				if (pDefender->GetCurrHitPoints() < 1)
-					return true;
-			}
-		}
-
-		//special handling for ranged garrison as it is ignored by FindUnitsWithinStrikingDistance()
-		//note: melee garrison and advanced logic is handled in PlotGarrisonMoves()
-		for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-		{
-			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if(pUnit && pUnit->IsGarrisoned() && pUnit->canRangeStrikeAt(kTarget.GetTargetX(), kTarget.GetTargetY()))
-			{
-				pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), kTarget.GetTargetX(), kTarget.GetTargetY());
-
-				//this invalidates our iterator so exit the loop immediately
-				UnitProcessed(pUnit->GetID());
-				break;
-			}
-		}
-
-		// Need to keep hitting the target?
-		if(pDefender->GetCurrHitPoints() < 1)
+		if (bCityCanAttack && ExecuteAttackWithCitiesAndGarrisons(pDefender))
 			return true;
 
 		// Make attacks - this includes melee attacks but only very safe ones
 		if (FindUnitsWithinStrikingDistance(pTargetPlot))
-		{
 			return ExecuteAttackWithUnits(pTargetPlot, AL_LOW);
-		}
 	}
 
 	return false;
@@ -4901,10 +4884,24 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 	int iLoop;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pLoopCity->isMadeAttack())
+		int iAttackStrength = 0;
+
+		if (pLoopCity->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()) && !pLoopCity->isMadeAttack())
+			iAttackStrength += pLoopCity->getStrengthValue(true);
+
+		//garrison may have a larger range than the city ...
+		if (pLoopCity->HasGarrison())
+		{
+			CvUnit* pGarrison = pLoopCity->GetGarrisonedUnit();
+			if (pGarrison->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+				iAttackStrength = pGarrison->GetBaseRangedCombatStrength();
+		}
+
+		if (iAttackStrength>0)
 		{
 			CvTacticalCity city;
 			city.SetID(pLoopCity->GetID());
+			city.SetExpectedTargetDamage(iAttackStrength);
 			m_CurrentMoveCities.push_back(city);
 		}
 	}
@@ -5130,19 +5127,29 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 /// Estimates the bombard damage we can apply to a target
 int CvTacticalAI::ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget)
 {
-	int rtnValue = 0;
-	int iExpectedDamage;
+	int iExpectedDamage = 0;
 
 	// Now loop through all the cities that can bombard it
 	for(unsigned int iI = 0; iI < m_CurrentMoveCities.size(); iI++)
 	{
 		CvCity* pAttackingCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
-		iExpectedDamage = pAttackingCity->rangeCombatDamage(pTarget, NULL, false);
-		m_CurrentMoveCities[iI].SetExpectedTargetDamage(iExpectedDamage);
-		rtnValue += iExpectedDamage;
-	}
+		
+		iExpectedDamage += pAttackingCity->rangeCombatDamage(pTarget, NULL, false);
 
-	return rtnValue;
+		if (pAttackingCity->HasGarrison())
+		{
+			CvUnit* pGarrison = pAttackingCity->GetGarrisonedUnit();
+			if (pGarrison->canRangeStrikeAt(pTarget->getX(), pTarget->getY()))
+			{
+				int iUnitDamage = pGarrison->GetRangeCombatDamage(pTarget, NULL, false, 0, NULL, NULL, true, true);
+				//assume same damage for multiple attacks ...
+				iExpectedDamage += iUnitDamage * pGarrison->getNumAttacks();
+			}
+		}
+
+	}
+	
+	return iExpectedDamage;
 }
 
 bool CvTacticalAI::IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTargetPlot, int iMinDamage)
