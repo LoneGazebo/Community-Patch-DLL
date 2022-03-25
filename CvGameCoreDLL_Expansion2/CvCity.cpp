@@ -30758,7 +30758,7 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 	return true;
 }
 
-CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
+CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot) const
 {
 	VALIDATE_OBJECT
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
@@ -30767,7 +30767,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType) const
 
 	//use city plot if free
 	CvPlot* pCityPlot = plot();
-	if (IsValidPlotForUnitType(pCityPlot, getOwner(), pkUnitInfo))
+	if (bAllowCenterPlot && IsValidPlotForUnitType(pCityPlot, getOwner(), pkUnitInfo))
 		return pCityPlot;
 
 	//don't be too predictable with the chosen plot - but zero always maps to zero

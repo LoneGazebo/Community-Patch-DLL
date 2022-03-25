@@ -1644,26 +1644,37 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		{
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
-
-			//todo: switch garrison ...
-
-			if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
+			if (pUnit)
 			{
-				if(GC.getLogging() && GC.getAILogging())
+				//move out old garrison
+				if (pGarrison && pUnit->CanSafelyReachInXTurns(pPlot, 0))
 				{
-					CvString strLogString;
-					strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
-					LogTacticalMessage(strLogString);
+					CvPlot* pFreePlot = pCity->GetPlotForNewUnit(pGarrison->getUnitType(), false);
+					if (pFreePlot)
+						//do not set it processed, it should be considered for other tactical moves later
+						ExecuteMoveToPlot(pGarrison, pFreePlot, false);
+				}
+
+				//if the old garrison did not move out this will fail (possibly also for other reasons)
+				if (ExecuteMoveToPlot(pUnit, pPlot))
+				{
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
+						LogTacticalMessage(strLogString);
+					}
+
+					continue;
 				}
 			}
-			else
+
+			//only get here if ExecuteMoveToPlot() failed
+			if(GC.getLogging() && GC.getAILogging())
 			{
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
-					LogTacticalMessage(strLogString);
-				}
+				CvString strLogString;
+				strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
+				LogTacticalMessage(strLogString);
 			}
 		}
 	}
@@ -7225,10 +7236,11 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	if (iDanger > 0)
 	{
 		//avoid extreme danger, except in citadels
-		if (iDanger / 2 > (pUnit->GetCurrHitPoints() - iSelfDamage) && !bIsFrontlineCitadel)
+		int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
+		if (iDanger / 2 > iRemainingHP && !bIsFrontlineCitadel)
 		{
-			//if there is nothing we would cover, don't do it at all
-			if (iNumAdjFriendlies == 0)
+			//if there is nothing we would cover or we are low on health, don't do it at all
+			if (iNumAdjFriendlies == 0 || iRemainingHP < 37)
 				return INT_MAX;
 			//if we cover one other unit, then maybe
 			else if (iNumAdjFriendlies == 1)
