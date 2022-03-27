@@ -10976,17 +10976,26 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 // for small numbers (e.g. direction rolls) this should be good enough
 // most importantly, it should reduce desyncs in multiplayer
 
-// Robert Jenkins method
-unsigned long hash32(unsigned long a)
+//this is the pcg hash function which is supposed to be better than wang or jenkins; not that it matters much ...
+unsigned long hash32(uint input)
 {
-	a = (a + 0x7ed55d16) + (a << 12);
-	a = (a ^ 0xc761c23c) ^ (a >> 19);
-	a = (a + 0x165667b1) + (a << 5);
-	a = (a + 0xd3a2646c) ^ (a << 9);
-	a = (a + 0xfd7046c5) + (a << 3);
-	a = (a ^ 0xb55a4f09) ^ (a >> 16);
-	return a;
+    unsigned long state = input * 747796405u + 2891336453u;
+    unsigned long word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    return (word >> 22u) ^ word;
 }
+
+/*
+//here is another one which is supposed to be good
+unsigned long hash32(unsigned long x)
+{
+    x ^= x >> 16;
+    x *= 0xa812d533;
+    x ^= x >> 15;
+    x *= 0xb278e4ad;
+    x ^= x >> 17;
+    return x;
+}
+*/
 
 static unsigned long giLastState = 0;
 

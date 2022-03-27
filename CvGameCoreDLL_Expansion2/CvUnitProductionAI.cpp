@@ -1149,6 +1149,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 		//Already have an idle settler out? Ignore.
 		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
+		if (iNumSettlers > 1)
+		{
+			return 0;
+		}
 		if (iNumSettlers>0 && kPlayer.getFirstAIOperationOfType(AI_OPERATION_FOUND_CITY)==NULL)
 		{
 			return 0;

@@ -7315,10 +7315,6 @@ bool CvUnit::canUseForTacticalAI() const
 	if (AI_getUnitAIType() == UNITAI_CARRIER_SEA || AI_getUnitAIType() == UNITAI_ICBM)
 		return false;
 
-	//keep the garrisons in our endangered cities
-	if (IsGarrisoned() && GET_PLAYER(m_eOwner).GetMilitaryAI()->IsExposedToEnemy(GetGarrisonedCity(), NO_PLAYER))
-		return false;
-
 	//we want all barbarians ...
 	if (!IsCanAttack() && !isBarbarian())
 	{
@@ -24328,12 +24324,12 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 bool CvUnit::isOutOfAttacks() const
 {
 	VALIDATE_OBJECT
+	if (!canMove())
+		return true;
 
 	// Units with blitz don't run out of attacks!
 	if(isBlitz())
-	{
 		return false;
-	}
 
 	return getNumAttacksMadeThisTurn() >= getNumAttacks();
 }

@@ -1515,8 +1515,7 @@ public:
 	void changeProjectCount(ProjectTypes eProject, int iValue);
 	int getProjectCount(ProjectTypes eProject) const;
 
-
-	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType) const;
+	CvPlot* GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot=true) const;
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
 	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version

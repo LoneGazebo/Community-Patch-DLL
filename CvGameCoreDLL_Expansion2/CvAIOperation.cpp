@@ -1180,11 +1180,11 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 			{
 				CvArmyAI* pThisArmy = GetArmy(uiI);
-				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true);
 				//we don't really need the center of mass but the variance
 				float varX=-1,varY=-1;
-				pThisArmy->GetCenterOfMass(false,&varX,&varY);
-				szTemp2.Format("Gathering Forces for army %d, center (%d:%d), variance (%.2f:%.2f), ", pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), varX, varY);
+				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&varX,&varY);
+				szTemp2.Format("Gathering Forces for army %d, center (%d:%d), variance (%.2f:%.2f), free slots %d", 
+					pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), varX, varY, pThisArmy->GetNumFormationEntries() - pThisArmy->GetNumSlotsFilled());
 				strTemp += szTemp2;
 			}
 			break;
@@ -1194,7 +1194,8 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			{
 				CvArmyAI* pThisArmy = GetArmy(uiI);
 				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true);
-				szTemp2.Format("Moving To Target with Army %d, center (%d:%d), target (%d:%d), Progress %d percent", pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), m_iTargetX, m_iTargetY, PercentFromMusterPointToTarget());
+				szTemp2.Format("Moving To Target with Army %d, center (%d:%d), target (%d:%d), Progress %d percent", 
+					pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), m_iTargetX, m_iTargetY, PercentFromMusterPointToTarget());
 				strTemp += szTemp2;
 			}
 			break;

@@ -4043,9 +4043,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit)
-		{
 			continue;
-		}
 
 		int iTargetTurns;
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);

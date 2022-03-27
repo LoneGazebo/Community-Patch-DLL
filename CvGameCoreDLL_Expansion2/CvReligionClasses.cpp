@@ -6607,7 +6607,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 			vTargetsD.push_back(SPlotWithScore(pLoopCity->plot(),iScoreD));
 	}
 
-	//offensive targets first
+	//offensive targets first, until we run out
 	std::sort(vTargetsO.begin(),vTargetsO.end());
 	std::reverse(vTargetsO.begin(),vTargetsO.end());
 
@@ -10207,10 +10207,6 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	if (pCity->isInDangerOfFalling() || pCity->isUnderSiege())
 		return 0;
 
-	//Already targeted by another inquisitor? Ignore.
-	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
-		return 0;
-
 	//Can only target owned cities
 	if(pCity->getOwner() != m_pPlayer->GetID())
 		return 0;
@@ -10225,21 +10221,19 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	//Looking to remove heresy?
 	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
 	{
-		// Base score 100 to make sure heresy removal is preferred over defensive use
-		CvCity* pHolyCity = pMyReligion->GetHolyCity();
-		int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
-		int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
-		int iScore = max(10, 100 - 2 * iDistToHolyCity - iDistToUnit);
-
 		// How much impact would using the inquistor have? let's ignore resilience here ...
 		int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
-		iScore += 3 * iNumOtherFollowers;
-		
+	
 		// More pressing if majority is another religion
 		if (pCity->GetCityReligions()->GetReligiousMajority() != eMyReligion)
-			iScore *= 2;
+			iNumOtherFollowers *= 2;
 
-		return iScore;
+		// Distance to the unit is the single criterion once we decide a city is eligible
+		if (iNumOtherFollowers>6)
+			return pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : iNumOtherFollowers;
+
+		//not worth spending an inquisitor yet
+		return 0;
 	}
 
 	return 0;
@@ -10248,6 +10242,7 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 /// AI's evaluation of this city as a target for an inquisitor
 int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const
 {
+	//do not check whether the city already has an inquisitor, that is done on a higher level!
 	if (pCity == NULL)
 		return 0;
 
@@ -10263,10 +10258,6 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 	if (pCity->isInDangerOfFalling() || pCity->isUnderSiege())
 		return 0;
 
-	//Already targeted by another inquisitor? Ignore.
-	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eMyReligion))
-		return 0;
-
 	//Can only target owned cities
 	if(pCity->getOwner() != m_pPlayer->GetID())
 		return 0;
@@ -10280,19 +10271,25 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 	if (pCity->isBorderCity())
 		iScore += 11;
 
+	//how vulnerable is the city to foreign missionaries trying to flip it?
 	//assume their missionaries are same strength as ours
 	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
-	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
+	CvUnitEntry* pkMissionaryInfo = GC.getUnitInfo(eMissionary);
 	//assume we spread multiple times with same strength for simplicity
-	int iMissionaryStrength = pkUnitInfo ? pkUnitInfo->GetReligiousStrength()*pkUnitInfo->GetReligionSpreads() : 1;
+	//note that we do not consider number of foreign followers here; that is done in offensive scoring
+	int iMissionaryStrength = pkMissionaryInfo ? pkMissionaryInfo->GetReligiousStrength()*pkMissionaryInfo->GetReligionSpreads() : 1;
 	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
 	int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
+	iScore += iImpactPercent;
 
-	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
-	int iDistScore = max(0, 5 - iDistToUnit/2);
+	//now we want inquisitors to stay in a city once posted, so distance must be the most important score
+	//use the others only as an eligibility criterion
+	if (iScore>23)
+		return pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : iScore;
 
-	return iScore + iImpactPercent + iDistScore;
+	//not eligible for protection
+	return 0;
 }
 
 /// Are all of our own cities our religion?
@@ -10462,6 +10459,12 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	{
 		if (m_pPlayer->GetReligionAI()->ScoreCityForInquisitorOffensive(pCity, NULL, eReligion) > 0)
 			iNumNeeded++;
+	}
+
+	if (iNumNeeded > 0  && iNumInquisitors > 3)
+	{
+		CUSTOMLOG("Warning: Player %d seems to need of inquisitors but already has a lot.", m_pPlayer->GetID());
+		iNumNeeded = 3;
 	}
 
 	// In later phases we may want to have defensive inquisitors ...
