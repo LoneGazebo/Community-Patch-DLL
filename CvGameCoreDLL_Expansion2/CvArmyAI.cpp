@@ -279,6 +279,28 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 }
 
 /// Return distance from this plot of unit in army farthest away
+int CvArmyAI::GetClosestUnitDistance(CvPlot* pPlot)
+{
+	if (!pPlot)
+		return INT_MAX;
+
+	int iSmallestDistance = INT_MAX;
+	CvUnit* pUnit = GetFirstUnit();
+
+	while(pUnit)
+	{
+		int iNewDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+		if(iNewDistance < iSmallestDistance)
+		{
+			iSmallestDistance = iNewDistance;
+		}
+		pUnit = GetNextUnit(pUnit);
+	}
+
+	return iSmallestDistance;
+}
+
+/// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 {
 	if (!pPlot)
@@ -397,7 +419,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				if (!m_FormationEntries[iI].IsMakingProgressTowardsCheckpoint())
 				{
 					CvString strMsg;
-					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d, prev %d, prev %d", 
+					strMsg.Format("Removing %s %d from army %d because no progress to checkpoint (%d:%d). ETA %d; prev %d; prev %d", 
 						pUnit->getName().c_str(), m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
 						m_FormationEntries[iI].GetTurnsToCheckpoint(0), m_FormationEntries[iI].GetTurnsToCheckpoint(1), m_FormationEntries[iI].GetTurnsToCheckpoint(2));
 					pOperation->LogOperationSpecialMessage(strMsg);

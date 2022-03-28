@@ -2561,8 +2561,8 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || 
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
-		//no matter if successful or not
-		CheckForEnemiesNearArmy(pThisArmy);
+		if (CheckForEnemiesNearArmy(pThisArmy))
+			pOperation->LogOperationSpecialMessage("Contact with enemy!");
 
 		// This is where we try to gather. Don't use the center of mass here, it may drift anywhere 
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget,pOperation->GetMusterPlot());
