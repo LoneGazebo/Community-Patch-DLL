@@ -4698,7 +4698,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if(eMove == AI_TACTICAL_GARRISON)
 			{
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
-				if (pLoopUnit->IsCanAttackRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
+				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_RANGED))
 					iExtraScore += 30;
 
 				//naval garrisons cannot attack inside cities ...
