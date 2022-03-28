@@ -301,7 +301,7 @@ WHERE RelatedConcept = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 DELETE FROM Concepts_RelatedConcept
 WHERE ConceptType = 'CONCEPT_SOCIAL_POLICY_BRANCH_EXPLORATION';
 
---Texts for New Wonder and Building Production Modifiers, either by Trait, Improvement or UnitPromotion
+--Texts for New Wonder and Building Production Modifiers, either by Trait, Improvement or UnitPromotion, among others
 INSERT INTO Language_en_US
 			(Tag,															Text)
 VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Unit Garrison Modifier for Wonders: {1_Num}%'),
@@ -321,3 +321,6 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 			('TXT_KEY_PRODMOD_YIELD_UNITPROMOTION',							'[NEWLINE][ICON_BULLET]City Modifier from Unit Garrison: {1_Num}%'),
 			('TXT_KEY_NOTIFICATION_CULTURE_UNIT',							'The birth of a {1_Resource:textkey} causes a Culture Boost in your Empire!'),
 			('TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT',					'A {1_Resource:textkey} has brought inspiration!');
+			UPDATE Language_en_US
+SET Text = 'A befriended [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.[NEWLINE][NEWLINE]They know the secrets of the [COLOR_POSITIVE_TEXT]{@1_UniqueUnitName}[ENDCOLOR].  If you are their Ally and have researched [COLOR_POSITIVE_TEXT]{@2_PrereqTech}[ENDCOLOR], they will provide that unit as their gift.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_MILITARISTIC_TT';

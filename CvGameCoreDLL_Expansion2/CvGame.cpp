@@ -9458,184 +9458,31 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 	}
 	
 	vector<OptionWithScore<UnitTypes>> veUnitRankings;
-
-	// Loop through all Unit Classes
-	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
+	// Loop through all Unit Classes twice; once to find UUs that won't exist in game,
+	// but if our list of candidates is empty, include all possible UUs the second time around
+	for(int iTrialLoop = 0; iTrialLoop < 2; iTrialLoop++)
 	{
-		const UnitTypes eLoopUnit = (UnitTypes) iUnitLoop;
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-		if(pkUnitInfo == NULL)
+		for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 		{
-			continue;
-		}
-
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-		if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS) {
-			if (pkUnitInfo->IsNoMinorGifts()) {
-				continue;
-			}
-		}
-#endif
-
-		bool bValid = (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0);
-
-		// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
-		if(bValid && pkUnitInfo->GetRange() == 0)
-		{
-			for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
-			{
-				const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
-				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkPromotionInfo)
-				{
-					if(pkUnitInfo->GetFreePromotions(iPromotionLoop))
-					{
-						if(pkPromotionInfo->IsOnlyDefensive())
-						{
-							bValid = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if(!bValid)
-			continue;
-
-		UnitClassTypes eLoopUnitClass = (UnitClassTypes) pkUnitInfo->GetUnitClassType();
-		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eLoopUnitClass);
-
-		if(pkUnitClassInfo == NULL)
-		{
-			CvAssertMsg(false, "UnitClassInfo is NULL. Please send Anton your save file and version.");
-			continue;
-		}
-
-		// We only want unique units
-		if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
-#if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
-			//Unless they are minor civ gifts only.
-			if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pkUnitInfo->IsMinorCivGift())
-			{
-#endif
-			continue;
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
-
-		// Is it a unique unit from a civ that is in our game?
-		if (!bIncludeCivsInGame)
-		{
-			for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
-			{
-				PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-				if(GET_PLAYER(eMajorLoop).isAlive())
-				{
-					UnitTypes eUniqueUnitInGame = (UnitTypes) GET_PLAYER(eMajorLoop).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass);
-					if(eLoopUnit == eUniqueUnitInGame)
-					{
-						bValid = false;
-						break;
-					}
-				}
-			}
-		}
-		if(!bValid)
-			continue;
-
-		//Not valid?
-		if (pkUnitInfo->IsInvalidMinorCivGift())
-			continue;
-
-		// Avoid Recon units
-		if(pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
-			continue;
-
-		// No Ranged units?
-		if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
-			continue;
-
-		if(!bCoastal)
-		{
-		// Must be land Unit
-		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
-			continue;
-		}
-
-		if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
-			continue;
-
-		// Technology level
-		TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
-		EraTypes ePrereqEra = NO_ERA;
-		if (ePrereqTech != NO_TECH)
-		{
-			CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
-			CvAssertMsg(pkTechInfo, "Tech info not found when picking unique unit for minor civ. Please send Anton your save file and version!");
-			if (pkTechInfo)
-			{
-				ePrereqEra = (EraTypes) pkTechInfo->GetEra();
-			}
-		}
-
-		if (ePrereqEra == getStartEra())
-		{
-			if (!bIncludeStartEra)
-				continue;
-		}
-		else if (ePrereqEra < getStartEra()) // Assumption: NO_ERA < 0
-		{
-			if (!bIncludeOldEras)
-				continue;
-		}
-
-		// Is this Unit already assigned to another minor civ?
-		if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
-			continue;
-
-		int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
-
-		//Weight minor civ gift units higher, so they're more likely to spawn each game.
-		if (pkUnitInfo->IsMinorCivGift())
-			iRandom += 50;
-
-		veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
-	}
-
-	if (veUnitRankings.size() <= 0)
-	{
-		// Loop through all Unit Classes
-		for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-		{
-			const UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
+			const UnitTypes eLoopUnit = (UnitTypes) iUnitLoop;
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-			if (pkUnitInfo == NULL)
-			{
+			if(pkUnitInfo == NULL)
 				continue;
-			}
-
-#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
-			if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS) {
-				if (pkUnitInfo->IsNoMinorGifts()) {
-					continue;
-				}
-			}
-#endif
 
 			bool bValid = (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0);
 
 			// Unit has combat strength, make sure it isn't only defensive (and with no ranged combat ability)
-			if (bValid && pkUnitInfo->GetRange() == 0)
+			if(bValid && pkUnitInfo->GetRange() == 0)
 			{
-				for (int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+				for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
 				{
-					const PromotionTypes ePromotion = (PromotionTypes)iPromotionLoop;
+					const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
 					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if (pkPromotionInfo)
+					if(pkPromotionInfo)
 					{
-						if (pkUnitInfo->GetFreePromotions(iPromotionLoop))
+						if(pkUnitInfo->GetFreePromotions(iPromotionLoop))
 						{
-							if (pkPromotionInfo->IsOnlyDefensive())
+							if(pkPromotionInfo->IsOnlyDefensive())
 							{
 								bValid = false;
 								break;
@@ -9644,54 +9491,68 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 					}
 				}
 			}
-			if (!bValid)
+			if(!bValid)
 				continue;
 
-			UnitClassTypes eLoopUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+			//Not valid?
+			if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS && pkUnitInfo->IsNoMinorGifts())
+				continue;
+			if (pkUnitInfo->IsInvalidMinorCivGift())
+				continue;
+			
+			// Compare to the units of other civs, of the same unitclass
+			UnitClassTypes eLoopUnitClass = (UnitClassTypes) pkUnitInfo->GetUnitClassType();
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eLoopUnitClass);
 
-			if (pkUnitClassInfo == NULL)
+			if(pkUnitClassInfo == NULL)
 			{
 				CvAssertMsg(false, "UnitClassInfo is NULL. Please send Anton your save file and version.");
 				continue;
 			}
-
-			// We only want unique units
-			if (eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
-#if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
-				//Unless they are minor civ gifts only.
-				if (MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pkUnitInfo->IsMinorCivGift())
-				{
-#endif
+			
+			// We only want unique units that are not in the game already, or are explicitly Minor Civ Gifts
+			if( !MOD_BALANCE_CORE_MINOR_CIV_GIFT || !pkUnitInfo->IsMinorCivGift() )
+			{
+				if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
 					continue;
-#if defined(MOD_BALANCE_CORE)
+				
+				if (!bIncludeCivsInGame)
+				{
+					for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
+					{
+						PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+						if(GET_PLAYER(eMajorLoop).isAlive())
+						{
+							UnitTypes eUniqueUnitInGame = (UnitTypes) GET_PLAYER(eMajorLoop).getCivilizationInfo().getCivilizationUnits(eLoopUnitClass);
+							if(eLoopUnit == eUniqueUnitInGame)
+							{
+								bValid = false;
+								break;
+							}
+						}
+					}
 				}
-#endif
-
-			//Not valid?
-			if (pkUnitInfo->IsInvalidMinorCivGift())
+			}
+			if(!bValid)
 				continue;
-
+			
 			// Avoid Recon units
-			if (pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+			if(pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 				continue;
 
 			// No Ranged units?
-			if (!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
+			if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 				continue;
 
-			if (!bCoastal)
-			{
-				// Must be land Unit
-				if (pkUnitInfo->GetDomainType() != DOMAIN_LAND)
+			// Must be land Unit?
+			if(!bCoastal && pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 					continue;
-			}
 
-			if (pkUnitInfo->GetDomainType() == DOMAIN_AIR)
+			if(pkUnitInfo->GetDomainType() == DOMAIN_AIR)
 				continue;
 
 			// Technology level
-			TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+			TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
 			EraTypes ePrereqEra = NO_ERA;
 			if (ePrereqTech != NO_TECH)
 			{
@@ -9699,20 +9560,14 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				CvAssertMsg(pkTechInfo, "Tech info not found when picking unique unit for minor civ. Please send Anton your save file and version!");
 				if (pkTechInfo)
 				{
-					ePrereqEra = (EraTypes)pkTechInfo->GetEra();
+					ePrereqEra = (EraTypes) pkTechInfo->GetEra();
 				}
 			}
 
-			if (ePrereqEra == getStartEra())
-			{
-				if (!bIncludeStartEra)
-					continue;
-			}
-			else if (ePrereqEra < getStartEra()) // Assumption: NO_ERA < 0
-			{
-				if (!bIncludeOldEras)
-					continue;
-			}
+			if ( ePrereqEra == getStartEra() && !bIncludeStartEra )
+				continue;
+			else if ( ePrereqEra < getStartEra() && !bIncludeOldEras ) // Assumption: NO_ERA < 0
+				continue;
 
 			// Is this Unit already assigned to another minor civ?
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
@@ -9724,10 +9579,14 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (pkUnitInfo->IsMinorCivGift())
 				iRandom += 50;
 
-			veUnitRankings.push_back(OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
+			veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
+		// we didn't find any candidates! try again with all UUs
+		if (veUnitRankings.size() <= 0)
+			bIncludeCivsInGame = true;
+		else
+			break;
 	}
-
 
 	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), iRandomSeed);
 }

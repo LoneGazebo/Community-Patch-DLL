@@ -55,7 +55,7 @@
 			<Text>Ironsides</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP">
-			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage (Tenacity).</Text>
+			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LIGHTNING_WARFARE_GUN">
@@ -75,7 +75,7 @@
 			<Text>Prize Rules</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>Receive [ICON_GOLD] Gold in your Capital when you defeat an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>Receive [ICON_GOLD] Gold in your Capital after defeating an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I">
@@ -120,7 +120,7 @@
 			<Text>Field Guns have greater combat power than Cannons, albeit they lack the ability to see very far on their own. Use Field Guns to support your Industrial Era armies, but be careful about letting the enemy get near them!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_FIELD_GUN_HELP">
-			<Text>Powerful Industrial Era Siege Unit capable of firing up to 2 tiles away. Moves at half speed in enemy territory.</Text>
+			<Text>Powerful Industrial Era Siege Unit capable of firing up to 2 tiles away. Moves at half speed in Enemy Territory.</Text>
 		</Row>
 
 		<!-- Carolean-->
@@ -128,7 +128,7 @@
 			<Text>Grenadiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_ON_KILL_HELP">
-			<Text>When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR].</Text>
+			<Text>When this Unit advances after defeating an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY">
@@ -146,10 +146,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL">
-			<Text>Heal On Kill</Text>
+			<Text>Endurance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
-			<Text>Heal 15 points when you destoy an Enemy Unit.</Text>
+			<Text>Heal 15 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I">
@@ -217,18 +217,26 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength when attacking in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER">
+			<Text>Guerilla Fighter</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
 			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All tiles cost 1 [ICON_MOVES] Movement point.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER">
-			<Text>Guerilla Fighter</Text>
+		
+		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
+			<Text>Gå-På</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP">
 			<Text>+20% [ICON_STRENGTH] Strength when attacking.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
-			<Text>Gå-På</Text>
+		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE">
+			<Text>Hakkaa Päälle!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 50 HP after defeating an Enemy Unit.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
 			<Text>Atlatl Strike</Text>
 		</Row>
@@ -281,19 +289,19 @@
 			<Text>Gift of the Pharaoh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
-			<Text>Receive [ICON_PRODUCTION] Production in unit's City of origin when you defeat an Enemy Unit.</Text>
+			<Text>Receive [ICON_PRODUCTION] Production in unit's City of origin after defeating an Enemy Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
 			<Text>Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
-			<Text>Flank attack bonus increased by 20%.[NEWLINE]Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Combat Strength x 10.[NEWLINE]Is able to use enemy roads.</Text>
+			<Text>Flank attack bonus increased by 20%.[NEWLINE]Steal [ICON_GOLD] Gold equal to 50% of the damage inflicted on a city, capping at City's [ICON_STRENGTH] Combat Strength x 10.[NEWLINE]Is able to use Enemy roads.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS">
 			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an Enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION">
@@ -372,58 +380,58 @@
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
 			<Text>Courage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE">
 			<Text>Benevolence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BENEVOLENCE_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]Units in adjacent tiles receive +5 HP when healing.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]Units in adjacent tiles receive +5 HP when healing.[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT">
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">
 			<Text>Sincerity</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+50% Experience gained from combat.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+50% Experience gained from combat.[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR">
 			<Text>Honor</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HONOR_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength outside of friendly lands.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY">
 			<Text>Loyalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LOYALTY_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength inside friendly lands.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
-
 
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL">
 			<Text>Self Control</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SELF_CONTROL_HELP">
-			<Text>Increased [ICON_STRENGTH] Combat Strength based on Unit damage (Tenacity).[NEWLINE]+15% [ICON_STRENGTH] Strength when defending.[NEWLINE]+10 HP if you destroy an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
+
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
 			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR].</Text>
@@ -583,7 +591,7 @@
 			<Text>Flag Bearers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECON_BANDEIRANTES_HELP">
-			<Text>When you reveal tiles, gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science in the nearest owned City.</Text>
+			<Text>When revealing tiles, gain [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science in the nearest owned City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES">
 			<Text>Bandeirantes</Text>
@@ -654,7 +662,7 @@
 			<Text>Pride of the Nation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MANY_GOLDEN_AGE_POINTS_HELP">
-			<Text>Gain a great deal of [ICON_GOLDEN_AGE] Golden Age Points for each enemy killed.</Text>
+			<Text>Gain a great deal of [ICON_GOLDEN_AGE] Golden Age Points for each Enemy Unit defeated.</Text>
 		</Row>
 		
 		<!-- New Tier 4 Promotions -->
@@ -662,7 +670,7 @@
 			<Text>Overrun</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When you advance after destroying an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.[NEWLINE]When this Unit advances after defeating an Enemy Unit, all newly-adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DRILL_4">
 			<Text>Stalwart</Text>
@@ -693,7 +701,7 @@
 			<Text>Dauntless</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION_HELP">
-			<Text>Damage from all sources reduced by 5.[NEWLINE][COLOR_POSITIVE_TEXT]Heals 10 Additional HP[ENDCOLOR] per turn.</Text>
+			<Text>Damage from all sources reduced by 5.[NEWLINE][COLOR_POSITIVE_TEXT]Heal +10 HP[ENDCOLOR] per turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS">
@@ -707,20 +715,20 @@
 			<Text>Piracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PIRACY_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated enemies as [ICON_GOLD] Gold.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER">
 			<Text>Breacher</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to a Unit killed by this Unit.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to a Unit defeated by this Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT">
 			<Text>Encirclement</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when attacking.[NEWLINE]+10 HP when you [COLOR_POSITIVE_TEXT]defeat an enemy[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when attacking.[NEWLINE]Heal +10 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_I">
@@ -740,7 +748,7 @@
 			<Text>Minelayer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement points for enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this Unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].</Text>
+			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement points for Enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this Unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
@@ -823,7 +831,7 @@
 			<Text>Everlasting Youth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
-			<Text>Units heal for an additional +5 Hit Points.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Heals +5 HP[ENDCOLOR] per turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST">
@@ -932,7 +940,7 @@
 			<Text>Scavenger</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE_HELP">
-			<Text>+5 XP when you [COLOR_POSITIVE_TEXT]Pillage[ENDCOLOR] a tile.</Text>
+			<Text>Gain +5 XP after [COLOR_POSITIVE_TEXT]Pillaging[ENDCOLOR] an improvement.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_SPOTTING">

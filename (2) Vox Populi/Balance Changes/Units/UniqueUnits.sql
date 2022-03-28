@@ -52,7 +52,7 @@ WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 -- Austria
 ---------------------------
 -- Hussar now a Cuirassier unit
-UPDATE Units SET Moves = '4', Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', PrereqTech = 'TECH_METALLURGY', ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', PrereqTech = 'TECH_METALLURGY', ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_CUIRASSIER' WHERE UnitType = 'UNIT_AUSTRIAN_HUSSAR';
 
@@ -244,10 +244,6 @@ RequiresFaithPurchaseEnabled = 1
 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT';
-
-INSERT INTO UnitPromotions 
-		(Type,						AttackFullyHealedMod,	CannotBeChosen, LostWithUpgrade, PortraitIndex,	IconAtlas,			PediaType,		PediaEntry,							Description,						Help,									Sound)
-VALUES	('PROMOTION_DOPPELSOLDNER',	30,						1,				0,				 56,			'extraPromo_Atlas',	'PEDIA_MELEE',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER',	'TXT_KEY_PROMOTION_DOPPELSOLDNER_HELP',	'AS2D_IF_LEVELUP');
 
 ---------------------------
 -- Greece
@@ -590,3 +586,11 @@ VALUES
 	('CIVILIZATION_ASSYRIA', 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'UNIT_ASSYRIAN_SIEGE_TOWER'),
 	('CIVILIZATION_BARBARIAN', 'UNITCLASS_ELEPHANT_RIDER', NULL );
 
+
+DELETE FROM Civilization_UnitClassOverrides
+WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND
+UnitClassType IN (
+	'UNITCLASS_CAVALRY', 
+	'UNITCLASS_MECHANIZED_INFANTRY', 
+	'UNITCLASS_IRONCLAD', 
+	'UNITCLASS_MISSILE_CRUISER');
