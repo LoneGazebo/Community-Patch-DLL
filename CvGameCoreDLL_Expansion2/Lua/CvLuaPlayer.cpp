@@ -4658,12 +4658,10 @@ int CvLuaPlayer::lGetInternationalTradeRouteResourceBonus(lua_State* L)
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
 
-#if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 	if (MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES && pOriginCity->getOwner() == pDestCity->getOwner())
 	{
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_GOLD_INTERNAL;
 	}
-#endif
 
 	int iResult = pPlayerTrade->GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);

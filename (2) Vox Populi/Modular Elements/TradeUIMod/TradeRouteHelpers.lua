@@ -55,7 +55,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	
 	local strResourceList = "";
 	local iDiversityBonus = pPlayer:GetInternationalTradeRouteResourceBonus(pOriginCity, pTargetCity, true);
-	if(iDiversityBonus ~= 0) then
+	if (iDiversityBonus ~= 0) then
 		local iOurDiversity = pPlayer:GetCityResourceBonus(pOriginCity, pTargetCity, true);
 		local iTheirDiversity = pPlayer:GetCityResourceBonus(pOriginCity, pTargetCity, false);
 		strResourceList = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT", iDiversityBonus, iOurDiversity, iTheirDiversity);
