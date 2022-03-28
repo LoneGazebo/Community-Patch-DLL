@@ -7411,7 +7411,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		//Give this quest out once the player can embark across oceans (Traits not included).
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbarkAllWaterPassage())
-		//if (!GET_PLAYER(ePlayer).CanCrossOcean())
 		{
 			return false;
 		}

@@ -3463,6 +3463,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, true);
 					int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, false);
+					int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, eYield);
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -3477,7 +3478,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iModifier = 100;
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
-					int iResourceModifier = GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+					int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer) : 0;
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -3489,6 +3490,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue = iBaseValue;
 					iValue += iOriginPerTurnBonus;
 					iValue += iDestPerTurnBonus;
+					iValue += iResourceBonus;
 					iValue += iExclusiveBonus;
 					iValue += iYourBuildingBonus;
 					iValue += iTheirBuildingBonus;
@@ -3586,6 +3588,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
 						int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, false);
+						int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
 						int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
 						int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
@@ -3595,7 +3598,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iModifier = 100;
 						int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, YIELD_GOLD);
-						int iResourceModifier = GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer) : 0;
 						int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
@@ -3603,6 +3606,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue = iBaseValue;
 						iValue += iOriginPerTurnBonus;
 						iValue += iDestPerTurnBonus;
+						iValue += iResourceBonus;
 						iValue += iExclusiveBonus;
 						iValue += iYourBuildingBonus;
 						iValue += iTheirBuildingBonus;
@@ -3652,6 +3656,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, true);
 						int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer, false);
+						int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
 						int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
 						int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
@@ -3661,7 +3666,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iModifier = 100;
 						int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, YIELD_GOLD);
-						int iResourceModifier = GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+						int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer) : 0;
 						int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 						int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
@@ -3669,6 +3674,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue = iBaseValue;
 						iValue += iOriginPerTurnBonus;
 						iValue += iDestPerTurnBonus;
+						iValue += iResourceBonus;
 						iValue += iExclusiveBonus;
 						iValue += iYourBuildingBonus;
 						iValue += iTheirBuildingBonus;
@@ -3721,6 +3727,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, true);
 					int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, false);
+					int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
 					int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, eYield);
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -3732,7 +3739,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iModifier = 100;
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
-					int iResourceModifier = GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+					int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer) : 0;
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -3743,6 +3750,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue = iBaseValue;
 					iValue += iOriginPerTurnBonus;
 					iValue += iDestPerTurnBonus;
+					iValue += iResourceBonus;
 					iValue += iExclusiveBonus;
 					iValue += iYourBuildingBonus;
 					iValue += iTheirBuildingBonus;
