@@ -3180,7 +3180,9 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 void CvUnitPromotions::UpdateCache()
 {
 	m_terrainPassableCache.clear();
+	m_bTerrainPassable = false;
 	m_featurePassableCache.clear();
+	m_bFeaturePassable = false;
 
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
@@ -3194,11 +3196,14 @@ void CvUnitPromotions::UpdateCache()
 				{
 					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(iTerrain);
 					if(eTech != NO_TECH)
+					{
 						reqTechs.push_back(eTech);
+						m_bTerrainPassable = true;
+					}
 				}
 			}
 		}
-
+		
 		m_terrainPassableCache.push_back( reqTechs );
 	}
 
@@ -3213,8 +3218,11 @@ void CvUnitPromotions::UpdateCache()
 				if(promotion)
 				{
 					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(iFeature);
-					if(eTech != NO_TECH)
+					if (eTech != NO_TECH)
+					{
 						reqTechs.push_back(eTech);
+						m_bFeaturePassable = true;
+					}
 				}
 			}
 		}
@@ -3226,7 +3234,7 @@ void CvUnitPromotions::UpdateCache()
 /// determines if the unit has a promotion that makes a feature passable
 bool CvUnitPromotions::HasAllowFeaturePassable() const
 {
-	return m_featurePassableCache.size() > 0;
+	return m_bFeaturePassable;
 }
 
 /// determines if the feature is passable given the unit's current promotions and tech level
@@ -3248,7 +3256,7 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTy
 /// determines if the unit has a promotion that makes a terrain passable
 bool CvUnitPromotions::HasAllowTerrainPassable() const
 {
-	return m_terrainPassableCache.size() > 0;
+	return m_bTerrainPassable;
 }
 /// determines if the terrain is passable given the unit's current promotions and tech level
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const

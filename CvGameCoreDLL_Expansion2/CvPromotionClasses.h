@@ -731,6 +731,8 @@ private:
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
 
 	void UpdateCache();
+	bool m_bTerrainPassable;
+	bool m_bFeaturePassable;
 	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
 	std::vector<std::vector<TechTypes>> m_featurePassableCache;
 	std::vector<int> m_unitClassDefenseMod;

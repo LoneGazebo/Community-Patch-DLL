@@ -4849,15 +4849,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 		}
 
 		// general promotions ---------------------------------------------------
+		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.HasAllowFeaturePassable() && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(), getTeam()))
+			return true;
 
-		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.HasAllowFeaturePassable())
-		{
-			return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(), getTeam());
-		}	
 		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.HasAllowTerrainPassable())
-		{
 			return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
-		}	
 
 		//ok, seems we ran out of jokers. no pasaran!
 		return false;
@@ -4885,11 +4881,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 					return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
 
 				// tech limited embarkation
-				if (eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean())
-				{
-					CvTeam& kTeam = GET_TEAM(getTeam());
-					return kTeam.canEmbarkAllWaterPassage();
-				}
+				if (eDomain == DOMAIN_LAND)
+					return IsEmbarkDeepWater() || IsEmbarkAllWater() || kPlayer.CanCrossOcean();
 			}
 		}
 		else if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
