@@ -3173,54 +3173,10 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 		m_kHasPromotion.SetBit(eIndex, bValue);
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	UpdateCache();
-#endif
-}
-
-/// determines if the terrain feature is passable given the unit's current promotions
-bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const
-{
-	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
-	if(!teamTechs) 
-		return false;
-
-	//first check if this feature type is cached
-	if(m_featurePassableCache.size() <= 0)
-	{
-		int iNumPromos = GC.getNumPromotionInfos();
-		for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
-		{
-			PromotionTypes ePromotion = (PromotionTypes) iLoop;
-			if(m_kHasPromotion.GetBit(ePromotion))
-			{
-				CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-
-				if(promotion)
-				{
-					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(eFeatureType);
-					if(eTech != NO_TECH && teamTechs->HasTech(eTech))
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		std::vector<TechTypes> reqTechs = m_featurePassableCache[eFeatureType];
-		for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
-			if (teamTechs->HasTech(*it_techs))
-				return true;
-	}
-
-	//have none of the techs?
-	return false;
 }
 
 /// determines if the terrain type is passable given the unit's current promotions
-#if defined(MOD_BALANCE_CORE)
 void CvUnitPromotions::UpdateCache()
 {
 	m_terrainPassableCache.clear();
@@ -3266,44 +3222,45 @@ void CvUnitPromotions::UpdateCache()
 		m_featurePassableCache.push_back( reqTechs );
 	}
 }
-#endif
 
+/// determines if the unit has a promotion that makes a feature passable
+bool CvUnitPromotions::HasAllowFeaturePassable() const
+{
+	return m_featurePassableCache.size() > 0;
+}
 
+/// determines if the feature is passable given the unit's current promotions and tech level
+bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const
+{
+	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
+	if (!teamTechs)
+		return false;
+
+	std::vector<TechTypes> reqTechs = m_featurePassableCache[eFeatureType];
+	for (std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs)
+		if (teamTechs->HasTech(*it_techs))
+			return true;
+
+	//have none of the techs?
+	return false;
+}
+
+/// determines if the unit has a promotion that makes a terrain passable
+bool CvUnitPromotions::HasAllowTerrainPassable() const
+{
+	return m_terrainPassableCache.size() > 0;
+}
+/// determines if the terrain is passable given the unit's current promotions and tech level
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const
 {
 	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
 	if(!teamTechs) 
 		return false;
 
-	//first check if this terrain type is cached
-	if(m_terrainPassableCache.size() <= 0)
-	{
-		int iNumPromos = GC.getNumPromotionInfos();
-		for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
-		{
-			PromotionTypes ePromotion = (PromotionTypes) iLoop;
-			if(m_kHasPromotion.GetBit(ePromotion))
-			{
-				CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-
-				if(promotion)
-				{
-					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(eTerrainType);
-					if(eTech != NO_TECH && teamTechs->HasTech(eTech))
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
-		for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
-			if (teamTechs->HasTech(*it_techs))
-				return true;
-	}
+	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
+	for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
+		if (teamTechs->HasTech(*it_techs))
+			return true;
 
 	//have none of the techs?
 	return false;
@@ -3312,10 +3269,8 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTy
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 {
-#if defined(MOD_BALANCE_CORE)
 	if ((size_t)eUnitClass<m_unitClassAttackMod.size())
 		return m_unitClassAttackMod[eUnitClass];
-#endif
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
@@ -3334,10 +3289,8 @@ int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 /// returns the advantage percent when defending against the specified unit class
 int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 {
-#if defined(MOD_BALANCE_CORE)
 	if ((size_t)eUnitClass<m_unitClassDefenseMod.size())
 		return m_unitClassDefenseMod[eUnitClass];
-#endif
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)

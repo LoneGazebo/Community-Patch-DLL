@@ -4850,13 +4850,13 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 
 		// general promotions ---------------------------------------------------
 
-		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(),getTeam()))
+		if(enterPlot.getFeatureType() != NO_FEATURE && m_Promotions.HasAllowFeaturePassable())
 		{
-			return true;
+			return m_Promotions.GetAllowFeaturePassable(enterPlot.getFeatureType(), getTeam());
 		}	
-		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(),getTeam()))
+		else if(enterPlot.getTerrainType() != NO_TERRAIN && m_Promotions.HasAllowTerrainPassable())
 		{
-			return true;
+			return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
 		}	
 
 		//ok, seems we ran out of jokers. no pasaran!
@@ -4881,8 +4881,8 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 					return true;
 
 				// tech-locked promotion
-				if (m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(),getTeam()))
-					return true;
+				if (m_Promotions.HasAllowTerrainPassable())
+					return m_Promotions.GetAllowTerrainPassable(enterPlot.getTerrainType(), getTeam());
 
 				// tech limited embarkation
 				if (eDomain==DOMAIN_LAND && !IsEmbarkDeepWater() && !IsEmbarkAllWater() && !kPlayer.CanCrossOcean())

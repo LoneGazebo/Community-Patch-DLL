@@ -717,7 +717,9 @@ public:
 	bool HasPromotion(PromotionTypes eIndex) const;
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
+	bool HasAllowFeaturePassable() const;
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const;
+	bool HasAllowTerrainPassable() const;
 	bool GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const;
 
 	int GetUnitClassAttackMod(UnitClassTypes eUnitClass) const;
@@ -728,13 +730,11 @@ public:
 private:
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
 
-#if defined(MOD_BALANCE_CORE)
 	void UpdateCache();
 	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
 	std::vector<std::vector<TechTypes>> m_featurePassableCache;
 	std::vector<int> m_unitClassDefenseMod;
 	std::vector<int> m_unitClassAttackMod;
-#endif
 
 	CvBitfield m_kHasPromotion;
 };
