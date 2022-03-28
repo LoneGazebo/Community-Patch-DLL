@@ -56352,6 +56352,12 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				{
 					SetSupportedOurProposalValue(eOtherTeamPlayer, 0);
 				}
+				if (GetVotingHistoryScore(eOtherTeamPlayer) < 0)
+				{
+					SetVotingHistoryScore(eOtherTeamPlayer, 0);
+				}
+				SetTheySanctionedUsTurn(eOtherTeamPlayer, -1);
+				SetEverSanctionedUs(eOtherTeamPlayer, false);
 				
 				// Reset common foe bonus
 				SetCommonFoeValue(eOtherTeamPlayer, 0);

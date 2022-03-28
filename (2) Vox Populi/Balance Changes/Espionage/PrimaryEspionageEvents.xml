@@ -53,6 +53,7 @@
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
 		<!-- PRODUCTION -->
+		<!--
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Description>
@@ -68,6 +69,7 @@
 			<EspionageDifficultyMod>50</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
+		-->
 		<!-- SCIENCE -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</Type>
@@ -232,11 +234,13 @@
 		</Row>
 	</CityEventChoices>
 	<CityEventChoice_InstantYield>
+		<!--
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>-25</Yield>
 		</Row>
+		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<YieldType>YIELD_GOLD</YieldType>
@@ -376,10 +380,12 @@
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
+		<!--
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
+		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
@@ -431,11 +437,13 @@
 	</CityEvent_ParentEvents>
 	<CityEventChoiceFlavors>
 		<!-- FOCUS -->
+		<!--
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
+		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
@@ -476,11 +484,13 @@
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 			<Flavor>5</Flavor>
 		</Row>
+		<!--
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>10</Flavor>
 		</Row>
+		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
@@ -575,6 +585,7 @@
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
 		</Row>
+		<!--
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
@@ -585,6 +596,7 @@
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
 		</Row>
+		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
 			<NotificationType>NOTIFICATION_GENERIC</NotificationType>

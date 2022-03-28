@@ -9790,6 +9790,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					{
 						pDiploAI->SetSupportedOurProposalValue(eMyTeamPlayer, 0);
 					}
+					if (pDiploAI->GetVotingHistoryScore(eMyTeamPlayer) < 0)
+					{
+						pDiploAI->SetVotingHistoryScore(eMyTeamPlayer, 0);
+					}
+					pDiploAI->SetTheySanctionedUsTurn(eMyTeamPlayer, -1);
+					pDiploAI->SetEverSanctionedUs(eMyTeamPlayer, false);
 
 					pDiploAI->SetVassalageForcefullyRevokedTurn(eMyTeamPlayer, -1);
 					pDiploAI->SetPlayerBrokenVassalAgreement(eMyTeamPlayer, false);

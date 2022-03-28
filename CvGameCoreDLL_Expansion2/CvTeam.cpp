@@ -9623,74 +9623,77 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
+	// Send out notifications to everyone
+	if (bSuppressNotification)
+		return;
+
 	Localization::String locString, summaryString;
 
-	// Text stuff
-	if(!bSuppressNotification)
+	for (iI = 0; iI < MAX_PLAYERS; iI++)
 	{
-		PlayerTypes ePlayer;
-			
-		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		PlayerTypes ePlayer = (PlayerTypes) iI;
+
+		if (!GET_PLAYER(ePlayer).GetNotifications())
+			continue;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isHuman())
 		{
-			ePlayer = (PlayerTypes) iI;
-
-			if(GET_PLAYER(ePlayer).isAlive())
+			// Player is no longer the vassal
+			if (GET_PLAYER(ePlayer).getTeam() == GetID())
 			{
-				// Player that is no longer the vassal
-				if(GET_PLAYER(ePlayer).getTeam() == GetID())
+				if (bPeaceful) 
 				{
-					if(GET_PLAYER(ePlayer).GetNotifications())
-					{
-						if(bPeaceful) {
-							locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU_PEACEFUL");
-							locString << GET_TEAM(eTeam).getName().GetCString();
-						}
-						else {
-							locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU");
-							locString << GET_TEAM(eTeam).getName().GetCString();
-						}
+					locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU_PEACEFUL");
+					locString << GET_TEAM(eTeam).getName().GetCString();
+				}
+				else 
+				{
+					locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU");
+					locString << GET_TEAM(eTeam).getName().GetCString();
+				}
 
-						summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU_SUMMARY");
-						summaryString << GET_TEAM(eTeam).getName().GetCString();
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), summaryString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID());
-					}
-				}
-				// Player that is no longer the master
-				else if(GET_PLAYER(ePlayer).getTeam() == eTeam)
+				summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_FROM_YOU_SUMMARY");
+				summaryString << GET_TEAM(eTeam).getName().GetCString();
+				GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), summaryString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID());
+			}
+			// Player is no longer the master
+			else if (GET_PLAYER(ePlayer).getTeam() == eTeam)
+			{
+				if (bPeaceful) 
 				{
-					if(GET_PLAYER(ePlayer).GetNotifications())
-					{
-						if(bPeaceful) {
-							locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU_PEACEFUL");
-							locString << getName().GetCString();
-						}
-						else {
-							locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU");
-							locString << getName().GetCString();
-						}
+					locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU_PEACEFUL");
+					locString << getName().GetCString();
+				}
+				else 
+				{
+					locString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU");
+					locString << getName().GetCString();
+				}
 
-						summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU_SUMMARY");
-						summaryString << getName().GetCString();
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), summaryString.toUTF8(), -1, -1, this->getLeaderID());
-					}
-				}
-				// Unrelated players
-				else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam))
-				{
-					if(GET_PLAYER(ePlayer).GetNotifications())
-					{
-						locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE");
-						locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
-						GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID(), this->getLeaderID());
-					}
-				}
+				summaryString = Localization::Lookup("TXT_KEY_MISC_VASSALAGE_ENDED_WITH_YOU_SUMMARY");
+				summaryString << getName().GetCString();
+				GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, locString.toUTF8(), summaryString.toUTF8(), -1, -1, this->getLeaderID());
+			}
+			// Unrelated players
+			else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eTeam))
+			{
+				locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE");
+				locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
+				GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID(), this->getLeaderID());
 			}
 		}
+		else if (GET_PLAYER(ePlayer).isObserver())
+		{
+			locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE");
+			locString << getName().GetCString() << GET_TEAM(eTeam).getName().GetCString();
+			GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_PEACE, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(eTeam).getLeaderID(), this->getLeaderID());
+		}
 	}
-		
+
 	strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);
 }
+
 //	----------------------------------------------------------------------------------------------
 // We liberate eTeam, if we can
 void CvTeam::DoLiberateVassal(TeamTypes eTeam)
