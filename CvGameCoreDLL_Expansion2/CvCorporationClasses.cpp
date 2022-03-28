@@ -1048,7 +1048,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		if (!m_pPlayer->GetTrade()->IsConnectedToPlayer(ePlayer))
 			continue;
 
-		if (GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != m_pPlayer->getTeam() && GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
 			continue;
 
 		int iLoop;
@@ -1728,7 +1728,7 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 	if (pOriginCity == NULL || pTargetCity == NULL)
 		return false;
 
-	if (!HasFoundedCorporation() || GET_PLAYER(pTargetCity->getOwner()).GetCorporations()->IsNoForeignCorpsInCities())
+	if (!HasFoundedCorporation())
 		return false;
 
 	//no local franchises? check ownership.
@@ -1736,8 +1736,13 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 		return false;
 
 	//no foreign franchises? Exception for vassals.
-	if (IsNoFranchisesInForeignCities() && GET_TEAM(pTargetCity->getTeam()).GetMaster() != pOriginCity->getTeam())
-		return false;
+	if (GET_TEAM(pTargetCity->getTeam()).GetMaster() != pOriginCity->getTeam())
+	{
+		if (IsNoFranchisesInForeignCities())
+			return false;
+		if (GET_PLAYER(pTargetCity->getOwner()).GetCorporations()->IsNoForeignCorpsInCities())
+			return false;
+	}
 
 	if (pTargetCity->IsHasFranchise(m_eFoundedCorporation) || !pOriginCity->IsHasOffice())
 		return false;

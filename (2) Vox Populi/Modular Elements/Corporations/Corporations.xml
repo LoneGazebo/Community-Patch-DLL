@@ -664,7 +664,6 @@
 			<PortraitIndex>11</PortraitIndex>
 			<IconAtlas>POLICY_ATLAS_EXP2</IconAtlas>
 			<IconAtlasAchieved>POLICY_A_ATLAS_EXP2</IconAtlasAchieved>
-		
 	</Row>
 		<Row>
 			<Type>POLICY_GLOBALIZATION</Type>

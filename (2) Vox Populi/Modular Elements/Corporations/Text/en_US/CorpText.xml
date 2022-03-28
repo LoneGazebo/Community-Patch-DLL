@@ -546,7 +546,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities. +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities (except Masters). +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
 			<Text>Nationalization</Text>
