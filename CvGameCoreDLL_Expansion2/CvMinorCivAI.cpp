@@ -11756,22 +11756,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		if (MOD_EVENTS_MINORS) 
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
-		} 
-		else 
-		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem) 
-			{
-				CvLuaArgsHandle args;
-				args->Push(m_pPlayer->GetID());
-				args->Push(ePlayer);
-				args->Push(true);
-				args->Push(iOldFriendship);
-				args->Push(iNewFriendship);
-
-				bool bResult;
-				LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
-			}
 		}
 	}
 	// Remove Friends bonus
@@ -11784,22 +11768,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		if (MOD_EVENTS_MINORS) 
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
-		} 
-		else 
-		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem) 
-			{
-				CvLuaArgsHandle args;
-				args->Push(m_pPlayer->GetID());
-				args->Push(ePlayer);
-				args->Push(false);
-				args->Push(iOldFriendship);
-				args->Push(iNewFriendship);
-
-				bool bResult;
-				LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
-			}
 		}
 	}
 
@@ -11833,22 +11801,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		if (MOD_EVENTS_MINORS) 
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
-		} 
-		else 
-		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem) 
-			{
-				CvLuaArgsHandle args;
-				args->Push(m_pPlayer->GetID());
-				args->Push(ePlayer);
-				args->Push(true);
-				args->Push(iOldFriendship);
-				args->Push(iNewFriendship);
-
-				bool bResult;
-				LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
-			}
 		}
 	}
 	// Remove Allies bonus
@@ -11861,22 +11813,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
 		} 
-		else 
-		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
-			{
-				CvLuaArgsHandle args;
-				args->Push(m_pPlayer->GetID());
-				args->Push(ePlayer);
-				args->Push(false);
-				args->Push(iOldFriendship);
-				args->Push(iNewFriendship);
-
-				bool bResult;
-				LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
-			}
-		}
 	}
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
 	if(bNowAboveFriendsThreshold || bAllies)
