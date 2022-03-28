@@ -11738,88 +11738,71 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	Localization::String strMessage;
 	Localization::String strSummary;
 
-	bool bAdd = false;
-	bool bFriends = false;
-	bool bAllies = false;
-	bool bNowAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(ePlayer, iNewFriendship);
-
-	// If we are Friends now, mark that we've been Friends at least once this game
-	if(bNowAboveFriendsThreshold)
-		SetEverFriends(ePlayer, true);
-	// Add Friends Bonus
-	if (!IsFriends(ePlayer) && bNowAboveFriendsThreshold)
-	{
-		bAdd = true;
-		bFriends = true;
-		SetFriends(ePlayer, true);
-
-		if (MOD_EVENTS_MINORS) 
-		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
-		}
-	}
-	// Remove Friends bonus
-	else if (IsFriends(ePlayer) && !bNowAboveFriendsThreshold)
-	{
-		bAdd = false;
-		bFriends = true;
-		SetFriends(ePlayer, false);
-
-		if (MOD_EVENTS_MINORS) 
-		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
-		}
-	}
-
-	// Resolve Allies status
-	bool bNowAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(ePlayer, iNewFriendship);
-
-	bool bOverride = false;
-	if (MOD_DIPLOMACY_CITYSTATES)
-	{
-		if (GetPermanentAlly() != NO_PLAYER && GetPermanentAlly() != ePlayer)
-		{
-			bNowAboveAlliesThreshold = false;
-			bOverride = true;
-		}
-		if (IsNoAlly())
-		{
-			bNowAboveAlliesThreshold = false;
-			bOverride = true;
-		}
-	}
-
 	PlayerTypes eOldAlly = GetAlly();
 
-	// No old ally and our friendship is now above the threshold, OR our friendship is now higher than a previous ally
-	if((eOldAlly == NO_PLAYER && bNowAboveAlliesThreshold)
-	        || ((eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)) && !bOverride))
+	bool bAdd = false;
+	bool bFriendsChanged = false;
+	bool bAlliesChanged = false;
+	bool bWasFriends = IsFriends(ePlayer);
+	bool bNowFriends = IsFriendshipAboveFriendsThreshold(ePlayer, iNewFriendship);
+	bool bNowAllies = IsFriendshipAboveAlliesThreshold(ePlayer, iNewFriendship);
+
+	// If we are Friends now, mark that we've been Friends at least once this game
+	if(bNowFriends)
+		SetEverFriends(ePlayer, true);
+
+	// Add Friends Bonus
+	if (!bWasFriends && bNowFriends)
 	{
 		bAdd = true;
-		bAllies = true;
-
-		if (MOD_EVENTS_MINORS) 
-		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
-		}
+		bFriendsChanged = true;
+		SetFriends(ePlayer, true);
 	}
-	// Remove Allies bonus
-	else if (eOldAlly == ePlayer && !bNowAboveAlliesThreshold && !bOverride)
+	// Remove Friends bonus
+	else if (bWasFriends && !bNowFriends)
 	{
 		bAdd = false;
-		bAllies = true;
-
-		if (MOD_EVENTS_MINORS) 
-		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
-		} 
+		bFriendsChanged = true;
+		SetFriends(ePlayer, false);
 	}
+
+	// Resolve Allies status with sphere of influence or open door
+	bool bHasOtherPermanentAlly = false;
+	if (MOD_DIPLOMACY_CITYSTATES)
+	{
+		if (IsNoAlly() || (GetPermanentAlly() != NO_PLAYER && GetPermanentAlly() != ePlayer))
+		{
+			bNowAllies = false;
+			bHasOtherPermanentAlly = true;
+		}
+	}
+
+	// No old ally and now allies, OR our friendship is now higher than a previous ally
+	if((eOldAlly == NO_PLAYER && bNowAllies)
+	        || ((eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)) && !bHasOtherPermanentAlly))
+	{
+		bAdd = true;
+		bAlliesChanged = true;
+	}
+	// Remove Allies bonus
+	else if (eOldAlly == ePlayer && (!bNowAllies || bHasOtherPermanentAlly))
+	{
+		bAdd = false;
+		bAlliesChanged = true;
+	}
+
+	if (MOD_EVENTS_MINORS)
+	{
+		if (bFriendsChanged || bAlliesChanged)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
+	}
+
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
-	if(bNowAboveFriendsThreshold || bAllies)
-		DoSetBonus(ePlayer, bAdd, bNowAboveFriendsThreshold, bAllies, /*bSuppressNotifications*/ bFromQuest);
+	if(bFriendsChanged || bAlliesChanged)
+		DoSetBonus(ePlayer, bAdd, bFriendsChanged, bAlliesChanged, /*bSuppressNotifications*/ bFromQuest);
 
 	// Now actually changed Allied status, since we needed the old player in effect to create the notifications in the function above us
-	if(bAllies)
+	if(bAlliesChanged)
 	{
 		if(bAdd)
 			SetAlly(ePlayer);
