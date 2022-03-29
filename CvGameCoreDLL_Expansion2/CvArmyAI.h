@@ -122,6 +122,7 @@ public:
 
 	int GetMovementRate();
 	CvPlot* GetCenterOfMass(bool bClampToUnit=true, float* pfVarX=NULL, float* pfVarY=NULL);
+	int GetClosestUnitDistance(CvPlot* pPlot);
 	int GetFurthestUnitDistance(CvPlot* pPlot);
 
 	void SetOwner(PlayerTypes eOwner) { m_eOwner=eOwner; }

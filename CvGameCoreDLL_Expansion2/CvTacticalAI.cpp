@@ -2561,8 +2561,8 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || 
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
-		//no matter if successful or not
-		CheckForEnemiesNearArmy(pThisArmy);
+		if (CheckForEnemiesNearArmy(pThisArmy))
+			pOperation->LogOperationSpecialMessage("Contact with enemy!");
 
 		// This is where we try to gather. Don't use the center of mass here, it may drift anywhere 
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget,pOperation->GetMusterPlot());
@@ -4698,7 +4698,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if(eMove == AI_TACTICAL_GARRISON)
 			{
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
-				if (pLoopUnit->IsCanAttackRanged() && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_CITY_BOMBARD)==false)
+				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_RANGED))
 					iExtraScore += 30;
 
 				//naval garrisons cannot attack inside cities ...
