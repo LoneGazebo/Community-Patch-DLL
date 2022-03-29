@@ -1875,3 +1875,33 @@ WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
 UPDATE Language_en_US
 SET Text = 'Very well.'
 WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
+
+
+-- Kiev -> Kyiv
+UPDATE Language_en_US
+SET Text = 'Kyiv'
+WHERE Tag = 'TXT_KEY_CITYSTATE_KIEV';
+
+UPDATE Language_en_US
+SET Text = 'Kyivan'
+WHERE Tag = 'TXT_KEY_CITYSTATE_KIEV_ADJ';
+
+UPDATE Language_en_US
+SET Text = 'According to legend, Kyiv was founded by three Slavic brothers - Kyi, Schek, and Khoryv -around the beginning of the 6th Century AD. Since then, Kyiv, one of the oldest cities in Eastern Europe, has passed through times of great prominence and periods of relative obscurity. Throughout the centuries, however, it has remained the most important Slavic cultural center, playing a pivotal role in the development of the medieval East Slavic civilization.[NEWLINE][NEWLINE]Located on the Dnieper trade route between Constantinople and Scandinavia, Kyiv came under the control of local Varangian (Viking) nobility and became the nucleus of the state of Rus. During the 1000s, it reached its ascendancy, a cultural hub with over 400 churches, eight markets, docks and a caravansary, and magnificent homes. With the founding of the Kyiv-Mogilyanskaya Academy in 1632, the city became the center of Ukrainian learning and scholarship. But as the capital of Kyivan Rus, the city was repeatedly sacked and occupied.[NEWLINE][NEWLINE]In 1667 the city became part of the Russian Empire; Kyiv remained an ecclesiastical and cultural center, but its political and economic influence was marginalized. Kyiv experienced growing "Russification" in the 1800s, as a result of Russian migration, educational policies, and industrialization. However, enthusiasts among ethnic Ukrainian nobles, military officers and merchants kept the native culture alive in Kyiv, often through clandestine activities such as book-printing, amateur theater, private soirees, folk festivals and the like.[NEWLINE][NEWLINE]Forcefully incorporated into the Soviet Union, the city weathered all manner of troubles: the famine of 1932-1933 devastated the lower classes, Stalin''s 1937-1938 purges almost obliterated the city''s intelligensia, and the 1941-1943 Nazi invasion brought death and destruction. But Kyiv survived, and in the wake of the collapse of the Soviet Union an independent Ukraine was proclaimed in 1991, with resurgent Kyiv as its capital and cultural heart.'
+WHERE Tag = 'TXT_KEY_CIV5_KIEV_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'The Eastern Orthodox Church is currently the second-largest Christian denomination, with an estimated 300 million adherents. The goal of Orthodox Christians is to draw nearer to God throughout their lives through theosis, a spiritual pilgrimage to become more "Christ-like."[NEWLINE][NEWLINE]The church traces its roots to the Great Schism. During the 9th and 10th centuries AD the Christian church under the Patriarch of Constantinople made significant conversions among the peoples of eastern Europe, including Kyivan Russia and the Balkans. Doctrinal issues such as the filioque split and the authority of the Pope over the Patriarch in matters religious, exacerbated by the political and economic rivalry of Rome and Constantinople, led to a schism. The final breach between these two branches of Christianity is acknowledged as the sacking of Constantinople by the Catholic crusaders in 1204 AD. Moreover, after the fall of Constantinople to the Ottomans in 1453, the Eastern Church became even more isolated from Rome under the relatively tolerant rule of the Turks. The Orthodox Church, which saw itself as the true heir to the teachings and practices of the early Christians, flourished under the Russian Tsars. Although somewhat diminished by Communist rule and Balkan secularism, Eastern Orthodoxy has experienced a resurgence in recent decades and remains a vital aspect of Christianity.'
+WHERE Tag = 'TXT_KEY_RELIGION_ORTHODOXY_PEDIA';
+
+UPDATE Language_en_US
+SET Text = 'Kyivan'
+WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_HEADING_4';
+
+UPDATE Language_en_US
+SET Text = 'The eighth century saw the first written record of "Kyivan Rus." The Rus are believed to have been Scandinavian Vikings who migrated south from the Baltic coast (although this is disputed by some Russian scholars, who believe that the original founders of Kyivan Rus were Slavs). By 860 the Rus were sending raiding parties as far south as Constantinople, and by 1000 AD Kyivan Rus controlled a trade route from the Baltic to the Black Sea; this would form the economic backbone of the growing regional power.[NEWLINE][NEWLINE]By the 12th century, the Kyiv Empire covered much of what would become eastern Russia, extending from Poland in the west to the Volga in the east, and from Finland in the north to the Ukraine in the south. It was a vast territory to manage from one centralized location, especially as component parts of the Empire began developing individual identities and national aspirations. Economically, the Empire also became divided, with northern provinces aligning themselves with the Baltic powers while the western areas were drawn to Poland and Hungary, and the southern regions to Asia Minor and the Mediterranean. By the closing of the 12th century Rus Kyiv was dissolved in all but name, replaced by a number of smaller quasi-feudal states.'
+WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_TEXT_4';
+
+UPDATE Language_en_US
+SET Text = 'The first Mongol incursion into Kyivan territory occurred in 1223, when a Mongol reconnaissance unit met the combined warriors of several Rus states under the command of the wonderfully-named "Mstislav the Bold" and "Mstislav Romanovich the Old" at the Battle of the Kalka River. The Rus forces enjoyed early success, but they became disorganized in the pursuit of the retreating foe. The Mongol horsemen rallied and defeated the pursuers in detail before they could reorganize. A large portion of the Rus forces surrendered to the Mongols on the condition that they would be spared; the Mongols accepted the conditions then slaughtered them anyway. The Mongols then left Rus for several years before returning in much greater force.[NEWLINE][NEWLINE]In 1237 a vast Mongol army of some 30,000 or more horse archers once again crossed the Volga River. In a few short years the Mongols captured, looted and destroyed dozens of Russian cities and towns, including Ryazan, Kolomna, Moscow, Rostov, Kashin, Dmitrov, Kozelsk, Halych and Kyiv. They soundly thrashed every force raised to oppose them. By 1240 most of Rus was a smoking ruin, firmly under the control of the Mongols, who then turned their sight further west, towards Hungary and Poland.[NEWLINE]'
+WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_TEXT_5';
