@@ -3104,12 +3104,12 @@ void CvUnitPromotions::Reset()
 {
 	m_kHasPromotion.SetSize(0);
 
-#if defined(MOD_BALANCE_CORE)
 	m_unitClassDefenseMod.clear();
 	m_unitClassAttackMod.clear();
 	m_terrainPassableCache.clear();
+	m_bTerrainPassable = false;
 	m_featurePassableCache.clear();
-#endif
+	m_bFeaturePassable = false;
 }
 
 ///
