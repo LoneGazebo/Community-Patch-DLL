@@ -1879,15 +1879,11 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 			iTotalPoliciesNeeded = pBuildingInfo->GetNumPoliciesNeeded();
 			if (iTotalPoliciesNeeded > 0)
 			{
-				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-				ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkCity->getOwner());
-				if (eFoundedReligion == NO_RELIGION)
+				ReligionTypes eOwnedReligion = GET_PLAYER(pkCity->getOwner()).GetReligions()->GetOwnedReligion();
+				if (eOwnedReligion != NO_RELIGION)
 				{
-					eFoundedReligion = GET_PLAYER(pkCity->getOwner()).GetReligions()->GetReligionInMostCities();
-				}
-				if (eFoundedReligion != NO_RELIGION)
-				{
-					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkCity->getOwner());
+					CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+					const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, pkCity->getOwner());
 					if (pReligion)
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
@@ -1913,7 +1909,7 @@ int CvLuaCity::lGetNumPoliciesNeeded(lua_State* L)
 						int iReligionPolicyReduction = pReligion->m_Beliefs.GetPolicyReductionWonderXFollowerCities(pkCity->getOwner(), pHolyCity);
 						if (iReligionPolicyReduction > 0)
 						{
-							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eFoundedReligion);
+							int iNumFollowerCities = pReligions->GetNumCitiesFollowing(eOwnedReligion);
 							if (iNumFollowerCities > 0)
 							{
 								iNumPoliciesReduced += (iNumFollowerCities / iReligionPolicyReduction);
@@ -5658,8 +5654,8 @@ int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
 	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
-	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
-	if(ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+	if (ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
 	{
 		const int iRtnValue = GET_PLAYER(ePlayer).getReligionYieldRateModifier(eYield);
 		lua_pushinteger(L, iRtnValue);
@@ -5681,8 +5677,8 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
-	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
-	if(ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+	if (ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
 	{
 		 iRtnValue = pkCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield);
 	}

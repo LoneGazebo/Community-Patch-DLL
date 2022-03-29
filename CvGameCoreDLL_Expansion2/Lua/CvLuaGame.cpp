@@ -2931,7 +2931,7 @@ int CvLuaGame::lGetReligionName(lua_State* L)
 int CvLuaGame::lGetFounderBenefitsReligion(lua_State* L)
 {
 	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(ePlayer);
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 	lua_pushinteger(L, eReligion);
 	return 1;
 }

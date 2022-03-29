@@ -7189,38 +7189,30 @@ void CvPlayerTraits::SetUnitBaktun(UnitTypes eUnit)
 	choice.m_iBaktunJustFinished = m_iBaktun;
 	m_aMayaBonusChoices.push_back(choice);
 }
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+
 /// Have Maya unlocked free choice of Great People?
 bool CvPlayerTraits::IsProphetValid() const
 {
-	//Has religion? Valid.
-	if(m_pPlayer->GetReligions()->HasCreatedReligion())
+	// Has state religion? Valid.
+	if (m_pPlayer->GetReligions()->GetStateReligion() != NO_RELIGION)
 	{
 		return true;
 	}
-	//Getting into the upper baktuns? Let's let it happen.
-	if(m_iBaktun > 8)
+	// Getting into the upper baktuns? Let's let it happen.
+	if (m_iBaktun > 8)
 	{
 		return true;
 	}
-	//No religion? Let's check pre-medieval.
+	// Post-medieval? True.
 	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	if(m_pPlayer->GetCurrentEra() <= eMedieval)
-	{
-		//Major majority? True.
-		if((m_pPlayer->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (m_pPlayer->GetReligions()->GetReligionInMostCities() > RELIGION_PANTHEON))
-		{
-			return true;
-		}
-	}
-	//Post-medieval? True.
-	else
+	if (m_pPlayer->GetCurrentEra() > eMedieval)
 	{
 		return true;
 	}
+
 	return false;
 }
-#endif
+
 /// Have Maya unlocked free choice of Great People?
 bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 {

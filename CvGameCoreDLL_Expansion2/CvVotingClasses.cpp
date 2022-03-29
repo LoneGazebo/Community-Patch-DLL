@@ -4289,20 +4289,18 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iReligionVotes = 0;
 	if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
-		bool bFounded = true;
-		if (eFoundedReligion == NO_RELIGION)
+		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
+		bool bOwned = eReligion != NO_RELIGION;
+		if (!bOwned)
 		{
-			bFounded = false;
-			eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
 		}
-		if (eFoundedReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
 			if (pReligion)
 			{
-				CvCity* pHolyCity = bFounded ? pReligion->GetHolyCity() : GET_PLAYER(ePlayer).getCapitalCity();
+				CvCity* pHolyCity = bOwned ? pReligion->GetHolyCity() : GET_PLAYER(ePlayer).getCapitalCity();
 				if (pHolyCity != NULL)
 				{
 					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);

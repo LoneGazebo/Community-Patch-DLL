@@ -2255,9 +2255,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 			// Religious civ - apply extra weight if ANY religion criteria is met
 			if (pTraits->IsReligious())
 			{
-				ReligionTypes eMajorityReligion = GetReligions()->GetReligionInMostCities();
-
-				if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetReligions()->HasCreatedPantheon())
+				if (eReligion != NO_RELIGION || GetReligions()->HasCreatedPantheon())
 				{
 					iScore *= 2;
 				}

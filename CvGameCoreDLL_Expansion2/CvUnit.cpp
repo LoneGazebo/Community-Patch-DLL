@@ -7687,12 +7687,9 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	{
 		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()))
 		{
-			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
+			ReligionTypes eMajority = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if(eMajority == NO_RELIGION)
-			{
-				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
-			}
+
 			if(eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -7708,7 +7705,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 					iExtraFriendlyHeal += iReligionMod;
 				}
 			}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+
 			// Mod for civs keeping their pantheon belief forever
 			if (MOD_RELIGION_PERMANENT_PANTHEON)
 			{
@@ -7726,7 +7723,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 					}
 				}
 			}
-#endif
 		}
 	}
 	else
@@ -7972,15 +7968,11 @@ void CvUnit::doHeal()
 			{
 				iEra = 1;
 			}
-			ReligionTypes eMajority = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
-			if(eMajority == NO_RELIGION)
-			{
-				eMajority = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
-			}
-			if(eMajority != NO_RELIGION)
+			ReligionTypes eMajority = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
+			if (eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-				if(pReligion)
+				if (pReligion)
 				{
 					CvCity* pHolyCity = pReligion->GetHolyCity();
 					if (pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH, getOwner(), pHolyCity) > 0)
@@ -8011,7 +8003,6 @@ void CvUnit::doHeal()
 				}
 			}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 			// Mod for civs keeping their pantheon belief forever
 			if (MOD_RELIGION_PERMANENT_PANTHEON)
 			{
@@ -8036,7 +8027,6 @@ void CvUnit::doHeal()
 					}
 				}
 			}
-#endif
 		}
 #endif
 	}
@@ -11192,29 +11182,27 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsForeignReligionSpreadImmune() && (getOwner() != pCity->getOwner()))
+	if (GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsForeignReligionSpreadImmune() && (getOwner() != pCity->getOwner()))
 	{
-		if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
+		if (GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetStateReligion())
 		{
 			return false;
 		}
 	}
-	else if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+	else if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
 	{
 		PlayerTypes eAlly = (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly());
-		if(eAlly != NO_PLAYER)
+		if (eAlly != NO_PLAYER)
 		{
-			if(GET_PLAYER(eAlly).GetPlayerTraits()->IsForeignReligionSpreadImmune() && (getOwner() != eAlly))
+			if (GET_PLAYER(eAlly).GetPlayerTraits()->IsForeignReligionSpreadImmune() && getOwner() != eAlly)
 			{
-				if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
+				if (GetReligionData()->GetReligion() != GET_PLAYER(eAlly).GetReligions()->GetStateReligion())
 				{
 					return false;
 				}
 			}
 		}
 	}
-#endif
 
 	// Blocked by Inquisitor?
 	if (!MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
@@ -15802,11 +15790,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-	if (eFoundedReligion == NO_RELIGION)
-	{
-		eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 
 	// If the empire is unhappy, then Units get a combat penalty
 	if (kPlayer.IsEmpireUnhappy())
@@ -15925,7 +15909,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			if(pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-				if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+				if(eReligion != NO_RELIGION && eReligion == eStateReligion)
 				{
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if(pCityReligion)
@@ -15964,7 +15948,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			if(pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-				if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+				if(eReligion != NO_RELIGION && eReligion == eStateReligion)
 				{
 					const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 					if(pCityReligion)
@@ -15976,25 +15960,22 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
+		if (MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
 		{
-			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+			if (!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(kPlayer.GetID());
-				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherUnit->getOwner());
-				if(eTheirReligion == NO_RELIGION)
-					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
+				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				ReligionTypes eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetStateReligion();
 
-				if (eFoundedReligion != NO_RELIGION && eFoundedReligion == kPlayer.GetReligions()->GetReligionInMostCities())
+				if (eOwnedReligion != NO_RELIGION)
 				{
-					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
-					if(pReligion)
+					const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, getOwner());
+					if (pReligion)
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
 						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eFoundedReligion) ? 1 : 2;
+						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
 						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
 						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
@@ -16008,7 +15989,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				}
 			}
 		}
-#endif
 
 		// Capital Defense
 		if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
@@ -16532,12 +16512,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-
-	ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-	if (eFoundedReligion == NO_RELIGION)
-	{
-		eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 
 	int iBaseStrength = GetBaseRangedCombatStrength();
 
@@ -16654,7 +16629,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			if (pPlotCity)
 			{
 				ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-				if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+				if (eReligion != NO_RELIGION && eReligion == eStateReligion)
 				{
 					const CvReligion* pCityReligion = pReligions->GetReligion(eReligion, pPlotCity->getOwner());
 					if (pCityReligion)
@@ -16678,7 +16653,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				if (atWar(getTeam(), pPlotCity->getTeam()))
 				{
 					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-					if (eReligion != NO_RELIGION && eReligion == eFoundedReligion)
+					if (eReligion != NO_RELIGION && eReligion == eStateReligion)
 					{
 						const CvReligion* pCityReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pPlotCity->getOwner());
 						if (pCityReligion)
@@ -16691,26 +16666,22 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
+		if (MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL && getDomainType() == DOMAIN_LAND)
 		{
-			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+			if (!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
-				ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(kPlayer.GetID());
-				ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherUnit->getOwner());
-				if(eTheirReligion == NO_RELIGION)
+				ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+				ReligionTypes eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetStateReligion();
+
+				if (eOwnedReligion != NO_RELIGION)
 				{
-					eTheirReligion = GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-				} 
-				if (eFoundedReligion != NO_RELIGION && eFoundedReligion == kPlayer.GetReligions()->GetReligionInMostCities())
-				{
-					const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
-					if(pReligion)
+					const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, getOwner());
+					if (pReligion)
 					{
 						CvCity* pHolyCity = pReligion->GetHolyCity();
 
 						//Full bonus against different religion
-						int iScaler = (eTheirReligion != eFoundedReligion) ? 1 : 2;
+						int iScaler = (eTheirReligion != eOwnedReligion) ? 1 : 2;
 						int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(getOwner(), pHolyCity);
 						int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(getOwner(), pHolyCity);
 
@@ -16724,8 +16695,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				}
 			}
 		}
-#endif
-
 	}
 
 	////////////////////////
@@ -19976,12 +19945,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					if (getUnitClassType() == eMissionary)
 					{
-						ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-						if(eFoundedReligion == NO_RELIGION)
-						{
-							eFoundedReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-						}
-						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, kPlayer.GetID());
+						ReligionTypes eOwnedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eOwnedReligion, kPlayer.GetID());
 
 						if (pReligion)
 						{
@@ -20012,11 +19977,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								if (adjUnit && adjUnit->getUnitClassType() == eMissionary)
 								{
 									CvPlayer &adjUnitPlayer = GET_PLAYER(adjUnit->getOwner());
-									ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(adjUnitPlayer.GetID());
-									if(eFoundedReligion == NO_RELIGION)
-									{
-										eFoundedReligion = adjUnitPlayer.GetReligions()->GetReligionInMostCities();
-									}
+									ReligionTypes eFoundedReligion = adjUnitPlayer.GetReligions()->GetOwnedReligion();
 									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, adjUnitPlayer.GetID());
 
 									if (pReligion)

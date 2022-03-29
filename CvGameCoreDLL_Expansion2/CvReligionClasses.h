@@ -247,12 +247,10 @@ public:
 	bool HasCreatedReligion(PlayerTypes ePlayer) const;
 #endif
 	bool HasAddedReformationBelief(PlayerTypes ePlayer) const;
-	bool IsEligibleForFounderBenefits(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer, bool bIncludePantheon = false) const;
 	ReligionTypes GetPantheonCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer(PlayerTypes ePlayer) const;
-	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	int GetNumReligionsFounded(bool bIgnoreLocal = false) const;
@@ -387,13 +385,9 @@ public:
 	ReligionTypes GetReligionCreatedByPlayer(bool bIncludePantheon = false) const;
 	ReligionTypes GetOriginalReligionCreatedByPlayer() const;
 
-#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	bool CanAffordNextPurchase();
 	void SetFaithAtLastNotify(int iFaith);
 	bool CanAffordFaithPurchase(int iMinimumFaith) const;
-#else
-	bool CanAffordFaithPurchase() const;
-#endif
 	bool HasCityWithMajorityReligion(ReligionTypes eReligionToCheck) const;
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
@@ -423,9 +417,7 @@ private:
 #endif
 	int m_iNumProphetsSpawned;
 	bool m_bFoundingReligion; //seems to be used to suppress further prophet use before the religion has been customized
-#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	int m_iFaithAtLastNotify;
-#endif
 
 	ReligionTypes m_eMajorityReligion; //this is the majority religion in at least half of our cities
 	ReligionTypes m_eStateReligion; //this is our founded religion > the religion whose holy city we control with the most domestic followers > m_eMajorityReligion

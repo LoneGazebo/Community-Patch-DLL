@@ -2066,7 +2066,6 @@ int CvReligionBeliefs::GetNumBeliefs() const
 	return m_ReligionBeliefs.size();
 }
 
-#if defined(MOD_BALANCE_CORE)
 // Does the requested pantheon belief exist in the religion of the requested player?
 bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
@@ -2079,150 +2078,175 @@ bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, Religion
 
 	return (ePanthBeliefs.HasBelief(eBelief) && eFounderBeliefs.HasBelief(eBelief));
 }
+
 bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
-	if(ePlayer != NO_PLAYER)
-	{
-		CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	if (ePlayer == NO_PLAYER)
+		return true;
 
-		if(eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsFounderBelief())
+	bool bEligibleForFounderBenefits = false;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+	if (pReligion)
+	{
+		//do not look up the holy city itself, it's too expensive and we only need the plot
+		CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+		if (pReligion->m_bPantheon && pHolyCityPlot == NULL)
 		{
-			if(!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer))
-			{	
-				return false;
-			}
-			if (pCity != NULL && pCity->getOwner() != ePlayer)
-			{
-				return false;
-			}
-			if (bHolyCityOnly)
-			{
-				if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-				{
-					return false;
-				}
+			if (pReligion->m_eFounder == ePlayer)
+			{		
+				bEligibleForFounderBenefits = true;
 			}
 		}
-		if(eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsEnhancerBelief())
+		else
 		{
-			if (bHolyCityOnly)
-			{
-				if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-				{
-					return false;
-				}
+			//don't care about founder, ownership counts!
+			if (pHolyCityPlot && pHolyCityPlot->getOwner() == ePlayer)
+			{		
+				bEligibleForFounderBenefits = true;
 			}
-			if (pCity != NULL && pCity->getOwner() != ePlayer)
-			{
-				return false;
-			}
-			if (!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer))
-			{
-				return false;
-			}
-		}
-		if (pBeliefs->GetEntry(eBelief)->IsFollowerBelief())
-		{
-			//If calling on a city for city-based beliefs, must be capital or the majority.
-			if (pCity != NULL && pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
-			{
-				return false;
-			}
-			if (pCity != NULL && pCity->getOwner() != ePlayer)
-			{
-				return false;
-			}
-		}
-		if (pBeliefs->GetEntry(eBelief)->IsReformationBelief())
-		{
-			//If calling on a city for city-based beliefs, must be capital or the majority.
-			if (pCity != NULL && pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
-			{
-				return false;
-			}
-			if (!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer) &&  GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != eReligion)
-			{
-				return false;
-			}
-			if (bHolyCityOnly && pCity != NULL)
-			{
-				//For founder/controller
-				if (GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer) && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-				{
-					return false;
-				}
-				//Everyone else gets it in their capital.
-				if (!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer) && GET_PLAYER(ePlayer).getCapitalCity() != pCity)
-				{
-					return false;
-				}
-			}
-		}
-		
-		if (pBeliefs->GetEntry(eBelief)->IsPantheonBelief())
-		{
-			if (eReligion == NO_RELIGION)
-			{
-				eReligion = RELIGION_PANTHEON;
-			}
-			if (!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer))
-			{
-				//Capital only? Only if the majority for you.
-				if (bHolyCityOnly && eReligion > RELIGION_PANTHEON && GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != eReligion)
-				{
-					return false;
-				}
-			}
-			//If calling on a city for city-based beliefs, must be capital or the majority.
-			if (pCity != NULL)
-			{
-				if (pCity->GetCityReligions()->GetReligiousMajority() != eReligion && !IsPantheonBeliefInReligion(eBelief, eReligion, ePlayer))
-				{
-					return false;
-				}
-				if (pCity->getOwner() != ePlayer)
-				{
-					return false;
-				}
-				if (bHolyCityOnly)
-				{
-					if (eReligion == RELIGION_PANTHEON)
-					{
-						if (GET_PLAYER(ePlayer).getCapitalCity() != pCity)
-						{
-							return false;
-						}
-						ReligionTypes eParentReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-						if (eParentReligion != NO_RELIGION && eReligion != eParentReligion)
-						{
-							eReligion = eParentReligion;
-						}
-					}
-					if (eReligion > RELIGION_PANTHEON)
-					{
-						//For founder/controller
-						if (GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer) && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-						{
-							return false;
-						}
-						//Everyone else gets it in their capital.
-						if (!GC.getGame().GetGameReligions()->IsEligibleForFounderBenefits(eReligion, ePlayer) && GET_PLAYER(ePlayer).getCapitalCity() != pCity)
-						{
-							return false;
-						}
-					}
-				}
-			}
-		}
-		if (MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
-		{
-			if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
-				return false;
 		}
 	}
+
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	if (eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsFounderBelief())
+	{
+		if (!bEligibleForFounderBenefits)
+		{	
+			return false;
+		}
+		if (pCity != NULL && pCity->getOwner() != ePlayer)
+		{
+			return false;
+		}
+		if (bHolyCityOnly)
+		{
+			if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			{
+				return false;
+			}
+		}
+	}
+	if (eReligion != NO_RELIGION && pBeliefs->GetEntry(eBelief)->IsEnhancerBelief())
+	{
+		if (bHolyCityOnly)
+		{
+			if (pCity != NULL && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			{
+				return false;
+			}
+		}
+		if (pCity != NULL && pCity->getOwner() != ePlayer)
+		{
+			return false;
+		}
+		if (!bEligibleForFounderBenefits)
+		{
+			return false;
+		}
+	}
+	if (pBeliefs->GetEntry(eBelief)->IsFollowerBelief())
+	{
+		//If calling on a city for city-based beliefs, must be capital or the majority.
+		if (pCity != NULL && pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+		{
+			return false;
+		}
+		if (pCity != NULL && pCity->getOwner() != ePlayer)
+		{
+			return false;
+		}
+	}
+	if (pBeliefs->GetEntry(eBelief)->IsReformationBelief())
+	{
+		//If calling on a city for city-based beliefs, must be capital or the majority.
+		if (pCity != NULL && pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+		{
+			return false;
+		}
+		if (!bEligibleForFounderBenefits && GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() != eReligion)
+		{
+			return false;
+		}
+		if (bHolyCityOnly && pCity != NULL)
+		{
+			//For founder/controller
+			if (bEligibleForFounderBenefits && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+			{
+				return false;
+			}
+			//Everyone else gets it in their capital.
+			if (!bEligibleForFounderBenefits && GET_PLAYER(ePlayer).getCapitalCity() != pCity)
+			{
+				return false;
+			}
+		}
+	}
+	
+	if (pBeliefs->GetEntry(eBelief)->IsPantheonBelief())
+	{
+		if (eReligion == NO_RELIGION)
+		{
+			eReligion = RELIGION_PANTHEON;
+		}
+		if (!bEligibleForFounderBenefits)
+		{
+			//Capital only? Only if the majority for you.
+			if (bHolyCityOnly && eReligion > RELIGION_PANTHEON && GET_PLAYER(ePlayer).GetReligions()->GetStateReligion() != eReligion)
+			{
+				return false;
+			}
+		}
+		//If calling on a city for city-based beliefs, must be capital or the majority.
+		if (pCity != NULL)
+		{
+			if (pCity->GetCityReligions()->GetReligiousMajority() != eReligion && !IsPantheonBeliefInReligion(eBelief, eReligion, ePlayer))
+			{
+				return false;
+			}
+			if (pCity->getOwner() != ePlayer)
+			{
+				return false;
+			}
+			if (bHolyCityOnly)
+			{
+				if (eReligion == RELIGION_PANTHEON)
+				{
+					if (GET_PLAYER(ePlayer).getCapitalCity() != pCity)
+					{
+						return false;
+					}
+					ReligionTypes eParentReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
+					if (eParentReligion != NO_RELIGION && eReligion != eParentReligion)
+					{
+						eReligion = eParentReligion;
+					}
+				}
+				if (eReligion > RELIGION_PANTHEON)
+				{
+					//For founder/controller
+					if (bEligibleForFounderBenefits && !pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+					{
+						return false;
+					}
+					//Everyone else gets it in their capital.
+					if (!bEligibleForFounderBenefits && GET_PLAYER(ePlayer).getCapitalCity() != pCity)
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+	if (MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
+	{
+		if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+			return false;
+	}
+
 	return true;
 }
-#endif
+
 int CvReligionBeliefs::GetFaithFromDyingUnits(PlayerTypes ePlayer, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

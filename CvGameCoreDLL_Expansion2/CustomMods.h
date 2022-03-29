@@ -431,7 +431,7 @@
 // Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60)
 #define MOD_RELIGION_ALLIED_INQUISITORS             gCustomMods.isRELIGION_ALLIED_INQUISITORS()
 // Send purchase notifications at every boundary and not just the first (v42)
-#define MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY     gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFIY()
+#define MOD_RELIGION_RECURRING_PURCHASE_NOTIFY     gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFY()
 // Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53)
 #define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
@@ -1431,7 +1431,7 @@ public:
 	MOD_OPT_DECL(RELIGION_CONVERSION_MODIFIERS);
 	MOD_OPT_DECL(RELIGION_KEEP_PROPHET_OVERFLOW);
 	MOD_OPT_DECL(RELIGION_ALLIED_INQUISITORS);
-	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFIY);
+	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFY);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);

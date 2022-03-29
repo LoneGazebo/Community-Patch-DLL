@@ -1483,26 +1483,19 @@ int CvLuaUnit::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 
 	CvUnit* pkUnit = GetInstance(L);
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
-	if(pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
+	if (pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
-		if(eTheirReligion == NO_RELIGION)
+		ReligionTypes eOwnedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetOwnedReligion();
+		ReligionTypes eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetStateReligion();
+
+		if (eOwnedReligion != NO_RELIGION)
 		{
-			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-		} 
-		if (eFoundedReligion == NO_RELIGION)
-		{
-			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-		}
-		if (eFoundedReligion != NO_RELIGION)
-		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
-			if(pReligion)
+			const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, pkUnit->getOwner());
+			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if(eTheirReligion != eFoundedReligion)
+				if (eTheirReligion != eOwnedReligion)
 				{			
 					int iOtherOwn = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands(pkUnit->getOwner(), pHolyCity);
 					// Bonus in own land
@@ -1537,28 +1530,21 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
 	if (pkUnit && pkUnit->getDomainType() == DOMAIN_LAND && pkOtherUnit)
 	{
-		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkUnit->getOwner());
-		ReligionTypes eTheirReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pkOtherUnit->getOwner());
-		if(eTheirReligion == NO_RELIGION)
+		ReligionTypes eOwnedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetOwnedReligion();
+		ReligionTypes eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetStateReligion();
+
+		if (eOwnedReligion != NO_RELIGION)
 		{
-			eTheirReligion = GET_PLAYER(pkOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-		} 
-		if (eFoundedReligion == NO_RELIGION)
-		{
-			eFoundedReligion = GET_PLAYER(pkUnit->getOwner()).GetReligions()->GetReligionInMostCities();
-		}
-		if (eFoundedReligion != NO_RELIGION)
-		{
-			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkUnit->getOwner());
-			if(pReligion)
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			const CvReligion* pReligion = pReligions->GetReligion(eOwnedReligion, pkUnit->getOwner());
+			if (pReligion)
 			{
 				CvCity* pHolyCity = pReligion->GetHolyCity();
-				if(eTheirReligion != eFoundedReligion)
+				if (eTheirReligion != eOwnedReligion)
 				{			
 					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
 					//Bonus in their land
-					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
+					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
 						iRtnValue = iOtherTheir;
 					}
@@ -1567,7 +1553,7 @@ int CvLuaUnit::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 				{
 					int iOtherTheir = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands(pkUnit->getOwner(), pHolyCity);
 					//Bonus in their land
-					if((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
+					if ((iOtherTheir > 0) && pkOtherUnit->plot()->IsFriendlyTerritory(pkOtherUnit->getOwner()))
 					{
 						iRtnValue = (iOtherTheir / 2);
 					}

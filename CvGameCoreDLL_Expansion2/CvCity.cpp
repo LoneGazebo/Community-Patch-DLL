@@ -1145,18 +1145,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsReconquista() && bInitialFounding)
 	{
-		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
+		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
 		{
 			GetCityReligions()->AdoptReligionFully(eReligion);
-		}
-		else
-		{
-			eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
-			if (eReligion != NO_RELIGION)
-			{
-				GetCityReligions()->AdoptReligionFully(eReligion);
-			}
 		}
 	}
 	if (bInitialFounding)
@@ -3920,10 +3912,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 	if (pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
 	if (pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
@@ -3934,7 +3926,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 
 	if (pkEventInfo->getRequiredStateReligion() != -1)
 	{
-		if (kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
 			return false;
 	}
 
@@ -4355,10 +4347,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
 		return false;
 
-	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
 		return false;
 
 	if (pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
@@ -4369,7 +4361,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 
 	if (pkEventInfo->getRequiredStateReligion() != -1)
 	{
-		if (kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
 			return false;
 	}
 
@@ -5794,13 +5786,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() != GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_PLAYER_RELIGION");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == GetCityReligions()->GetReligiousMajority())
+	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_PLAYER_RELIGION");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -5820,7 +5812,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 
 	if (pkEventInfo->getRequiredStateReligion() != -1)
 	{
-		if (kPlayer.GetReligions()->GetStateReligion() != pkEventInfo->getRequiredStateReligion())
+		if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_STATE_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredStateReligion())->GetDescription();
@@ -7114,8 +7106,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			}
 			if (pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion() != 0)
 			{
-				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
-				if (eReligion != NO_RELIGION && eReligion > RELIGION_PANTHEON)
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
+				if (eReligion != NO_RELIGION)
 				{
 					GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerMajorityReligion());
 				}
@@ -11784,8 +11776,8 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		return iCost;
 	}
 
-	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
-	ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetReligionInMostCities();
+	ReligionTypes eFoundedReligion = kPlayer.GetReligions()->GetOwnedReligion();
+	ReligionTypes eFollowingReligion = kPlayer.GetReligions()->GetStateReligion();
 	ReligionTypes eCityReligion = GetCityReligions()->GetReligiousMajority();
 
 	// LATE-GAME GREAT PERSON
@@ -11977,13 +11969,14 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		{
 			if (eCityReligion == NO_RELIGION)
 				return 0;
+
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 			iCost = iCost * iMultiplier / 100;
 		}
 
 		else if (pkUnitInfo->IsRemoveHeresy())
 		{
-			if (eFoundedReligion == NO_RELIGION)
+			if (eFollowingReligion == NO_RELIGION || eCityReligion != eFollowingReligion)
 				return 0;
 
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
@@ -16066,7 +16059,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 				{
 					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange((YieldTypes)iYield);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
+
 					if ((getPopulation() > 0) && (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield) > 0))
 					{
 						int iFaithPerPop = (getPopulation() / GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield));
@@ -16075,7 +16068,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 							iReligionYieldChange += iFaithPerPop;
 						}
 					}
-#endif
+
 					if (isCapital()) 
 					{
 						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCapitalYieldChange((YieldTypes)iYield);
@@ -16124,8 +16117,8 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						//New majority, not a pantheon
 						if (eNewMajority > RELIGION_PANTHEON)
 						{
-							//Our new majority matches our total majority, so let's add in our new yields.
-							if (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eNewMajority)
+							//Our new majority matches our state religion, so let's add in our new yields.
+							if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eNewMajority)
 							{
 								iYieldFromBuilding += getReligionBuildingYieldRateModifier(eBuildingClass, (YieldTypes)iYield);
 							}
@@ -17151,7 +17144,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true))))
+				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 					iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
@@ -17161,14 +17154,9 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				{
 					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
 				}
-#if !defined(MOD_RELIGION_PERMANENT_PANTHEON)
-				iTotalMod += iReligionGrowthMod;
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
-#endif
 			}
 		}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		// Mod for civs keeping their pantheon belief forever
 		if (MOD_RELIGION_PERMANENT_PANTHEON)
 		{
@@ -17189,9 +17177,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 
 		iTotalMod += iReligionGrowthMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
-#endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if (MOD_BALANCE_CORE_HAPPINESS)
 		{
 			int iHappiness = getHappinessDelta();
@@ -17231,7 +17217,6 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		}
 		else
 		{
-#endif
 			// Cities stop growing when empire is very unhappy
 			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 			{
@@ -17246,9 +17231,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				iTotalMod += iMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 			}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 		}
-#endif
+
 		// WLTKD Growth Bonus
 		if (GetWeLoveTheKingDayCounter() > 0)
 		{
@@ -17357,7 +17341,7 @@ int CvCity::getGrowthMods() const
 			iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
 			eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
-			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && ((eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities()) || (eMajority == GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true))))
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 				iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
@@ -18858,10 +18842,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	// GetBaseYieldRateFromSpecialists(YIELD_CULTURE) gets everything else!
 	iCulturePerTurn += GetBaseYieldRateFromSpecialists(YIELD_CULTURE);
 	iCulturePerTurn += (GetYieldPerPopTimes100(YIELD_CULTURE) * getPopulation()) / 100;
-
-#if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += (GetYieldPerPopInEmpireTimes100(YIELD_CULTURE) * GET_PLAYER(getOwner()).getTotalPopulation()) / 100;
-#endif
 
 	if (IsRouteToCapitalConnected())
 	{
@@ -18901,25 +18882,20 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
 		{
 			iCulturePerTurn += GET_PLAYER(getOwner()).getReligionYieldRateModifier(YIELD_CULTURE);
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetBaseYieldRateFromCSAlliance(YIELD_CULTURE);
 	iCulturePerTurn += GetBaseYieldRateFromCSFriendship(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldFromMinors(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldPerTurnFromTraits(YIELD_CULTURE);
 	iCulturePerTurn += GetYieldChangeFromCorporationFranchises(YIELD_CULTURE);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	iCulturePerTurn += GetEventCityYield(YIELD_CULTURE);
 	iCulturePerTurn += GetBaseYieldRateFromMisc(YIELD_CULTURE);
-#endif
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iCulturePerTurn += GetYieldFromHappiness(YIELD_CULTURE);
@@ -18928,7 +18904,6 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 		iCulturePerTurn += GetYieldFromCrime(YIELD_CULTURE);
 		iCulturePerTurn += GetYieldFromDevelopment(YIELD_CULTURE);
 	}
-#endif
 
 	return iCulturePerTurn;
 }
@@ -19155,7 +19130,7 @@ int CvCity::GetFaithPerTurn() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
 		{
 			iFaith += GET_PLAYER(getOwner()).getReligionYieldRateModifier(YIELD_FAITH);
 		}
@@ -24543,15 +24518,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(getOwner());
-	if (eReligionFounded == NO_RELIGION)
+
+	ReligionTypes eStateReligion = GET_PLAYER(getOwner()).GetReligions()->GetStateReligion();
+	if (MOD_BALANCE_CORE_BELIEFS && eStateReligion != NO_RELIGION)
 	{
-		eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities();
-	}
-	if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION)
-	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eStateReligion, getOwner());
 		if (pReligion)
 		{
 			int iGoldenAge = pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()), true);
@@ -24576,6 +24547,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			}
 		}
 	}
+
 	if (GetWeLoveTheKingDayCounter() > 0)
 	{
 		if (GET_PLAYER(getOwner()).GetYieldFromWLTKD(eIndex) + GetYieldFromWLTKD(eIndex) != 0)
@@ -24591,7 +24563,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_TRAIT", iTempMod);
 		}
 	}
-#endif
 
 	// Puppet
 	if (IsPuppet())
@@ -24941,16 +24912,15 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
-		if (GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+		if (GET_PLAYER(getOwner()).GetReligions()->GetStateReligion() == eMajority)
 		{
 			iValue += GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
 		}
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	//Update Yields from yields ... need to sidestep constness
 	CvCity* pThisCity = const_cast<CvCity*>(this);

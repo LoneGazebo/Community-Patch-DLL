@@ -3727,7 +3727,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOriginPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, true);
 					int iDestPerTurnBonus = GetTradeConnectionGPTValueTimes100(kTradeConnection, eYield, bAsOriginPlayer, false);
-					int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer);
+					int iResourceBonus = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? 0 : GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iExclusiveBonus = GetTradeConnectionExclusiveValueTimes100(kTradeConnection, eYield);
 					int iPolicyBonus = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -3739,7 +3739,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iModifier = 100;
 					int iDistanceModifier = GetTradeConnectionDistanceValueModifierTimes100(kTradeConnection);
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
-					int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bAsOriginPlayer) : 0;
+					int iResourceModifier = MOD_BALANCE_CORE_RESOURCE_MONOPOLIES ? GetTradeConnectionResourceValueTimes100(kTradeConnection, eYield, bAsOriginPlayer) : 0;
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
@@ -6376,13 +6376,9 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iCultureDelta = iAdjustedCultureDifferenceP1fromP2 - iAdjustedCultureDifferenceP2fromP1;
 
 	// religion
-	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if (eOwnerFoundedReligion == NO_RELIGION)
-	{
-		eOwnerFoundedReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eOwnerStateReligion = m_pPlayer->GetReligions()->GetStateReligion();
 	int iReligionDelta = 0;
-	if (eOwnerFoundedReligion != NO_RELIGION)
+	if (eOwnerStateReligion != NO_RELIGION)
 	{
 		ReligionTypes eToReligion = NO_RELIGION;
 		int iToPressure = 0;
@@ -6402,10 +6398,10 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			if (eToReligion != eFromReligion)
 			{
 				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
-				if (eToReligion != eOwnerFoundedReligion)
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerStateReligion);
+				if (eToReligion != eOwnerStateReligion)
 					iToPressure = 0;
-				if (eFromReligion == eOwnerFoundedReligion)
+				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
@@ -7010,13 +7006,9 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 #endif
 
 	// religion
-	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if (eOwnerFoundedReligion == NO_RELIGION)
-	{
-		eOwnerFoundedReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eOwnerStateReligion = m_pPlayer->GetReligions()->GetStateReligion();
 	int iReligionDelta = 0;
-	if (eOwnerFoundedReligion != NO_RELIGION)
+	if (eOwnerStateReligion != NO_RELIGION)
 	{
 		ReligionTypes eToReligion = NO_RELIGION;
 		int iToPressure = 0;
@@ -7036,10 +7028,10 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			if (eToReligion != eFromReligion)
 			{
 				int iExistingToPressureAtFrom = pFromCity->GetCityReligions()->GetPressureAccumulated(eFromReligion);
-				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerFoundedReligion);
-				if (eToReligion != eOwnerFoundedReligion)
+				int iExistingGoodPressureAtTo = pToCity->GetCityReligions()->GetPressureAccumulated(eOwnerStateReligion);
+				if (eToReligion != eOwnerStateReligion)
 					iToPressure = 0;
-				if (eFromReligion == eOwnerFoundedReligion)
+				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
 				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
 				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));

@@ -4310,11 +4310,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			iModifier /= 100;
 		}
 
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-		if (eReligion == NO_RELIGION)
-		{
-			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-		}
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
@@ -4337,11 +4333,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iModifier += pkBuildingInfo->GetYieldFromWLTKD(eYield);
 
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-		if (eReligion == NO_RELIGION)
-		{
-			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-		}
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
@@ -4379,7 +4371,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		iModifier += iYieldPolicyModBonus;
 	}
-	if (pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetReligionInMostCities())
+	if (pCity->GetCityReligions()->GetReligiousMajority() == kPlayer.GetReligions()->GetStateReligion())
 	{
 		int iReligionPolicyBonus = pCity->getReligionBuildingYieldRateModifier(pkBuildingInfo->GetBuildingClassType(), eYield);
 		if (iReligionPolicyBonus > 0)
@@ -4575,11 +4567,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 	if (kPlayer.GetReligions()->HasCreatedPantheon() && !kPlayer.GetReligions()->HasCreatedReligion(true) && GC.getGame().GetGameReligions()->GetNumReligionsStillToFound(true) > 0)
 		iModifier *= 2;
 
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-	if (eReligion == NO_RELIGION)
-	{
-		eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
@@ -5136,15 +5124,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			iValue += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 		}
 
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-		if(eReligion == NO_RELIGION)
-		{
-			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-		}
-		if(eReligion != NO_RELIGION)
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
+		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if(pReligion)
+			if (pReligion)
 			{
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
@@ -5204,15 +5188,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 			
 		}
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-		if(eReligion == NO_RELIGION)
-		{
-			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-		}
-		if(eReligion != NO_RELIGION)
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
+		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if(pReligion)
+			if (pReligion)
 			{
 				if (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(kPlayer.GetID(), pCity) > 0)
 				{
@@ -5277,15 +5257,11 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		{
 			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
 		}
-		ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(kPlayer.GetID());
-		if(eReligion == NO_RELIGION)
-		{
-			eReligion = kPlayer.GetReligions()->GetReligionInMostCities();
-		}
-		if(eReligion != NO_RELIGION)
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
+		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if(pReligion)
+			if (pReligion)
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{

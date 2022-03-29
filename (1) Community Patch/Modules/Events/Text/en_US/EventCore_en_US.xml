@@ -372,7 +372,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_NEED_SPECIFIC_STATE_RELIGION">
-			<Text>[NEWLINE] [ICON_BULLET] Requires adoption of {1_Desc} State Religion</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Requires ownership of {1_Desc} Religion</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NEED_HOLY_CITY_SPECIFIC">

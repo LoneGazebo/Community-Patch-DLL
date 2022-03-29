@@ -940,50 +940,47 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if(pkUnitEntry->GetCombat() > 0)
 		{
 			int iReligiousBonus = 0;
-			ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pCity->getOwner());
-			if(eReligion == NO_RELIGION)
-			{
-				eReligion = GET_PLAYER(m_pCity->getOwner()).GetReligions()->GetReligionInMostCities();
-			}
-			if(eReligion != NO_RELIGION)
+			ReligionTypes eReligion = GET_PLAYER(m_pCity->getOwner()).GetReligions()->GetStateReligion();
+
+			if (eReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
-				if(pReligion)
+				if (pReligion)
 				{
 					CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 					const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-					for(int iI = 0; iI < iNumBeliefs; iI++)
+					for (int iI = 0; iI < iNumBeliefs; iI++)
 					{
 						const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 						CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
-						if(pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pCity->getOwner()))
+						if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pCity->getOwner()))
 						{
-							if(pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
+							if (pEntry->GetFaithFromKills() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK)))
 							{
 								iReligiousBonus += (pEntry->GetFaithFromKills() / 5);
 							}
-							if(pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
+							if (pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
 								iReligiousBonus += (pEntry->GetCombatModifierEnemyCities());
 							}
-							if(pEntry->GetCombatModifierFriendlyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
+							if (pEntry->GetCombatModifierFriendlyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
 								iReligiousBonus += (pEntry->GetCombatModifierFriendlyCities());
 							}
-							if(pEntry->GetCombatVersusOtherReligionOwnLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
+							if (pEntry->GetCombatVersusOtherReligionOwnLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_DEFENSE) || pkUnitEntry->GetUnitAIType(UNITAI_COUNTER)))
 							{
 								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
 							}
-							if(pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
+							if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
 								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
 							}
-							for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+							for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 							{
 								const YieldTypes eYield = static_cast<YieldTypes>(iI);
-								if(eYield != NO_YIELD)
+								if (eYield != NO_YIELD)
 								{
-									if(pEntry->GetYieldFromKills(eYield) > 0)
+									if (pEntry->GetYieldFromKills(eYield) > 0)
 									{
 										iReligiousBonus += (pEntry->GetYieldFromKills(eYield) / 5);
 									}
@@ -1003,11 +1000,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (pkUnitEntry->IsTrade())
 		{
 			//No if we're small.
-			if(m_pCity->getPopulation() <= 4)
+			if (m_pCity->getPopulation() <= 4)
 			{
 				return 0;
 			}
-			if(pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+			if (pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 			{
 				iBonus += iLandRoutes;
 			}

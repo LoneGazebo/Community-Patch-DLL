@@ -23655,9 +23655,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		// Religious civ - apply extra weight if ANY religion criteria is met
 		if (pTraits->IsReligious())
 		{
-			ReligionTypes eMajorityReligion = GetPlayer()->GetReligions()->GetReligionInMostCities();
-
-			if (eReligion != NO_RELIGION || eMajorityReligion != NO_RELIGION || GetPlayer()->GetReligions()->HasCreatedPantheon())
+			if (eReligion != NO_RELIGION || GetPlayer()->GetReligions()->HasCreatedPantheon())
 			{
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 				bCheckIfGoodWarTarget = false;
@@ -40018,7 +40016,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && IsPlayerOpposingReligion(ePlayer))
 		{
 			return 18;
 		}
@@ -40161,7 +40159,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		else if (!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && GetMeanness() > 4 && IsPlayerOpposingReligion(ePlayer))
 		{
 			return 18;
 		}
@@ -40538,10 +40536,10 @@ const char* CvDiplomacyAI::GetEndDoFMessage(PlayerTypes ePlayer)
 	if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_WARMONGER");
 	// Guy is a different ideology
-	else if(!IsVassal(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
+	else if(!IsVassal(ePlayer) && !IsIgnoreIdeologyDifferences(ePlayer) && IsPlayerOpposingIdeology(ePlayer))
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_IDEOLOGY");
 	// Guy is a different faith
-	else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+	else if(!IsVassal(ePlayer) && !IsIgnoreReligionDifferences(ePlayer) && IsPlayerOpposingReligion(ePlayer))
 		strText = GetDiploTextFromTag("RESPONSE_END_WORK_WITH_US_FAITH");
 	// Guy is getting too friendly with our minors
 	else if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)

@@ -1,3 +1,24 @@
+--Texts for New Wonder and Building Production Modifiers, either by Trait, Improvement or UnitPromotion, among others
+INSERT INTO Language_en_US
+			(Tag,															Text)
+VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Unit Garrison Modifier for Wonders: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_UNIT_TRAIT',			'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Unit Garrison: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_IMPROVEMENT_TRAIT',	'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Improvements: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_POLICY_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Policies: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RELIGION_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Beliefs: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_RESOURCE_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Resources: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Player Traits: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT',			'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%'),
+			('TXT_KEY_PRODMOD_WONDER_IMPROVEMENT',							'[NEWLINE][ICON_BULLET]Improvement Modifier for Wonders: {1_Num}%'),
+			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} Followers ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} Source Cities)'),
+			('TXT_KEY_EUPANEL_UNITCLASS_NEAR',								'Near Combat Bonus Unit'),
+			('TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS',				'Nearby Promotion Unit Mod'),
+			('TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS',			'Nearby Promotion City Mod'),
+			('TXT_KEY_PRODMOD_MILITARY_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Unit Garrison Modifier for Military Units: {1_Num}%'),
+			('TXT_KEY_PRODMOD_YIELD_UNITPROMOTION',							'[NEWLINE][ICON_BULLET]City Modifier from Unit Garrison: {1_Num}%'),
+			('TXT_KEY_NOTIFICATION_CULTURE_UNIT',							'The birth of a {1_Resource:textkey} causes a Culture Boost in your Empire!'),
+			('TXT_KEY_NOTIFICATION_SUMMARY_CULTURE_UNIT',					'A {1_Resource:textkey} has brought inspiration!');
+
 -- Game Options
 
 INSERT INTO Language_en_US
@@ -261,6 +282,11 @@ WHERE Tag = 'TXT_KEY_MISSION_BUY_CITY_STATE_HELP';
 UPDATE Language_en_US
 SET Text = 'Your Merchant of Venice bought a City-State!'
 WHERE Tag = 'TXT_KEY_VENETIAN_MERCHANT_BOUGHT_CITY_STATE';
+
+-- Militaristic UU Tooltip
+UPDATE Language_en_US
+SET Text = 'A befriended [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.[NEWLINE][NEWLINE]They know the secrets of the [COLOR_POSITIVE_TEXT]{@1_UniqueUnitName}[ENDCOLOR].  If you are their Ally and have researched [COLOR_CYAN]{@2_PrereqTech}[ENDCOLOR], they will provide that unit as their gift.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_MILITARISTIC_TT';
 
 -- Bullying/Tribute
 UPDATE Language_en_US

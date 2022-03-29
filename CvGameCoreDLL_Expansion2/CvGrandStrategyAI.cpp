@@ -689,11 +689,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if (eReligion == NO_RELIGION)
-	{
-		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
@@ -940,15 +936,11 @@ int CvGrandStrategyAI::GetCulturePriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eReligion == NO_RELIGION)
-	{
-		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
-	if(eReligion != NO_RELIGION)
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
@@ -1142,20 +1134,16 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eReligion == NO_RELIGION)
-	{
-		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
-	if(eReligion != NO_RELIGION)
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-			for(int iI = 0; iI < iNumBeliefs; iI++)
+			for (int iI = 0; iI < iNumBeliefs; iI++)
 			{
 				const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
@@ -1482,15 +1470,11 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	/////////
 	//RELIGION CHECKS
 	////////////
-	ReligionTypes eReligion = GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(m_pPlayer->GetID());
-	if(eReligion == NO_RELIGION)
-	{
-		eReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
-	}
-	if(eReligion != NO_RELIGION)
+	ReligionTypes eReligion = m_pPlayer->GetReligions()->GetStateReligion();
+	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if(pReligion)
+		if (pReligion)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
