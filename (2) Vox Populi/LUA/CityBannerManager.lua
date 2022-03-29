@@ -319,6 +319,14 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.CityIsMined:SetHide(true);
 		end
 
+		-- CityHasAirport Status
+		if (city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"])) then
+			controls.CityHasAirport:SetHide(false);
+			controls.CityHasAirport:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_AIRPORT"));
+		else
+			controls.CityHasAirport:SetHide(true);
+		end
+
 		-- Happiness Status
 		if (isActiveTeamCity) then
 			local delta = city:getHappinessDelta();

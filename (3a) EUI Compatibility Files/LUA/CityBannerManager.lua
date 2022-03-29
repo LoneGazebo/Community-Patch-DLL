@@ -510,6 +510,9 @@ local g_cityToolTips = {
 	CityIsMined = function()
 		return L"TXT_KEY_CITY_MINED"
 	end,
+	CityHasAirport = function()
+		return L"TXT_KEY_CITY_HAS_AIRPORT"
+	end,
 
 	CityIsUnhappy = function( city)
 		local delta = city:getHappinessDelta() * -1;
@@ -989,8 +992,11 @@ local function RefreshCityBannersNow()
 			-- Occupied ?
 			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
 
-			-- Occupied ?
+			-- Has minefield ?
 			instance.CityIsMined:SetHide( not city:IsMined() )
+
+			-- Has airport ?
+			instance.CityHasAirport:SetHide( not city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"]) )
 
 			-- Blockaded ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )

@@ -236,6 +236,14 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
 			<IconFontTextureFile>airstrike</IconFontTextureFile>
 		</Row>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_MINEFIELD</IconFontTexture>
+			<IconFontTextureFile>minefield</IconFontTextureFile>
+		</Row>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
+			<IconFontTextureFile>airport</IconFontTextureFile>
+		</Row>
 	</IconFontTextures>
 	<IconFontMapping>
 		<Row>
@@ -246,6 +254,16 @@
 		<Row>
 			<IconName>ICON_AIRSTRIKE_DEFENSE</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_MINEFIELD</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_MINEFIELD</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_AIRPORT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
 			<IconMapping>1</IconMapping>
 		</Row>
 	</IconFontMapping>

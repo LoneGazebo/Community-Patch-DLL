@@ -1461,9 +1461,11 @@
 		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
 			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Deep Water Mine Field Present</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
+			<Text>Has Airport</Text>
 		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
