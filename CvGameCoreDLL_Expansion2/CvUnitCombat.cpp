@@ -459,12 +459,16 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
-		pkAttacker->changeExperienceTimes100(100 * 
-		    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-		    true,
-		    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		if (pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+		{
+			// Only give experience to the first attack of the turn
+			pkAttacker->changeExperienceTimes100(100 * 
+				kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+				true,
+				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		}
 
 		// Anyone eat it?
 		bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
@@ -1202,8 +1206,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 	if(pkAttacker)
 	{
 		// Unit gains XP for executing a Range Strike
-		if(iDamage > 0) // && iDefenderStrength > 0)
+		if(iDamage > 0 && pkAttacker->getNumAttacksMadeThisTurn() <= 1) // && iDefenderStrength > 0)
 		{
+			// Only give experience to the first attack of the turn
 			pkAttacker->changeExperienceTimes100(100 * 
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
@@ -1362,11 +1367,15 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 #endif
 		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
-		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-		                             true,
-		                             false,
-		                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		if (pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+		{
+			// Only give experience to the first attack of the turn
+			pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+										kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+										true,
+										false,
+										kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		}
 	}
 
 	if(pkDefender)
@@ -2130,8 +2139,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 		else
 		{
 			// Experience
-			if(iAttackerDamageInflicted > 0)
+			if(iAttackerDamageInflicted > 0 && pkAttacker->getNumAttacksMadeThisTurn() <= 1)
 			{
+				// Only give experience to the first attack of the turn
 				pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 				                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				                             true,
@@ -2336,12 +2346,16 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
 
-			pkAttacker->changeExperienceTimes100(100 * 
-			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-			    true,
-			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+			if (pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+			{
+				// Only give experience to the first attack of the turn
+				pkAttacker->changeExperienceTimes100(100 * 
+					kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+					true,
+					kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+			}
 
 			// Anyone eat it?
 			bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
@@ -4206,9 +4220,14 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 
 		if (bFallbackAttack)
 		{
-			int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
-			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, targetPlot.getOwner() == kAttacker.getOwner(), true);
-			kAttacker.testPromotionReady();
+			kAttacker.setMadeAttack(true);
+			if (kAttacker.getNumAttacksMadeThisTurn() <= 1)
+			{
+				// Only give experience to the first attack of the turn
+				int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
+				kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, targetPlot.getOwner() == kAttacker.getOwner(), true);
+				kAttacker.testPromotionReady();
+			}
 
 			// attempted to do a sweep in a plot that had no interceptors
 			// consume the movement and finish its moves
@@ -4217,7 +4236,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS");
 				localizedText << kAttacker.getUnitInfo().GetTextKey();
 				GC.GetEngineUserInterface()->AddMessage(0, kAttacker.getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
-		}
+			}
 		}
 		else
 		{
