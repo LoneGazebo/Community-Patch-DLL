@@ -11793,8 +11793,10 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 	if (MOD_EVENTS_MINORS)
 	{
-		if (bFriendsChanged || bAlliesChanged)
+		if (bFriendsChanged)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
+		if (bAlliesChanged)
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, bAdd, iOldFriendship, iNewFriendship);
 	}
 
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
