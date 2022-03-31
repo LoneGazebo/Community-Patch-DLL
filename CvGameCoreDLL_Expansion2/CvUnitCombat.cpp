@@ -181,7 +181,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 		}
 
-		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, iDefenderTotalDamageInflicted);
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iAttackerDamageInflicted);
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iAttackerTotalDamageInflicted);
@@ -189,7 +188,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_CITY_MELEE);
 		pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
-		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, MAX_INT);
+		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == pkCity->getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -1031,6 +1030,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					// Defender died
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
 					{
+						// Units with Ranged Support Fire don't normally consume an attack, because the subsequent attack will. However, we need to make an exception if this attack kills the defender
+						if(pkAttacker->isRangedSupportFire())
+							pkAttacker->setMadeAttack(true);
+
 #if defined(MOD_API_ACHIEVEMENTS)
 						//One Hit
 						if(!pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
@@ -2119,9 +2122,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	else
 		bTargetDied = true;
 
-	// Suicide Unit (e.g. Missiles)
 	if(pkAttacker)
 	{
+		// Suicide Unit (e.g. Missiles)
 		if(pkAttacker->isSuicide())
 		{
 			pkAttacker->setCombatUnit(NULL);	// Must clear this if doing a delayed kill, should this be part of the kill method?

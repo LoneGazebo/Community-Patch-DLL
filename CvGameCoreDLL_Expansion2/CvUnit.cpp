@@ -17157,7 +17157,7 @@ bool CvUnit::isWaiting() const
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	return (IsCombatUnit() && !noDefensiveBonus() && !isRangedSupportFire() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
+	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -17165,11 +17165,6 @@ int CvUnit::fortifyModifier() const
 {
 	VALIDATE_OBJECT
 	int iValue = 0;
-	if(isRangedSupportFire())
-	{
-		return iValue;
-	}
-
 	if( IsFortified() )
 	{
 		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
