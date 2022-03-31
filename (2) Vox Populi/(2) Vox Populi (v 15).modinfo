@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.0) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.0.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -421,7 +421,7 @@
     <File md5="FCF07F9882182EC9C59449A9BF83B3A3" import="0">Balance Changes/Units/PromotionChanges.xml</File>
     <File md5="18E563056FA8C52D60A92C8071803952" import="0">Balance Changes/Units/UnitCombat.sql</File>
     <File md5="0E61A54CB3377A8F07FD8E5BAC4AD719" import="0">Balance Changes/Units/UniqueUnits.sql</File>
-    <File md5="3E959E957B217C758C611BE0C19170D4" import="0">Balance Changes/Units/MountedUnits.sql</File>
+    <File md5="A929002FFDAFADCB702E3AE0870959B7" import="0">Balance Changes/Units/MountedUnits.sql</File>
     <File md5="B39BA5E6F4C25A7C469080622BD76939" import="0">Balance Changes/Units/RangedUnits.sql</File>
     <File md5="696576139AC72FB6818DB719362A468A" import="0">Balance Changes/Units/MeleeUnits.sql</File>
     <File md5="E0DECD35B93CD03A3625D52C63C8972A" import="0">Balance Changes/Units/NavalUnits.sql</File>
