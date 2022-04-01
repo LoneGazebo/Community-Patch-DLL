@@ -3502,7 +3502,7 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 		if (!pCity)
 			continue;
 
-		if (pCity->canRangeStrikeAt(pCity->getX(), pCity->getY()) && !pCity->isMadeAttack())
+		if (pCity->canRangeStrikeAt(pDefender->getX(), pDefender->getY()) && !pCity->isMadeAttack())
 		{
 			pCity->doTask(TASK_RANGED_ATTACK, pDefender->getX(), pDefender->getY(), 0);
 			if (pDefender->GetCurrHitPoints() < 1)
@@ -4894,7 +4894,7 @@ bool CvTacticalAI::FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot)
 		{
 			CvUnit* pGarrison = pLoopCity->GetGarrisonedUnit();
 			if (pGarrison->canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
-				iAttackStrength = pGarrison->GetBaseRangedCombatStrength();
+				iAttackStrength += pGarrison->GetBaseRangedCombatStrength();
 		}
 
 		if (iAttackStrength>0)
