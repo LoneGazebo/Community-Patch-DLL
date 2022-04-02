@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="103">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(2.0.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(2.0.3) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -113,7 +113,7 @@
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="64E6A8F5A738D28EAF5A0A60AA1F58CF" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="B913E01FCEB4260434240C9AA0146884" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="7D5DCC9E4047F6984755E781F43285D4" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="C76456E5709C8F3FB98EDCD48926DFE7" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -224,7 +224,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="F5310EE6BC1FBE4B10B12B399E5D9D1D" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="9131A9670536B7D3FC0C820E0B9D42C7" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="5ED91280106A8447BEA7DB208B1EBDE7" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="85ACB71E23812B50C145F0E23414371C" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
