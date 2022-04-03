@@ -4613,15 +4613,15 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 					}
 				}
 				//War
-				if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CITY_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED")
+				if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CITY_DEFENSE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SIEGE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SKIRMISHER")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIRLIFT")
+				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ANTIAIR" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR_CARRIER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIRLIFT" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_BOMBER" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_FIGHTER")
 				{
 					iConquestValue += iFlavorValue;
 				}
-				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON")
+				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RECON" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_MELEE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RANGED" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SUBMARINE")
 				{
 					iConquestValue += iFlavorValue;
 				}

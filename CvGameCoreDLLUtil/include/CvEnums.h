@@ -1803,12 +1803,12 @@ enum UnitAITypes
 	UNITAI_UNKNOWN,					// we don't know what to do with these units
 	UNITAI_SETTLE,					// these are Settlers
 	UNITAI_WORKER,					// these are Builders
-	UNITAI_ATTACK,					// use these to attack other units
-	UNITAI_CITY_BOMBARD,			// use these to attack cities
-	UNITAI_FAST_ATTACK,				// use these to pillage enemy improvements and attack barbarians
-	UNITAI_DEFENSE,					// these are units that are mainly in the floating defense force
-	UNITAI_COUNTER,					// these are counter-units to specific other units - these will likely need more logic in building and using
-	UNITAI_RANGED,					// units with ranged attacks
+	UNITAI_ATTACK,					// use these to attack other units // VP: Offensive Melee (Mercenaries, Uniques, Swordsman)
+	UNITAI_CITY_BOMBARD,			// use these to attack cities // VP: Siege
+	UNITAI_FAST_ATTACK,				// use these to pillage enemy improvements and attack barbarians // VP : Melee Mounted & Armor
+	UNITAI_DEFENSE,					// these are units that are mainly in the floating defense force // VP : Basic Melee units
+	UNITAI_COUNTER,					// these are counter-units to specific other units - these will likely need more logic in building and using // VP: Only for AA now
+	UNITAI_RANGED,					// units with ranged attacks // VP: Only Archer line
 	UNITAI_CITY_SPECIAL,			// siege support
 	UNITAI_EXPLORE,					// scouts, etc.
 	UNITAI_ARTIST,					// great person
@@ -1846,6 +1846,9 @@ enum UnitAITypes
 	UNITAI_DIPLOMAT,
 	UNITAI_MESSENGER,
 #endif
+// NEW AI Types
+	UNITAI_SKIRMISHER,
+	UNITAI_SUBMARINE,
 
 	NUM_UNITAI_TYPES
 };

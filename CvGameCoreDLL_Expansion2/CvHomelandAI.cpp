@@ -4932,7 +4932,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack
-				if(pLoopUnit->IsCanAttackRanged())
+				if(pLoopUnit->IsCanAttackRanged() && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_SKIRMISHER)
 					bSuitableUnit = true;
 
 				break;
@@ -4940,7 +4940,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
 					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && 
-					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) ) )
+					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || (pLoopUnit->isUnitAI(UNITAI_COUNTER) && !MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)) )
 				{
 					bSuitableUnit = true;
 				}

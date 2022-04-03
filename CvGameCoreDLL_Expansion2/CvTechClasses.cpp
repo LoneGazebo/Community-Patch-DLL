@@ -1335,7 +1335,15 @@ void CvPlayerTechs::SetGSPriorities()
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_RANGED" ||
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DEFENSE" ||
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_AIR" ||
-					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" ))
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ARCHER" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SIEGE" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SKIRMISHER" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_MELEE" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_NAVAL_RANGED" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SUBMARINE" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_BOMBER" ||
+					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_FIGHTER" ))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}

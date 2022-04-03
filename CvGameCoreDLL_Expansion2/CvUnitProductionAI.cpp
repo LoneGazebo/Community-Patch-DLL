@@ -715,7 +715,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iWarValue += 15;
 					}
 
-					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
+					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER && !MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED) || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
 					{
 						CvUnit* pLoopUnit2;
 						for (int iUnitLoop = 0; iUnitLoop < m_pCity->plot()->getNumUnits(); iUnitLoop++)
@@ -959,7 +959,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							{
 								iReligiousBonus += (pEntry->GetFaithFromKills() / 5);
 							}
-							if (pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
+							if(pEntry->GetCombatModifierEnemyCities() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_SKIRMISHER) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
 								iReligiousBonus += (pEntry->GetCombatModifierEnemyCities());
 							}
@@ -971,7 +971,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 							{
 								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionOwnLands());
 							}
-							if (pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
+							if(pEntry->GetCombatVersusOtherReligionTheirLands() > 0 && (pkUnitEntry->GetUnitAIType(UNITAI_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_RANGED) || pkUnitEntry->GetUnitAIType(UNITAI_SKIRMISHER) || pkUnitEntry->GetUnitAIType(UNITAI_FAST_ATTACK) || pkUnitEntry->GetUnitAIType(UNITAI_CITY_BOMBARD)))
 							{
 								iReligiousBonus += (pEntry->GetCombatVersusOtherReligionTheirLands());
 							}
@@ -1621,6 +1621,94 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		iBonus += 250;
 	}
+
+	//VP - NEW STRATEGIES -- consider if we have too much or too few of a unit
+	if (bCombat && MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	{
+		MilitaryAIStrategyTypes eStrategyArcher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_ARCHER");
+		MilitaryAIStrategyTypes eStrategyNotArcher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_ARCHER");
+		MilitaryAIStrategyTypes eStrategySiege = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SIEGE");
+		MilitaryAIStrategyTypes eStrategyNotSiege = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SIEGE");
+		MilitaryAIStrategyTypes eStrategySkirmisher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SKIRMISHER");
+		MilitaryAIStrategyTypes eStrategyNotSkirmisher = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SKIRMISHER");
+		MilitaryAIStrategyTypes eStrategyMobile = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_MOBILE");
+		MilitaryAIStrategyTypes eStrategyNotMobile = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_MOBILE");
+		MilitaryAIStrategyTypes eStrategyNavalMelee = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_MELEE");
+		MilitaryAIStrategyTypes eStrategyNotNavalMelee = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_MELEE");
+		MilitaryAIStrategyTypes eStrategyNavalRanged = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_NAVAL_RANGED");
+		MilitaryAIStrategyTypes eStrategyNotNavalRanged = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED");
+		MilitaryAIStrategyTypes eStrategySubmarine = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_SUBMARINE");
+		MilitaryAIStrategyTypes eStrategyNotSubmarine = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_SUBMARINE");
+		MilitaryAIStrategyTypes eStrategyBomber = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_BOMBER");
+		MilitaryAIStrategyTypes eStrategyNotBomber = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_BOMBER");
+		MilitaryAIStrategyTypes eStrategyFighter = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_NEED_FIGHTER");
+		MilitaryAIStrategyTypes eStrategyNotFighter = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_ENOUGH_FIGHTER");
+
+		if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_RANGED)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyArcher))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotArcher))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_CITY_BOMBARD)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySiege))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotSiege))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SKIRMISHER)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySkirmisher))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotSkirmisher))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_FAST_ATTACK) // mounted & armor
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyMobile))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotMobile))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK_SEA) // naval melee
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNavalMelee))
+				iBonus += 100;
+/*			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotNavalMelee)) -- do not discourage this, as ranged may be restricted by resource
+				iBonus -= 100;
+*/		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA) // naval ranged
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNavalRanged))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotNavalRanged))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SUBMARINE)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategySubmarine))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotSubmarine))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK_AIR)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyBomber))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotBomber))
+				iBonus -= 100;
+		}
+		else if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
+		{
+			if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyFighter))
+				iBonus += 100;
+			else if (kPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyNotFighter))
+				iBonus -= 100;
+		}
+	}
+
 
 	/////
 	///WEIGHT
