@@ -1219,17 +1219,14 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		if(GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS) && GET_PLAYER(pUnit->getOwner()).isHuman())
 		{
-			if(eFeature != NO_FEATURE && eResource == NO_RESOURCE)
+			if(bWillRemoveForestOrJungle && eResource == NO_RESOURCE)
 			{
-				if(pkBuild->isFeatureRemove(eFeature))
-				{
-					if(m_bLogging){
-						CvString strTemp;
-						strTemp.Format("Weight,Keep Forests,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
-						LogInfo(strTemp, m_pPlayer);
-					}
-					continue;
+				if(m_bLogging){
+					CvString strTemp;
+					strTemp.Format("Weight,Keep Forests,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
+					LogInfo(strTemp, m_pPlayer);
 				}
+				continue;
 			}
 		}
 
