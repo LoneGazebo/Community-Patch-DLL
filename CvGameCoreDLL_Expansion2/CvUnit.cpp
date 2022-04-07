@@ -26259,15 +26259,13 @@ bool CvUnit::canAcquirePromotionAny() const
 {
 	VALIDATE_OBJECT
 
-	// Can't promote a unit that has attacked
-	if(isOutOfAttacks())
+	// Can't promote a unit that is out of moves and has attacked
+	if (!canMove() && getNumAttacksMadeThisTurn() > 0)
 		return false;
 
-	int iI;
-
-	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
-		if(canAcquirePromotion((PromotionTypes)iI))
+		if (canAcquirePromotion((PromotionTypes)iI))
 		{
 			return true;
 		}
