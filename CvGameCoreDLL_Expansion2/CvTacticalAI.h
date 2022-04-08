@@ -548,7 +548,7 @@ struct STacticalAssignment
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
-	bool isOffensive(const CvTacticalPosition& overallposition) const;
+	bool isOffensive() const;
 };
 
 struct SAssignmentSummary
@@ -864,8 +864,7 @@ public:
 
 	bool isComplete() const;
 	bool addFinishMovesIfAcceptable();
-	bool hasOffensiveAssignments() const;
-	bool hasDefensiveAssignments() const;
+	bool isImprovedPosition() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
@@ -880,7 +879,8 @@ public:
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID);
-	const STacticalAssignment* getInitialAssignment(int iUnitID);
+	const SUnitStats* getUnitStats(int iUnitID) const;
+	const STacticalAssignment* getInitialAssignment(int iUnitID) const;
 	STacticalAssignment* getInitialAssignmentMutable(int iUnitID);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
@@ -966,7 +966,7 @@ namespace TacticalAIHelpers
 	bool IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
-	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage, bool bFirstRun);
+	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
 	vector<STacticalAssignment> FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);
 	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
 }
