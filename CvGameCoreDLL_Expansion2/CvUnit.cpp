@@ -11636,7 +11636,7 @@ int CvUnit::GetConversionStrength() const
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
-			iReligiousStrength /= 2;
+			iReligiousStrength /= INQUISITOR_CONVERSION_REDUCTION_FACTOR;
 		}
 	}
 

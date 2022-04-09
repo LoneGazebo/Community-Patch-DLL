@@ -96,6 +96,8 @@
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
 #define MOD_DEBUG_MINIDUMP
 
+// only relevant if MOD_BALANCE_CORE_INQUISITOR_TWEAKS is active
+#define INQUISITOR_CONVERSION_REDUCTION_FACTOR 2
 
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
