@@ -6172,7 +6172,7 @@
 			<Text>Tourism and Trade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_SEA">
-			<Text>Citizens from the {2_Adj} City of {4_Dest} used your naval Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
+			<Text>Citizens from the {2_Adj} City of {4_Dest} used your sea Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_TRADE_LAND">
 			<Text>Citizens from the {2_Adj} City of {4_Dest} used your land Trade Route to visit the City of {3_Num}, and have spread word of your great City. As a result, you gained {1_Num} [ICON_TOURISM] Tourism with {5_num}, and {6_num} [ICON_TOURISM] Tourism (before modifiers) with all other Civilizations they know!</Text>

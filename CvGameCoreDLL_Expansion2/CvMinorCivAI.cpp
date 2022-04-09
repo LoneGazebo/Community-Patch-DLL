@@ -10162,6 +10162,10 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 			if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !bNaval)
 				continue;
 
+			// No settlers! (Block Conquistador, etc.)
+			if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->GetNumColonyFound() > 0)
+				continue;
+
 			iBonusValue = 1000;
 
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());

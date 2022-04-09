@@ -1,0 +1,35 @@
+name: cppcheck
+on: [push]
+jobs:
+  analysis:
+    runs-on: ubuntu-latest
+    steps:
+    
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - name: Make build-dir # Cppcheck work folder
+      run: >
+        mkdir build-dir
+
+    - name: Pull docker # Cppcheck docker image
+      run: >
+        docker pull ghcr.io/facthunder/cppcheck:latest
+
+    - uses: actions/cache@v2
+      id: cache-build-dir  # Name to potentially check the cache hit-or-not
+      with:
+        path: ./build-dir/  # Path of folder to cache
+        key: build-dir-${{ hashFiles('**/*.*') }}
+        restore-keys: |
+          build-dir-
+          
+    - name: Run cppcheck analysis
+      run: >
+        docker run --rm -v ${PWD}:/src ghcr.io/facthunder/cppcheck:latest cppcheck -j 4 -i CvGameCoreDLL_Expansion2/stackwalker --max-ctu-depth=2 --max-configs=2 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --suppress=uninitMemberVar --suppress=useInitializationList --suppress=postfixOperator --suppress=nullPointerRedundantCheck --suppress=identicalInnerCondition --suppress=constStatement --verbose --xml CvGameCoreDLL_Expansion2 2> cppcheck.xml
+
+    - name: Upload cppcheck xml
+      uses: actions/upload-artifact@v2.3.1
+      with:
+        name: cppcheck
+        path: ./cppcheck.xml
