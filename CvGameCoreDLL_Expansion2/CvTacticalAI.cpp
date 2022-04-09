@@ -6405,7 +6405,7 @@ bool TacticalAIHelpers::GetPlotsForRangedAttack(const CvPlot* pTarget, const CvU
 			if (pRefPlot->getArea() != vCandidates[i]->getArea())
 			{
 				CvCity *pCity = vCandidates[i]->getPlotCity();
-				if (!pCity || !pCity->isAdjacentToArea(pRefPlot->getArea()))
+				if (!pCity || !pCity->HasAccessToArea(pRefPlot->getArea()))
 					continue;
 			}
 		}

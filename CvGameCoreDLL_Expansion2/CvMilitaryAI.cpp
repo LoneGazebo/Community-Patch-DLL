@@ -526,7 +526,7 @@ bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 		return false;
 
 	//if the target is very close assume we can embark or don't even need to
-	AIOperationTypes opType = (pMusterCity->getArea() == pTargetCity->getArea()) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
+	AIOperationTypes opType = pMusterCity->HasSharedAreaWith(pTargetCity,true,false) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
 
 	//don't try to build additional units, only do this if we have enough at hand
 	return m_pPlayer->addAIOperation(opType, 0, eEnemy, pTargetCity, pMusterCity) != NULL;
@@ -1245,7 +1245,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 			continue;
 
 		//correct area?
-		if (!pTargetCity->isMatchingArea(pLoopPlot))
+		if (!pTargetCity->HasAccessToArea(pLoopPlot->getArea()))
 			continue;
 
 		if (eArmyType==ARMY_TYPE_LAND)

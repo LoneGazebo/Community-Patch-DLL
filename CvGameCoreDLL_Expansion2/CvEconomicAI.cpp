@@ -2640,7 +2640,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 			continue;
 		}
 
-		if (pCapital->getArea() == pCity->getArea() && !pCity->IsRouteToCapitalConnected())
+		if (pCapital->HasSharedAreaWith(pCity,true,false) && !pCity->IsRouteToCapitalConnected())
 		{
 			iMinWorkers += 1;
 		}
@@ -2753,7 +2753,7 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 		if (iScore <= 0)
 			return;
 
-		if (pPlayer->getCapitalCity() && pPlot->getArea() != pPlayer->getCapitalCity()->getArea() && !bAllowShallowWater)
+		if (!bAllowShallowWater && pPlayer->getCapitalCity() && !pPlayer->getCapitalCity()->HasAccessToArea(pPlot->getArea()))
 			return;
 
 		// add an entry for this plot
@@ -4098,7 +4098,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 
 	//do this last, potentially expensive!
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	if(pPlayer->GetNumCitiesFounded()<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()))
+	if(pPlayer->GetNumCitiesFounded()<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->plot()->getArea()))
 	{
 		return true;
 	}

@@ -2744,33 +2744,25 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
 	if(pCity->getPopulation() <= 6)
 	{
 		return false;
 	}
-	if(pArea == NULL || pArea->getNumTiles() <= 10)
+
+	if (kPlayer.isMajorCiv() && !pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() && kPlayer.getCapitalCity() != NULL)
 	{
-		return false;
-	}
-	if (!(kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs())
-		&& kPlayer.getCapitalCity() != NULL)
-	{
-		CvArea* pArea2 = GC.getMap().getArea(kPlayer.getCapitalCity()->getArea());
-		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
+		if(!pCity->HasSharedAreaWith(kPlayer.getCapitalCity(),true,false))
 		{
-			//Is there more room here to grow?
-			if((pArea->getNumUnownedTiles() > pArea2->getNumUnownedTiles()) && (pArea->GetNumBadPlots() < pArea2->getNumUnownedTiles()))
+			//this call is a bit expensive ...
+			if(kPlayer.HaveGoodSettlePlot(pCity->plot()->getArea()))
 			{
-				if(kPlayer.HaveGoodSettlePlot(pArea->GetID()))
-				{
-					return true;
-				}
+				return true;
 			}
 		}	
 	}
 	return false;
 }
+
 // Is this an isolated city with no land routes out? Maybe open border with neighbors could help
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
@@ -2782,10 +2774,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 
 	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
 	if(!pCapitalCity)
-		return false;
-
-	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-	if(pArea->GetID() != pCapitalCity->getArea())
 		return false;
 
 	//do we already have a connection to the capital?
@@ -3569,11 +3557,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 
 	CvPlayer &kPlayer = GET_PLAYER(pCity->getOwner());
 	CvCity *pCapital = kPlayer.getCapitalCity();
-#if defined(MOD_BALANCE_CORE)
-	if (pCity && pCapital && pCity->getArea() != pCapital->getArea())
-#else
-	if (pCity && pCity->getArea() != pCapital->getArea())
-#endif
+
+	if (pCity && pCapital && !pCity->HasSharedAreaWith(pCapital,true,true))
 	{
 		return true;
 	}

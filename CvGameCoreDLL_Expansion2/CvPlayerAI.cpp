@@ -375,7 +375,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	}
 
 	//only city in the area? may be strategically important
-	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+	CvArea* pArea = pCity->plot()->area();
 	if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) < 1)
 	{
 		bKeepCity = true;
@@ -1159,10 +1159,10 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity() && pCity->isMatchingArea(pMusterPlot))
+			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToArea(pMusterPlot->getArea()))
 				bCitySameAsMuster = true;
 
-			if (pThisOperation->IsNavalOperation() && !pCity->isMatchingArea(pMusterPlot))
+			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToArea(pMusterPlot->getArea()))
 				continue;
 #endif
 			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
@@ -2122,7 +2122,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (pCity->getArea() != pUnit->plot()->getArea() && !CanEmbark())
+	if (!pCity->HasAccessToArea(pUnit->getArea()) && !CanEmbark())
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
@@ -2451,7 +2451,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		iDistance *= 3;
 
 	//Let's downplay far/distant minors without full embarkation.
-	if((pCity->getArea() != pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
+	if(!pCity->HasAccessToArea(pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
 		iDistance *= 3;
 
 	//If this is way too far away, let's not penalize it too much.

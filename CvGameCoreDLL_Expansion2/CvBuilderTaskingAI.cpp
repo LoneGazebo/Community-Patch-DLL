@@ -333,7 +333,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		return;
 
 	//maybe a lighthouse is just as good?
-	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->isMatchingArea(pTargetCity->plot()))
+	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->HasSharedAreaWith(pTargetCity,false,true))
 		if (iNetGoldTimes100<500 && !bHuman)
 			return;
 

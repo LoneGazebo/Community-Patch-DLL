@@ -4887,18 +4887,44 @@ std::vector<int> CvPlot::getAllAdjacentAreas() const
 	return result;
 }
 
-bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther) const
+bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const
 {
 	if (!pOther)
 		return false;
 
 	std::vector<int> myAreas = getAllAdjacentAreas();
 	std::vector<int> theirAreas = pOther->getAllAdjacentAreas();
-	std::vector<int> shared( MAX(myAreas.size(),theirAreas.size()) );
 
-	std::vector<int>::iterator result = std::set_intersection(myAreas.begin(),myAreas.end(),theirAreas.begin(),theirAreas.end(),shared.begin());
-	return (result!=shared.begin());
+	//fancy stl version works only sometimes
+	if (bAllowLand && bAllowWater)
+	{
+		std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
+		std::vector<int>::iterator result = std::set_intersection(myAreas.begin(), myAreas.end(), theirAreas.begin(), theirAreas.end(), shared.begin());
+		return (result != shared.begin());
+	}
+
+	//manual version
+	for (vector<int>::iterator i1 = myAreas.begin(); i1 != myAreas.end(); ++i1)
+	{
+		CvArea* a1 = GC.getMap().getArea(*i1);
+		if (!bAllowWater && a1->isWater())
+			continue;
+		if (!bAllowLand && !a1->isWater())
+			continue;
+
+		for (vector<int>::iterator i2 = theirAreas.begin(); i2 != theirAreas.end(); ++i2)
+		{
+			CvArea* a2 = GC.getMap().getArea(*i2);
+
+			//don't need to check for water/land again, id is enough
+			if (a1->GetID() == a2->GetID())
+				return true;
+		}
+	}
+
+	return false;
 }
+	
 
 //	--------------------------------------------------------------------------------
 void CvPlot::setArea(int iNewValue)
@@ -13660,6 +13686,7 @@ bool CvPlot::isImpassable(TeamTypes eTeam) const
 		return IsTeamImpassable(eTeam);
 	}
 
+	//this is only set for mountains, no ice!
 	return m_bIsImpassable;
 }
 

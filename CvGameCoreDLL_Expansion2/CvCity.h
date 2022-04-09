@@ -559,10 +559,9 @@ public:
 	bool at(int iX, int iY) const;
 	bool at(CvPlot* pPlot) const;
 	CvPlot* plot() const;
-	int getArea() const;
-	//(coastal) cities can be part of multiple areas
-	bool isAdjacentToArea(int iAreaID) const;
-	bool isMatchingArea(const CvPlot* pTestPlot) const;
+	//cities can be part of multiple areas
+	bool HasAccessToArea(int iAreaID) const;
+	bool HasSharedAreaWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;

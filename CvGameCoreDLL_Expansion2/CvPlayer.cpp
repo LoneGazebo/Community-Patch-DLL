@@ -17220,7 +17220,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		pArea->changeYieldRateModifier(GetID(), ((YieldTypes)iI), (pBuildingInfo->GetAreaYieldModifier(iI) * iChange));
+		if (pArea)
+			pArea->changeYieldRateModifier(GetID(), ((YieldTypes)iI), (pBuildingInfo->GetAreaYieldModifier(iI) * iChange));
+
 		changeYieldRateModifier(((YieldTypes)iI), (pBuildingInfo->GetGlobalYieldModifier(iI) * iChange));
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		changeYieldFromDeath(((YieldTypes)iI), (pBuildingInfo->GetYieldFromDeath(iI) * iChange));
@@ -47723,7 +47725,7 @@ CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bS
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		//need to check area
-		if (bSameArea && !pLoopCity->isMatchingArea(pPlot))
+		if (bSameArea && !pLoopCity->HasAccessToArea(pPlot->getArea()))
 			continue;
 
 		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());

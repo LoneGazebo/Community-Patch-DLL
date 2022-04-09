@@ -11093,8 +11093,6 @@ void CvGame::debugSyncChecksum()
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
 		}
 	}
-
-	pLog->Close();
 }
 
 #endif

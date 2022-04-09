@@ -331,7 +331,7 @@ public:
 
 	std::vector<int> getAllAdjacentAreas() const;
 
-	bool hasSharedAdjacentArea(const CvPlot* pOther) const;
+	bool hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	inline int getLandmass() const
 	{
