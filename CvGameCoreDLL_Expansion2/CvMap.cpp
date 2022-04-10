@@ -1496,7 +1496,7 @@ void CvMap::rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitud
 void CvMap::calculateAreas()
 {
 	//smaller areas are merged with a suitable neighbor if possible
-	size_t minAreaSize = 4;
+	size_t minAreaSize = 7;
 
 	//first pass: clear
 	m_areas.RemoveAll();

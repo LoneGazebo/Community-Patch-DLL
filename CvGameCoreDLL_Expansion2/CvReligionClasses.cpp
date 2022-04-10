@@ -4406,7 +4406,7 @@ bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinF
 }
 
 /// Is there an inquisitor from another religion here?
-bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pUnit)
+bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pIgnoreUnit)
 {
 	for (int i=0; i<RING1_PLOTS; i++)
 	{
@@ -4417,7 +4417,7 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* p
 		for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 		{
 			CvUnit* pLoopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-			if (pUnit == NULL || pUnit == pLoopUnit)
+			if (pLoopUnit == NULL || pIgnoreUnit == pLoopUnit)
 				continue;
 
 			CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
