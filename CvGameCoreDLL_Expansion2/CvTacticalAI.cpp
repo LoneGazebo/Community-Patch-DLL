@@ -2201,16 +2201,20 @@ CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort,
 	//Maybe we just make this guy our new escort, eh?
 	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType() && pPlotDefender->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 	{
-		pThisArmy->RemoveUnit(pEscort->GetID());
-		pThisArmy->AddUnit(pPlotDefender->GetID(), 1, true);
-		if(GC.getLogging() && GC.getAILogging())
+		if (pThisArmy->RemoveUnit(pEscort->GetID()))
 		{
-			CvString strLogString;
-			strLogString.Format("SingleHexOperationMoves: Switched escort to get things going.");
-			GET_PLAYER(pCivilian->getOwner()).GetTacticalAI()->LogTacticalMessage(strLogString);
-		}
+			pThisArmy->AddUnit(pPlotDefender->GetID(), 1, true);
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("SingleHexOperationMoves: Switched escort to get things going.");
+				GET_PLAYER(pCivilian->getOwner()).GetTacticalAI()->LogTacticalMessage(strLogString);
+			}
 
-		return pPlotDefender;
+			return pPlotDefender;
+		}
+		else
+			CUSTOMLOG("SwitchEscort: Failed to remove unit from army!");
 	}
 
 	return NULL;

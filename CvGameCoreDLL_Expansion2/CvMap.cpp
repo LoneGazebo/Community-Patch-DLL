@@ -1335,7 +1335,7 @@ CvArea* CvMap::addArea()
 {
 	//do not use TContainer::Add here, it uses the global ID counter which we don't need here
 	CvArea* pNew = new CvArea();
-	pNew->SetID( m_areas.GetCount()+1 );
+	pNew->SetID( m_areas.GetCount() );
 	m_areas.Load(pNew);
 	return pNew;
 }
@@ -1495,6 +1495,9 @@ void CvMap::rebuild(int iGridW, int iGridH, int iTopLatitude, int iBottomLatitud
 
 void CvMap::calculateAreas()
 {
+	//smaller areas are merged with a suitable neighbor if possible
+	size_t minAreaSize = 4;
+
 	//first pass: clear
 	m_areas.RemoveAll();
 	for (int iI = 0; iI < numPlots(); iI++)
@@ -1519,32 +1522,18 @@ void CvMap::calculateAreas()
 		SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION, 1);
 		ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data);
 
-		if (result.size()>2)
+		if (result.size()>=minAreaSize)
 		{
 			CvArea* pArea = addArea();
 			pArea->init(pArea->GetID(), pLoopPlot->isWater());
 			pArea->SetMountains(pLoopPlot->isMountain());
 			int iArea = pArea->GetID();
 
-			CvAreaBoundaries boundaries;
-			boundaries.m_iEastEdge = pLoopPlot->getX();
-			boundaries.m_iWestEdge = pLoopPlot->getX();
-			boundaries.m_iNorthEdge = pLoopPlot->getY();
-			boundaries.m_iSouthEdge = pLoopPlot->getY();
-
 			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 				pPlot->setArea(iArea);
-
-				boundaries.m_iWestEdge = MIN(boundaries.m_iWestEdge,pPlot->getX());
-				boundaries.m_iEastEdge = MAX(boundaries.m_iEastEdge,pPlot->getX());
-				boundaries.m_iSouthEdge = MIN(boundaries.m_iSouthEdge,pPlot->getY());
-				boundaries.m_iNorthEdge = MAX(boundaries.m_iNorthEdge,pPlot->getY());
 			}
-
-			pArea->setAreaBoundaries(boundaries);
-			pArea->CalcNumBadPlots();
 		}
 	}
 
@@ -1561,51 +1550,78 @@ void CvMap::calculateAreas()
 		ReachablePlots result = GC.GetStepFinder().GetPlotsInReach(pLoopPlot->getX(), pLoopPlot->getY(), data);
 
 		//merge single-plot mountains / ice with the surrounding area
-		if (result.size() == 1)
+		if (result.size() < minAreaSize)
 		{
-			for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
+			int iLargestNeighbor = -1;
+			int iLargestNeighborSize = 0;
+
+			for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
 			{
-				CvPlot* pNeighbor = iterateRingPlots(pLoopPlot, j);
-				//use the first neighbor we find with the matching domain
-				if (pNeighbor && pNeighbor->isWater() == pLoopPlot->isWater() && pNeighbor->getArea()!=-1)
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+				for (int j = RING0_PLOTS; j < RING1_PLOTS; j++)
 				{
-					pLoopPlot->setArea(pNeighbor->getArea());
-					break;
+					CvPlot* pNeighbor = iterateRingPlots(pPlot, j);
+					//use the best neighbor we find with the matching domain
+					if (pNeighbor && pNeighbor->isWater() == pLoopPlot->isWater() && pNeighbor->getArea() != -1)
+					{
+						if (pNeighbor->area()->getNumTiles() > iLargestNeighborSize)
+						{
+							iLargestNeighborSize = pNeighbor->area()->getNumTiles();
+							iLargestNeighbor = pNeighbor->getArea();
+						}
+					}
 				}
 			}
 
-			//we're done with this one
-			if (pLoopPlot->getArea() != -1)
+			if (iLargestNeighbor != -1)
+			{
+				for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
+				{
+					CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
+					pPlot->setArea(iLargestNeighbor);
+				}
+
+				//we're done with this one
 				continue;
+			}
 		}
 
+		//too large to merge or no change to merge
 		CvArea* pArea = addArea();
 		pArea->init(pArea->GetID(), pLoopPlot->isWater());
 		pArea->SetMountains(pLoopPlot->isMountain());
 		int iArea = pArea->GetID();
 
-		CvAreaBoundaries boundaries;
-		boundaries.m_iEastEdge = pLoopPlot->getX();
-		boundaries.m_iWestEdge = pLoopPlot->getX();
-		boundaries.m_iNorthEdge = pLoopPlot->getY();
-		boundaries.m_iSouthEdge = pLoopPlot->getY();
-
 		for (ReachablePlots::iterator it = result.begin(); it != result.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 			pPlot->setArea(iArea);
-
-			boundaries.m_iWestEdge = MIN(boundaries.m_iWestEdge, pPlot->getX());
-			boundaries.m_iEastEdge = MAX(boundaries.m_iEastEdge, pPlot->getX());
-			boundaries.m_iSouthEdge = MIN(boundaries.m_iSouthEdge, pPlot->getY());
-			boundaries.m_iNorthEdge = MAX(boundaries.m_iNorthEdge, pPlot->getY());
 		}
-
-		pArea->setAreaBoundaries(boundaries);
-		pArea->CalcNumBadPlots();
 	}
 
-	//last pass, log the result
+	//need to do a projection of the areas onto the x/y axis to find the size (with wrapping!)
+	vector<bool> rows(getGridHeight(),false);
+	vector<bool> cols(getGridWidth());
+	vector<vector<bool>> rp(m_areas.GetCount(), rows);
+	vector<vector<bool>> cp(m_areas.GetCount(), cols);
+
+	//last pass, set boundaries
+	for (int iI = 0; iI < numPlots(); iI++)
+	{
+		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
+
+		cp[pLoopPlot->getArea()][pLoopPlot->getX()] = true;
+		rp[pLoopPlot->getArea()][pLoopPlot->getY()] = true;
+	
+		pLoopPlot->area()->UpdateBadPlotsCount(pLoopPlot);
+	}
+	//important assumption: area ids are identical to their index!
+	for (int iI = 0; iI < m_areas.GetCount(); iI++)
+	{
+		m_areas.GetAt(iI)->FindBoundaries(cp[iI],rp[iI]);
+	}
+
+	//log the result
 	if (GC.getLogging())
 	{
 		static int iCallCount = 0; //apparently this is called multiple times

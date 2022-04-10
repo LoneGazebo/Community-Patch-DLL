@@ -393,12 +393,11 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 	else if(iNumDivisions > 1)
 	{
 		// See if region is taller or wider
-		bool bTaller = true;
-		if((region.m_Boundaries.m_iNorthEdge - region.m_Boundaries.m_iSouthEdge) <
-		        (region.m_Boundaries.m_iEastEdge - region.m_Boundaries.m_iWestEdge))
-		{
-			bTaller = false;
-		}
+		int iHeight = region.m_Boundaries.m_iNorthEdge - region.m_Boundaries.m_iSouthEdge;
+		int iWidth = region.m_Boundaries.m_iEastEdge - region.m_Boundaries.m_iWestEdge;
+		bool bTallerThanWide = (iHeight>iWidth);
+		if (iHeight < 1 || iWidth < 1)
+			CUSTOMLOG("warning, invalid region for subdivision!");
 
 #if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
 		// CUSTOMLOG("CvStartPositioner::SubdivideRegion into %i divisions (by algorithm)", iNumDivisions);
@@ -501,7 +500,7 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 		if(iNumDivides == 2)
 		{
 			CvStartRegion secondRegion;
-			ChopIntoTwoRegions(bTaller, &region, &secondRegion, 50);
+			ChopIntoTwoRegions(bTallerThanWide, &region, &secondRegion, 50);
 			SubdivideRegion(region, iLaterSubdivisions);
 			SubdivideRegion(secondRegion, iLaterSubdivisions);
 		}
@@ -509,7 +508,7 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 		{
 			CvStartRegion secondRegion;
 			CvStartRegion thirdRegion;
-			ChopIntoThreeRegions(bTaller, &region, &secondRegion, &thirdRegion);
+			ChopIntoThreeRegions(bTallerThanWide, &region, &secondRegion, &thirdRegion);
 			SubdivideRegion(region, iLaterSubdivisions);
 			SubdivideRegion(secondRegion, iLaterSubdivisions);
 			SubdivideRegion(thirdRegion, iLaterSubdivisions);
@@ -546,6 +545,7 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 		int iNorthEdge = region->m_Boundaries.m_iSouthEdge;
 		while(uiFertilitySoFar < uiTargetFertility && iNorthEdge <= region->m_Boundaries.m_iNorthEdge)
 		{
+			//wrapping supported
 			uiFertilitySoFar += ComputeRowFertility(region->m_iAreaID,
 			                                        region->m_Boundaries.m_iWestEdge, region->m_Boundaries.m_iEastEdge, iNorthEdge, iNorthEdge);
 			iNorthEdge++;
@@ -568,6 +568,7 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 		int iEastEdge = region->m_Boundaries.m_iWestEdge;
 		while(uiFertilitySoFar < uiTargetFertility && iEastEdge <= region->m_Boundaries.m_iEastEdge)
 		{
+			//wrapping supported
 			uiFertilitySoFar += ComputeRowFertility(region->m_iAreaID,
 			                                        iEastEdge, iEastEdge, region->m_Boundaries.m_iSouthEdge, region->m_Boundaries.m_iNorthEdge);
 			iEastEdge++;
@@ -609,6 +610,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 	{
 		for(int iCol = xMin; iCol <= xMax; iCol++)
 		{
+			//important, do this with wrapping!
 			CvPlot* pPlot = GC.getMap().plot(iCol, iRow);
 
 			if(pPlot && pPlot->getArea() == iAreaID)
