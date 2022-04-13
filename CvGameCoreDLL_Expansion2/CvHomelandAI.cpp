@@ -4949,8 +4949,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					bSuitableUnit = true;
 				}
 				break;
-
-				case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 				// No ranged units as sentries (that would be assault_sea)
 				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
 				{
