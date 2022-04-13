@@ -2283,7 +2283,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			gStackWalker.SetLog(pLog);
 			gStackWalker.ShowCallstack(GetCurrentThread());
 		}
-		pLog->Close();
 	}
 	*/
 
@@ -10620,7 +10619,7 @@ bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCit
 	{
 		if (pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
 		{
-			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() != pPlot->getArea();
+			return GET_PLAYER(m_eOwner).getCapitalCity()->plot()->getLandmass() != pPlot->getLandmass();
 		}
 		else
 		{
@@ -11636,7 +11635,7 @@ int CvUnit::GetConversionStrength() const
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
-			iReligiousStrength /= 2;
+			iReligiousStrength /= INQUISITOR_CONVERSION_REDUCTION_FACTOR;
 		}
 	}
 
@@ -27526,7 +27525,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 			//check areas, not domain types because we want to prevent subs from shooting into lakes
 			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
 			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
-			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
+			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToArea(pSourcePlot->getArea()))
 				bForbidden = false;
 
 			if (bForbidden)

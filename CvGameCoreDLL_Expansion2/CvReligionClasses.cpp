@@ -4406,7 +4406,7 @@ bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinF
 }
 
 /// Is there an inquisitor from another religion here?
-bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pUnit)
+bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pIgnoreUnit)
 {
 	for (int i=0; i<RING1_PLOTS; i++)
 	{
@@ -4417,7 +4417,7 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* p
 		for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 		{
 			CvUnit* pLoopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-			if (pUnit == NULL || pUnit == pLoopUnit)
+			if (pLoopUnit == NULL || pIgnoreUnit == pLoopUnit)
 				continue;
 
 			CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -9918,12 +9918,6 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 		return 0;
 	}
 
-	//don't target inquisitor-protected cities ...
-	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
-	{
-		return 0;
-	}
-
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pSpreadReligion = pReligions->GetReligion(eSpreadReligion, m_pPlayer->GetID());
 	if (!pSpreadReligion)
@@ -10000,6 +9994,15 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 		//fifty percent bonus if not religion at the moment
 		iScore *= 3;
 		iScore /= 2;
+	}
+
+	//don't target inquisitor-protected cities ...
+	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
+	{
+		if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+			iScore /= INQUISITOR_CONVERSION_REDUCTION_FACTOR;
+		else
+			return 0;
 	}
 
 	//prefer to convert our own cities ...
@@ -10300,7 +10303,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 			iNumNeeded++;
 	}
 
-	if (iNumNeeded > 0  && iNumInquisitors > 3)
+	if (iNumNeeded > 3  && iNumInquisitors > 3)
 	{
 		CUSTOMLOG("Warning: Player %d seems to need of inquisitors but already has a lot.", m_pPlayer->GetID());
 		iNumNeeded = 3;

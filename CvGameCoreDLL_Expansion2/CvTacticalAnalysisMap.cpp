@@ -723,8 +723,8 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 				if (!neighbor)
 					continue;
 				
-				//must be same domain but do not create extra zones for small lakes or islands
-				if (neighbor->getDomain() == current->getDomain() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
+				//must be same area but do not create extra zones for small lakes or islands
+				if (neighbor->getArea() == current->getArea() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
 				{
 					std::tr1::unordered_set<CvPlot*>::iterator it = nonCityZonePlots.find(neighbor);
 					if (it != nonCityZonePlots.end())
@@ -945,7 +945,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 		int iMultiplier = 1;
 
 		CvCity* pZoneCity = pZone->GetZoneCity();
-		if (pZoneCity && pZoneCity->isAdjacentToArea(pZone->GetAreaID()))
+		if (pZoneCity && pZoneCity->HasAccessToArea(pZone->GetAreaID()))
 		{
 			//should we take into account distance to the border as well? probably dominance is enough
 			iBaseValue += (int)sqrt(pZoneCity->getEconomicValue(m_ePlayer)*100.f/iMostValuableCity);
@@ -1096,13 +1096,13 @@ void CvTacticalAnalysisMap::LogZones()
 		std::ofstream of(ss.str().c_str());
 		if (of.good())
 		{
-			of << "#x,y,terrain,owner,zoneid\n";
+			of << "#x,y,terrain,owner,area,zoneid\n";
 			for (size_t i = 0; i < m_vPlotZoneID.size(); i++)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(i);
 				if (pPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam()))
 				{
-					CvString dump = CvString::format("%d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getOwner(), m_vPlotZoneID[i]);
+					CvString dump = CvString::format("%d,%d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getOwner(), pPlot->getArea(), m_vPlotZoneID[i]);
 					of << dump.c_str();
 				}
 			}

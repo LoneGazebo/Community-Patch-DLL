@@ -1766,8 +1766,9 @@ bool CvMinorCivQuest::IsExpired()
 			if (bInRange)
 				break;
 
-			if (pMinorsPlot->getArea() != pLoopCity->getArea())
+			if (!pLoopCity->HasAccessToArea(pMinorsPlot->getArea()))
 				continue;
+
 			int iDistance = plotDistance(pMinorsPlot->getX(), pMinorsPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 			if (iDistance < iMaxRouteDistance)
 				bInRange = true;
@@ -2841,7 +2842,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		if (!pAssignedPlayer->isHuman() && pAssignedPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 		{
 			CvCity* pMinorCap = pMinor->getCapitalCity();
-			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+			if (pMinorCap && pAssignedPlayer->getCapitalCity() && pMinorCap->HasSharedAreaWith(pAssignedPlayer->getCapitalCity(),true,false))
 			{
 				PlayerProximityTypes eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
 				if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
@@ -5918,7 +5919,7 @@ bool CvMinorCivAI::IsPlayerCloseEnoughForThreatenedAnnouncement(PlayerTypes eMaj
 	if (!IsHasMetPlayer(eMajor))
 		return false;
 
-	if (pCapital->getArea() == pMajorCapital->getArea())
+	if (pCapital->HasSharedAreaWith(pMajorCapital,true,false))
 		return true;
 
 	int iDistance = plotDistance(pCapital->getX(), pCapital->getY(), pMajorCapital->getX(), pMajorCapital->getY());
@@ -6966,8 +6967,9 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			if (bInRange)
 				break;
 
-			if(pMinorsPlot->getArea() != pLoopCity->getArea())
+			if(!pLoopCity->HasAccessToArea(pMinorsPlot->getArea()))
 				continue;
+
 			int iDistance = plotDistance(pMinorsPlot->getX(), pMinorsPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 			if(iDistance < iMaxRouteDistance)
 				bInRange = true;
@@ -8910,7 +8912,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 			if(pLoopPlot != NULL)
 			{
 				// Camp must be in the same Area as us
-				if(pLoopPlot->getArea() != pCapital->getArea())
+				if(!pCapital->HasAccessToArea(pLoopPlot->getArea()))
 				{
 					continue;
 				}
@@ -9034,13 +9036,12 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 
 	//No hordes if isolated on islands (prevents barbarian overload).
 	bool bIsAlone = true;
-	PlayerTypes eLoopPlayer;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).getCapitalCity() != NULL)
 		{
-			if(GET_PLAYER(pActiveMinor).getCapitalCity()->getArea() == GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea())
+			if(GET_PLAYER(eLoopPlayer).getCapitalCity()->HasSharedAreaWith(GET_PLAYER(pActiveMinor).getCapitalCity(),true,false))
 			{
 				bIsAlone = false;
 				break;
@@ -10504,6 +10505,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 	{
 		return NULL;
 	}
+
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvArea* pLoopArea;
 	CvArea* pBestArea = NULL;
@@ -10523,13 +10525,14 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+
 		if(pLoopArea->getNumUnrevealedTiles(eTeam) <= 0)
 		{
 			continue;
 		}
 
 		//Not starting landmass
-		if(pLoopArea->GetID() == GET_PLAYER(ePlayer).getCapitalCity()->getArea())
+		if(GET_PLAYER(ePlayer).getCapitalCity()->HasAccessToArea(pLoopArea->GetID()))
 		{
 			continue;
 		}

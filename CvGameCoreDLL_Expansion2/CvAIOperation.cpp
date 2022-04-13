@@ -1678,7 +1678,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 			continue;
 
 		//only on the same continent, embarking is dangerous ...
-		if (pLoopCity->getArea() != pClosestCity->getArea())
+		if (!pLoopCity->HasSharedAreaWith(pClosestCity,true,false))
 			continue;
 
 		//Only pillage in border zones
@@ -3099,12 +3099,10 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 			// Loop through each of our cities
 			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
-				//land armies cannot embark ...
-				if (pPlot->getArea() != pLoopCity->getArea())
-					continue;
-
 				int iCurPlotDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
-				if (pPlot->getArea() != pLoopCity->getArea())
+
+				//prefer camps in our own area
+				if (!pLoopCity->HasAccessToArea(pPlot->getArea()))
 					iCurPlotDistance *= 2;
 
 				int iScore = 1000 - iCurPlotDistance + iBonus;
@@ -3318,7 +3316,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if(pLoopCity->isCoastal() && pLoopCity->isAdjacentToArea(pRefPlot->getArea()))
+		if(pLoopCity->isCoastal() && pLoopCity->HasAccessToArea(pRefPlot->getArea()))
 		{
 			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pRefPlot->getX(), pRefPlot->getY());
 			if(iDistance > 0 && iDistance < iBestDistance)
@@ -3351,7 +3349,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 				if(pLoopCityB->isCoastal())
 				{
 					// On same body of water?
-					if(pLoopCityA->plot()->hasSharedAdjacentArea(pLoopCityB->plot()))
+					if(pLoopCityA->HasSharedAreaWith(pLoopCityB,false,true))
 					{
 						//pathfinding for player A, not entirely symmetric ...
 						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB);

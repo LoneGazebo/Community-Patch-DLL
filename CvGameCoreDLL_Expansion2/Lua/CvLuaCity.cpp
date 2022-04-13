@@ -2636,7 +2636,8 @@ int CvLuaCity::lPlot(lua_State* L)
 int CvLuaCity::lArea(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvArea* pkArea = GC.getMap().getArea(pkCity->getArea());
+	//there might be other areas adjacent to the city ...
+	CvArea* pkArea = pkCity->plot()->area();
 	CvLuaArea::Push(L, pkArea);
 	return 1;
 }
@@ -2649,6 +2650,7 @@ int CvLuaCity::lWaterArea(lua_State* L)
 	std::vector<int> areas = pkCity->plot()->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
+		//just return the first one ...
 		CvArea* pkArea = GC.getMap().getArea(*it);
 		if (pkArea->isWater())
 		{

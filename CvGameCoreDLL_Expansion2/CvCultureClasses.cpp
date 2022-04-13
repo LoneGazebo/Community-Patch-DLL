@@ -7341,7 +7341,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_YIELD_HAPPINESS", iTempMod);
 	}
 
-	CvArea* pArea = GC.getMap().getArea(m_pCity->getArea());
+	CvArea* pArea =m_pCity->plot()->area();
 	if (pArea != NULL)
 	{
 		iTempMod = pArea->getYieldRateModifier(m_pCity->getOwner(), YIELD_TOURISM);

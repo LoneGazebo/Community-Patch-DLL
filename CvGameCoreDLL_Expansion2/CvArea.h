@@ -112,7 +112,7 @@ public:
 	void changeNumImprovements(ImprovementTypes eImprovement, int iChange);
 
 	CvAreaBoundaries getAreaBoundaries() const;
-	void setAreaBoundaries(CvAreaBoundaries newBoundaries);
+	void FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>& occupiedRows);
 
 	void GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude);
 	int GetAreaMaxLatitude();
@@ -121,10 +121,8 @@ public:
 	int GetNumNaturalWonders() const;
 	void ChangeNumNaturalWonders(int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	int GetNumBadPlots() const;
-	void CalcNumBadPlots();
-#endif
+	void UpdateBadPlotsCount(CvPlot* pPlot);
 
 	// for serialization
 	template<typename Area, typename Visitor>

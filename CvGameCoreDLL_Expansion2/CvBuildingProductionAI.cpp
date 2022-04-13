@@ -315,16 +315,13 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	////////////
 	///GEOGRAPHY
 	////////////
-	CvArea* pArea = GC.getMap().getArea(m_pCity->getArea());
-	if(pArea == NULL)
-		return 0;
 
 	//Airlift
 	if(pkBuildingInfo->IsAirlift())
 	{
 		if(!m_pCity->isCapital() && kPlayer.getCapitalCity() != NULL)
 		{
-			if(m_pCity->getArea() != kPlayer.getCapitalCity()->getArea())	
+			if(!m_pCity->HasSharedAreaWith(kPlayer.getCapitalCity(),true,true))	
 			{
 				iBonus += 10;
 			}
@@ -367,7 +364,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			iBonus -= 50;
 		}
-		else if(pCapital != NULL && pCapital->getArea() != m_pCity->getArea())
+		else if(pCapital != NULL && !pCapital->HasSharedAreaWith(m_pCity,true,true))
 		{
 			iBonus += 10 * max(1, m_pCity->getPopulation());
 		}
