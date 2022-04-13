@@ -394,6 +394,42 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		{
 			return 10;
 		}
+		//MOD_AI_UNIT_PRODUCTION : New flavors
+		else if (MOD_AI_UNIT_PRODUCTION)
+		{
+			if (strFlavorName == "FLAVOR_ARCHER")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_SIEGE")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_SKIRMISHER")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_NAVAL_MELEE")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_NAVAL_RANGED")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_SUBMARINE")
+			{
+				return 7;
+			}
+			else if (strFlavorName == "FLAVOR_BOMBER")
+			{
+				return 10;
+			}
+			else if (strFlavorName == "FLAVOR_FIGHTER")
+			{
+				return 10;
+			}
+		}
 		break;
 	case ADVISOR_FOREIGN:
 		if(strFlavorName == "FLAVOR_CITY_DEFENSE")

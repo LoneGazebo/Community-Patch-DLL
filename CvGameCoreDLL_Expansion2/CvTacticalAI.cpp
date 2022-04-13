@@ -1795,7 +1795,10 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
 			else
 				//otherwise buy defensive land units
-				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5,*pCity->plot())<2?UNITAI_COUNTER:UNITAI_DEFENSE, pCity);
+				if (!MOD_AI_UNIT_PRODUCTION)
+					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
+				else //AI Unit Production : Counter is AA only now
+					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
 		}
 	}
 }
@@ -3448,7 +3451,9 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 		switch (pUnit->AI_getUnitAIType())
 		{
 		case UNITAI_FAST_ATTACK:
+		case UNITAI_SKIRMISHER:
 		case UNITAI_ATTACK_SEA:
+		case UNITAI_SUBMARINE:
 		case UNITAI_ATTACK:
 		case UNITAI_COUNTER:
 			vCandidates.push_back(pUnit);
@@ -4699,7 +4704,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			{
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_RANGED))
-					iExtraScore += 30;
+					if (!MOD_AI_UNIT_PRODUCTION)
+						iExtraScore += 30;
+					else if (MOD_AI_UNIT_PRODUCTION && pLoopUnit->getUnitInfo().IsMounted() == false)
+						iExtraScore += 30;
 
 				//naval garrisons cannot attack inside cities ...
 				if (!pLoopUnit->isNativeDomain(pTarget))
@@ -4725,7 +4733,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
 				// Fast movers are top priority
-				if(pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK))
+				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
 					iExtraScore += 30;
 			}
 
@@ -9445,7 +9453,9 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 		case UNITAI_RANGED:
 		case UNITAI_CITY_BOMBARD:
 		case UNITAI_ASSAULT_SEA:
-			if (pUnit->GetRange() > 2)
+		case UNITAI_SKIRMISHER:
+		case UNITAI_SUBMARINE:
+			if (pUnit->GetRange() > 2 || MOD_AI_UNIT_PRODUCTION && pUnit->canIntercept()) // MOD_AI_UNIT_PRODUCTION : AA to back
 				eStrategy = MS_THIRDLINE;
 			else if (pUnit->GetRange() == 2)
 				eStrategy = MS_SECONDLINE;

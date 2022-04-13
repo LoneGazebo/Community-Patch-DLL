@@ -1416,6 +1416,13 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 	case UNITAI_MUSICIAN:
 		strString = "musician";
 		break;
+	// AI_UNIT_PRODUCTION
+	case UNITAI_SKIRMISHER:
+		strString = "skirmisher";
+		break;
+	case UNITAI_SUBMARINE:
+		strString = "submarine";
+		break;
 
 	default:
 		strString = CvString::format("unknown(%d)", eUnitAI);

@@ -455,6 +455,9 @@
 // Enables the column CivilizationType in Processes, allowing civilizations to have unique processes
 #define MOD_CIVILIZATIONS_UNIQUE_PROCESSES			gCustomMods.isCIVILIZATIONS_UNIQUE_PROCESSES()
 
+// Enables the experimental AI unit production logic
+#define MOD_AI_UNIT_PRODUCTION						gCustomMods.isAI_UNIT_PRODUCTION()
+
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
 // Events sent when terraforming occurs (v33)
@@ -1519,6 +1522,8 @@ public:
 	MOD_OPT_DECL(ISKA_GOLDENAGEPOINTS_TO_PRESTIGE);
 
 	MOD_OPT_DECL(BATTLE_ROYALE);
+
+	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 
 protected:
 	bool m_bInit;

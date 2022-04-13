@@ -4932,20 +4932,25 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack
-				if(pLoopUnit->IsCanAttackRanged())
+				if(pLoopUnit->IsCanAttackRanged() && !MOD_AI_UNIT_PRODUCTION)
+					bSuitableUnit = true;
+
+				// AI_UNIT_PRODUCTION : No skirmishers as garrison
+				if (pLoopUnit->IsCanAttackRanged() && MOD_AI_UNIT_PRODUCTION && pLoopUnit->getUnitInfo().IsMounted() == false)
 					bSuitableUnit = true;
 
 				break;
 
 				case AI_HOMELAND_MOVE_SENTRY:
-					// No ranged units as sentries
-					if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && 
-					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) ) )
+					// No ranged units as sentries 
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && 
+					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) && !MOD_AI_UNIT_PRODUCTION ) ) // AI_UNIT_PRODUCTION: No UNITAI_COUNTER as sentries
 				{
 					bSuitableUnit = true;
 				}
 				break;
-			case AI_HOMELAND_MOVE_SENTRY_NAVAL:
+
+				case AI_HOMELAND_MOVE_SENTRY_NAVAL:
 				// No ranged units as sentries (that would be assault_sea)
 				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit() && pLoopUnit->isUnitAI(UNITAI_ATTACK_SEA))
 				{
