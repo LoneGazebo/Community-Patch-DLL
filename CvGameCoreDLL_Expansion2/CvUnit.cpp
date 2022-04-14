@@ -11608,8 +11608,8 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	if (pCity != NULL && MOD_RELIGION_CONVERSION_MODIFIERS) {
+	if (pCity != NULL && MOD_RELIGION_CONVERSION_MODIFIERS) 
+	{
 		// Modify iReligiousStrength based on city defenses, but only against hostile units (ie any not the same team as the city)
 		PlayerTypes eFromPlayer = getOwner();
 		PlayerTypes eToPlayer = pCity->getOwner();
@@ -11628,14 +11628,13 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 	// CUSTOMLOG("Unit conversion str: %i", iReligiousStrength);
-#endif
 
 	// Blocked by Inquisitor?
 	if (pCity != NULL && MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
-			iReligiousStrength /= INQUISITOR_CONVERSION_REDUCTION_FACTOR;
+			iReligiousStrength /= max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
 		}
 	}
 

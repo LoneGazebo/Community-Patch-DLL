@@ -1,1 +1,3 @@
+If you downloaded this mod manually on its own, just stick it in your MODS folder and it should function correctly. Note that it isn't compatible with EUI!
+
 If you downloaded this mod manually and you are also playing with the full (2) Vox Populi mod, see INSTRUCTIONS.txt in (2) Vox Populi for instructions on how to do a correct installation.

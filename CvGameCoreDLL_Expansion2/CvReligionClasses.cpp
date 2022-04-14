@@ -10000,7 +10000,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
 	{
 		if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
-			iScore /= INQUISITOR_CONVERSION_REDUCTION_FACTOR;
+			iScore /= max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
 		else
 			return 0;
 	}

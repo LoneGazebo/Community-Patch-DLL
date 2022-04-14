@@ -2263,7 +2263,6 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
-		int iScore = 0;
 		if (rl)
 		{
 			CvPlot* pTest = kMap.plotUnchecked(rl->m_iX, rl->m_iY);

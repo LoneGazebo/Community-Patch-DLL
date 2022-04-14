@@ -17870,8 +17870,8 @@ bool CvCity::HasAccessToArea(int iAreaID) const
 			return std::find(allAreas.begin(), allAreas.end(), iAreaID) != allAreas.end();
 		}
 	}
-	else
-		return false;
+
+	return false;
 }
 
 bool CvCity::HasSharedAreaWith(const CvCity * pOther, bool bAllowLand, bool bAllowWater) const
@@ -17906,8 +17906,8 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		if (!bPreviousGarrison)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON));
-#if defined(MOD_BALANCE_CORE)
 			UpdateCityYields(YIELD_CULTURE);
+
 			if (pUnit != NULL && pUnit->GetReligiousPressureModifier() != 0)
 			{
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
@@ -17928,7 +17928,6 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 					}
 				}
 			}
-#endif	
 		}
 	}
 	else
@@ -17939,8 +17938,8 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 		if (bPreviousGarrison)
 		{
 			ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
-#if defined(MOD_BALANCE_CORE)
 			UpdateCityYields(YIELD_CULTURE);
+
 			if (pOldGarrison != NULL && pOldGarrison->GetReligiousPressureModifier() != 0)
 			{
 				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
@@ -17961,7 +17960,6 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 					}
 				}
 			}
-#endif	
 		}
 	}
 
@@ -17974,7 +17972,6 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 bool CvCity::HasGarrison() const
 {
-#if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 	{
 		if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
@@ -17984,7 +17981,6 @@ bool CvCity::HasGarrison() const
 			return false;
 		}
 	}
-#endif
 
 	return m_hGarrison > -1;
 }
