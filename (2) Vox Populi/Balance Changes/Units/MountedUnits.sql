@@ -120,11 +120,10 @@
 
 	--DefaultUnitAI Fixes
 	UPDATE Units SET DefaultUnitAI = 'UNITAI_FAST_ATTACK' WHERE Type = 'UNIT_WWI_TANK';
-
-	--MECH
-	-- Make Landship cost Coal, not oil:
+	
+	-- Resource Changes
 	UPDATE Unit_ResourceQuantityRequirements SET ResourceType = 'RESOURCE_OIL' WHERE UnitType = 'UNIT_WWI_TANK';
 	UPDATE Unit_ResourceQuantityRequirements SET ResourceType = 'RESOURCE_OIL' WHERE UnitType = 'UNIT_MODERN_ARMOR';
-
+	--MECH
 	UPDATE Units SET Moves = '8' WHERE Type = 'UNIT_MECH';
 	UPDATE Units SET DefaultUnitAI = 'UNITAI_FAST_ATTACK' WHERE Type = 'UNIT_MECH';	

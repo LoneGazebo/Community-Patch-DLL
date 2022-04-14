@@ -902,7 +902,9 @@
 	<Row Class="6" Name="BALANCE_CORE_SCALING_XP" Value="0"/>
 	<!-- Halved XP for units purchased with gold -->
 	<Row Class="6" Name="BALANCE_CORE_HALF_XP_PURCHASE" Value="0"/>
-	<!-- Halved XP for units purchased with gold -->
+    <!-- XP is granted only on a unit's first attack. -->
+    <Row Class="6" Name="BALANCE_CORE_XP_ON_FIRST_ATTACK" Value="0"/>
+	<!-- Updates to City State Quests (currently includes: Faith Contest (now based on followers converted)) -->
     <Row Class="6" Name="BALANCE_CORE_QUEST_CHANGES" Value="0"/>
 	<!-- Puppets ignored for happiness/unhappiness, no longer make GPP points -->
 	<Row Class="6" Name="BALANCE_CORE_PUPPET_CHANGES" Value="0"/>
