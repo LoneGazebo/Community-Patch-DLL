@@ -1606,9 +1606,9 @@ void CvMilitaryAI::UpdateBaseData()
 
 				if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
 					m_iNumRangedLandUnits++;
-					if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted() == false)
+					if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted())
 						m_iNumArcherLandUnits++;
-					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted() == true)
+					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted())
 						m_iNumSkirmisherLandUnits++;
 					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
 						m_iNumSiegeLandUnits++;

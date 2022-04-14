@@ -4936,7 +4936,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					bSuitableUnit = true;
 
 				// AI_UNIT_PRODUCTION : No skirmishers as garrison
-				if (pLoopUnit->IsCanAttackRanged() && MOD_AI_UNIT_PRODUCTION && pLoopUnit->getUnitInfo().IsMounted() == false)
+				if (pLoopUnit->IsCanAttackRanged() && MOD_AI_UNIT_PRODUCTION && !pLoopUnit->getUnitInfo().IsMounted())
 					bSuitableUnit = true;
 
 				break;
