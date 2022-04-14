@@ -437,6 +437,9 @@
     <!-- Enables the column CivilizationType in Processes, allowing civilizations to have unique processes -->
     <Row Class="5" Name="CIVILIZATIONS_UNIQUE_PROCESSES" Value="0"/>
 
+    <!-- Enables experimental Unit Production AI tweaks -->
+    <Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
+	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
     <!--   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end) -->
