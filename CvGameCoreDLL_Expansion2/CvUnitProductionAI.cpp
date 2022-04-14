@@ -363,14 +363,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 			}
 		}
-		CvArea* pArea = GC.getMap().getArea(m_pCity->getArea());
-		if(pArea != NULL)
+		CvLandmass* pLM = GC.getMap().getLandmass(m_pCity->plot()->getLandmass());
+		if(pLM != NULL)
 		{
-			if(pArea->getNumTiles() <= 3)
+			if(pLM->getNumTiles() <= 3)
 			{
 				if (eDomain == DOMAIN_LAND)
 				{
-					if(m_pCity->GetGarrisonedUnit() != NULL)
+					if(m_pCity->HasGarrison())
 					{
 						return 0;
 					}
@@ -1357,7 +1357,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iCityLoop;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
-				if (pLoopCity->getArea() == m_pCity->getArea())
+				if (pLoopCity->HasSharedAreaWith(m_pCity,true,false))
 				{
 					AICityStrategyTypes eNeedNavalWorker = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
 					if (eNeedNavalWorker != NO_AICITYSTRATEGY && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedNavalWorker))

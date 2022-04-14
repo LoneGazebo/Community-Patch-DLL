@@ -81,10 +81,10 @@ void CvArea::reset(int iID, bool bWater)
 	m_iTotalFoundValue = 0;
 	m_iBadPlots = 0;
 
-	m_Boundaries.m_iNorthEdge = 0;
-	m_Boundaries.m_iSouthEdge = 0;
-	m_Boundaries.m_iEastEdge = 0;
-	m_Boundaries.m_iWestEdge = 0;
+	m_Boundaries.m_iNorthEdge = -1;
+	m_Boundaries.m_iSouthEdge = -1;
+	m_Boundaries.m_iEastEdge = -1;
+	m_Boundaries.m_iWestEdge = -1;
 
 	m_bWater = bWater;
 	m_bMountains = false;
@@ -266,34 +266,140 @@ int CvArea::GetNumBadPlots() const
 {
 	return m_iBadPlots;
 }
-void CvArea::CalcNumBadPlots()
+
+void CvArea::UpdateBadPlotsCount(CvPlot* pPlot)
 {
-	CvPlot* pLoopPlot;
-	int iI;
+	if (!pPlot || pPlot->getArea() == GetID())
+		return;
 
 	if(isWater())
-	{
 		return;
-	}
 
-	m_iBadPlots = 0;
-
-	CvMap& theMap = GC.getMap();
-	int iNumPlots = theMap.numPlots();
-	for(iI = 0; iI < iNumPlots; iI++)
+	if( (pPlot->getTerrainType() == TERRAIN_SNOW && pPlot->getResourceType() == NO_RESOURCE && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills()) || 
+		(pPlot->getFeatureType() == FEATURE_ICE) || 
+		(pPlot->getTerrainType() == TERRAIN_DESERT && pPlot->getResourceType() == NO_RESOURCE && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills() ))
 	{
-		pLoopPlot = theMap.plotByIndexUnchecked(iI);
+		m_iBadPlots++;
+	}
+}
 
-		if(pLoopPlot->getArea() == GetID())
+void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>& occupiedRows)
+{
+	//we know an area is contiguous, so there should be exactly one rising and one falling edge in each direction
+	int colRise=-1; //west
+	int colFall=-1; //east
+	int rowRise=-1; //south
+	int rowFall=-1; //north
+
+	if (GC.getMap().isWrapX())
+	{
+		for (int i = 0; i < (int)occupiedCols.size(); i++)
 		{
-			if( (pLoopPlot->getTerrainType() == TERRAIN_SNOW && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()) || 
-				(pLoopPlot->getFeatureType() == FEATURE_ICE) || 
-				(pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills() ))
-			{
-				m_iBadPlots++;
-			}
+			//neighbor with wrapping
+			int j = (i + 1) % occupiedCols.size();
+
+			if (occupiedCols[i] == false && occupiedCols[j] == true)
+				colRise = j;
+			if (occupiedCols[i] == true && occupiedCols[j] == false)
+				colFall = i;
 		}
 	}
+	else
+	{
+		if (occupiedCols[0])
+			colRise = 0;
+		for (int i = 0; i < (int)occupiedCols.size()-1; i++)
+		{
+			//neighbor w/o wrapping
+			int j = (i + 1);
+
+			if (occupiedCols[i] == false && occupiedCols[j] == true)
+				colRise = j;
+			if (occupiedCols[i] == true && occupiedCols[j] == false)
+				colFall = i;
+		}
+		if (occupiedCols[occupiedCols.size()-1])
+			colFall = occupiedCols.size()-1;
+	}
+
+	if (GC.getMap().isWrapY())
+	{
+		for (int i = 0; i < (int)occupiedRows.size(); i++)
+		{
+			//neighbor with wrapping
+			int j = (i + 1) % occupiedRows.size();
+
+			if (occupiedRows[i] == false && occupiedRows[j] == true)
+				rowRise = j;
+			if (occupiedRows[i] == true && occupiedRows[j] == false)
+				rowFall = i;
+		}
+	}
+	else
+	{
+		if (occupiedRows[0])
+			rowRise = 0;
+		for (int i = 0; i < (int)occupiedRows.size()-1; i++)
+		{
+			//neighbor w/o wrapping
+			int j = (i + 1);
+
+			if (occupiedRows[i] == false && occupiedRows[j] == true)
+				rowRise = j;
+			if (occupiedRows[i] == true && occupiedRows[j] == false)
+				rowFall = i;
+		}
+		if (occupiedRows[occupiedRows.size()-1])
+			rowFall = occupiedRows.size()-1;
+	}
+
+	//catch degenerate cases
+	if (colFall == colRise && colFall == -1)
+	{
+		//we did not find an edge ... may be all zeros or all ones?
+		if (occupiedCols[0])
+		{
+			//this definition works with or without wrapping
+			colRise = 0;
+			colFall = (int)occupiedCols.size() - 1;
+		}
+		else
+			//invalid
+			return;
+	}
+	if (rowFall == rowRise && rowFall == -1)
+	{
+		//we did not find an edge ... may be all zeros or all ones?
+		if (occupiedRows[0])
+		{
+			//this definition works with or without wrapping
+			rowRise = 0;
+			rowFall = (int)occupiedRows.size() - 1;
+		}
+		else
+			//invalid
+			return;
+	}
+
+	//now it's possible that we are crossing the coordinate wrap boundary
+	//but we want the rise before the fall always. so fix it.
+	if (colFall < colRise)
+	{
+		assert(GC.getMap().isWrapX());
+		colFall += occupiedCols.size();
+	}
+
+	if (rowFall < rowRise)
+	{
+		assert(GC.getMap().isWrapY());
+		rowFall += occupiedRows.size();
+	}
+
+	//store
+	m_Boundaries.m_iEastEdge = colFall;
+	m_Boundaries.m_iWestEdge = colRise;
+	m_Boundaries.m_iNorthEdge = rowFall;
+	m_Boundaries.m_iSouthEdge = rowRise;
 }
 #endif
 
@@ -654,12 +760,6 @@ void CvArea::changeNumImprovements(ImprovementTypes eImprovement, int iChange)
 CvAreaBoundaries CvArea::getAreaBoundaries() const
 {
 	return m_Boundaries;
-}
-
-//	--------------------------------------------------------------------------------
-void CvArea::setAreaBoundaries(CvAreaBoundaries newBoundaries)
-{
-	m_Boundaries = newBoundaries;
 }
 
 //	--------------------------------------------------------------------------------

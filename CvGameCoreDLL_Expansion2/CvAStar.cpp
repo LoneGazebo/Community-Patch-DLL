@@ -1692,14 +1692,14 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if (pFromPlot->isCity())
 		{
 			CvCity* pCity = pFromPlot->getPlotCity();
-			if (pCity->isMatchingArea(pToPlot))
+			if (pCity->HasAccessToArea(pToPlot->getArea()))
 				bAllow = true;
 		}
 
 		if (pToPlot->isCity())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
-			if (pCity->isMatchingArea(pFromPlot))
+			if (pCity->HasAccessToArea(pFromPlot->getArea()))
 				bAllow = true;
 		}
 
@@ -1781,14 +1781,14 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 			if (pFromPlot->isCity())
 			{
 				CvCity* pCity = pFromPlot->getPlotCity();
-				if (pCity->isMatchingArea(pToPlot))
+				if (pCity->HasAccessToArea(pToPlot->getArea()))
 					bAllowStep = true;
 			}
 
 			if (pToPlot->isCity())
 			{
 				CvCity* pCity = pToPlot->getPlotCity();
-				if (pCity->isMatchingArea(pFromPlot))
+				if (pCity->HasAccessToArea(pFromPlot->getArea()))
 					bAllowStep = true;
 			}
 		}
@@ -2226,23 +2226,58 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	return TRUE;
 }
 
+bool BothHaveSamePassabilityAndDomain(const CvPlot* pA, const CvPlot* pB)
+{
+	return (pA->isImpassable() == pB->isImpassable()) && (pA->isWater() == pB->isWater());
+}
 
 //	--------------------------------------------------------------------------------
 /// Area path finder - check validity of a coordinate
-int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar*)
+int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
 {
 	if(parent == NULL)
-	{
 		return TRUE;
-	}
 
 	CvMap& kMap = GC.getMap();
+	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	//this is independent of any team!
-	if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isImpassable() != kMap.plotUnchecked(node->m_iX, node->m_iY)->isImpassable())
+	//ignore plots which already have their area set!
+	if (!pFromPlot || !pToPlot || pToPlot->getArea()!=-1)
 		return FALSE;
 
-	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
+	//small misuse ...
+	if (data.iTypeParameter == 0)
+		//simple connectivity check only
+		return BothHaveSamePassabilityAndDomain(pToPlot, pFromPlot);
+	else
+	{
+		//simple connectivity check for a start
+		if (!BothHaveSamePassabilityAndDomain(pToPlot, pFromPlot))
+			return FALSE;
+
+		//but we want compact areas not long and snaky ones, so check neighbors as well
+		DirectionTypes eRear = directionXY(pToPlot, pFromPlot);
+		int eRearLeft = (int(eRear) + 5) % 6;
+		int eRearRight = (int(eRear) + 1) % 6;
+		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
+		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
+
+		if (rl)
+		{
+			CvPlot* pTest = kMap.plotUnchecked(rl->m_iX, rl->m_iY);
+			if (!BothHaveSamePassabilityAndDomain(pToPlot, pTest))
+				return FALSE;
+		}
+		if (rr)
+		{
+			CvPlot* pTest = kMap.plotUnchecked(rr->m_iX, rr->m_iY);
+			if (!BothHaveSamePassabilityAndDomain(pToPlot, pTest))
+				return FALSE;
+		}
+
+		return TRUE;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -2250,9 +2285,7 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar*)
 {
 	if(parent == NULL)
-	{
 		return TRUE;
-	}
 
 	CvMap& kMap = GC.getMap();
 	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();

@@ -2835,7 +2835,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						}
 					}
 					int iBonus = iOurResources + iTheirResources;
-					iValue = iBonus * /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+					iValue = iBonus * /*10*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 				}
 				else
 				{
@@ -2849,7 +2849,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							{
 								if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 								{
-									iValue += /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+									iValue += /*50*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 								}
 							}
 						}

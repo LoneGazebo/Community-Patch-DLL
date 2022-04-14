@@ -240,7 +240,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			CvPlot* pCurPlot = pUnit->plot();
 			if (pCurPlot->isCity())
 			{
-				if (!pCurPlot->getPlotCity()->isMatchingArea(vExplorePlots[ui].pPlot))
+				if (!pCurPlot->getPlotCity()->HasAccessToArea(vExplorePlots[ui].pPlot->getArea()))
 					continue;
 			}
 			else

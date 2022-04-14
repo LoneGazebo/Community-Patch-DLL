@@ -341,7 +341,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	//use a slightly negative base value to discourage settling in bad lands
 	int iDefaultPlotValue = -100;
 
-	int iBorderlandRange = 5;
+	int iBorderlandRange = /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
 
 	bool bIsAlmostCoast = false;
 
@@ -724,19 +724,27 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			int iEnemyMight = kNeighbor.GetMilitaryMight();
 			int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
-			if (iEnemyDistance < min(iOwnCityDistance - 1, iBorderlandRange))
+			int iInvScaler = 0;
+			int iThreshold = min(iOwnCityDistance - 1, iBorderlandRange);
+			if (iEnemyDistance < iThreshold)
+				iInvScaler = 1;
+			else if (iEnemyDistance == iThreshold)
+				iInvScaler = 2;
+
+			//todo: do we want the check the map area as well?
+			if (iInvScaler > 0)
 			{
 				//stay away if we are weak
 				if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
 				{
-					iStratModifier -= (iTotalPlotValue * /*10*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / 100;
+					iStratModifier -= (iTotalPlotValue * /*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / iInvScaler / 100;
 					if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
 				}
 
 				//landgrab if the neighbor is weak
 				if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
 				{
-					iStratModifier += (iTotalPlotValue * /*10*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / 100;
+					iStratModifier += (iTotalPlotValue * /*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / iInvScaler / 100;
 					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
 				}
 			}

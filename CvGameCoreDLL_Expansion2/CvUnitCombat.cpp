@@ -181,7 +181,6 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iDefenderTotalDamageInflicted = iAttackerMaxHP - 1;
 		}
 
-		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_ATTACKER, iDefenderTotalDamageInflicted);
 		pkCombatInfo->setDamageInflicted(BATTLE_UNIT_ATTACKER, iAttackerDamageInflicted);
 		pkCombatInfo->setFinalDamage(BATTLE_UNIT_DEFENDER, iAttackerTotalDamageInflicted);
@@ -189,7 +188,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_CITY_MELEE);
 		pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
-		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, MAX_INT);
+		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkCity->maxXPValue());
 		pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == pkCity->getOwner());
 #if defined(MOD_BARBARIAN_GG_GA_POINTS)
 		if(GC.getGame().isOption(GAMEOPTION_BARB_GG_GA_POINTS))
@@ -458,13 +457,15 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
 		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
-
-		pkAttacker->changeExperienceTimes100(100 * 
-		    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-		    true,
-		    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		// only gain XP for the first attack made per turn.
+		if(!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+		{
+			pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+				true,
+				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		}
 
 		// Anyone eat it?
 		bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
@@ -1031,6 +1032,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					// Defender died
 					if(iDamage + pkDefender->getDamage() >= pkDefender->GetMaxHitPoints())
 					{
+						// Units with Ranged Support Fire don't normally consume an attack, because the subsequent attack will. However, we need to make an exception if this attack kills the defender
+						if(pkAttacker->isRangedSupportFire())
+							pkAttacker->setMadeAttack(true);
+
 #if defined(MOD_API_ACHIEVEMENTS)
 						//One Hit
 						if(!pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
@@ -1063,9 +1068,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
 						if(pkDefender->isBarbarian())
-						{
 							DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
-						}
 					}
 					// Nobody died
 					else
@@ -1204,15 +1207,18 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 		// Unit gains XP for executing a Range Strike
 		if(iDamage > 0) // && iDefenderStrength > 0)
 		{
-			pkAttacker->changeExperienceTimes100(100 * 
-			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-			    true,
-			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+			// only gain XP for the first attack made per turn. A Ranged Support Fire attack shouldn't reward XP unless it kills the target
+			if(!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || (pkAttacker->getNumAttacksMadeThisTurn() <= 1 && (bTargetDied || !pkAttacker->isRangedSupportFire())))
+			{
+				pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+					true,
+					kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+				
+				pkAttacker->testPromotionReady();
+			}
 		}
-
-		pkAttacker->testPromotionReady();
 
 		pkAttacker->setCombatUnit(NULL);
 		pkAttacker->ClearMissionQueue(false,GetPostCombatDelay());
@@ -1361,12 +1367,16 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		pkDefender->addDamageReceivedThisTurn(iAttackerDamageInflicted);
 #endif
 		pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
-
-		pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-		                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-		                             true,
-		                             false,
-		                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		
+		// only gain XP for the first attack made per turn.
+		if(!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+		{
+			pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+				true,
+				false,
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+		}
 	}
 
 	if(pkDefender)
@@ -1871,7 +1881,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 				pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
-					// Update experience
+				// Update experience
 				pkDefender->changeExperienceTimes100(100 * 
 					kCombatInfo.getExperience(BATTLE_UNIT_DEFENDER),
 					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
@@ -2119,9 +2129,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 	else
 		bTargetDied = true;
 
-	// Suicide Unit (e.g. Missiles)
 	if(pkAttacker)
 	{
+		// Suicide Unit (e.g. Missiles)
 		if(pkAttacker->isSuicide())
 		{
 			pkAttacker->setCombatUnit(NULL);	// Must clear this if doing a delayed kill, should this be part of the kill method?
@@ -2132,14 +2142,19 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			// Experience
 			if(iAttackerDamageInflicted > 0)
 			{
-				pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
-				                             kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
-				                             true,
-				                             kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-				                             kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+				// only gain XP for the first attack made per turn.
+				if (!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || pkAttacker->getNumAttacksMadeThisTurn() <= 1)
+				{
+					pkAttacker->changeExperienceTimes100(100 * kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
+						kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
+						true,
+						kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
+						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+					
+					// Promotion time?
+					pkAttacker->testPromotionReady();
+				}
 
-				// Promotion time?
-				pkAttacker->testPromotionReady();
 
 			}
 

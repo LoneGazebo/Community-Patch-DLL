@@ -11528,13 +11528,6 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 
 	TeamTypes eUnitTeam = pFoundingUnit->getTeam();
 
-	CvCity* pCapital = pkPlayer->getCapitalCity();
-	int iCapArea = NULL;
-	if(pCapital)
-	{
-		iCapArea = pCapital->getArea();
-	}
-
 	WeightedPlotVector aBestPlots;
 	aBestPlots.reserve((iEvalDistance+1) * 2);
 
@@ -11544,27 +11537,14 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 		{
 			CvPlot* pPlot = kMap.plot(iPlotX, iPlotY);
 			if(!pPlot)
-			{
 				continue;
-			}
 
-			//if (!pPlot->isVisible(pUnit->getTeam(), false /*bDebug*/))
 			if(!pPlot->isRevealed(eUnitTeam))
-			{
 				continue;
-			}
 
 			// Can't actually found here!
 			if(!pkPlayer->canFoundCity(iPlotX, iPlotY))
-			{
 				continue;
-			}
-
-			//// This operation is just for settling on the same continent as the capital
-			//if(pCapital && pPlot->getArea() != iCapArea)
-			//{
-			//	continue;
-			//}
 
 			// Do we have to check if this is a safe place to go?
 			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))

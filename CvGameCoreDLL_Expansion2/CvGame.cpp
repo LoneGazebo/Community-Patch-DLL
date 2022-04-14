@@ -2432,7 +2432,9 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 				pLoopCity = GET_PLAYER(pkHeadSelectedCity->getOwner()).firstCity(&iLoop, !bForward);
 			}
 
-			if((pLoopCity != NULL) && (pLoopCity != pkHeadSelectedCity) && !pLoopCity->IsPuppet())  // we don't want the player to be able to cycle to puppeted cities - it kind of defeats teh whole purpose
+			// we don't want the player to be able to cycle to puppeted cities - it kind of defeats the whole purpose - except venice!
+			bool bCanControlCity = !pLoopCity->IsPuppet() || GET_PLAYER(pLoopCity->getOwner()).GetPlayerTraits()->IsNoAnnexing();
+			if((pLoopCity != NULL) && (pLoopCity != pkHeadSelectedCity) && bCanControlCity)  
 			{
 				pSelectCity = pLoopCity;
 			}
@@ -11091,8 +11093,6 @@ void CvGame::debugSyncChecksum()
 					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), (pLoopUnit->getExperienceTimes100() / 100), pLoopUnit->getLevel() ).c_str() );
 		}
 	}
-
-	pLog->Close();
 }
 
 #endif

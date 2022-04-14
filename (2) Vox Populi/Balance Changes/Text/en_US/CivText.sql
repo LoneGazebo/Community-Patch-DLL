@@ -1164,11 +1164,11 @@ SET Text = 'In addition to the regular abilities of the Barracks which it replac
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Before engaging in melee, the Impi performs a spear throw attack that can damage or kill the enemy unit.  Because they gain experience from both the spear throw and the melee combat, Impis gain promotions very quickly. Lacking the ability to fortify, they fair worse when defending critical positions, so attack early and often.'
+SET Text = 'Before engaging in melee, the Impi performs a spear throw attack that can damage or kill the enemy unit.  This will weaken the defender before melee combat ensues, ensuring the Impi takes much less damage when attacking compared to its contemporary units. Attack early and often!'
 WHERE Tag = 'TXT_KEY_UNIT_ZULU_IMPI_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Specialized in defeating mounted and gunpowder units, and stronger overall than most units from its era. Only the Zulu may build it. Performs a first-strike ranged attack before combat, but cannot fortify.'
+SET Text = 'Specialized in defeating mounted and gunpowder units, and stronger overall than most units from its era. Only the Zulu may build it. Performs a first-strike ranged attack before combat.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ZULU_IMPI';
 
 UPDATE Language_en_US

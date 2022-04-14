@@ -22459,7 +22459,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 		// If we're coastal, consider coastal allies more...
 		if (bCoastal && GET_PLAYER(eChoice).GetNumEffectiveCoastalCities() > 1)
 		{
-			if (GET_PLAYER(eChoice).getCapitalCity()->getArea() == GetPlayer()->getCapitalCity()->getArea())
+			if (GET_PLAYER(eChoice).getCapitalCity()->HasSharedAreaWith(GetPlayer()->getCapitalCity(), true, false))
 			{
 				iDPValue += 5;
 			}
@@ -22470,7 +22470,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 		}
 		else
 		{
-			if (GET_PLAYER(eChoice).getCapitalCity()->getArea() == GetPlayer()->getCapitalCity()->getArea())
+			if (GET_PLAYER(eChoice).getCapitalCity()->HasSharedAreaWith(GetPlayer()->getCapitalCity(), true, false))
 			{
 				iDPValue += 5;
 			}
@@ -23882,9 +23882,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	if (bCheckIfGoodWarTarget)
 	{
 		CvCity *pkMinorCapital = GET_PLAYER(ePlayer).getCapitalCity(); // Validity was already checked in DoUpdateMinorCivApproaches()
-		int iMinorAreaID = pkMinorCapital->getArea();
-		int iMyAreaID = GetPlayer()->getCapitalCity()->getArea();
-
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -23898,11 +23895,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 					CvCity* pkLoopPlayerCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
 					if (pkLoopPlayerCity) // It's possible this is not valid
 					{
-						int iLoopPlayerAreaID = pkLoopPlayerCity->getArea();
 						// All of us neighbors on same landmass?
-						if (iLoopPlayerAreaID == iMinorAreaID && iMyAreaID == iLoopPlayerAreaID)
+						if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS)
 						{
-							if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS)
+							if (pkMinorCapital->HasSharedAreaWith(GetPlayer()->getCapitalCity(),true,false) && pkMinorCapital->HasSharedAreaWith(pkLoopPlayerCity,true,false))
 							{
 								bIsGoodWarTarget = true;
 								vGoodWarTargetMajors.push_back(eLoopPlayer);
@@ -31689,8 +31685,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				if(GetPlayer()->IsAbleToAnnexCityStates() && pMinorCivAI->CanMajorBuyout(eID) && pMinorCapital != NULL)
 				{
 					// Determine presence of player cities on this continent
-					int iMinorArea = pMinorCapital->getArea();
-					CvArea* pMinorArea = GC.getMap().getArea(iMinorArea);
+					CvArea* pMinorArea = pMinorCapital->plot()->area();
 					bool bPresenceInArea = false;
 					int iMajorCapitalsInArea = 0;
 					if(pMinorArea)

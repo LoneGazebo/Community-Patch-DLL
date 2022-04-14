@@ -6536,7 +6536,7 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 	// Still have more of these cities to award?
 	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
 	{
-		int iArea = pCity->getArea();
+		int iArea = pCity->plot()->getArea();
 
 		// If we have to be in a new area, check to see if this area is okay
 		if (m_bUniqueLuxuryRequiresNewArea)

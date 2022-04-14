@@ -2283,7 +2283,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			gStackWalker.SetLog(pLog);
 			gStackWalker.ShowCallstack(GetCurrentThread());
 		}
-		pLog->Close();
 	}
 	*/
 
@@ -10620,7 +10619,7 @@ bool CvUnit::canFoundCity(const CvPlot* pPlot, bool bIgnoreDistanceToExistingCit
 	{
 		if (pPlot && GET_PLAYER(m_eOwner).getCapitalCity())
 		{
-			return GET_PLAYER(m_eOwner).getCapitalCity()->getArea() != pPlot->getArea();
+			return GET_PLAYER(m_eOwner).getCapitalCity()->plot()->getLandmass() != pPlot->getLandmass();
 		}
 		else
 		{
@@ -11609,8 +11608,8 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	if (pCity != NULL && MOD_RELIGION_CONVERSION_MODIFIERS) {
+	if (pCity != NULL && MOD_RELIGION_CONVERSION_MODIFIERS) 
+	{
 		// Modify iReligiousStrength based on city defenses, but only against hostile units (ie any not the same team as the city)
 		PlayerTypes eFromPlayer = getOwner();
 		PlayerTypes eToPlayer = pCity->getOwner();
@@ -11629,14 +11628,13 @@ int CvUnit::GetConversionStrength() const
 		}
 	}
 	// CUSTOMLOG("Unit conversion str: %i", iReligiousStrength);
-#endif
 
 	// Blocked by Inquisitor?
 	if (pCity != NULL && MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
-			iReligiousStrength /= 2;
+			iReligiousStrength /= max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
 		}
 	}
 
@@ -17157,7 +17155,7 @@ bool CvUnit::isWaiting() const
 /// Can this Unit EVER fortify? (may be redundant with some other stuff)
 bool CvUnit::IsEverFortifyable() const
 {
-	return (IsCombatUnit() && !noDefensiveBonus() && !isRangedSupportFire() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
+	return (IsCombatUnit() && !noDefensiveBonus() && ((getDomainType() == DOMAIN_LAND) || (getDomainType() == DOMAIN_IMMOBILE)));
 }
 
 //	--------------------------------------------------------------------------------
@@ -17165,11 +17163,6 @@ int CvUnit::fortifyModifier() const
 {
 	VALIDATE_OBJECT
 	int iValue = 0;
-	if(isRangedSupportFire())
-	{
-		return iValue;
-	}
-
 	if( IsFortified() )
 	{
 		iValue = /*20*/ GD_INT_GET(FORTIFY_MODIFIER_PER_TURN);
@@ -27526,7 +27519,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 			//check areas, not domain types because we want to prevent subs from shooting into lakes
 			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
 			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
-			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->isAdjacentToArea(pSourcePlot->getArea()))
+			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToArea(pSourcePlot->getArea()))
 				bForbidden = false;
 
 			if (bForbidden)

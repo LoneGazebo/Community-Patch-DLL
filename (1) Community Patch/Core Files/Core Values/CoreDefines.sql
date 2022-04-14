@@ -78,6 +78,7 @@ UPDATE Defines SET Value = '10' WHERE Name = 'REVOLT_COUNTER_MIN';
 -- Religion Spread Rework
 UPDATE Defines SET Value = '9' WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITION_EFFECTIVENESS', '100'; -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.
+INSERT INTO Defines(Name, Value) SELECT 'INQUISITOR_CONVERSION_REDUCTION_FACTOR', '2'; -- only relevant if MOD_BALANCE_CORE_INQUISITOR_TWEAKS is active. divides missionary and prophet conversion strength by this number if an Inquisitor is defending the target city.
 
 -- Spy Stuff
 UPDATE Defines SET Value = '1000' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
@@ -125,7 +126,7 @@ UPDATE Defines SET Value = '10' WHERE Name = 'CHOKEPOINT_STRATEGIC_VALUE';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BAD_TILES_STRATEGIC_VALUE', '-34';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FRESH_WATER_STRATEGIC_VALUE', '5';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_COAST_STRATEGIC_VALUE', '3';
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE', '10';
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE', '30';
 
 -- Worker Stuff
 UPDATE Defines SET Value = '3' WHERE Name = 'BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD';
