@@ -871,7 +871,7 @@ void CvTacticalAI::ExecuteCaptureCityMoves()
 				int iMaxSiegeTurns = 13; //do we even need a limit here or is this handled through the tactical posture?
 
 				//assume the city heals each turn ...
-				if ( (iExpectedDamagePerTurn - /*20 in CP, 8 in CBO*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN))*iMaxSiegeTurns < iRequiredDamage )
+				if ( (iExpectedDamagePerTurn - /*20 in CP, 8 in VP*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN))*iMaxSiegeTurns < iRequiredDamage )
 				{
 					if (GC.getLogging() && GC.getAILogging() && pZone)
 					{
@@ -7084,7 +7084,7 @@ bool TacticalAIHelpers::IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
 		CvImprovementEntry* pInfo = GC.getImprovementInfo(eImprovement);
-		if (pInfo->GetNearbyEnemyDamage() <= /*10 in CP, 5 in CBO*/ GD_INT_GET(ENEMY_HEAL_RATE))
+		if (pInfo->GetNearbyEnemyDamage() <= /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE))
 			return false;
 
 		if (pInfo->GetDefenseModifier() < 50)
@@ -7106,7 +7106,7 @@ bool TacticalAIHelpers::IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes eP
 	if (eImprovement != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
 	{
 		CvImprovementEntry* pInfo = GC.getImprovementInfo(eImprovement);
-		if (pInfo->GetNearbyEnemyDamage() <= /*10 in CP, 5 in CBO*/ GD_INT_GET(ENEMY_HEAL_RATE))
+		if (pInfo->GetNearbyEnemyDamage() <= /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE))
 			return false;
 
 		if (pInfo->GetDefenseModifier() < 50)
@@ -8239,7 +8239,7 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				//redundant with ScoreTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == pUnit->maxMoves())
 				{
-					if (pUnit->getDamage() > /*10 in CP, 7 in CBO*/ GD_INT_GET(FRIENDLY_HEAL_RATE)/2)
+					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE)/2)
 						iBonus += min(23,pUnit->getDamage());
 					if (pUnit->IsEverFortifyable())
 						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 19 : 5;

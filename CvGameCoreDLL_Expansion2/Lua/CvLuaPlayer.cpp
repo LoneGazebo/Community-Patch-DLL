@@ -4319,19 +4319,19 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 			iResult += /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			break;
 		case(YIELD_SCIENCE) :
-			iResult += /*-25 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			break;
 		case(YIELD_GOLD) :
-			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			break;
 		case(YIELD_FAITH) :
-			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			break;
 		case(YIELD_TOURISM) :
-			iResult += /*0 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			break;
 		case(YIELD_CULTURE) :
-			iResult += /*-25 in CP, -80 in CBO*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
 			break;
 	}
 	if (iResult > 0)

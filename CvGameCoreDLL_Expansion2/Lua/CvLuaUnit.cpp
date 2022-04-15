@@ -5337,7 +5337,7 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 	}
 
 	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
-	lua_pushboolean(L, iBonus ==  /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
+	lua_pushboolean(L, iBonus ==  /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 	return 1;
 }
 
@@ -5354,7 +5354,7 @@ int CvLuaUnit::lIsHalfNearSapper(lua_State* L)
 	}
 
 	int iBonus = GET_PLAYER(pkUnit->getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pkCity->plot());
-	lua_pushboolean(L, iBonus > 0 && iBonus <  /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
+	lua_pushboolean(L, iBonus > 0 && iBonus <  /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 	return 1;
 }
 

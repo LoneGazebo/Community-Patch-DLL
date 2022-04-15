@@ -537,7 +537,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 {
 	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
-	bool bSmallCity = m_pCity->getPopulation() < /*2 in CP, 4 in CBO*/ GD_INT_GET(CITY_MIN_SIZE_FOR_SETTLERS);
+	bool bSmallCity = m_pCity->getPopulation() < /*2 in CP, 4 in VP*/ GD_INT_GET(CITY_MIN_SIZE_FOR_SETTLERS);
 	int iFoodThreshold = GetExcessFoodThreshold100();
 
 	//do we have enough food? always want to grow a little bit a least, so don't use zero as threshold
@@ -2982,7 +2982,7 @@ void CvCityCitizens::DoClearForcedSpecialists()
 /// What upgrade progress does a Specialist need to level up?
 int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 {
-	int iThreshold = /*100 in CP, 150 in CBO*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_BASE);
+	int iThreshold = /*100 in CP, 150 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_BASE);
 	int iNumCreated = 0;
 
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER", true))
@@ -3117,7 +3117,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	}
 #endif
 	// Increase threshold based on how many GP have already been spawned
-	iThreshold += (/*100 in CP, 250 in CBO*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_INCREASE) * iNumCreated);
+	iThreshold += (/*100 in CP, 250 in VP*/ GD_INT_GET(GREAT_PERSON_THRESHOLD_INCREASE) * iNumCreated);
 
 	// Game Speed mod
 	iThreshold *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();

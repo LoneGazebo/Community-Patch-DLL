@@ -356,12 +356,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Calculate this player's modifier for the base value
 	int iBaseModifier = 100;
 	iBaseModifier += GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence();
-	iBaseModifier += pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in CBO*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0;
+	iBaseModifier += pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in VP*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0;
 
 	if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
-		iBaseModifier += /*0 in CP, 25 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FRIENDLY);
+		iBaseModifier += /*0 in CP, 25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FRIENDLY);
 	else if (ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)
-		iBaseModifier += /*0 in CP, -25 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_HOSTILE);
+		iBaseModifier += /*0 in CP, -25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_HOSTILE);
 
 	if (pMinor->GetMinorCivAI()->IsSameReligionAsMajor(m_eAssignedPlayer))
 	{
@@ -404,12 +404,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MERCANTILE);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MERCANTILE);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MARITIME);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GOLD_MARITIME);
 			iBonus /= 100;
 		}
 
@@ -435,7 +435,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_SCIENCE_RELIGIOUS);
+			iBonus *= /*100 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_SCIENCE_RELIGIOUS);
 			iBonus /= 100;
 		}
 
@@ -461,18 +461,18 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_CULTURED);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_CULTURED);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL) //boring
 		{
-			iBonus *= /*100 in CP, 80 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_NEUTRAL);
+			iBonus *= /*100 in CP, 80 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_NEUTRAL);
 			iBonus /= 100;
 		}
 		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL) //exciting
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_IRRATIONAL);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_CULTURE_IRRATIONAL);
 			iBonus /= 100;
 		}
 
@@ -498,13 +498,13 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_RELIGIOUS);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_RELIGIOUS);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
 		{
-			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_NEUTRAL);
+			iBonus *= /*100 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FAITH_NEUTRAL);
 			iBonus /= 100;
 		}
 
@@ -530,18 +530,18 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_CULTURED);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_CULTURED);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_RELIGIOUS);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_RELIGIOUS);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)		
 		{
-			iBonus *= /*100 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_IRRATIONAL);
+			iBonus *= /*100 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GAP_IRRATIONAL);
 			iBonus /= 100;
 		}
 
@@ -567,18 +567,18 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MARITIME);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MARITIME);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 		{
-			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MERCANTILE);
+			iBonus *= /*100 in CP, 50 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_MERCANTILE);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
 		{
-			iBonus *= /*100 in CP, 80 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_NEUTRAL);
+			iBonus *= /*100 in CP, 80 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FOOD_NEUTRAL);
 			iBonus /= 100;
 		}
 
@@ -604,7 +604,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_PRODUCTION_MILITARISTIC);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_PRODUCTION_MILITARISTIC);
 			iBonus /= 100;
 		}
 
@@ -630,23 +630,23 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 		{
-			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_MILITARISTIC);
+			iBonus *= /*100 in CP, 50 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_MILITARISTIC);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_CULTURED);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_CULTURED);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_NEUTRAL);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_NEUTRAL);
 			iBonus /= 100;
 		}
 		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_IRRATIONAL);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_TOURISM_IRRATIONAL);
 			iBonus /= 100;
 		}
 
@@ -687,18 +687,18 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_CULTURED);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_CULTURED);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)		
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_NEUTRAL);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_NEUTRAL);
 			iBonus /= 100;
 		}
 		else if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)	
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_IRRATIONAL);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_IRRATIONAL);
 			iBonus /= 100;
 		}
 
@@ -721,18 +721,18 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_RELIGIOUS);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_RELIGIOUS);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_CULTURED);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_CULTURED);
 			iBonus /= 100;
 		}
 
 		if (ePersonality == MINOR_CIV_PERSONALITY_NEUTRAL)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_NEUTRAL);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_NEUTRAL);
 			iBonus /= 100;
 		}
 
@@ -758,12 +758,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_MILITARISTIC);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_MILITARISTIC);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_CULTURED);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_GENERAL_POINTS_CULTURED);
 			iBonus /= 100;
 		}
 
@@ -789,12 +789,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MARITIME)
 		{
-			iBonus *= /*100 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_MARITIME);
+			iBonus *= /*100 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_MARITIME);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
 		{
-			iBonus *= /*100 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_CULTURED);
+			iBonus *= /*100 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_ADMIRAL_POINTS_CULTURED);
 			iBonus /= 100;
 		}
 
@@ -817,12 +817,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 		{
-			iBonus *= /*100 in CP, 125 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_MILITARISTIC);
+			iBonus *= /*100 in CP, 125 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_MILITARISTIC);
 			iBonus /= 100;
 		}
 		else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
-			iBonus *= /*100 in CP, 50 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS);
+			iBonus *= /*100 in CP, 50 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS);
 			iBonus /= 100;
 		}
 
@@ -5078,7 +5078,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					} 
 					else 
 					{
-						iGoldGift = /*15 in CP, 20 in CBO*/ GD_INT_GET(MINOR_CIV_CONTACT_GOLD_OTHER);
+						iGoldGift = /*15 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_CONTACT_GOLD_OTHER);
 						if (GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 							iFaithGift = 4; //antonjs: todo: XML
 					}
@@ -5935,7 +5935,7 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 
 	if (IsThreateningBarbariansEventActiveForPlayer(eKillingPlayer))
 	{
-		ChangeFriendshipWithMajor(eKillingPlayer, /*12 in CP, 15 in CBO*/ GD_INT_GET(FRIENDSHIP_PER_BARB_KILLED));
+		ChangeFriendshipWithMajor(eKillingPlayer, /*12 in CP, 15 in VP*/ GD_INT_GET(FRIENDSHIP_PER_BARB_KILLED));
 
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_BARB_KILLED");
 		strMessage << GetPlayer()->getNameKey();
@@ -7846,7 +7846,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
 		{
-			iWeight *= /*200 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE);
+			iWeight *= /*200 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE);
 			iWeight /= 100;
 		}
 		else if (MOD_BALANCE_CORE_MINORS && eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -7856,12 +7856,12 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		}
 		else
 		{
-			iWeight *= /*40 in CP, 33 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE);
+			iWeight *= /*40 in CP, 33 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE);
 			iWeight /= 100;
 		}
 		if (ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)
 		{
-			iWeight *= /*200 in CP, 150 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CITY_STATE);
+			iWeight *= /*200 in CP, 150 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CITY_STATE);
 			iWeight /= 100;
 		}
 		else if (MOD_BALANCE_CORE_MINORS && ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
@@ -7871,7 +7871,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		}
 		else
 		{
-			iWeight *= /*40 in CP, 33 in CBO*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE);
+			iWeight *= /*40 in CP, 33 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE);
 			iWeight /= 100;
 		}
 		break;
@@ -12193,7 +12193,7 @@ void CvMinorCivAI::DoIntrusion()
 							// Ignore if the player trait allows us to intrude without angering
 							if(!GET_PLAYER(pLoopUnit->getOwner()).GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates())
 							{
-								ChangeFriendshipWithMajor(pLoopUnit->getOwner(), /*-6 in CP, -5 in CBO*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_INTRUDING));
+								ChangeFriendshipWithMajor(pLoopUnit->getOwner(), /*-6 in CP, -5 in VP*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_INTRUDING));
 
 								// only modify if the unit isn't automated nor having a pending order
 								if(!pLoopUnit->IsAutomated() && pLoopUnit->GetLengthMissionQueue() == 0)
@@ -12856,7 +12856,7 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	// Pledge is locked in for a certain time
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeTurn = GetTurnLastPledgedProtectionByMajor(eMajor);
-	int iGracePeriod = /*10 in CP, 50 in CBO*/ GD_INT_GET(BALANCE_MINOR_PROTECTION_MINIMUM_DURATION);
+	int iGracePeriod = /*10 in CP, 50 in VP*/ GD_INT_GET(BALANCE_MINOR_PROTECTION_MINIMUM_DURATION);
 
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;
@@ -13131,19 +13131,19 @@ int CvMinorCivAI::GetCultureFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eA
 	// Industrial era or Later
 	if(eCurrentEra >= eIndustrial)
 	{
-		iCultureBonus += /*13 in CP, 10 in CBO*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
+		iCultureBonus += /*13 in CP, 10 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
 	}
 
 	// Medieval era or later
 	else if(eCurrentEra >= eMedieval)
 	{
-		iCultureBonus += /*6 in CP, 4 in CBO*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL);
+		iCultureBonus += /*6 in CP, 4 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL);
 	}
 
 	// Pre-Medieval
 	else
 	{
-		iCultureBonus += /*3 in CP, 1 in CBO*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT);
+		iCultureBonus += /*3 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT);
 	}
 
 	return iCultureBonus;
@@ -13165,7 +13165,7 @@ int CvMinorCivAI::GetCultureFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssum
 	// Industrial era or Later
 	if (eCurrentEra >= eIndustrial)
 	{
-		iCultureBonus += /*13 in CP, 12 in CBO*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
+		iCultureBonus += /*13 in CP, 12 in VP*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
 	}
 
 	// Medieval era or later
@@ -13177,7 +13177,7 @@ int CvMinorCivAI::GetCultureFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssum
 	// Pre-Medieval
 	else
 	{
-		iCultureBonus += /*3 in CP, 2 in CBO*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_ANCIENT);
+		iCultureBonus += /*3 in CP, 2 in VP*/ GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_ANCIENT);
 	}
 
 	return iCultureBonus;
@@ -13509,19 +13509,19 @@ int CvMinorCivAI::GetFaithFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAss
 	// Industrial era or later
 	if(eCurrentEra >= eIndustrial)
 	{
-		iFaithBonus += /*8 in CP, 12 in CBO*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		iFaithBonus += /*8 in CP, 12 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 	}
 
 	// Renaissance era
 	else if(eCurrentEra >= eRenaissance)
 	{
-		iFaithBonus += /*4 in CP, 9 in CBO*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
+		iFaithBonus += /*4 in CP, 9 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
 	}
 
 	// Medieval era
 	else if(eCurrentEra >= eMedieval)
 	{
-		iFaithBonus += /*4 in CP, 7 in CBO*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
+		iFaithBonus += /*4 in CP, 7 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
 	}
 
 	// Classical era
@@ -13533,7 +13533,7 @@ int CvMinorCivAI::GetFaithFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAss
 	// Ancient era
 	else
 	{
-		iFaithBonus += /*2 in CP, 1 in CBO*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
+		iFaithBonus += /*2 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
 	}
 
 	return iFaithBonus;
@@ -13555,25 +13555,25 @@ int CvMinorCivAI::GetFaithFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeE
 	// Industrial era or later
 	if(eCurrentEra >= eIndustrial)
 	{
-		iFaithBonus += /*8 in CP, 12 in CBO*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		iFaithBonus += /*8 in CP, 12 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 	}
 
 	// Renaissance era
 	else if(eCurrentEra >= eRenaissance)
 	{
-		iFaithBonus += /*4 in CP, 9 in CBO*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
+		iFaithBonus += /*4 in CP, 9 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
 	}
 
 	// Medieval era
 	else if(eCurrentEra >= eMedieval)
 	{
-		iFaithBonus += /*4 in CP, 7 in CBO*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
+		iFaithBonus += /*4 in CP, 7 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
 	}
 
 	// Classical era
 	else if(eCurrentEra >= eClassical)
 	{
-		iFaithBonus += /*2 in CP, 3 in CBO*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
+		iFaithBonus += /*2 in CP, 3 in VP*/ GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
 	}
 
 	// Ancient era
@@ -13963,11 +13963,11 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 
 	// Medieval era or sooner
 	if(eCurrentEra < eRenaissance)
-		iBonus = /*200 in CP, 300 in CBO*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+		iBonus = /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 
 	// Renaissance era or later
 	else
-		iBonus = /*200 in CP, 600 in CBO*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+		iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
@@ -14012,11 +14012,11 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 
 	// Medieval era or sooner
 	if(eCurrentEra < eRenaissance)
-		iBonus = /*0 in CP, 50 in CBO*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+		iBonus = /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 
 	// Renaissance era or later
 	else
-		iBonus = /*0 in CP, 100 in CBO*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+		iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
@@ -14051,7 +14051,7 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 // Food bonus when Allies with a minor - additive with general city bonus
 int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 {
-	int iBonus = /*0 in CP, 200 in CBO*/ GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
+	int iBonus = /*0 in CP, 200 in VP*/ GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
@@ -14086,7 +14086,7 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 // Food bonus when Allies with a minor
 int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 {
-	int iBonus = /*100 in CP, 200 in CBO*/ GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
+	int iBonus = /*100 in CP, 200 in VP*/ GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
@@ -14603,7 +14603,7 @@ bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
 		return false;
 
 	// ...for a while
-	if (GetAlliedTurns() < /*5 in CP, 10 in CBO*/ GD_INT_GET(MINOR_CIV_BUYOUT_TURNS))
+	if (GetAlliedTurns() < /*5 in CP, 10 in VP*/ GD_INT_GET(MINOR_CIV_BUYOUT_TURNS))
 		return false;
 
 	// They must have enough Gold
@@ -14639,7 +14639,7 @@ bool CvMinorCivAI::CanMajorBuyout(PlayerTypes eMajor)
 		return false;
 
 	// ...for a while
-	if (GetAlliedTurns() < /*5 in CP, 10 in CBO*/ GD_INT_GET(MINOR_CIV_BUYOUT_TURNS))
+	if (GetAlliedTurns() < /*5 in CP, 10 in VP*/ GD_INT_GET(MINOR_CIV_BUYOUT_TURNS))
 		return false;
 
 	// They must have enough Gold
@@ -15493,7 +15493,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 		GET_PLAYER(eBully).GetTreasury()->ChangeGold(iGold);
 		
-		DoBulliedByMajorReaction(eBully, /*-1500 in CP, -3000 in CBO*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS));
+		DoBulliedByMajorReaction(eBully, /*-1500 in CP, -3000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS));
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 		if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -16112,7 +16112,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					if(GetPlayer()->getCapitalCity())
 						GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-					DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in CBO*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+					DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 					if (MOD_EVENTS_MINORS_INTERACTION) {
 						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
@@ -16149,7 +16149,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			if(GetPlayer()->getCapitalCity())
 				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in CBO*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+			DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
 			
 #if defined(MOD_EVENTS_MINORS_INTERACTION)
 			if (MOD_EVENTS_MINORS_INTERACTION) {
@@ -16399,7 +16399,7 @@ void CvMinorCivAI::DoElection()
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 				}
 
-				int iValue = /*20 in CP, 15 in CBO*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION);
+				int iValue = /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION);
 
 				int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
 				if (iEra <= 0)
@@ -16596,7 +16596,7 @@ int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreat
 	}
 	else
 	{
-		iInfluence += /*5 in CP, 15 in CBO*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED);
+		iInfluence += /*5 in CP, 15 in VP*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED);
 
 		// War state
 		if (IsProxyWarActiveForMajor(eFromPlayer))
@@ -17154,7 +17154,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		{
 			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed());
 
-			if (iRand < /*50 in CP, 40 in CBO*/ GD_INT_GET(PERMANENT_WAR_AGGRESSOR_CHANCE))
+			if (iRand < /*50 in CP, 40 in VP*/ GD_INT_GET(PERMANENT_WAR_AGGRESSOR_CHANCE))
 			{
 				if (ENABLE_PERMANENT_WAR)
 					SetPermanentWar(eEnemyTeam, true);

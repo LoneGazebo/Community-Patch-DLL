@@ -2064,7 +2064,7 @@ void CvEconomicAI::DoReconState()
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
-	int iPlotsPerExplorer = /*20 in CP, 27 in CBO*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
+	int iPlotsPerExplorer = /*20 in CP, 27 in VP*/ GD_INT_GET(MAX_PLOTS_PER_EXPLORER) - m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RECON"));
 	int iNumExplorersNeededTimes100 = 50 + (iNumPlotsToExplore*100) / iPlotsPerExplorer;
 	if (bWar)
 		iNumExplorersNeededTimes100 /= 2;

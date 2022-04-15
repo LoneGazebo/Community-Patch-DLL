@@ -2627,7 +2627,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier /= 100;
 	iModifier *= (GC.getGame().getStartEraInfo().getResearchPercent());
 	iModifier /= 100;
-	iModifier *= (100 + std::max(0, /*50 in CP, 100 in CBO*/ GD_INT_GET(TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) * (m_pTeam->getNumMembers() - 1)));
+	iModifier *= (100 + std::max(0, /*50 in CP, 100 in VP*/ GD_INT_GET(TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) * (m_pTeam->getNumMembers() - 1)));
 	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)

@@ -22,7 +22,7 @@
 
 // consts to put in enums
 const int iSpyTurnsToTravel = 1;
-const int iSpyTurnsToRevive = /*5 in CP, 10 in CBO*/ GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
+const int iSpyTurnsToRevive = /*5 in CP, 10 in VP*/ GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
 const int iSpyRankPower = 50;
@@ -1815,12 +1815,12 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				
 				int iOurEspMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 
-				int iInfluenceBonus = m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner()) * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+				int iInfluenceBonus = m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner()) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 				iSpeedBonuses += iInfluenceBonus;
 				int iOpenBordersBonus = 0;
 				if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 				{
-					iOpenBordersBonus = /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+					iOpenBordersBonus = /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 				}
 
 				iSpeedBonuses += iOurEspMod;
@@ -1828,10 +1828,10 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				int iSpyRank = pSpy->GetSpyRank(m_pPlayer->GetID())+1;
 
-				int iSpyBonus = (iSpyRank * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT));
+				int iSpyBonus = (iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT));
 				iSpeedBonuses += iSpyBonus;
 
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER", /*100 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT));
+				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER", /*100 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT));
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES", iSpeedBonuses);
 
@@ -1937,7 +1937,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		{
 			int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 			int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
-			iCounterSpy = iSpyRank * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		}
 
 		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
@@ -2058,7 +2058,7 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		int iCounterSpy = kPlayer.GetEspionage()->GetSpyIndexInCity(pCity);
 		CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iCounterSpy);
 
-		iChancetoKill = (pSpy->m_eRank+1) * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+		iChancetoKill = (pSpy->m_eRank+1) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		if (pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
 		{
 			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
@@ -3127,7 +3127,7 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 
 int CvPlayerEspionage::GetSpyPower(CvCity* pCity, int iSpyIndex)
 {
-	int iBaseSpyPower = /*100 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
+	int iBaseSpyPower = /*100 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
 
 	int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID()) + 1;
 	iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
@@ -3135,7 +3135,7 @@ int CvPlayerEspionage::GetSpyPower(CvCity* pCity, int iSpyIndex)
 	{
 		iSpyRank += 1;
 	}
-	iSpyRank *= /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+	iSpyRank *= /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 
 	int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 
@@ -3173,13 +3173,13 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	{
 		if (bConsiderPotentialSpy)
 		{
-			iCounterSpy = /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			iCounterSpy = /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		}
 		else
 		{
 			int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 			int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
-			iCounterSpy = iSpyRank * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		}
 	}
 
@@ -3233,7 +3233,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false); //science is key
 			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_PRODUCTION, false); //production too!
 			iBaseYieldRate /= 100;
-			iBaseYieldRate *= /*100 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
+			iBaseYieldRate *= /*100 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
 			iBaseYieldRate /= 100;
 			iBaseYieldRate *= GC.getGame().getGameSpeedInfo().getSpyRatePercent();
 			iBaseYieldRate /= 100;
@@ -3253,7 +3253,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 				{
 					iSpyRank += 1;
 				}
-				iResult *= 100 + (iSpyRank * /*25 in CP, 20 in CBO*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT));
+				iResult *= 100 + (iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT));
 				iResult /= 100;
 			}
 

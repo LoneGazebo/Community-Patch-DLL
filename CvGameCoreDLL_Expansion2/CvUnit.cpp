@@ -3153,7 +3153,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		// restore combat units at some percentage of their original health
 		if (pkCapturedUnit != NULL)
 		{
-			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in CBO*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
+			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
 		}
 	}
@@ -7827,7 +7827,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iBaseHeal = 0;
 	if(pPlot->isCity())
 	{
-		iBaseHeal = /*25 in CP, 20 in CBO*/ GD_INT_GET(CITY_HEAL_RATE);
+		iBaseHeal = /*25 in CP, 20 in VP*/ GD_INT_GET(CITY_HEAL_RATE);
 		iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
 		if(pCity)
 		{
@@ -7838,14 +7838,14 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	{
 		if(pPlot->IsFriendlyTerritory(getOwner()))
 		{
-			iBaseHeal = /*20 in CP, 15 in CBO*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
+			iBaseHeal = /*20 in CP, 15 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
 			iExtraHeal += iExtraFriendlyHeal;
 		}
 		else
 		{
 			if(isEnemy(pPlot->getTeam(), pPlot))
 			{
-				iBaseHeal = /*10 in CP, 5 in CBO*/ GD_INT_GET(ENEMY_HEAL_RATE);
+				iBaseHeal = /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE);
 				iExtraHeal += iExtraEnemyHeal;
 			}
 			else
@@ -7946,7 +7946,7 @@ void CvUnit::doHeal()
 #endif
 			{
 				//barbarians consider all territory as neutral
-				int iHealRate = getExtraNeutralHeal() + /*0 in CP, 10 in CBO*/ GD_INT_GET(BALANCE_BARBARIAN_HEAL_RATE);
+				int iHealRate = getExtraNeutralHeal() + /*0 in CP, 10 in VP*/ GD_INT_GET(BALANCE_BARBARIAN_HEAL_RATE);
 				changeDamage(-iHealRate);
 			}
 		}
@@ -9846,7 +9846,7 @@ bool CvUnit::canRebase(bool bForced) const
 int CvUnit::getRebaseRange() const
 {
 	if (canRebase())
-		return (GetRange() * /*200 in CP, 500 in CBO*/ GD_INT_GET(AIR_UNIT_REBASE_RANGE_MULTIPLIER)) / 100;
+		return (GetRange() * /*200 in CP, 500 in VP*/ GD_INT_GET(AIR_UNIT_REBASE_RANGE_MULTIPLIER)) / 100;
 
 	return 0;
 }
@@ -9960,7 +9960,7 @@ bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
 			if (pkEntry && pkEntry->IsAllowsRebaseTo() && !pToPlot->IsImprovementPillaged() && pToPlot->IsFriendlyTerritory(getOwner()) && !pToPlot->isVisibleEnemyUnit(getOwner()))
 			{
 				// Check the loading limit for this improvement
-				if (pToPlot->countNumAirUnits(getTeam()) < (/*3 in CP, 1 in CBO*/ GD_INT_GET(BASE_CITY_AIR_STACKING) / 2))
+				if (pToPlot->countNumAirUnits(getTeam()) < (/*3 in CP, 1 in VP*/ GD_INT_GET(BASE_CITY_AIR_STACKING) / 2))
 				{
 					return true;
 				}
@@ -14680,7 +14680,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iProductionBase = kPlayer.getProductionNeeded(eUnit) / 2;
 	}
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit) - iProductionBase)) * /*2 in CP, 1 in CBO*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
@@ -15115,7 +15115,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	if(bPretendEmbarked)
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
-		return max(1, /*2 in CP, 3 in CBO*/ GD_INT_GET(EMBARKED_UNIT_MOVEMENT) + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
+		return max(1, /*2 in CP, 3 in VP*/ GD_INT_GET(EMBARKED_UNIT_MOVEMENT) + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
 	}
 
 	int m_iExtraNavalMoves = 0;
@@ -15671,13 +15671,13 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 					continue;
 
 				double dDeficit = (double) iMissing / (double) iUsed;
-				iPenalty += (int) floor((dDeficit) * /*-50 in CP, 0 in CBO*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY)); // round down (for larger negative penalty)
+				iPenalty += (int) floor((dDeficit) * /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY)); // round down (for larger negative penalty)
 			}
 		}
 	}
 
 	//value is negative!
-	return max(iPenalty, /*-50 in CP, 0 in CBO*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY));
+	return max(iPenalty, /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY));
 }
 
 //	--------------------------------------------------------------------------------
@@ -17244,9 +17244,9 @@ int CvUnit::maxXPValue() const
 
 	if (isBarbarian())
 	{
-		iMaxValue = std::min(iMaxValue, /*30 in CP, 45 in CBO*/ GD_INT_GET(BARBARIAN_MAX_XP_VALUE));
+		iMaxValue = std::min(iMaxValue, /*30 in CP, 45 in VP*/ GD_INT_GET(BARBARIAN_MAX_XP_VALUE));
 	}
-	if (GET_PLAYER(getOwner()).isMinorCiv() && /*-1 in CP, 70 in CBO*/ GD_INT_GET(MINOR_MAX_XP_VALUE) != -1)
+	if (GET_PLAYER(getOwner()).isMinorCiv() && /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE) != -1)
 	{
 		iMaxValue = std::min(iMaxValue, GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
@@ -25119,7 +25119,7 @@ int CvUnit::getGAPBlast()
 			iValue /= 100;
 		}
 #endif
-		if (iValue <= /*250 in CP, 200 in CBO*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) /2)
+		if (iValue <= /*250 in CP, 200 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) /2)
 			iValue = GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) / 2;
 
 		// Modify based on game speed

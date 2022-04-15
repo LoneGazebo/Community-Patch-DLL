@@ -566,7 +566,7 @@ int CvDllGameContext::GetMOVE_DENOMINATOR() const
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetMAX_CITY_HIT_POINTS() const
 {
-	return /*200 in CP, 300 in CBO*/ GD_INT_GET(MAX_CITY_HIT_POINTS);
+	return /*200 in CP, 300 in VP*/ GD_INT_GET(MAX_CITY_HIT_POINTS);
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_OFFSET() const
@@ -616,7 +616,7 @@ int CvDllGameContext::GetLAST_EMBARK_ART_ERA() const
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetHEAVY_RESOURCE_THRESHOLD() const
 {
-	return /*3 in CP, 2 in CBO*/ GD_INT_GET(HEAVY_RESOURCE_THRESHOLD);
+	return /*3 in CP, 2 in VP*/ GD_INT_GET(HEAVY_RESOURCE_THRESHOLD);
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetSTANDARD_HANDICAP() const

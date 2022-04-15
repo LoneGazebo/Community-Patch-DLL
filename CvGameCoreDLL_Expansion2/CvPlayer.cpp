@@ -4018,7 +4018,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	int iPercentPopulationRetained = 100;
 	if (bSlaughter)
 	{
-		iPercentPopulationRetained = min(/*50 in CP, 75 in CBO*/ GD_INT_GET(CITY_CAPTURE_POPULATION_PERCENT), 100);
+		iPercentPopulationRetained = min(/*50 in CP, 75 in VP*/ GD_INT_GET(CITY_CAPTURE_POPULATION_PERCENT), 100);
 		int iRetentionFromTourism = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) * (100 - iPercentPopulationRetained) / 100;
 		iPercentPopulationRetained += iRetentionFromTourism;
 	}
@@ -11546,7 +11546,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			if(pNotifications)
 			{
 				CvString strBuffer;
-				if (GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN CBO*/ GD_INT_GET(IDEOLOGY_START_ERA))
+				if (GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN VP*/ GD_INT_GET(IDEOLOGY_START_ERA))
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA");
 				}
@@ -12187,7 +12187,7 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 // Score from Cities: 10 per city (with mod for map size)
 int CvPlayer::GetScoreFromCities() const
 {
-	int iScore = getNumCities() * /*8 in CP, 10 in CBO*/ GD_INT_GET(SCORE_CITY_MULTIPLIER);
+	int iScore = getNumCities() * /*8 in CP, 10 in VP*/ GD_INT_GET(SCORE_CITY_MULTIPLIER);
 
 	iScore *= GC.getGame().GetMapScoreMod();
 	iScore /= 100;
@@ -12199,7 +12199,7 @@ int CvPlayer::GetScoreFromCities() const
 // Score from Population: 6 per pop (with mod for map size)
 int CvPlayer::GetScoreFromPopulation() const
 {
-	int iScore = getTotalPopulation() * /*4 in CP, 2 in CBO*/ GD_INT_GET(SCORE_POPULATION_MULTIPLIER);
+	int iScore = getTotalPopulation() * /*4 in CP, 2 in VP*/ GD_INT_GET(SCORE_POPULATION_MULTIPLIER);
 
 	iScore *= GC.getGame().GetMapScoreMod();
 	iScore /= 100;
@@ -12236,7 +12236,7 @@ int CvPlayer::GetScoreFromPolicies() const
 		return 0;
 	}
 
-	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned() * /*4 in CP, 16 in CBO*/ GD_INT_GET(SCORE_POLICY_MULTIPLIER);
+	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned() * /*4 in CP, 16 in VP*/ GD_INT_GET(SCORE_POLICY_MULTIPLIER);
 
 	return iScore;
 }
@@ -12262,8 +12262,8 @@ int CvPlayer::GetScoreFromReligion() const
 	if (eReligion > RELIGION_PANTHEON)
 	{
 		const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, GetID());
-		iScore += pReligion->m_Beliefs.GetNumBeliefs() * /*20 in CP, 5 in CBO*/ GD_INT_GET(SCORE_BELIEF_MULTIPLIER);
-		iScore += pGameReligions->GetNumCitiesFollowing(eReligion) * /*1 in CP, 3 in CBO*/ GD_INT_GET(SCORE_RELIGION_CITIES_MULTIPLIER);
+		iScore += pReligion->m_Beliefs.GetNumBeliefs() * /*20 in CP, 5 in VP*/ GD_INT_GET(SCORE_BELIEF_MULTIPLIER);
+		iScore += pGameReligions->GetNumCitiesFollowing(eReligion) * /*1 in CP, 3 in VP*/ GD_INT_GET(SCORE_RELIGION_CITIES_MULTIPLIER);
 	}
 	return iScore;
 }
@@ -12276,7 +12276,7 @@ int CvPlayer::GetScoreFromTechs() const
 		return 0;
 
 	// Normally we recompute it each time
-	int iScore = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * /*4 in CP, 6 in CBO*/ GD_INT_GET(SCORE_TECH_MULTIPLIER);
+	int iScore = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * /*4 in CP, 6 in VP*/ GD_INT_GET(SCORE_TECH_MULTIPLIER);
 	return iScore;
 }
 
@@ -13676,7 +13676,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	if(bPantheon)
 	{
 		// Enough so still get a pantheon if 3 civs pop this in same turn
-		iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon() + 2 * /*5 in CP, 0 in CBO*/ GD_INT_GET(RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON);
+		iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon() + 2 * /*5 in CP, 0 in VP*/ GD_INT_GET(RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON);
 		int iDivisor = /*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR);
 		iFaith /= iDivisor;
 		iFaith *= iDivisor;
@@ -14958,7 +14958,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		// Settlers
 		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
-			if (IsEmpireVeryUnhappy() && /*1 in CP, 0 in CBO*/ GD_INT_GET(VERY_UNHAPPY_CANT_TRAIN_SETTLERS) == 1)
+			if (IsEmpireVeryUnhappy() && /*1 in CP, 0 in VP*/ GD_INT_GET(VERY_UNHAPPY_CANT_TRAIN_SETTLERS) == 1)
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_VERY_UNHAPPY_SETTLERS");
 				if(toolTipSink == NULL)
@@ -16258,7 +16258,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 
 	if (isMinorCiv())
 	{
-		iProductionNeeded *= /*120 in CP, 100 in CBO*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
+		iProductionNeeded *= /*120 in CP, 100 in VP*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
 		iProductionNeeded /= 100;
 	}
 
@@ -16402,7 +16402,7 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 
 	if (isMinorCiv())
 	{
-		iProductionNeeded *= /*120 in CP, 100 in CBO*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
+		iProductionNeeded *= /*120 in CP, 100 in VP*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
 		iProductionNeeded /= 100;
 	}
 
@@ -16528,7 +16528,7 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
 
 	if (isMinorCiv())
 	{
-		iProductionNeeded *= /*120 in CP, 100 in CBO*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
+		iProductionNeeded *= /*120 in CP, 100 in VP*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
 		iProductionNeeded /= 100;
 	}
 
@@ -16579,7 +16579,7 @@ int CvPlayer::getProductionNeeded(SpecialistTypes eSpecialist) const
 
 	if (isMinorCiv())
 	{
-		iProductionNeeded *= /*120 in CP, 100 in CBO*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
+		iProductionNeeded *= /*120 in CP, 100 in VP*/ GD_INT_GET(MINOR_CIV_PRODUCTION_PERCENT);
 		iProductionNeeded /= 100;
 	}
 
@@ -17844,7 +17844,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 	if (iUnitsOverSupply > 0)
 	{
 		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
-		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in CBO*/ max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in VP*/ max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
 		return iMaintenanceMod * -1;
 	}
 
@@ -18144,7 +18144,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		{
 			iExtraAICatchUP = GC.getGame().getHandicapInfo().getAITechCatchUpMod() * GC.getGame().getCurrentEra();
 		}
-		iModifier += ((/*30 in CP, 10 in CBO*/ GD_INT_GET(TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER) + iExtraAICatchUP) * iKnownCount) / iPossibleKnownCount;
+		iModifier += ((/*30 in CP, 10 in VP*/ GD_INT_GET(TECH_COST_TOTAL_KNOWN_TEAM_MODIFIER) + iExtraAICatchUP) * iKnownCount) / iPossibleKnownCount;
 	}
 
 	int iPossiblePaths = 0;
@@ -18962,7 +18962,7 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 
 	if (GetCultureBonusTurns() > 0)
 	{
-		iValue += ((iCulturePerTurn * /*100 in CP, 33 in CBO*/ GD_INT_GET(TEMPORARY_CULTURE_BOOST_MOD)) / 100);
+		iValue += ((iCulturePerTurn * /*100 in CP, 33 in VP*/ GD_INT_GET(TEMPORARY_CULTURE_BOOST_MOD)) / 100);
 	}
 #if defined(MOD_BALANCE_CORE)
 	if (GetCultureBonusTurnsConquest() > 0)
@@ -21738,7 +21738,7 @@ int CvPlayer::GetHappinessFromResources() const
 			// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
 			if(IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
 			{
-				iBaseHappiness *= /*150 in CP, 100 in CBO*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
+				iBaseHappiness *= /*150 in CP, 100 in VP*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
 				iBaseHappiness /= 100;
 			}
 
@@ -22006,7 +22006,7 @@ int CvPlayer::GetBonusHappinessFromLuxuries(int iPop) const
 		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
 		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
 		{
-			iBaseVal *= /*150 in CP, 100 in CBO*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
+			iBaseVal *= /*150 in CP, 100 in VP*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
 			iBaseVal /= 100;
 		}
 
@@ -22052,7 +22052,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
 		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
 		{
-			iBaseVal *= /*150 in CP, 100 in CBO*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
+			iBaseVal *= /*150 in CP, 100 in VP*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
 			iBaseVal /= 100;
 		}
 
@@ -22096,7 +22096,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
 		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
 		{
-			iBaseVal *= /*150 in CP, 100 in CBO*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
+			iBaseVal *= /*150 in CP, 100 in VP*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
 			iBaseVal /= 100;
 		}
 
@@ -22259,7 +22259,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	if(pCity->IsOccupied() && !pCity->IsIgnoreCityForHappiness())
 	{
 		iNumCitiesUnhappinessTimes100 += (100 * /*5*/ GD_INT_GET(UNHAPPINESS_PER_CAPTURED_CITY));
-		iPopulationUnhappinessTimes100 += int(iPopulation* /*1.34f in CP, 1.00f in CBO*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
+		iPopulationUnhappinessTimes100 += int(iPopulation* /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
 
 		// Mod (Policies, etc.)
 		if(GetOccupiedPopulationUnhappinessMod() != 0)
@@ -22740,7 +22740,7 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	int iUnhappiness = 0;
 	int iUnhappinessFromThisCity;
 
-	double fUnhappinessPerPop = /*1.34f in CP, 1.00f in CBO*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION) * 100;
+	double fUnhappinessPerPop = /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION) * 100;
 	int iPopulation;
 	int iSpecialistCount;
 
@@ -24186,7 +24186,7 @@ void CvPlayer::SetUnitUpgradeCostMod(int iValue)
 {
 	m_iUnitUpgradeCostMod = iValue;
 
-	if (m_iUnitUpgradeCostMod < /*-75 in CP, -99 in CBO*/ GD_INT_GET(UNIT_UPGRADE_COST_DISCOUNT_MAX))
+	if (m_iUnitUpgradeCostMod < /*-75 in CP, -99 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_DISCOUNT_MAX))
 		m_iUnitUpgradeCostMod = GD_INT_GET(UNIT_UPGRADE_COST_DISCOUNT_MAX);
 }
 
@@ -24967,8 +24967,8 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 /// How much do we need in the GA meter to trigger the next one?
 int CvPlayer::GetGoldenAgeProgressThreshold() const
 {
-	int iThreshold = /*500 in CP, 400 in CBO*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS);
-	iThreshold += GetNumGoldenAges() * /*250 in CP, 2000 in CBO*/ GD_INT_GET(GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS);
+	int iThreshold = /*500 in CP, 400 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS);
+	iThreshold += GetNumGoldenAges() * /*250 in CP, 2000 in VP*/ GD_INT_GET(GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS);
 
 	// Increase cost based on the # of cities in the empire
 	int iCostExtra = int(iThreshold * (getNumCities() - 1) * /*0.01f*/ GD_FLOAT_GET(GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER));
@@ -37030,7 +37030,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		// Returned to a city-state
 		if(GET_PLAYER(eToPlayer).isMinorCiv())
 		{
-			int iInfluence = /*45 in CP, 50 in CBO*/ GD_INT_GET(RETURN_CIVILIAN_FRIENDSHIP);
+			int iInfluence = /*45 in CP, 50 in VP*/ GD_INT_GET(RETURN_CIVILIAN_FRIENDSHIP);
 
 			if (MOD_BALANCE_CORE_MINORS)
 			{
@@ -47241,16 +47241,16 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	CvAssertMsg(iPopulation > 0, "Population of city should be at least 1. Please show Jon this and send your last 5 autosaves.");
 
 	int iBaseThreshold = /*15*/ GD_INT_GET(BASE_CITY_GROWTH_THRESHOLD);
-	int iExtraPopThreshold = int((iPopulation-1) * /*8.0f in CP, 12.0f in CBO*/ GD_FLOAT_GET(CITY_GROWTH_MULTIPLIER));
+	int iExtraPopThreshold = int((iPopulation-1) * /*8.0f in CP, 12.0f in VP*/ GD_FLOAT_GET(CITY_GROWTH_MULTIPLIER));
 
 	iBaseThreshold += iExtraPopThreshold;
-	iExtraPopThreshold = (int) pow(double(iPopulation-1), (double) /*1.5f in CP, 2.22f in CBO*/ GD_FLOAT_GET(CITY_GROWTH_EXPONENT));
+	iExtraPopThreshold = (int) pow(double(iPopulation-1), (double) /*1.5f in CP, 2.22f in VP*/ GD_FLOAT_GET(CITY_GROWTH_EXPONENT));
 
 	int iThreshold = iBaseThreshold + iExtraPopThreshold;
 
 	if (isMinorCiv())
 	{
-		iThreshold *= /*80 in CP, 75 in CBO*/ GD_INT_GET(MINOR_CIV_GROWTH_PERCENT);
+		iThreshold *= /*80 in CP, 75 in VP*/ GD_INT_GET(MINOR_CIV_GROWTH_PERCENT);
 		iThreshold /= 100;
 	}
 
@@ -48083,11 +48083,11 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 				{
 					if (iDistance < iEffectRange)
 					{
-						iResult = max(iResult, /*50 in CP, 40 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
+						iResult = max(iResult, /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 					}
 					else if (iDistance == iEffectRange)
 					{
-						iResult = max(iResult, /*25 in CP, 20 in CBO*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
+						iResult = max(iResult, /*25 in CP, 20 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
 					}
 				}
 				break;

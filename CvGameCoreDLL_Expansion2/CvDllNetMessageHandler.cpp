@@ -704,7 +704,7 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 	if (kPlayer.isAlive())
 	{
 		PolicyBranchTypes ePreferredIdeology = kPlayer.GetCulture()->GetPublicOpinionPreferredIdeology();
-		kPlayer.SetAnarchyNumTurns(/*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
+		kPlayer.SetAnarchyNumTurns(/*2 in CP, 3 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS));
 		kPlayer.GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);
 	}
 }

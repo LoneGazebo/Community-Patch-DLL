@@ -252,8 +252,8 @@ int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) cons
 		return 0;
 
 	int iGold = /*-100*/ GD_INT_GET(TRADE_ROUTE_BASE_GOLD);
-	iGold += pCapitalCity->getPopulation() * /*15 in CP, 6 in CBO*/ GD_INT_GET(TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER);	// Capital Multiplier
-	iGold += pNonCapitalCity->getPopulation() * /*110 in CP, 50 in CBO*/ GD_INT_GET(TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER);	// City Multiplier
+	iGold += pCapitalCity->getPopulation() * /*15 in CP, 6 in VP*/ GD_INT_GET(TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER);	// Capital Multiplier
+	iGold += pNonCapitalCity->getPopulation() * /*110 in CP, 50 in VP*/ GD_INT_GET(TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER);	// City Multiplier
 	iGold += GetCityConnectionTradeRouteGoldChange() * 100;
 
 	int iMod = GetCityConnectionTradeRouteGoldModifier() + pNonCapitalCity->GetCityConnectionTradeRouteGoldModifier();
@@ -553,7 +553,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in CBO*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
+	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
 
 	double fTempCost = fMultiplyFactor * iSupport;
 	fTempCost /= 100;	// Take this out of hundreds now
@@ -629,7 +629,7 @@ int CvTreasury::CalculateUnitSupply()
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in CBO*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
+	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
 
 	double fTempCost = fMultiplyFactor * iSupply;
 	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);

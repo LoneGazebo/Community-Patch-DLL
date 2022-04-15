@@ -5651,7 +5651,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 	}
 	
 	//Now grab the base yields.
-	int iBaseYield = /*2 in CP, 3 in CBO*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
+	int iBaseYield = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_CULTURE_PER_GREAT_WORK);
 	int iSecondaryYield = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
 	iSecondaryYield += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 	iSecondaryYield += m_pCity->GetGreatWorkYieldChange(eYield);

@@ -11343,9 +11343,9 @@ void CvGame::updateGlobalAverage()
 	}
 	
 	//Select n-th percentile of each category
-	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in CBO*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 	
-	size_t nt = (viTechMedian.size() * /*50 in CP, 55 in CBO*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	size_t nt = (viTechMedian.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 
 	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());

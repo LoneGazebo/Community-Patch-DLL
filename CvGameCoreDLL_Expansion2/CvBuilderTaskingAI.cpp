@@ -361,7 +361,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(bIndustrialRoute)
 		{
-			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in CBO*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
+			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
 		}
 
 		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile);

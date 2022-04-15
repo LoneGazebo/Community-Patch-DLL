@@ -4930,13 +4930,13 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	int iNumPolicies = iActualNumPolicies - (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
 
 	int iCost = 0;
-	iCost += (int)(iNumPolicies * (/*3 in CP, 4 in CBO*/ GD_INT_GET(POLICY_COST_INCREASE_TO_BE_EXPONENTED) + /*0.0f in CP, 0.2f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
+	iCost += (int)(iNumPolicies * (/*3 in CP, 4 in VP*/ GD_INT_GET(POLICY_COST_INCREASE_TO_BE_EXPONENTED) + /*0.0f in CP, 0.2f in VP*/ GD_FLOAT_GET(POLICY_COST_EXTRA_VALUE)));
 
 	// Exponential cost scaling
-	iCost = (int)pow((double)iCost, (double) /*2.01f in CP, 2.22f in CBO*/ GD_FLOAT_GET(POLICY_COST_EXPONENT));
+	iCost = (int)pow((double)iCost, (double) /*2.01f in CP, 2.22f in VP*/ GD_FLOAT_GET(POLICY_COST_EXPONENT));
 
 	// Base cost that doesn't get exponent-ed
-	iCost += /*25 in CP, 50 in CBO*/ GD_INT_GET(BASE_POLICY_COST);
+	iCost += /*25 in CP, 50 in VP*/ GD_INT_GET(BASE_POLICY_COST);
 
 	// Mod for City Count
 	int iMod = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();	// Default is 40, gets smaller on larger maps
@@ -5513,12 +5513,12 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	if(IsPolicyBranchBlocked(eBranchType))
 	{
 		// Anarchy time!
-		int iNumTurnsAnarchy = /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS);
+		int iNumTurnsAnarchy = /*2 in CP, 3 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS);
 		GetPlayer()->ChangeAnarchyNumTurns(iNumTurnsAnarchy);
 #if defined(MOD_BALANCE_CORE)
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
-		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), /*2 in CP, 3 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
+		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), /*2 in CP, 3 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_ANARCHY_TURNS), -1);
 #endif
 
 		// Turn off blocking
@@ -5717,7 +5717,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 #endif
 
 	int iOldBranchTenets = GetNumPoliciesOwnedInBranch(eOldBranchType);
-	int iNewBranchTenets = max(0, iOldBranchTenets - /*2 in CP, 5 in CBO*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_TENETS_LOST));
+	int iNewBranchTenets = max(0, iOldBranchTenets - /*2 in CP, 5 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_TENETS_LOST));
 
 	ClearPolicyBranch(eOldBranchType);
 	SetPolicyBranchUnlocked(eOldBranchType, false, false);
@@ -6263,7 +6263,7 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		}
 	}
 #endif
-	if (m_pPlayer->GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN CBO*/ GD_INT_GET(IDEOLOGY_START_ERA))
+	if (m_pPlayer->GetCurrentEra() > /*INDUSTRIAL IN CP, MODERN IN VP*/ GD_INT_GET(IDEOLOGY_START_ERA))
 	{
 		return true;
 	}

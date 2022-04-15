@@ -3216,7 +3216,7 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool bIgnoreImprovement, bool b
 
 	// Plot type
 	if(isHills() || isMountain())
-		iModifier += /*25 in CP, 10 in CBO*/ GD_INT_GET(HILLS_EXTRA_DEFENSE);
+		iModifier += /*25 in CP, 10 in VP*/ GD_INT_GET(HILLS_EXTRA_DEFENSE);
 
 	// Feature
 	if(!bIgnoreFeature && getFeatureType() != NO_FEATURE)
@@ -3536,7 +3536,7 @@ int CvPlot::GetNumAdjacentMountains() const
 int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 {
 	int iScore = 0;
-	int iRange = min(5,max(0, /*2 in CP, 1 in CBO*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE)));
+	int iRange = min(5,max(0, /*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE)));
 
 	for(int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 	{
@@ -6280,7 +6280,7 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	//need to do additional checks in water
 	if (isWater())
 	{
-		int iRange = range(/*2 in CP, 1 in CBO*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
+		int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
 		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 		{
 			CvPlot* pNeighbor = iterateRingPlots(this, i);

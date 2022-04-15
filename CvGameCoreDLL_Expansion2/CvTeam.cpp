@@ -958,7 +958,7 @@ void CvTeam::DoBarbarianTech()
 	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
 	// x% of majors (rounded down) need the tech for the Barbs to get it
-	int iTechPercent = /*75 in CP, 80 in CBO*/ GD_INT_GET(BARBARIAN_TECH_PERCENT);
+	int iTechPercent = /*75 in CP, 80 in VP*/ GD_INT_GET(BARBARIAN_TECH_PERCENT);
 	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
@@ -1024,7 +1024,7 @@ void CvTeam::DoMinorCivTech()
 	CvAssertMsg(iPossibleCount > 0, "Zero possible players? Uhhh...");
 
 	// x% of majors (rounded down) need the tech for the Minors to get it
-	int iTechPercent = /*40 in CP, 60 in CBO*/ GD_INT_GET(MINOR_CIV_TECH_PERCENT);
+	int iTechPercent = /*40 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_TECH_PERCENT);
 	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)

@@ -275,7 +275,7 @@ CvGameReligions::~CvGameReligions(void)
 /// Initialize class data
 void CvGameReligions::Init()
 {
-	m_iMinimumFaithForNextPantheon = /*10 in CP, 50 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PANTHEON);
+	m_iMinimumFaithForNextPantheon = /*10 in CP, 50 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PANTHEON);
 	m_iMinimumFaithForNextPantheon *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	m_iMinimumFaithForNextPantheon /= 100;
 
@@ -1087,7 +1087,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	kPlayer.UpdateReligion();
 	kPlayer.ChangeFaith(-GetMinimumFaithNextPantheon());
 
-	int iIncrement = /*5 in CP, 0 in CBO*/ GD_INT_GET(RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON);
+	int iIncrement = /*5 in CP, 0 in VP*/ GD_INT_GET(RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON);
 	iIncrement *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iIncrement /= 100;
 	SetMinimumFaithNextPantheon(GetMinimumFaithNextPantheon() + iIncrement);
@@ -3051,15 +3051,15 @@ int CvGameReligions::GetFaithGreatProphetNumber(int iNum) const
 	{
 		if(iNum == 1)
 		{
-			iRtnValue = /*200 in CP, 800 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PROPHET);
+			iRtnValue = /*200 in CP, 800 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_FIRST_PROPHET);
 		}
 		else if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && iNum == 1)
 		{
-			iRtnValue = /*600 in CP, 1200 in CBO*/ GD_INT_GET(RELIGION_MIN_FAITH_SECOND_PROPHET);
+			iRtnValue = /*600 in CP, 1200 in VP*/ GD_INT_GET(RELIGION_MIN_FAITH_SECOND_PROPHET);
 		}
 		else
 		{
-			iRtnValue = (/*100 in CP, 300 in CBO*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_PROPHET) * (iNum - 1)) + GetFaithGreatProphetNumber(iNum - 1);
+			iRtnValue = (/*100 in CP, 300 in VP*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_PROPHET) * (iNum - 1)) + GetFaithGreatProphetNumber(iNum - 1);
 		}
 	}
 
@@ -3079,7 +3079,7 @@ int CvGameReligions::GetFaithGreatPersonNumber(int iNum) const
 		}
 		else
 		{
-			iRtnValue = (/*500 in CP, 1500 in CBO*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON) * (iNum - 1)) + GetFaithGreatPersonNumber(iNum - 1);
+			iRtnValue = (/*500 in CP, 1500 in VP*/ GD_INT_GET(RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON) * (iNum - 1)) + GetFaithGreatPersonNumber(iNum - 1);
 		}
 	}
 
@@ -3250,7 +3250,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		return false;
 	}
 
-	int iChance = /*5 in CP, 100 in CBO*/ GD_INT_GET(RELIGION_BASE_CHANCE_PROPHET_SPAWN);
+	int iChance = /*5 in CP, 100 in VP*/ GD_INT_GET(RELIGION_BASE_CHANCE_PROPHET_SPAWN);
 
 #if defined(MOD_RELIGION_KEEP_PROPHET_OVERFLOW)
 	int iBaseChance = iChance;
@@ -5197,7 +5197,7 @@ void CvCityReligions::RemoveOtherReligions(ReligionTypes eReligion, PlayerTypes 
 		GC.getGame().GetGameReligions()->SetHolyCity(eCurrentHolyCityReligion, NULL);
 	}
 
-	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in CBO*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
+	ErodeOtherReligiousPressure(FOLLOWER_CHANGE_REMOVE_HERESY, eReligion, /*100 in CP, 50 in VP*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true, eResponsiblePlayer);
 
 	//not calling add pressure here, instead recompute directly
 	RecomputeFollowers(FOLLOWER_CHANGE_REMOVE_HERESY, eResponsiblePlayer);
@@ -7132,7 +7132,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 	//exceptions from the rule
 	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
-	int iMaxMissionaries = /*2 in CP, 3 in CBO*/ GD_INT_GET(RELIGION_MAX_MISSIONARIES);
+	int iMaxMissionaries = /*2 in CP, 3 in VP*/ GD_INT_GET(RELIGION_MAX_MISSIONARIES);
 	if(m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary)) //india
 	{
 		iMaxMissionaries = 0;

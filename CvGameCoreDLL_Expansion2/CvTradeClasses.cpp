@@ -860,7 +860,7 @@ int CvGameTrade::GetDomainModifierTimes100 (DomainTypes eDomain)
 {
 	if (eDomain == DOMAIN_SEA)
 	{
-		return /*100 in CP, 25 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_SEA_MODIFIER);
+		return /*100 in CP, 25 in VP*/ GD_INT_GET(TRADE_ROUTE_BASE_SEA_MODIFIER);
 	}
 
 	return /*0*/ GD_INT_GET(TRADE_ROUTE_BASE_LAND_MODIFIER);
@@ -2606,7 +2606,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 
 					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2654,7 +2654,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedCultureDifference = 0;
 				if (iCultureDifference > 0)
 				{
-					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
+					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 
 					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -2686,7 +2686,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
+				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2698,7 +2698,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedCultureDifference = 0;
 			if (iCultureDifference > 0)
 			{
-				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
+				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
 				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
 			}
 
@@ -2753,7 +2753,7 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 					return 0;
 				}
 
-				int iDivisor = /*20 in CP, 65 in CBO*/ GD_INT_GET(INTERNATIONAL_TRADE_CITY_GPT_DIVISOR);
+				int iDivisor = /*20 in CP, 65 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_CITY_GPT_DIVISOR);
 				if (iDivisor == 0)
 				{
 					iDivisor = 1;
@@ -2824,7 +2824,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						{		
 							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 							{
-								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 10 in VP*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 							}
 						}
 					}
@@ -3891,7 +3891,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_FOOD:
 				if (eYield == YIELD_FOOD)
 				{
-					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
+					iValue = /*300 in CP, 600 in VP*/ GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
 
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
@@ -3958,7 +3958,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_PRODUCTION:
 				if (eYield == YIELD_PRODUCTION)
 				{
-					iValue = /*300 in CP, 600 in CBO*/ GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
+					iValue = /*300 in CP, 600 in VP*/ GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
 
 					iValue += GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 					iValue += GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
@@ -6182,7 +6182,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
 	if (iTechDifferenceP1fromP2 > 0)
 	{
-		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
 		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6224,7 +6224,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iAdjustedTechDifferenceP2fromP1 = 0;
 	if (iTechDifferenceP2fromP1 > 0)
 	{
-		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
 		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6269,7 +6269,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iAdjustedCultureDifferenceP1fromP2 = 0;
 	if (iCultureDifferenceP1fromP2 > 0)
 	{
-		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
@@ -6311,7 +6311,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iAdjustedCultureDifferenceP2fromP1 = 0;
 	if (iCultureDifferenceP2fromP1 > 0)
 	{
-		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6933,7 +6933,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	}
 	else if (iScienceAmount > 0)
 	{
-		int iCeilScience = iScienceAmount * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+		int iCeilScience = iScienceAmount * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
 		iAdjustedScienceAmount = max(iCeilScience, 1);
 		if (iAdjustedScienceAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
@@ -6961,7 +6961,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	}
 	else if (iCultureAmount > 0)
 	{
-		int iCeilCulture = iCultureAmount * 100 / /*200 in CP, 125 in CBO*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
+		int iCeilCulture = iCultureAmount * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureAmount = max(iCeilCulture, 1);
 		if (iAdjustedCultureAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{

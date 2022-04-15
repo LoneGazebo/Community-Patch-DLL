@@ -768,7 +768,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 		eDefenderOwner = plot.getOwner();
 
-		iExperience = /*3 in CP, 2 in CBO*/ GD_INT_GET(EXPERIENCE_ATTACKING_CITY_RANGED);
+		iExperience = /*3 in CP, 2 in VP*/ GD_INT_GET(EXPERIENCE_ATTACKING_CITY_RANGED);
 		if(pCity->isBarbarian())
 			bBarbarian = true;
 		iMaxXP = pCity->maxXPValue();
