@@ -618,7 +618,7 @@ SET Text = 'Max Distance: {1_Num}'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_RANGE';
 
 UPDATE Language_en_US
-SET Text = 'Resource Diversity Modifier: {1_Num}%[NEWLINE][ICON_BULLET]   Our Local Luxuries: {2_Num}[NEWLINE][ICON_BULLET]   Their Local Luxuries: {3_Num}[NEWLINE]Routes to Cities with unique Luxury Resources earn more [ICON_GOLD] Gold, and Monopoly Resources count double.'
+SET Text = 'Resource Diversity Modifier: {1_Num}%[NEWLINE][ICON_BULLET]   Our Local Resources: {2_Num}[NEWLINE][ICON_BULLET]   Their Local Resources: {3_Num}[NEWLINE]Routes to Cities with unique Resources earn more [ICON_GOLD] Gold, and Monopoly Resources count double.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT';
 
 

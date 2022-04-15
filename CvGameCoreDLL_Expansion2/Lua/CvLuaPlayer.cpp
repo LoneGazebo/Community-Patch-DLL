@@ -4678,33 +4678,37 @@ int CvLuaPlayer::lGetCityResourceBonus(lua_State* L)
 	
 	int iOurResources = 0;
 	int iTheirResources = 0;
+	ResourceClassTypes eResourceClassBonus = (ResourceClassTypes)GC.getInfoTypeForString("RESOURCECLASS_BONUS");
 	for (int i = 0; i < GC.getNumResourceInfos(); i++)
 	{
 		ResourceTypes eResource = (ResourceTypes)i;
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo)
 		{
-			bool bOurMonopoly = false;
-			bool bTheirMonopoly = false;
-			if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
-				bOurMonopoly = true;;
-			if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
-				bTheirMonopoly= true;
+			bool bIsOurs = false;
+			bool bIsTheirs = false;
+			ResourceUsageTypes eResourceUsageCurrent = pkResourceInfo->getResourceUsage();
+			int eResourceClassCurrent = pkResourceInfo->getResourceClassType();
 
-			int iTempOurs = 0;
-			int iTempTheirs = 0;
-			if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			if (eResourceUsageCurrent == RESOURCEUSAGE_LUXURY || eResourceUsageCurrent == RESOURCEUSAGE_STRATEGIC || eResourceClassCurrent == eResourceClassBonus)
 			{
-				iTempOurs += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
-				iTempTheirs += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
+				bIsOurs = pOriginCity->IsHasResourceLocal(eResource, true);
+				bIsTheirs = pDestCity->IsHasResourceLocal(eResource, true);
 			}
 
 			//bonus only applies for resources unique to one or the other city.
-			if (iTempOurs > 0 && iTempTheirs > 0)
+			if (bIsOurs && bIsTheirs)
 				continue;
+				
+			bool bOurMonopoly = false;
+			bool bTheirMonopoly = false;
+			if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
+				bOurMonopoly = true;
+			if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
+				bTheirMonopoly= true;
 
-			iOurResources += iTempOurs;
-			iTheirResources += iTempTheirs;
+			iOurResources   +=  (bIsOurs   ? 1: 0)  * (bOurMonopoly   ? 2 : 1);
+			iTheirResources +=  (bIsTheirs ? 1 : 0) * (bTheirMonopoly ? 2 : 1);
 		}
 	}
 

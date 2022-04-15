@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2800,57 +2800,31 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 
 				int iValue = 0;
 
-				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+				ResourceClassTypes eResourceClassBonus = (ResourceClassTypes)GC.getInfoTypeForString("RESOURCECLASS_BONUS");
+				for (int i = 0; i < GC.getNumResourceInfos(); i++)
 				{
-					int iOurResources = 0;
-					int iTheirResources = 0;
-					for (int i = 0; i < GC.getNumResourceInfos(); i++)
+					ResourceTypes eResource = (ResourceTypes)i;
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+					if (pkResourceInfo)
 					{
-						ResourceTypes eResource = (ResourceTypes)i;
-						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-						if (pkResourceInfo)
-						{
-							bool bOurMonopoly = false;
-							bool bTheirMonopoly = false;
-							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource))
-								bOurMonopoly = true;
-							if (GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
-								bTheirMonopoly = true;
+						bool bMonopoly = false;
+						bool bIsBonus = false;
+						if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+						{	
+							int eResourceClassCurrent = pkResourceInfo->getResourceClassType();
+							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
+								bMonopoly = true;
 
-							int iTempOurs = 0;
-							int iTempTheirs = 0;
-
-							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-							{
-								iTempOurs += bOurMonopoly ? pOriginCity->GetNumResourceLocal(eResource, true) * 2 : pOriginCity->GetNumResourceLocal(eResource, true);
-								iTempTheirs += bTheirMonopoly ? pDestCity->GetNumResourceLocal(eResource, true) * 2 : pDestCity->GetNumResourceLocal(eResource, true);
-							}
-
-							//bonus only applies for resources unique to one or the other city.
-							if (iTempOurs > 0 && iTempTheirs > 0)
-								continue;
-
-							iOurResources += iTempOurs;
-							iTheirResources += iTempTheirs;
+							if (eResourceClassBonus == eResourceClassCurrent)
+								bIsBonus = true;
 						}
-					}
-					int iBonus = iOurResources + iTheirResources;
-					iValue = iBonus * /*10*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
-				}
-				else
-				{
-					for (int i = 0; i < GC.getNumResourceInfos(); i++)
-					{
-						ResourceTypes eResource = (ResourceTypes)i;
-						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-						if (pkResourceInfo)
-						{
-							if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+						
+						ResourceUsageTypes eResourceUsageCurrent = pkResourceInfo->getResourceUsage();
+						if (eResourceUsageCurrent == RESOURCEUSAGE_LUXURY || eResourceUsageCurrent == RESOURCEUSAGE_STRATEGIC || bIsBonus)
+						{		
+							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 							{
-								if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
-								{
-									iValue += /*50*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
-								}
+								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 10 in CBO*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 							}
 						}
 					}
