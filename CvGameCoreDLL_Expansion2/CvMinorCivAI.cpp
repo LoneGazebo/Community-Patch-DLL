@@ -10144,7 +10144,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 	int iValue = 0;
 	int iBonusValue;
 	bool bValid = false;
-	bool bNaval = GetPlayer()->getCapitalCity()->isCoastal(10);
+	bool bNaval = GetPlayer()->getCapitalCity()->isCoastal(10) && GET_PLAYER(ePlayer).getCapitalCity()->isCoastal(10);
 
 	// Loop through all Unit Classes
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -10172,11 +10172,15 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 			if (pkUnitClassInfo)
 			{
-				// If this is NOT a UU, add extra value so that the default unit is more likely to get picked
+				// If this is a UU, add extra value so that the unique unit is more likely to get picked
 				if (eLoopUnit != pkUnitClassInfo->getDefaultUnitIndex())
 					iBonusValue += 1000;
 			}
 
+			const UnitClassTypes eUnitClass = (UnitClassTypes)pkUnitInfo->GetUnitClassType();
+			if (GetPlayer()->GetSpecificUnitType(eUnitClass) == NO_UNIT)
+				continue;
+			
 			bValid = (pkUnitInfo->GetCombat() > 0);
 			if (bValid)
 			{

@@ -4254,7 +4254,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Gifted/liberated/revolting cities and Rome always keep valid buildings
 	bool bKeepAllValidBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift;
-	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
+	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && getNumCities()>=1;
 	int iCaptureGreatWorks = 0;
 
 	// Now transfer buildings from the old city
@@ -4528,13 +4528,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// In One City Challenge games, all captured cities are toast
-	if (bOneCityChallenge)
-	{
-		// Delete the city
-		disband(pNewCity);
-		pNewCity = NULL;
-	}
 
 	if (pNewCity)
 	{
@@ -12863,6 +12856,10 @@ void CvPlayer::unraze(CvCity* pCity)
 void CvPlayer::disband(CvCity* pCity)
 {
 	CvPlot* pPlot = pCity->plot();
+
+#if defined(MOD_BALANCE_CORE)
+	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
+#endif
 
 	if(getNumCities() == 1)
 	{

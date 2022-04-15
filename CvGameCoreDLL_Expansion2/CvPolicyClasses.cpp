@@ -5023,7 +5023,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 				{
 					iPlayerPolicies = kPlayer.GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
 					iPossibleHigherCount++;
-					if (iPlayerPolicies > iNumPolicies)
+					if (iPlayerPolicies > iActualNumPolicies)
 					{
 						iHigherPoliciesCount++;
 					}
