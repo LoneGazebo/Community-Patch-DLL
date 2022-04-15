@@ -3319,7 +3319,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 		if(pLoopCity->isCoastal() && pLoopCity->HasAccessToArea(pRefPlot->getArea()))
 		{
 			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pRefPlot->getX(), pRefPlot->getY());
-			if(iDistance > 0 && iDistance < iBestDistance)
+			if(iDistance >= 0 && iDistance < iBestDistance)
 			{
 				iBestDistance = iDistance;
 				pBestCoastalCity = pLoopCity;

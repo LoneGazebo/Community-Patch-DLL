@@ -7314,8 +7314,8 @@ bool CvUnit::canUseForTacticalAI() const
 		if (IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral())
 		{
 			GreatPeopleDirectiveTypes eDirective = GetGreatPeopleDirective();
-			if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
-				return false;
+			if (eDirective == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+				return true;
 		}
 
 		return false;
