@@ -11883,7 +11883,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		}
 	}
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
-	if(bNowAboveFriendsThreshold || bAllies)
+	if(bFriends || bAllies)
 		DoSetBonus(ePlayer, bAdd, bNowAboveFriendsThreshold, bAllies, /*bSuppressNotifications*/ bFromQuest);
 
 	// Now actually changed Allied status, since we needed the old player in effect to create the notifications in the function above us
