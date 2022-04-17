@@ -14,7 +14,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	local activePlayer	= Players[Game.GetActivePlayer()];
 	local newCity		= activePlayer:GetCityByID(cityID);
 	
-	local bOneCity		= Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE) and activePlayer:GetNumCities() >= 1;
+	local bOneCity		= Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE);
 	
 	if newCity == nil then
 		return false;

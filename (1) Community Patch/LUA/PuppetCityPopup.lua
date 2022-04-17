@@ -14,6 +14,8 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	local activePlayer	= Players[Game.GetActivePlayer()];
 	local newCity		= activePlayer:GetCityByID(cityID);
 	
+	local bOneCity		= Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE);
+	
 	if newCity == nil then
 		return false;
 	end
@@ -63,39 +65,45 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	end
 	
 	-- Initialize 'Annex' button.
-	local OnCaptureClicked = function()
-		Network.SendDoTask(cityID, TaskTypes.TASK_ANNEX_PUPPET, -1, -1, false, false, false, false);
-		newCity:ChooseProduction();
-	end
-	
-	if (not activePlayer:MayNotAnnex()) then
-		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_ANNEX_CITY");
-		local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", iUnhappinessForAnnexing);
+	if (not bOneCity) then
+		local OnCaptureClicked = function()
+			Network.SendDoTask(cityID, TaskTypes.TASK_ANNEX_PUPPET, -1, -1, false, false, false, false);
+			newCity:ChooseProduction();
+		end
+		
+		if (not activePlayer:MayNotAnnex()) then
+			local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_ANNEX_CITY");
+			local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX", iUnhappinessForAnnexing);
+			if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
+				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+				strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
+			end
+			AddButton(buttonText, OnCaptureClicked, strToolTip);
+		end
+			
+		-- Initialize 'Puppet' button.
+		local OnPuppetClicked = function()
+			Network.SendDoTask(cityID, TaskTypes.TASK_CREATE_PUPPET, -1, -1, false, false, false, false);
+		end
+		
+		buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_PUPPET_CAPTURED_CITY");
+		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET", iUnhappinessForPuppeting);
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
-			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
 		end
-		AddButton(buttonText, OnCaptureClicked, strToolTip);
+		AddButton(buttonText, OnPuppetClicked, strToolTip);
 	end
-		
-	-- Initialize 'Puppet' button.
-	local OnPuppetClicked = function()
-		Network.SendDoTask(cityID, TaskTypes.TASK_CREATE_PUPPET, -1, -1, false, false, false, false);
-	end
-	
-	buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_PUPPET_CAPTURED_CITY");
-	strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET", iUnhappinessForPuppeting);
-	if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
-		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-		strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
-	end
-	AddButton(buttonText, OnPuppetClicked, strToolTip);
 	
 	-- Initialize 'Raze' button.
-	local bRaze = activePlayer:CanRaze(newCity);
+	local bRaze = activePlayer:CanRaze(newCity) or bOneCity;
 	if (bRaze) then
 		local OnRazeClicked = function()
-			Network.SendDoTask(cityID, TaskTypes.TASK_RAZE, -1, -1, false, false, false, false);
+			if (bOneCity) then
+				Network.SendDoTask(cityID, TaskTypes.TASK_DISBAND, -1, -1, false, false, false, false);
+			else
+				Network.SendDoTask(cityID, TaskTypes.TASK_RAZE, -1, -1, false, false, false, false);
+			end
 		end
 		
 		buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_RAZE_CAPTURED_CITY");

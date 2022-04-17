@@ -4254,7 +4254,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Gifted/liberated/revolting cities and Rome always keep valid buildings
 	bool bKeepAllValidBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift;
-	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && getNumCities()>=1;
+	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
 	int iCaptureGreatWorks = 0;
 
 	// Now transfer buildings from the old city
@@ -4350,8 +4350,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 						break;
 				}
 			}
-#if defined(MOD_API_ACHIEVEMENTS)
-			if (bConquest && !GC.getGame().isGameMultiPlayer() && isHuman())
+			if (bConquest && MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman())
 			{
 				// Check for Tomb Raider achievement
 				if (_stricmp(pkBuilding->GetType(), "BUILDING_BURIAL_TOMB") == 0 && iCaptureGold > 0) // Need to actually pillage something from the 'tomb'
@@ -4364,7 +4363,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS);
 				}
 			}
-#endif
 		}
 	}
 	// Recursive: why is this cached? Shouldn't this be recomputed? Some buildings may have been destroyed!
@@ -4527,7 +4525,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				MILITARYLOG(GetID(), strBuffer.c_str(), pNewCity->plot(), eOldOwner);
 		}
 	}
-
 
 	if (pNewCity)
 	{
