@@ -41,7 +41,7 @@ UPDATE ArtDefine_UnitInfos SET Type = 'ART_DEF_UNIT_GREAT_ADMIRAL_MODERN' WHERE 
 UPDATE ArtDefine_UnitInfoMemberInfos SET UnitInfoType = 'ART_DEF_UNIT_GREAT_ADMIRAL_MODERN' WHERE UnitInfoType = 'ART_DEF_UNIT_GREAT_ADMIRAL_LATE';
 
 -- Make Work Boats buildable in all cities adjacent to water
-UPDATE Units SET PrereqResources = 'false' WHERE Type = 'UNIT_WORKBOAT';
+UPDATE Units SET PrereqResources = 0 WHERE Type = 'UNIT_WORKBOAT';
 
 -- Remove Duplicates from Unit_AITypes
 DELETE FROM Unit_AITypes WHERE UnitType = 'UNIT_GREAT_ADMIRAL';
