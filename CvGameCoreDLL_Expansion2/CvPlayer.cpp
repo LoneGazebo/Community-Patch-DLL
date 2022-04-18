@@ -4254,7 +4254,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Gifted/liberated/revolting cities and Rome always keep valid buildings
 	bool bKeepAllValidBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || !bConquest || bGift;
-	bool bOneCityChallenge = isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE);
 	int iCaptureGreatWorks = 0;
 
 	// Now transfer buildings from the old city
@@ -12854,11 +12853,9 @@ void CvPlayer::disband(CvCity* pCity)
 {
 	CvPlot* pPlot = pCity->plot();
 
-#if defined(MOD_BALANCE_CORE)
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
-#endif
 
-	if(getNumCities() == 1)
+	if (getNumCities() == 1)
 	{
 		setFoundedFirstCity(false);
 	}
@@ -12871,19 +12868,19 @@ void CvPlayer::disband(CvCity* pCity)
 
 	GC.getGame().addDestroyedCityName(pCity->getNameKey());
 
-	for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
+	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
 	{
 		CvBuildingEntry* buildingInfo = GC.getBuildingInfo((BuildingTypes) eBuildingType);
-		if(buildingInfo)
+		if (buildingInfo)
 		{
 			// if this building exists
 			int iExists = pCity->GetCityBuildings()->GetNumRealBuilding((BuildingTypes) eBuildingType);
 			int iPreferredPosition = buildingInfo->GetPreferredDisplayPosition();
-			if(iPreferredPosition > 0)
+			if (iPreferredPosition > 0)
 			{
 				auto_ptr<ICvCity1> pDllCity(new CvDllCity(pCity));
 
-				if(iExists > 0)
+				if (iExists > 0)
 				{
 					// kill the wonder
 					GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes) eBuildingType, 0);
@@ -12891,10 +12888,10 @@ void CvPlayer::disband(CvCity* pCity)
 				else
 				{
 					// else if we are currently in the process of building this wonder
-					if(pCity->getProductionBuilding() == eBuildingType)
+					if (pCity->getProductionBuilding() == eBuildingType)
 					{
 						// kill the half built wonder
-						if(isWorldWonderClass(buildingInfo->GetBuildingClassInfo()))
+						if (isWorldWonderClass(buildingInfo->GetBuildingClassInfo()))
 						{
 							GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes) eBuildingType, 0);
 						}
@@ -12912,7 +12909,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	pCity->kill();
 
-	if(pPlot)
+	if (pPlot)
 	{
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
@@ -12921,7 +12918,7 @@ void CvPlayer::disband(CvCity* pCity)
 			{
 				CvUnit* pUnit = ::GetPlayerUnit(*itr);
 
-				if(pUnit && !pUnit->canEndTurnAtPlot(pPlot))
+				if (pUnit && !pUnit->canEndTurnAtPlot(pPlot))
 				{
 					if (!pUnit->jumpToNearestValidPlot())
 						pUnit->kill(false);
