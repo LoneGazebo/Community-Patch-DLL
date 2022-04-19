@@ -7194,7 +7194,7 @@ void CvPlayerTraits::SetUnitBaktun(UnitTypes eUnit)
 bool CvPlayerTraits::IsProphetValid() const
 {
 	// Has state religion? Valid.
-	if (m_pPlayer->GetReligions()->GetStateReligion() != NO_RELIGION)
+	if (m_pPlayer->GetReligions()->GetStateReligion(false) != NO_RELIGION)
 	{
 		return true;
 	}

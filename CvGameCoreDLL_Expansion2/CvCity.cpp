@@ -3867,7 +3867,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 	if (pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
 
-	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
+	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
 	if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -4320,7 +4320,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
 
-	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
+	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
 	if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
@@ -5724,7 +5724,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion() == NO_RELIGION)
+	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion(false) == NO_RELIGION)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_STATE_RELIGION");
 		DisabledTT += localizedDurationText.toUTF8();

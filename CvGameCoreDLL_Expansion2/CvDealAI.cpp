@@ -851,7 +851,9 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 
 bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValueToMe, bool* bCantMatchOffer, bool bFirstPass)
 {
-	CvAssertMsg(GET_PLAYER(eOtherPlayer).isHuman(), "DEAL_AI: Trying to see if AI will accept a deal with human player... but it's not human.  Please show Jon.");
+	// Important: check invalid return value!
+	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==(INT_MAX * -1))
+		return false;
 
 	*bCantMatchOffer = false;
 
@@ -863,14 +865,12 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		}
 	}
 
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// We're offering help to a player
 	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
 	{
 		return true;
 	}
-#endif
+
 	//special case for peacetime return of single cities...
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer) && pDeal->ContainsItemType(TRADE_ITEM_CITIES, eOtherPlayer))
 	{
@@ -918,10 +918,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 
 	// Now do the valuation
 	iTotalValueToMe = GetDealValue(pDeal);
-
-	// Important: check invalid return value!
-	if (iTotalValueToMe==INT_MAX || iTotalValueToMe==(INT_MAX * -1))
-		return false;
 
 	// If we've gotten the deal to a point where we're happy, offer it up
 	if (!pDeal->IsPeaceTreatyTrade(eOtherPlayer) && !bFirstPass)

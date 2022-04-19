@@ -5933,7 +5933,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->getRequiredIdeology() != -1 && GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion() == NO_RELIGION)
+	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
 	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
@@ -6020,7 +6020,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 
 	if (!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if (GetReligions()->GetStateReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion())
+		if (GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion())
 			return false;
 	}
 
@@ -6425,7 +6425,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getRequiredIdeology() != -1 && GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
 		return false;
 
-	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion() == NO_RELIGION)
+	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
 	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
@@ -6451,7 +6451,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 
 	if (!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if (GetReligions()->GetStateReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion())
+		if (GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion())
 			return false;
 	}
 
@@ -7685,7 +7685,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion() == NO_RELIGION)
+	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_STATE_RELIGION");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -7733,7 +7733,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 
 	if (!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
-		if (GetReligions()->GetStateReligion() != (ReligionTypes)pkEventInfo->getRequiredReligion())
+		if (GetReligions()->GetStateReligion(false) != (ReligionTypes)pkEventInfo->getRequiredReligion())
 		{
 			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SPECIFIC_RELIGION");
 			localizedDurationText << GC.getReligionInfo((ReligionTypes)pkEventInfo->getRequiredReligion())->GetDescription();

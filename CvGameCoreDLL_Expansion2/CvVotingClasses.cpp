@@ -4293,7 +4293,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		bool bOwned = eReligion != NO_RELIGION;
 		if (!bOwned)
 		{
-			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 		}
 		if (eReligion != NO_RELIGION)
 		{
