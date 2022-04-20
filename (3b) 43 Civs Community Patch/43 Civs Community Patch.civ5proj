@@ -7,7 +7,7 @@
     <Guid>6521c02b-1c78-4826-a5b0-faed86235e98</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(2.0.3) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(2.1) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 If you downloaded this mod manually, see MANUAL INSTALL.txt for installation instructions.</Description>
     <Authors>Gazebo, Ilteroi</Authors>
@@ -36,7 +36,7 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>103</MinVersion>
+        <MinVersion>104</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>

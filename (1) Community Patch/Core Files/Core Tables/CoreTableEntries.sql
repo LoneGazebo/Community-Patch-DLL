@@ -349,37 +349,34 @@ ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusC' INTEGER DEFAULT 0;
 
 -- Grants additional starting happiness based on gamespeed.
-
 ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
 
 -- Value by which all instant yields are modified for different game speeds
 ALTER TABLE GameSpeeds ADD COLUMN 'InstantYieldPercent' INTEGER DEFAULT 100;
 
--- Trade Route yields no longer scale from distance.
+-- Percentage by which military rating decays each turn for different game speeds (affects AI strength perception behavior)
+-- (10 = 1%)
+ALTER TABLE GameSpeeds ADD COLUMN 'MilitaryRatingDecayPercent' INTEGER DEFAULT 0;
 
+-- Trade Route yields no longer scale from distance.
 ALTER TABLE Traits ADD COLUMN 'IgnoreTradeDistanceScaling' BOOLEAN DEFAULT 0;
 
 -- Trade Routes can be plundered without being at war
 ALTER TABLE Traits ADD COLUMN 'CanPlunderWithoutWar' BOOLEAN DEFAULT 0;
 
 -- No unhappiness from Isolation.
-
 ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT 0;
 
 -- can buy boats with faith (need faith cost on units to do so).
-
 ALTER TABLE Traits ADD COLUMN 'CanPurchaseNavalUnitsFaith' BOOLEAN DEFAULT 0;
 
 -- Imports count towards monopolies.
-
 ALTER TABLE Traits ADD COLUMN 'ImportsCountTowardsMonopolies' BOOLEAN DEFAULT 0;
 
 -- No unhappiness from religious strife.
-
 ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 -- Extra Wonder Production during Golden Ages.
-
 ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
 -- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --

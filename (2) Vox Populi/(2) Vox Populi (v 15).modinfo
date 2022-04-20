@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.0.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,11 +19,15 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="103" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="104" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
     <Mod id="781d81cf-49e1-4acb-ae5f-b9e3713f98d3" minversion="0" maxversion="999" title="(1a) Civ IV Diplomatic Features - CP" />
+    <Mod id="eead0050-1e3f-4178-a91f-26cf1881ac39" minversion="0" maxversion="999" title="(3) CSD for VP" />
+    <Mod id="c7bf7064-d1b1-4708-9e93-7a1560868582" minversion="0" maxversion="999" title="(4) Civ IV Diplomatic Features" />
+    <Mod id="be2d13ee-d18d-410e-8f04-7cd19cd99a98" minversion="0" maxversion="999" title="(5) More Luxuries" />
+    <Mod id="828b5b4b-7c62-4afb-a43f-034b596ef5e4" minversion="0" maxversion="999" title="(6b) Vox Populi - Compatibility Files (No-EUI)" />
   </Blocks>
   <Files>
     <File md5="A8508ABB3E0887991E5EE55B15B53BDC" import="1">Art/Community2Art128.dds</File>
@@ -402,15 +406,15 @@
     <File md5="46BB5D2E8708BD057E603F99C1C1D2E7" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="9D67D06845F64D8ABE348547415145CF" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="8ECC1080CE7C7B0837817844DD86AF90" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="F406DE54345FF97B984CA2B107AAB70E" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="8319F73AA7269F9D08676E0517C15B61" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="D1DF48B61D7C1899D7103D52EC6CB806" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
-    <File md5="9507BE25EC0A44B25FAF924322A1EB58" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="C2B719C2404FD7A53EE2AB7ECFA162BE" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="751D0291799FE446CF245C81737FC126" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="F9889A5EFD9CB477EB0B6653193D90A6" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
-    <File md5="406D6BA89948ECDF8A3FEB8C87392648" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
-    <File md5="FA010FFB25C0BF10AE7339283FF50EBE" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="0D9BFF2A93C36AE0ABD726765F44155F" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="72E70FB68A0E7F952E15DD6A4AFED534" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
+    <File md5="4E9B989F928BAD2FCB1B29BE44A9EE34" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
+    <File md5="A77D238C47FFDD3BF29513D2300DA041" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="D7F09E32FACB15FF72839D3CC3CEF6E1" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="96CB68AE0BD5BE9F499000EDA23AE3C1" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="A07E365A9F5D089FBEC324B8EA1FE39B" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -421,7 +425,7 @@
     <File md5="FCF07F9882182EC9C59449A9BF83B3A3" import="0">Balance Changes/Units/PromotionChanges.xml</File>
     <File md5="18E563056FA8C52D60A92C8071803952" import="0">Balance Changes/Units/UnitCombat.sql</File>
     <File md5="0E61A54CB3377A8F07FD8E5BAC4AD719" import="0">Balance Changes/Units/UniqueUnits.sql</File>
-    <File md5="A929002FFDAFADCB702E3AE0870959B7" import="0">Balance Changes/Units/MountedUnits.sql</File>
+    <File md5="5123CF961C94C15AC469A869A77371CC" import="0">Balance Changes/Units/MountedUnits.sql</File>
     <File md5="B39BA5E6F4C25A7C469080622BD76939" import="0">Balance Changes/Units/RangedUnits.sql</File>
     <File md5="696576139AC72FB6818DB719362A468A" import="0">Balance Changes/Units/MeleeUnits.sql</File>
     <File md5="E0DECD35B93CD03A3625D52C63C8972A" import="0">Balance Changes/Units/NavalUnits.sql</File>
@@ -434,7 +438,7 @@
     <File md5="BA0360F687535F1A7D24684732D25FBC" import="0">Balance Changes/Units/UnitAITypes.sql</File>
     <File md5="AB6294C3439A424E4655E520354CE86F" import="0">Balance Changes/Units/UnitFlavors.sql</File>
     <File md5="820B824BAE98BD40346E8473F4732FED" import="0">Balance Changes/Units/PromotionChanges.sql</File>
-    <File md5="C2C350C965179D20F311F21DEEE48B5D" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
+    <File md5="D07F565D22A91662FD989A33747E4775" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
     <File md5="947C8FC6D9276A6A0117652F609B0C2C" import="0">Balance Changes/Wonders/NewWonders.xml</File>
     <File md5="787B6A3BD45A5472ED620F1F64BECE36" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
     <File md5="7453DB65585E059ED32193E547B98295" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
@@ -499,7 +503,7 @@
     <File md5="C8D1868CF6223141AC122D2B29E2A8C7" import="1">Core Files/CoreLua/PlotMouseoverInclude.lua</File>
     <File md5="A30793210DE409ED10CF3DA3D4D46B88" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
-    <File md5="61C09020952A2F9F72E915CBA7607A66" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
+    <File md5="3F1FD1918FA6F2F19AD842CE849A0A7F" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
     <File md5="B86AB6C34FBFDA5D440F1087BC422B8B" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/CoreLua/ResourceTooltipGenerator.lua</File>
     <File md5="20B0B8620628B6B44ED7D5B5E5F1FE17" import="1">Core Files/CoreLua/SimpleDiploTrade.xml</File>

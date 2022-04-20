@@ -32809,19 +32809,18 @@ void CvPlayer::DoMilitaryRatingDecay()
 {
 	int iStartingRating = (GC.getGame().getStartEra() > 0) ? (/*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE) * GC.getGame().getStartEra()) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
 	int iCurrentRating = GetMilitaryRating();
-	float fDecay = 200.0f;
-	fDecay /= max(1, GC.getGame().getGameSpeedInfo().getTrainPercent());
+	int iDecayRate = GC.getGame().getGameSpeedInfo().getMilitaryRatingDecayPercent(); // 10 = 1%, default is 20 (2%) on Standard
 
 	if (iCurrentRating < iStartingRating)
 	{
 		int iDifference = iStartingRating - iCurrentRating;
-		int iReduction = min(1, (int)(iDifference * fDecay / 100));
+		int iReduction = max(1, ((iDifference * iDecayRate) / 1000));
 		ChangeMilitaryRating(iReduction);
 	}
 	else if (iCurrentRating > iStartingRating)
 	{
 		int iDifference = iCurrentRating - iStartingRating;
-		int iReduction = min(1, (int)(iDifference * fDecay / 100));
+		int iReduction = max(1, ((iDifference * iDecayRate) / 1000));
 		ChangeMilitaryRating(-iReduction);
 	}
 }

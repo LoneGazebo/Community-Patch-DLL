@@ -1180,6 +1180,7 @@ public:
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int getTradeRouteSpeedMod() const;
 #endif
+	int getMilitaryRatingDecayPercent() const;
 #if defined(MOD_BALANCE_CORE)
 	int getPietyMax() const;
 	int getPietyMin() const;
@@ -1238,6 +1239,7 @@ protected:
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	int m_iTradeRouteSpeedMod;
 #endif
+	int m_iMilitaryRatingDecayPercent;
 #if defined(MOD_BALANCE_CORE)
 	int m_iPietyMax;
 	int m_iPietyMin;

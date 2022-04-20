@@ -669,3 +669,17 @@ WHERE FlavorType = 'FLAVOR_OFFENSE' and AIMilitaryStrategyType = 'MILITARYAISTRA
 UPDATE AIMilitaryStrategy_City_Flavors
 SET Flavor = '-20'
 WHERE FlavorType = 'FLAVOR_NAVAL' and AIMilitaryStrategyType = 'MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE';
+
+-- Percentage by which military rating decays each turn for different game speeds (affects AI strength perception behavior)
+-- 10 = 1%
+UPDATE Gamespeeds
+SET MilitaryRatingDecayPercent = '7' WHERE Type = 'GAMESPEED_MARATHON';
+
+UPDATE Gamespeeds
+SET MilitaryRatingDecayPercent = '13' WHERE Type = 'GAMESPEED_EPIC';
+
+UPDATE Gamespeeds
+SET MilitaryRatingDecayPercent = '20' WHERE Type = 'GAMESPEED_STANDARD';
+
+UPDATE Gamespeeds
+SET MilitaryRatingDecayPercent = '30' WHERE Type = 'GAMESPEED_QUICK';

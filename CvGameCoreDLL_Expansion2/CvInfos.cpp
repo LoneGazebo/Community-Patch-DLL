@@ -3632,6 +3632,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMax(0),
 	m_iPietyMin(0),
 #endif
+	m_iMilitaryRatingDecayPercent(0),
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
@@ -3812,6 +3813,11 @@ int CvGameSpeedInfo::getTradeRouteSpeedMod() const
 	return m_iTradeRouteSpeedMod;
 }
 #endif
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getMilitaryRatingDecayPercent() const
+{
+	return m_iMilitaryRatingDecayPercent;
+}
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getPietyMax() const
@@ -3888,6 +3894,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
 	}
 #endif
+	m_iMilitaryRatingDecayPercent	= kResults.GetInt("MilitaryRatingDecayPercent");
 #if defined(MOD_BALANCE_CORE)
 	m_iPietyMin						= kResults.GetInt("PietyMin");
 	m_iPietyMax						= kResults.GetInt("PietyMax");
