@@ -5201,7 +5201,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 	//pretend there are no other workers ...
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
-	SPathFinderUserData data(pUnit, 0, 17);
+	SPathFinderUserData data(pUnit, 0, 13);
 	allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	return ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 }
