@@ -5181,35 +5181,6 @@ void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 	}
 }
 
-void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit )
-{
-	if(!pPatrolUnit || !(GC.getLogging() && GC.getAILogging()))
-	{
-		return;
-	}
-
-	// Open the log file
-	CvString strFileName = "PlayerHomelandAIPatrolLog.csv";
-	FILogFile* pLog;
-	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-	CvString strLog, strTemp;
-
-	CvString strPlayerName;
-	strPlayerName = m_pPlayer->getCivilizationShortDescription();
-	strLog += strPlayerName;
-	strLog += ",";
-
-	strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-	strLog += strTemp;
-
-	strTemp.Format("%s (%d),", pPatrolUnit->getUnitInfo().GetDescription(), pPatrolUnit->GetID());
-	strLog += strTemp;
-
-	strLog += strMsg;
-	pLog->Msg(strLog);
-}
-
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvHomelandAI::UnitProcessed(int iID)
 {
