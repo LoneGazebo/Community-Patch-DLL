@@ -555,6 +555,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(BATTLE_ROYALE);
 
 		MOD_OPT_CACHE(AI_UNIT_PRODUCTION);
+		MOD_OPT_CACHE(ADJACENT_BLOCKADE);
 
 		m_bInit = true;
 	}
