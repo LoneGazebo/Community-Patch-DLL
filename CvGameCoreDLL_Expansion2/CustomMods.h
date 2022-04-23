@@ -457,6 +457,10 @@
 // Enables the experimental AI unit production logic
 #define MOD_AI_UNIT_PRODUCTION						gCustomMods.isAI_UNIT_PRODUCTION()
 
+// Land units blockade undefended adjacent tiles
+#define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
+
+
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
 // Events sent when terraforming occurs (v33)
@@ -1524,7 +1528,8 @@ public:
 	MOD_OPT_DECL(BATTLE_ROYALE);
 
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
-
+	MOD_OPT_DECL(ADJACENT_BLOCKADE);
+	
 protected:
 	bool m_bInit;
 	std::map<std::string, int> m_options;

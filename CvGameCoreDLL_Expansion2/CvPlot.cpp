@@ -6293,6 +6293,21 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 		}
 	}
 
+	// MOD_ADJACENT_BLOCKADE : Land units blockade undefended adjacent tiles
+	if (MOD_ADJACENT_BLOCKADE && !isWater())
+	{
+		for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(this, i);
+			if (pNeighbor && pNeighbor->getArea() == getArea())
+			{
+				//no halo around embarked units
+				if (pNeighbor->isEnemyUnit(eForPlayer, true, false))
+					return true;
+			}
+		}
+	}
+
 	return false;
 }
 
