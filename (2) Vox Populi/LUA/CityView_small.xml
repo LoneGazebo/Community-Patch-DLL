@@ -137,6 +137,10 @@
           <Meter Anchor="L,B" Size="128,128" Texture="ProductionPanelMeter128.dds" HasShadow="1" ID="ProductionMeter"/>
           <Image Anchor="L,B" Offset="0,0" Texture="TechTreeMeterFrame.dds" Size="128.128"/>
           <Image Anchor="L,B" Texture="UnitPortraitsAncientMedieval1024.dds" Size="128.128" ID="ProductionPortrait"/>
+			<!-- Automate Production -->
+	      <Image Size="45,45" Anchor="R,B" Texture="AutomateProduction45.dds" ToolTip="TXT_KEY_AUTOMATE_PRODUCTION_TT" >
+				<CheckBox ID="AutomateProduction" ButtonSize="45,45" ButtonTexture="Blank.dds" />
+		  </Image>
         </Button>
       </Box>
       <Box Offset="0,0" Anchor="L,T" Size="362,38" Color="255,255,255,0" ToolTip="Production Information" Hidden="0" ID="b2box">

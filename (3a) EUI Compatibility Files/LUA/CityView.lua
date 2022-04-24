@@ -1218,6 +1218,13 @@ local function PQGoldButtonCallback( orderID, itemID )
 end
 
 local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVeniceException )
+
+-- Automated City Production
+Controls.AutomateProduction:RegisterCheckHandler( function( isChecked )
+	Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+--	Network.SendDoTask( city:GetID(), TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+end)
+
 	-------------------------------------------
 	-- Update Production Queue
 	-------------------------------------------
@@ -1715,6 +1722,10 @@ local function UpdateCityViewNow()
 				Controls.NoAutoSpecialistCheckbox2:SetDisabled( g_isViewingMode )
 			end
 		end
+
+		-- Automated City Production
+		Controls.AutomateProduction:SetCheck( city:IsProductionAutomated() )
+		Controls.AutomateProduction:SetDisabled( g_isViewingMode )
 
 		-------------------------------------------
 		-- City Banner

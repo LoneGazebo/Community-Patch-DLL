@@ -8755,8 +8755,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
-	//no wonders in puppets (also affects venice)
-	if (IsPuppet())
+	//no wonders in puppets or automated cities (also affects venice)
+	if (IsPuppet() || (isHuman() && isProductionAutomated()))
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
@@ -16645,6 +16645,9 @@ void CvCity::CheckForOperationUnits()
 		return;
 
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
+		return;
+
+	if (isHuman() && isProductionAutomated()) // absolutely no units in automated cities
 		return;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());

@@ -775,6 +775,12 @@ function UpdateThisQueuedItem(city, queuedItemNumber, queueLength)
 	return isMaint;
 end
 
+-- Automated City Production
+Controls.AutomateProduction:RegisterCheckHandler( function( isChecked )
+	Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+--	Network.SendDoTask( city:GetID(), TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+end)
+
 -------------------------------------------------
 -- City View Update
 -------------------------------------------------
@@ -804,6 +810,8 @@ function OnCityViewUpdate()
 		Controls.PurchaseButton:SetDisabled(false);
 		Controls.EndTurnText:SetText(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RETURN_TO_MAP"));
 		
+		-- Automated City Production
+		Controls.AutomateProduction:SetCheck(pCity:IsProductionAutomated())
 		-------------------------------------------
 		-- City Banner
 		-------------------------------------------

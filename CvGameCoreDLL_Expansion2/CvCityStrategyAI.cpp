@@ -745,8 +745,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{	
 #if defined(MOD_BALANCE_CORE)
-		// Puppets cannot build units
-		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+		// Puppets and automated cities cannot build units
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || (m_pCity->isHuman() && m_pCity->isProductionAutomated()))
 		{
 			continue;
 		}
@@ -803,6 +803,17 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			}
 		}
 #endif
+
+		//automated cities won't build costly buildings when running a deficit
+		if (m_pCity->isHuman() && m_pCity->isProductionAutomated())
+		{
+			if (pkBuildingInfo->GetDefenseModifier() <= 0)
+			{
+				static EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+				if (pkBuildingInfo->GetGoldMaintenance() > 0 && GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+					continue;
+			}
+		}
 
 		// Make sure this building can be built now
 		if ((BuildingTypes)iBldgLoop != eIgnoreBldg && m_pCity->canConstruct(eLoopBuilding, vTotalBuildingCount, (m_pCity->isProductionBuilding() && (BuildingTypes)iBldgLoop == m_pCity->getProductionBuilding())))
