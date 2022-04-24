@@ -14321,27 +14321,19 @@ bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnit
 				pLoopUnit = pLoopPlot->getUnitByIndex(iI);
 				if(pLoopUnit != NULL)
 				{
-					for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+					if(pLoopUnit->isHasPromotion(eUnitPromotion))
 					{
-						const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
-						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkPromotionInfo)
+						if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
 						{
-							if(pLoopUnit->isHasPromotion(ePromotion) && ePromotion == eUnitPromotion)
-							{
-								if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
-								{
-									return true;
-								}
-								else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-								{
-									return true;
-								}
-								else if(!bIsFriendly && !bIsEnemy)
-								{
-									return true;
-								}
-							}
+							return true;
+						}
+						else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+						{
+							return true;
+						}
+						else if(!bIsFriendly && !bIsEnemy)
+						{
+							return true;
 						}
 					}
 				}
