@@ -443,8 +443,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if(pkResource)
 		{
-			//Building uses resources? Not if we're a puppet, thanks!
-			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
+			//Building uses resources? Not if we're a puppet or automated, thanks! 
+			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
 			{
 				return 0;
 			}
