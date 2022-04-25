@@ -489,6 +489,8 @@ public:
 	bool isHuman() const;
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 
+	bool isHumanAutomated() const;
+
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ

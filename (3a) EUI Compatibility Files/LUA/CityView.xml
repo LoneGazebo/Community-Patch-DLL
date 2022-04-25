@@ -102,6 +102,10 @@
 			<Meter ID="PQmeter" Anchor="L,B" Size="256,256" Texture="ProductionPanelMeter.dds" HasShadow="1" />
 			<Image Anchor="L,B" Size="256.256" Texture="ProductionPanelFrame.dds" />
 			<Image ID="PQportrait" Anchor="L,B" Size="256.256" Texture="UnitPortraitsAncientMedieval.dds" />
+	<!-- Automated production -->
+			<Image Size="64,64" Anchor="R,B" Texture="AutomateProduction64.dds" ToolTip="TXT_KEY_AUTOMATE_PRODUCTION_TT" >
+				<CheckBox ID="AutomateProduction" CheckOffset="5,5" ButtonSize="64,64" ButtonTexture="Blank.dds" />
+			</Image>
 		</Button>
 	</Image>
 

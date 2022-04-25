@@ -8755,8 +8755,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
-	//no wonders in puppets (also affects venice)
-	if (IsPuppet())
+	//no wonders in puppets or automated cities (also affects venice)
+	if (IsPuppet() || isHumanAutomated())
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
@@ -16352,6 +16352,12 @@ bool CvCity::isHuman() const
 	return GET_PLAYER(getOwner()).isHuman();
 }
 
+//	Automated City Production
+bool CvCity::isHumanAutomated() const
+{
+	VALIDATE_OBJECT
+		return (GET_PLAYER(getOwner()).isHuman() && isProductionAutomated() && !IsPuppet());
+}
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isVisible(TeamTypes eTeam, bool bDebug) const
@@ -16645,6 +16651,9 @@ void CvCity::CheckForOperationUnits()
 		return;
 
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
+		return;
+
+	if (isHumanAutomated()) // absolutely no units in automated cities
 		return;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -21323,6 +21332,8 @@ void CvCity::DoAnnex(bool bRaze)
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 	DLLUI->setDirty(GameData_DIRTY_BIT, true);
 }
+
+
 
 int CvCity::GetHappinessFromPolicies(int iPopMod) const
 {

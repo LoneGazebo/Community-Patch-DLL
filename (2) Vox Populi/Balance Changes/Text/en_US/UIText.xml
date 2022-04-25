@@ -1467,6 +1467,9 @@
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
 			<Text>Has Airport</Text>
 		</Row>
+		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
+			<Text>Automate production for this city.</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
