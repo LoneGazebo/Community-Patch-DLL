@@ -139,7 +139,7 @@
           <Image Anchor="L,B" Texture="UnitPortraitsAncientMedieval1024.dds" Size="128.128" ID="ProductionPortrait"/>
 			<!-- Automate Production -->
 	      <Image Size="45,45" Anchor="R,B" Texture="AutomateProduction45.dds" ToolTip="TXT_KEY_AUTOMATE_PRODUCTION_TT" >
-				<CheckBox ID="AutomateProduction" ButtonSize="45,45" ButtonTexture="Blank.dds" />
+			<CheckBox ID="AutomateProduction" ButtonSize="45,45" ButtonTexture="Blank.dds" />
 		  </Image>
         </Button>
       </Box>

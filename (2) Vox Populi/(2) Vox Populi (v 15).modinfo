@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.1.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -77,6 +77,9 @@
     <File md5="6C894376C418FD246748E9798D5C4CB9" import="1">Art/Icons/writerspecialist180.dds</File>
     <File md5="100EE546C2EC1685BA346CA578D64074" import="1">Art/Icons/writerspecialist256.dds</File>
     <File md5="C51B25DB53960794C8BEB3DB6A4E6F93" import="1">Art/Icons/writerspecialist512.dds</File>
+    <File md5="8C11BE8120287A5EE17DAFEF75ADDE78" import="1">Art/Icons/AutomateProduction45.dds</File>
+    <File md5="FE5757135164699240E8999592A4EC14" import="1">Art/Icons/AutomateProduction64.dds</File>
+    <File md5="E2D3592B6B62CDDD4EA50B27A6321AED" import="1">Art/Icons/Blank.dds</File>
     <File md5="CA19F6683F0AC98FDC70C3FEE70E7E1B" import="1">Art/Improvements/Eki/EkiAtlas64.dds</File>
     <File md5="23EFC6142448F267565EA8A08CE85927" import="1">Art/Improvements/Eki/EkiBuildIcon45.dds</File>
     <File md5="1EB5AEEBB11A3A58DEC66E0DDFF892A1" import="1">Art/Improvements/Eki/EkiBuildIcon64.dds</File>
@@ -410,7 +413,7 @@
     <File md5="8319F73AA7269F9D08676E0517C15B61" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="D1DF48B61D7C1899D7103D52EC6CB806" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="C2B719C2404FD7A53EE2AB7ECFA162BE" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
-    <File md5="751D0291799FE446CF245C81737FC126" import="0">Balance Changes/Text/en_US/UIText.xml</File>
+    <File md5="D93464FD677D4DD2A9C213619CE52D72" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="F9889A5EFD9CB477EB0B6653193D90A6" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="72E70FB68A0E7F952E15DD6A4AFED534" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="4E9B989F928BAD2FCB1B29BE44A9EE34" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
@@ -462,9 +465,9 @@
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="3CBE322F14A59655023DBE78D8BEFDA8" import="1">LUA/CityView.lua</File>
-    <File md5="CBE80AE325288F1B5A1B05525826DEC0" import="1">LUA/CityView.xml</File>
-    <File md5="2C009EF1C7A9213005C102161D5F6C33" import="1">LUA/CityView_small.xml</File>
+    <File md5="3FA14CB4EE2AC595E00B3AF730B9D2D3" import="1">LUA/CityView.lua</File>
+    <File md5="394F2339E22FF9B0B3885CA20479C41F" import="1">LUA/CityView.xml</File>
+    <File md5="E5321D0DBDDDF5F5DD58D9CEDB93FF5C" import="1">LUA/CityView_small.xml</File>
     <File md5="18A1ECCDC4B7D9F0C2785EF35DC7BA1F" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">Core Files/CoreLua/CultureOverview.lua</File>

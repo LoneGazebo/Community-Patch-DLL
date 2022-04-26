@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(2.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(2.1.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -35,9 +35,9 @@
     <File md5="908D4AB700755545316BA16E1BB94EA1" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="47DB8D0DFFAB0F911F09C6449B3BC07E" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="6A042F94679BA7D56EB34992289D3F51" import="1">LUA/CityView.lua</File>
-    <File md5="984545AEBCA87D9F9B6C51A7E07958E9" import="1">LUA/CityView.xml</File>
-    <File md5="03A04D6143F27CC517EA7463164D4913" import="1">LUA/CityView_small.xml</File>
+    <File md5="AA271C59BE42907642626835A97D557D" import="1">LUA/CityView.lua</File>
+    <File md5="76CD3479077B5B0DE28E922C6EE0D288" import="1">LUA/CityView.xml</File>
+    <File md5="9E72772F5A35AD12F11BBD7E10FB3AFF" import="1">LUA/CityView_small.xml</File>
     <File md5="DC6145B1AA4CD2F55FF63956B53819F3" import="1">LUA/DiploCorner.lua</File>
     <File md5="15717DB966680F125CF1C1CA31387090" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>

@@ -96,7 +96,7 @@
 			<Image Anchor="L,B" Size="128.128" Texture="TechTreeMeterFrame.dds" />
 			<Image ID="PQportrait" Anchor="L,B" Size="128.128" Texture="UnitPortraitsAncientMedieval1024.dds" />
 		</Button>
-	<!-- Automate Production -->
+		<!-- Automate Production -->
 		<Image Size="45,45" Anchor="R,B" Texture="AutomateProduction45.dds" ToolTip="TXT_KEY_AUTOMATE_PRODUCTION_TT" >
 			<CheckBox ID="AutomateProduction" ButtonSize="45,45" ButtonTexture="Blank.dds" />
 		</Image>

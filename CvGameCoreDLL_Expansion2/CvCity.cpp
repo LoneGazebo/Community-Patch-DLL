@@ -16356,7 +16356,7 @@ bool CvCity::isHuman() const
 bool CvCity::isHumanAutomated() const
 {
 	VALIDATE_OBJECT
-		return (GET_PLAYER(getOwner()).isHuman() && isProductionAutomated() && !IsPuppet());
+	return GET_PLAYER(getOwner()).isHuman() && isProductionAutomated() && !IsPuppet();
 }
 
 //	--------------------------------------------------------------------------------
@@ -21319,21 +21319,20 @@ void CvCity::DoAnnex(bool bRaze)
 	setProductionAutomated(false, true);
 	UpdateAllNonPlotYields(true);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
-	if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS)
 	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
+		bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
+		if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
+		{
+			gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
+		}
 	}
-#endif
 
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 	DLLUI->setDirty(GameData_DIRTY_BIT, true);
 }
-
-
 
 int CvCity::GetHappinessFromPolicies(int iPopMod) const
 {
