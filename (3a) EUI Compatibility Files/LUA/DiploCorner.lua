@@ -40,6 +40,7 @@ function RefreshAdditionalInformationEntries()
 		{ text = Locale.Lookup("TXT_KEY_ECONOMIC_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_ECONOMIC_OVERVIEW); end };
 		{ text = Locale.Lookup("TXT_KEY_VP_TT"),							call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_VICTORY_INFO); end };
 		{ text = Locale.Lookup("TXT_KEY_DEMOGRAPHICS"),						call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_DEMOGRAPHICS); end };
+		{ text = Locale.Lookup("TXT_KEY_LEAGUE_OVERVIEW"),					call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_LEAGUE_OVERVIEW); end };
 		{ text = Locale.Lookup("TXT_KEY_POP_NOTIFICATION_LOG"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG,Game.GetActivePlayer()); end };
 		{ text = Locale.Lookup("TXT_KEY_TRADE_ROUTE_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_TRADE_ROUTE_OVERVIEW); end };
 	};
@@ -103,6 +104,13 @@ function OnEspionageButton()
 	};
 end
 Controls.EspionageButton:RegisterCallback(Mouse.eLClick, OnEspionageButton);
+
+function OnLeagueButton()
+	Events.SerialEventGameMessagePopup{ 
+		Type = ButtonPopupTypes.BUTTONPOPUP_LEAGUE_OVERVIEW,
+	};
+end
+Controls.LeagueButton:RegisterCallback(Mouse.eLClick, OnLeagueButton);
 
 -- C4DF
 function OnVassalButton()
@@ -382,7 +390,7 @@ Events.MultiplayerGamePlayerUpdated.Add(PopulateChatPull);
 -------------------------------------------------------------------------------
 function DoUpdateLeagueCountdown()
 	local bHide = true;
-	local sTooltip = Locale.ConvertTextKey("TXT_KEY_EO_DIPLOMACY");
+	local sTooltip = Locale.ConvertTextKey("TXT_KEY_LEAGUE_OVERVIEW");
 				
 	if (Game.GetNumActiveLeagues() > 0) then
 		local pLeague = Game.GetActiveLeague();
@@ -407,7 +415,7 @@ function DoUpdateLeagueCountdown()
 	end
 	
 	Controls.UNTurnsLabel:SetHide(bHide);
-	Controls.DiploButton:SetToolTipString(sTooltip);
+	Controls.LeagueButton:SetToolTipString(sTooltip);
 end
 Events.SerialEventGameDataDirty.Add(DoUpdateLeagueCountdown);
 

@@ -163,6 +163,8 @@ function PopulateScoreBreakdown()
 		Controls.Population:SetText(pPlayer:GetScoreFromPopulation());
 		Controls.Land:SetText(pPlayer:GetScoreFromLand());
 		Controls.Wonders:SetText(pPlayer:GetScoreFromWonders());
+		Controls.CSAlly:SetText(pPlayer:GetScoreFromMinorAllies());
+		Controls.MilitaryPower:SetText(pPlayer:GetScoreFromMilitarySize());
 		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
 			Controls.Tech:SetText(pPlayer:GetScoreFromTechs());
 			Controls.FutureTech:SetText(pPlayer:GetScoreFromFutureTech());
@@ -200,6 +202,16 @@ function PopulateScoreBreakdown()
 			Controls.ReligionLabel:SetHide(true);
 			Controls.ReligionBox:SetHide(true);
 			Controls.Religion:SetHide(true);
+		end
+		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE)) then
+			Controls.Vassal:SetText(pPlayer:GetScoreFromVassals());
+			Controls.VassalLabel:SetHide(false);
+			Controls.VassalBox:SetHide(false);
+			Controls.Vassal:SetHide(false);
+		else
+			Controls.VassalLabel:SetHide(true);
+			Controls.VassalBox:SetHide(true);
+			Controls.Vassal:SetHide(true);
 		end
 		if (bScenario == true) then
 			Controls.Scenario1:SetText(pPlayer:GetScoreFromScenario1());

@@ -1588,7 +1588,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 					local iAmount = GameDefines.BALANCE_BUILDING_INVESTMENT_BASELINE;
 					iAmount = (iAmount * -1);
 					local iWonderAmount = (iAmount / 2);
-					if(iAmount > 0) then
+					if(iAmount > 0) and not OptionsManager.IsNoBasicHelp() then -- condensedhelp
 						tips:append( ( "[NEWLINE]" .. L("TXT_KEY_PRODUCTION_INVESTMENT_BUILDING", iAmount, iWonderAmount) ) )
 					end
 				end

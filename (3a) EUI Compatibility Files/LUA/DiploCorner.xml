@@ -37,9 +37,7 @@
 					<!--=======================================================================================================================-->
 					<!-- Diplo Button -->
 					<!--=======================================================================================================================-->
-					<Button ID="DiploButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_DiplomacyOverview.dds" ToolTip="TXT_KEY_EO_DIPLOMACY" >
-						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT20" FontStyle="Stroke" ID="UNTurnsLabel" Hidden="1"/>
-					</Button>
+					<Button ID="DiploButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_DiplomacyOverview.dds" ToolTip="TXT_KEY_EO_DIPLOMACY" />
 					<Container Hidden="1">
 						<!--=======================================================================================================================-->
 						<!-- Advisor Button -->
@@ -60,13 +58,19 @@
 					<!-- Espionage Button -->
 					<!--=======================================================================================================================-->
 					<Button ID="EspionageButton" ConsumeMouse="1" Anchor="C,T" Size="45,45" Texture="DC45_EspionageOverview.dds" ToolTip="TXT_KEY_EO_TITLE" Hidden="1" >
-						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
+						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT22" FontStyle="Stroke" ID="UnassignedSpiesLabel" Hidden="1"/>
 					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Vassalage Button -->
 					<!--=======================================================================================================================-->
 					<Button ConsumeMouse="1" ID="VassalButton" Anchor="C,T" Size="45,45" Offset="0,0" Texture="DC45_VassalOverview.dds" ToolTip="TXT_KEY_VO" Hidden="0">
 						<Label Anchor="C,C" Offset="0,4" Font="TwCenMT24" FontStyle="Stroke" ID="VassalTaxesAvailableLabel" Hidden="1"/>
+					</Button>
+					<!--=======================================================================================================================-->
+					<!-- League Button -->
+					<!--=======================================================================================================================-->
+					<Button ConsumeMouse="1" ID="LeagueButton" Anchor="C,T" Size="45,45" Texture="DC45_WorldCongress.dds" ToolTip="TXT_KEY_LEAGUE_OVERVIEW">
+						<Label Anchor="C,C" Offset="-2,4" Font="TwCenMT20" FontStyle="Stroke" ID="UNTurnsLabel" Hidden="1"/>
 					</Button>
 					<!--=======================================================================================================================-->
 					<!-- Corp Button -->
