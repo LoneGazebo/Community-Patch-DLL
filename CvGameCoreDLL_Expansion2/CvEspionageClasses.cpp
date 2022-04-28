@@ -1745,7 +1745,6 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		if (pCity->getOwner() == m_pPlayer->GetID())
 		{
 			strSpyAtCity += GetCityPotentialInfo(pCity, bNoBasic);
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
 			if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -1764,6 +1763,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				}
 			}
 
+			strSpyAtCity += "[NEWLINE][NEWLINE]";
 			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_POTENTIAL");
 			
 			int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, NO_EVENT_CHOICE_CITY, false);

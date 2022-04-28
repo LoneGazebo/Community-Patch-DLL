@@ -5150,8 +5150,12 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 							localizedSiphonText << pSpy->m_iYieldSiphon;
 						}
 					}
-					spyTip += localizedSiphonText.toUTF8();
-					spyTip += "[NEWLINE][NEWLINE]";
+					CvString tempStr = localizedSiphonText.toUTF8();
+					if (tempStr != "")
+					{
+						spyTip += tempStr;
+						spyTip += "[NEWLINE][NEWLINE]";
+					}
 					pSpy->SetSiphonHistory(spyTip);
 				}
 				else
