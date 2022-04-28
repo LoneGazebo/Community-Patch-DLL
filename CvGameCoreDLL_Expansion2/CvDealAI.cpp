@@ -2047,8 +2047,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			//greatly increase this if we're at a deficit of resources.
 			if (GetPlayer()->getResourceShortageValue(eResource) > 0)
 				iItemValue += iItemValue / 2;
-			else
-				iItemValue /= 2;
 
 			//And now speed/quantity.
 			iItemValue *= (iResourceQuantity*iNumTurns);

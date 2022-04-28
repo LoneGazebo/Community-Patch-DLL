@@ -73,7 +73,8 @@
 			{3_CityYield}
 			{4_GPChange}
 			{5_Turns}
-			{6_SpyEventDuration} USE ONLY IF AN ESPIONAGE EVENT!
+			USE NEXT 3 ONLY IF AN ESPIONAGE EVENT!
+			{6_SpyEventDuration} 
 			{7_PlayerEventEffect}
 	
 		EventChoiceNotifications (see two tables below) also have access to this:
@@ -813,10 +814,6 @@
 		<Column name="MissionSetup" type="boolean" default="false"/>
 		<!-- Effect applies to spy owner capital instead! Note: if you use  -->
 		<Column name="IsSpyBenefit" type="boolean" default="false"/>
-		<!-- Bonus and/or cost etc. scale based on the potential of the city - higher potential = slower, but more reward! -->
-		<Column name="PotentialScaling" type="boolean" default="false"/>
-		<!-- Bonus and/or cost etc. scale based on the difference in techs with target player! Scales the potential value by a % amount-->
-		<Column name="ScienceScaling" type="integer" default="0"/>
 		<!-- Modifier to chance to be identified on a spy mission-->
 		<Column name="IDModifier" type="integer" default="0"/>
 		<!-- Modifier to chance to be killed on a spy mission-->
@@ -940,6 +937,20 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Grants this city a certain X% yield per turn. Can be turned off via the 'expires' tag and a set duration.-->
+	<Table name="CityEventChoice_CityYieldModifier">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<!-- Spies only! Spies siphon x% of a city's yields per turn, removing the yields from the target when ended. -->
+	<Table name="CityEventChoice_YieldSiphon">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
 	<!-- Grants this city's buildings of a class (existing and future) a certain X yield per turn. Can be turned off via the 'expires' tag and a set duration. -->
 	<Table name="CityEventChoice_BuildingClassYieldChange">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>

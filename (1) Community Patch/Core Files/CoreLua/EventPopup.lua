@@ -62,7 +62,7 @@ function OnPopup( popupInfo )
 			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 			player:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_PLAYER_EVENT_NOTIFICATION") .. szTitleString)
-			UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
+			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
 		end
 	end
 end

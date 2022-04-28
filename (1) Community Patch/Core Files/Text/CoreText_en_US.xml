@@ -2874,6 +2874,10 @@
 			<Text>[NEWLINE][ICON_BULLET]Modifier for Unit Class: {1_Num}%</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_EVENTMOD">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from local Event: {1_Num}%</Text>
+		</Row>
+
 		<!-- Regular Deal Details - Lua -->
 		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE">
 			<Text>Deal Value for Them: {1_Num}.</Text>
@@ -7304,7 +7308,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num})</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
 			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num})</Text>
@@ -7371,14 +7375,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
 			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR][NEWLINE]{1_Mission}</Text>
 		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON_S">
-			<Text>Encrypted message from {1_Title} {2_Name}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_MISSION_SOON">
-			<Text>{1_Title} {2_Name} has transmitted a secret message, stating that they are almost ready to complete their mission in {3_City}.</Text>
-		</Row>
-
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
 			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>

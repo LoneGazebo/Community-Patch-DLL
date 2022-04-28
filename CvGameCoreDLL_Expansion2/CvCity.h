@@ -142,8 +142,8 @@ public:
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, CvCity* pOriginalCity = NULL, int iPassPotential = -1);
-	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, CvCity* pOriginalCity = NULL);
+	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER, bool bFromEsp = false);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
@@ -168,6 +168,9 @@ public:
 
 	void ChangeEventCityYield(YieldTypes eYield, int iValue);
 	int GetEventCityYield(YieldTypes eYield) const;
+
+	void ChangeEventCityYieldModifier(YieldTypes eYield, int iValue);
+	int GetEventCityYieldModifier(YieldTypes eYield) const;
 
 	void ChangeEventBuildingClassYield(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iValue);
 	int GetEventBuildingClassCityYield(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -2041,6 +2044,7 @@ protected:
 	std::vector<int> m_aiEventChoiceDuration;
 	std::vector<int> m_aiEventIncrement;
 	std::vector<int> m_aiEventCityYield;
+	std::vector<int> m_aiEventCityYieldModifier;
 	int m_iEventHappiness;
 	int m_iCityEventCooldown;
 	vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
@@ -2386,6 +2390,7 @@ SYNC_ARCHIVE_VAR(std::vector<bool>, m_abEventFired)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventChoiceDuration)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventIncrement)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCityYield)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEventCityYieldModifier)
 SYNC_ARCHIVE_VAR(int, m_iEventHappiness)
 SYNC_ARCHIVE_VAR(int, m_iCityEventCooldown)
 SYNC_ARCHIVE_VAR(bool, m_bIsColony)

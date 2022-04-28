@@ -3433,6 +3433,8 @@ public:
 	int getEventConvertReligionPercent(int i) const;
 	const char* getEventChoiceSoundEffect() const;
 	int getCityYield(int i) const;
+	int getCityYieldModifier(int i) const;
+	int getYieldSiphon(int i) const;
 	int getBuildingClassYield(int i, int j) const;
 	int getBuildingClassYieldModifier(int i, int j) const;
 	int getTerrainYield(int i, int j) const;
@@ -3466,9 +3468,7 @@ public:
 	bool isRequiresCounterSpy() const;
 	bool isExpiresOnCounterSpyExit() const;
 	bool isSpyMissionSetup() const;
-	bool IsPotentialScaling() const;
 	bool IsIgnoreLocalSpies() const;
-	int GetScienceScaling() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
@@ -3558,6 +3558,7 @@ protected:
 	int m_iLocalResourceRequired;
 	CvString m_strEventChoiceSoundEffect;
 	int* m_piCityYield;
+	int* m_piCityYieldModifier;
 	int** m_ppiBuildingClassYield;
 	int** m_ppiBuildingClassYieldModifier;
 	int** m_ppiTerrainYield;
@@ -3571,6 +3572,7 @@ protected:
 	int m_iCityHappiness;
 	int* m_piResourceChange;
 	int* m_piCityUnhappinessNeedMod;
+	int* m_piYieldSiphon;
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;
 	int m_iConvertsCityToPlayerMajorityReligion;
@@ -3582,9 +3584,7 @@ protected:
 	//espionage
 	bool m_bEspionageEffect;
 	bool m_bApplyEffectToSpyOwner;
-	bool m_bPotentialScaling;
 	bool m_bIgnoreLocalSpies;
-	int m_iScienceScaling;
 	int m_iIdentificationModifier;
 	int m_iDeathModifier;
 	int m_iSpyLevelRequired;

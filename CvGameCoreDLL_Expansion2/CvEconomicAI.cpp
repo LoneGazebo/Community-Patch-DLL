@@ -1723,7 +1723,7 @@ void CvEconomicAI::DoHurry()
 
 		if(IsSavingForThisPurchase(ePurchase))
 		{
-			iPurchaseBuffer += GetPurchaseSaveAmout(ePurchase);
+			iPurchaseBuffer += GetPurchaseSaveAmout(ePurchase) * 2;
 		}
 	}
 

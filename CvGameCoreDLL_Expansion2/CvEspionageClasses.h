@@ -79,12 +79,18 @@ public:
 
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
 	void SetSpyFocus(CityEventChoiceTypes m_eSpyFocus);
+	void SetSpySiphon(CityEventChoiceTypes m_eSpyFocus);
+	void ResetSpySiphon();
+	CvString GetSiphonHistory();
+	void ResetSiphonHistory();
+	void SetSiphonHistory(CvString string);
 
 	// Public data
 	int m_iName;
 	CvString m_sName;
 	int m_iCityX;
 	int m_iCityY;
+	int m_iExperience;
 	CvSpyRank m_eRank;
 	int GetSpyRank(PlayerTypes eSpyOwner) const;
 	CvSpyState m_eSpyState;
@@ -93,7 +99,9 @@ public:
 	bool m_bEvaluateReassignment; // used by the AI. Flag to indicate if the spy should be evaluated to be reassigned
 	bool m_bPassive;
 	CityEventChoiceTypes m_eSpyFocus; // focus type for events- events are classified.
-	int m_iPotentialAtStart;
+	int m_iYieldSiphon;
+	YieldTypes m_eSiphonYield;
+	CvString m_sSiphonHistory;
 };
 
 FDataStream& operator>>(FDataStream&, CvEspionageSpy&);
@@ -174,8 +182,9 @@ public:
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ProcessSpyFocus();
+	void ProcessSpySiphon(CvCity* pCity, int uiSpyIndex);
 	void TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
-	bool DoSpyFocusEvent(uint uiSpyIndex);
+	void DoSpyFocusEvent(uint uiSpyIndex, int iDebug = -1);
 	bool DoStealTechnology(PlayerTypes eTargetPlayer);
 	bool DoStealGW(CvCity* pCity, int iGWID);
 
@@ -193,6 +202,7 @@ public:
 	CvString GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* pCity = NULL);
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);
 	CvString GetCityPotentialInfo(CvCity* pCity, bool bNoBasic);
+	CvString GetSiphonInfo(uint uiSpyIndex, bool bPastTense = false);
 
 	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, bool bPreview = false);
 	CvSpyResult GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
@@ -208,7 +218,7 @@ public:
 	bool CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
 	bool MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplomat);
 	bool ExtractSpyFromCity(uint uiSpyIndex);
-	void LevelUpSpy(uint uiSpyIndex);
+	void LevelUpSpy(uint uiSpyIndex, int iExperience = 0);
 
 	void SetPassive(uint uiSpyIndex, bool bPassive);
 	void SetOutcome(uint uiSpyIndex, uint uiSpyResult, bool bAffectsDiplomacy = true);

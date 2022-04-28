@@ -17,7 +17,10 @@
 		<Row Tag="TXT_KEY_AA_EVENT_INVALID_TT">
 			<Text>{1_Rank} {2_Spy} in {3_City} has been forced to abort their mission due to recent changes in the City. Please choose a new focus for your Spy.</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_EO_SPY_EXPERIENCE">
+			<Text>Experience: {1_Num} / {2_Denom}</Text>
+		</Row>
 		<!-- FOCUS OPTIONS -->
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
@@ -26,17 +29,23 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
 			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION">
-			<Text>Disrupt local [ICON_PRODUCTION] Production</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM">
+			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP">
-			<Text>{6_Spy}Target City: {2_InstantYield}[NEWLINE][NEWLINE]If City is constructing a [COLOR_POSITIVE_TEXT]World Wonder[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Project[ENDCOLOR], duration for this mission is halved.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP">
+			<Text>{6_Spy}Target City: Spy collects 10% of City's [ICON_TOURISM] Tourism ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_TOURISM] Tourism.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD">
-			<Text>Raid the local [ICON_GOLD] Gold treasury</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE">
+			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP">
-			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP">
+			<Text>{6_Spy}Target City: Spy collects 10% of City's [ICON_RESEARCH] Science ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD">
+			<Text>Steal [ICON_GOLD] Gold from treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP">
+			<Text>{6_Spy}Target City: Spy collects 10% of City's [ICON_GOLD] Gold ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
 			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
@@ -44,11 +53,11 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
 			<Text>{6_Spy}One of each primary improvement (Farm, Mine, Plantation, Trading Post) is pillaged around the City. Two improved [COLOR_POSITIVE_TEXT] Strategic Resource [ENDCOLOR] tiles are pillaged. -25% [ICON_FOOD] Growth for {5_Turns}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE">
-			<Text>Infiltrate local [ICON_RESEARCH] Science facilities</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE">
+			<Text>Foment Local [ICON_HAPPINESS_3] Unhappiness</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP">
-			<Text>{6_Spy}Your [ICON_CAPITAL] Capital City: {2_InstantYield}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE_HELP">
+			<Text>{6_Spy}Target City: All sources of Needs Unhappiness are increased by 34%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
 			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
@@ -143,7 +152,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_SPY_DETECTED">
-			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS![NEWLINE][NEWLINE]Message: "Operatives detected, but they don't know who we work for. We will continue working here until you reassign us elsewhere."[NEWLINE][NEWLINE]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS![NEWLINE][NEWLINE]Message: "Detected, but they don't know who we work for. We will continue working here until you reassign us elsewhere."[NEWLINE][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_SPY_IDENTIFIED">
 			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS, BUT IDENTIFIED![NEWLINE][NEWLINE]Message: "Our cover is blown, we're returning to HQ for reassignment."[NEWLINE][NEWLINE]</Text>
