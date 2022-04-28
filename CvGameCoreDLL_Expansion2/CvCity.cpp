@@ -18900,10 +18900,10 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 		if (YIELD_CULTURE == eIndex2)
 			continue;
 
-		pThisCity->UpdateCityYieldFromYield(YIELD_CULTURE, eIndex2, iValue);
+		pThisCity->UpdateCityYieldFromYield(YIELD_CULTURE, eIndex2, iCulturePerTurn);
 
 		//NOTE! We flip it here, because we want the OUT yield
-		iValue += GetRealYieldFromYield(eIndex2, YIELD_CULTURE);
+		iCulturePerTurn += GetRealYieldFromYield(eIndex2, YIELD_CULTURE);
 	}
 
 	if (MOD_BALANCE_CORE_JFD)
@@ -19166,10 +19166,10 @@ int CvCity::GetFaithPerTurn() const
 		if (YIELD_FAITH == eIndex2)
 			continue;
 
-		pThisCity->UpdateCityYieldFromYield(YIELD_FAITH, eIndex2, iValue);
+		pThisCity->UpdateCityYieldFromYield(YIELD_FAITH, eIndex2, iFaith);
 
 		//NOTE! We flip it here, because we want the OUT yield
-		iValue += GetRealYieldFromYield(eIndex2, YIELD_FAITH);
+		iFaith += GetRealYieldFromYield(eIndex2, YIELD_FAITH);
 	}
 #endif
 
