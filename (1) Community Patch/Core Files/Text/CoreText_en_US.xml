@@ -7287,7 +7287,9 @@
 		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
 			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy.</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_EVENT_MIN_SIPHON_NOT_MET">
+			<Text>[NEWLINE] [ICON_BULLET] City not producing enough of this yield to Siphon.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
 			<Text>[NEWLINE] [ICON_BULLET] Requires a Counterspy in the city.</Text>
 		</Row>

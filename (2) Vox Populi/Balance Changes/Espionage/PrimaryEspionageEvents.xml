@@ -41,7 +41,6 @@
 			<IgnoreLocalForeignSpies>true</IgnoreLocalForeignSpies>
 			<SpyVisionRange>3</SpyVisionRange>
 			<SpyLevelRequired>0</SpyLevelRequired>
-			<NoLevelUp>true</NoLevelUp>
 		</Row>
 		<!-- CULTURE/TOURISM -->
 		<Row>
