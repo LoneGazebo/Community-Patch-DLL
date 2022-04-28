@@ -897,7 +897,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					else
 					{
 						// Only a decisive winner can agree to make peace
-						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < 75)
+						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < /*75*/ range(GD_INT_GET(DIPLOAI_THIRD_PARTY_PEACE_WARSCORE), 1, 100))
 							return false;
 
 						// Check for peace blocks

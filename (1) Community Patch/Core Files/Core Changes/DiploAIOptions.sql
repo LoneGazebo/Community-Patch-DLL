@@ -129,6 +129,12 @@ SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_LUMP_GOLD_TRADES', '0';
 
+-- [CUSTOMIZE WARSCORE THRESHOLD FOR THIRD PARTY PEACE]
+-- The minimum warscore required before someone can make a third party peace offer to the winner of a war.
+-- Valid values range from 1 to 100. Default value is 75. Lower values are more exploitable.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_THIRD_PARTY_PEACE_WARSCORE', '75';
+
 -- [DISABLE FRIENDSHIP REQUESTS]
 -- If set to 1, AI civilizations will not ask human players to make a Declaration of Friendship.
 -- Humans can still ask the AI for a Declaration of Friendship.

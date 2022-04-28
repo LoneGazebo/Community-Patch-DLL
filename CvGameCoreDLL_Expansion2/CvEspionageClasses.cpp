@@ -594,22 +594,22 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-					CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
-					CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
-
-					if(	strcmp(kCityOwner.getCivilizationTypeKey(), "CIVILIZATION_RUSSIA") == 0 &&
-						strcmp(kSpyOwner.getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
+					if (MOD_API_ACHIEVEMENTS)
 					{
-						//Do not trigger achievement if we're in the Smokey Skies scenario.
-						bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-						if(!bUsingXP1Scenario3)
+						CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
+						CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
+
+						if (strcmp(kCityOwner.getCivilizationTypeKey(), "CIVILIZATION_RUSSIA") == 0 &&
+							strcmp(kSpyOwner.getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
 						{
-							if(eCityOwner == GC.getGame().getActivePlayer())
+							//Do not trigger achievement if we're in the Smokey Skies scenario.
+							bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+							if (!bUsingXP1Scenario3 && eCityOwner == GC.getGame().getActivePlayer())
+							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_25);
+							}
 						}
 					}
-#endif
 				}
 			}
 

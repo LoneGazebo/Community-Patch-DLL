@@ -434,11 +434,9 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 
 		bAttackerDidMoreDamage = iAttackerDamageInflicted > iDefenderDamageInflicted;
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//One Hit
-		if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+		if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-#endif
 
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 		iAttackerDamageDelta = pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner(), -1.f);		// Signal that we don't want the popup text.  It will be added later when the unit is at its final location
@@ -471,18 +469,20 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
 		bDefenderDead = (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints());
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
-		kAttackerOwner.GetPlayerAchievements().AttackedUnitWithUnit(pkAttacker, pkDefender);
-#endif
+		if (MOD_API_ACHIEVEMENTS)
+		{
+			CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
+			kAttackerOwner.GetPlayerAchievements().AttackedUnitWithUnit(pkAttacker, pkDefender);
+		}
 
 		// Attacker died
 		if(bAttackerDead)
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
-			kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+			{
+				CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
+				kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
+			}
 
 			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
@@ -509,9 +509,11 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		// Defender died
 		else if(bDefenderDead)
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+			{
+				CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
+				kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+			}
 
 			auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
 			gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
@@ -580,15 +582,15 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		}
 
 		// Minors want Barbs near them dead
-		if(bAttackerDead)
+		if (bAttackerDead)
 		{
-			if(pkAttacker->isBarbarian())
-				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker,pkDefender->getOwner());
+			if (pkAttacker->isBarbarian())
+				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker, pkDefender->getOwner());
 		}
-		else if(bDefenderDead)
+		else if (bDefenderDead)
 		{
-			if(pkDefender->isBarbarian())
-				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender,pkAttacker->getOwner());
+			if (pkDefender->isBarbarian())
+				DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 		}
 	}
 
@@ -632,7 +634,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 						pkAttacker->UnitMove(pkTargetPlot, true, pkAttacker);
 
 					pkAttacker->PublishQueuedVisualizationMoves();
-#if defined(MOD_BALANCE_CORE)
+
 					if (pkAttacker->getAOEDamageOnKill() != 0 && bDefenderDead)
 					{
 						CvPlot* pAdjacentPlot = NULL;
@@ -656,16 +658,12 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 							}
 						}
 					}
-#endif
 				}
 				else
 				{
 					pkAttacker->changeMoves(-1 * std::max(GD_INT_GET(MOVE_DENOMINATOR), pkTargetPlot->movementCost(pkAttacker, pkAttacker->plot(),pkAttacker->getMoves())));
-#if defined(MOD_BALANCE_CORE)
+
 					if(!pkAttacker->canMove() || !pkAttacker->isBlitz() || pkAttacker->isOutOfAttacks())
-#else
-					if(!pkAttacker->canMove() || !pkAttacker->isBlitz())
-#endif
 					{
 						if(pkAttacker->IsSelected())
 						{
@@ -1060,10 +1058,11 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 						bTargetDied = true;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-						CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
-						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
-#endif
+						if (MOD_API_ACHIEVEMENTS)
+						{
+							CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
+							kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+						}
 
 						ApplyPostKillTraitEffects(pkAttacker, pkDefender);
 
@@ -1298,6 +1297,9 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 						// Earn bonuses for kills?
 						CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
 						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender, pkAttacker);
+
+						if (bBarbarian)
+							DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkDefender, pkAttacker->getOwner());
 					}
 
 					//set damage but don't update entity damage visibility
