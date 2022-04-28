@@ -2231,11 +2231,11 @@ local function UpdateCityViewNow()
 		local culturePerTurn, cultureStored, cultureNext
 		-- thanks for Firaxis Cleverness !
 		if civ5_mode then
-			culturePerTurn = city:GetJONSCulturePerTurn()
+			culturePerTurn = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
 			cultureStored = city:GetJONSCultureStored()
 			cultureNext = city:GetJONSCultureThreshold()
 		else
-			culturePerTurn = city:GetCulturePerTurn()
+			culturePerTurn = city:GetCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
 			cultureStored = city:GetCultureStored()
 			cultureNext = city:GetCultureThreshold()
 		end

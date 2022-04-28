@@ -125,13 +125,13 @@
 		
 		<!-- Espionage Success -->
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE">
-			<Text>{5_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+			<Text>{4_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE] {1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE">
 			<Text>{2_CivAdj} Operatives Succeed in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
-			<Text>Unknown foreign operatives [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+			<Text>Unknown foreign operatives [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN">
 			<Text>Unknown Foreign Operatives Succeed in {1_City}!</Text>
@@ -143,6 +143,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HELP">
 			<Text>News from [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]:[NEWLINE][NEWLINE]{2_Event}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_FLED_TITLE">
+			<Text>News in {1_City}: {2_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLED_HELP">
+			<Text>Our spies have reported the following to headquarters in [COLOR_POSITIVE_TEXT]{1_City}[ENDCOLOR]:[NEWLINE][NEWLINE]{2_Event}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
 			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
@@ -219,7 +226,12 @@
 		<Row Tag="TXT_KEY_EVENT_YIELD_DURATION">
 			<Text>{1_Num} Turns</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_EVENT_YIELD_SIPHON_PAST">
+			<Text>Total Amount Siphoned: {3_Value} {2_Icon} {1_Yield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_YIELD_SIPHON_PRESENT">
+			<Text>Preparing Siphon: {3_Value} {2_Icon} {1_Yield} Collected ({4_Turns}) Turn(s) remaining)</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NEED_OTHER_PLAYER_EVENT_ACTIVE">
 			<Text>[NEWLINE] [ICON_BULLET] Another Player's Events or Event Choices prohibit this choice</Text>

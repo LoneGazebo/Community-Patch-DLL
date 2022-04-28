@@ -10502,6 +10502,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_ppiImprovementYield(NULL),
 	 m_ppiResourceYield(NULL),
 	 m_piCityYield(NULL),
+	 m_piCityYieldModifier(NULL),
+	 m_piYieldSiphon(NULL),
 	 m_iNearbyFeature(-1),
 	 m_iNearbyTerrain(-1),
 	 m_iMaximumPopulation(0),
@@ -10529,9 +10531,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iIsNoLevelUp(false),
 	 m_bEspionageEffect(false),
 	 m_bApplyEffectToSpyOwner(false),
-	 m_bPotentialScaling(false),
 	 m_bIgnoreLocalSpies(false),
-	 m_iScienceScaling(0),
 	 m_iIdentificationModifier(0),
 	 m_iDeathModifier(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
@@ -10568,6 +10568,8 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
 	SAFE_DELETE_ARRAY(m_piBuildingDestructionChance);
 	SAFE_DELETE_ARRAY(m_piCityYield);
+	SAFE_DELETE_ARRAY(m_piCityYieldModifier);
+	SAFE_DELETE_ARRAY(m_piYieldSiphon);
 	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	SAFE_DELETE_ARRAY(m_piResourceChange);
 	SAFE_DELETE_ARRAY(m_piCityUnhappinessNeedMod);
@@ -10690,17 +10692,9 @@ int CvModEventCityChoiceInfo::getSapCityTurns() const
 	return m_iSapCityTurns;
 }
 
-bool CvModEventCityChoiceInfo::IsPotentialScaling() const
-{
-	return m_bPotentialScaling;
-}
 bool CvModEventCityChoiceInfo::IsIgnoreLocalSpies() const
 {
 	return m_bIgnoreLocalSpies;
-}
-int CvModEventCityChoiceInfo::GetScienceScaling() const
-{
-	return m_iScienceScaling;
 }
 EventChoiceTypes CvModEventCityChoiceInfo::GetTriggerPlayerEventChoice() const
 {
@@ -10872,6 +10866,20 @@ int CvModEventCityChoiceInfo::getCityYield(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piCityYield ? m_piCityYield[i] : -1;
+}
+
+int CvModEventCityChoiceInfo::getCityYieldModifier(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCityYieldModifier ? m_piCityYieldModifier[i] : -1;
+}
+
+int CvModEventCityChoiceInfo::getYieldSiphon(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldSiphon ? m_piYieldSiphon[i] : -1;
 }
 /// Yield change for a specific BuildingClass by yield type
 int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
@@ -11238,9 +11246,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	//espionage!
 	m_bEspionageEffect = kResults.GetBool("IsEspionageEffect");
 	m_bApplyEffectToSpyOwner = kResults.GetBool("IsSpyBenefit");
-	m_bPotentialScaling = kResults.GetBool("PotentialScaling");
 	m_bIgnoreLocalSpies = kResults.GetBool("IgnoreLocalForeignSpies");
-	m_iScienceScaling = kResults.GetInt("ScienceScaling");
 	m_iIdentificationModifier = kResults.GetInt("IDModifier");
 	m_iDeathModifier = kResults.GetInt("DeathModifier");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
@@ -11286,6 +11292,9 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	kUtility.SetYields(m_piPreCheckEventYield, "CityEventChoice_EventCostYield", "CityEventChoiceType", szEventType);
 
 	kUtility.SetYields(m_piCityYield, "CityEventChoice_CityYield", "CityEventChoiceType", szEventType);
+	kUtility.SetYields(m_piCityYieldModifier, "CityEventChoice_CityYieldModifier", "CityEventChoiceType", szEventType);
+
+	kUtility.SetYields(m_piYieldSiphon, "CityEventChoice_YieldSiphon", "CityEventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piGPChange, "Specialists", "CityEventChoice_GreatPersonPoints", "SpecialistType", "CityEventChoiceType", szEventType, "Points");
 	kUtility.PopulateArrayByValue(m_piDestroyImprovement, "Improvements", "CityEventChoice_ImprovementDestructionRandom", "ImprovementType", "CityEventChoiceType", szEventType, "Number");

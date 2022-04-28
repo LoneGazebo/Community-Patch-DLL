@@ -23,6 +23,7 @@ class CvPlayer;
 #define NOTIFICATION_EVENT_CHOICE ((NotificationTypes)0xE6FA2DB2)
 #define NOTIFICATION_EVENT_CHOICE_CITY ((NotificationTypes)0xCEC31160)
 #define NOTIFICATION_ESPIONAGE_AA ((NotificationTypes)0xFAB31160)
+#define NOTIFICATION_ESPIONAGE_OUTCOME ((NotificationTypes)0xERF43256)
 #define NOTIFICATION_CITY_CHOOSE_FATE ((NotificationTypes)0xECF31160)
 #endif
 

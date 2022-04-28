@@ -678,7 +678,7 @@ void CvDllNetMessageHandler::ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCi
 													int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized())
+if (!GC.getGame().isFinalInitialized())
 		return;
 
 	// hijacks message for MP events since it has a few args and is sent to everyone

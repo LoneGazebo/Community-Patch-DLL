@@ -1144,6 +1144,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCachedValueOfPeaceWithHuman);
 	Method(GetSpyChanceAtCity);
 	Method(GetCityPotentialInfo);
+	Method(DoSpyEvent);
+	Method(StartSpyFocus);
+	Method(GetSpySiphonAmount);
 	Method(GetCityWithSpy);
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
@@ -15499,6 +15502,44 @@ int CvLuaPlayer::lGetCityPotentialInfo(lua_State* L)
 	bool bNoBasic = lua_toboolean(L, 3);
 
 	lua_pushstring(L, pkPlayerEspionage->GetCityPotentialInfo(pkCity, bNoBasic));
+	return 1;
+}
+
+int CvLuaPlayer::lDoSpyEvent(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	int iSpyIndex = lua_tointeger(L, 2);
+	int iDebugVal = lua_tointeger(L, 3);
+	pkPlayerEspionage->DoSpyFocusEvent(iSpyIndex, iDebugVal);
+	return 0;
+}
+int CvLuaPlayer::lStartSpyFocus(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	int iSpyIndex = lua_tointeger(L, 2);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 3);
+	int iTargetCity = lua_tointeger(L, 4);
+	if (ePlayer != NO_PLAYER)
+	{
+		CvCity* pCity = GET_PLAYER(ePlayer).getCity(iTargetCity);
+		if (pCity)
+		{
+			pkPlayerEspionage->MoveSpyTo(pCity, iSpyIndex, false);
+			pkPlayerEspionage->TriggerSpyFocusSetup(pCity, iSpyIndex);
+		}
+	}
+	return 0;
+}
+
+int CvLuaPlayer::lGetSpySiphonAmount(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	int iSpyIndex = lua_tointeger(L, 2);
+
+	lua_pushstring(L, pkPlayerEspionage->GetSiphonInfo(iSpyIndex).c_str());
 	return 1;
 }
 

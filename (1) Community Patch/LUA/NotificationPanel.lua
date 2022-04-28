@@ -243,6 +243,7 @@ g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE_CITY ] = "CityEventChoi
 g_NameTable[ NotificationTypes.NOTIFICATION_EVENT_CHOICE ] = "EventChoice";
 g_NameTable[ NotificationTypes.NOTIFICATION_ESPIONAGE_AA ] = "EspionageAA";
 g_NameTable[ NotificationTypes.NOTIFICATION_CITY_CHOOSE_FATE ] = "ChooseCityFate";
+g_NameTable[ NotificationTypes.NOTIFICATION_ESPIONAGE_OUTCOME] = "EspionageOutcome";
 
 g_NameTable[ NotificationTypes.NOTIFICATION_PRODUCTION_COST_MODIFIERS_FROM_RESOURCES ] = "BonusResource";
 --END

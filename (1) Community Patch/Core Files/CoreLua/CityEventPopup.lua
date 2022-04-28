@@ -54,7 +54,7 @@ function OnPopup( popupInfo )
 			local szHelpString;
 
 			szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
-			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType, false, spyID, spyOwnerID));
+			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType, false, spyID, spyOwnerID, true));
 			-- Test for any Override Strings
 			tChoiceOverrideStrings = {}
 			LuaEvents.EventChoice_OverrideTextStrings(city:GetOwner(), city:GetID(), pEventChoiceInfo, tChoiceOverrideStrings)
@@ -72,7 +72,37 @@ function OnPopup( popupInfo )
 			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 			--	SpyOwner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
-			UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
+			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
+		else
+			local capitalCity = SpyOwner:GetCapitalCity();
+			g_pCity = capitalCity;
+
+			local cityName = capitalCity:GetNameKey();
+			local localizedCityName = Locale.ConvertTextKey(cityName);
+
+			local szTitleString;
+			local szHelpString;
+
+			szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_FLED_TITLE", localizedCityName, pEventChoiceInfo.Description);
+			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_FLED_HELP", localizedCityName, capitalCity:GetScaledEventChoiceValue(iEventChoiceType, false, spyID, spyOwnerID, true));
+			-- Test for any Override Strings
+			tChoiceOverrideStrings = {}
+			LuaEvents.EventChoice_OverrideTextStrings(capitalCity:GetOwner(), capitalCity:GetID(), pEventChoiceInfo, tChoiceOverrideStrings)
+			for _,str in ipairs(tChoiceOverrideStrings) do
+				szTitleString = str.Description or szTitleString
+				szHelpString = str.Help or szHelpString
+			end
+	
+			Controls.TitleLabel:SetText(szTitleString);
+			Controls.TitleLabel:SetToolTipString(szTitleString);
+			Controls.DescriptionLabel:SetText(szHelpString);
+	
+			-- Recalculate grid size
+			local mainGridSizeY = 400
+			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
+			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
+			--	SpyOwner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
+			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
 		end
 	else
 	
@@ -108,7 +138,7 @@ function OnPopup( popupInfo )
 			local sizeYDiff = math.max((Controls.DescriptionLabel:GetSizeY()-Controls.EventBox:GetSizeY()),1)
 			Controls.MainGrid:SetSizeY(mainGridSizeY + sizeYDiff)
 			owner:AddNotification(NotificationTypes.NOTIFICATION_GENERIC, szHelpString, Locale.ConvertTextKey("TXT_KEY_CITY_EVENT_NOTIFICATION") .. szTitleString, city:Plot():GetX(), city:Plot():GetY())
-			UIManager:QueuePopup( ContextPtr, PopupPriority.CityStateGreeting );
+			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
 		end
 	end
 end

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 4/22/2021 10:21:25 AM -->
 <GameData>
+	<!-- ESPIONAGE -->
+	<Defines>
+		<Row Name="ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR" Value="100"/>
+		<Row Name="ESPIONAGE_DEFENDING_SPY_EXPERIENCE" Value="50"/>
+		<Row Name="ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE" Value="25"/>
+		<Row Name="ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE" Value="20"/>
+	</Defines>
 	<!-- Focus Event -->
 	<CityEvents>
 		<Row>
@@ -36,57 +43,45 @@
 			<SpyLevelRequired>0</SpyLevelRequired>
 			<NoLevelUp>true</NoLevelUp>
 		</Row>
-		<!-- GOLD -->
+		<!-- CULTURE/TOURISM -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD_HELP</Help>
-			<IsEspionageEffect>true</IsEspionageEffect>
-			<EventDuration>-1</EventDuration>
-			<MissionSetup>true</MissionSetup>
-			<PotentialScaling>true</PotentialScaling>
-			<EraScaling>true</EraScaling>
-			<IDModifier>10</IDModifier>
-			<DeathModifier>5</DeathModifier>
-			<EspionageDifficultyMod>250</EspionageDifficultyMod>
-			<SpyLevelRequired>0</SpyLevelRequired>
-			<IsSpyBenefit>true</IsSpyBenefit>
-		</Row>
-		<!-- PRODUCTION -->
-		<!--
-		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION_HELP</Help>
+			<Type>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<EventDuration>-1</EventDuration>
-			<PotentialScaling>true</PotentialScaling>
-			<EraScaling>true</EraScaling>
-			<WonderConstructionSpeedMod>-50</WonderConstructionSpeedMod>
-			<IDModifier>20</IDModifier>
-			<DeathModifier>10</DeathModifier>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<IDModifier>75</IDModifier>
+			<DeathModifier>25</DeathModifier>
+			<EspionageDifficultyMod>200</EspionageDifficultyMod>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
-		-->
 		<!-- SCIENCE -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE_HELP</Help>
+			<Type>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
-			<IsSpyBenefit>true</IsSpyBenefit>
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
-			<PotentialScaling>true</PotentialScaling>
-			<ScienceScaling>25</ScienceScaling>
-			<EspionageDifficultyMod>250</EspionageDifficultyMod>
-			<EraScaling>true</EraScaling>
-			<IDModifier>15</IDModifier>
-			<DeathModifier>10</DeathModifier>
-			<SpyLevelRequired>1</SpyLevelRequired>
+			<EspionageDifficultyMod>200</EspionageDifficultyMod>
+			<IDModifier>75</IDModifier>
+			<DeathModifier>25</DeathModifier>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
+		<!-- SCIENCE -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<EventDuration>-1</EventDuration>
+			<MissionSetup>true</MissionSetup>
+			<EspionageDifficultyMod>200</EspionageDifficultyMod>
+			<IDModifier>50</IDModifier>
+			<DeathModifier>15</DeathModifier>
+			<SpyLevelRequired>0</SpyLevelRequired>
+		</Row>	
 		<!-- GREAT PEOPLE -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</Type>
@@ -94,13 +89,13 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<Expires>true</Expires>
-			<EventDuration>15</EventDuration>
+			<EventDuration>20</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<RequiredEra>ERA_RENAISSANCE</RequiredEra>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
-			<IDModifier>60</IDModifier>
+			<IDModifier>50</IDModifier>
 			<EspionageDifficultyMod>350</EspionageDifficultyMod>
-			<DeathModifier>10</DeathModifier>
+			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
 			<IsSpyBenefit>true</IsSpyBenefit>
 		</Row>
@@ -112,8 +107,8 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
 			<EventDuration>-1</EventDuration>
-			<IDModifier>40</IDModifier>
-			<DeathModifier>40</DeathModifier>
+			<IDModifier>75</IDModifier>
+			<DeathModifier>50</DeathModifier>
 			<DamageCity>100</DamageCity>
 			<EspionageDifficultyMod>75</EspionageDifficultyMod>
 			<DamageGarrison>25</DamageGarrison>
@@ -127,14 +122,28 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>45</IDModifier>
+			<IDModifier>60</IDModifier>
 			<EventDuration>-1</EventDuration>
 			<IsUnhappy>true</IsUnhappy>
 			<EspionageDifficultyMod>450</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
-			<DeathModifier>40</DeathModifier>
+			<DeathModifier>60</DeathModifier>
 			<SpyLevelRequired>2</SpyLevelRequired>
+		</Row>
+		<!-- STOKE UNHAPPY -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_STOKE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<IDModifier>50</IDModifier>
+			<Expires>true</Expires>
+			<EventDuration>20</EventDuration>
+			<EspionageDifficultyMod>300</EspionageDifficultyMod>
+			<DeathModifier>30</DeathModifier>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- TILES -->
 		<Row>
@@ -143,8 +152,8 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>50</IDModifier>
-			<DeathModifier>10</DeathModifier>
+			<IDModifier>75</IDModifier>
+			<DeathModifier>5</DeathModifier>
 			<EventDuration>20</EventDuration>
 			<RequiredEra>ERA_MEDIEVAL</RequiredEra>
 			<GrowthMod>-25</GrowthMod>
@@ -160,12 +169,11 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>40</IDModifier>
+			<IDModifier>75</IDModifier>
 			<EventDuration>-1</EventDuration>
 			<RequiredEra>ERA_MODERN</RequiredEra>
-			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
-			<DeathModifier>20</DeathModifier>
+			<DeathModifier>25</DeathModifier>
 			<StealNumTechs>1</StealNumTechs>
 			<EspionageDifficultyMod>300</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -177,12 +185,11 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<IDModifier>30</IDModifier>
+			<IDModifier>25</IDModifier>
 			<EventDuration>-1</EventDuration>
 			<RequiredEra>ERA_MODERN</RequiredEra>
-			<PotentialScaling>true</PotentialScaling>
 			<EraScaling>true</EraScaling>
-			<DeathModifier>15</DeathModifier>
+			<DeathModifier>75</DeathModifier>
 			<ForgeNumGW>1</ForgeNumGW>
 			<EspionageDifficultyMod>300</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
@@ -233,25 +240,23 @@
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 	</CityEventChoices>
-	<CityEventChoice_InstantYield>
-		<!--
+	<CityEventChoice_YieldSiphon>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		-->
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
+			<YieldType>YIELD_TOURISM</YieldType>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>10</Yield>
 		</Row>
-	</CityEventChoice_InstantYield>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</CityEventChoice_YieldSiphon>
 	<CityEventChoice_CityUnhappinessNeedMod>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
@@ -277,6 +282,31 @@
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<Yield>-25</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>34</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>34</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>34</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>34</Yield>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>34</Yield>
 		</Row>
 	</CityEventChoice_CityUnhappinessNeedMod>
 	<CityEventChoice_ImprovementDestructionRandom>
@@ -380,14 +410,12 @@
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
-		<!--
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
-		-->
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
@@ -395,7 +423,7 @@
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
@@ -437,32 +465,30 @@
 	</CityEvent_ParentEvents>
 	<CityEventChoiceFlavors>
 		<!-- FOCUS -->
-		<!--
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>10</Flavor>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
-		-->
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
@@ -484,13 +510,6 @@
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
 			<Flavor>5</Flavor>
 		</Row>
-		<!--
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		-->
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC</CityEventChoiceType>
 			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
@@ -576,8 +595,8 @@
 	</EventChoice_SpecialistYieldChange>
 	<CityEventChoice_Notification>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_GOLD</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -585,10 +604,9 @@
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
 		</Row>
-		<!--
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_PRODUCTION</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -596,10 +614,9 @@
 			<NeedPlayerID>false</NeedPlayerID>
 			<ExtraVariable>-1</ExtraVariable>
 		</Row>
-		-->
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_SCIENCE</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -609,7 +626,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -619,7 +636,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -629,7 +646,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -639,7 +656,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -649,7 +666,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -659,7 +676,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -669,7 +686,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_GENERIC</NotificationType>
+			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
