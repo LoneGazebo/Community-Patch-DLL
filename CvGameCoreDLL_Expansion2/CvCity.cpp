@@ -4735,7 +4735,6 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(uiSpyIndex);
 	if (pCity)
 	{
-		bool bSiphon = true;
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			YieldTypes eYield = (YieldTypes)iI;
