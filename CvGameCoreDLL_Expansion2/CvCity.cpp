@@ -4732,6 +4732,31 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 			return false;
 	}
 
+	CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(uiSpyIndex);
+	if (pCity)
+	{
+		bool bSiphon = true;
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes)iI;
+			if (eYield == NO_YIELD)
+				continue;
+
+			int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
+			if (iSiphonYield <= 0)
+				continue;
+
+			int iCityYield = pCity->getYieldRate(eYield, false);
+			iCityYield *= iSiphonYield;
+			iCityYield /= 100;
+
+			if (iCityYield <= 0)
+			{
+				return false;
+			}
+		}
+	}
+
 	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
 		return false;
 
@@ -5469,6 +5494,38 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 			if (iNumGWInCity < pkEventInfo->getForgeGW())
 			{
 				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_NO_GW_FORGE");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+		}
+
+
+		CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(iSpyIndex);
+		if (pCity)
+		{
+			bool bSiphon = true;
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes)iI;
+				if (eYield == NO_YIELD)
+					continue;
+
+				int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
+				if (iSiphonYield <= 0)
+					continue;
+
+				int iCityYield = pCity->getYieldRate(eYield, false);
+				iCityYield *= iSiphonYield;
+				iCityYield /= 100;
+
+				if (iCityYield <= 0)
+				{
+					bSiphon = false;
+					break;
+				}
+			}
+			if (!bSiphon)
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_MIN_SIPHON_NOT_MET");
 				DisabledTT += localizedDurationText.toUTF8();
 			}
 		}
