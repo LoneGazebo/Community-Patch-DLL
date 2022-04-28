@@ -1306,7 +1306,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 			CvAssertMsg(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
 			if (iDefendingSpy >= 0)
 			{
-				pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy, GC.getESPIONAGE_DEFENDING_SPY_EXPERIENCE());
+				pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy, /*50*/ GD_INT_GET(ESPIONAGE_DEFENDING_SPY_EXPERIENCE));
 			}
 		}
 		// kill spy off
@@ -1341,7 +1341,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		ExtractSpyFromCity(uiSpyIndex);
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
-			int iExperience = GC.getESPIONAGE_OFFENSIVE_SPY_EXPERIENCE();
+			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
 			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
@@ -1351,7 +1351,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	{
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
-			int iExperience = GC.getESPIONAGE_OFFENSIVE_SPY_EXPERIENCE();
+			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
 			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
@@ -1557,7 +1557,7 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 	if (!pSpy)
 		return "";
 
-	strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, GC.getESPIONAGE_SPY_EXPERIENCE_DENOMINATOR());
+	strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
 
 	if (!bNoBasic)
 	{
@@ -2296,12 +2296,11 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		CvIntrigueType eType = pSneakAttackOperation->GetOperationType()==AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
 		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
 
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+			LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 		}
-#endif
 
 		// If a sneak attack is reported, bust out of the loop
 		break;
@@ -2313,17 +2312,16 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+				LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 			}
-#endif
 		}
 		else if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED)))
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
 				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
@@ -2332,7 +2330,6 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 					LevelUpSpy(uiSpyIndex);
 				}
 			}
-#endif
 		}
 	}
 
@@ -2377,22 +2374,20 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+						LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 					}
-#endif
 				}
 				else
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+						LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 					}
-#endif
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -2427,12 +2422,11 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	if (bNotifyAboutConstruction)
 	{
 		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+			LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 		}
-#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE)
@@ -3062,7 +3056,7 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 		{
 			int iCurrentExperience = m_aSpyList[uiSpyIndex].m_iExperience;
 			iCurrentExperience += iExperience;
-			if (iCurrentExperience < GC.getESPIONAGE_SPY_EXPERIENCE_DENOMINATOR())
+			if (iCurrentExperience < /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR))
 			{
 				bCanLevel = false;
 				m_aSpyList[uiSpyIndex].m_iExperience = iCurrentExperience;

@@ -1086,12 +1086,12 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase)
 	CvAssert(false);
 	return false;  // Should never reach here
 }
-#if defined(MOD_BALANCE_CORE)
-int CvEconomicAI::GetPurchaseSaveAmout(PurchaseType ePurchase)
+
+int CvEconomicAI::GetPurchaseSaveAmount(PurchaseType ePurchase)
 {
 	return (m_RequestedSavings[(int)ePurchase].m_iAmount);
 }
-#endif
+
 /// What is the ratio of workers we have to the number of cities we have?
 double CvEconomicAI::GetWorkersToCitiesRatio()
 {
@@ -1723,7 +1723,7 @@ void CvEconomicAI::DoHurry()
 
 		if(IsSavingForThisPurchase(ePurchase))
 		{
-			iPurchaseBuffer += GetPurchaseSaveAmout(ePurchase) * 2;
+			iPurchaseBuffer += GetPurchaseSaveAmount(ePurchase) * 2;
 		}
 	}
 
