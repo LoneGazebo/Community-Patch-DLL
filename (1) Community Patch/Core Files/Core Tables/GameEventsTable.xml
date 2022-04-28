@@ -708,8 +708,6 @@
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
 		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
-		<!-- Allows the event to fire as a random event for a spy. City Choice Effects AFFECT CITY SPY IS IN. Uses a special table for getting event data, see below -->
-		<Column name="IsEspionage" type="boolean" default="false"/>
 		<!-- Espionage Setup Event for Spy Event Filter. Only need one per database, please.-->
 		<Column name="EspionageSetup" type="boolean" default="false"/>
 		<!-- Espionage Setup Event for Counterspy Spy Event Filter. Only need one per database, please.-->

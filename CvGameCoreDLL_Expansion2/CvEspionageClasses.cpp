@@ -1057,35 +1057,6 @@ bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
 	return false;
 }
 
-
-
-CvWeightedVector<int> CvPlayerEspionage::GetRandomActionEventPool(CvCity* pCity)
-{
-	CvWeightedVector<int> m_eEventPool;
-
-	if (pCity == NULL)
-		return m_eEventPool;
-
-
-	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
-	{
-		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT)
-		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (pkEventInfo == NULL || !pkEventInfo->isEspionage())
-				continue;
-
-			if (!pCity->IsCityEventValid(eEvent, true))
-				continue;
-
-			int iWeight = pkEventInfo->getRandomChance() + GC.getGame().getSmallFakeRandNum(pkEventInfo->getRandomChanceDelta(), m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-
-			m_eEventPool.push_back(eEvent, iWeight);
-		}
-	}
-	return m_eEventPool;
-}
 void CvPlayerEspionage::ProcessSpySiphon(CvCity* pCity, int uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
@@ -2871,6 +2842,44 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 		{
 			return false;
 		}
+	}
+	else if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		bool bNoEventsPossible = false;
+		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+		{
+			CityEventTypes eEvent = (CityEventTypes)iLoop;
+			if (eEvent != NO_EVENT)
+			{
+				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+				if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup())
+					continue;
+
+				if (!pCity->IsCityEventValid(eEvent))
+					continue;
+
+				for (int iLoop2 = 0; iLoop2 < GC.getNumCityEventChoiceInfos(); iLoop2++)
+				{
+					CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop2;
+					if (eEventChoice != NO_EVENT_CHOICE)
+					{
+						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
+						if (pkEventChoiceInfo != NULL)
+						{
+							if (!pkEventChoiceInfo->isParentEvent(eEvent))
+								continue;
+
+							if (pCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, m_pPlayer->GetID()))
+							{
+								bNoEventsPossible = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return bNoEventsPossible;
 	}
 
 	return true;
