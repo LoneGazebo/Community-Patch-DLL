@@ -1194,7 +1194,7 @@ public:
 	void DoUpdatePeaceTreatyWillingness(bool bMyTurn = false);
 	bool IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const;
 	bool IsPeaceBlocked(PlayerTypes ePlayer) const;
-	int GetPeaceBlockReason(PlayerTypes ePlayer) const;
+	PeaceBlockReasons GetPeaceBlockReason(PlayerTypes ePlayer) const;
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	// ------------------------------------

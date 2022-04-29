@@ -24347,32 +24347,29 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 						switch (GetPeaceBlockReason(eLoopPlayer))
 						{
-						case 1:
+						case PEACE_BLOCK_REASON_ALWAYS_WAR:
 							strPeaceBlockReason.Format("We are always at war with this player!");
 							break;
-						case 2:
+						case PEACE_BLOCK_REASON_VASSALAGE:
 							strPeaceBlockReason.Format("One of us is a vassal!");
 							break;
-						case 3:
+						case PEACE_BLOCK_REASON_TOO_SOON:
 							strPeaceBlockReason.Format("Too early to make peace!");
 							break;
-						case 4:
+						case PEACE_BLOCK_REASON_CITY_JUST_CAPTURED:
 							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
 							break;
-						case 7:
+						case PEACE_BLOCK_REASON_WAR_DEAL:
 							strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()));
 							break;
-						case 8:
+						case PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL:
 							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
 							break;
-						case 9:
+						case PEACE_BLOCK_REASON_COOP_WAR_AGAINST_DEFENSIVE_PACT:
 							strPeaceBlockReason.Format("We're planning a coop war against someone they have a Defensive Pact with! Making peace would cancel the coop war!");
 							break;
-						case 10:
-							strPeaceBlockReason.Format("Cannot change war/peace status!");
-							break;
-						default:
-							strPeaceBlockReason.Format("Undefined reason!");
+						case PEACE_BLOCK_REASON_SCENARIO:
+							strPeaceBlockReason.Format("Cannot change war/peace status due to special scenario rule!");
 							break;
 						}
 
@@ -24453,32 +24450,26 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 						switch (GetPeaceBlockReason(eMinor))
 						{
-						case 1:
+						case PEACE_BLOCK_REASON_ALWAYS_WAR:
 							strPeaceBlockReason.Format("We are always at war with this player!");
 							break;
-						case 2:
+						case PEACE_BLOCK_REASON_VASSALAGE:
 							strPeaceBlockReason.Format("We're a vassal!");
 							break;
-						case 3:
+						case PEACE_BLOCK_REASON_TOO_SOON:
 							strPeaceBlockReason.Format("Too early to make peace!");
 							break;
-						case 4:
+						case PEACE_BLOCK_REASON_CITY_JUST_CAPTURED:
 							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
 							break;
-						case 5:
-							strPeaceBlockReason.Format("City-State is at permanent war with us!");
-							break;
-						case 6:
+						case PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY:
 							strPeaceBlockReason.Format("We're at war with this City-State's ally!");
 							break;
-						case 8:
+						case PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL:
 							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
 							break;
-						case 10:
+						case PEACE_BLOCK_REASON_SCENARIO:
 							strPeaceBlockReason.Format("Cannot change war/peace status!");
-							break;
-						default:
-							strPeaceBlockReason.Format("Undefined reason!");
 							break;
 						}
 
@@ -25560,7 +25551,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		if (iWarCount <= 0)
 			iWarCount = 0;
 
-		int iThreshold = max(1, /*20*/ GD_INT_GET(REQUEST_PEACE_TURN_THRESHOLD) - (iWarCount * 2));
+		bool bWantedPeaceLastTime = IsWantsPeaceWithPlayer(*it); // if we were willing to make peace last update, add some leeway here to prevent flip-flopping
+		int iThreshold = bWantedPeaceLastTime ? /*17*/ GD_INT_GET(REQUEST_PEACE_LEEWAY_THRESHOLD) : /*20*/ GD_INT_GET(REQUEST_PEACE_TURN_THRESHOLD);
+		int iThresholdReductionPerOtherWar = bWantedPeaceLastTime ? /*3*/ GD_INT_GET(REQUEST_PEACE_LEEWAY_THRESHOLD_REDUCTION_PER_WAR) : /*2*/ GD_INT_GET(REQUEST_PEACE_THRESHOLD_REDUCTION_PER_WAR);
+
+		iThreshold = max(iThreshold - max(iThresholdReductionPerOtherWar * iWarCount, 0), 1);
 
 		if (iPeaceScore >= iThreshold)
 			vMakePeacePlayers.push_back(*it);
@@ -25701,60 +25696,49 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 
 bool CvDiplomacyAI::IsPeaceBlocked(PlayerTypes ePlayer) const
 {
-	return GetPeaceBlockReason(ePlayer) > 0;
+	return GetPeaceBlockReason(ePlayer) > NO_PEACE_BLOCK_REASON;
 }
 
-int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
+PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 {
 	if (!IsAtWar(ePlayer))
-		return 0;
+		return NO_PEACE_BLOCK_REASON;
 
-	// Can never make peace with Barbarians
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isBarbarian())
-		return 1;
-
-	// Blocked by game options
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
-		return 1;
+	// We are always at war
+	if (IsAlwaysAtWar(ePlayer))
+		return PEACE_BLOCK_REASON_ALWAYS_WAR;
 
 	// One of us is someone's vassal!
-	if (GetPlayer()->IsVassalOfSomeone())
-		return 2;
-
-	if (GET_PLAYER(ePlayer).IsVassalOfSomeone())
-		return 2;
+	if (GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(ePlayer).IsVassalOfSomeone())
+		return PEACE_BLOCK_REASON_VASSALAGE;
 
 	// Too soon to make peace
 	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
-		return 3;
+		return PEACE_BLOCK_REASON_TOO_SOON;
 
 	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*1*/ GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
-		return 3;
+		return PEACE_BLOCK_REASON_TOO_SOON;
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
 	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
-		return 4;
+		return PEACE_BLOCK_REASON_CITY_JUST_CAPTURED;
 
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		// City-State is at permanent war!
-		if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsPermanentWar(GetTeam()))
-			return 5;
-
 		// Can't make peace with a City-State if at war with their ally!
 		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
 
-		if (IsAtWar(eAlly))
-			return 6;
+		if (eAlly != NO_PLAYER && IsAtWar(eAlly))
+			return PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY;
 	}
 
 	// Locked into war?
 	if (GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
-		return 7;
+		return PEACE_BLOCK_REASON_WAR_DEAL;
 
 	// Other player has no capital, so don't bother updating war status
 	if (GET_PLAYER(ePlayer).getCapitalCity() == NULL)
-		return 8;
+		return PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL;
 
 	// Planning a coop war against someone this guy has a Defensive Pact with?
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -25768,15 +25752,15 @@ int CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 		if (IsPlayerValid(eLoopPlayer) && GET_TEAM(eLoopTeam).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
 		{
 			if (GetGlobalCoopWarAgainstState(eLoopPlayer) == COOP_WAR_STATE_PREPARING)
-				return 9;
+				return PEACE_BLOCK_REASON_COOP_WAR_AGAINST_DEFENSIVE_PACT;
 		}
 	}
 
 	// Some other reason?
 	if (!GET_TEAM(GetTeam()).canChangeWarPeace(GET_PLAYER(ePlayer).getTeam()))
-		return 10;
+		return PEACE_BLOCK_REASON_SCENARIO;
 
-	return 0; // No reason we're peace blocked
+	return NO_PEACE_BLOCK_REASON;
 }
 
 /// How many of our units are near ePlayer's cities?
@@ -55014,7 +54998,8 @@ bool CvDiplomacyAI::IsVoluntaryVassalageRequestAcceptable(PlayerTypes ePlayer)
 		// Ignore City-States unless peace blocked, since we can just make peace as their new master if we want.
 		if (GET_PLAYER(*it).isMinorCiv())
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 6 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it) == 7)
+			PeaceBlockReasons eReason = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetPeaceBlockReason(*it);
+			if (eReason == PEACE_BLOCK_REASON_ALWAYS_WAR || eReason == PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY)
 			{
 				if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE && GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 					return false;
