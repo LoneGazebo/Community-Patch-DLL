@@ -32781,6 +32781,70 @@ int CvPlayer::GetNumOurCitiesOwnedBy(PlayerTypes ePlayer)
 	return iCount;
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = false */) const
+{
+	if (!isMajorCiv() || !isAlive() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		return 0;
+
+	int iBaseLimit = isHuman() || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
+	int iLimitScaler = isHuman() || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
+	if (iBaseLimit <= -1)
+		return 0;
+
+	int iTotalOtherMajors = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+			continue;
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+
+		iTotalOtherMajors++;
+	}
+
+	if (iTotalOtherMajors < 2)
+		return 0;
+
+	if (IsIgnoreDefensivePactLimit())
+		return iTotalOtherMajors;
+
+	int iLimit = iBaseLimit;
+	if (iLimitScaler > 0)
+		iLimit += (iTotalOtherMajors / iLimitScaler);
+
+	return min(iLimit, iTotalOtherMajors);
+}
+
+bool CvPlayer::IsIgnoreDefensivePactLimit() const
+{
+	std::vector<BuildingTypes> ValidBuildings;
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if (pkBuildingInfo->IsIgnoreDefensivePactLimit())
+			ValidBuildings.push_back(eBuilding);
+	}
+
+	if (ValidBuildings.empty())
+		return false;
+
+	int iLoop;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		for (std::vector<BuildingTypes>::iterator it = ValidBuildings.begin(); it != ValidBuildings.end(); it++)
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(*it) > 0)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 

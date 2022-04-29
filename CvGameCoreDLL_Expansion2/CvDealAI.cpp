@@ -2603,6 +2603,15 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	if (!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 		return INT_MAX;
 
+	int iNumDefensePacts = GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts();
+	if (GetPlayer()->GetDiplomacyAI()->IsHasDefensivePact(eOtherPlayer)) // renewing a deal
+		iNumDefensePacts -= GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAliveCount();
+
+	// Would this take the AI above their Defensive Pact limit?
+	// This check is needed because it's possible for the AI to trade a DP as long as they don't exceed the player-level limit, but they shouldn't agree to exceed their AI-specific limit.
+	if (iNumDefensePacts + GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAliveCount() > GetPlayer()->CalculateDefensivePactLimit())
+		return INT_MAX;
+
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)

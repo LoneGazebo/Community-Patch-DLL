@@ -179,6 +179,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDoFToVotesBase(0),
 	m_iRAToVotesBase(0),
 	m_iDPToVotesBase(0),
+	m_bIgnoreDefensivePactLimit(false),
 	m_iGPExpendInfluenceBase(0),
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -749,6 +750,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
 	m_iRAToVotesBase = kResults.GetInt("RAToVotes");
 	m_iDPToVotesBase = kResults.GetInt("DPToVotes");
+	m_bIgnoreDefensivePactLimit = kResults.GetBool("IgnoreDefensivePactLimit");
 	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -2469,6 +2471,13 @@ int CvBuildingEntry::GetDPToVotes() const
 {
 	return m_iDPToVotesBase;
 }
+
+/// Allows the player to ignore the global Defensive Pact limit
+bool CvBuildingEntry::IsIgnoreDefensivePactLimit() const
+{
+	return m_bIgnoreDefensivePactLimit;
+}
+
 /// Extra votes from Research Agreements
 int CvBuildingEntry::GetGPExpendInfluence() const
 {

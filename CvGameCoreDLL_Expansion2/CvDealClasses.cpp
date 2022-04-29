@@ -739,10 +739,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
-			// Defensive Pacts were disabled in DiploAIOptions.sql
-			if (!bHumanToHuman && GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) < 0)
-				return false;
-
 			// Neither of us yet has the Tech for DP
 			// Recursive to-do: Require both players to have the tech unlocked in VP
 			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
@@ -779,6 +775,25 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if (pFromTeam->IsHasDefensivePact(eToTeam))
 					return false;
 			}
+
+			bool bAITradingWithHuman = !bHumanToHuman && pToPlayer->isHuman();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+
+			bAITradingWithHuman = !bHumanToHuman && pFromPlayer->isHuman();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+
+			if (bIgnoreExistingDP)
+			{
+				iMyDefensePacts -= pToTeam->getAliveCount();
+				iTheirDefensePacts -= pFromTeam->getAliveCount();
+			}
+
+			// Would making this pact take either player above their Defensive Pact limit?
+			if (iMyDefensePacts + pToTeam->getAliveCount() > iMyLimit)
+				return false;
+
+			if (iTheirDefensePacts + pFromTeam->getAliveCount() > iTheirLimit)
+				return false;
 
 			break;
 		}

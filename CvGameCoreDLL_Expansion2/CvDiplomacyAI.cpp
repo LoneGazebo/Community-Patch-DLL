@@ -21370,7 +21370,8 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 		return;
 
 	vector<PlayerTypes> vValidPlayers;
-	bool bCancelDPs = GetPlayer()->IsAITeammateOfHuman() || GC.getGame().countMajorCivsAlive() <= 2 || GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) <= 0;
+	int iDefensePactLimit = GetPlayer()->CalculateDefensivePactLimit();
+	bool bCancelDPs = GetPlayer()->IsAITeammateOfHuman() || iDefensePactLimit <= 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -21717,7 +21718,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 
 		// If someone on our team was resurrected, must agree to a Defensive Pact with them & not allowed to make Defensive Pacts with others
 		TeamTypes eLiberatedByTeam = GET_TEAM(GetTeam()).GetLiberatedByTeam();
-		if (eLiberatedByTeam != NO_TEAM && GET_TEAM(eLiberatedByTeam).isAlive() && GET_TEAM(eLiberatedByTeam).getNumCities() > 0 && GET_TEAM(eLiberatedByTeam).isDefensivePactTradingAllowed())
+		if (eLiberatedByTeam != NO_TEAM && GET_TEAM(eLiberatedByTeam).isAlive() && GET_TEAM(eLiberatedByTeam).getNumCities() > 0 && GET_TEAM(eLiberatedByTeam).isDefensivePactTradingAllowed() && GET_TEAM(eLiberatedByTeam).getAliveCount() <= iDefensePactLimit)
 		{
 			// Edge case fix for the liberator dying and then being resurrected, being vassalized, etc.
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -21769,6 +21770,9 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			{
 				for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
 				{
+					if (GET_TEAM(GET_PLAYER(*it).getTeam()).getAliveCount() > iDefensePactLimit)
+						continue;
+
 					if (IsGoodChoiceForDefensivePact(*it))
 					{
 						vAcceptableDefensePacts.push_back(*it);
@@ -21785,6 +21789,9 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						continue;
 
 					if (!IsWantsDoFWithPlayer(*it))
+						continue;
+
+					if (GET_TEAM(GET_PLAYER(*it).getTeam()).getAliveCount() > iDefensePactLimit)
 						continue;
 
 					if (IsWantsToEndDoFWithPlayer(*it))
@@ -21824,17 +21831,6 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 			}
 
 			int iNumDefensePacts = GetNumDefensePacts();
-			int iDefensePactLimit = /*2*/ GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE);
-
-			// Scale limit with map size, but sparingly
-			if (GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER) > 0)
-				iDefensePactLimit += (int)(vValidPlayers.size() / /*10*/ GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER));
-
-			if (GetPlayer()->GetDefensePactsToVotes() > 0)
-			{
-				iDefensePactLimit = MAX_MAJOR_CIVS;
-			}
-
 			int iBestFriendScore = 0; // because the most valuable friend gets a special exemption to scoring, we need this value to track their score and determine if they're also the best ally
 			PlayerTypes eMostValuableAlly = NO_PLAYER;
 
@@ -21908,7 +21904,7 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 				}
 				if (!IsHasDefensivePact(eDPCandidate) && !IsWantsDefensivePactWithPlayer(eDPCandidate))
 				{
-					if (iNumDefensePacts < iDefensePactLimit)
+					if ((iNumDefensePacts + GET_TEAM(GET_PLAYER(eDPCandidate).getTeam()).getAliveCount()) <= iDefensePactLimit)
 					{
 						vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(eDPCandidate).getTeam()).getPlayers();
 
@@ -42335,7 +42331,7 @@ int CvDiplomacyAI::GetNumDefensePacts()
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (IsPlayerValid(eLoopPlayer) && IsHasDefensivePact(eLoopPlayer))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsHasDefensivePact(eLoopPlayer))
 		{
 			iRtnValue++;
 		}

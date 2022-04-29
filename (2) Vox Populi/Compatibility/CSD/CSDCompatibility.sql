@@ -202,8 +202,8 @@ VALUES
 
 -- Change to Order Palace of Science and Culture
 UPDATE Buildings SET DPToVotes = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-
 UPDATE Buildings SET RAToVotes = '0' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
+UPDATE Buildings SET IgnoreDefensivePactLimit = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
 
 -- Building Costs
 

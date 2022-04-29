@@ -2535,6 +2535,8 @@ public:
 	int GetFractionOriginalCapitalsUnderControl() const;
 	bool OwnsOurCity(PlayerTypes ePlayer);
 	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
+	int CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible = false) const;
+	bool IsIgnoreDefensivePactLimit() const;
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);

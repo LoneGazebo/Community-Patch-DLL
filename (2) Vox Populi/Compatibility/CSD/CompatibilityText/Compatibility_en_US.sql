@@ -53,7 +53,7 @@ SET Text = 'This National Wonder cannot be built unless the city has a Public Sc
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the City in which it is built. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the City in which it is built. [COLOR_POSITIVE_TEXT]Removes[ENDCOLOR] your global limit on forming Defensive Pacts. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
 
 UPDATE Language_en_US

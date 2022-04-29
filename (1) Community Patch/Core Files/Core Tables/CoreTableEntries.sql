@@ -1720,6 +1720,9 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMissionaryStrength' INTEGER DEFAULT 0;
 -- Missionaries gain % more strength
 ALTER TABLE Policies ADD COLUMN 'ExtraMissionarySpreads' INTEGER DEFAULT 0;
 
+-- If the player has this building, they ignore the global Defensive Pact limit
+ALTER TABLE Buildings ADD COLUMN 'IgnoreDefensivePactLimit' BOOLEAN DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

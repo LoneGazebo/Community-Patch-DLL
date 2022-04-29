@@ -315,6 +315,7 @@ public:
 	int GetDoFToVotes() const;
 	int GetRAToVotes() const;
 	int GetDPToVotes() const;
+	bool IsIgnoreDefensivePactLimit() const;
 	int GetGPExpendInfluence() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -794,6 +795,7 @@ private:
 	int m_iDoFToVotesBase;
 	int m_iRAToVotesBase;
 	int m_iDPToVotesBase;
+	bool m_bIgnoreDefensivePactLimit;
 	int m_iGPExpendInfluenceBase;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
