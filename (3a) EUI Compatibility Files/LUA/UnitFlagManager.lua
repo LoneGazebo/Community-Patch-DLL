@@ -506,6 +506,25 @@ local function UpdateFlagType( flag )
 	flag.ScrollAnim:SetMask( maskName )
 end--UpdateFlagType
 
+--========================================================== VP/bal: automated icon on unitflag
+local function UpdateAutomateFlag (flag)
+	local unit = flag.m_Unit
+	if unit:IsWork() then -- bal: would be nice to have different flags for archeology&missionary&diplomat automations
+		flag.Automated:SetTextureOffsetVal( 32, 0 )
+	end
+	flag.Automated:SetHide( not unit:IsAutomated())
+end
+
+local function OnAutomateChange( playerID, unitID )
+	local pPlayer = Players[playerID]
+	local flag = g_UnitFlags[ playerID ][ unitID ]
+	if flag and pPlayer:IsHuman() then
+		UpdateAutomateFlag( flag )
+	end
+end
+
+Events.UnitActionChanged.Add( OnAutomateChange )
+Events.LocalMachineUnitPositionChanged.Add( OnAutomateChange )
 --==========================================================
 local function UpdateFlagHealth( flag, damage, unit )
 	-- DebugFlag( flag, "UpdateFlagHealth, damage=", damage ) end
