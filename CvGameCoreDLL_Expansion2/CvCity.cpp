@@ -3564,7 +3564,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 			}
 
 			//most expensive check last
-			if (IsCityEventValid(eEvent, false))
+			if (IsCityEventValid(eEvent))
 			{
 				veValidEvents.push_back(eEvent, pkEventInfo->getRandomChance() + GetEventIncrement(eEvent));
 			}
@@ -3763,7 +3763,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 		}
 	}
 }
-bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
+bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 {
 	CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 	if (pkEventInfo == NULL)
@@ -3873,10 +3873,6 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent, bool bEspionage)
 			}
 		}
 	}
-
-	//Let's narrow down all events here!
-	if (!bEspionage && pkEventInfo->isEspionage())
-		return false;
 
 	//Let's narrow down all events here!
 	if (pkEventInfo->isCapital() && !isCapital())

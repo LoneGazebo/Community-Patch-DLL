@@ -196,8 +196,6 @@ public:
 
 	CvString GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex);
 
-	CvWeightedVector<int>GetRandomActionEventPool(CvCity* pCity);
-
 	//Tooltips
 	CvString GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* pCity = NULL);
 	CvString GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic);

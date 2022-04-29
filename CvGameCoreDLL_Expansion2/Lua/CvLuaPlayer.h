@@ -1262,6 +1262,7 @@ protected:
 	static int lValidHeistLocation(lua_State* L);
 #endif
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
+	static int lCanMoveSpyTo(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
 	static int lGetIntrigueMessages(lua_State* L);
 	static int lHasRecentIntrigueAbout(lua_State* L);

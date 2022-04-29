@@ -137,7 +137,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents(bool bEspionageOnly = false);
-	bool IsCityEventValid(CityEventTypes eEvent, bool bEspionage = false);
+	bool IsCityEventValid(CityEventTypes eEvent);
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive = false);
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);

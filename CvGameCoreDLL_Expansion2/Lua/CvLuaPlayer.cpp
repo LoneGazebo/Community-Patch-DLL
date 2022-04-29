@@ -1160,6 +1160,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsSpySchmoozing);
 	Method(CanSpyStageCoup);
 	Method(GetAvailableSpyRelocationCities);
+	Method(CanMoveSpyTo);
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
 	Method(HasRecentIntrigueAbout);
@@ -15968,6 +15969,17 @@ int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 		}
 	}
 
+	return 1;
+}
+
+int CvLuaPlayer::lCanMoveSpyTo(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	uint spyID = luaL_checkinteger(L, 3);
+	lua_pushboolean(L, pkPlayerEspionage->CanMoveSpyTo(pkCity, spyID, false));
 	return 1;
 }
 //------------------------------------------------------------------------------

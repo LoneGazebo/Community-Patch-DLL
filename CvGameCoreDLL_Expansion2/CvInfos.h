@@ -3245,7 +3245,6 @@ public:
 	bool hasPlayerMajority() const;
 	bool lacksPlayerMajority() const;
 
-	bool isEspionage() const;
 	bool isEspionageSetup() const;
 	bool IsCounterSpy() const;
 
@@ -3315,7 +3314,6 @@ protected:
 	bool m_bHasPlayerMajority;
 	bool m_bLacksPlayerMajority;
 
-	bool m_bEspionage;
 	bool m_bEspionageSetup;
 	bool m_bIsCounterSpy;
 	

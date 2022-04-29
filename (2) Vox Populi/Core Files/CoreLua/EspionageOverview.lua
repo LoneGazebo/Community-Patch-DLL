@@ -947,7 +947,7 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock);
 			
-			-- Dim Text	
+			-- Dim Text
 			cityEntry.CivilizationName:SetAlpha(0.4);
 			cityEntry.CityName:SetAlpha(0.4);
 			cityEntry.CityPopulation:SetAlpha(0.4);
@@ -1106,6 +1106,20 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 	
 		local strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_TT", cityInfo.Name, cityInfo.CivilizationNameKey);
 		local strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_TT", cityInfo.Name, cityInfo.CivilizationNameKey);
+
+		if(cityInfo ~= nil and selectedAgentIndex ~= nil) then
+			local pPlayer = Players[cityInfo.PlayerID];
+			if (pPlayer ~= nil) then
+				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
+				if(pCity) then
+					if(not Players[Game.GetActivePlayer()]:CanMoveSpyTo(pCity, selectedAgentIndex)) then
+						strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
+						strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_NO_ACTIONS_POSSIBLE");
+					end
+				end
+			end
+		end		
+
 		if (bIsCityState) then
 			local strTraitText = GetCityStateTraitText(cityInfo.PlayerID);
 			local strTraitTT = GetCityStateTraitToolTip(cityInfo.PlayerID);

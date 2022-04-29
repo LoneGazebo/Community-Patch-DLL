@@ -9937,7 +9937,6 @@ CvModCityEventInfo::CvModCityEventInfo() :
 	 m_bHasPlayerMajority(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bLacksPlayerMajority(false),
-	 m_bEspionage(false),
 	 m_bEspionageSetup(false),
 	 m_bIsCounterSpy(false),
 	 m_paCityLinkerInfo(NULL),
@@ -10247,10 +10246,6 @@ bool CvModCityEventInfo::lacksPlayerMajority() const
 {
 	return m_bLacksPlayerMajority;
 }
-bool CvModCityEventInfo::isEspionage() const
-{
-	return m_bEspionage;
-}
 bool CvModCityEventInfo::isEspionageSetup() const
 {
 	return m_bEspionageSetup;
@@ -10392,7 +10387,6 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
 
-	m_bEspionage = kResults.GetBool("IsEspionage");
 	m_bEspionageSetup = kResults.GetBool("EspionageSetup");
 	m_bIsCounterSpy = kResults.GetBool("IsCounterSpy");
 
