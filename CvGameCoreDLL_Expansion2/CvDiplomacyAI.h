@@ -703,6 +703,10 @@ public:
 	int GetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn);
 
+	// Global Promise Checks
+	bool IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+	bool IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+
 	// ------------------------------------
 	// Event Flags
 	// ------------------------------------

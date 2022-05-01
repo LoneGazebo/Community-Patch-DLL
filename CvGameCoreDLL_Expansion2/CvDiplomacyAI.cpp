@@ -6382,6 +6382,254 @@ void CvDiplomacyAI::SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int i
 	m_aiBrokenCoopWarPromiseTurn[ePlayer] = max(iTurn, -1);
 }
 
+// ////////////////////////////////////
+// Global Promise Checks
+// ////////////////////////////////////
+
+bool CvDiplomacyAI::IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
+{
+	bool bCheckDuration = iWithinXTurns > -1;
+	int iGameTurn = GC.getGame().getGameTurn();
+
+	if (IsPlayerBrokenMilitaryPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerMilitaryPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenExpansionPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerExpansionPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenBorderPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenBorderPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenBullyCityStatePromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBullyCityStatePromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenAttackCityStatePromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerAttackCityStatePromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenSpyPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerSpyPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenNoConvertPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerNoConvertPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenNoDiggingPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerNoDiggingPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerBrokenCoopWarPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBrokenCoopWarPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	return false;
+}
+
+bool CvDiplomacyAI::IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns /* = -1 */) const
+{
+	bool bCheckDuration = iWithinXTurns > -1;
+	int iGameTurn = GC.getGame().getGameTurn();
+
+	if (IsPlayerIgnoredMilitaryPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerMilitaryPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredExpansionPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerExpansionPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredBorderPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredBorderPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBorderPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredBullyCityStatePromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerBullyCityStatePromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredAttackCityStatePromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerAttackCityStatePromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredSpyPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerSpyPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredNoConvertPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerNoConvertPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	if (IsPlayerIgnoredNoDiggingPromise(ePlayer))
+	{
+		if (bCheckDuration)
+		{
+			int iTurnDifference = iGameTurn - GetPlayerNoDiggingPromiseTurn(ePlayer);
+			if (iTurnDifference <= iWithinXTurns)
+				return true;
+		}
+		else
+			return true;
+	}
+
+	return false;
+}
+
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -55701,6 +55949,17 @@ bool CvDiplomacyAI::IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool
 {
 	if (GetCivApproach(ePlayer) == CIV_APPROACH_FRIENDLY && IsDoFAccepted(ePlayer))
 	{
+		// We don't want to offer help if they've been given help from us recently
+		if (IsHelpRequestTooSoon(ePlayer))
+			return false;
+
+		int iBrokenTurns = (40 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+		int iIgnoredTurns = (15 * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent()) / 100;
+
+		// If they've broken promises or ignored our requests lately, no
+		if (IsPlayerBrokenAnyPromise(ePlayer, iBrokenTurns) || IsPlayerIgnoredAnyPromise(ePlayer, iIgnoredTurns))
+			return false;
+
 		// Something we want to offer?
 		bool bWantsToOfferSomething = false;
 
