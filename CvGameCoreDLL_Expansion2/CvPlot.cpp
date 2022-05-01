@@ -3368,7 +3368,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) 
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 		{
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true; 

@@ -28197,6 +28197,9 @@ void CvUnit::SetAutomateType(AutomateTypes eNewValue)
 
 	if(GetAutomateType() != eNewValue)
 	{
+		//anything the AI did previously is now forgotten
+		SetTurnProcessed(false);
+
 		AutomateTypes eOldAutomateType = GetAutomateType();
 		m_eAutomateType = eNewValue;
 

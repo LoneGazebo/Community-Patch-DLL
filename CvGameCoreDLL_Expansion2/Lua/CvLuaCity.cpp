@@ -5311,10 +5311,11 @@ int CvLuaCity::lRangeCombatDamage(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvUnit* pkDefendingUnit = CvLuaUnit::GetInstance(L, 2, false);
-	CvCity* pkDefendingCity = GetInstance(L, 3, false);
+	//ignored
+	//CvCity* pkDefendingCity = GetInstance(L, 3, false);
 	bool bIncludeRand = luaL_optbool(L, 4, false);
 
-	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, pkDefendingCity, bIncludeRand);
+	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, bIncludeRand);
 	lua_pushinteger(L, iRangedDamage);
 	return 1;
 }

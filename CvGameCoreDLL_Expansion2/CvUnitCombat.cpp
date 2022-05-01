@@ -913,7 +913,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 			bBarbarian = true;
 
 		//CvAssert(pkDefender->IsCanDefend());
-		iDamage = kAttacker.rangeCombatDamage(pkDefender,NULL,bIncludeRand);
+		iDamage = kAttacker.rangeCombatDamage(pkDefender,bIncludeRand);
 
 #if defined(MOD_BALANCE_CORE)
 		if(pkDefender->getForcedDamageValue() != 0)

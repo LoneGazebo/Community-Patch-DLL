@@ -217,7 +217,6 @@ public:
 
 	// Public logging
 	void LogHomelandMessage(const CvString& strMsg);
-	void LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit);
 
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
 	bool MoveCivilianToSafety(CvUnit* pUnit);

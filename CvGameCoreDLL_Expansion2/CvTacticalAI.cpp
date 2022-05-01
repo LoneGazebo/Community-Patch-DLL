@@ -1653,6 +1653,15 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				LogTacticalMessage(strLogString);
 			}
 		}
+
+		// it's possible that the city did not perform a ranged attack this turn yet although enemies are present
+		// this depends on the tactical posture ... so let's try again here as a safety net
+		if (iEnemyCount > 0 && pCity->CanRangeStrikeNow())
+		{
+			CvUnit* pTarget = pCity->getBestRangedStrikeTarget();
+			if (pTarget)
+				pCity->rangeStrike(pTarget->getX(), pTarget->getY());
+		}
 	}
 }
 
@@ -6890,7 +6899,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
 			int iRemainingTurnsOnCity = (pEnemy->GetMaxHitPoints() - pEnemy->getDamage()) / (max(iDamageDealt, pEnemy->getDamageTakenLastTurn()) + 1);
 
-			int iCounterattackDamage = pEnemy->rangeCombatDamage(pUnit, NULL, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1);
+			int iCounterattackDamage = pEnemy->rangeCombatDamage(pUnit, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1);
 			int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + iCounterattackDamage + 1);
 
 			//no attack if it's too early yet
