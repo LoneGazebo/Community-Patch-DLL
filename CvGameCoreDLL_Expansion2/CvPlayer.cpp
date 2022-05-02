@@ -3576,9 +3576,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		// Lastly, run the achievement code...
-		if (!GC.getGame().isGameMultiPlayer() && isHuman())
+		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman())
 		{
 			const char* szLeaderKey = getLeaderTypeKey();
 			const char* szCivKey = getCivilizationTypeKey();
@@ -3726,11 +3725,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 		}
-#endif
 	}
-
-	// Make sure we do this AFTER proccing on-conquest stuff!
-	pCity->ChangeNumTimesOwned(GetID(), 1);
 
 	// Spies in the city? YOU'RE OUTTA HERE!~
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
@@ -4404,10 +4399,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// Update events
-	if (MOD_BALANCE_CORE_EVENTS)
-		CheckActivePlayerEvents(pNewCity);
-
 	// Test to see if the city acquirer has won a Domination Victory
 	GC.getGame().DoTestConquestVictory();
 
@@ -4435,6 +4426,28 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	{
 		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), (bBumpUnits || ownedPlots[i]->isCity()), true);
 	}
+
+	// Update events
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(eOldOwner);
+		args->Push(bCapital);
+		args->Push(iCityX);
+		args->Push(iCityY);
+		args->Push(GetID());
+		args->Push(iPopulation);
+		args->Push(bConquest);
+		args->Push((int)vcGreatWorkData.size());
+		args->Push(iCaptureGreatWorks);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
+	}
+
+	if (MOD_BALANCE_CORE_EVENTS)
+		CheckActivePlayerEvents(pNewCity);
 
 	// Free unit on city conquest?
 	if (bFirstConquest)
@@ -4471,6 +4484,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+
+	// Increment how many times we have owned the city
+	pNewCity->ChangeNumTimesOwned(GetID(), 1);
 
 	// Set city damage (only do this after having added all buildings, some of which might have increased city HP)
 	int iMaximumBattleDamage = bConquest ? (pNewCity->GetMaxHitPoints() * /*50*/ GD_INT_GET(CITY_CAPTURE_DAMAGE_PERCENT)) / 100 : pNewCity->GetMaxHitPoints();
@@ -4713,24 +4729,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GET_PLAYER(eOldOwner).DoUpdateProximityToPlayer(ePlayer);
 				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
 			}
-		}
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem && pNewCity)
-		{
-			CvLuaArgsHandle args;
-			args->Push(eOldOwner);
-			args->Push(bCapital);
-			args->Push(iCityX);
-			args->Push(iCityY);
-			args->Push(GetID());
-			args->Push(iPopulation);
-			args->Push(bConquest);
-			args->Push((int)vcGreatWorkData.size());
-			args->Push(iCaptureGreatWorks);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
 		}
 	}
 
