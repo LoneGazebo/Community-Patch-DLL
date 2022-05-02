@@ -1083,6 +1083,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pProposal == NULL)
 				return false;
 
+			// Make sure vassals can't vote for World Leader
+			if (pProposal->GetEffects()->bDiplomaticVictory)
+			{
+				if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
+					return false;
+			}
+
 			if (!bFinalizing)
 			{
 				// Must be able to do this (league not in session, other player has a diplomat in this player's capital, etc.)

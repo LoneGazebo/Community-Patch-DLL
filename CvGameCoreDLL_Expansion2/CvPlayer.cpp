@@ -23443,34 +23443,15 @@ void CvPlayer::ChangeFaithToVotes(int iChange)
 /// Extra league votes from faith
 int CvPlayer::TestFaithToVotes(int iChange)
 {
-	int iFaithVotes = 0;
-	int iFollowers = 0;
-	int iTotalFaithVotes = 0;
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	if (iChange <= 0)
+		return 0;
 
-	// Number of Cities Following Religion
 	ReligionTypes eOwnedReligion = GetReligions()->GetOwnedReligion();
-	if (eOwnedReligion != NO_RELIGION)
-	{
-		if (iChange > 0)
-		{
-			iFaithVotes = iChange;
-			iFollowers = pReligions->GetNumCitiesFollowing(eOwnedReligion);
-			int iMaxVotes = pReligions->GetNumReligionsFounded();
-			iTotalFaithVotes = (iFollowers / iFaithVotes);
-			//Never fewer than one vote.
-			if (iTotalFaithVotes < 1)
-			{
-				iTotalFaithVotes = 1;
-			}
-			//No more votes than religions in the game - this should scale votes much better.
-			else if (iTotalFaithVotes > iMaxVotes)
-			{
-				iTotalFaithVotes = iMaxVotes;
-			}
-		}
-	}
-	return iTotalFaithVotes;
+	if (eOwnedReligion == NO_RELIGION)
+		return 0;
+
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	return pReligions->GetNumCitiesFollowing(eOwnedReligion) / iChange;
 }
 
 //	--------------------------------------------------------------------------------
