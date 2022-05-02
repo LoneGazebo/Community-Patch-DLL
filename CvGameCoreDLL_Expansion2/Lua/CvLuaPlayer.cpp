@@ -15333,7 +15333,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 		}
 
-		if (aOpinions[ui].m_iValue > 15)
+		if (aOpinions[ui].m_iValue > /*15*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_NEGATIVE))
 		{
 			strOutput.insert(0, strFullNegativeColor);
 		}
@@ -15345,7 +15345,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			strOutput.insert(0, strNeutralColor);
 		}
-		else if (aOpinions[ui].m_iValue >= -15)
+		else if (aOpinions[ui].m_iValue >= /*-15*/ GD_INT_GET(OPINION_THRESHOLD_MAJOR_POSITIVE))
 		{
 			strOutput.insert(0, strPartialPositiveColor);
 		}
