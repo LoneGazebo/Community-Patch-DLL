@@ -32804,7 +32804,7 @@ bool CvPlayer::IsIgnoreDefensivePactLimit() const
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		if (pkBuildingInfo->IsIgnoreDefensivePactLimit())
+		if (pkBuildingInfo && pkBuildingInfo->IsIgnoreDefensivePactLimit())
 			ValidBuildings.push_back(eBuilding);
 	}
 
