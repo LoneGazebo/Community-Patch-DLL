@@ -4496,6 +4496,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		iBattleDamage = iMaximumBattleDamage;
 
 	pNewCity->setDamage(iBattleDamage, true);
+	bool bMajorEliminated = false;
 
 	if (!bMinorCivBuyout)
 	{
@@ -4509,6 +4510,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (MOD_DIPLOMACY_CITYSTATES && isMajorCiv() && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
 			{
 				ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
+			}
+			if (GET_PLAYER(eOldOwner).isMajorCiv())
+			{
+				bMajorEliminated = true;
 			}
 		}
 		// If not dead, old owner should update city specializations
@@ -4744,17 +4749,24 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			continue;
 
 		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
-		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true);
+		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
 	}
 
-	// The rest of the world reevaluates the new owner's team in return
+	// The rest of the world reevaluates the new owner's team in return - unless a player was eliminated, in which case everyone reevaluates everyone
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		bool bReevaluate = bMajorEliminated || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam());
 
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && bReevaluate)
 		{
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+			if (!bMajorEliminated)
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+			else
+			{
+				vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
+			}
 		}
 	}
 
@@ -10021,14 +10033,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Mark the resurrection process as complete
 	GET_PLAYER(ePlayer).setBeingResurrected(false);
 
-#if defined(MOD_EVENTS_LIBERATION)
 	if (MOD_EVENTS_LIBERATION) 
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerLiberated, GetID(), ePlayer, pNewCity->GetID());
 	}
-#endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
@@ -10042,7 +10051,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 		}
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -33748,7 +33756,7 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 
 					if (GET_PLAYER(eKiller).isMajorCiv())
 					{
-						// Apply a backstabbing mark
+						// Apply a backstabbing mark for the killed major civ
 						if (isMajorCiv())
 							GetDiplomacyAI()->SetBackstabbedBy(eKiller, true, true);
 
