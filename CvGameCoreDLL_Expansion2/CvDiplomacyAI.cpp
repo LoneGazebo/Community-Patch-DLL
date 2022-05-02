@@ -12097,7 +12097,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 		// AI is pissed!
 		if (bFoundOne)
 		{
-			if (IsPlayerMadeExpansionPromise(ePlayer))
+			if (GetPlayerMadeExpansionPromise(ePlayer) > 0) // Call this function, because expansion bickering occurs before DoTestPromises()
 			{
 				SetPlayerExpansionPromiseState(ePlayer, PROMISE_STATE_BROKEN); // You broke the promise you made!
 
