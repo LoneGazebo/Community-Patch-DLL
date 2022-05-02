@@ -3522,12 +3522,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 
-			// Unique luxuries from conquering a city?
-			if (MOD_BALANCE_CORE_LUXURIES_TRAIT && isMajorCiv() && GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
-			{
-				GetPlayerTraits()->AddUniqueLuxuriesAround(pCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
-			}
-
 			// Lump sum of yields from conquering a City-State?
 			if (MOD_BALANCE_CORE_AFRAID_ANNEX && GET_PLAYER(eOldOwner).isMinorCiv() && GetPlayerTraits()->IsBullyAnnex() && GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 			{
@@ -4449,9 +4443,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (MOD_BALANCE_CORE_EVENTS)
 		CheckActivePlayerEvents(pNewCity);
 
-	// Free unit on city conquest?
-	if (bFirstConquest)
+	if (bFirstConquest && isMajorCiv())
 	{
+		// Spawn unique luxuries on city conquest?
+		if (MOD_BALANCE_CORE_LUXURIES_TRAIT && GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
+		{
+			GetPlayerTraits()->AddUniqueLuxuriesAround(pNewCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
+		}
+
+		// Free unit on city conquest?
 		UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
 		if (eFreeUnitConquest != NO_UNIT && canTrainUnit(eFreeUnitConquest, false, false, true, true))
 		{
@@ -4462,13 +4462,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Give religious units the player's religion
 			if (pkUnit->isReligiousUnit())
 			{
-				pkUnit->GetReligionDataMutable()->SetReligion(GetReligions()->GetStateReligion(false));
+				ReligionTypes eStateReligion = GetReligions()->GetStateReligion(false);
 
 				// Unless it's a prophet we shouldn't give a free religious unit without a religion
-				if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
-				{
+				if (eStateReligion == NO_RELIGION && !pkUnit->IsGreatPerson())
 					bShouldSpawn = false;
-				}
+				else
+					pkUnit->GetReligionDataMutable()->SetReligion(eStateReligion);
 			}
 
 			bool bJumpSuccess = bShouldSpawn ? pkUnit->jumpToNearestValidPlot() : false;
