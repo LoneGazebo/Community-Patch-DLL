@@ -107,9 +107,15 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 				Network.SendDoTask(cityID, TaskTypes.TASK_RAZE, -1, -1, false, false, false, false);
 			end
 		end
-		
-		buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_RAZE_CAPTURED_CITY");
-		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE");
+
+		if (not bOneCity) then
+			buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_RAZE_CAPTURED_CITY");
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE", iUnhappinessForAnnexing);
+		else
+			buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_DESTROY_CAPTURED_CITY");
+			strTooltip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY");
+		end
+
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());

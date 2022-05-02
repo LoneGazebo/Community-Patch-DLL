@@ -60,9 +60,18 @@
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
 			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
 		</Row>
+
 		<!-- For compatibility with Wonder consolation prize tweak -->
 		<Row Tag="TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S">
 			<Text>{1_CityName} can no longer work on {2_BldgName}!</Text>
+		</Row>
+
+		<!-- Destroy Captured City (One City Challenge) -->
+		<Row Tag="TXT_KEY_POPUP_DESTROY_CAPTURED_CITY">
+			<Text>Destroy the City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY">
+			<Text>The City is instantly destroyed. In a One City Challenge, HUMAN players cannot keep captured cities.</Text>
 		</Row>
 
 		<!-- Tourism Bonus Turns for Tooltip -->
