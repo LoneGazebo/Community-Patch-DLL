@@ -695,9 +695,13 @@ function DoUpdateButtons()
 		
 		-- Human is making a demand
         if( g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND ) then
-            Controls.ProposeButton:SetText( Locale.ToUpper(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" )));
+			if (g_pUs:IsDoF(g_iThem)) then -- Request for help (friends)
+				Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON" ));
+			else
+				Controls.ProposeButton:SetText( Locale.ToUpper(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" )));
+			end
             Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
-            
+
     	-- If the AI made an offer change what buttons are visible for the human to respond with
     	elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
     		Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
