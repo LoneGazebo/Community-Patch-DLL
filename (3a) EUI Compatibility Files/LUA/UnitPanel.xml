@@ -151,6 +151,7 @@
 			<Label ID="CityIsConnected" Anchor="C,C" Offset="-17,17" String="[ICON_CONNECTED]"/>
 			<Label ID="CityIsBlockaded" Anchor="C,C" Offset="-17,17" String="[ICON_BLOCKADED]" ToolTip="TXT_KEY_CITY_BLOCKADED"/>
 			<Label ID="CityFocus" Anchor="C,C" Offset="17,17"/>
+			<Label ID="CityIsAutomated" Anchor="C,C" Offset="-17,17" String="[ICON_AUTOMATED]"/>
 			<Stack ID="Stack" Anchor="L,C" Offset="60,-10" StackGrowth="Right">
 				<Label ID="Population" Font="TwCenMT24" FontStyle="Stroke" Color0="White,255" Color1="Black,155"/>
 				<Label ID="CityGrowth" Font="TwCenMT18" FontStyle="Stroke" Color0="Food,255" Color1="Black,155"/>
