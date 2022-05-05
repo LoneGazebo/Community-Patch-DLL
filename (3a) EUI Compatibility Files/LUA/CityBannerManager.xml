@@ -115,6 +115,7 @@
 				<TextButton ID="CityDiplomat" String="[ICON_DIPLOMAT]" Hidden="1"/>
 				<TextButton ID="CityIsPuppet" String="[ICON_PUPPET]"/>
 				<TextButton ID="CityFocus"/>
+				<Label ID="CityIsAutomated" String="[ICON_AUTOMATED]"/>
 				<Label ID="CityQuests"/>
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
@@ -210,6 +211,7 @@
 				<TextButton ID="CitySpy" String="[ICON_SPY]" Hidden="1"/>
 				<TextButton ID="CityDiplomat" String="[ICON_DIPLOMAT]" Hidden="1"/>
 				<TextButton ID="CityQuests"/>
+				<Label ID="CityIsAutomated" String="[ICON_AUTOMATED]" Hidden="1"/>
 				<Label ID="CityIsPuppet" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET_OTHER"/>
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>

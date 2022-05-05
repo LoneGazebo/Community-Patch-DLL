@@ -154,6 +154,7 @@ local g_cityFocusTooltips = {
 [CityAIFocusTypes.CITY_AI_FOCUS_TYPE_FAITH or -1] = L"TXT_KEY_CITYVIEW_FOCUS_FAITH_TEXT",
 } g_cityFocusTooltips[-1] = nil
 
+
 local function IsTurnActive( player )
 	return player and player:IsTurnActive() and not Game.IsProcessingMessages()
 end
@@ -512,6 +513,9 @@ local g_cityToolTips = {
 	end,
 	CityHasAirport = function()
 		return L"TXT_KEY_CITY_HAS_AIRPORT"
+	end,
+	CityIsAutomated = function()
+		return L"TXT_KEY_CITY_PRODUCTION_AUTOMATED"
 	end,
 
 	CityIsUnhappy = function( city)
@@ -963,6 +967,7 @@ local function RefreshCityBannersNow()
 			local isRazing = city:IsRazing()
 			local isResistance = city:IsResistance()
 			local isPuppet = city:IsPuppet()
+			local isAutomated = city:IsProductionAutomated() and cityOwner:IsHuman() and not isPuppet
 
 			-- Update capital icon
 			instance.CityIsCapital:SetHide( not city:IsCapital() or cityOwner:IsMinorCiv() )
@@ -1114,6 +1119,9 @@ local function RefreshCityBannersNow()
 					instance.CityFocus:SetText( g_cityFocusIcons[city:GetFocusType()] )
 					instance.CityFocus:SetHide( false )
 				end
+
+				-- Is Automated?
+				instance.CityIsAutomated:SetHide(not isAutomated )
 
 				-- Connected to capital?
 				instance.CityIsConnected:SetHide( city:IsCapital() or not cityOwner:IsCapitalConnectedToCity( city ) )

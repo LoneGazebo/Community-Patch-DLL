@@ -384,6 +384,7 @@ local function UpdateCity( instance )
 		local isNotRazing = not city:IsRazing()
 		local isNotResistance = not city:IsResistance()
 		local isCapital = city:IsCapital()
+		local isAutomated = city:IsProductionAutomated() and isNotPuppet
 
 		instance.CityIsCapital:SetHide( not isCapital )
 		instance.CityIsPuppet:SetHide( isNotPuppet )
@@ -394,6 +395,7 @@ local function UpdateCity( instance )
 		instance.CityIsConnected:SetHide( not g_activePlayer:IsCapitalConnectedToCity( city ) or isCapital )
 		instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
 		instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
+		instance.CityIsAutomated:SetHide( not isAutomated )
 		instance.Name:SetString( city:GetName() )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
@@ -860,7 +862,11 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	CityIsPuppet = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, L"TXT_KEY_CITY_PUPPET", L"TXT_KEY_CITY_ANNEX_TT" )
-	end,
+	end, 
+	CityIsAutomated = function( control )
+		local city = FindCity( control )
+		ShowSimpleCityTip( control, city, L"TXT_KEY_CITY_PRODUCTION_AUTOMATED" )
+	end, 
 	CityFocus = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, city and g_cityFocusTooltips[city:GetFocusType()] )

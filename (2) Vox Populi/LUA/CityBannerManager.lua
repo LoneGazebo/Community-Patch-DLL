@@ -108,6 +108,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 	local bHasDiplomat = false;
 	local strSpyName = nil;
 	local strSpyRank = nil;
+	local isAutomated = city:IsProductionAutomated() and player:IsHuman() and not city:IsPuppet();
 	
 	if(city ~= nil) then
 		local cityX = city:GetX();
@@ -325,6 +326,14 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.CityHasAirport:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_AIRPORT"));
 		else
 			controls.CityHasAirport:SetHide(true);
+		end
+
+		-- CityIsAutomated Status
+		if (isAutomated) then
+			controls.CityIsAutomated:SetHide(false);
+			controls.CityIsAutomated:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_PRODUCTION_AUTOMATED"));
+		else
+			controls.CityIsAutomated:SetHide(true);
 		end
 
 		-- Happiness Status
