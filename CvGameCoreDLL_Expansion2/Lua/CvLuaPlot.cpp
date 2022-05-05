@@ -83,6 +83,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetBuildTime);
 	Method(GetBuildTurnsLeft);
 	Method(GetBuildTurnsTotal);
+	Method(GetBuildTypeNeededToImproveResource);
 	Method(GetFeatureProduction);
 
 	Method(GetBestDefender);
@@ -675,6 +676,26 @@ int CvLuaPlot::lGetBuildTurnsLeft(lua_State* L)
 int CvLuaPlot::lGetBuildTurnsTotal(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::getBuildTurnsTotal);
+}
+//------------------------------------------------------------------------------
+int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
+{
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	ImprovementTypes eImprovement = pkPlot->getImprovementTypeNeededToImproveResource(pkPlot->getOwner());
+
+	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	{
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
+		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+
+		if (NULL != pkBuild && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
+		{
+			lua_pushinteger(L, eBuild);
+			return 1;
+		}
+	}
+
+	lua_pushinteger(L, -1);
 }
 //------------------------------------------------------------------------------
 //int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CyCity* ppCity);
