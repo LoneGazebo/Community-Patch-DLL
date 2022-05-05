@@ -243,17 +243,17 @@
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
 			<YieldType>YIELD_TOURISM</YieldType>
-			<Yield>10</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</CityEventChoice_YieldSiphon>
 	<CityEventChoice_CityUnhappinessNeedMod>
