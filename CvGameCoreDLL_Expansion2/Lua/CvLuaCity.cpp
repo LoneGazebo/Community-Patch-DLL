@@ -527,6 +527,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeSpecialistGreatPersonProgressTimes100);
 	Method(GetExtraSpecialistPoints);
 	Method(GetNumSpecialistsInBuilding);
+	Method(GetNumForcedSpecialistsInBuilding);
 	Method(DoReallocateCitizens);
 	Method(DoVerifyWorkingPlots);
 	Method(IsNoAutoAssignSpecialists);
@@ -5082,6 +5083,17 @@ int CvLuaCity::lGetNumSpecialistsInBuilding(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	const int iIndex = lua_tointeger(L, 2);
 	const int iResult = pkCity->GetCityCitizens()->GetNumSpecialistsInBuilding(toValue<BuildingTypes>(L, 2));
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+//int GetNumFprcedSpecialistsInBuilding(BuildingTypes eIndex);
+int CvLuaCity::lGetNumForcedSpecialistsInBuilding(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iIndex = lua_tointeger(L, 2);
+	const int iResult = pkCity->GetCityCitizens()->GetNumForcedSpecialistsInBuilding(toValue<BuildingTypes>(L, 2));
 
 	lua_pushinteger(L, iResult);
 	return 1;

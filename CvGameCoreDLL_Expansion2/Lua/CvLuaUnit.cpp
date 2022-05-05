@@ -47,6 +47,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetPathEndTurnPlot);
 	Method(GeneratePath);
 	Method(GetActivePath);
+	Method(GetWaypointPath);
+	Method(GeneratePathToNextWaypoint);
 
 	Method(CanEnterTerritory);
 	Method(GetDeclareWarRangeStrike);
@@ -816,6 +818,99 @@ int CvLuaUnit::lGetActivePath(lua_State* L)
 	//no caching!
 	SPathFinderUserData data(pkUnit, 0, INT_MAX);
 	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pDestPlot->getX(), pDestPlot->getY(), data, TC_UI);
+
+	for (int i = 0; i < newPath.length(); i++)
+	{
+		const SPathNode& kNode = newPath.vPlots[i];
+
+		lua_createtable(L, 0, 0);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, kNode.x);
+		lua_setfield(L, t, "X");
+		lua_pushinteger(L, kNode.y);
+		lua_setfield(L, t, "Y");
+		lua_pushinteger(L, kNode.moves);
+		lua_setfield(L, t, "RemainingMovement");
+		lua_pushinteger(L, kNode.turns);
+		lua_setfield(L, t, "Turn");
+		lua_pushinteger(L, 0);
+		lua_setfield(L, t, "Flags");
+		lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+		lua_setfield(L, t, "Invisible");
+		lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
+		lua_setfield(L, t, "AdjInvisible");
+		lua_rawseti(L, -2, iCount++);
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//-----Returns the proper path for queued move orders
+int CvLuaUnit::lGetWaypointPath(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	int fromX = pkUnit->getX();
+	int fromY = pkUnit->getY();
+
+	for (int k = 0; k < pkUnit->GetLengthMissionQueue(); k++)
+	{
+
+		const MissionData* pMissionNode = pkUnit->GetMissionData(k);
+
+		int toX = pMissionNode->iData1;
+		int toY = pMissionNode->iData2;
+
+		//no caching!
+		SPathFinderUserData data(pkUnit, 0, INT_MAX);
+		SPath newPath = GC.GetPathFinder().GetPath(fromX, fromY, toX, toY, data, TC_UI);
+
+		for (int i = 0; i < newPath.length(); i++)
+		{
+			const SPathNode& kNode = newPath.vPlots[i];
+
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, kNode.x);
+			lua_setfield(L, t, "X");
+			lua_pushinteger(L, kNode.y);
+			lua_setfield(L, t, "Y");
+			lua_pushinteger(L, kNode.moves);
+			lua_setfield(L, t, "RemainingMovement");
+			lua_pushinteger(L, kNode.turns);
+			lua_setfield(L, t, "Turn");
+			lua_pushinteger(L, 0);
+			lua_setfield(L, t, "Flags");
+			lua_pushboolean(L, newPath.get(i)->isVisible(pkUnit->getTeam()) == false); //don't have that info, make it up
+			lua_setfield(L, t, "Invisible");
+			lua_pushboolean(L, newPath.get(i)->isAdjacentNonvisible(pkUnit->getTeam())); //don't have that info, make it up
+			lua_setfield(L, t, "AdjInvisible"); 
+			lua_rawseti(L, -2, iCount++);
+		}
+		
+		fromX = toX;
+		fromY = toY;
+	}
+	return 1;
+}
+//-----Returns the proper path for queued move orders
+int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = pkUnit->LastMissionPlot();
+	CvPlot* pDestPlot = CvLuaPlot::GetInstance(L, 2);
+	if (!pDestPlot)
+		return 0;
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	//no caching!
+	SPathFinderUserData data(pkUnit, 0, INT_MAX);
+	SPath newPath = GC.GetPathFinder().GetPath(pkPlot->getX(), pkPlot->getY(), pDestPlot->getX(), pDestPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
 	{
