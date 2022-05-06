@@ -2131,6 +2131,12 @@ local function UpdateDisplayNow()
 			UpdateUnitPromotions(unit)
 			UpdateUnitStats(unit)
 			UpdateUnitHealthBar(unit)
+            -- UndeadDevel/FlagPromotions: update scroll functionality
+            Controls.EarnedPromotionStack:CalculateSize();
+            Controls.EarnedPromotionStack:ReprocessAnchoring();
+            Controls.ScrollPanel:CalculateInternalSize();
+            Controls.ScrollPanel:SetScrollValue(1);
+            -- UndeadDevel end
 			Controls.Panel:SetHide( false )
 			Controls.Actions:SetHide( false )
 		else
