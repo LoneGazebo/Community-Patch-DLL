@@ -726,11 +726,7 @@ void CvTacticalAI::ProcessDominanceZones()
 
 		//second pass: bring in reinforcements
 		for (int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
-		{
-			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
-
-			PlotReinforcementMoves(pZone);
-		}
+			PlotReinforcementMoves(GetTacticalAnalysisMap()->GetZoneByIndex(iI));
 
 		//finally arrange our remaining idle units for defense
 		AssignGlobalLowPrioMoves();
@@ -2068,12 +2064,13 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_REINFORCE);
 
-	//don't try to reinforce wilderness zones
-	if (!pTargetZone || pTargetZone->GetZoneCity()==NULL)
+	//sometimes there is nothing to do ...
+	if (!pTargetZone || pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
 		return;
 
-	//sometimes there is nothing to do ...
-	if (pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
+	//don't try to reinforce wilderness zones or other players' cities
+	CvCity* pZoneCity = pTargetZone->GetZoneCity();
+	if (!pZoneCity || pZoneCity->getTeam() != m_pPlayer->getTeam())
 		return;
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 

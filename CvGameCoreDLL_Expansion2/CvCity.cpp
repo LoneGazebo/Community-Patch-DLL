@@ -22724,7 +22724,8 @@ CvString CvCity::GetCityHappinessBreakdown()
 int CvCity::getUnhappyCitizenCount() const
 {
 	VALIDATE_OBJECT
-	return (getPopulation() - GetLocalHappiness());
+	//if we have more happiness than pop, unhappiness is zero (not negative)
+	return max(0,getPopulation() - GetLocalHappiness());
 }
 
 //	--------------------------------------------------------------------------------

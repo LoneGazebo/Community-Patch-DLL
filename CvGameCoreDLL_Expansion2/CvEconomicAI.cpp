@@ -1821,7 +1821,8 @@ void CvEconomicAI::DoHurry()
 						CvUnit* pUnit = pSelectedCity->CreateUnit(eUnitType, eUnitAI, REASON_BUY, false);
 						if (pUnit)
 						{
-							m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+							if (pkUnitInfo->IsFound())
+								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
 							if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
 								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
