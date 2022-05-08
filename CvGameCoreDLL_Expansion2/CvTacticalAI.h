@@ -878,7 +878,7 @@ public:
 	float getAggressionBias() const;
 	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
-	bool lastAssignmentIsAfterRestart(int iUnitID);
+	bool lastAssignmentIsAfterRestart(int iUnitID) const;
 	const SUnitStats* getUnitStats(int iUnitID) const;
 	const STacticalAssignment* getInitialAssignment(int iUnitID) const;
 	STacticalAssignment* getInitialAssignmentMutable(int iUnitID);

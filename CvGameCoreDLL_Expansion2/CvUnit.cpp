@@ -1618,8 +1618,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iTacticalAIPlotX = INVALID_PLOT_COORD;
 	m_iTacticalAIPlotY = INVALID_PLOT_COORD;
 	m_iGarrisonCityID = -1;   // unused
-	m_iNumAttacks = 1;
-	m_iAttacksMade = 0;
 	m_iGreatGeneralCount = 0;
 	m_iGreatAdmiralCount = 0;
 	m_iAuraRangeChange = 0;
@@ -1674,6 +1672,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
 	m_eCombatType = (NO_UNIT != m_eUnitType) ? (UnitCombatTypes)m_pUnitInfo->GetUnitCombatType() : NO_UNITCOMBAT;
+	m_iNumAttacks = (m_iBaseCombat>0) ? 1 : 0;
+	m_iAttacksMade = 0;
 	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
 	m_iMaxHitPointsBase = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetMaxHitPoints() : GD_INT_GET(MAX_HIT_POINTS);
 	m_iMaxHitPointsChange = 0;

@@ -35078,6 +35078,11 @@ bool CvCity::isInDangerOfFalling() const
 	if (m_iDamageTakenLastTurn > iHitpoints)
 		return true;
 
+	//special: if a city has just been conquered it's vulnerable but m_iDamageTakenLastTurn is zero
+	if (GC.getGame().getGameTurn() - getGameTurnAcquired() < 2)
+		if (GET_PLAYER(getOwner()).GetPlotDanger(this) > iHitpoints)
+			return true;
+
 	return false;
 }
 

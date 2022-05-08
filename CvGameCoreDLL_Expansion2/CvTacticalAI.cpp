@@ -1725,7 +1725,6 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 void CvTacticalAI::PlotAirPatrolMoves()
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_AIRPATROL);
-
 	std::vector<CvPlot*> checkedPlotList;
 
 	// Loop through all recruited units
@@ -4705,25 +4704,23 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 		if(pLoopUnit && pLoopUnit->getDomainType() != DOMAIN_AIR && pLoopUnit->IsCombatUnit() && !pLoopUnit->TurnProcessed())
 		{
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
-			{
 				continue;
-			}
 
-			if(pLoopUnit->IsGarrisoned() || pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE || pLoopUnit->getArmyID() != -1)
-			{
+			if(pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE || pLoopUnit->getArmyID() != -1)
 				continue;
-			}
 
 			//performance optimization ... careful because zero is a valid turn value
 			if(iNumTurnsAway>1 && plotDistance(*pLoopUnit->plot(),*pTarget)>3*iNumTurnsAway)
-			{
 				continue;
-			}
 
 			int iExtraScore = 0;
-
 			if(eMove == AI_TACTICAL_GARRISON)
 			{
+				// Do not pull units out of important citadels
+				CvPlot* pUnitPlot = pLoopUnit->plot();
+				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID()))
+					continue;
+
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_RANGED))
 				{
@@ -4743,9 +4740,12 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();
 			}
-
-			else if(eMove == AI_TACTICAL_GUARD)
+			else if (eMove == AI_TACTICAL_GUARD)
 			{
+				// Do not pull out garrisons for this
+				if (pLoopUnit->IsGarrisoned())
+					continue;
+
 				// No siege units or units without defensive bonuses as plot defenders
 				if (pLoopUnit->AI_getUnitAIType()==UNITAI_CITY_BOMBARD || pLoopUnit->noDefensiveBonus() || !pLoopUnit->canFortify(pTarget))
 					continue;
@@ -7589,7 +7589,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	//generals and admirals
 	if (unit.eStrategy == MS_SUPPORT)
 	{
-		if (evalMode!=EM_INTERMEDIATE)
+		if (evalMode != EM_INTERMEDIATE)
 		{
 			//we want one of our own combat units covering us
 			if (!testPlot.isCombatEndTurn())
@@ -7598,6 +7598,23 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 				CvUnit* pBestDefender = pTestPlot->getBestDefender(assumedPosition.getPlayer());
 				if (!pTestPlot->isFriendlyCity(*pUnit) && (!pBestDefender || !pBestDefender->TurnProcessed() || pBestDefender->isProjectedToDieNextTurn()))
 					return result; //no can do!
+			}
+			//it may be that the covering unit moving into place after a restart, so it does not really count ...
+			else
+			{
+				bool bHaveRealCover = false;
+				const vector<STacticalAssignment>& units = testPlot.getUnitsAtPlot();
+				for (size_t i = 0; i < units.size(); i++)
+				{
+					if (units[i].isCombatUnit() && !assumedPosition.lastAssignmentIsAfterRestart(units[i].iUnitID))
+					{
+						bHaveRealCover = true;
+						break;
+					}
+				}
+				//don't do it
+				if (!bHaveRealCover)
+					return result;
 			}
 
 			//surrounding cover is also good
@@ -9202,7 +9219,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 	return make_pair<int, int>( (int)newlyVisiblePlots.size(), nNewEnemies);
 }
 
-bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID)
+bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID) const
 {
 	bool bHaveRestart = false;
 	for (vector<STacticalAssignment>::const_iterator it = assignedMoves.begin(); it != assignedMoves.end(); ++it)
