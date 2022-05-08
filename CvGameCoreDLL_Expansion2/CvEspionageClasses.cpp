@@ -1954,17 +1954,16 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 		}
 
-		int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-		iYieldValue *= 5;
-		iYieldValue /= 10;
+		int iYieldMod = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
+		iYieldMod *= 5;
+		iYieldMod /= 10;
 
-		int iUnhappinessMod = 0;
+		int iUnhappinessMod = 0, iPopMod = 0;
 		int iPop = pCity->getPopulation();
 		if (iPop > 0)
 		{
-			iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
-			iUnhappinessMod *= -1;
-			iPop *= 2;
+			iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
+			iPopMod = 2*iPop;
 		}
 
 		int iCityDefense = pCity->getStrengthValue() / 100;
@@ -1983,13 +1982,13 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		}
 
 		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-		iFinalModifier -= (iYieldValue + iPop + iUnhappinessMod);
+		iFinalModifier -= (iYieldMod + iPopMod + iUnhappinessMod);
 
 		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_CALCULATION", iFinalModifier);
 
 		strSpyAtCity += "[NEWLINE][NEWLINE]";
 
-		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iYieldValue, iPop, iUnhappinessMod);
+		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iYieldMod, iPopMod, iUnhappinessMod);
 		strSpyAtCity += "[NEWLINE]";
 		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE", iPlayerEspionageModifier + iTheirPoliciesEspionageModifier, iCityEspionageModifier, iCounterSpy, iCityDefense);
 
@@ -3222,13 +3221,12 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	iYieldValue *= 6;
 	iYieldValue /= 10;
 
-	int iUnhappinessMod = 0;
+	int iUnhappinessMod = 0, iPopMod = 0;
 	int iPop = pCity->getPopulation();
 	if (iPop > 0)
 	{
-		iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
-		iUnhappinessMod *= -1;
-		iPop *= 2;
+		iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
+		iPopMod = iPop*2;
 	}
 
 	int iCityDefense = pCity->getStrengthValue() / 100;
@@ -3254,7 +3252,7 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	}
 
 	int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-	iFinalModifier -= (iYieldValue + iPop + iUnhappinessMod);
+	iFinalModifier -= (iYieldValue + iPopMod + iUnhappinessMod);
 
 	iBaseResistance *= 100 + iFinalModifier;
 	iBaseResistance /= 100;

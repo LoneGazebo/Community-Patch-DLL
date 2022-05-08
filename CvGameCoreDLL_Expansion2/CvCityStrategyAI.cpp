@@ -678,6 +678,26 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	m_eMostDeficientYield = deviations.back().score < 0 ? deviations.back().option : NO_YIELD;
 }
 
+bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
+{
+	for (int i = 0; i < choices.size(); i++)
+	{
+		switch (choices.GetElement(i).m_eBuildableType)
+		{
+			case CITY_BUILDABLE_UNIT:
+			case CITY_BUILDABLE_UNIT_FOR_ARMY:
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+			{
+				UnitTypes eUnitType = (UnitTypes)choices.GetElement(i).m_iIndex;
+				if (GC.getUnitInfo(eUnitType)->IsFound())
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 /// Pick the next build for a city (unit, building or wonder)
 void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIgnoreUnit, bool bInterruptBuildings, bool bInterruptWonders)
 {
@@ -1010,6 +1030,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	if (m_Buildables.size() <= 0)
 		m_Buildables = m_BuildablesPrecheck;
 
+	bool bPushedOrderForSettler = false;
 	if(m_Buildables.size() > 0)
 	{
 		int iRushIfMoreThanXTurns = /*15*/ GD_INT_GET(AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD);
@@ -1098,9 +1119,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				{
 					UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 					GetCity()->pushOrder(ORDER_TRAIN, eUnitType, eUnitAI, false, true, false, bRush);
-
-					if (pkUnitInfo->IsFound())
-						kPlayer.GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+					bPushedOrderForSettler = pkUnitInfo->IsFound();
 				}
 				if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
 				{
@@ -1130,8 +1149,13 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				break;
 			}
 		}
-
 	}
+
+	//if we are building a settler or if a settler isn't even an option, then reset our count, else increase it
+	if (bPushedOrderForSettler || !HaveSettlerInBuildables(m_Buildables))
+		kPlayer.GetMilitaryAI()->ResetNumberOfTimesSettlerBuildSkippedOver();
+	else
+		kPlayer.GetMilitaryAI()->BumpNumberOfTimesSettlerBuildSkippedOver();
 
 	return;
 }

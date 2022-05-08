@@ -22829,7 +22829,8 @@ CvString CvCity::GetCityHappinessBreakdown()
 int CvCity::getUnhappyCitizenCount() const
 {
 	VALIDATE_OBJECT
-	return (getPopulation() - GetLocalHappiness());
+	//if we have more happiness than pop, unhappiness is zero (not negative)
+	return max(0,getPopulation() - GetLocalHappiness());
 }
 
 //	--------------------------------------------------------------------------------
@@ -35184,6 +35185,11 @@ bool CvCity::isInDangerOfFalling() const
 	int iHitpoints = GetMaxHitPoints() - getDamage();
 	if (m_iDamageTakenLastTurn > iHitpoints)
 		return true;
+
+	//special: if a city has just been conquered it's vulnerable but m_iDamageTakenLastTurn is zero
+	if (GC.getGame().getGameTurn() - getGameTurnAcquired() < 2)
+		if (GET_PLAYER(getOwner()).GetPlotDanger(this) > iHitpoints)
+			return true;
 
 	return false;
 }

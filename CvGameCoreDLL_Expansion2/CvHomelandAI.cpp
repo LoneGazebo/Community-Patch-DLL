@@ -426,7 +426,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				if ((pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isAdjacentTeam(eTeam, true)) ||
-					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true)))
+					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true, true)))
 				{
 					int iScore = TacticalAIHelpers::SentryScore(pLoopPlot, m_pPlayer->GetID());
 					if (iScore > 30)

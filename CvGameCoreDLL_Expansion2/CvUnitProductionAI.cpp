@@ -1251,19 +1251,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (iFlavorExpansion <= 0)
 			return 0;
 
-		//once we've expanded a single time, let's try to get non-capital cities to be our settler-makers.
-		if (!m_pCity->isCapital())
-			iFlavorExpansion += 25;
-		else if (kPlayer.getNumCities() > 1)
+		//if already we have more than 2 cities, let's try to get non-capital cities to be our settler-makers.
+		if (m_pCity->isCapital() && kPlayer.getNumCities() > 2)
 			iFlavorExpansion -= 25;
 
-		if (m_pCity->isCapital() && iFlavorExpansion >= 100)
-		{
-			kPlayer.GetMilitaryAI()->BumpNumberOfTimesSettlerBuildSkippedOver();
-		}
-
 		//if we got this far we want to expand, so let's bump the number of times we've skipped this.
-		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 10;
+		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 100;
 		
 		//Higher-level AI should expand more quickly.
 		if (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
@@ -1456,7 +1449,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 		//Promotion Bonus
 		int iPromotionBonus = 0;
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+		for(int iI = 0; iI < GC.getNumPromotionInfos() && bCombat; iI++)
 		{
 			const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
 			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);

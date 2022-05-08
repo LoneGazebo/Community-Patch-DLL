@@ -3362,7 +3362,7 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, bool bIgnoreImpassable) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
@@ -3370,6 +3370,9 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) 
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 		{
+			if (!bIgnoreImpassable && pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
+				continue;
+
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true; 
 		}
