@@ -613,9 +613,9 @@ local function UnitToolTip( unit, ... )
 					if buildImprovement or buildRoute then
 						for resource in GameInfo.Resources() do
 							local resourceID = resource.ID
-							if buildImprovement and Game.GetNumResourceRequiredForImprovement(GameInfoTypes[buildImprovement], resourceID) > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+							if buildImprovement and Game.GetNumResourceRequiredForImprovement(GameInfoTypes[build.ImprovementType], resourceID) > 0 and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
 								isAvailable = false
-							elseif buildRoute and Game.GetNumResourceRequiredForRoute(GameInfoTypes[buildRoute], resourceID) and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
+							elseif buildRoute and Game.GetNumResourceRequiredForRoute(GameInfoTypes[build.RouteType], resourceID) and g_activePlayer:GetNumResourceAvailable( resourceID, true ) <= 0 then
 								isAvailable = false
 							end
 						end
