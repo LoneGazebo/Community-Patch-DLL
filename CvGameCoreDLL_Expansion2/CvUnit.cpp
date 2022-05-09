@@ -16715,8 +16715,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		else
 			iModifier += attackFullyHealedModifier();
 
-		//More than half?
-		if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() * .5))
+		//More than half (integer division accounting for possible odd Max HP)?
+		if (pOtherUnit->getDamage() < ((pOtherUnit->GetMaxHitPoints()+1) / 2))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -24263,10 +24263,10 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isOutOfAttacks() const
+bool CvUnit::isOutOfAttacks(bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT
-	if (!canMove())
+	if (!bIgnoreMoves && !canMove())
 		return true;
 
 	// Units with blitz don't run out of attacks!
@@ -24400,7 +24400,8 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
+	
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true) && canAcquirePromotionAny());
 }
 
 
@@ -26245,10 +26246,6 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 bool CvUnit::canAcquirePromotionAny() const
 {
 	VALIDATE_OBJECT
-
-	// Can't promote a unit that is out of moves and has attacked
-	if (!canMove() && getNumAttacksMadeThisTurn() > 0)
-		return false;
 
 	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{

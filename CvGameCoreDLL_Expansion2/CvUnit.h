@@ -1486,7 +1486,7 @@ public:
 	int getDropRange() const;
 	void changeDropRange(int iChange);
 
-	bool isOutOfAttacks() const;
+	bool isOutOfAttacks(bool bIgnoreMoves = false) const;
 	void setMadeAttack(bool bNewValue);
 
 	int GetNumInterceptions() const;
