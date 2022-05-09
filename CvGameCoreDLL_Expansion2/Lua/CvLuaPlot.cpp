@@ -696,6 +696,7 @@ int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 	}
 
 	lua_pushinteger(L, -1);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getFeatureProduction(BuildTypes eBuild, TeamTypes eTeam, CyCity* ppCity);

@@ -102,6 +102,9 @@ protected:
 	};
 
 	static int lIsPossibleToTradeItem(lua_State* L);
+	static int lGetReasonsItemUntradeable(lua_State* L);
+	static int lBlockTemporaryForPermanentTrade(lua_State* L);
+
 	static int lGetNumResource(lua_State* L);
 
 	static int lAddGoldTrade(lua_State* L)

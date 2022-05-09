@@ -502,10 +502,97 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
 -- Trade
 
 -- Trade Deals
-
 UPDATE Language_en_US
 SET Text = 'Ends after: [NEWLINE]Turn {1_turn}'
 WHERE Tag = 'TXT_KEY_DO_ENDS_ON';
+
+UPDATE Language_en_US
+SET Text = 'Unlocks advanced trade options with this Civilization and reveals the location of their Capital.'
+WHERE Tag = 'TXT_KEY_DIPLO_ALLOW_EMBASSY_TT';
+
+UPDATE Language_en_US
+SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
+
+UPDATE Language_en_US
+SET Text = 'If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.[NEWLINE][NEWLINE]You can make Defensive Pacts with a maximum of [COLOR_CYAN]{2_Num}[ENDCOLOR] civs. This is based on the number of living, non-vassal civs in the world.'
+WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
+
+UPDATE Language_en_US
+SET Text = 'We already have an Embassy in their Capital!'
+WHERE Tag = 'TXT_KEY_DIPLO_ALLOW_EMBASSY_HAVE';
+
+UPDATE Language_en_US
+SET Text = 'They already have an Embassy in our Capital!'
+WHERE Tag = 'TXT_KEY_DIPLO_ALLOW_EMBASSY_THEY_HAVE';
+
+UPDATE Language_en_US
+SET Text = 'You do not have the Technology to establish an Embassy (Writing).'
+WHERE Tag = 'TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_PLAYER';
+
+UPDATE Language_en_US
+SET Text = 'They do not have the Technology to establish an Embassy (Writing).'
+WHERE Tag = 'TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_OTHER_PLAYER';
+
+UPDATE Language_en_US
+SET Text = 'We are already allowing Open Borders!'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_HAVE';
+
+UPDATE Language_en_US
+SET Text = 'They are already allowing Open Borders!'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_THEY_HAVE';
+
+UPDATE Language_en_US
+SET Text = 'Neither player yet has the Technology to trade this item (Civil Service).'
+WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_NO_TECH';
+
+UPDATE Language_en_US
+SET Text = 'You need an Embassy with their Civilization to trade this item.'
+WHERE Tag = 'TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT';
+
+UPDATE Language_en_US
+SET Text = 'They need an Embassy with your Civilization to trade this item.'
+WHERE Tag = 'TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT';
+
+UPDATE Language_en_US
+SET Text = 'Both parties need an Embassy to trade this item.'
+WHERE Tag = 'TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT';
+
+UPDATE Language_en_US
+SET Text = 'We already have a Defensive Pact!'
+WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_EXISTS';
+
+UPDATE Language_en_US
+SET Text = 'Neither player yet has the Technology to trade this item (Chivalry).'
+WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_NO_TECH';
+
+UPDATE Language_en_US
+SET Text = 'We already have a Research Agreement!'
+WHERE Tag = 'TXT_KEY_DIPLO_RESCH_AGREEMENT_EXISTS';
+
+UPDATE Language_en_US
+SET Text = 'One or both of us have already researched all Technologies.'
+WHERE Tag = 'TXT_KEY_DIPLO_RESCH_AGREEMENT_ALL_TECHS_RESEARCHED';
+
+UPDATE Language_en_US
+SET Text = 'Neither player yet has the Technology to trade this item (Philosophy).'
+WHERE Tag = 'TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_TECH';
+
+UPDATE Language_en_US
+SET Text = 'A Declaration of Friendship is needed to trade this item.'
+WHERE Tag = 'TXT_KEY_DIPLO_NEED_DOF_TT';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this action.'
+WHERE Tag = 'TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR';
+
+UPDATE Language_en_US
+SET Text = 'A City-State Alliance prevents this action.'
+WHERE Tag = 'TXT_KEY_DIPLO_NO_WAR_ALLIES';
+
+UPDATE Language_en_US
+SET Text = 'A recent Peace Treaty prevents this action.'
+WHERE Tag = 'TXT_KEY_DIPLO_FORCE_PEACE';
 
 -- Trade Routes
 UPDATE Language_en_US
@@ -519,37 +606,6 @@ WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPL
 UPDATE Language_en_US
 SET Text = '{1_CivName} has discovered {2_Num} technologies that you do not know.[NEWLINE]You are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED';
-
--- Item Not Tradeable
-UPDATE Language_en_US
-SET Text = 'The other leader has not met any third party players, or you do not have an Embassy with this player.'
-WHERE Tag = 'TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM';
-
-UPDATE Language_en_US
-SET Text = 'A current war prevents this action.'
-WHERE Tag = 'TXT_KEY_DIPLO_ALREADY_AT_WAR';
-
-UPDATE Language_en_US
-SET Text = 'A City-State Alliance prevents this.'
-WHERE Tag = 'TXT_KEY_DIPLO_NO_WAR_ALLIES';
-
-UPDATE Language_en_US
-SET Text = 'A City-State Alliance prevents this.'
-WHERE Tag = 'TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR';
-
-UPDATE Language_en_US
-SET Text = 'City-State is permanently at war.'
-WHERE Tag = 'TXT_KEY_DIPLO_MINOR_PERMANENT_WAR';
-
--- Tooltip fix for Open Borders
-UPDATE Language_en_US
-SET Text = 'Allows the other player''s military or civilian Units to pass through one''s territory (lasts {1_Num} turns).[NEWLINE][NEWLINE]Note: Military Units belonging to different players may never stack.'
-WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
-
--- Tooltip fix for Defensive Pact
-UPDATE Language_en_US
-SET Text = 'If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.'
-WHERE Tag = 'TXT_KEY_DIPLO_DEF_PACT_TT';
 
 -- Lua for Cities
 UPDATE Language_en_US
@@ -1782,99 +1838,6 @@ WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_1';
 UPDATE Language_en_US
 SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.'
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2';
-
--- Unimportant capitalization fixes
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_AHMAD_ALMANSUR_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_AGREE_SHORT_1';
-
-UPDATE Language_en_US
-SET Text = 'Certainly not.'
-WHERE Tag = 'TXT_KEY_LEADER_ASHURBANIPAL_DISAGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_ATTILA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_BOUDICCA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_CASIMIR_AGREE_SHORT_1';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_DIDO_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_ENRICO_DANDOLO_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_GAJAH_MADA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_GENGHIS_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_HARALD_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_KAMEHAMEHA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_MARIA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_MARIA_I_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Certainly not.'
-WHERE Tag = 'TXT_KEY_LEADER_PACHACUTI_DISAGREE_SHORT_1';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_PEDRO_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_POCATELLO_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_SEJONG_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_SELASSIE_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_SHAKA_AGREE_SHORT_2';
-
-UPDATE Language_en_US
-SET Text = 'Very well.'
-WHERE Tag = 'TXT_KEY_LEADER_WILLIAM_AGREE_SHORT_2';
 
 
 -- Kiev -> Kyiv

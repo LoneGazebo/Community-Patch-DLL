@@ -84,6 +84,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(KillUnits);
 	Method(IsHuman);
+	Method(IsAITeammateOfHuman);
 	Method(IsBarbarian);
 	Method(GetName);
 	Method(GetNameKey);
@@ -941,6 +942,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoBeginDiploWithHuman);
 	Method(DoTradeScreenOpened);
 	Method(DoTradeScreenClosed);
+	Method(CalculateDefensivePactLimit);
 	Method(GetMajorCivApproach);
 	Method(GetApproachTowardsUsGuess);
 	Method(IsActHostileTowardsHuman);
@@ -1138,6 +1140,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(MayNotAnnex);
 
 	Method(GetEspionageCityStatus);
+	Method(IsTradeSanctioned);
 	Method(GetTotalValueToMeNormal);
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
@@ -1851,6 +1854,12 @@ int CvLuaPlayer::lChooseTech(lua_State* L)
 int CvLuaPlayer::lIsHuman(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::isHuman);
+}
+//------------------------------------------------------------------------------
+//bool IsAITeammateOfHuman();
+int CvLuaPlayer::lIsAITeammateOfHuman(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::IsAITeammateOfHuman);
 }
 //------------------------------------------------------------------------------
 //bool isBarbarian();
@@ -10296,6 +10305,14 @@ int CvLuaPlayer::lDoTradeScreenClosed(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//int CalculateDefensivePactLimit();
+int CvLuaPlayer::lCalculateDefensivePactLimit(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->CalculateDefensivePactLimit(false));
+	return 1;
+}
+//------------------------------------------------------------------------------
 //void GetApproachTowardsUsGuess(PlayerTypes ePlayer);
 int CvLuaPlayer::lGetApproachTowardsUsGuess(lua_State* L)
 {
@@ -15418,22 +15435,37 @@ int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lIsTradeSanctioned(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	const PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	bool bResult = false;
+
+	if (!MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{
+		lua_pushboolean(L, bResult);
+		return 1;
+	}
+
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), eOtherPlayer))
+	{
+		bResult = true;
+	}
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTotalValueToMeNormal(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
-	int iResult = 0;
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague != NULL && pLeague->IsTradeEmbargoed(pkThisPlayer->GetID(), GC.getGame().getActivePlayer()))
+	int iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal);
+
+	if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
-		iResult = -99999;
-		lua_pushinteger(L, iResult);
-		return 1;
-	}
-	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal);
-	if(iResult == INT_MAX || iResult == (INT_MAX * -1))
-	{
-		iResult = -1;
+		iResult = -999999;
 		lua_pushinteger(L, iResult);
 		return 1;
 	}
@@ -15451,11 +15483,11 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 	CvDeal* pkDeal = CvLuaDeal::GetInstance(L, 2);
 	int iResult = 0;
 	iResult = pkThisPlayer->GetDealAI()->GetDealValue(pkDeal);
-	if(iResult < 0)
+	if (iResult < 0)
 	{
 		iResult *= -1;
 	}
-	if((iResult == INT_MAX) || (iResult == (INT_MAX * -1)))
+	if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
 		iResult = -1;
 		lua_pushinteger(L, iResult);
@@ -15473,13 +15505,13 @@ int CvLuaPlayer::lGetCachedValueOfPeaceWithHuman(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	int iResult = pkThisPlayer->GetCachedValueOfPeaceWithHuman();
-	if(iResult < 0)
+	if (iResult < 0)
 	{
 		iResult *= -1;
 	}
-	if(iResult == MAX_INT)
+	if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
-		iResult = -1;
+		iResult = -999999;
 	}
 	lua_pushinteger(L, iResult);
 	return 1;

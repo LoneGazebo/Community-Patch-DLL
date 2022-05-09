@@ -32787,6 +32787,8 @@ int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = 
 			continue;
 		if (!GET_PLAYER(eLoopPlayer).isAlive())
 			continue;
+		if (GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+			continue;
 
 		iTotalOtherMajors++;
 	}

@@ -12,19 +12,19 @@
 			<Text>Reveals all land explored by this civilization.[NEWLINE][NEWLINE]Note: Will not receive contact with unmet civilizations and city-states.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH">
-			<Text>[NEWLINE][NEWLINE]Neither player yet has the Technology required to trade this item (Military Science).</Text>
+			<Text>Both players don't yet have the Technology required to trade this item (Military Science).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER">
-			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>They don't yet have the Technology required to trade this item (Military Science).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER">
-			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology required to trade this item (Military Science).</Text>
+			<Text>You don't yet have the Technology required to trade this item (Military Science).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED">
-			<Text>[NEWLINE][NEWLINE]They have already explored all of the lands revealed in your World Map.</Text>
+			<Text>They have already explored all of the lands revealed in your World Map.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED">
-			<Text>[NEWLINE][NEWLINE]We have already explored all of the lands revealed in their World Map.</Text>
+			<Text>We have already explored all of the lands revealed in their World Map.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
 			<Text>No Tech Trading</Text>
@@ -63,16 +63,10 @@
 			<Text>The other leader has no Technologies available to trade.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER">
-			<Text>[NEWLINE][NEWLINE]They don't yet have the Technology to sell this item (Scientific Theory).</Text>
+			<Text>They don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER">
-			<Text>[NEWLINE][NEWLINE]You don't yet have the Technology to sell this item (Scientific Theory).</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_SCIENCE_OFF">
-			<Text>[NEWLINE][NEWLINE]The Science system is off in this scenario.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TECH_TRADING_NOT_ACTIVE">
-			<Text>[NEWLINE][NEWLINE]Technology Trading is not active!</Text>
+			<Text>You don't yet have the Technology to sell this item (Scientific Theory).</Text>
 		</Row>
 		<!-- Vassalage -->
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_NO_VASSALS">
@@ -144,76 +138,10 @@
 			<Text>LIBERATION</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_REVOKE_TT">
-			<Text>This civilization abandons mastery over all vassals. Only valid if the player has vassals, and is willing to abandon them.</Text>
+			<Text>This civilization abandons mastery over all vassals. Only valid if the player has vassals and is able to liberate them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_TT">
 			<Text>This civilization surrenders to the other player and becomes their Vassal State. A civilization that capitulates cannot leave their master until {1_Num} turns have passed.[NEWLINE][NEWLINE]If the capitulating civilization has vassals, they will be liberated.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_HAVE">
-			<Text>[NEWLINE][NEWLINE]They already are a Vassal State of {1_PlayerName:textkey} and cannot capitulate.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_DONT_WANT_TT">
-			<Text>[NEWLINE][NEWLINE]They have no desire to become our vassal state.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED">
-			<Text>[NEWLINE][NEWLINE]We must be at least in the Medieval Era to create vassals or liberate vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED">
-			<Text>[NEWLINE][NEWLINE]They must be at least in the Medieval Era to create vassals or liberate vassals.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS">
-			<Text>[NEWLINE][NEWLINE]We have no vassals to revoke!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS">
-			<Text>[NEWLINE][NEWLINE]They have no vassals to revoke!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER">
-			<Text>[NEWLINE][NEWLINE]They cannot ask their master to revoke vassals!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER">
-			<Text>[NEWLINE][NEWLINE]We cannot ask our master to revoke their vassals!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL">
-			<Text>[NEWLINE][NEWLINE]You already are a vassal of {1_PlayerName:textkey} and you cannot adopt vassals as a vassal.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL">
-			<Text>[NEWLINE][NEWLINE]They already are a vassal of {1_PlayerName:textkey} and they cannot adopt vassals as a vassal.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON">
-			<Text>[NEWLINE][NEWLINE]You cannot become your vassal for {1_Num} turn(s) because it has been too soon since your vassalage ended.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON">
-			<Text>[NEWLINE][NEWLINE]They cannot become your vassal for {1_Num} turn(s) because it has been too soon since their vassalage ended.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_SPECIAL_RULE">
-			<Text>[NEWLINE][NEWLINE]You cannot become their vassal because a special rule is preventing you from doing so.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_SPECIAL_RULE">
-			<Text>[NEWLINE][NEWLINE]They cannot become your vassal because a special rule is preventing you from doing so.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION">
-			<Text>[NEWLINE][NEWLINE]You cannot capitulate because you have no cities or population!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION">
-			<Text>[NEWLINE][NEWLINE]They cannot capitulate because they have no cities or population!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL">
-			<Text>[NEWLINE][NEWLINE]You cannot become their vassal because you are already a vassal of {1_CivName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL">
-			<Text>[NEWLINE][NEWLINE]They cannot become your vassal because they are already a vassal of {1_CivName}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL">
-			<Text>[NEWLINE][NEWLINE]You cannot become their vassal because you are already their vassal!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL">
-			<Text>[NEWLINE][NEWLINE]They cannot become your vassal because they are already your vassal!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_TOO_SOON">
-			<Text>[NEWLINE][NEWLINE]This player cannot capitulate for {1_Num} turn(s) because it has been too soon since the last capitulation.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED">
-			<Text>[NEWLINE][NEWLINE]Cannot capitulate because "Enable Human Vassalage" Game Option is not enabled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_VASSAL">
 			<Text>End vassalage with {1_PlayerName:textkey}.</Text>
