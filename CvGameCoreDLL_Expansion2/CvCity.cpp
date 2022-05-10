@@ -8817,8 +8817,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
-	//no wonders in puppets or automated cities (also affects venice)
-	if (IsPuppet() || isHumanAutomated())
+	//no wonders in puppets (also affects venice)
+	if (IsPuppet())
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
