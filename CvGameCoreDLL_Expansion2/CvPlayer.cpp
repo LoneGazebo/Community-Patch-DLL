@@ -40465,23 +40465,7 @@ bool CvPlayer::removeFromArmy(int iArmyID, int iID)
 {
 	CvArmyAI* pThisArmyAI = getArmyAI(iArmyID);
 	if(pThisArmyAI)
-		return pThisArmyAI->RemoveUnit(iID);
-
-	return false;
-}
-
-
-//	---------------------------------------------------------------------------
-bool CvPlayer::removeFromArmy(int iID)
-{
-	// for all the army AIs
-	int iLoop;
-	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		//unit can only be in one army
-		if (removeFromArmy(pLoopArmyAI->GetID(), iID))
-			return true;
-	}
+		return pThisArmyAI->RemoveUnit(iID, false) != -1;
 
 	return false;
 }

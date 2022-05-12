@@ -1371,8 +1371,8 @@ void CvHomelandAI::PlotUpgradeMoves()
 	int iLoop;
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		if (pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed() && !pUnit->isDelayedDeath())
+		// Don't try and upgrade a human player's unit
+		if (pUnit && !pUnit->isHuman() && pUnit->isReadyForUpgrade() && !pUnit->isDelayedDeath() && !pUnit->isProjectedToDieNextTurn())
 		{
 			//Let's only worry about units in our land.
 			if (pUnit->plot()->getOwner() != m_pPlayer->GetID())
@@ -1481,10 +1481,24 @@ void CvHomelandAI::PlotUpgradeMoves()
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
 			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
+				//if the unit is currently in an army we need some extra bookkeeping
+				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+				int iArmySlot = -1;
+				if (pArmy)
+					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+				//this removes the unit from the army (if any)
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
+
+				//if it worked the old unit is now a zombie ...
 				UnitProcessed(pUnit->GetID());
+
 				if (pNewUnit)
 				{
+					//restore the army
+					if (pArmy)
+						pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, true);
+
 					UnitProcessed(pNewUnit->GetID());
 
 					if (GC.getLogging() && GC.getAILogging())
