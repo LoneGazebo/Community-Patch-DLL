@@ -14964,6 +14964,9 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 					return true;
 #endif
 
+				if (canMoveAllTerrain())
+					return true;
+
 				//must be water
 				return false;
 			}
