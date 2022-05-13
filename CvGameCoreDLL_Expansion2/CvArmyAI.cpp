@@ -47,7 +47,7 @@ void CvArmyAI::ReleaseAllUnits()
 		if (!m_FormationEntries[i].IsUsed())
 			continue;
 
-		RemoveUnit( m_FormationEntries[i].GetUnitID() );
+		RemoveUnit( m_FormationEntries[i].GetUnitID(), false );
 	}
 
 	m_FormationEntries.clear();
@@ -387,7 +387,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 
 			//let tactical AI handle units which are badly hurt
 			if (pUnit->shouldHeal())
-				RemoveUnit(m_FormationEntries[iI].GetUnitID());
+				RemoveUnit(m_FormationEntries[iI].GetUnitID(),false);
 			else if (pUnit->getArmyID() != GetID())
 				//failsafe - make sure the army ID is set
 				pUnit->setArmyID(GetID());
@@ -423,7 +423,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 						pUnit->getName().c_str(), m_FormationEntries[iI].GetUnitID(), GetID(), pCurrentArmyPlot->getX(), pCurrentArmyPlot->getY(),
 						m_FormationEntries[iI].GetTurnsToCheckpoint(0), m_FormationEntries[iI].GetTurnsToCheckpoint(1), m_FormationEntries[iI].GetTurnsToCheckpoint(2));
 					pOperation->LogOperationSpecialMessage(strMsg);
-					RemoveUnit(m_FormationEntries[iI].GetUnitID());
+					RemoveUnit(m_FormationEntries[iI].GetUnitID(),false);
 				}
 			}
 		}
@@ -568,7 +568,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	CvUnit* pThisUnit = thisPlayer.getUnit(iUnitID);
-	if (!pThisUnit)
+	if (!pThisUnit || iSlotNum<0 || iSlotNum>=(int)m_FormationEntries.size())
 		return;
 
 	// uh, slot already used?
@@ -612,10 +612,10 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 }
 
 /// Remove a unit from the army
-bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
+int CvArmyAI::RemoveUnit(int iUnitToRemoveID, bool bTempOnly)
 {
 	if (iUnitToRemoveID == -1)
-		return false;
+		return -1;
 
 	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
@@ -631,21 +631,26 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 				pThisUnit->setArmyID(-1);
 				pThisUnit->AI_setUnitAIType(pThisUnit->getUnitInfo().GetDefaultUnitAIType());
 
-				// Tell the associate operation that a unit was lost
-				CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
-				if(pThisOperation)
-					pThisOperation->UnitWasRemoved(GetID(), iI);
+				// Tell the associated operation that a unit was lost
+				// This might lead to an abort, so sometimes we want to suppress it
+				if (!bTempOnly)
+				{
+					CvAIOperation* pThisOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
+					if (pThisOperation)
+						pThisOperation->UnitWasRemoved(GetID(), iI);
+				}
 
 				// Make the unit available for tactical moves
 				pThisUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
-				GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
+				if (!pThisUnit->isDelayedDeath())
+					GET_PLAYER(GetOwner()).GetTacticalAI()->AddCurrentTurnUnit(pThisUnit);
 
-				return true;
+				return iI;
 			}
 		}
 	}
 
-	return false;
+	return -1;
 }
 
 /// Retrieve units from the army - first call (CvUnit* version)

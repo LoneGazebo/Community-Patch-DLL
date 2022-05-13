@@ -2209,9 +2209,10 @@ CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort,
 	//Maybe we just make this guy our new escort, eh?
 	if(pPlotDefender && pPlotDefender->getArmyID() == -1 && pPlotDefender->getDomainType() == pCivilian->getDomainType() && pPlotDefender->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
 	{
-		if (pThisArmy->RemoveUnit(pEscort->GetID()))
+		int iSlot = pThisArmy->RemoveUnit(pEscort->GetID(),true);
+		if (iSlot>=0)
 		{
-			pThisArmy->AddUnit(pPlotDefender->GetID(), 1, true);
+			pThisArmy->AddUnit(pPlotDefender->GetID(), iSlot, true);
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -3944,7 +3945,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 					continue;
 
 				if (pArmy->GetArmyAIState() != ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
-					pArmy->RemoveUnit(pUnit->GetID());
+					pArmy->RemoveUnit(pUnit->GetID(), false);
 			}
 		}
 
