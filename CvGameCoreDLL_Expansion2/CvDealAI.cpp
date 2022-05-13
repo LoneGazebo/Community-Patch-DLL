@@ -897,13 +897,10 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	{
 		int iMaxPeace = (GetCachedValueOfPeaceWithHuman() * -1);
 		if (iTotalValueToMe < 0)
-		{
 			iTotalValueToMe *= -1;
-		}
+
 		if (iTotalValueToMe <= iMaxPeace)
-		{
 			return true;
-		}
 	}
 
 	// Peace deal where we're not surrendering, value must equal cached value
@@ -911,9 +908,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	{
 		int iMaxPeace = GetCachedValueOfPeaceWithHuman();
 		if (iTotalValueToMe >= iMaxPeace)
-		{
 			return true;
-		}
 	}
 
 	// Now do the valuation

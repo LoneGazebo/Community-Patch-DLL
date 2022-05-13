@@ -52,6 +52,9 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(GetGoldAvailable);
 
 	Method(IsPossibleToTradeItem);
+	Method(GetReasonsItemUntradeable);
+	Method(BlockTemporaryForPermanentTrade);
+
 	Method(GetNumResource);
 
 	Method(AddGoldTrade);
@@ -132,6 +135,34 @@ int CvLuaDeal::lIsPossibleToTradeItem(lua_State* L)
 	const bool bFlag1 = lua_toboolean(L, 8);
 
 	const bool bResult = pkDeal->IsPossibleToTradeItem(eFromPlayer, eToPlayer, eItem, iData1, iData2, iData3, bFlag1);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaDeal::lGetReasonsItemUntradeable(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const TradeableItems eItem = (TradeableItems) lua_tointeger(L, 4);
+	const int iData1 = lua_tointeger(L, 5);
+	const int iData2 = lua_tointeger(L, 6);
+	const int iData3 = lua_tointeger(L, 7);
+	const bool bFlag1 = lua_toboolean(L, 8);
+
+	CvString sResult = pkDeal->GetReasonsItemUntradeable(eFromPlayer, eToPlayer, eItem, iData1, iData2, iData3, bFlag1);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+
+int CvLuaDeal::lBlockTemporaryForPermanentTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const TradeableItems eItem = (TradeableItems) lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 3);
+	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 4);
+
+	const bool bResult = pkDeal->BlockTemporaryForPermanentTrade(eItem, eFromPlayer, eToPlayer);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

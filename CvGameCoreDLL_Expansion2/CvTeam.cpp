@@ -1092,7 +1092,7 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 	}
 
 	// Vassals have no control over war/peace
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone())
+	if (IsVassalOfSomeone())
 	{
 		return false;
 	}
@@ -1160,7 +1160,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		return false;
 	}
 
-	if (!(isAlive() && GET_TEAM(eTeam).isAlive()))
+	if (!isAlive() || !GET_TEAM(eTeam).isAlive())
 	{
 		return false;
 	}
@@ -1190,7 +1190,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		return false;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && IsVassalOfSomeone() && GetMaster() != eTeam)
+	if (IsVassalOfSomeone() && GetMaster() != eTeam)
 	{
 		return false;
 	}
@@ -1214,18 +1214,17 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 	for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
 		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
-		if (eLoopTeam != NO_TEAM && eLoopTeam != GetID() && eLoopTeam != eTeam && (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam) || GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam)))
+		if (eLoopTeam != NO_TEAM && eLoopTeam != GetID() && eLoopTeam != eTeam && (GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam) || GET_TEAM(eLoopTeam).IsVassal(eTeam)))
 		{
-			if (!GET_PLAYER(eOriginatingPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
+			if (GET_TEAM(eTeam).isHuman() && !GET_PLAYER(eOriginatingPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
 				return false;
 
 			// Exploit prevention: Can't bypass a Peace Treaty!
-			if (isForcePeace(eLoopTeam))
+			if (isForcePeace(eLoopTeam) && /*exclude the vassal case for Peace Treaties*/ !GET_TEAM(eLoopTeam).IsVassal(eTeam))
 				return false;
 		}
 	}
 
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) 
 	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE) 
@@ -1238,11 +1237,10 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 			return false;
 		}
 	}
-#endif
 
 	// First, obtain the Lua script system.
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if (pkScriptSystem)
 	{
 		// Construct and push in some event arguments.
 		CvLuaArgsHandle args(2);
@@ -1252,13 +1250,11 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 		// Attempt to execute the game events.
 		// Will return false if there are no registered listeners.
 		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "CanDeclareWar", args.get(), bResult))
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanDeclareWar", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
-			{
+			if (!bResult)
 				return false;
-			}
 		}
 	}
 
@@ -9407,37 +9403,26 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary)
 }
 
 //	-----------------------------------------------------------------------------------------------
-// Can we end our vassalage with eTeam?
+// Are we (the master) able to end our vassalage with all of our vassals?
 bool CvTeam::canEndAllVassal()
 {
 	if (GetNumVassals() <= 0)
 		return false;
 
-	if (IsVassalOfSomeone())
-		return false;
-
-	TeamTypes eLoopTeam;
-	
-	int iMinTurns;
 	// Go through every major.
-	for(int iTeamLoop=0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
-		eLoopTeam = (TeamTypes) iTeamLoop;
+		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
 
-		if (!GET_TEAM(eLoopTeam).isAlive())
+		if (!GET_TEAM(eLoopTeam).isAlive() || !GET_TEAM(eLoopTeam).isMajorCiv())
 			continue;
 
-		// Ignore minors.
-		if (GET_TEAM(eLoopTeam).isMinorCiv())
-			continue;
-
-		// Is eLoopTeam the vassal of us?
+		// Is eLoopTeam our vassal?
 		if (!GET_TEAM(eLoopTeam).IsVassal(GetID()))
 			continue;
 
 		// Too soon to end our vassalage with ePlayer
-		iMinTurns = GET_TEAM(eLoopTeam).IsVoluntaryVassal(GetID()) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
-		if(GetNumTurnsIsVassal() < iMinTurns)
+		if (GET_TEAM(eLoopTeam).GetNumTurnsIsVassal() < GC.getGame().getGameSpeedInfo().getMinimumVassalLiberateTurns())
 		{
 			return false;
 		}
@@ -9445,6 +9430,8 @@ bool CvTeam::canEndAllVassal()
 
 	return true;
 }
+
+// Can we end our vassalage with eTeam?
 bool CvTeam::canEndVassal(TeamTypes eTeam) const
 {
 	if(eTeam == NO_TEAM) return false;
@@ -9836,7 +9823,7 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 
 	// First, obtain the Lua script system.
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if (pkScriptSystem)
 	{
 		// Construct and push in some event arguments.
 		CvLuaArgsHandle args(2);
@@ -9846,13 +9833,11 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 		// Attempt to execute the game events.
 		// Will return false if there are no registered listeners.
 		bool bResult = false;
-		if(LuaSupport::CallTestAll(pkScriptSystem, "CanMakeVassal", args.get(), bResult))
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanMakeVassal", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
-			{
+			if (!bResult)
 				return false;
-			}
 		}
 	}
 
@@ -10060,12 +10045,10 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if (eLoopTeam == eTeam)
-		{
-			vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
-		}
-		else if (eLoopTeam == GetID())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).isHuman())
+			continue;
+
+		if (eLoopTeam == GetID())
 		{
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateCompetingForVictory();
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateRecklessExpanders();
@@ -10075,15 +10058,11 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateVictoryDisputeLevels();
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateVictoryBlockLevels();
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
-			vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
 		}
-		else
-		{
-			vector<PlayerTypes> vTeam = GET_TEAM(eTeam).getPlayers();
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vTeam);
-		}
+
+		// AI needs to reevaluate all players (reprioritizes friendships and prevents exceeding the Defensive Pact limit)
+		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, !bVoluntary, true);
 	}
 
 	if(GC.getGame().isFinalInitialized())

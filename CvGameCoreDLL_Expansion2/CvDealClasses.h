@@ -207,6 +207,12 @@ public:
 #endif
 
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bFinalizing = false);
+	bool BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	CvString GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1);
+
+	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER, ResourceTypes eResource = NO_RESOURCE);
+	bool ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom = NO_PLAYER);
+
 	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetNumCitiesInDeal(PlayerTypes ePlayer);
 
@@ -273,10 +279,6 @@ public:
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void RemoveVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
-
-	bool BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
-	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER, ResourceTypes eResource = NO_RESOURCE);
-	bool ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom = NO_PLAYER);
 };
 
 FDataStream& operator>>(FDataStream&, CvDeal&);
