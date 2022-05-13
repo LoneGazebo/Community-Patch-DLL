@@ -27,8 +27,8 @@ local g_Deal = UI.GetScratchDeal();
 local g_iDiploUIState;
 local g_bPVPTrade;
 local g_bTradeReview = false;
-local g_iNumOthers;
-local g_iNumMajors;
+local g_iNumOthers = 0;
+local g_iNumOtherMajors = 0;
 local g_bEnableThirdParty = true;
 
 local g_iConcessionsPreviousDiploUIState = -1;
@@ -257,7 +257,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			DoDemandState(true);
 			
 		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-			--print("DiploUIState: Human Demand");
 			bClearTableAndDisplayDeal = true;
 			-- If we're demanding something, there's no need to show OUR items
 			Controls.UsPanel:SetHide(true);
@@ -291,6 +290,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		    
 			DoClearTable();
 			DisplayDeal();
+
+			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+				-- Hide Defensive Pact/Research Agreement on their side
+				Controls.ThemPocketDefensivePact:SetHide(true);
+				Controls.ThemPocketResearchAgreement:SetHide(true);
+			end
 			
 		-- Don't clear the table, leave things as they are
 		else
@@ -562,12 +567,14 @@ function OnShowHide( isHide, bIsInit )
             -- hide unmet players
             if( g_bEnableThirdParty ) then
                 g_iNumOthers = 0;
-				g_iNumMajors = 0;
+				g_iNumOtherMajors = 0;
             	for iLoopPlayer = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
             		pLoopPlayer = Players[iLoopPlayer];
             		iLoopTeam = pLoopPlayer:GetTeam();
 					
-					--print("iLoopPlayer: " .. iLoopPlayer);
+					if (iLoopTeam ~= g_iUsTeam and pLoopPlayer:IsAlive() and pLoopPlayer:IsMajorCiv()) then
+						g_iNumOtherMajors = g_iNumOtherMajors + 1;
+					end
 					
 					if (pLoopPlayer:IsEverAlive()) then
         				if (g_iUs ~= iLoopPlayer and g_iThem ~= iLoopPlayer and
@@ -577,10 +584,6 @@ function OnShowHide( isHide, bIsInit )
             				g_OtherPlayersButtons[ iLoopPlayer ].UsPocket.Button:SetHide( false );
             				g_OtherPlayersButtons[ iLoopPlayer ].ThemPocket.Button:SetHide( false );
             				g_iNumOthers = g_iNumOthers + 1;
-
-							if (pLoopPlayer:IsMajorCiv()) then
-								g_iNumMajors = g_iNumMajors + 1;
-							end
         				else
             				g_OtherPlayersButtons[ iLoopPlayer ].UsPocket.Button:SetHide( true );
             				g_OtherPlayersButtons[ iLoopPlayer ].ThemPocket.Button:SetHide( true );
@@ -739,7 +742,7 @@ function DoUpdateButtons()
 		Controls.PeaceDealBorderFrame:SetHide(false);
 
 		if (g_pUsTeam:IsAtWar(g_iThemTeam)) then
-			if (g_Deal:GetSurrenderingPlayer() ~= g_iUs) then
+			if (g_Deal:GetSurrenderingPlayer() == g_iThem) then
 				local iMaxValue = g_pThem:GetCachedValueOfPeaceWithHuman();
 				local iCurrentValue = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr;
@@ -753,10 +756,10 @@ function DoUpdateButtons()
 				Controls.PeaceValue:SetText(Valuestr);
 				Controls.PeaceValue:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_TT"));
 				Controls.PeaceMax:SetHide(false);
-				Controls.PeaceMax:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_THEM_MAX_STR", iMaxValue));
-				Controls.PeaceMax:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_THEM_MAX_STR_TT"));
+				Controls.PeaceMax:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_MAX_STR", iMaxValue));
+				Controls.PeaceMax:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_MAX_STR_TT"));
 			else
-				local iRequiredValue = g_pThem:GetCachedValueOfPeaceWithHuman();
+				local iMinValue = g_pThem:GetCachedValueOfPeaceWithHuman();
 				local iCurrentValue = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr;
 
@@ -769,8 +772,8 @@ function DoUpdateButtons()
 				Controls.PeaceValue:SetText(Valuestr);
 				Controls.PeaceValue:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_TT"));
 				Controls.PeaceMax:SetHide(false);
-				Controls.PeaceMax:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_US_MAX_STR", iRequiredValue));
-				Controls.PeaceMax:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_US_MAX_STR_TT"));
+				Controls.PeaceMax:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_MIN_STR", iMinValue));
+				Controls.PeaceMax:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_MIN_STR_TT"));
 			end
 		else
 			local iCurrentValue = g_pThem:GetTotalValueToMeNormal(g_Deal);
@@ -1088,6 +1091,26 @@ function ResetDisplay()
 		return;
 	end
 
+	if (g_bEnableThirdParty) then
+		g_iNumOthers = 0;
+		g_iNumOtherMajors = 0;
+		for iLoopPlayer = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
+			pLoopPlayer = Players[iLoopPlayer];
+			iLoopTeam = pLoopPlayer:GetTeam();
+			
+			if (iLoopTeam ~= g_iUsTeam and pLoopPlayer:IsAlive() and pLoopPlayer:IsMajorCiv()) then
+				g_iNumOtherMajors = g_iNumOtherMajors + 1;
+			end
+
+			if (g_iUs ~= iLoopPlayer and g_iThem ~= iLoopPlayer and
+				g_pUsTeam:IsHasMet(iLoopTeam) and g_pThemTeam:IsHasMet(iLoopTeam) and
+				pLoopPlayer:IsAlive()) then
+
+				g_iNumOthers = g_iNumOthers + 1;
+			end
+		end
+	end
+
 	local bTeammates = g_iUsTeam == g_iThemTeam;
 	local bShowEmbassy = not bTeammates;
 	local bShowOpenBorders = not bTeammates;
@@ -1132,7 +1155,7 @@ function ResetDisplay()
 		Controls.ThemPocketDoF:SetVoid1(0);
 	end
 
-	if bShowOtherPlayers then
+	if bShowOtherPlayers and g_iNumOthers > 0 then
 		Controls.UsPocketOtherPlayerStack:SetHide(false);
 		Controls.ThemPocketOtherPlayerStack:SetHide(false);
 	else
@@ -1258,6 +1281,7 @@ function ResetDisplay()
 			end
 		end
 	else
+		Controls.UsPocketGold:SetDisabled(false);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Beige_Black");
 	    Controls.UsPocketGold:SetToolTipString(nil);	    
     end
@@ -1287,7 +1311,7 @@ function ResetDisplay()
 	else
 	    Controls.ThemPocketGold:SetDisabled(false);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Beige_Black");
-	    Controls.ThemPocketGold:SetToolTipString(nil);	    
+	    Controls.ThemPocketGold:SetToolTipString(nil);
     end
 
 
@@ -1318,6 +1342,7 @@ function ResetDisplay()
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		Controls.UsPocketGoldPerTurn:SetToolTipString(nil);
     end
 
 	----------------------------------------------------------------------------------
@@ -1345,6 +1370,7 @@ function ResetDisplay()
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		Controls.ThemPocketGoldPerTurn:SetToolTipString(nil);
     end
 
 
@@ -1449,7 +1475,7 @@ function ResetDisplay()
 	if bShowDefensivePact then
 		local iLimit = g_pUs:CalculateDefensivePactLimit();
 
-		if iLimit >= g_iNumMajors then
+		if iLimit >= g_iNumOtherMajors then
 			strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEF_PACT_NO_LIMIT_TT", g_iDealDuration);
 		else
 			strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEF_PACT_TT", g_iDealDuration, iLimit);
@@ -1500,7 +1526,7 @@ function ResetDisplay()
     ----------------------------------------------------------------------------------
 
 	if bShowResearchAgreement then
-		strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_RESCH_AGREEMENT_TT", iCost, g_iDealDuration);
+		strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_RESCH_AGREEMENT_TT", iRACost, g_iDealDuration);
 
 		-- Our Side
 		bTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iDealDuration);
@@ -1602,7 +1628,7 @@ function ResetDisplay()
 		if (bTheyAreSurrendering) then
 			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_CITIES, g_iUs, g_iThem)) then
-			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT"));
 		end
@@ -1627,7 +1653,7 @@ function ResetDisplay()
 		if (bWeAreSurrendering) then
 			Controls.ThemPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_CITIES, g_iThem, g_iUs)) then
-			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.UsPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.ThemPocketCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM"));
 		end
@@ -1725,7 +1751,7 @@ function ResetDisplay()
 		if (bTheyAreSurrendering) then
 			Controls.UsPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, g_iThem)) then
-			Controls.UsPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.UsPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.UsPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO"));
 		end
@@ -1748,7 +1774,7 @@ function ResetDisplay()
 		if (bTheyAreSurrendering) then
 			Controls.UsPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, g_iThem)) then
-			Controls.UsPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.UsPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.UsPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO"));
 		end
@@ -1802,7 +1828,7 @@ function ResetDisplay()
 		if (bWeAreSurrendering) then
 			Controls.ThemPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_RESOURCES, g_iThem, g_iUs)) then
-			Controls.ThemPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.ThemPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.ThemPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO_THEM"));
 		end
@@ -1825,7 +1851,7 @@ function ResetDisplay()
 		if (bWeAreSurrendering) then
 			Controls.ThemPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT"));
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_RESOURCES, g_iThem, g_iUs)) then
-			Controls.ThemPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.ThemPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 		else
 			Controls.ThemPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO_THEM"));
 		end
@@ -1848,7 +1874,7 @@ function ResetDisplay()
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iUs, g_iThem)) then
 			Controls.UsPocketVote:SetDisabled(true);
 			Controls.UsPocketVote:GetTextControl():SetColorByName("Gray_Black");
-			Controls.UsPocketVote:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.UsPocketVote:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 			Controls.UsPocketVote:SetText(Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_VOTES"));
 		else
 			bTradeAllowed = g_pUs:CanCommitVote(g_pThem:GetID());
@@ -1881,7 +1907,7 @@ function ResetDisplay()
 		elseif (g_Deal:BlockTemporaryForPermanentTrade(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iThem, g_iUs)) then
 			Controls.ThemPocketVote:SetDisabled(true);
 			Controls.ThemPocketVote:GetTextControl():SetColorByName("Gray_Black");
-			Controls.ThemPocketVote:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+			Controls.ThemPocketVote:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT"));
 			Controls.ThemPocketVote:SetText(Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_VOTES"));
 		else
 			bTradeAllowed = g_pThem:CanCommitVote(g_pUs:GetID());
@@ -3270,6 +3296,9 @@ function ShowOtherPlayerChooser(isUs, type)
 		iToPlayer = g_iUs;
 	end
 
+	local bWeAreSurrendering = type == WAR and g_pUsTeam:IsAtWar(g_iThemTeam) and g_Deal:GetSurrenderingPlayer() ~= g_iThem and iFromPlayer == g_iThem and (not g_bPVPTrade);
+	local bTheyAreSurrendering = type == WAR and g_pUsTeam:IsAtWar(g_iThemTeam) and g_Deal:GetSurrenderingPlayer() == g_iThem and iFromPlayer == g_iUs and (not g_bPVPTrade);
+
 	for iLoopPlayer = 0, GameDefines.MAX_CIV_PLAYERS-1, 1 do
 		pLoopPlayer = Players[iLoopPlayer];
 		iLoopTeam = pLoopPlayer:GetTeam();
@@ -3289,10 +3318,15 @@ function ShowOtherPlayerChooser(isUs, type)
 				else
 					otherPlayerButtonSubTableNameButton:SetDisabled(true);
 					otherPlayerButtonSubTableNameButton:SetAlpha(0.5);
-					strTooltip = g_Deal:GetReasonsItemUntradeable(iFromPlayer, iToPlayer, tradeType, iLoopTeam);
+
+					if (bWeAreSurrendering or bTheyAreSurrendering) then
+						strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT");
+					else
+						strTooltip = g_Deal:GetReasonsItemUntradeable(iFromPlayer, iToPlayer, tradeType, iLoopTeam);
+					end
 				end
 
-				otherPlayerButtonSubTableNameButton:SetToolTipString(strToolTip);
+				otherPlayerButtonSubTableNameButton:SetToolTipString(strTooltip);
 			end
 		end
 	end

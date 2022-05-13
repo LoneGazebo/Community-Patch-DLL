@@ -2833,22 +2833,22 @@
 			<Text>Peace Deal Value: {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_TT">
-			<Text>Current trade value of items in Peace Deal. If the value here is 'Impossible,' that means the leader refuses to trade one or more of the items in the Peace Deal.</Text>
+			<Text>The leader's current valuation of this Peace Deal. If the value here is 'Impossible!', the leader refuses to trade one or more of the items in the Peace Deal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_IMPOSSIBLE">
 			<Text>Peace Deal Value: Impossible!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PEACE_THEM_MAX_STR">
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR">
 			<Text>Max Value: {1_Num}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PEACE_THEM_MAX_STR_TT">
-			<Text>Maximum trade value of items in Peace Deal. If the value to the left of this exceeds this number, the leader will refuse the deal.</Text>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR_TT">
+			<Text>Maximum value of items in Peace Deal. If the value to the left of this exceeds this number, the leader will refuse the deal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PEACE_US_MAX_STR">
-			<Text>Required Value: {1_Num}.</Text>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR">
+			<Text>Min Value: {1_Num}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_PEACE_US_MAX_STR_TT">
-			<Text>Required trade value of items in Peace Deal. If this number exceeds the value to the left, the leader will refuse the deal.</Text>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR_TT">
+			<Text>Minimum value of items in Peace Deal. If this number exceeds the value to the left, the leader will refuse the deal.</Text>
 		</Row>
 
 		<!-- Regular Deal Details - Lua -->
@@ -2856,7 +2856,7 @@
 			<Text>Deal Value for Them: {1_Num}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_TT">
-			<Text>This leader's current valuation of the trade items in this Deal. If the value here is negative or 'Impossible', the leader will refuse to accept the Deal.</Text>
+			<Text>The leader's current valuation of this Deal. If the value here is negative or 'Impossible!', the leader refuses to trade one or more of the items in the Deal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_ACCEPTABLE">
 			<Text>Deal Value for Them: Acceptable</Text>
@@ -2883,13 +2883,7 @@
 		<Row Tag="TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS">
 			<Text>At least one player lacks the required funds for this agreement.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_CANNOT_DEMAND_GOLD_TT">
-			<Text>Cannot demand lump sum Gold. Try demanding Gold Per Turn instead.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_CANNOT_DEMAND_TWOSIDED_TT">
-			<Text>Not allowed in Demands.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
+		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
 			<Text>Cannot trade lump sum items (such as Gold) for items given over time (such as Resources).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
@@ -3006,7 +3000,7 @@
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL">
 			<Text>Vassals cannot declare war.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL">
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL_TARGET">
 			<Text>Cannot broker war against a vassal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_OUR_MASTER">

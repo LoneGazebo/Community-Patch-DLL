@@ -1327,20 +1327,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 
 	// Diplo AI Option to allow lump Gold trading
 	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled() || (GC.getGame().IsLumpGoldTradingHumanOnly() && (bFromHuman || bToHuman));
-	bool bExempted = false;
-
-	if (eItemType == TRADE_ITEM_GOLD)
-	{
-		if (bLumpGoldEnabled)
-		{
-			bExempted = true;
-		}
-		// Can't demand lump Gold - too exploitable
-		else if (this->GetDemandingPlayer() == eToPlayer)
-		{
-			return true;
-		}
-	}
+	bool bExempted = eItemType == TRADE_ITEM_GOLD && bLumpGoldEnabled;
 
 	bool bTemporary = false;
 	switch (eItemType)
@@ -1401,7 +1388,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 /// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1)
 {
-	CvString strTooltip = "", strReason = "", strDivider = "[NEWLINE][NEWLINE]", strStartColor = "[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]", strEndColor = "[ENDCOLOR]";
+	CvString strTooltip = "", strReason = "", strDivider = "[NEWLINE][NEWLINE]", strStartColor = "[COLOR_NEGATIVE_TEXT]", strEndColor = "[ENDCOLOR]";
 	CvString strError = ""; // There shouldn't be a tooltip for this reason (because either the situation should not ever occur ingame, or the item is hidden by the UI)
 
 	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
@@ -1442,7 +1429,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 	bool bFromHuman = pFromPlayer->isHuman();
 	bool bToHuman = pToPlayer->isHuman();
 	bool bSameTeam = eFromTeam == eToTeam;
-	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER || this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER;
+	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER;
 
 	// This deal must have only one human player
 	if (bFromHuman && bToHuman)
@@ -1473,43 +1460,23 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strError;
 		}
 	}
-	// AI won't add anything to its side for a demand
-	else if (bOneSided && this->GetDemandingPlayer() == ePlayer)
-	{
-		return strError;
-	}
-	// AI won't add anything to its side for a request
-	else if (bOneSided && this->GetRequestingPlayer() == ePlayer)
-	{
-		return strError;
-	}
 
+	strTooltip = strStartColor;
 	bool bIsGold = eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN;
 	bool bIsThirdPartyDeal = eItem == TRADE_ITEM_THIRD_PARTY_PEACE || eItem == TRADE_ITEM_THIRD_PARTY_WAR;
-
-	if (!bIsGold && !bIsThirdPartyDeal)
-		strTooltip += strStartColor;
 
 	// AI will refuse to trade temporary items for permanent items.
 	if (BlockTemporaryForPermanentTrade(eItem, ePlayer, eToPlayer))
 	{
-		if (eItem == TRADE_ITEM_GOLD && bOneSided)
+		if (bIsGold || bIsThirdPartyDeal)
 		{
-			return GetLocalizedText("TXT_KEY_DIPLO_CANNOT_DEMAND_GOLD_TT");
-		}
-		else if (bIsGold)
-		{
-			return GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
-		}
-		else if (bIsThirdPartyDeal)
-		{
-			strTooltip = GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
+			return GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT");
 		}
 		else
 		{
-			strReason = GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
-			strTooltip += strReason;
+			strReason = GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT");
 			strTooltip += strDivider;
+			strTooltip += strReason;
 		}
 	}
 	else if (bIsGold)
@@ -1525,8 +1492,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 	if (iCost > 0 && iGoldAvailable < iCost)
 	{
 		strReason = GetLocalizedText("TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS");
-		strTooltip += strReason;
 		strTooltip += strDivider;
+		strTooltip += strReason;
 	}
 
 	iGoldAvailable -= iCost;
@@ -1546,7 +1513,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			{
 				if (bToHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_HAVE");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -1554,7 +1522,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				}
 				else if (bFromHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_THEY_HAVE");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -1565,7 +1534,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1576,8 +1546,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (bPeaceDeal)
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			// Player has no capital to receive the embassy
@@ -1586,14 +1556,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL_THEM");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -1603,14 +1573,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_PLAYER");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_OTHER_PLAYER");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -1618,8 +1588,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (pFromPlayer->GetDiplomacyAI()->IsDenouncedPlayer(eToPlayer) || pToPlayer->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_DENOUNCEMENT");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			break;
@@ -1645,7 +1615,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			{
 				if (bFromHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_HAVE");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -1653,7 +1624,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				}
 				else if (bToHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_THEY_HAVE");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -1664,7 +1636,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1675,16 +1648,16 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (bPeaceDeal)
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			// Neither of us yet has the tech for Open Borders
 			if (!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_NO_TECH");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 			else if (!bPeaceDeal)
 			{
@@ -1694,14 +1667,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
 						strTooltip += strReason;
-						strTooltip += strDivider;						
 					}
 				}
 			}
@@ -1727,7 +1700,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// We already have a Defensive Pact!
 			if (!bIgnoreExistingDP && pFromTeam->IsHasDefensivePact(eToTeam))
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_EXISTS");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1759,7 +1733,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 			if (iTotalOtherMajors < 2)
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_INSUFFICIENT_MAJORS");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1767,7 +1742,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 			else if (iMyLimit == 0 || iTheirLimit == 0)
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_DISABLED_BY_OPTIONS");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1777,7 +1753,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// Vassals cannot make Defensive Pacts.
 			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_EXISTING_VASSALAGE");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1787,7 +1764,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1797,24 +1775,16 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (bPeaceDeal)
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
-				strTooltip += strReason;
-				strTooltip += strDivider;				
-			}
-			else if (bOneSided)
-			{
-				strTooltip = strStartColor;
-				strReason = GetLocalizedText("TXT_KEY_DIPLO_CANNOT_DEMAND_TWOSIDED_TT");
-				strTooltip += strReason;
-				strTooltip += strEndColor;
-				return strTooltip;
+				strTooltip += strDivider;
+				strTooltip += strReason;				
 			}
 
 			// Neither of us yet has the Tech for DP
 			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_NO_TECH");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			if (!bPeaceDeal)
@@ -1823,8 +1793,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (ContainsItemType(TRADE_ITEM_VASSALAGE))
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 
 				// Mutual embassies are required
@@ -1833,22 +1803,22 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
 					{
 						if (bFromHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-							strTooltip += strReason;
 							strTooltip += strDivider;
+							strTooltip += strReason;
 						}
 						else if (bToHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-							strTooltip += strReason;
 							strTooltip += strDivider;
+							strTooltip += strReason;
 						}
 					}
 					else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
@@ -1856,14 +1826,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 						if (bToHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-							strTooltip += strReason;
 							strTooltip += strDivider;
+							strTooltip += strReason;
 						}
 						else if (bFromHuman)
 						{
 							strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-							strTooltip += strReason;
 							strTooltip += strDivider;
+							strTooltip += strReason;
 						}
 					}
 				}
@@ -1875,14 +1845,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED", iMyLimit);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM", iMyLimit);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -1891,14 +1861,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED", iTheirLimit);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM", iTheirLimit);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -1918,7 +1888,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// We already have a Research Agreement! To-do: Renew Research Agreement deals?
 			if (pFromTeam->IsHasResearchAgreement(eToTeam))
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_EXISTS");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1928,7 +1899,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// Someone already has all techs
 			if (pFromTeam->GetTeamTechs()->HasResearchedAllTechs() || pToTeam->GetTeamTechs()->HasResearchedAllTechs())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_ALL_TECHS_RESEARCHED");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1938,7 +1910,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -1948,32 +1921,24 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (bPeaceDeal)
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+				strTooltip += strDivider;
 				strTooltip += strReason;
-				strTooltip += strDivider;				
-			}
-			else if (bOneSided)
-			{
-				strTooltip = strStartColor;
-				strReason = GetLocalizedText("TXT_KEY_DIPLO_CANNOT_DEMAND_TWOSIDED_TT");
-				strTooltip += strReason;
-				strTooltip += strEndColor;
-				return strTooltip;
 			}
 
 			// Neither of us yet has the Tech for RA
 			if (!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_TECH");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			// Declaration of Friendship is required
 			if (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_NEED_DOF_TT");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			// Mutual embassies are required
@@ -1982,22 +1947,22 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
 				{
 					if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 				else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
@@ -2005,14 +1970,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 			}
@@ -2028,7 +1993,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -2041,22 +2007,22 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (!pFromTeam->isMapTrading() && !pToTeam->isMapTrading())
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (!pFromTeam->isMapTrading())
 				{
 					if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 				else
@@ -2064,14 +2030,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 			}
@@ -2082,22 +2048,22 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
 				{
 					if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 				else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
@@ -2105,14 +2071,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 			}
@@ -2134,14 +2100,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					if (bToHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 					else if (bFromHuman)
 					{
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED");
-						strTooltip += strReason;
 						strTooltip += strDivider;
+						strTooltip += strReason;
 					}
 				}
 			}
@@ -2159,7 +2125,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			{
 				if (bFromHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2167,7 +2134,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				}
 				else if (bToHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2177,7 +2145,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 			if (!bPeaceDeal && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -2204,7 +2173,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 					// Check the result.
 					if (!bResult)
 					{
-						strTooltip = strStartColor;
+						strTooltip = strDivider;
+						strTooltip += strStartColor;
 						strReason = GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
 						strTooltip += strReason;
 						strTooltip += strEndColor;
@@ -2216,7 +2186,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -2226,7 +2197,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// Human Vassalage not enabled
 			if (bFromHuman && !GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS))
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -2241,14 +2213,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL", GET_TEAM(eToMaster).getName());
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL", GET_TEAM(eToMaster).getName());
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -2260,14 +2232,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL", GET_TEAM(eFromMaster).getName());
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL", GET_TEAM(eFromMaster).getName());
-					strTooltip += strReason;
-					strTooltip += strDivider;					
+					strTooltip += strDivider;
+					strTooltip += strReason;					
 				}
 			}
 
@@ -2279,14 +2251,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON", iTurnsLeft);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON", iTurnsLeft);
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -2296,14 +2268,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -2313,14 +2285,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION");
-					strTooltip += strReason;
 					strTooltip += strDivider;
+					strTooltip += strReason;
 				}
 			}
 
@@ -2328,8 +2300,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT) || ContainsItemType(TRADE_ITEM_VASSALAGE_REVOKE))
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM");
-				strTooltip += strReason;
 				strTooltip += strDivider;
+				strTooltip += strReason;
 			}
 
 			break;
@@ -2345,7 +2317,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			{
 				if (bFromHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2353,7 +2326,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				}
 				else if (bToHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2364,7 +2338,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// AI teammate of human
 			if (pFromPlayer->IsAITeammateOfHuman())
 			{
-				strTooltip = strStartColor;
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
 				strTooltip += strReason;
 				strTooltip += strEndColor;
@@ -2376,7 +2351,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			{
 				if (bFromHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2384,7 +2360,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				}
 				else if (bToHuman)
 				{
-					strTooltip = strStartColor;
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER");
 					strTooltip += strReason;
 					strTooltip += strEndColor;
@@ -2420,14 +2397,14 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				if (bFromHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_TOO_SOON", iHighestTurnsLeft);
+					strTooltip += strDivider;
 					strTooltip += strReason;
-					strTooltip += strEndColor;
 				}
 				else if (bToHuman)
 				{
 					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_TOO_SOON", iHighestTurnsLeft);
+					strTooltip += strDivider;
 					strTooltip += strReason;
-					strTooltip += strEndColor;
 				}
 			}
 
@@ -2435,8 +2412,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
 			{
 				strReason = GetLocalizedText("TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE");
+				strTooltip += strDivider;
 				strTooltip += strReason;
-				strTooltip += strEndColor;
 			}
 
 			break;
@@ -2927,9 +2904,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 		}
 	}
 
-	if (!bIsThirdPartyDeal)
-		strTooltip += strEndColor;
-
+	strTooltip += strEndColor;
 	return strTooltip;
 }
 
@@ -2942,15 +2917,8 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 	{
 		if (it->m_eItemType == eItemType && (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom))
 		{
-			if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
+			if (it->m_eItemType == TRADE_ITEM_RESOURCES)
 			{
-				return it->m_iData1 > 0;
-			}
-			else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
-			{
-				if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
-					return false;
-
 				if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
 					return true;
 			}
@@ -2972,20 +2940,7 @@ bool CvDeal::ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eF
 		{
 			if (std::find(vItemTypes.begin(), vItemTypes.end(), it->m_eItemType) != vItemTypes.end())
 			{
-				if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
-				{
-					if (it->m_iData1 > 0)
-						return true;
-				}
-				else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
-				{
-					if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
-						continue;
-				}
-				else
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}

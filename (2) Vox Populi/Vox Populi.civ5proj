@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>15</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(2.1.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -918,18 +918,11 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>104</MinVersion>
+        <MinVersion>105</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
     </ModDependencies>
     <ModBlockers>
-      <Association>
-        <Type>Mod</Type>
-        <Name>(1a) Civ IV Diplomatic Features - CP</Name>
-        <Id>781d81cf-49e1-4acb-ae5f-b9e3713f98d3</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
       <Association>
         <Type>Mod</Type>
         <Name>(3) CSD for VP</Name>
