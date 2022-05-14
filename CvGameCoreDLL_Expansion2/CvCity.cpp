@@ -7539,6 +7539,14 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		break;
 	}
+
+	case TASK_LOCK_SPECIALIST:
+	{
+		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, false, CvCity::YIELD_UPDATE_LOCAL);
+		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes)iData2, true, CvCity::YIELD_UPDATE_GLOBAL);
+		break;
+	}
+
 	case TASK_CHANGE_WORKING_PLOT:
 		GetCityCitizens()->DoAlterWorkingPlot(/*CityPlotIndex*/ iData1);
 		break;
