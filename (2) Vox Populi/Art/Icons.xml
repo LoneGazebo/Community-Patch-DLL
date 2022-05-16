@@ -244,6 +244,10 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
 			<IconFontTextureFile>airport</IconFontTextureFile>
 		</Row>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_AUTOMATED</IconFontTexture>
+			<IconFontTextureFile>AutomateProduction</IconFontTextureFile>
+		</Row>
 	</IconFontTextures>
 	<IconFontMapping>
 		<Row>
@@ -264,6 +268,11 @@
 		<Row>
 			<IconName>ICON_AIRPORT</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_AUTOMATED</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_AUTOMATED</IconFontTexture>
 			<IconMapping>1</IconMapping>
 		</Row>
 	</IconFontMapping>

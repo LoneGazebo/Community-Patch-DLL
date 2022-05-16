@@ -77,6 +77,7 @@ protected:
 
 	static int lKillUnits(lua_State* L);
 	static int lIsHuman(lua_State* L);
+	static int lIsAITeammateOfHuman(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 	static int lGetName(lua_State* L);
 	static int lGetNameKey(lua_State* L);
@@ -1022,6 +1023,7 @@ protected:
 	static int lDoBeginDiploWithHuman(lua_State* L);
 	static int lDoTradeScreenOpened(lua_State* L);
 	static int lDoTradeScreenClosed(lua_State* L);
+	static int lCalculateDefensivePactLimit(lua_State* L);
 	static int lGetMajorCivApproach(lua_State* L);
 	static int lGetApproachTowardsUsGuess(lua_State* L);
 	static int lIsActHostileTowardsHuman(lua_State* L);
@@ -1239,6 +1241,7 @@ protected:
 	static int lGetRandomIntrigue(lua_State* L);
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
+	static int lIsTradeSanctioned(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);
 	static int lGetSpyChanceAtCity(lua_State* L);
 	static int lGetCityPotentialInfo(lua_State* L);

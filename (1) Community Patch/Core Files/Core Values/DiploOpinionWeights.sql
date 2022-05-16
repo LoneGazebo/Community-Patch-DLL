@@ -11,6 +11,11 @@ UPDATE Defines SET Value = '-30' WHERE Name = 'OPINION_THRESHOLD_FAVORABLE';
 UPDATE Defines SET Value = '-80' WHERE Name = 'OPINION_THRESHOLD_FRIEND';
 UPDATE Defines SET Value = '-160' WHERE Name = 'OPINION_THRESHOLD_ALLY';
 
+-- Major Modifier Thresholds
+-- Opinion modifiers with a value higher than these thresholds will display in bright red/green instead of dark red/green
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_THRESHOLD_MAJOR_POSITIVE', '-15'; -- for positive modifiers
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_THRESHOLD_MAJOR_NEGATIVE', '15'; -- for negative modifiers
+
 -- Base Opinion Weight (affects all AI players)
 -- Can be used to add an opinion bonus or penalty to human and/or AI players.
 -- Negative values add good opinion, positive values add bad opinion.

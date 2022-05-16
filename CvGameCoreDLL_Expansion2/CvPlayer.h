@@ -2332,7 +2332,6 @@ public:
 	CvUnitCycler& GetUnitCycler() { return m_UnitCycle; };
 
 	bool removeFromArmy(int iArmyID, int iID);
-	bool removeFromArmy(int iID);
 
 	int findPathLengthNew(TechTypes eTech, int pTechs[] = NULL) const;
 	int findPathLength(TechTypes eTech, bool bCost = true) const;
@@ -2535,6 +2534,8 @@ public:
 	int GetFractionOriginalCapitalsUnderControl() const;
 	bool OwnsOurCity(PlayerTypes ePlayer);
 	int GetNumOurCitiesOwnedBy(PlayerTypes ePlayer);
+	int CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible = false) const;
+	bool IsIgnoreDefensivePactLimit() const;
 	int GetMilitaryRating() const;
 	void SetMilitaryRating(int iValue);
 	void ChangeMilitaryRating(int iChange);

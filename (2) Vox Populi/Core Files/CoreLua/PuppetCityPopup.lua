@@ -38,22 +38,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	popupText = popupText .. "  " .. Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO");
 	
 	SetPopupText(popupText);
-	
-	-- Calculate Happiness info
---	local iUnhappinessNoCity = activePlayer:GetUnhappiness();
---	local iUnhappinessAnnexedCity = activePlayer:GetUnhappinessForecast(newCity, nil);	-- pAssumeCityAnnexed, pAssumeCityPuppeted
---	if (bMinorCivBuyout) then
-		-- For minor civ buyout (Austria UA), there are no unhappiness benefits of annexing because the city is not occupied
---		iUnhappinessAnnexedCity = activePlayer:GetUnhappinessForecast(nil, newCity);
---	end
-	--local iUnhappinessPuppetCity = activePlayer:GetUnhappinessForecast(nil, newCity);		-- pAssumeCityAnnexed, pAssumeCityPuppeted
-	
---CBP
-	--local iUnhappinessForAnnexing = (newCity:GetPopulation() / 2);
-	--local iUnhappinessForPuppeting = (newCity:GetPopulation() / 2);
-	--local iUnhappinessForAnnexing = iUnhappinessAnnexedCity - iUnhappinessNoCity;
-	--local iUnhappinessForPuppeting = iUnhappinessPuppetCity - iUnhappinessNoCity;
---END
+
 	-- Initialize 'Liberate' button.
 	if (iLiberatedPlayer ~= -1) then
 		local OnLiberateClicked = function()
@@ -107,9 +92,15 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 				Network.SendDoTask(cityID, TaskTypes.TASK_RAZE, -1, -1, false, false, false, false);
 			end
 		end
-		
-		buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_RAZE_CAPTURED_CITY");
-		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE");
+
+		if (not bOneCity) then
+			buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_RAZE_CAPTURED_CITY");
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE");
+		else
+			buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_DESTROY_CAPTURED_CITY");
+			strTooltip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY");
+		end
+
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());

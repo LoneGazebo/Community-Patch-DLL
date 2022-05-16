@@ -1,5 +1,11 @@
 -- General Changes to the DLL's Global Values
 
+-- Defensive Pact Limits
+UPDATE Defines SET Value = '2' WHERE Name = 'DEFENSIVE_PACT_LIMIT_BASE'; -- The base number of Defensive Pacts that a civilization can form. If set to 0 or lower, Defensive Pacts cannot be formed. Each player on a team counts as 1 Defensive Pact.
+UPDATE Defines SET Value = '10' WHERE Name = 'DEFENSIVE_PACT_LIMIT_SCALER'; -- Additional number of Defensive Pacts permitted for each X other major civilizations ingame. 0 disables the scaler.
+UPDATE Defines SET Value = '2' WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_BASE'; -- Limit for AI players. Only does anything if lower than the base limit.
+UPDATE Defines SET Value = '10' WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_SCALER'; -- Limit for AI players. Only does anything if lower than the base limit.
+
 -- War
 UPDATE Defines SET Value = '3' WHERE Name = 'EMBARKED_UNIT_MOVEMENT';
 UPDATE Defines SET Value = '300' WHERE Name = 'MAX_CITY_HIT_POINTS';

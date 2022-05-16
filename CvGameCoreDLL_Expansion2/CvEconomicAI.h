@@ -188,9 +188,7 @@ public:
 	void CancelSaveForPurchase(PurchaseType ePurchase);
 	bool CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmount, int iPriority = -1);
 	int AmountAvailableForPurchase(PurchaseType ePurchase);
-#if defined(MOD_BALANCE_CORE)
-	int GetPurchaseSaveAmout(PurchaseType ePurchase);
-#endif
+	int GetPurchaseSaveAmount(PurchaseType ePurchase);
 
 	double GetWorkersToCitiesRatio();
 	double GetImprovedToImprovablePlotsRatio();

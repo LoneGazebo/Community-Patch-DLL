@@ -393,7 +393,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER || this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER;
 
 	// Can't trade anything if embargoed by the World Congress (except for peace deals)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal)
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal && eItem != TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
@@ -404,12 +404,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	if (!bHumanToHuman)
 	{
-		// AI can't trade anything (except peace itself) in a peace deal if they're not the one surrendering
+		// Can't trade anything (except peace itself) in a peace deal if you're not the one surrendering
 		if (bPeaceDeal)
 		{
-			if (bOneSided && this->GetSurrenderingPlayer() != ePlayer && eItem != TRADE_ITEM_PEACE_TREATY && eItem != TRADE_ITEM_THIRD_PARTY_PEACE)
+			if (eItem != TRADE_ITEM_PEACE_TREATY && eItem != TRADE_ITEM_THIRD_PARTY_PEACE)
 			{
-				return false;
+				if (bOneSided && this->GetSurrenderingPlayer() != ePlayer)
+					return false;
+				else if (!bOneSided && !pFromPlayer->isHuman())
+					return false;
 			}
 		}
 		// AI won't add anything to its side for a demand
@@ -699,7 +702,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Neither of us yet has the tech for Open Borders
-			// Recursive to-do: Require both players to have the tech unlocked in VP
 			if (!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
 				return false;
 
@@ -739,12 +741,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
 				return false;
 
-			// Defensive Pacts were disabled in DiploAIOptions.sql
-			if (!bHumanToHuman && GD_INT_GET(DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE) < 0)
-				return false;
-
 			// Neither of us yet has the Tech for DP
-			// Recursive to-do: Require both players to have the tech unlocked in VP
 			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 				return false;
 
@@ -780,6 +777,25 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 			}
 
+			bool bAITradingWithHuman = !bHumanToHuman && pToPlayer->isHuman();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+
+			bAITradingWithHuman = !bHumanToHuman && pFromPlayer->isHuman();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+
+			if (bIgnoreExistingDP)
+			{
+				iMyDefensePacts -= pToTeam->getAliveCount();
+				iTheirDefensePacts -= pFromTeam->getAliveCount();
+			}
+
+			// Would making this pact take either player above their Defensive Pact limit?
+			if (iMyDefensePacts + pToTeam->getAliveCount() > iMyLimit)
+				return false;
+
+			if (iTheirDefensePacts + pFromTeam->getAliveCount() > iTheirLimit)
+				return false;
+
 			break;
 		}
 
@@ -801,7 +817,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Neither of us yet has the Tech for RA
-			// Recursive to-do: Require both players to have the tech unlocked in VP
 			if (!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
 				return false;
 
@@ -892,12 +907,22 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						// Peace blocked?
 						if (GET_PLAYER(vMembers[i]).GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
 							return false;
+
+						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						for (size_t j=0; j < vFromTeam.size(); j++)
+						{
+							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
+								continue;
+
+							if (!GET_PLAYER(vFromTeam[j]).isHuman() && GET_PLAYER(vFromTeam[j]).GetDiplomacyAI()->IsPeaceBlocked(vMembers[i]))
+								return false;
+						}
 					}
 					// Major civ?
 					else
 					{
 						// Only a decisive winner can agree to make peace
-						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < 75)
+						if (pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]) < /*75*/ range(GD_INT_GET(DIPLOAI_THIRD_PARTY_PEACE_WARSCORE), 1, 100))
 							return false;
 
 						// Check for peace blocks
@@ -953,7 +978,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pFromTeam->isHasMet(eTargetTeam) || !pToTeam->isHasMet(eTargetTeam))
 				return false;
 
-			// Buyer needs an embassy in peacetime
+			// Buyer needs an embassy
 			if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 
@@ -967,10 +992,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			//Can't already be offering this.
 			if (!bFinalizing && IsThirdPartyWarTrade(ePlayer, eTargetTeam))
-				return false;
-
-			// Can't broker war against a Defensive Pact
-			if (pFromTeam->IsHasDefensivePact(eTargetTeam) || pToTeam->IsHasDefensivePact(eTargetTeam))
 				return false;
 
 			// Can't broker war against your master or a Defensive Pact of your master
@@ -990,6 +1011,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				// Direct and indirect backstabbing are both prohibited in war bribes.
 				if (eLoopTeam != eTargetTeam && !GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam))
 					continue;
+
+				// Can't broker war against a Defensive Pact
+				if (pFromTeam->IsHasDefensivePact(eLoopTeam) || pToTeam->IsHasDefensivePact(eLoopTeam))
+					return false;
 
 				for (size_t i=0; i < vFromTeam.size(); i++)
 				{
@@ -1068,16 +1093,20 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pProposal == NULL)
 				return false;
 
-			if (!bFinalizing)
+			// Make sure vassals can't vote for World Leader
+			if (pProposal->GetEffects()->bDiplomaticVictory)
 			{
-				// Must be able to do this (league not in session, other player has a diplomat in this player's capital, etc.)
-				if (!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
-					return false;
-
-				// Can't already have a vote commitment in the deal
-				if (ContainsItemType(TRADE_ITEM_VOTE_COMMITMENT, ePlayer))
+				if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 					return false;
 			}
+
+			// Must be able to do this (league not in session, other player has a diplomat in this player's capital, etc.)
+			if (!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
+				return false;
+
+			// Can't already have a vote commitment in the deal
+			if (!bFinalizing && ContainsItemType(TRADE_ITEM_VOTE_COMMITMENT, ePlayer))
+				return false;
 
 			if (!pFromPlayer->isHuman())
 			{
@@ -1157,7 +1186,15 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 			}
 
-			break;
+			// Are there any unrevealed plots?
+			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+			{
+				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+				if (pPlot && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
+					return true;
+			}
+
+			return false;
 		}
 
 		case TRADE_ITEM_TECHS:
@@ -1227,10 +1264,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!bPeaceDeal && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
 				return false;
 
-			// Neither of us can already be someone's vassal
-			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
-				return false;
-
 			// Can we become the vassal of this team?
 			if (!pFromTeam->canBecomeVassal(eToTeam))
 				return false;
@@ -1294,20 +1327,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 
 	// Diplo AI Option to allow lump Gold trading
 	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled() || (GC.getGame().IsLumpGoldTradingHumanOnly() && (bFromHuman || bToHuman));
-	bool bExempted = false;
-
-	if (eItemType == TRADE_ITEM_GOLD)
-	{
-		if (bLumpGoldEnabled)
-		{
-			bExempted = true;
-		}
-		// Can't demand lump Gold - too exploitable
-		else if (this->GetDemandingPlayer() == eToPlayer)
-		{
-			return true;
-		}
-	}
+	bool bExempted = eItemType == TRADE_ITEM_GOLD && bLumpGoldEnabled;
 
 	bool bTemporary = false;
 	switch (eItemType)
@@ -1364,6 +1384,1532 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	return false;
 }
 
+/// Why can't this item be traded?
+/// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
+CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1)
+{
+	CvString strTooltip = "", strReason = "", strDivider = "[NEWLINE][NEWLINE]", strStartColor = "[COLOR_NEGATIVE_TEXT]", strEndColor = "[ENDCOLOR]";
+	CvString strError = ""; // There shouldn't be a tooltip for this reason (because either the situation should not ever occur ingame, or the item is hidden by the UI)
+
+	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
+		return strError;
+
+	// Certain items don't need to be bothered with here
+	switch (eItem)
+	{
+	case TRADE_ITEM_PEACE_TREATY:
+	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
+	case TRADE_ITEM_CITIES:
+	case TRADE_ITEM_RESOURCES:
+	case TRADE_ITEM_VOTE_COMMITMENT:
+	case TRADE_ITEM_TECHS:
+		return strError;
+	}
+
+	// Can't trade something to nobody, yourself, City-States, or Barbarians
+	if (ePlayer <= NO_PLAYER || eToPlayer <= NO_PLAYER || ePlayer == eToPlayer || ePlayer >= MAX_MAJOR_CIVS || eToPlayer >= MAX_MAJOR_CIVS)
+		return strError;
+
+	// Can't trade anything if you're dead
+	if (!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(eToPlayer).isAlive())
+		return strError;
+
+	// Item must in fact be untradeable
+	if (IsPossibleToTradeItem(ePlayer, eToPlayer, eItem, iData1, iData2, iData3, bFlag1))
+		return strError;
+
+	CvPlayer* pFromPlayer = &GET_PLAYER(ePlayer);
+	CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
+	TeamTypes eFromTeam = pFromPlayer->getTeam();
+	TeamTypes eToTeam = pToPlayer->getTeam();
+	CvTeam* pFromTeam = &GET_TEAM(eFromTeam);
+	CvTeam* pToTeam = &GET_TEAM(eToTeam);
+
+	bool bPeaceDeal = pFromTeam->isAtWar(eToTeam);
+	bool bFromHuman = pFromPlayer->isHuman();
+	bool bToHuman = pToPlayer->isHuman();
+	bool bSameTeam = eFromTeam == eToTeam;
+	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER;
+
+	// This deal must have only one human player
+	if (bFromHuman && bToHuman)
+		return strError;
+
+	if (!bFromHuman && !bToHuman)
+		return strError;
+
+	// Can't trade anything if embargoed by the World Congress (except for peace deals)
+	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
+		{
+			return strError; // Handled at the LUA level
+		}
+	}
+
+	// Can't trade anything (except peace itself) in a peace deal if you're not the one surrendering
+	if (bPeaceDeal)
+	{
+		if (eItem != TRADE_ITEM_THIRD_PARTY_PEACE)
+		{
+			// These cases are handled at the LUA level
+			if (bOneSided && this->GetSurrenderingPlayer() != ePlayer)
+				return strError;
+			else if (!bOneSided && !bFromHuman)
+				return strError;
+		}
+	}
+
+	strTooltip = strStartColor;
+	bool bIsGold = eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN;
+	bool bIsThirdPartyDeal = eItem == TRADE_ITEM_THIRD_PARTY_PEACE || eItem == TRADE_ITEM_THIRD_PARTY_WAR;
+
+	// AI will refuse to trade temporary items for permanent items.
+	if (BlockTemporaryForPermanentTrade(eItem, ePlayer, eToPlayer))
+	{
+		if (bIsGold || bIsThirdPartyDeal)
+		{
+			return GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT");
+		}
+		else
+		{
+			strReason = GetLocalizedText("TXT_KEY_DIPLO_NOT_BANK_TT");
+			strTooltip += strDivider;
+			strTooltip += strReason;
+		}
+	}
+	else if (bIsGold)
+		return strError; // the reasons above are the only possible reasons why Gold/GPT would have an error tooltip
+
+	if (bSameTeam) // All of the items below shouldn't even be visible in the UI between teammates
+		return strError;
+
+	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
+
+	// Research Agreements require Gold to be spent.
+	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
+	if (iCost > 0 && iGoldAvailable < iCost)
+	{
+		strReason = GetLocalizedText("TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS");
+		strTooltip += strDivider;
+		strTooltip += strReason;
+	}
+
+	iGoldAvailable -= iCost;
+
+	std::vector<CvDeal*> pRenewDeals = pFromPlayer->GetDiplomacyAI()->GetDealsToRenew(eToPlayer);
+
+	////////////////////////////////////////////////////
+	//////// INDIVIDUAL TRADE ITEMS ////////////////////
+	////////////////////////////////////////////////////
+
+	switch (eItem)
+	{
+		case TRADE_ITEM_ALLOW_EMBASSY:
+		{
+			// Embassy already established
+			if (pToTeam->HasEmbassyAtTeam(eFromTeam))
+			{
+				if (bToHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_HAVE");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+				else if (bFromHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_THEY_HAVE");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// At war?
+			if (bPeaceDeal)
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			// Player has no capital to receive the embassy
+			if (pFromPlayer->getCapitalCity() == NULL)
+			{
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL_THEM");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Other player does not have the tech required to establish an embassy
+			if (!pToTeam->isAllowEmbassyTradingAllowed())
+			{
+				if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_PLAYER");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_TECH_OTHER_PLAYER");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Denouncement in either direction?
+			if (pFromPlayer->GetDiplomacyAI()->IsDenouncedPlayer(eToPlayer) || pToPlayer->GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_ALLOW_EMBASSY_DENOUNCEMENT");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_OPEN_BORDERS:
+		{
+			bool bIgnoreExistingOB = false;
+			// Renewing an Open Borders deal?
+			// Recursive: Is this identifying the correct deal?
+			for (uint i = 0; i < pRenewDeals.size(); i++)
+			{
+				CvDeal* pRenewDeal = pRenewDeals[i];
+				if (pRenewDeal->IsOpenBordersTrade(ePlayer))
+				{
+					bIgnoreExistingOB = true;
+					break;
+				}
+			}
+
+			// We are already allowing Open Borders!
+			if (!bIgnoreExistingOB && pFromTeam->IsAllowsOpenBordersToTeam(eToTeam))
+			{
+				if (bFromHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_HAVE");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+				else if (bToHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_THEY_HAVE");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// At war?
+			if (bPeaceDeal)
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			// Neither of us yet has the tech for Open Borders
+			if (!pFromTeam->isOpenBordersTradingAllowed() && !pToTeam->isOpenBordersTradingAllowed())
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_OPEN_BORDERS_NO_TECH");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+			else if (!bPeaceDeal)
+			{
+				// Must have accepted embassy from this player before opening our borders to them
+				if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_DEFENSIVE_PACT:
+		{
+			bool bIgnoreExistingDP = false;
+			// Renewing a Defensive Pact deal?
+			// Recursive: Is this identifying the correct deal?
+			for (uint i = 0; i < pRenewDeals.size(); i++)
+			{
+				CvDeal* pRenewDeal = pRenewDeals[i];
+				if (pRenewDeal->IsDefensivePactTrade(ePlayer))
+				{
+					bIgnoreExistingDP = true;
+					break;
+				}
+			}
+
+			// We already have a Defensive Pact!
+			if (!bIgnoreExistingDP && pFromTeam->IsHasDefensivePact(eToTeam))
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_EXISTS");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bToHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bFromHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+
+			if (bIgnoreExistingDP)
+			{
+				iMyDefensePacts -= pToTeam->getAliveCount();
+				iTheirDefensePacts -= pFromTeam->getAliveCount();
+			}
+
+			int iTotalOtherMajors = 0;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+				if (pFromPlayer->getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+					continue;
+				if (!GET_PLAYER(eLoopPlayer).isAlive())
+					continue;
+				if (GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+					continue;
+
+				iTotalOtherMajors++;
+			}
+
+			if (iTotalOtherMajors < 2)
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_INSUFFICIENT_MAJORS");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+			else if (iMyLimit == 0 || iTheirLimit == 0)
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_DISABLED_BY_OPTIONS");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Vassals cannot make Defensive Pacts.
+			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_EXISTING_VASSALAGE");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			if (bPeaceDeal)
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+				strTooltip += strDivider;
+				strTooltip += strReason;				
+			}
+
+			// Neither of us yet has the Tech for DP
+			if (!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_DEF_PACT_NO_TECH");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			if (!bPeaceDeal)
+			{
+				// Not valid if vassalage is in the trade
+				if (ContainsItemType(TRADE_ITEM_VASSALAGE))
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+
+				// Mutual embassies are required
+				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
+					{
+						if (bFromHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						else if (bToHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+					}
+					else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+					{
+						if (bToHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+						else if (bFromHuman)
+						{
+							strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+							strTooltip += strDivider;
+							strTooltip += strReason;
+						}
+					}
+				}
+			}
+
+			// Would making this pact take either player above their Defensive Pact limit?
+			if (iMyDefensePacts + pToTeam->getAliveCount() > iMyLimit)
+			{
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED", iMyLimit);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM", iMyLimit);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			if (iTheirDefensePacts + pFromTeam->getAliveCount() > iTheirLimit)
+			{
+				if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED", iTheirLimit);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM", iTheirLimit);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_RESEARCH_AGREEMENT:
+		{
+			// No science?
+			if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+				return strError;
+
+			// Research agreements aren't enabled
+			if (MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+				return strError;
+
+			// We already have a Research Agreement! To-do: Renew Research Agreement deals?
+			if (pFromTeam->IsHasResearchAgreement(eToTeam))
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_EXISTS");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Someone already has all techs
+			if (pFromTeam->GetTeamTechs()->HasResearchedAllTechs() || pToTeam->GetTeamTechs()->HasResearchedAllTechs())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_ALL_TECHS_RESEARCHED");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman() || pToPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			if (bPeaceDeal)
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			// Neither of us yet has the Tech for RA
+			if (!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_TECH");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			// Declaration of Friendship is required
+			if (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_NEED_DOF_TT");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			// Mutual embassies are required
+			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
+			{
+				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
+				{
+					if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+				else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_MAPS:
+		{
+			if (!MOD_DIPLOMACY_CIV4_FEATURES)
+				return strError;
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Both need tech for Map trading
+			if (!pFromTeam->isMapTrading() || !pToTeam->isMapTrading())
+			{
+				if (!pFromTeam->isMapTrading() && !pToTeam->isMapTrading())
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_BOTH");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (!pFromTeam->isMapTrading())
+				{
+					if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+				else
+				{
+					if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+			}
+
+			// Mutual embassies are required (unless this is a peace deal)
+			if (!bPeaceDeal && (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam)))
+			{
+				if (!pFromTeam->HasEmbassyAtTeam(eToTeam) && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (!pFromTeam->HasEmbassyAtTeam(eToTeam))
+				{
+					if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+				else if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+				{
+					if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+			}
+			else if (pFromTeam->isMapTrading() && pToTeam->isMapTrading()) // For performance, only check revealed territory if tech & embassy requirements are met
+			{
+				// Are there any unrevealed plots?
+				bool bFoundOne = false;
+				for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+				{
+					CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+					if (pPlot && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
+					{
+						bFoundOne = true;
+						break;
+					}
+				}
+				if (!bFoundOne)
+				{
+					if (bToHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_WE_ALREADY_EXPLORED");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+					else if (bFromHuman)
+					{
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_TRADE_MAPS_THEY_ALREADY_EXPLORED");
+						strTooltip += strDivider;
+						strTooltip += strReason;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_VASSALAGE:
+		{
+			if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+				return strError;
+
+			// We are already their vassal
+			if (pFromTeam->IsVassal(eToTeam))
+			{
+				if (bFromHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+				else if (bToHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+			}
+
+			if (!bPeaceDeal && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) > 0)
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Check Lua to see if an event has been registered to prevent vassals
+			// Create an event like follows: GameEvents.CanMakeVassal.Add(function(eMasterTeam, eVassalTeam) ...)
+
+			// First, obtain the Lua script system.
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				// Construct and push in some event arguments.
+				CvLuaArgsHandle args(2);
+				args->Push(eToTeam);
+				args->Push(eFromTeam);
+
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				if (LuaSupport::CallTestAll(pkScriptSystem, "CanMakeVassal", args.get(), bResult))
+				{
+					// Check the result.
+					if (!bResult)
+					{
+						strTooltip = strDivider;
+						strTooltip += strStartColor;
+						strReason = GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
+						strTooltip += strReason;
+						strTooltip += strEndColor;
+						return strTooltip;
+					}
+				}
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Human Vassalage not enabled
+			if (bFromHuman && !GC.getGame().isOption(GAMEOPTION_HUMAN_VASSALS))
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Would-be master is a vassal
+			if (pToTeam->IsVassalOfSomeone())
+			{
+				TeamTypes eToMaster = pToTeam->GetMaster();
+
+				if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL", GET_TEAM(eToMaster).getName());
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL", GET_TEAM(eToMaster).getName());
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Would-be vassal already has another master
+			if (pFromTeam->IsVassalOfSomeone())
+			{
+				TeamTypes eFromMaster = pFromTeam->GetMaster();
+
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL", GET_TEAM(eFromMaster).getName());
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL", GET_TEAM(eFromMaster).getName());
+					strTooltip += strDivider;
+					strTooltip += strReason;					
+				}
+			}
+
+			// Too soon since previous vassalage
+			if (!pFromTeam->IsVassalOfSomeone() && !pToTeam->IsVassalOfSomeone() && pFromTeam->IsTooSoonForVassal(eToTeam))
+			{
+				int iTurnsLeft = GC.getGame().getGameSpeedInfo().getNumTurnsBetweenVassals() - pFromTeam->GetNumTurnsSinceVassalEnded(eToTeam);
+
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON", iTurnsLeft);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON", iTurnsLeft);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Would-be master hasn't reached the Medieval Era yet
+			if (!pToTeam->IsVassalageTradingAllowed())
+			{
+				if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Would-be vassal has no cities or population
+			if (pFromTeam->getNumCities() <= 0 || pFromTeam->getTotalPopulation() <= 0)
+			{
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION");
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Not valid if a Defensive Pact or Vassal Revocation is in the deal
+			if (ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT) || ContainsItemType(TRADE_ITEM_VASSALAGE_REVOKE))
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_VASSALAGE_REVOKE:
+		{
+			if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+				return strError;
+
+			// They have no vassals to revoke!
+			if (pFromTeam->GetNumVassals() <= 0)
+			{
+				if (bFromHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+				else if (bToHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				strTooltip = strDivider;
+				strTooltip += strStartColor;
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+				strTooltip += strReason;
+				strTooltip += strEndColor;
+				return strTooltip;
+			}
+
+			// Vassals can't ask this of their masters
+			if (pToTeam->IsVassal(eFromTeam))
+			{
+				if (bFromHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+				else if (bToHuman)
+				{
+					strTooltip = strDivider;
+					strTooltip += strStartColor;
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER");
+					strTooltip += strReason;
+					strTooltip += strEndColor;
+					return strTooltip;
+				}
+			}
+
+			// Must be able to end all vassals
+			if (!pFromTeam->canEndAllVassal())
+			{
+				int iHighestTurnsLeft = 0;
+
+				// Go through every major.
+				for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+				{
+					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+					if (!GET_TEAM(eLoopTeam).isAlive() || !GET_TEAM(eLoopTeam).isMajorCiv())
+						continue;
+
+					// Is eLoopTeam our vassal?
+					if (!GET_TEAM(eLoopTeam).IsVassal(eFromTeam))
+						continue;
+
+					if (GET_TEAM(eLoopTeam).GetNumTurnsIsVassal() < GC.getGame().getGameSpeedInfo().getMinimumVassalLiberateTurns())
+					{
+						int iTurnsLeft = GC.getGame().getGameSpeedInfo().getMinimumVassalLiberateTurns() - GET_TEAM(eLoopTeam).GetNumTurnsIsVassal();
+						if (iTurnsLeft > iHighestTurnsLeft)
+							iHighestTurnsLeft = iTurnsLeft;
+					}
+				}
+
+				if (bFromHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_US_TOO_SOON", iHighestTurnsLeft);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+				else if (bToHuman)
+				{
+					strReason = GetLocalizedText("TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_TOO_SOON", iHighestTurnsLeft);
+					strTooltip += strDivider;
+					strTooltip += strReason;
+				}
+			}
+
+			// Not valid if Vassalage is in the deal
+			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
+			{
+				strReason = GetLocalizedText("TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE");
+				strTooltip += strDivider;
+				strTooltip += strReason;
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_THIRD_PARTY_PEACE: // Only display the most important reason
+		{
+			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
+				return strError;
+			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
+				return strError;
+
+			// Both players must have met the third party
+			if (!pFromTeam->isHasMet(eTargetTeam) || !pToTeam->isHasMet(eTargetTeam))
+				return strError;
+
+			// Teams are not at war
+			if (!pFromTeam->isAtWar(eTargetTeam))
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_NOT_AT_WAR");
+			}
+
+			vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
+
+			// If this is a peace deal, we only want allied City-States in here.
+			if (bPeaceDeal)
+			{
+				for (size_t i=0; i < vMembers.size(); i++)
+				{
+					if (!GET_PLAYER(vMembers[i]).isAlive())
+						continue;
+
+					if (!GET_PLAYER(vMembers[i]).isMinorCiv())
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT");
+					}
+
+					PlayerTypes eAlly = GET_PLAYER(vMembers[i]).GetMinorCivAI()->GetAlly();
+					if (GET_PLAYER(eAlly).getTeam() != eToTeam)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT");
+					}
+				}
+			}
+
+			// Vassal?
+			if (pFromTeam->IsVassalOfSomeone() || GET_TEAM(eTargetTeam).IsVassalOfSomeone())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_CANNOT_PEACE_VASSAL");
+			}
+
+			// AI teammates of humans can't trade this
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+			}
+
+			// Buyer needs an embassy in peacetime
+			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
+			{
+				if (bToHuman)
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+				}
+				else if (bFromHuman)
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+				}
+			}
+
+			// War deal?
+			if (pFromTeam->GetNumTurnsLockedIntoWar(eTargetTeam) > 0 || GET_TEAM(eTargetTeam).GetNumTurnsLockedIntoWar(eFromTeam) > 0)
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+			}
+
+			// Either side can't make peace yet?
+			if (!pFromTeam->canChangeWarPeace(eTargetTeam) || !GET_TEAM(eTargetTeam).canChangeWarPeace(eFromTeam))
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
+			}
+
+			if (!bPeaceDeal) // Skip this in peace deals; validity above overrides validity below
+			{
+				int iNumCivs = 0;
+				vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+
+				// First loop, check all the City-States for permanent wars or peace blocks
+				for (size_t i=0; i < vMembers.size(); i++)
+				{
+					if (!GET_PLAYER(vMembers[i]).isAlive())
+						continue;
+
+					if (GET_PLAYER(vMembers[i]).isMinorCiv())
+					{
+						if (GET_PLAYER(vMembers[i]).GetMinorCivAI()->IsPermanentWar(eFromTeam))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_MINOR_PERMANENT_WAR");
+						}
+						// Peace blocked?
+						if (GET_PLAYER(vMembers[i]).GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_MINOR_ALLY_AT_WAR");
+						}
+					}
+					else
+						iNumCivs++;
+				}
+
+				// Second loop, check for peace blocks by a major against a City-State on this team
+				for (size_t i=0; i < vMembers.size(); i++)
+				{
+					if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMinorCiv())
+						continue;
+
+					for (size_t j=0; j < vFromTeam.size(); j++)
+					{
+						if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
+							continue;
+
+						if (!GET_PLAYER(vFromTeam[j]).isHuman() && GET_PLAYER(vFromTeam[j]).GetDiplomacyAI()->IsPeaceBlocked(vMembers[i]))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
+						}
+					}
+				}
+
+				if (iNumCivs == 0)
+					break;
+
+				int iRequiredWarscore = /*75*/ range(GD_INT_GET(DIPLOAI_THIRD_PARTY_PEACE_WARSCORE), 1, 100);
+				
+				if (iNumCivs > 1)
+				{
+					int iLowestWarscore = iRequiredWarscore;
+
+					// Third loop (for teams with more than one major), check to see if the minimum warscore against all majors on the team isn't met
+					for (size_t i=0; i < vMembers.size(); i++)
+					{
+						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
+							continue;
+
+						int iWarscore = pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]);
+						if (iWarscore < iLowestWarscore)
+							iLowestWarscore = iWarscore;
+					}
+
+					if (iLowestWarscore < iRequiredWarscore)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_WAR_SCORE_TEAM", iRequiredWarscore, iLowestWarscore);
+					}
+
+					// Fourth loop (for teams with more than one major), check for peace blocks
+					for (size_t i=0; i < vMembers.size(); i++)
+					{
+						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
+							continue;
+
+						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						for (size_t j=0; j < vFromTeam.size(); j++)
+						{
+							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
+								continue;
+
+							if (!GET_PLAYER(vFromTeam[j]).isHuman() && GET_PLAYER(vFromTeam[j]).GetDiplomacyAI()->IsPeaceBlocked(vMembers[i]))
+							{
+								return GetLocalizedText("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
+							}
+						}
+					}
+				}
+				// Third loop (for teams with only one major), check for minimum warscore and peace blocks
+				else
+				{
+					for (size_t i=0; i < vMembers.size(); i++)
+					{
+						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
+							continue;
+
+						int iWarscore = pFromPlayer->GetDiplomacyAI()->GetWarScore(vMembers[i]);
+						if (iWarscore < iRequiredWarscore)
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_WAR_SCORE", iRequiredWarscore, iWarscore);							
+						}
+
+						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						for (size_t j=0; j < vFromTeam.size(); j++)
+						{
+							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
+								continue;
+
+							if (!GET_PLAYER(vFromTeam[j]).isHuman() && GET_PLAYER(vFromTeam[j]).GetDiplomacyAI()->IsPeaceBlocked(vMembers[i]))
+							{
+								return GetLocalizedText("TXT_KEY_DIPLO_MINOR_THIS_GUY_WANTS_WAR");
+							}
+						}
+					}
+				}
+			}
+
+			break;
+		}
+
+		case TRADE_ITEM_THIRD_PARTY_WAR: // Only display the most important reason
+		{
+			TeamTypes eTargetTeam = (TeamTypes)iData1;
+			if (eTargetTeam == NO_TEAM || eTargetTeam == eFromTeam || eTargetTeam == eToTeam)
+				return strError;
+			if (!GET_TEAM(eTargetTeam).isAlive() || GET_TEAM(eTargetTeam).isBarbarian() || GET_TEAM(eTargetTeam).getLeaderID() == NO_PLAYER)
+				return strError;
+
+			// Both players must have met the third party
+			if (!pFromTeam->isHasMet(eTargetTeam) || !pToTeam->isHasMet(eTargetTeam))
+				return strError;
+
+			// Teams are already at war
+			if (pFromTeam->isAtWar(eTargetTeam))
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_ALREADY_AT_WAR");
+			}
+
+			// Not allowed by Diplo AI Options
+			if (GC.getGame().IsAllWarBribesDisabled())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
+			}
+
+			// AI teammate of human
+			if (pFromPlayer->IsAITeammateOfHuman())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT");
+			}
+
+			if (bPeaceDeal)
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT");
+			}
+
+			// Vassals can't declare or be declared on
+			if (pFromTeam->IsVassalOfSomeone())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_VASSAL");
+			}
+			if (GET_TEAM(eTargetTeam).IsVassalOfSomeone())
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_VASSAL_TARGET");
+			}
+
+			// Buyer needs an embassy
+			if (!pToTeam->HasEmbassyAtTeam(eFromTeam))
+			{
+				if (bToHuman)
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT");
+				}
+				else if (bFromHuman)
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT");
+				}
+			}
+
+			// We must be able to declare war against them
+			if (!pFromTeam->canDeclareWar(eTargetTeam, ePlayer))
+			{
+				// Blocked by a direct Peace Treaty?
+				if (pFromTeam->isForcePeace(eTargetTeam))
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_FORCE_PEACE");
+				}
+
+				// Blocked by an indirect Peace Treaty?
+				for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+				{
+					TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
+
+					if (eLoopTeam != NO_TEAM && eLoopTeam != eFromTeam && eLoopTeam != eToTeam && eLoopTeam != eTargetTeam)
+					{
+						if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam))
+						{
+							if (pFromTeam->isForcePeace(eLoopTeam))
+							{
+								return GetLocalizedText("TXT_KEY_DIPLO_FORCE_PEACE");
+							}
+						}
+					}
+				}
+
+				// Blocked by game options, etc.?
+				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_GAME_RULE");
+			}
+
+			// Can't broker war against your master
+			TeamTypes eToMaster = pToTeam->GetMaster();
+			if (eToMaster != NO_TEAM)
+			{
+				if (eToMaster == eTargetTeam)
+				{
+					if (bToHuman)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_OUR_MASTER");
+					}
+					else if (bFromHuman)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_THEIR_MASTER");
+					}
+				}
+				else if (GET_TEAM(eTargetTeam).IsHasDefensivePact(eToMaster))
+				{
+					if (bToHuman)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_DP_OUR_MASTER");
+					}
+					else if (bFromHuman)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_DP_THEIR_MASTER");
+					}
+				}
+			}
+
+			// Can't broker war against a Defensive Pact
+			if (pFromTeam->IsHasDefensivePact(eTargetTeam) || pToTeam->IsHasDefensivePact(eTargetTeam))
+			{
+				return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_DP");
+			}
+
+			// Check for Declarations of Friendship
+			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers(), vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			for (size_t i=0; i < vFromTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
+					continue;
+
+				for (size_t j=0; j < vTargetTeam.size(); j++)
+				{
+					if (!GET_PLAYER(vTargetTeam[j]).isAlive() || !GET_PLAYER(vTargetTeam[j]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(vFromTeam[i]).GetDiplomacyAI()->IsDoFAccepted(vTargetTeam[j]))
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_DOF");
+					}
+				}
+			}
+			for (size_t i=0; i < vToTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vToTeam[i]).isAlive() || !GET_PLAYER(vToTeam[i]).isMajorCiv())
+					continue;
+
+				for (size_t j=0; j < vTargetTeam.size(); j++)
+				{
+					if (!GET_PLAYER(vTargetTeam[j]).isAlive() || !GET_PLAYER(vTargetTeam[j]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(vToTeam[i]).GetDiplomacyAI()->IsDoFAccepted(vTargetTeam[j]))
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_DOF");
+					}
+				}
+			}
+
+			// Check for City-State Alliances
+			for (size_t i=0; i < vTargetTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vTargetTeam[i]).isAlive() || !GET_PLAYER(vTargetTeam[i]).isMinorCiv())
+					continue;
+
+				PlayerTypes eAlly = GET_PLAYER(vTargetTeam[i]).GetMinorCivAI()->GetAlly();
+				if (eAlly != NO_PLAYER)
+				{
+					TeamTypes eAllyTeam = GET_PLAYER(eAlly).getTeam();
+
+					if (eAllyTeam == eFromTeam || eAllyTeam == eToTeam)
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+					}
+				}
+			}
+
+			// Check for City-State PTPs
+			for (size_t i=0; i < vFromTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
+					continue;
+
+				for (size_t j=0; j < vTargetTeam.size(); j++)
+				{
+					if (!GET_PLAYER(vTargetTeam[j]).isAlive() || !GET_PLAYER(vTargetTeam[j]).isMinorCiv())
+						continue;
+
+					if (GET_PLAYER(vTargetTeam[j]).GetMinorCivAI()->IsProtectedByMajor(vFromTeam[i]))
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_PTP");
+					}
+				}
+			}
+			for (size_t i=0; i < vToTeam.size(); i++)
+			{
+				if (!GET_PLAYER(vToTeam[i]).isAlive() || !GET_PLAYER(vToTeam[i]).isMajorCiv())
+					continue;
+
+				for (size_t j=0; j < vTargetTeam.size(); j++)
+				{
+					if (!GET_PLAYER(vTargetTeam[j]).isAlive() || !GET_PLAYER(vTargetTeam[j]).isMinorCiv())
+						continue;
+
+					if (GET_PLAYER(vTargetTeam[j]).GetMinorCivAI()->IsProtectedByMajor(vToTeam[i]))
+					{
+						return GetLocalizedText("TXT_KEY_DIPLO_NO_WAR_PTP");
+					}
+				}
+			}
+
+			// Loop through any DPs of the target to see if something blocks a war declaration
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+				if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam))
+					continue;
+
+				if (GET_TEAM(eLoopTeam).IsHasDefensivePact(eFromTeam) || GET_TEAM(eLoopTeam).IsHasDefensivePact(eToTeam))
+				{
+					return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+				}
+
+				for (size_t i=0; i < vFromTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+					{
+						// Can't declare war on a friend
+						if (GET_PLAYER(vFromTeam[i]).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+					}
+					else if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						// Can't declare war on a City-State ally
+						PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+						if (eAlly == vFromTeam[i])
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+
+						// Can't declare war on a City-State you pledged to protect
+						if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(vFromTeam[i]))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+					}
+				}
+				for (size_t i=0; i < vToTeam.size(); i++)
+				{
+					if (!GET_PLAYER(vToTeam[i]).isAlive() || !GET_PLAYER(vToTeam[i]).isMajorCiv())
+						continue;
+
+					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
+					{
+						// Can't broker war against a friend
+						if (GET_PLAYER(vToTeam[i]).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+					}
+					else if (GET_PLAYER(eLoopPlayer).isMinorCiv())
+					{
+						// Can't broker war against a City-State ally
+						PlayerTypes eAlly = GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly();
+						if (eAlly == vToTeam[i])
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+
+						// Can't broker war against a City-State you pledged to protect
+						if (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsProtectedByMajor(vToTeam[i]))
+						{
+							return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+						}
+					}
+				}
+			}
+
+			break;
+		}
+	}
+
+	strTooltip += strEndColor;
+	return strTooltip;
+}
+
+//-------------------
+
 bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = NO_PLAYER */, ResourceTypes eResource /* = NO_RESOURCE */)
 {
 	TradedItemList::iterator it;
@@ -1371,15 +2917,8 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 	{
 		if (it->m_eItemType == eItemType && (eFrom == NO_PLAYER || it->m_eFromPlayer == eFrom))
 		{
-			if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
+			if (it->m_eItemType == TRADE_ITEM_RESOURCES)
 			{
-				return it->m_iData1 > 0;
-			}
-			else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
-			{
-				if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
-					return false;
-
 				if (eResource == NO_RESOURCE || (ResourceTypes)it->m_iData1 == eResource)
 					return true;
 			}
@@ -1401,20 +2940,7 @@ bool CvDeal::ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eF
 		{
 			if (std::find(vItemTypes.begin(), vItemTypes.end(), it->m_eItemType) != vItemTypes.end())
 			{
-				if (it->m_eItemType == TRADE_ITEM_GOLD || it->m_eItemType == TRADE_ITEM_GOLD_PER_TURN)
-				{
-					if (it->m_iData1 > 0)
-						return true;
-				}
-				else if (it->m_eItemType == TRADE_ITEM_RESOURCES)
-				{
-					if ((ResourceTypes)it->m_iData1 <= NO_RESOURCE || it->m_iData2 <= 0)
-						continue;
-				}
-				else
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -3019,7 +4545,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			break;
 		}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		case TRADE_ITEM_MAPS:
 		{
 			GET_TEAM(eReceivingTeam).AcquireMap(eGivingTeam);
@@ -3050,11 +4575,10 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 			{
 				TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
-				bool bWasVoluntary = false;
 
 				if (GET_TEAM(eLoopTeam).IsVassal(eGivingTeam))
 				{
-					bWasVoluntary = GET_TEAM(eLoopTeam).IsVoluntaryVassal(eGivingTeam);
+					bool bWasVoluntary = GET_TEAM(eLoopTeam).IsVoluntaryVassal(eGivingTeam);
 					GET_TEAM(eLoopTeam).DoEndVassal(eGivingTeam, true, true);
 
 					if (!bWasVoluntary)
@@ -3072,7 +4596,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			}
 			break;
 		}
-#endif
 
 		case TRADE_ITEM_CITIES:
 		{

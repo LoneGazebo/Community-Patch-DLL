@@ -527,6 +527,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeSpecialistGreatPersonProgressTimes100);
 	Method(GetExtraSpecialistPoints);
 	Method(GetNumSpecialistsInBuilding);
+	Method(GetNumForcedSpecialistsInBuilding);
 	Method(DoReallocateCitizens);
 	Method(DoVerifyWorkingPlots);
 	Method(IsNoAutoAssignSpecialists);
@@ -5087,6 +5088,17 @@ int CvLuaCity::lGetNumSpecialistsInBuilding(lua_State* L)
 	return 1;
 }
 
+//int GetNumFprcedSpecialistsInBuilding(BuildingTypes eIndex);
+int CvLuaCity::lGetNumForcedSpecialistsInBuilding(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iIndex = lua_tointeger(L, 2);
+	const int iResult = pkCity->GetCityCitizens()->GetNumForcedSpecialistsInBuilding(toValue<BuildingTypes>(L, 2));
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 //------------------------------------------------------------------------------
 //int DoReallocateCitizens();
 int CvLuaCity::lDoReallocateCitizens(lua_State* L)
@@ -5311,10 +5323,11 @@ int CvLuaCity::lRangeCombatDamage(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	CvUnit* pkDefendingUnit = CvLuaUnit::GetInstance(L, 2, false);
-	CvCity* pkDefendingCity = GetInstance(L, 3, false);
+	//ignored
+	//CvCity* pkDefendingCity = GetInstance(L, 3, false);
 	bool bIncludeRand = luaL_optbool(L, 4, false);
 
-	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, pkDefendingCity, bIncludeRand);
+	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, bIncludeRand);
 	lua_pushinteger(L, iRangedDamage);
 	return 1;
 }

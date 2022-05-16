@@ -3522,12 +3522,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 
-			// Unique luxuries from conquering a city?
-			if (MOD_BALANCE_CORE_LUXURIES_TRAIT && isMajorCiv() && GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
-			{
-				GetPlayerTraits()->AddUniqueLuxuriesAround(pCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
-			}
-
 			// Lump sum of yields from conquering a City-State?
 			if (MOD_BALANCE_CORE_AFRAID_ANNEX && GET_PLAYER(eOldOwner).isMinorCiv() && GetPlayerTraits()->IsBullyAnnex() && GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 			{
@@ -3576,9 +3570,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		// Lastly, run the achievement code...
-		if (!GC.getGame().isGameMultiPlayer() && isHuman())
+		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && isHuman())
 		{
 			const char* szLeaderKey = getLeaderTypeKey();
 			const char* szCivKey = getCivilizationTypeKey();
@@ -3726,11 +3719,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 		}
-#endif
 	}
-
-	// Make sure we do this AFTER proccing on-conquest stuff!
-	pCity->ChangeNumTimesOwned(GetID(), 1);
 
 	// Spies in the city? YOU'RE OUTTA HERE!~
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
@@ -4404,10 +4393,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// Update events
-	if (MOD_BALANCE_CORE_EVENTS)
-		CheckActivePlayerEvents(pNewCity);
-
 	// Test to see if the city acquirer has won a Domination Victory
 	GC.getGame().DoTestConquestVictory();
 
@@ -4436,9 +4421,37 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), (bBumpUnits || ownedPlots[i]->isCity()), true);
 	}
 
-	// Free unit on city conquest?
-	if (bFirstConquest)
+	// Update events
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
 	{
+		CvLuaArgsHandle args;
+		args->Push(eOldOwner);
+		args->Push(bCapital);
+		args->Push(iCityX);
+		args->Push(iCityY);
+		args->Push(GetID());
+		args->Push(iPopulation);
+		args->Push(bConquest);
+		args->Push((int)vcGreatWorkData.size());
+		args->Push(iCaptureGreatWorks);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
+	}
+
+	if (MOD_BALANCE_CORE_EVENTS)
+		CheckActivePlayerEvents(pNewCity);
+
+	if (bFirstConquest && isMajorCiv())
+	{
+		// Spawn unique luxuries on city conquest?
+		if (MOD_BALANCE_CORE_LUXURIES_TRAIT && GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0)
+		{
+			GetPlayerTraits()->AddUniqueLuxuriesAround(pNewCity, GetPlayerTraits()->GetUniqueLuxuryQuantity());
+		}
+
+		// Free unit on city conquest?
 		UnitTypes eFreeUnitConquest = GetPlayerTraits()->GetFreeUnitOnConquest();
 		if (eFreeUnitConquest != NO_UNIT && canTrainUnit(eFreeUnitConquest, false, false, true, true))
 		{
@@ -4449,13 +4462,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Give religious units the player's religion
 			if (pkUnit->isReligiousUnit())
 			{
-				pkUnit->GetReligionDataMutable()->SetReligion(GetReligions()->GetStateReligion(false));
+				ReligionTypes eStateReligion = GetReligions()->GetStateReligion(false);
 
 				// Unless it's a prophet we shouldn't give a free religious unit without a religion
-				if (pkUnit->GetReligionData()->GetReligion() == NO_RELIGION && !pkUnit->IsGreatPerson())
-				{
+				if (eStateReligion == NO_RELIGION && !pkUnit->IsGreatPerson())
 					bShouldSpawn = false;
-				}
+				else
+					pkUnit->GetReligionDataMutable()->SetReligion(eStateReligion);
 			}
 
 			bool bJumpSuccess = bShouldSpawn ? pkUnit->jumpToNearestValidPlot() : false;
@@ -4472,6 +4485,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
+	// Increment how many times we have owned the city
+	pNewCity->ChangeNumTimesOwned(GetID(), 1);
+
 	// Set city damage (only do this after having added all buildings, some of which might have increased city HP)
 	int iMaximumBattleDamage = bConquest ? (pNewCity->GetMaxHitPoints() * /*50*/ GD_INT_GET(CITY_CAPTURE_DAMAGE_PERCENT)) / 100 : pNewCity->GetMaxHitPoints();
 	if (iMaximumBattleDamage >= pNewCity->GetMaxHitPoints())
@@ -4480,6 +4496,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		iBattleDamage = iMaximumBattleDamage;
 
 	pNewCity->setDamage(iBattleDamage, true);
+	bool bMajorEliminated = false;
 
 	if (!bMinorCivBuyout)
 	{
@@ -4493,6 +4510,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (MOD_DIPLOMACY_CITYSTATES && isMajorCiv() && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
 			{
 				ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
+			}
+			if (GET_PLAYER(eOldOwner).isMajorCiv())
+			{
+				bMajorEliminated = true;
 			}
 		}
 		// If not dead, old owner should update city specializations
@@ -4714,24 +4735,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
 			}
 		}
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem && pNewCity)
-		{
-			CvLuaArgsHandle args;
-			args->Push(eOldOwner);
-			args->Push(bCapital);
-			args->Push(iCityX);
-			args->Push(iCityY);
-			args->Push(GetID());
-			args->Push(iPopulation);
-			args->Push(bConquest);
-			args->Push((int)vcGreatWorkData.size());
-			args->Push(iCaptureGreatWorks);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
-		}
 	}
 
 	// Now that everything is done, we need to update diplomacy!
@@ -4746,17 +4749,24 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			continue;
 
 		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
-		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true);
+		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
 	}
 
-	// The rest of the world reevaluates the new owner's team in return
+	// The rest of the world reevaluates the new owner's team in return - unless a player was eliminated, in which case everyone reevaluates everyone
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		bool bReevaluate = bMajorEliminated || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam());
 
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam()))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && bReevaluate)
 		{
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+			if (!bMajorEliminated)
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+			else
+			{
+				vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
+			}
 		}
 	}
 
@@ -10023,14 +10033,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Mark the resurrection process as complete
 	GET_PLAYER(ePlayer).setBeingResurrected(false);
 
-#if defined(MOD_EVENTS_LIBERATION)
 	if (MOD_EVENTS_LIBERATION) 
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerLiberated, GetID(), ePlayer, pNewCity->GetID());
 	}
-#endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
@@ -10044,7 +10051,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 		}
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -23445,34 +23451,15 @@ void CvPlayer::ChangeFaithToVotes(int iChange)
 /// Extra league votes from faith
 int CvPlayer::TestFaithToVotes(int iChange)
 {
-	int iFaithVotes = 0;
-	int iFollowers = 0;
-	int iTotalFaithVotes = 0;
-	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	if (iChange <= 0)
+		return 0;
 
-	// Number of Cities Following Religion
 	ReligionTypes eOwnedReligion = GetReligions()->GetOwnedReligion();
-	if (eOwnedReligion != NO_RELIGION)
-	{
-		if (iChange > 0)
-		{
-			iFaithVotes = iChange;
-			iFollowers = pReligions->GetNumCitiesFollowing(eOwnedReligion);
-			int iMaxVotes = pReligions->GetNumReligionsFounded();
-			iTotalFaithVotes = (iFollowers / iFaithVotes);
-			//Never fewer than one vote.
-			if (iTotalFaithVotes < 1)
-			{
-				iTotalFaithVotes = 1;
-			}
-			//No more votes than religions in the game - this should scale votes much better.
-			else if (iTotalFaithVotes > iMaxVotes)
-			{
-				iTotalFaithVotes = iMaxVotes;
-			}
-		}
-	}
-	return iTotalFaithVotes;
+	if (eOwnedReligion == NO_RELIGION)
+		return 0;
+
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	return pReligions->GetNumCitiesFollowing(eOwnedReligion) / iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -32781,6 +32768,72 @@ int CvPlayer::GetNumOurCitiesOwnedBy(PlayerTypes ePlayer)
 	return iCount;
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = false */) const
+{
+	if (!isMajorCiv() || !isAlive() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		return 0;
+
+	int iBaseLimit = isHuman() || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
+	int iLimitScaler = isHuman() || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
+	if (iBaseLimit <= -1)
+		return 0;
+
+	int iTotalOtherMajors = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+			continue;
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
+		if (GET_PLAYER(eLoopPlayer).IsVassalOfSomeone())
+			continue;
+
+		iTotalOtherMajors++;
+	}
+
+	if (iTotalOtherMajors < 2)
+		return 0;
+
+	if (IsIgnoreDefensivePactLimit())
+		return iTotalOtherMajors;
+
+	int iLimit = iBaseLimit;
+	if (iLimitScaler > 0)
+		iLimit += (iTotalOtherMajors / iLimitScaler);
+
+	return min(iLimit, iTotalOtherMajors);
+}
+
+bool CvPlayer::IsIgnoreDefensivePactLimit() const
+{
+	std::vector<BuildingTypes> ValidBuildings;
+	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+	{
+		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+		if (pkBuildingInfo && pkBuildingInfo->IsIgnoreDefensivePactLimit())
+			ValidBuildings.push_back(eBuilding);
+	}
+
+	if (ValidBuildings.empty())
+		return false;
+
+	int iLoop;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		for (std::vector<BuildingTypes>::iterator it = ValidBuildings.begin(); it != ValidBuildings.end(); it++)
+		{
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(*it) > 0)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 
@@ -33705,7 +33758,7 @@ void CvPlayer::verifyAlive(PlayerTypes eKiller /* = NO_PLAYER */)
 
 					if (GET_PLAYER(eKiller).isMajorCiv())
 					{
-						// Apply a backstabbing mark
+						// Apply a backstabbing mark for the killed major civ
 						if (isMajorCiv())
 							GetDiplomacyAI()->SetBackstabbedBy(eKiller, true, true);
 
@@ -40465,23 +40518,7 @@ bool CvPlayer::removeFromArmy(int iArmyID, int iID)
 {
 	CvArmyAI* pThisArmyAI = getArmyAI(iArmyID);
 	if(pThisArmyAI)
-		return pThisArmyAI->RemoveUnit(iID);
-
-	return false;
-}
-
-
-//	---------------------------------------------------------------------------
-bool CvPlayer::removeFromArmy(int iID)
-{
-	// for all the army AIs
-	int iLoop;
-	for(CvArmyAI* pLoopArmyAI = firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = nextArmyAI(&iLoop))
-	{
-		//unit can only be in one army
-		if (removeFromArmy(pLoopArmyAI->GetID(), iID))
-			return true;
-	}
+		return pThisArmyAI->RemoveUnit(iID, false) != -1;
 
 	return false;
 }

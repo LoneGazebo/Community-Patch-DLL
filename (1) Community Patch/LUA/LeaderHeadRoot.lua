@@ -362,6 +362,7 @@ function OnShowHide( bHide )
 				Controls.TradeButton:SetDisabled(true);
 				Controls.DemandButton:SetDisabled(true);
 				Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
+				Controls.DemandButton:SetToolTipString(nil);
 
 				if (pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
 					Controls.WarButton:SetDisabled(false);

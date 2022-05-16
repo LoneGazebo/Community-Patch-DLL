@@ -3362,14 +3362,17 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam) const
+bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, bool bIgnoreImpassable) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 		{
+			if (!bIgnoreImpassable && pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
+				continue;
+
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
 				return true; 
 		}
@@ -6288,6 +6291,21 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 			{
 				//no halo around embarked units
 				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+					return true;
+			}
+		}
+	}
+
+	// MOD_ADJACENT_BLOCKADE : Land units blockade undefended adjacent tiles
+	if (MOD_ADJACENT_BLOCKADE && !isWater())
+	{
+		for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++)
+		{
+			CvPlot* pNeighbor = iterateRingPlots(this, i);
+			if (pNeighbor && pNeighbor->getArea() == getArea())
+			{
+				//no halo around embarked units
+				if (pNeighbor->isEnemyUnit(eForPlayer, true, false))
 					return true;
 			}
 		}

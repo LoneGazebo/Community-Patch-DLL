@@ -594,22 +594,22 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					pCityEspionage->SetSpyResult(ePlayer, SPY_RESULT_KILLED);
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-					CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
-					CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
-
-					if(	strcmp(kCityOwner.getCivilizationTypeKey(), "CIVILIZATION_RUSSIA") == 0 &&
-						strcmp(kSpyOwner.getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
+					if (MOD_API_ACHIEVEMENTS)
 					{
-						//Do not trigger achievement if we're in the Smokey Skies scenario.
-						bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-						if(!bUsingXP1Scenario3)
+						CvPlayerAI& kCityOwner = GET_PLAYER(eCityOwner);
+						CvPlayerAI& kSpyOwner = GET_PLAYER(ePlayer);
+
+						if (strcmp(kCityOwner.getCivilizationTypeKey(), "CIVILIZATION_RUSSIA") == 0 &&
+							strcmp(kSpyOwner.getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
 						{
-							if(eCityOwner == GC.getGame().getActivePlayer())
+							//Do not trigger achievement if we're in the Smokey Skies scenario.
+							bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+							if (!bUsingXP1Scenario3 && eCityOwner == GC.getGame().getActivePlayer())
+							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_25);
+							}
 						}
 					}
-#endif
 				}
 			}
 
@@ -1277,7 +1277,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 			CvAssertMsg(iDefendingSpy >= 0, "No defending spy. This is ok if debugging and killing a spy without having a defending spy present, but should not occur when playing the game normally.");
 			if (iDefendingSpy >= 0)
 			{
-				pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy, GC.getESPIONAGE_DEFENDING_SPY_EXPERIENCE());
+				pDefendingPlayerEspionage->LevelUpSpy(iDefendingSpy, /*50*/ GD_INT_GET(ESPIONAGE_DEFENDING_SPY_EXPERIENCE));
 			}
 		}
 		// kill spy off
@@ -1312,7 +1312,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		ExtractSpyFromCity(uiSpyIndex);
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
-			int iExperience = GC.getESPIONAGE_OFFENSIVE_SPY_EXPERIENCE();
+			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
 			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
@@ -1322,7 +1322,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	{
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
-			int iExperience = GC.getESPIONAGE_OFFENSIVE_SPY_EXPERIENCE();
+			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
 			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
@@ -1528,7 +1528,7 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 	if (!pSpy)
 		return "";
 
-	strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, GC.getESPIONAGE_SPY_EXPERIENCE_DENOMINATOR());
+	strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
 
 	if (!bNoBasic)
 	{
@@ -1954,17 +1954,16 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			strSpyAtCity += "[NEWLINE][NEWLINE]";
 		}
 
-		int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-		iYieldValue *= 5;
-		iYieldValue /= 10;
+		int iYieldMod = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
+		iYieldMod *= 5;
+		iYieldMod /= 10;
 
-		int iUnhappinessMod = 0;
+		int iUnhappinessMod = 0, iPopMod = 0;
 		int iPop = pCity->getPopulation();
 		if (iPop > 0)
 		{
-			iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
-			iUnhappinessMod *= -1;
-			iPop *= 2;
+			iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
+			iPopMod = 2*iPop;
 		}
 
 		int iCityDefense = pCity->getStrengthValue() / 100;
@@ -1983,13 +1982,13 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		}
 
 		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-		iFinalModifier -= (iYieldValue + iPop + iUnhappinessMod);
+		iFinalModifier -= (iYieldMod + iPopMod + iUnhappinessMod);
 
 		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_CALCULATION", iFinalModifier);
 
 		strSpyAtCity += "[NEWLINE][NEWLINE]";
 
-		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iYieldValue, iPop, iUnhappinessMod);
+		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iYieldMod, iPopMod, iUnhappinessMod);
 		strSpyAtCity += "[NEWLINE]";
 		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE", iPlayerEspionageModifier + iTheirPoliciesEspionageModifier, iCityEspionageModifier, iCounterSpy, iCityDefense);
 
@@ -2267,12 +2266,11 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		CvIntrigueType eType = pSneakAttackOperation->GetOperationType()==AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
 		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
 
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+			LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 		}
-#endif
 
 		// If a sneak attack is reported, bust out of the loop
 		break;
@@ -2284,17 +2282,16 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+				LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 			}
-#endif
 		}
 		else if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED)))
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
 				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
@@ -2303,7 +2300,6 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 					LevelUpSpy(uiSpyIndex);
 				}
 			}
-#endif
 		}
 	}
 
@@ -2348,22 +2344,20 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+						LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 					}
-#endif
 				}
 				else
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 					if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 					{
-						LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+						LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 					}
-#endif
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -2398,12 +2392,11 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	if (bNotifyAboutConstruction)
 	{
 		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 		{
-			LevelUpSpy(uiSpyIndex, GC.getESPIONAGE_DIPLOMAT_SPY_EXPERIENCE());
+			LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 		}
-#endif
 	}
 }
 #if defined(MOD_BALANCE_CORE)
@@ -3071,7 +3064,7 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 		{
 			int iCurrentExperience = m_aSpyList[uiSpyIndex].m_iExperience;
 			iCurrentExperience += iExperience;
-			if (iCurrentExperience < GC.getESPIONAGE_SPY_EXPERIENCE_DENOMINATOR())
+			if (iCurrentExperience < /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR))
 			{
 				bCanLevel = false;
 				m_aSpyList[uiSpyIndex].m_iExperience = iCurrentExperience;
@@ -3228,13 +3221,12 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	iYieldValue *= 6;
 	iYieldValue /= 10;
 
-	int iUnhappinessMod = 0;
+	int iUnhappinessMod = 0, iPopMod = 0;
 	int iPop = pCity->getPopulation();
 	if (iPop > 0)
 	{
-		iUnhappinessMod = (((pCity->getUnhappyCitizenCount()) * 50) / iPop);
-		iUnhappinessMod *= -1;
-		iPop *= 2;
+		iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
+		iPopMod = iPop*2;
 	}
 
 	int iCityDefense = pCity->getStrengthValue() / 100;
@@ -3260,7 +3252,7 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 	}
 
 	int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-	iFinalModifier -= (iYieldValue + iPop + iUnhappinessMod);
+	iFinalModifier -= (iYieldValue + iPopMod + iUnhappinessMod);
 
 	iBaseResistance *= 100 + iFinalModifier;
 	iBaseResistance /= 100;

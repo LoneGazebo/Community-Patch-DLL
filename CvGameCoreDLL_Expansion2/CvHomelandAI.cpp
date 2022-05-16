@@ -426,7 +426,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 			{
 				if ((pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isAdjacentTeam(eTeam, true)) ||
-					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true)))
+					(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true, true)))
 				{
 					int iScore = TacticalAIHelpers::SentryScore(pLoopPlot, m_pPlayer->GetID());
 					if (iScore > 30)
@@ -1371,8 +1371,8 @@ void CvHomelandAI::PlotUpgradeMoves()
 	int iLoop;
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		// Don't try and upgrade a human player's unit or one already recruited for an operation
-		if (pUnit && !pUnit->isHuman() && pUnit->getArmyID() == -1 && !pUnit->TurnProcessed() && !pUnit->isDelayedDeath())
+		// Don't try and upgrade a human player's unit
+		if (pUnit && !pUnit->isHuman() && pUnit->isReadyForUpgrade() && !pUnit->isDelayedDeath() && !pUnit->isProjectedToDieNextTurn())
 		{
 			//Let's only worry about units in our land.
 			if (pUnit->plot()->getOwner() != m_pPlayer->GetID())
@@ -1481,10 +1481,24 @@ void CvHomelandAI::PlotUpgradeMoves()
 			CvUnit* pUnit = m_pPlayer->getUnit(moveUnitIt->GetID());
 			if(pUnit->CanUpgradeRightNow(false) && pUnit->GetDanger()<pUnit->GetCurrHitPoints())
 			{
+				//if the unit is currently in an army we need some extra bookkeeping
+				CvArmyAI* pArmy = m_pPlayer->getArmyAI(pUnit->getArmyID());
+				int iArmySlot = -1;
+				if (pArmy)
+					iArmySlot = pArmy->RemoveUnit(pUnit->GetID(), true);
+
+				//this removes the unit from the army (if any)
 				CvUnit* pNewUnit = pUnit->DoUpgrade();
+
+				//if it worked the old unit is now a zombie ...
 				UnitProcessed(pUnit->GetID());
+
 				if (pNewUnit)
 				{
+					//restore the army
+					if (pArmy)
+						pArmy->AddUnit(pNewUnit->GetID(), iArmySlot, true);
+
 					UnitProcessed(pNewUnit->GetID());
 
 					if (GC.getLogging() && GC.getAILogging())
@@ -5181,35 +5195,6 @@ void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 	}
 }
 
-void CvHomelandAI::LogPatrolMessage(const CvString& strMsg, CvUnit* pPatrolUnit )
-{
-	if(!pPatrolUnit || !(GC.getLogging() && GC.getAILogging()))
-	{
-		return;
-	}
-
-	// Open the log file
-	CvString strFileName = "PlayerHomelandAIPatrolLog.csv";
-	FILogFile* pLog;
-	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-	CvString strLog, strTemp;
-
-	CvString strPlayerName;
-	strPlayerName = m_pPlayer->getCivilizationShortDescription();
-	strLog += strPlayerName;
-	strLog += ",";
-
-	strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-	strLog += strTemp;
-
-	strTemp.Format("%s (%d),", pPatrolUnit->getUnitInfo().GetDescription(), pPatrolUnit->GetID());
-	strLog += strTemp;
-
-	strLog += strMsg;
-	pLog->Msg(strLog);
-}
-
 /// Remove a unit that we've allocated from list of units to move this turn
 void CvHomelandAI::UnitProcessed(int iID)
 {
@@ -5230,7 +5215,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 	//pretend there are no other workers ...
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
-	SPathFinderUserData data(pUnit, 0, 17);
+	SPathFinderUserData data(pUnit, 0, 13);
 	allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	return ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 }

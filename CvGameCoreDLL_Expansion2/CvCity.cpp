@@ -325,7 +325,6 @@ CvCity::CvCity() :
 	, m_pEmphases(FNEW(CvCityEmphases, c_eCiv5GameplayDLL, 0))
 	, m_pCityEspionage(FNEW(CvCityEspionage, c_eCiv5GameplayDLL, 0))
 	, m_pCityCulture(FNEW(CvCityCulture, c_eCiv5GameplayDLL, 0))
-	, m_bombardCheckTurn(0)
 	, m_iPopulationRank()
 	, m_bPopulationRankValid()
 	, m_aiBaseYieldRank()
@@ -7540,6 +7539,14 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		break;
 	}
+
+	case TASK_LOCK_SPECIALIST:
+	{
+		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, false, CvCity::YIELD_UPDATE_LOCAL);
+		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes)iData2, true, CvCity::YIELD_UPDATE_GLOBAL);
+		break;
+	}
+
 	case TASK_CHANGE_WORKING_PLOT:
 		GetCityCitizens()->DoAlterWorkingPlot(/*CityPlotIndex*/ iData1);
 		break;
@@ -16415,6 +16422,12 @@ bool CvCity::isHuman() const
 	return GET_PLAYER(getOwner()).isHuman();
 }
 
+//	Automated City Production
+bool CvCity::isHumanAutomated() const
+{
+	VALIDATE_OBJECT
+	return GET_PLAYER(getOwner()).isHuman() && isProductionAutomated() && !IsPuppet();
+}
 
 //	--------------------------------------------------------------------------------
 bool CvCity::isVisible(TeamTypes eTeam, bool bDebug) const
@@ -16708,6 +16721,9 @@ void CvCity::CheckForOperationUnits()
 		return;
 
 	if (GET_PLAYER(getOwner()).isMinorCiv() || isBarbarian())
+		return;
+
+	if (isHumanAutomated()) // absolutely no units in automated cities
 		return;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -21405,13 +21421,14 @@ void CvCity::DoAnnex(bool bRaze)
 	setProductionAutomated(false, true);
 	UpdateAllNonPlotYields(true);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
-	if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS)
 	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
+		bool bUsingXP1Scenario1 = gDLL->IsModActivated(CIV5_XP1_SCENARIO1_MODID);
+		if (!bRaze && !bUsingXP1Scenario1 && GET_PLAYER(getOwner()).isHuman() && getOriginalOwner() != GetID() && GET_PLAYER(getOriginalOwner()).isMinorCiv() && !GC.getGame().isGameMultiPlayer())
+		{
+			gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
+		}
 	}
-#endif
 
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
@@ -22820,7 +22837,8 @@ CvString CvCity::GetCityHappinessBreakdown()
 int CvCity::getUnhappyCitizenCount() const
 {
 	VALIDATE_OBJECT
-	return (getPopulation() - GetLocalHappiness());
+	//if we have more happiness than pop, unhappiness is zero (not negative)
+	return max(0,getPopulation() - GetLocalHappiness());
 }
 
 //	--------------------------------------------------------------------------------
@@ -33348,68 +33366,24 @@ bool CvCity::CanRangeStrikeNow() const
 	if (isMadeAttack())
 		return false;
 
-	bool bIndirectFireAllowed; // By reference, yuck!!!	
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-	int iRange = getBombardRange(bIndirectFireAllowed);
+	int iRange = getBombardRange();
 #else
 	int iRange = /*2*/ GD_INT_GET(CITY_ATTACK_RANGE);
-	bIndirectFireAllowed = /*1*/ GD_INT_GET(CAN_CITY_USE_INDIRECT_FIRE) > 0;
 #endif
 
 	CvPlot* pPlot = plot();
-	int iX = getX();
-	int iY = getY();
-	TeamTypes eTeam = getTeam();
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	int iGameTurn = GC.getGame().getGameTurn();
-
-	for (int iDX = -iRange; iDX <= iRange; iDX++)
+	for (int iRing=1; iRing<=min(5,iRange); iRing++)
 	{
-		for (int iDY = -iRange; iDY <= iRange; iDY++)
+		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
 		{
-			CvPlot* pTargetPlot = plotXYWithRangeCheck(iX, iY, iDX, iDY, iRange);
+			CvPlot* pTargetPlot = iterateRingPlots(pPlot, i);
 			if (!pTargetPlot)
-			{
 				continue;
-			}
 
-			bool bCanRangeStrike = true;
-			if (!bIndirectFireAllowed)
-			{
-				if (!pPlot->canSeePlot(pTargetPlot, eTeam, iRange, NO_DIRECTION))
-				{
-					bCanRangeStrike = false;
-				}
-			}
-
-			if (bCanRangeStrike)
-			{
-				if (pTargetPlot->isVisible(eTeam))
-				{
-					int iTargetPlotX = pTargetPlot->getX();
-					int iTargetPlotY = pTargetPlot->getY();
-					int iPlotDistance = plotDistance(iX, iY, iTargetPlotX, iTargetPlotY);
-					if (iPlotDistance <= iRange)
-					{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-						if (canRangeStrikeAt(iTargetPlotX, iTargetPlotY) && canRangedStrikeTarget(*pTargetPlot) != NULL)
-#else
-						if (canRangeStrikeAt(iTargetPlotX, iTargetPlotY))
-#endif
-						{
-							if (m_eOwner == eActivePlayer)
-							{
-								if (iGameTurn != m_bombardCheckTurn)
-								{
-									m_bombardCheckTurn = iGameTurn;
-								}
-							}
-
-							return true;
-						}
-					}
-				}
-			}
+			//this checks everything, visibility, LOS, target type etc
+			if (canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+				return true;
 		}
 	}
 
@@ -33582,6 +33556,50 @@ bool CvCity::canRangedStrikeTarget(const CvPlot& targetPlot) const
 	return (rangedStrikeTarget(&targetPlot) != 0);
 }
 
+CvUnit* CvCity::getBestRangedStrikeTarget() const
+{
+	if (!canRangeStrike())
+		return NULL;
+
+	if (isMadeAttack())
+		return NULL;
+
+#if defined(MOD_EVENTS_CITY_BOMBARD)
+	int iRange = getBombardRange();
+#else
+	int iRange = /*2*/ GD_INT_GET(CITY_ATTACK_RANGE);
+#endif
+
+	int iBestScore = 0;
+	CvUnit* pBestTarget = NULL;
+
+	CvPlot* pPlot = plot();
+	for (int iRing=1; iRing<=min(5,iRange); iRing++)
+	{
+		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
+		{
+			CvPlot* pTargetPlot = iterateRingPlots(pPlot, i);
+			if (!pTargetPlot)
+				continue;
+
+			//this checks everything, visibility, LOS, target type etc
+			if (canRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
+			{
+				//a bit redundant with the internal of canRangeStrikeAt but that's life
+				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
+				int iDamage = rangeCombatDamage(pTarget, NULL, false);
+				if (iDamage > iBestScore)
+				{
+					iBestScore = iDamage;
+					pBestTarget = pTarget;
+				}
+			}
+		}
+	}
+
+	return pBestTarget;
+}
+
 //	--------------------------------------------------------------------------------
 CvUnit* CvCity::rangedStrikeTarget(const CvPlot* pPlot) const
 {
@@ -33641,44 +33659,22 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlo
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot, bool bQuickAndDirty) const
+int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const CvPlot* pInPlot, bool bQuickAndDirty) const
 {
-	VALIDATE_OBJECT
+	if (pDefender == NULL)
+		return 0;
+
+	// If this is a defenseless unit, do a fixed amount of damage
+	if (!pDefender->IsCanDefend())
+		return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
 
 	if (pInPlot == NULL)
-	{
-		if (pDefender != NULL)
-		{
-			pInPlot = pDefender->plot();
-		}
-		else if (pCity != NULL)
-		{
-			pInPlot = pCity->plot();
-		}
-	}
+		pInPlot = pDefender->plot();
 
 	int iAttackerStrength = getStrengthValue(true, false, pDefender);
-	int iModifier = 0;
-	int iRandomSeed = 0;
-
-	int iDefenderStrength = 1;
-	if (pCity != NULL) //attacking a city
-	{
-		iDefenderStrength = pCity->getStrengthValue();
-		iRandomSeed = bIncludeRand ? (pCity->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
-	}
-	else if (pDefender != NULL) //attacking a unit
-	{
-		// If this is a defenseless unit, do a fixed amount of damage
-		if (!pDefender->IsCanDefend())
-		{
-			return /*40*/ GD_INT_GET(NONCOMBAT_UNIT_RANGED_DAMAGE);
-		}
-
-		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot, bQuickAndDirty);
-		iModifier -= pDefender->GetDamageReductionCityAssault();
-		iRandomSeed = bIncludeRand ? (pDefender->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
-	}
+	int iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot, bQuickAndDirty);
+	int iModifier = 0 - pDefender->GetDamageReductionCityAssault(); //watch the minus
+	int iRandomSeed = bIncludeRand ? (pDefender->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
 
 	return CvUnitCombat::DoDamageMath(
 		iAttackerStrength,
@@ -35197,6 +35193,11 @@ bool CvCity::isInDangerOfFalling() const
 	int iHitpoints = GetMaxHitPoints() - getDamage();
 	if (m_iDamageTakenLastTurn > iHitpoints)
 		return true;
+
+	//special: if a city has just been conquered it's vulnerable but m_iDamageTakenLastTurn is zero
+	if (GC.getGame().getGameTurn() - getGameTurnAcquired() < 2)
+		if (GET_PLAYER(getOwner()).GetPlotDanger(this) > iHitpoints)
+			return true;
 
 	return false;
 }

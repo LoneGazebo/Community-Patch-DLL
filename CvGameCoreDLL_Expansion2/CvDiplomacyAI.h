@@ -703,6 +703,10 @@ public:
 	int GetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenCoopWarPromiseTurn(PlayerTypes ePlayer, int iTurn);
 
+	// Global Promise Checks
+	bool IsPlayerBrokenAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+	bool IsPlayerIgnoredAnyPromise(PlayerTypes ePlayer, int iWithinXTurns = -1) const;
+
 	// ------------------------------------
 	// Event Flags
 	// ------------------------------------
@@ -1194,7 +1198,7 @@ public:
 	void DoUpdatePeaceTreatyWillingness(bool bMyTurn = false);
 	bool IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const;
 	bool IsPeaceBlocked(PlayerTypes ePlayer) const;
-	int GetPeaceBlockReason(PlayerTypes ePlayer) const;
+	PeaceBlockReasons GetPeaceBlockReason(PlayerTypes ePlayer) const;
 	int CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRange) const;
 
 	// ------------------------------------

@@ -492,6 +492,8 @@ public:
 	bool isHuman() const;
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 
+	bool isHumanAutomated() const;
+
 	bool isCapital() const;
 	bool IsOriginalCapital() const;
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
@@ -1448,9 +1450,10 @@ public:
 	CityTaskResult rangeStrike(int iX, int iY);
 	CvUnit* rangedStrikeTarget(const CvPlot* pPlot) const;
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
+	CvUnit* getBestRangedStrikeTarget() const;
 
 	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
-	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
+	int rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand = true, const CvPlot* pInPlot = NULL, bool bQuickAndDirty = false) const;
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
@@ -2080,8 +2083,6 @@ protected:
 	CvCityEmphases* m_pEmphases;
 	CvCityEspionage* m_pCityEspionage;
 	CvCityCulture* m_pCityCulture;
-
-	mutable int m_bombardCheckTurn;
 
 	// CACHE: cache frequently used values
 	int m_iPopulationRank;

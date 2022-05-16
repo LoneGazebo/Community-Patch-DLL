@@ -130,6 +130,10 @@
           <Meter Anchor="L,B" Size="256,256" Texture="assets\UI\Art\WorldView\ProductionPanelMeter.dds" HasShadow="1" ID="ProductionMeter"/>
           <Image Anchor="L,B" Offset="0,0" Texture="assets\UI\Art\WorldView\ProductionPanelFrame.dds" Size="256.256"/>
           <Image Anchor="L,B" Texture="UnitPortraitsAncientMedieval.dds" Size="256.256" ID="ProductionPortrait"/>
+		  <!-- Automated production -->
+		  <Image Size="64,64" Anchor="R,B" Texture="AutomateProduction64.dds" ToolTip="TXT_KEY_AUTOMATE_PRODUCTION_TT" >
+			<CheckBox ID="AutomateProduction" CheckOffset="5,5" ButtonSize="64,64" ButtonTexture="Blank.dds" />
+		  </Image>
         </Button>
       </Box>
       <Box Offset="0,0" Anchor="L,T" Size="440,38" Color="255,255,255,0" ToolTip="Production Information" Hidden="0" ID="b2box">

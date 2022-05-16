@@ -152,7 +152,9 @@
 	</ToolTipType>
 
 	<Instance Name="ResourceInstance">
-		<TextButton ID="ResourceItem" Anchor="R,T" ToolTipType="TooltipTypeTopPanel" />
+		<Image ID="Image" Size="32,32" Offset="-12,-12" Sampler="Linear" Hidden="1">
+			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="4,3" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
+		</Image>
 	</Instance>
 
 </Context>

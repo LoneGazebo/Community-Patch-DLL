@@ -401,9 +401,10 @@ local function UpdateTopPanelNow()
 			or ( g_activePlayer:IsResourceRevealed(resourceID)
 			and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
 		then
-			resourceInstance:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) .. resource.IconString )
+			resourceInstance.Count:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) )
+			resourceInstance.Image:SetHide( false )
 		else
-			resourceInstance:SetText( "" )
+			resourceInstance.Image:SetHide( true )
 		end
 	end
 
@@ -2646,12 +2647,15 @@ for resource in GameInfo.Resources() do
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
 		local instance = {}
 		ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
-		instance = instance.ResourceItem
 		g_resourceString[ resourceID ] = instance
-		instance:SetVoid1( resourceID )
-		instance:SetToolTipCallback( ResourcesTipHandler )
-		instance:RegisterCallback( Mouse.eLClick, OnResourceLClick )
-		instance:RegisterCallback( Mouse.eRClick, OnResourceRClick )
+		IconHookup( resource.PortraitIndex, 45, resource.IconAtlas, instance.Image )
+		instance.Image:SetTextureSizeVal( 32, 32 ) --lower numbers look bigger
+		instance.Image:NormalizeTexture()
+
+		instance.Count:SetVoid1( resourceID )
+		instance.Count:SetToolTipCallback( ResourcesTipHandler )
+		instance.Count:RegisterCallback( Mouse.eLClick, OnResourceLClick )
+		instance.Count:RegisterCallback( Mouse.eRClick, OnResourceRClick )
 	end
 end
 

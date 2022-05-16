@@ -837,7 +837,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			if (!pCity || pCity->getTeam() == pUnit->getTeam())
 				continue;
 
-			iPlotDamage += pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+			iPlotDamage += pCity->rangeCombatDamage(pUnit, false, m_pPlot);
 		}
 
 		return iPlotDamage;
@@ -915,7 +915,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (!pCity || pCity->getTeam() == pUnit->getTeam())
 			continue;
 
-		int iCityDamage = pCity->rangeCombatDamage(pUnit, NULL, false, m_pPlot, true);
+		int iCityDamage = pCity->rangeCombatDamage(pUnit, false, m_pPlot, true);
 		//if we cannot see a potential garrison, assume there is one ...
 		if (!pCity->isVisible(pUnit->getTeam(), false))
 			iCityDamage *= 2;
@@ -996,19 +996,6 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 				iPlotDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false, 0, pCityPlot);
 			}
 		}
-	}
-
-	// Damage from cities
-	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
-	{
-		CvCity* pCity = GET_PLAYER(it->first).getCity(it->second);
-
-		if (!pCity || pCity->getTeam() == pCity->getTeam())
-		{
-			continue;
-		}
-
-		iPlotDamage += pCity->rangeCombatDamage(NULL, pCity, false, pCityPlot);
 	}
 
 	// Damage from melee units

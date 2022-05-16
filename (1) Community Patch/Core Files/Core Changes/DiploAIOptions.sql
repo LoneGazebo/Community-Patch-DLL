@@ -53,20 +53,6 @@ SELECT 'DIPLOAI_NO_OTHER_HOST_VOTES', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES', '0';
 
--- [DEFENSIVE PACT BASE LIMIT]
--- If set to -1, Defensive Pacts are disabled for both AI and human players.
--- If set to 0, the AI will not form Defensive Pacts.
--- If set to 1 or higher, this value is the base limit for an AI's maximum Defensive Pacts (default 2).
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_BASE', '2';
-
--- [DEFENSIVE PACT SCALER]
--- If the base limit for Defensive Pacts is 1 or higher, AI players can make one extra Defensive Pact above the base limit for every X other major civilizations that are currently alive and that they have met, where X is the value below (default 10).
--- If the base limit for Defensive Pacts is 0 or lower, this value does nothing.
--- If this value is set to 0 or lower, no scaling based on the number of other major civilizations occurs.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_DEFENSIVE_PACT_LIMIT_SCALER', '10';
-
 -- [DISABLE INSULT MESSAGES]
 -- If set to 1, AI civilizations will not send threats/insults such as "you're a warmonger" or "you're getting too friendly with our City-State friends" to human players.
 -- Note that these messages provide a chance to provoke the AI into declaring war. Disabling them removes this chance.
@@ -128,6 +114,12 @@ SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
 -- This is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_LUMP_GOLD_TRADES', '0';
+
+-- [CUSTOMIZE WARSCORE THRESHOLD FOR THIRD PARTY PEACE]
+-- The minimum warscore required before someone can make a third party peace offer to the winner of a war.
+-- Valid values range from 1 to 100. Default value is 75. Lower values are more exploitable.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_THIRD_PARTY_PEACE_WARSCORE', '75';
 
 -- [DISABLE FRIENDSHIP REQUESTS]
 -- If set to 1, AI civilizations will not ask human players to make a Declaration of Friendship.

@@ -59,6 +59,18 @@
 		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
 			<Text>{1_Num} from local sources in cities (religion, buildings, etc).</Text>
 		</Row>
-
+		<!-- Condensed Help Texts -->
+		<Row>
+			<Tag>TXT_KEY_CITYVIEW_PURCHASE_TT_BUILDING</Tag>
+			<Text>[ICON_GOLD] Gold spent on Buildings Invests in them, reducing their [ICON_PRODUCTION] Production cost by 50% (25% for Wonders)</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_CITYVIEW_PURCHASE_TT_UNIT</Tag>
+			<Text>[ICON_GOLD] Gold-purchased Units start with half of the XP of a [ICON_PRODUCTION] Produced Unit.</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_CITYVIEW_PURCHASE_TT_FAITH</Tag>
+			<Text>[ICON_PEACE] Purchase this Unit or Building with Faith.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

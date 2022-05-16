@@ -170,6 +170,9 @@
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_WONDERS"/>
           <Label ID="TechLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_TECH"/>
           <Label ID="FutureTechLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_FUTURE_TECH"/>
+          <Label ID="VassalLabel" Offset="0,0" Anchor="L,T" String="Vassals"/>
+          <Label ID="CSAllyLabel" Offset="0,0" Anchor="L,T" String="City-State Alliances"/>
+          <Label ID="MilitaryPowerLabel" Offset="0,0" Anchor="L,T" String="Military Power"/>
           <Label ID="PolicyLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_POLICIES"/>
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_GREAT_WORKS"/>
           <Label ID="ReligionLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_RELIGION"/>
@@ -199,6 +202,15 @@
           </Box>
           <Box ID="FutureTechBox" Offset="0,0" Size="44,13" Color="0.0.0.0">
             <Label ID="FutureTech" Offset="0,0" Anchor="R,T"/>
+          </Box>
+          <Box ID="VassalBox" Offset="0,0" Size="44,13" Color="0.0.0.0">
+            <Label ID="Vassal" Offset="0,0" Anchor="R,T"/>
+          </Box>
+          <Box ID="CSAllyBox" Offset="0,0" Size="44,13" Color="0.0.0.0">
+            <Label ID="CSAlly" Offset="0,0" Anchor="R,T"/>
+          </Box>
+          <Box ID="MilitaryPowerBox" Offset="0,0" Size="44,13" Color="0.0.0.0">
+            <Label ID="MilitaryPower" Offset="0,0" Anchor="R,T"/>
           </Box>
           <Box ID="PolicyBox" Offset="0,0" Size="44,13" Color="0.0.0.0">
             <Label ID="Policies" Offset="0,0" Anchor="R,T"/>

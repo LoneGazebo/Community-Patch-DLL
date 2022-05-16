@@ -234,6 +234,7 @@ local g_UnitFlagClass =
         o:SetUnitColor();
         o:SetUnitType();
         o:UpdateFlagType();
+        o:UpdateAutomateFlag();
         o:UpdateHealth();
         o:UpdateSelected();
         o:SetFogState( fogState );
@@ -899,6 +900,18 @@ local g_UnitFlagClass =
 
     ------------------------------------------------------------------
     ------------------------------------------------------------------
+    UpdateAutomateFlag = function( self )
+
+		local pUnit = Players[ self.m_PlayerID ]:GetUnitByID( self.m_UnitID );
+		if pUnit:IsWork() then
+			self.m_Instance.Automated:SetTextureOffsetVal( 32, 0 )
+		end
+		self.m_Instance.Automated:SetHide( not pUnit:IsAutomated())
+        self.m_Instance.Automated:SetAlpha( 1.0 / g_DimAlpha ); -- Automate icon doesn't get dimmed (not hacky if it works)
+    end,
+
+    ------------------------------------------------------------------
+    ------------------------------------------------------------------
 	UpdateFlagOffset = function( self )
 	
 		local pUnit = Players[ self.m_PlayerID ]:GetUnitByID( self.m_UnitID );
@@ -1033,7 +1046,28 @@ Events.UnitActionChanged.Add( OnFlagTypeChange );
 Events.UnitGarrison.Add( OnFlagTypeChange );
 Events.UnitEmbark.Add( OnFlagTypeChange );
 
+--================= VP/bal: automated icon on unitflag ==================== 
+local function OnAutomateChange( playerID, unitID )
+    if( not Players[playerID]:IsHuman() or Players[ playerID ] == nil or
+		not Players[ playerID ]:IsAlive() or
+        Players[ playerID ]:GetUnitByID( unitID ) == nil or
+        Players[ playerID ]:GetUnitByID( unitID ):IsDead() )
+    then
+        return;
+    end
+    
+    if( g_MasterList[ playerID ] == nil or
+        g_MasterList[ playerID ][ unitID ] == nil ) 
+    then
+        --print( string.format( "Unit not found for OnFlagTypeChange: Player[%i] Unit[%i]", playerID, unitID ) );
+    else
+        local unit = g_MasterList[ playerID ][ unitID ];
+        unit:UpdateAutomateFlag();
+    end
+end
 
+Events.UnitActionChanged.Add( OnAutomateChange )
+Events.LocalMachineUnitPositionChanged.Add( OnAutomateChange )
 -------------------------------------------------
 -- nukes teleport instead of moving
 -------------------------------------------------

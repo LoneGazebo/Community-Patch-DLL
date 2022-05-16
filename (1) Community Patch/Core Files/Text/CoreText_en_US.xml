@@ -60,9 +60,18 @@
 		<Row Tag="TXT_KEY_MISC_WORK_HAS_BEGUN_IN_CITY_LIMITED">
 			<Text>[SPACE]Work has now begun on {@1_ProdName} in {@2_CityName}.</Text>
 		</Row>
+
 		<!-- For compatibility with Wonder consolation prize tweak -->
 		<Row Tag="TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED_S">
 			<Text>{1_CityName} can no longer work on {2_BldgName}!</Text>
+		</Row>
+
+		<!-- Destroy Captured City (One City Challenge) -->
+		<Row Tag="TXT_KEY_POPUP_DESTROY_CAPTURED_CITY">
+			<Text>Destroy the City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY">
+			<Text>The City is instantly destroyed. In a One City Challenge, HUMAN players cannot keep captured cities.</Text>
 		</Row>
 
 		<!-- Tourism Bonus Turns for Tooltip -->
@@ -2818,56 +2827,202 @@
 		<Row Tag="TXT_KEY_DIPLO_REQUEST_HELP_DEAL_BUTTON">
 			<Text>REQUEST</Text>
 		</Row>
-	
-		<!-- LUA for CBP -->
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
-			<Text>A Declaration of Friendship prevents this.</Text>
+
+		<!-- Peace Out Details - Lua -->
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR">
+			<Text>Peace Deal Value: {1_Num}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
-			<Text>A Defensive Pact prevents this.</Text>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_TT">
+			<Text>The leader's current valuation of this Peace Deal. If the value here is 'Impossible!', the leader refuses to trade one or more of the items in the Peace Deal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_PTP">
-			<Text>A Pledge of Protection prevents this.</Text>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_IMPOSSIBLE">
+			<Text>Peace Deal Value: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR">
+			<Text>Max Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MAX_STR_TT">
+			<Text>Maximum value of items in Peace Deal. If the value to the left of this exceeds this number, the leader will refuse the deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR">
+			<Text>Min Value: {1_Num}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_PEACE_MIN_STR_TT">
+			<Text>Minimum value of items in Peace Deal. If this number exceeds the value to the left, the leader will refuse the deal.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
-			<Text>Warscore must be above 75. Current Warscore: {1_Num}.</Text>
+		<!-- Regular Deal Details - Lua -->
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR">
+			<Text>Deal Value for Them: {1_Num}.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_TT">
+			<Text>The leader's current valuation of this Deal. If the value here is negative or 'Impossible!', the leader refuses to trade one or more of the items in the Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_ACCEPTABLE">
+			<Text>Deal Value for Them: Acceptable</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_IMPOSSIBLE">
+			<Text>Deal Value for Them: Impossible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO">
+			<Text>SANCTIONED BY WORLD CONGRESS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO_TT">
+			<Text>You cannot make deals during peacetime with this Civilization until the Sanction is lifted.</Text>
+		</Row>
+
+		<!-- Defensive Pact tooltip (no DP limit) -->
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_NO_LIMIT_TT">
+			<Text>If either player is attacked by another major civilization, the other player will immediately and automatically go to war with the aggressor. This agreement lasts {1_Num} turns.</Text>
+		</Row>
+
+		<!-- Invalid Deal Item Tooltip Text -->
 		<Row Tag="TXT_KEY_DIPLO_NO_CLEAR_WINNER_TT">
 			<Text>Cannot add to non-surrendering party in Peace Deal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NO_WAR_BLOCKED">
+		<Row Tag="TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS">
+			<Text>At least one player lacks the required funds for this agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
+			<Text>Cannot trade lump sum items (such as Gold) for items given over time (such as Resources).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
+			<Text>A human teammate prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WARTIME_TRADE_TT">
+			<Text>Not allowed in Peace Deals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL">
+			<Text>We do not have a Capital City to receive their Embassy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_NO_CAPITAL_THEM">
+			<Text>They do not have a Capital City to receive our Embassy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_ALLOW_EMBASSY_DENOUNCEMENT">
+			<Text>Embassies cannot be established if either Civilization has denounced the other.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_INSUFFICIENT_MAJORS">
+			<Text>No other non-Vassal Civilizations are currently alive.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_DISABLED_BY_OPTIONS">
+			<Text>Defensive Pacts have been disabled by this game's options.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEF_PACT_EXISTING_VASSALAGE">
+			<Text>Vassals may not form Defensive Pacts.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CONTAINS_INVALID_VASSALAGE">
+			<Text>Not allowed if deal contains Vassalage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED">
+			<Text>You may not make Defensive Pacts with more than {1_Num} civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DEFENSIVE_PACT_LIMIT_REACHED_THEM">
+			<Text>They may not make Defensive Pacts with more than {1_Num} civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_THEIR_VASSAL">
+			<Text>You are already their vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_YOUR_VASSAL">
+			<Text>They are already your vassal!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED">
+			<Text>"Enable Human Vassalage" Game Option is not enabled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_ARE_VASSAL">
+			<Text>You are a vassal of {1_PlayerName:textkey} and cannot adopt vassals of your own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEY_ARE_VASSAL">
+			<Text>They are a vassal of {1_PlayerName:textkey} and cannot adopt vassals of their own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_NOT_YET_ENABLED">
+			<Text>We must reach the Medieval Era to create vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NOT_YET_ENABLED">
+			<Text>They must reach the Medieval Era to create vassals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_US_ALREADY_A_VASSAL">
+			<Text>You are already a vassal of {1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_ALREADY_A_VASSAL">
+			<Text>They are already a vassal of {1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON">
+			<Text>You cannot become their vassal for {1_Num} turn(s) because it has been too soon since your vassalage ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON">
+			<Text>They cannot become your vassal for {1_Num} turn(s) because it has been too soon since their vassalage ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION">
+			<Text>You cannot become their vassal because you have no cities or population!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_NO_POPULATION">
+			<Text>They cannot become your vassal because they have no cities or population!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSALAGE_AND_INVALID_ITEM">
+			<Text>Not allowed if deal contains a Defensive Pact or Liberation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_NO_VASSALS">
+			<Text>We have no vassals to liberate!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_NO_VASSALS">
+			<Text>They have no vassals to liberate!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_YOUR_MASTER">
+			<Text>We cannot ask our master to liberate their vassals!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_THEIR_MASTER">
+			<Text>They cannot ask their master to liberate vassals!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_TOO_SOON">
+			<Text>We recently vassalized someone and cannot perform this action for another {1_Num} turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_TOO_SOON">
+			<Text>They recently vassalized someone and cannot perform this action for another {1_Num} turn(s).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
+			<Text>Can only include allied City-States in a Peace Deal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE_VASSAL">
+			<Text>Vassals cannot make peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_DIPLOMACY">
 			<Text>A diplomatic situation prevents this action.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE">
-			<Text>Cannot broker or make peace with this player.</Text>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_GAME_RULE">
+			<Text>A special game rule prevents this action.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_NEED_EMBASSY">
-			<Text>An embassy is required to trade this item.</Text>
+		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE">
+			<Text>Warscore must be at least {1_Num}. Current Warscore: {2_Num}.</Text>
 		</Row>
-		
-		<!-- Peace Out Details - Lua -->
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR">
-			<Text>Peace Deal Value: {1_Num}.</Text>
+		<Row Tag="TXT_KEY_DIPLO_WAR_SCORE_TEAM">
+			<Text>Warscore against all civs on this team must be at least {1_Num}. Lowest Warscore: {2_Num}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_IMPOSSIBLE">
-			<Text>Peace Deal Value: Impossible!</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL">
+			<Text>Vassals cannot declare war.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_ACCEPTABLE">
-			<Text>Peace Deal Value: Acceptable</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_VASSAL_TARGET">
+			<Text>Cannot broker war against a vassal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAX_STR">
-			<Text>Max Value: {1_Num}.</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_OUR_MASTER">
+			<Text>You cannot broker war against your master.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_TT">
-			<Text>Current trade value of items in Peace Deal for AI. If the value here is 'Impossible,' that means the AI refuses to trade one or more of the items in the Peace Deal.</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_THEIR_MASTER">
+			<Text>They cannot broker war against their master.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_MAX_STR_TT">
-			<Text>Maximum trade value of items in Peace Deal with AI. If the value to the left of this exceeds this number, the AI will refuse the deal.</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
+			<Text>A Defensive Pact prevents this action.</Text>
 		</Row>
-
-		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
-			<Text>Cannot demand Gold or trade it for Gold Per Turn/Resources/Trade Agreements.</Text>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_OUR_MASTER">
+			<Text>Our master's Defensive Pact prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP_THEIR_MASTER">
+			<Text>Their master's Defensive Pact prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
+			<Text>A Declaration of Friendship prevents this action.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_PTP">
+			<Text>A Pledge of Protection prevents this action.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_UNIT_CLASS">
@@ -2876,26 +3031,6 @@
 
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_EVENTMOD">
 			<Text>[NEWLINE][ICON_BULLET]Modifier from local Event: {1_Num}%</Text>
-		</Row>
-
-		<!-- Regular Deal Details - Lua -->
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE">
-			<Text>Deal Value for Them: {1_Num}.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_IMPOSSIBLE">
-			<Text>Deal Value for Them: Impossible!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO">
-			<Text>SANCTIONED BY WORLD CONGRESS</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_EMBARGO_TT">
-			<Text>You cannot make deals during peacetime with this Civilization until the Sanction is lifted.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_ACCEPTABLE">
-			<Text>Deal Value for Them: Acceptable</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DIPLO_TRADE_VALUE_STR_PEACE_TT">
-			<Text>AI's current valuation of the trade items in this Deal. If the value here is 'Impossible' or too negative, the AI will refuse to accept the Deal.</Text>
 		</Row>
 
 		<!-- No Supply -->
@@ -5996,7 +6131,7 @@
 			<Text>Choosing this option will alert {2_CivName:textkey} and their allies to the war preparations of {1_CivName:textkey}. This is a breach of diplomatic secrecy, which will anger {1_CivName:textkey} and please {2_CivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT">
-			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the AI refuses to help and has a positive relationship with the targeted player. This may have diplomatic repercussions![NEWLINE][NEWLINE]Depending on the AI's response, a cooperative war could begin immediately, after 10 turns have passed, or as soon as one of you goes to war with the target.[NEWLINE][NEWLINE]Cooperative wars are cancelled if you prematurely end your friendship with this leader (including through denouncements or war).[NEWLINE][NEWLINE]If you befriend the target, form a Defensive Pact with them, or become unable to declare war on them, your agreement with this leader will also be cancelled.</Text>
+			<Text>Choosing this option may alert the targeted player and their allies to your war preparations if the leader refuses to help and decides to warn the targeted player. This may have diplomatic repercussions![NEWLINE][NEWLINE]Depending on the leader's response, a cooperative war could begin immediately, after 10 turns have passed, or as soon as one of you goes to war with the target.[NEWLINE][NEWLINE]Cooperative wars are cancelled if you prematurely end your friendship with this leader (including through denouncements or war).[NEWLINE][NEWLINE]If you befriend the target, form a Defensive Pact with them, or become unable to declare war on them, your agreement with this leader will also be cancelled.</Text>
 		</Row>
 
 		<!-- Tourism and League Stuff -->
@@ -6776,10 +6911,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_MORALE_FALL_BACK_THEM_S">
 			<Text>Enemy {1_Unit} forced to retreat!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
-			<Text>Can only include allied City-States in a Peace Deal.</Text>
 		</Row>
 
 		<!-- Team Tourism -->

@@ -41,6 +41,8 @@ protected:
 	static int lGetPathEndTurnPlot(lua_State* L);
 	static int lGeneratePath(lua_State* L);
 	static int lGetActivePath(lua_State* L);
+	static int lGeneratePathToNextWaypoint(lua_State* L);
+	static int lGetWaypointPath(lua_State* L);
 
 	static int lCanEnterTerritory(lua_State* L);
 	static int lCanEnterArea(lua_State* L);

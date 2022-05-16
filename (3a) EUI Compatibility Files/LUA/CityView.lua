@@ -495,6 +495,8 @@ end
 
 local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID, _, isRepeat )
 	local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas, isRealRepeat
+	local IsBasic = not OptionsManager.IsNoBasicHelp() -- condensedhelp
+	
 	if city then
 		local cityOwnerID = city:GetOwner()
 		if orderID == OrderTypes.ORDER_TRAIN then
@@ -550,13 +552,17 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 --					strDisabledInfo = ("%s (%+i%s)"):format( strDisabledInfo, cash, icon )
 --				end
 				strToolTip = "[COLOR_WARNING_TEXT]" .. strDisabledInfo .. "[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
-			elseif purchaseYieldID then
-				if not isDisabled then
-					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
+			elseif purchaseYieldID then -- condensedhelp
+				if not isDisabled and orderID == OrderTypes.ORDER_CONSTRUCT and purchaseYieldID == g_yieldCurrency and IsBasic then
+					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT_BUILDING".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
+				elseif not isDisabled and orderID == OrderTypes.ORDER_TRAIN and purchaseYieldID == g_yieldCurrency and IsBasic then
+					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT_UNIT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
+				elseif not isDisabled and purchaseYieldID == YieldTypes.YIELD_FAITH and IsBasic then
+					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT_FAITH".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
 				end
-			elseif isDisabled then
+			elseif isDisabled and IsBasic then
 				strToolTip = "[COLOR_YIELD_FOOD]"..L"TXT_KEY_CITYVIEW_QUEUE_PROD_TT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
-			end
+			end -- condensedhelp ends
 		end
 		local item = itemInfo and itemInfo[itemID]
 		item = item and IconHookup( portraitOffset or item.PortraitIndex, g_leftTipControls.Portrait:GetSizeY(), portraitAtlas or item.IconAtlas, g_leftTipControls.Portrait )
@@ -1218,6 +1224,13 @@ local function PQGoldButtonCallback( orderID, itemID )
 end
 
 local function UpdateCityProductionQueueNow (city, cityID, cityOwnerID, isVeniceException )
+
+-- Automated City Production
+Controls.AutomateProduction:RegisterCheckHandler( function( isChecked )
+	Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+--	Network.SendDoTask( city:GetID(), TaskTypes.TASK_SET_AUTOMATED_PRODUCTION, -1, -1, isChecked, false )
+end)
+
 	-------------------------------------------
 	-- Update Production Queue
 	-------------------------------------------
@@ -1715,6 +1728,10 @@ local function UpdateCityViewNow()
 				Controls.NoAutoSpecialistCheckbox2:SetDisabled( g_isViewingMode )
 			end
 		end
+
+		-- Automated City Production
+		Controls.AutomateProduction:SetCheck( city:IsProductionAutomated() )
+		Controls.AutomateProduction:SetDisabled( g_isViewingMode )
 
 		-------------------------------------------
 		-- City Banner
