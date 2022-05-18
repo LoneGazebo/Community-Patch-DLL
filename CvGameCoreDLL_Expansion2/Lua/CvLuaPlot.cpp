@@ -688,9 +688,9 @@ int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 		BuildTypes eBuild = (BuildTypes)iBuildIndex;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 
-		if (NULL != pkBuild && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
-		{
-			lua_pushinteger(L, eBuild);
+		if (NULL != pkBuild && pkBuild->getRoute() == NO_ROUTE && eImprovement == (ImprovementTypes)pkBuild->getImprovement())
+		{ 
+			lua_pushinteger(L, eBuild); 
 			return 1;
 		}
 	}

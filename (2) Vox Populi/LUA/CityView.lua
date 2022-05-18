@@ -204,6 +204,14 @@ local civilservantTexture = "citizenCivilServant.dds";
 --end addition
 local emptySlotString = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_EMPTY_SLOT");
 
+local lockedartistTexture = "locked_artist.dds";
+local lockedengineerTexture = "locked_engineer.dds";
+local lockedmerchantTexture = "locked_merchant.dds";
+local lockedscientistTexture = "locked_scientist.dds";
+local lockedwriterTexture =  "locked_writer.dds";
+local lockedmusicianTexture = "locked_musician.dds";
+local lockedcivilservantTexture = "locked_servant.dds";
+
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 
@@ -439,17 +447,27 @@ function AddBuildingButton( pCity, building )
 		
 		-- Filled Specialist Slots
 		iNumAssignedSpecialists = pCity:GetNumSpecialistsInBuilding(buildingID)
+		iNumLockedSpecialists = pCity:GetNumForcedSpecialistsInBuilding(buildingID)
 
 		if specialistTable[buildingID] == nil then
-			specialistTable[buildingID] = { false, false, false };
+			specialistTable[buildingID] = { {Assigned = false, Locked = false}, {Assigned = false, Locked = false}, {Assigned = false, Locked = false} };
 			if (iNumAssignedSpecialists >= 1) then
-				specialistTable[buildingID][1] = true;
+				specialistTable[buildingID][1].Assigned = true;
+				if (iNumLockedSpecialists >= 1) then
+					specialistTable[buildingID][1].Locked = true;
+				end
 			end
 			if (iNumAssignedSpecialists >= 2) then
-				specialistTable[buildingID][2] = true;
+				specialistTable[buildingID][2].Assigned = true;
+				if (iNumLockedSpecialists >= 2) then
+					specialistTable[buildingID][2].Locked = true;
+				end
 			end
 			if (iNumAssignedSpecialists >= 3) then
-				specialistTable[buildingID][3] = true;
+				specialistTable[buildingID][3].Assigned = true;
+				if (iNumLockedSpecialists >= 3) then
+					specialistTable[buildingID][3].Locked = true;
+				end
 			end
 		else
 			local numSlotsIThinkAreFilled = 0;
@@ -459,15 +477,24 @@ function AddBuildingButton( pCity, building )
 				end
 			end
 			if numSlotsIThinkAreFilled ~= iNumAssignedSpecialists then
-				specialistTable[buildingID] = { false, false, false };
+				specialistTable[buildingID] = { {Assigned = false, Locked = false}, {Assigned = false, Locked = false}, {Assigned = false, Locked = false} };
 				if (iNumAssignedSpecialists >= 1) then
-					specialistTable[buildingID][1] = true;
+					specialistTable[buildingID][1].Assigned = true;
+					if (iNumLockedSpecialists >= 1) then
+						specialistTable[buildingID][1].Locked = true;
+					end
 				end
 				if (iNumAssignedSpecialists >= 2) then
-					specialistTable[buildingID][2] = true;
+					specialistTable[buildingID][2].Assigned = true;
+					if (iNumLockedSpecialists >= 2) then
+						specialistTable[buildingID][2].Locked = true;
+					end
 				end
 				if (iNumAssignedSpecialists >= 3) then
-					specialistTable[buildingID][3] = true;
+					specialistTable[buildingID][3].Assigned = true;
+					if (iNumLockedSpecialists >= 3) then
+						specialistTable[buildingID][3].Locked = true;
+					end
 				end
 			end
 		end
@@ -476,15 +503,15 @@ function AddBuildingButton( pCity, building )
 		controlTable.BuildingFilledSpecialistSlot2:SetHide(true);
 		controlTable.BuildingFilledSpecialistSlot3:SetHide(true);
 		
-		if (specialistTable[buildingID][1]) then
+		if (specialistTable[buildingID][1].Assigned) then
 			controlTable.BuildingEmptySpecialistSlot1:SetHide(true);
 			controlTable.BuildingFilledSpecialistSlot1:SetHide(false);
 		end
-		if (specialistTable[buildingID][2]) then
+		if (specialistTable[buildingID][2].Assigned) then
 			controlTable.BuildingEmptySpecialistSlot2:SetHide(true);
 			controlTable.BuildingFilledSpecialistSlot2:SetHide(false);
 		end
-		if (specialistTable[buildingID][3]) then
+		if (specialistTable[buildingID][3].Assigned) then
 			controlTable.BuildingEmptySpecialistSlot3:SetHide(true);
 			controlTable.BuildingFilledSpecialistSlot3:SetHide(false);
 		end
@@ -537,33 +564,117 @@ function AddBuildingButton( pCity, building )
 			controlTable.BuildingEmptySpecialistSlot3:SetToolTipString(ToolTipString);
 
 			if building.SpecialistType == "SPECIALIST_SCIENTIST" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(scientistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(scientistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(scientistTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedscientistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(scientistTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedscientistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(scientistTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedscientistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(scientistTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_MERCHANT" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(merchantTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(merchantTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(merchantTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedmerchantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(merchantTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedmerchantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(merchantTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedmerchantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(merchantTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_ARTIST" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedartistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(artistTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedartistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(artistTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedartistTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(artistTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_MUSICIAN" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(musicianTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(musicianTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(musicianTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedmusicianTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(musicianTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedmusicianTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(musicianTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedmusicianTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(musicianTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_WRITER" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(writerTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(writerTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(writerTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedwriterTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(writerTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedwriterTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(writerTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedwriterTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(writerTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_ENGINEER" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(engineerTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(engineerTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(engineerTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedengineerTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(engineerTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedengineerTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(engineerTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedengineerTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(engineerTexture);
+				end		
 			elseif building.SpecialistType == "SPECIALIST_CIVIL_SERVANT" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(civilservantTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(civilservantTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(civilservantTexture);
+				if (specialistTable[buildingID][1].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(lockedcivilservantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot1:SetTexture(civilservantTexture);
+				end		
+				if (specialistTable[buildingID][2].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(lockedcivilservantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot2:SetTexture(civilservantTexture);
+				end		
+				if (specialistTable[buildingID][3].Locked == true) then
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(lockedcivilservantTexture);
+				else
+					controlTable.BuildingFilledSpecialistSlot3:SetTexture(civilservantTexture);
+				end		
 			else
 				controlTable.BuildingFilledSpecialistSlot1:SetTexture(workerTexture);
 				controlTable.BuildingFilledSpecialistSlot2:SetTexture(workerTexture);
@@ -2570,22 +2681,26 @@ function AddSpecialist(iBuilding, slot)
 	local pCity = UI.GetHeadSelectedCity();
 				
 	-- If Specialists are automated then you can't change things with them
+--[[
 	if (not pCity:IsNoAutoAssignSpecialists()) then
 		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true);
 		Controls.NoAutoSpecialistCheckbox:SetCheck(true);
 		Controls.NoAutoSpecialistCheckbox2:SetCheck(true);
 	end
-	
+--]]	
 	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
 	
 	-- If we can add something, add it
 	if (pCity:IsCanAddSpecialistToBuilding(iBuilding)) then
 		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, iSpecialist, iBuilding);
+		if 	specialistTable[iBuilding][slot].Assigned == true then
+			specialistTable[iBuilding][slot].Locked = true;
+		else
+			specialistTable[iBuilding][slot].Assigned = true;
+		end
 	end
 	
 	--g_iCurrentSpecialist = iSpecialist;
-	specialistTable[iBuilding][slot] = true;
-	
 end
 
 function RemoveSpecialist(iBuilding, slot)
@@ -2594,22 +2709,37 @@ function RemoveSpecialist(iBuilding, slot)
 	local iNumSpecialistsAssigned = pCity:GetNumSpecialistsInBuilding(iBuilding);
 				
 	-- If Specialists are automated then you can't change things with them
+--[[
 	if (not pCity:IsNoAutoAssignSpecialists()) then
 		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true);
 		Controls.NoAutoSpecialistCheckbox:SetCheck(true);
 		Controls.NoAutoSpecialistCheckbox2:SetCheck(true);
 	end
+--]]
 	
 	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
 	
 	-- If we can remove something, remove it
-	if (iNumSpecialistsAssigned > 0) then
+	if (iNumSpecialistsAssigned > 0) and (pCity:IsNoAutoAssignSpecialists()) then
 		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
+		specialistTable[iBuilding][slot].Assigned = false;
+		specialistTable[iBuilding][slot].Locked = false;
 	end
 	
+	-- replace AI-assigned with a locked one
+	if (iNumSpecialistsAssigned > 0) and (not pCity:IsNoAutoAssignSpecialists()) then
+		if (specialistTable[iBuilding][slot].Locked == true) then
+			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
+			specialistTable[iBuilding][slot].Assigned = false;
+			specialistTable[iBuilding][slot].Locked = false;
+		else
+			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_LOCK_SPECIALIST, iSpecialist, iBuilding);
+			specialistTable[iBuilding][slot].Locked = true;
+		end
+	end
+
 	--g_iCurrentSpecialist = iSpecialist;
 	
-	specialistTable[iBuilding][slot] = false;
 end
 
 -------------------------------------------------

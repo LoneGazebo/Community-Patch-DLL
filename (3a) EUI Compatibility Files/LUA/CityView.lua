@@ -153,6 +153,7 @@ local g_works = table()
 local g_heap = Controls.Scrap
 
 local g_citySpecialists = {}
+local g_lockedcitySpecialists = {} -- VP/Lock Specialists
 
 local g_queuedItemNumber = false
 local g_isViewingMode = true
@@ -181,6 +182,23 @@ for specialist in GameInfo.Specialists() do
 	end
 end
 
+-- VP/LockSpecialists: icons for locked specs
+local g_lockedslotTexture = {
+	SPECIALIST_CITIZEN = "locked_citizen.dds",
+	SPECIALIST_SCIENTIST = "locked_scientist.dds",
+	SPECIALIST_MERCHANT = "locked_merchant.dds",
+	SPECIALIST_ARTIST = "locked_artist.dds",
+	SPECIALIST_MUSICIAN = "locked_musician.dds",
+	SPECIALIST_WRITER = "locked_writer.dds",
+	SPECIALIST_ENGINEER = "locked_engineer.dds",
+	SPECIALIST_CIVIL_SERVANT = "locked_servant.dds",	
+	SPECIALIST_JFD_MONK = "CitizenMonk.dds",  -- VP/Lock Specialists: need to add this for Religion Overhaul sometime
+}
+for specialist in GameInfo.Specialists() do
+	if specialist.LockedSlotTexture then
+		g_lockedslotTexture[ specialist.Type ] = specialist.LockedSlotTexture
+	end
+end
 local g_slackerTexture = civBE_mode and "UnemployedIndicator.dds" or g_slotTexture[ (GameInfo.Specialists[GameDefines.DEFAULT_SPECIALIST or -1] or {}).Type ] or "Blank.dds"
 
 --local g_colorWhite = {x=1, y=1, z=1, w=1}
@@ -602,10 +620,12 @@ local function OnSlackersSelected( buildingID, slotID )
 	end
 end
 
+
 local function ToggleSpecialist( buildingID, slotID )
 	local city = buildingID and slotID and GetSelectedModifiableCity()
 	if city then
 
+--[[ VP/LockSpecialist: Disabling this so we can lock specialists without taking full manual control
 		-- If Specialists are automated then you can't change things with them
 		if civ5_mode and not city:IsNoAutoAssignSpecialists() then
 			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, true)
@@ -614,18 +634,33 @@ local function ToggleSpecialist( buildingID, slotID )
 				Controls.NoAutoSpecialistCheckbox2:SetCheck(true)
 			end
 		end
-
+--]]
 		local specialistID = GameInfoTypes[(GameInfo.Buildings[ buildingID ] or {}).SpecialistType] or -1
 		local specialistTable = g_citySpecialists[buildingID]
+		local lockedspecialistTable = g_lockedcitySpecialists[buildingID]
+
+-- Lock an AI assigned specialist
+
 		if specialistTable[slotID] then
-			if city:GetNumSpecialistsInBuilding(buildingID) > 0 then
+			if city:GetNumSpecialistsInBuilding(buildingID) - city:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
 				specialistTable[slotID] = false
 				specialistTable.n = specialistTable.n - 1
+				lockedspecialistTable[slotID] = true
+				lockedspecialistTable.n = lockedspecialistTable.n + 1
+				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_LOCK_SPECIALIST, specialistID, buildingID )
+			end
+		end
+
+-- All add/remove when manual control is handled in lockedspecialistTable
+		if lockedspecialistTable[slotID] then
+			if city:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
+				lockedspecialistTable[slotID] = false
+				lockedspecialistTable.n = lockedspecialistTable.n - 1
 				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, specialistID, buildingID )
 			end
 		elseif city:IsCanAddSpecialistToBuilding(buildingID) then
-			specialistTable[slotID] = true
-			specialistTable.n = specialistTable.n + 1
+			lockedspecialistTable[slotID] = true
+			lockedspecialistTable.n = lockedspecialistTable.n + 1
 			return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, specialistID, buildingID )
 		end
 	end
@@ -774,13 +809,23 @@ local function SetupBuildingList( city, buildings, buildingIM )
 		-------------------
 		-- Specialist Slots
 		local numSpecialistsInBuilding = city:GetNumSpecialistsInBuilding( buildingID )
+		local numForcedSpecialistsInBuilding = city:GetNumForcedSpecialistsInBuilding ( buildingID ) -- VP/LockSpecialists: new lua method
+		local numUnforcedSpecialistsInBuilding = city:GetNumSpecialistsInBuilding( buildingID ) - numForcedSpecialistsInBuilding
 		local specialistTable = g_citySpecialists[buildingID] or {}
-		if specialistTable.n ~= numSpecialistsInBuilding then
-			specialistTable = { n = numSpecialistsInBuilding }
-			for i = 1, numSpecialistsInBuilding do
+		if specialistTable.n ~= numUnforcedSpecialistsInBuilding then
+			specialistTable = { n = numUnforcedSpecialistsInBuilding }
+			for i = 1, numUnforcedSpecialistsInBuilding do
 				specialistTable[i] = true
 			end
 			g_citySpecialists[buildingID] = specialistTable
+		end
+		local lockedspecialistTable = g_lockedcitySpecialists[buildingID] or {}
+		if lockedspecialistTable.n ~= numForcedSpecialistsInBuilding then
+			lockedspecialistTable = { n = numForcedSpecialistsInBuilding }
+			for i = 1, numForcedSpecialistsInBuilding do
+				lockedspecialistTable[i] = true
+			end
+			g_lockedcitySpecialists[buildingID] = lockedspecialistTable
 		end
 		local specialistType = building.SpecialistType
 		local specialist = GameInfo.Specialists[specialistType]
@@ -797,7 +842,13 @@ local function SetupBuildingList( city, buildings, buildingIM )
 				end
 				controls[1]:insert( slot )
 				if civ5_mode then
-					slot:SetTexture( specialistTable[ slotID ] and g_slotTexture[ specialistType ] or "CitizenEmpty.dds" )
+					if lockedspecialistTable[slotID] then
+						slot:SetTexture( lockedspecialistTable[ slotID ] and g_lockedslotTexture[ specialistType ] or "CitizenEmpty.dds" )
+					elseif specialistTable[slotID] then 
+						slot:SetTexture( specialistTable[ slotID ] and g_slotTexture[ specialistType ] or "CitizenEmpty.dds" )
+					else
+						slot:SetTexture("CitizenEmpty.dds")
+					end
 				else
 					IconHookup( specialist.PortraitIndex, 45, specialist.IconAtlas, instance.Portrait )
 					instance.Portrait:SetHide( not specialistTable[ slotID ] )
