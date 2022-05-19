@@ -2694,7 +2694,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		}
 
 		//Let's issue an attack request.
-		if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
+		if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()) && !pAssignedPlayer->isHuman())
 		{
 			pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eMostRecentBully,2);
 		}
@@ -2717,7 +2717,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		//Let's issue a recon request.
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		if(!pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+		if(!pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon) && !pAssignedPlayer->isHuman())
 		{
 			pAssignedPlayer->GetEconomicAI()->SetUsingStrategy(eNavalRecon, 1);
 		}
@@ -2776,7 +2776,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 		//Let's issue a recon request.
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-		if(!pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+		if(!pAssignedPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon) && !pAssignedPlayer->isHuman())
 		{
 			pAssignedPlayer->GetEconomicAI()->SetUsingStrategy(eNavalRecon, 1);
 		}
@@ -2815,7 +2815,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				// On this team
 				if(GET_PLAYER(eTeamPlayer).getTeam() == eConquerorTeam)
 				{
-					if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(eConquerorTeam), pAssignedPlayer->GetID())
+					if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(eConquerorTeam), pAssignedPlayer->GetID() && !pAssignedPlayer->isHuman())
 					{
 						pAssignedPlayer->GetMilitaryAI()->RequestCityAttack(eTeamPlayer,2);
 					}

@@ -41366,6 +41366,13 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
+	//no AI operations for human players
+	if (isHuman())
+	{
+		CUSTOMLOG("warning: trying to create an AI operation for a human player!")
+		return NULL;
+	}
+
 	CvAIOperation* pNewOperation = CreateAIOperation(eOperationType,GC.getGame().GetNextGlobalID(),GetID(),eEnemy);
 	if (!pNewOperation)
 		return NULL;
