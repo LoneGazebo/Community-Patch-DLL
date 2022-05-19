@@ -11677,7 +11677,7 @@ int CvUnit::GetScaleAmount(int iAmountToScale) const
 		if (iScaleAmount <= 0)
 			continue;
 
-		int iOwned = GET_PLAYER(getOwner()).CountAllImprovement(eImprovement, true);
+		int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement, true);
 		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
 		iExtra /= 100;
 
@@ -11705,7 +11705,7 @@ int CvUnit::getDiscoverAmount()
 			iValue = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			//Let's make the GM a little more flexible.
+			//Let's make the GS a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			{
 				//scale up our value
@@ -12225,18 +12225,13 @@ bool CvUnit::trade()
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
 			int iCap = 5;
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
-			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			{
-				iCap = GetScaleAmount(iCap);
-			}
-#endif
+			iCap = GetScaleAmount(iCap);
 			iCap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iCap /= 100;
+
 			CvCity* pLoopCity;
 			int iCityLoop;
-
 			// Loop through owner's cities.
 			for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
 			{

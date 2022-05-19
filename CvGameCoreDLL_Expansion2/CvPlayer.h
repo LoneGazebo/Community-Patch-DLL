@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2191,8 +2191,8 @@ public:
 
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
-	int getImprovementCount(ImprovementTypes eIndex) const;
-	void changeImprovementCount(ImprovementTypes eIndex, int iChange);
+	int getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly = false) const;
+	void changeImprovementCount(ImprovementTypes eIndex, int iChange, bool bBuilt = false);
 
 #if defined(MOD_BALANCE_CORE)
 	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
@@ -3537,6 +3537,7 @@ protected:
 	std::vector<int> m_paiResourcesSiphoned;
 	std::vector<byte> m_aiNumResourceFromGP;
 	std::vector<int> m_paiImprovementCount;
+	std::vector<int> m_paiImprovementBuiltCount;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiTotalImprovementsBuilt;
 #endif
@@ -4297,6 +4298,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
 SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementBuiltCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiTotalImprovementsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeBuildingCount)

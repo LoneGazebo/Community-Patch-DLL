@@ -408,6 +408,7 @@ CvPlayer::CvPlayer() :
 	, m_paiResourcesSiphoned()
 	, m_aiNumResourceFromGP()
 	, m_paiImprovementCount()
+	, m_paiImprovementBuiltCount()
 #if defined(MOD_BALANCE_CORE)
 	, m_paiTotalImprovementsBuilt()
 #endif
@@ -1109,6 +1110,7 @@ void CvPlayer::uninit()
 	m_paiResourcesSiphoned.clear();
 	m_aiNumResourceFromGP.clear();
 	m_paiImprovementCount.clear();
+	m_paiImprovementBuiltCount.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_paiTotalImprovementsBuilt.clear();
 #endif
@@ -2012,9 +2014,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiImprovementCount.clear();
 		m_paiImprovementCount.resize(GC.getNumImprovementInfos(), 0);
-
+		m_paiImprovementBuiltCount.clear();
+		m_paiImprovementBuiltCount.resize(GC.getNumImprovementInfos(), 0);
 #if defined(MOD_BALANCE_CORE)
-		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiTotalImprovementsBuilt.clear();
 		m_paiTotalImprovementsBuilt.resize(GC.getNumImprovementInfos(), 0);
 #endif
@@ -39085,21 +39087,31 @@ void CvPlayer::changeTotalImprovementsBuilt(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getImprovementCount(ImprovementTypes eIndex) const
+int CvPlayer::getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiImprovementCount[eIndex];
+	if (bBuiltOnly)
+		return m_paiImprovementBuiltCount[eIndex];
+	else
+		return m_paiImprovementCount[eIndex];
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange)
+void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool bBuilt)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiImprovementCount[eIndex] = m_paiImprovementCount[eIndex] + iChange;
+	
+	m_paiImprovementCount[eIndex] += iChange;
 	CvAssert(getImprovementCount(eIndex) >= 0);
+
+	if (bBuilt)
+	{
+		m_paiImprovementBuiltCount[eIndex] += iChange;
+		CvAssert(getImprovementCount(eIndex, true) >= 0);
+	}
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -46446,6 +46458,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourcesSiphoned);
 	visitor(player.m_aiNumResourceFromGP);
 	visitor(player.m_paiImprovementCount);
+	visitor(player.m_paiImprovementBuiltCount);
 	visitor(player.m_paiTotalImprovementsBuilt);
 	visitor(player.m_paiBuildingChainSteps);
 	visitor(player.m_paiFreeBuildingCount);

@@ -9554,14 +9554,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 		}
 
-		for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
-		{
-			if (pEntry->GetImprovementVoteChange((ImprovementTypes)iJ) > 0)
-			{
-				iDiploTemp += (pEntry->GetImprovementVoteChange((ImprovementTypes)iJ) * max(5, m_pPlayer->CountAllImprovement((ImprovementTypes)iJ)));
-			}
-		}
-
 		iDiploTemp += (pEntry->GetCityStateMinimumInfluence() * GC.getGame().GetNumMinorCivsAlive()) / 10;
 
 		iDiploTemp += pEntry->GetHappinessFromForeignSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
