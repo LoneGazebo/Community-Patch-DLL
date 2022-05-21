@@ -1167,7 +1167,7 @@ local nullOffset = { x=0, y=0 }
 local function UpdateUnitPortrait( unit )
 
 	local name
-	if unit:IsGreatPerson() then
+	if unit:HasName() or unit:IsGreatPerson() then
 		name = unit:GetNameNoDesc()
 		if not name or #name == 0 then
 			name = unit:GetName()
