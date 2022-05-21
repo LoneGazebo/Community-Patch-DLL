@@ -9609,16 +9609,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 
 		int iNumImprovementInfos = GC.getNumImprovementInfos();
+		pair<int, int> fVoteRatio = make_pair(0, 1);
 		for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
 		{
 			int potentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
 			if (potentialVotes > 0)
 			{
-				int numImprovements = m_pPlayer->getImprovementCount((ImprovementTypes)jJ);
-				iDiploTemp += potentialVotes * (max(1, numImprovements) * 20);
+				int numImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
+				AddFractionToReference(fVoteRatio, make_pair(numImprovements, potentialVotes));
 			}
 		}
-
+		iDiploTemp += 80 * fVoteRatio.first / fVoteRatio.second;
+		
 		if (pEntry->GetCityStateInfluenceModifier() > 0)
 		{
 			iDiploTemp += (pEntry->GetCityStateInfluenceModifier() * m_pPlayer->GetNumCSFriends()) / 2;

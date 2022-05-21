@@ -802,6 +802,10 @@ public:
 	void ChangeDefensePactsToVotes(int iChange);
 	int TestDefensePactsToVotes(int iChange);
 
+	int GetReligionVotes() const;
+	int CalculateReligionExtraVotes(const CvReligion *pReligion) const;
+	int CalculateReligionVotesFromImprovements(const CvReligion *pReligion) const;
+
 	int GetGPExpendInfluence() const;
 	void ChangeGPExpendInfluence(int iChange);
 	

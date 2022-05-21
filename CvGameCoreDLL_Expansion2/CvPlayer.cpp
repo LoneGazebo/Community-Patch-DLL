@@ -23543,14 +23543,14 @@ int CvPlayer::TestCapitalsToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 int CvPlayer::GetDoFToVotes() const
 {
 	return m_iDoFToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 void CvPlayer::ChangeDoFToVotes(int iChange)
 {
 	m_iDoFToVotes = iChange;
@@ -23562,7 +23562,7 @@ void CvPlayer::ChangeDoFToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 int CvPlayer::TestDoFToVotes(int iChange)
 {
 	int iDoFToVotes = 0;
@@ -23577,14 +23577,14 @@ int CvPlayer::TestDoFToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 int CvPlayer::GetRAToVotes() const
 {
 	return m_iRAToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 void CvPlayer::ChangeRAToVotes(int iChange)
 {
 	m_iRAToVotes = iChange;
@@ -23596,7 +23596,7 @@ void CvPlayer::ChangeRAToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 int CvPlayer::TestRAToVotes(int iChange)
 {
 	int iRAToVotes = 0;
@@ -23609,14 +23609,14 @@ int CvPlayer::TestRAToVotes(int iChange)
 	return iRAToVotes;
 }
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Defense Pacts
 int CvPlayer::GetDefensePactsToVotes() const
 {
 	return m_iDefensePactsToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Defense Pacts
 void CvPlayer::ChangeDefensePactsToVotes(int iChange)
 {
 	m_iDefensePactsToVotes = iChange;
@@ -23644,6 +23644,57 @@ int CvPlayer::TestDefensePactsToVotes(int iChange)
 	}
 	
 	return iDefensePactsToVotes;
+}
+
+/// Extra league votes from Religion
+int CvPlayer::GetReligionVotes() const
+{
+	int iVotes = 0;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligions()->GetStateReligion(false), m_eID);
+	if (pReligion)
+	{
+		iVotes += CalculateReligionExtraVotes(pReligion);
+
+		iVotes += CalculateReligionVotesFromImprovements(pReligion);
+	}
+	return iVotes;
+}
+// Religion gives extra votes based on the number of Minor Civs
+int CvPlayer::CalculateReligionExtraVotes(const CvReligion *pReligion) const
+{
+	int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(m_eID);
+	if (iExtraVotes > 0)
+	{
+		int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
+		if (iNumMinor > 0)
+		{
+			return (iExtraVotes * iNumMinor);
+		}
+	}
+	return 0;
+}
+
+// Religion gives extra votes based on the number of certain improvements
+int CvPlayer::CalculateReligionVotesFromImprovements(const CvReligion *pReligion) const
+{
+	int iNumImprovementInfos = GC.getNumImprovementInfos();
+	
+	std::pair<int, int> fTotalVotes = std::make_pair(0, 1);
+	
+	for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
+	{
+		int iNumImprovements = getImprovementCount((ImprovementTypes)jJ); // less expensive function call
+		if (iNumImprovements > 0)
+		{
+			// number of votes per improvement (a fraction less than one)
+			std::pair<int, int> fPotentialVotes = pReligion->m_Beliefs.GetVoteFromOwnedImprovement((ImprovementTypes)jJ, m_eID); // more likely to be zero
+			if (fPotentialVotes.first > 0)
+			{
+				AddFractionToReference(fTotalVotes, std::make_pair(iNumImprovements * fPotentialVotes.first, fPotentialVotes.second));
+			}
+		}
+	}
+	return fTotalVotes.first / fTotalVotes.second;
 }
 
 //	--------------------------------------------------------------------------------
@@ -39271,7 +39322,7 @@ void CvPlayer::changeFreeBuildingCount(BuildingTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Is ePromotion a free promotion?
+/// How many sources have added ePromotion as a free promotion?
 int CvPlayer::GetFreePromotionCount(PromotionTypes ePromotion) const
 {
 	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
@@ -39287,7 +39338,7 @@ bool CvPlayer::IsFreePromotion(PromotionTypes ePromotion)	const
 }
 
 //	--------------------------------------------------------------------------------
-/// Is ePromotion a free promotion?
+/// Add another source of ePromotion to the free promotion list
 void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 {
 	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
