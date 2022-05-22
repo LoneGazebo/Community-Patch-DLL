@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -65,8 +65,8 @@
     <File md5="5ED6C6787AA3F00D516BA6CC54886853" import="1">Art/Icons/minefield.dds</File>
     <File md5="6EC34A475F58A3F069EC870A49C7FB0D" import="1">Art/Icons/minefield.ggxml</File>
     <File md5="5F1AF27075C0476ECABA06D5592BFD8B" import="1">Art/Icons/Automated32.dds</File>
-    <File md5="270379289F4A40C3E185D3D6A66263FA" import="1">Art/Icons/citizenmusician.dds</File>
-    <File md5="7BF76393D2B1AFF6E33FEFDE7F033039" import="1">Art/Icons/citizenwriter.dds</File>
+    <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
+    <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Art/Icons/citizenwriter.dds</File>
     <File md5="84245E4EED2973497B92BF578C08947F" import="1">Art/Icons/musicianspecialist1024.dds</File>
     <File md5="86C474909205CC804D6F6D41A6FD8A63" import="1">Art/Icons/musicianspecialist128.dds</File>
     <File md5="201D7E606B978034A64AA403335BD65B" import="1">Art/Icons/musicianspecialist180.dds</File>
@@ -82,6 +82,13 @@
     <File md5="8C11BE8120287A5EE17DAFEF75ADDE78" import="1">Art/Icons/AutomateProduction45.dds</File>
     <File md5="FE5757135164699240E8999592A4EC14" import="1">Art/Icons/AutomateProduction64.dds</File>
     <File md5="E2D3592B6B62CDDD4EA50B27A6321AED" import="1">Art/Icons/Blank.dds</File>
+    <File md5="CBDC1130121DA9DB2179D2C0E547332B" import="1">Art/Icons/LockedSpecialistIcons/locked_artist.dds</File>
+    <File md5="1DDC5F0B9E79488B3E542E5D23AFA1D1" import="1">Art/Icons/LockedSpecialistIcons/locked_engineer.dds</File>
+    <File md5="B02C2390235CD918DA47CAEF80C74F8F" import="1">Art/Icons/LockedSpecialistIcons/locked_merchant.dds</File>
+    <File md5="1B8DD467BDABB854D892F7884CA25B53" import="1">Art/Icons/LockedSpecialistIcons/locked_musician.dds</File>
+    <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Art/Icons/LockedSpecialistIcons/locked_scientist.dds</File>
+    <File md5="CA684194A3C656557B00598D7D705D53" import="1">Art/Icons/LockedSpecialistIcons/locked_servant.dds</File>
+    <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Art/Icons/LockedSpecialistIcons/locked_writer.dds</File>
     <File md5="CA19F6683F0AC98FDC70C3FEE70E7E1B" import="1">Art/Improvements/Eki/EkiAtlas64.dds</File>
     <File md5="23EFC6142448F267565EA8A08CE85927" import="1">Art/Improvements/Eki/EkiBuildIcon45.dds</File>
     <File md5="1EB5AEEBB11A3A58DEC66E0DDFF892A1" import="1">Art/Improvements/Eki/EkiBuildIcon64.dds</File>
@@ -377,7 +384,7 @@
     <File md5="5E9040EE51D1ADBC521C5204DE3023B7" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
     <File md5="A3FFD2D77315EC25E4B227528468A15B" import="0">Balance Changes/Ideologies/Order/OrderChanges.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
-    <File md5="18378306AF97A53A9F5F50B343E9ED54" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
+    <File md5="569FB4A5A75DEBA0CDF0B7618E9DB5C3" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
     <File md5="A917B1BEB1112AA508686AFBB1665252" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
     <File md5="AD4C3A3913B81F2B0CD813679F410BB4" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
     <File md5="68935F2C96862E55F2D394C97AAFEEA5" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
@@ -467,7 +474,7 @@
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="7754F911652E51A46A3A8C1A641E8C2A" import="1">LUA/CityView.lua</File>
+    <File md5="E1D4ADC66534E7A89D06FDDA060F047A" import="1">LUA/CityView.lua</File>
     <File md5="394F2339E22FF9B0B3885CA20479C41F" import="1">LUA/CityView.xml</File>
     <File md5="E5321D0DBDDDF5F5DD58D9CEDB93FF5C" import="1">LUA/CityView_small.xml</File>
     <File md5="18A1ECCDC4B7D9F0C2785EF35DC7BA1F" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
@@ -610,7 +617,7 @@
     <File md5="5AF071F0C5352590F05F5F0F2CD726B9" import="1">CSD/Art/Resources/Book64.dds</File>
     <File md5="608EDE081355C4C90DC4A5C0451CC560" import="1">CSD/Art/Resources/Book80.dds</File>
     <File md5="EB148360177EEEF92F2E7B101C427DB7" import="1">CSD/Art/Resources/CSDPaper.dds</File>
-    <File md5="0CD807A39666DFE5519FD6A45D78CC24" import="1">CSD/Art/Specialists/citizenCivilServant.dds</File>
+    <File md5="41F450D710658C652158869BE18FB6D9" import="1">CSD/Art/Specialists/citizenCivilServant.dds</File>
     <File md5="E0A35DF6782EF51000964D60DB47124D" import="1">CSD/Art/Specialists/CSDcs1024.dds</File>
     <File md5="1321489766E773033C21510335366B3D" import="1">CSD/Art/Specialists/CSDcs512.dds</File>
     <File md5="64C40D61260DBBC647728C1C22A9E01C" import="1">CSD/Art/Specialists/CSDcs256.dds</File>
