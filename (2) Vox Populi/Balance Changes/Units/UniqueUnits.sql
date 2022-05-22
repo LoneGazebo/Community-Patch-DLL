@@ -520,7 +520,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_LANCER' WHERE UnitType 
 -- Tercio now melee renaissance unit  - musketman now the 'ranged' unit
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_SPANISH_TERCIO';
 
-UPDATE Units SET Class = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_SPANISH_TERCIO';
+UPDATE Units SET Class = 'UNITCLASS_TERCIO', IconAtlas = 'COMMUNITY_2_ATLAS', PortraitIndex = 23 WHERE Type = 'UNIT_SPANISH_TERCIO';
 
 UPDATE Units SET FoundMid = '1', GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER', DefaultUnitAI = 'UNITAI_FAST_ATTACK' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 

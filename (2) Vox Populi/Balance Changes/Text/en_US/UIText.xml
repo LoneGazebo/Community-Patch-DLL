@@ -1365,7 +1365,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_SPECIALIST_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CITIZEN] Urbanization (Specialists)</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_URBANIZATION] Urbanization (Specialists)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EMPIRE_WIDE_UNHAPPINESS">
@@ -1440,10 +1440,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">
-			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_CITIZEN] Urbanization</Text>
+			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_URBANIZATION_GREEN] Urbanization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
-			<Text>[ICON_CITIZEN] Urbanization per new Specialist</Text>
+			<Text>[ICON_URBANIZATION] Urbanization per new Specialist</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_RANGE_STRIKE_CITY">
