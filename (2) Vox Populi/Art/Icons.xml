@@ -229,51 +229,45 @@
 	</IconTextureAtlases>
 	<IconFontTextures>
 		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
-			<IconFontTextureFile>Austria</IconFontTextureFile>
-		</Row>
-		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
-			<IconFontTextureFile>airstrike</IconFontTextureFile>
-		</Row>
-		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_MINEFIELD</IconFontTexture>
-			<IconFontTextureFile>minefield</IconFontTextureFile>
-		</Row>
-		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
-			<IconFontTextureFile>airport</IconFontTextureFile>
-		</Row>
-		<Row>
-			<IconFontTexture>ICON_FONT_TEXTURE_AUTOMATED</IconFontTexture>
-			<IconFontTextureFile>AutomateProduction</IconFontTextureFile>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconFontTextureFile>VP_FontIconAtlas</IconFontTextureFile>
 		</Row>
 	</IconFontTextures>
 	<IconFontMapping>
 		<Row>
-			<IconName>ICON_RES_MARRIAGE</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_AUSTRIA</IconFontTexture>
+			<IconName>ICON_AIRPORT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>1</IconMapping>
 		</Row>
 		<Row>
 			<IconName>ICON_AIRSTRIKE_DEFENSE</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_AIRSTIRKE</IconFontTexture>
-			<IconMapping>1</IconMapping>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>2</IconMapping>
 		</Row>
 		<Row>
-			<IconName>ICON_MINEFIELD</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_MINEFIELD</IconFontTexture>
-			<IconMapping>1</IconMapping>
-		</Row>
-		<Row>
-			<IconName>ICON_AIRPORT</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_AIRPORT</IconFontTexture>
-			<IconMapping>1</IconMapping>
+			<IconName>ICON_RES_MARRIAGE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>3</IconMapping>
 		</Row>
 		<Row>
 			<IconName>ICON_AUTOMATED</IconName>
-			<IconFontTexture>ICON_FONT_TEXTURE_AUTOMATED</IconFontTexture>
-			<IconMapping>1</IconMapping>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>4</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_MINEFIELD</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>5</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_URBANIZATION</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>6</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_URBANIZATION_GREEN</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>7</IconMapping>
 		</Row>
 	</IconFontMapping>
 </GameData>

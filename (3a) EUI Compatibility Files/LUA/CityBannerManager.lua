@@ -226,7 +226,7 @@ local g_cityToolTips = {
 
 				local cultureStored = city:GetJONSCultureStored()
 				local cultureNeeded = city:GetJONSCultureThreshold()
-				local culturePerTurn = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+				local culturePerTurn = city:GetJONSCulturePerTurn()
 				local turnsRemaining
 				if culturePerTurn > 0 then
 					turnsRemaining = math_max(math_ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
