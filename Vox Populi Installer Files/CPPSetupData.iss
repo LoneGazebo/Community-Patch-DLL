@@ -56,7 +56,7 @@ Source: "(4a) Promotion Icons for VP\*"; DestDir: "{app}\(4a) Promotion Icons fo
 Source: "(4b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(4b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
 Source: "LUA for (1) CP\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly     
 Source: "LUA for (2) VP\LUA\*"; DestDir: "{app}\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
-Source: "UI_bc1\*"; DestDir: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1\"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 
 [Components]
 Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -75,7 +75,7 @@ Name: "43CivNoEUI"; Description: "43 Civ Vox Populi (no EUI)"
 Name: "43CivEUI"; Description: "43 Civ Vox Populi (with EUI)"
 
 [InstallDelete]
-Type: filesandordirs; Name: "{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier's Civilization V}\Assets\DLC\UI_bc1"
+Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Vox Populi"
@@ -96,3 +96,74 @@ Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(6c) 43 Civs CP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7a) Promotion Icons for VP"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(7b) UI - Promotion Tree for VP"
+
+[Code]
+
+var
+  CIVDirPage: TInputDirWizardPage;
+
+procedure InitializeWizard;
+begin
+  // Create the EUI path page
+
+  CIVDirPage := CreateInputDirPage(wpSelectComponents,
+    'Select the Civilization V path', 'Where should EUI files be installed?',
+    'Select the Civilization V folder in which the Setup should install EUI files, then click Next. If the installer does not select the correct folder by default, please click Browse and choose the right folder ',
+    False, '');
+  CIVDirPage.Add('');
+
+  CIVDirPage.Values[0] := GetPreviousData('CIVDir', '');
+end;
+(*
+procedure RegisterPreviousData(PreviousDataKey: Integer);
+begin
+  // Store the selected folder for further reinstall/upgrade //balparmak: no need to store this for now
+  SetPreviousData(PreviousDataKey, 'CIVDir', CIVDirPage.Values[0]);
+end;
+ *)
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  // Set default folder if empty
+  if CIVDirPage.Values[0] = '' then
+     CIVDirPage.Values[0] := ExpandConstant('{reg:HKCU\SOFTWARE\Firaxis\Civilization5,LastKnownPath|{commonpf}\Steam\steamapps\common\Sid Meier''s Civilization V}');
+  Result := True;
+end;
+
+function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,
+  MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
+var
+  S: String;
+begin
+  // Fill the 'Ready Memo' with the normal settings and the custom settings
+  S := '';
+
+  S := S + MemoDirInfo + NewLine + NewLine;
+  if IsComponentSelected('FullEUI') or IsComponentSelected('Civ43EUI') then
+  begin
+   S := S + 'Civilization V path' + NewLine;
+   S := S + Space + CIVDirPage.Values[0] + NewLine + NewLine;
+  end;
+
+  S := S + MemoComponentsInfo
+  Result := S;
+end;
+ 
+function GetCIVDir(Param: String): String;
+begin
+  { Return the selected CIVDir }
+  Result := CIVDirPage.Values[0];
+end;
+
+function IsEUI: Boolean;
+begin
+  Result := IsComponentSelected('FullEUI') or IsComponentSelected('Civ43EUI');
+end;
+
+function ShouldSkipPage(CIVDirPageID: Integer): Boolean;
+begin
+  Result := False;
+  if CIVDirPageID = CIVDirPage.ID then
+  begin
+    Result := not IsEUI;
+  end;
+end;
