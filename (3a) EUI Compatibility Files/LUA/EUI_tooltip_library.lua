@@ -2378,7 +2378,6 @@ local function GetCultureTooltip( city )
 	tips:insert( "" )
 	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
 	if culturePerTurn > 0 then
-		culturePerTurn = culturePerTurn
 		local tipText = ""
 		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
 		local overflow = culturePerTurn * turnsRemaining + cultureStored - cultureNeeded
