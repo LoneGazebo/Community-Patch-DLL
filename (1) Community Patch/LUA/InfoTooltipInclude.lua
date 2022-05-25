@@ -742,7 +742,7 @@ function GetCultureTooltip(pCity)
 	
 	
 	-- Tile growth
-	local iCulturePerTurn = pCity:GetJONSCulturePerTurn() + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
+	local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
 	local iCultureStored = pCity:GetJONSCultureStored();
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
 
