@@ -398,8 +398,8 @@ local function UpdateCity( instance )
 		instance.CityIsAutomated:SetHide( not isAutomated )
 		instance.Name:SetString( city:GetName() )
 
-		local culturePerTurn = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
-		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - (city:GetJONSCultureStored() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL))) / culturePerTurn ) )
+		local culturePerTurn = city:GetJONSCulturePerTurn()
+		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)) ) )
 
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
 		instance.Button:SetColor( Color( 1, percent, percent, 1 ) )

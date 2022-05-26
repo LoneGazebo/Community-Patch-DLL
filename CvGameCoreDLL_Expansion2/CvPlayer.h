@@ -2819,7 +2819,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
-	virtual void AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity) = 0;
+	virtual bool AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity) = 0;
 #endif
 
 	virtual void computeFoundValueThreshold();

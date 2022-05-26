@@ -449,7 +449,7 @@ public:
 	int GetNumActiveQuestsForPlayer(PlayerTypes ePlayer) const;
 	int GetNumActivePersonalQuestsForPlayer(PlayerTypes ePlayer) const;
 	bool IsActiveQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);
-	void EndAllActiveQuestsForPlayer(PlayerTypes ePlayer);
+	void EndAllActiveQuestsForPlayer(PlayerTypes ePlayer, bool bWar = false);
 #if defined(MOD_BALANCE_CORE)
 	void DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 #endif

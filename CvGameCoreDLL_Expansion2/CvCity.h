@@ -140,6 +140,7 @@ public:
 	bool IsCityEventValid(CityEventTypes eEvent);
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive = false);
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner);
+	bool IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int iAssumedLevel, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
 	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, CvCity* pOriginalCity = NULL);
@@ -1708,6 +1709,10 @@ public:
 	int GetLoyaltyState() const;
 	void SetLoyaltyState(int iLoyalty);
 
+	int GetBonusEspionageSightTurns(PlayerTypes ePlayer) const;
+	void UpdateBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue);
+	void SetBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue);
+
 	void SetYieldModifierFromHappiness(YieldTypes eYield, int iValue);
 	int GetYieldModifierFromHappiness(YieldTypes eYield) const;
 
@@ -2096,6 +2101,7 @@ protected:
 	std::vector<bool> m_abBuildingInvestment;
 	std::vector<bool> m_abUnitInvestment;
 	std::vector<bool> m_abBuildingConstructed;
+	std::vector<int> m_aiBonusSightEspionage;
 #endif
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
@@ -2424,6 +2430,7 @@ SYNC_ARCHIVE_VAR(std::vector<bool>, m_abOwedChosenBuilding)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingInvestment)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abUnitInvestment)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingConstructed)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBonusSightEspionage)
 SYNC_ARCHIVE_END()
 
 //just a guard class so we never forget to unset the garrison override

@@ -10522,6 +10522,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iConvertsCityToPlayerMajorityReligion(0),
 	 m_iCityDefenseModifier(0),
 	 m_iSpyVisionRange(0),
+	 m_iSpyVisionDuration(0),
 	 m_iIsNoLevelUp(false),
 	 m_bEspionageEffect(false),
 	 m_bApplyEffectToSpyOwner(false),
@@ -10622,6 +10623,11 @@ int CvModEventCityChoiceInfo::getCityDefenseModifier() const
 int CvModEventCityChoiceInfo::getSpyVisionRange() const
 {
 	return m_iSpyVisionRange;
+}
+
+int CvModEventCityChoiceInfo::getSpyVisionDuration() const
+{
+	return m_iSpyVisionDuration;
 }
 
 bool CvModEventCityChoiceInfo::isNoLevelUp() const
@@ -11255,6 +11261,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iSapCityTurns = kResults.GetInt("SapCityTurns");
 	m_iCityDefenseModifier = kResults.GetInt("CityDefenseModifier");
 	m_iSpyVisionRange = kResults.GetInt("SpyVisionRange");
+	m_iSpyVisionDuration = kResults.GetInt("SpyVisionDuration");
 	m_iIsNoLevelUp = kResults.GetBool("NoLevelUp");
 
 	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");

@@ -400,6 +400,8 @@ public:
 	std::vector<ScoreCityEntry> BuildDefenseCityList();
 	std::vector<ScoreCityEntry> BuildMinorCityList();
 
+	int GetNumValidSpyMissionsInCityValue(CvCity* pCity);
+
 	int GetCityStatePlan(PlayerTypes* peThreatPlayer = NULL);
 
 	void EvaluateSpiesAssignedToTargetPlayer(PlayerTypes ePlayer);
