@@ -1180,16 +1180,17 @@ function GetCultureTooltip(pCity)
 	local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
 	local iCultureStored = pCity:GetJONSCultureStored();
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
+	local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
 
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStored, iCultureNeeded);
-	
-	if iCulturePerTurn > 0 then
+
+	if borderGrowthRate > 0 then
 		local iCultureDiff = iCultureNeeded - iCultureStored;
-		local iCultureTurns = math.ceil(iCultureDiff / (iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL)));
+		local iCultureTurns = math.ceil(iCultureDiff / borderGrowthRate);
 		strCultureToolTip = strCultureToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_CULTURE_TURNS", iCultureTurns);
 	end
-	
+
 	return strCultureToolTip;
 end
 

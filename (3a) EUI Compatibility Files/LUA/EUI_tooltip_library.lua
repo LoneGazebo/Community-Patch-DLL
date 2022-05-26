@@ -2377,12 +2377,13 @@ local function GetCultureTooltip( city )
 	-- Tile growth
 	tips:insert( "" )
 	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
-	if culturePerTurn > 0 then
+	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+	if borderGrowthRate > 0 then
 		local tipText = ""
-		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / (culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL))), 1)
-		local overflow = culturePerTurn * turnsRemaining + cultureStored - cultureNeeded
+		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / borderGrowthRate), 1)
+		local overflow = borderGrowthRate * turnsRemaining + cultureStored - cultureNeeded
 		if turnsRemaining > 1 then
-			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurn )
+			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - borderGrowthRate )
 		end
 		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale_ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
 	end

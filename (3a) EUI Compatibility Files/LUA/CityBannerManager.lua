@@ -227,9 +227,10 @@ local g_cityToolTips = {
 				local cultureStored = city:GetJONSCultureStored()
 				local cultureNeeded = city:GetJONSCultureThreshold()
 				local culturePerTurn = city:GetJONSCulturePerTurn()
+				local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
 				local turnsRemaining
-				if culturePerTurn > 0 then
-					turnsRemaining = math_max(math_ceil((cultureNeeded - cultureStored ) / (culturePerTurn +  city:GetBaseYieldRate(YIELD_CULTURE_LOCAL))), 1)
+				if borderGrowthRate > 0 then
+					turnsRemaining = math_max(math_ceil((cultureNeeded - cultureStored ) / borderGrowthRate), 1)
 					tipText = city:GetName() .. tipText .. "[NEWLINE][COLOR_MAGENTA]" .. L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", turnsRemaining ) .. "[ENDCOLOR]"
 				else
 					tipText = city:GetName() .. tipText .. " 0 [ICON_CULTURE]"

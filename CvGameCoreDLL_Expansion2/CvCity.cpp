@@ -35852,7 +35852,7 @@ void CvCity::UpdateBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue)
 void CvCity::SetBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue)
 {
 	VALIDATE_OBJECT
-		CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "eIndex expected to be < MAX_CIV_PLAYERS");
 
 	m_aiBonusSightEspionage[ePlayer] = iValue;
