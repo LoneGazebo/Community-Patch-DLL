@@ -30655,7 +30655,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 			GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
 	}
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_CORE_SETTLERS_CONSUME_POP)
 	{
 		if (pUnit->getUnitInfo().IsFoodProduction() && getPopulation() > 1)
 			changePopulation(-1);
