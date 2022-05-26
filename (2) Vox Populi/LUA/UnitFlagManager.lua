@@ -906,7 +906,7 @@ local g_UnitFlagClass =
 		if pUnit:IsWork() then
 			self.m_Instance.Automated:SetTextureOffsetVal( 32, 0 )
 		end
-		self.m_Instance.Automated:SetHide( not pUnit:IsAutomated())
+		self.m_Instance.Automated:SetHide( not pUnit:IsAutomated() or pUnit:IsTrade())
         self.m_Instance.Automated:SetAlpha( 1.0 / g_DimAlpha ); -- Automate icon doesn't get dimmed (not hacky if it works)
     end,
 
@@ -1051,7 +1051,7 @@ local function OnAutomateChange( playerID, unitID )
     if( not Players[playerID]:IsHuman() or Players[ playerID ] == nil or
 		not Players[ playerID ]:IsAlive() or
         Players[ playerID ]:GetUnitByID( unitID ) == nil or
-        Players[ playerID ]:GetUnitByID( unitID ):IsDead() )
+        Players[ playerID ]:GetUnitByID( unitID ):IsDead() or Players[ playerID ]:GetUnitByID( unitID ):IsTrade() )
     then
         return;
     end

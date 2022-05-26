@@ -518,7 +518,8 @@ end
 local function OnAutomateChange( playerID, unitID )
 	local pPlayer = Players[playerID]
 	local flag = g_UnitFlags[ playerID ][ unitID ]
-	if flag and pPlayer:IsHuman() then
+	local unit = pPlayer:GetUnitByID( unitID )
+	if flag and pPlayer:IsHuman() and not unit:IsTrade() then
 		UpdateAutomateFlag( flag )
 	end
 end
