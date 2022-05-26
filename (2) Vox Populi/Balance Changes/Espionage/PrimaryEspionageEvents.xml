@@ -29,12 +29,13 @@
 	<CityEventChoices>
 		<!-- REVEAL AREA -->
 		<Row>
+			<!-- WARNING! THIS TYPE'S TITLE IS HARDCODED IN DLL, DO NOT EDIT-->
 			<Type>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</Type>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</Description>
 			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP</Help>
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<MissionSetup>true</MissionSetup>
-			<EventDuration>-1</EventDuration>
+			<SpyVisionDuration>15</SpyVisionDuration>
 			<IDModifier>0</IDModifier>
 			<DeathModifier>0</DeathModifier>
 			<EspionageDifficultyMod>75</EspionageDifficultyMod>
@@ -53,7 +54,7 @@
 			<IDModifier>75</IDModifier>
 			<DeathModifier>25</DeathModifier>
 			<EspionageDifficultyMod>200</EspionageDifficultyMod>
-			<SpyLevelRequired>0</SpyLevelRequired>
+			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<!-- SCIENCE -->
 		<Row>
@@ -66,7 +67,7 @@
 			<EspionageDifficultyMod>200</EspionageDifficultyMod>
 			<IDModifier>75</IDModifier>
 			<DeathModifier>25</DeathModifier>
-			<SpyLevelRequired>0</SpyLevelRequired>
+			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<!-- SCIENCE -->
 		<Row>

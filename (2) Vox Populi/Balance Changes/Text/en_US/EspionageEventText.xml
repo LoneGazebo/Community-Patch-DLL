@@ -12,10 +12,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_AA_EVENT_INVALID">
-			<Text>{1_Rank} {2_Spy}: Mission Aborted!</Text>
+			<Text>{1_Rank} {2_Spy}: New Mission Needed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_AA_EVENT_INVALID_TT">
-			<Text>{1_Rank} {2_Spy} in {3_City} has been forced to abort their mission due to recent changes in the City. Please choose a new focus for your Spy.</Text>
+			<Text>{1_Rank} {2_Spy} in {3_City} needs a new objective. Please choose a new mission for your Spy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_SPY_EXPERIENCE">
@@ -94,7 +94,7 @@
 			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
-			<Text>{6_Spy}Target City: Expand number of tiles visible around City while Spy is present.</Text>
+			<Text>{6_Spy}Target City: Expand number of tiles visible around City for {5_Turns}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
@@ -160,7 +160,13 @@
 		<Row Tag="TXT_KEY_EVENT_SPY_KILLED">
 			<Text>[COLOR_NEGATIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] FAILURE[NEWLINE][NEWLINE] Communications have gone dark. Your operative is KIA.[NEWLINE][NEWLINE]</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY">
+			<Text>Your Spy Network's visibility bonus in {1_City} has ended. You will need to have a Spy restart the mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY_T">
+			<Text>Espionage visibility bonus in {1_City} has ended.</Text>
+		</Row>
 		
 	</Language_en_US>
 </GameData>

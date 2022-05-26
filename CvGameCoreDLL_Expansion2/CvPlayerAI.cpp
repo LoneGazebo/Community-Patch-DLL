@@ -902,10 +902,10 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 		}
 	}
 }
-void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity)
+bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity)
 {
 	if (GetEspionage() == NULL)
-		return;
+		return false;
 
 	if (eEvent != NO_EVENT_CITY)
 	{
@@ -930,7 +930,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			//Lua Hook
 			if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_OverrideAIEventChoice, GetID(), eEvent) == GAMEEVENTRETURN_TRUE)
 			{
-				return;
+				return true;
 			}
 
 			// Now let's get the event flavors.
@@ -1023,7 +1023,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 				if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
-					return;
+					return true;
 				}
 			}
 			//If we got here, it is because we haven't made a choice yet. Do so now.
@@ -1050,7 +1050,7 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			}
 			randomChoices.SortItems();
 			if (randomChoices.size() <= 0)
-				return;
+				return false;
 
 			//And grab the top selection.
 			CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)randomChoices.GetElement(0);
@@ -1079,10 +1079,12 @@ void CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			if (eBestEventChoice != NO_EVENT_CHOICE)
 			{
 				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
-				return;
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 #endif
 // Protected Functions...

@@ -834,6 +834,8 @@
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
 		<!-- Increases spy city vision -->
 		<Column name="SpyVisionRange" type="integer" default="0"/>
+		<!-- Sets spy city vision duration -->
+		<Column name="SpyVisionDuration" type="integer" default="0"/>
 		<!-- Spies won't level up from this mission. -->
 		<Column name="NoLevelUp" type="boolean" default="false"/>
 		<!-- Mission ignores other local spies. -->

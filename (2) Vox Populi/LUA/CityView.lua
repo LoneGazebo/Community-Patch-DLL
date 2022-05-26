@@ -1947,12 +1947,13 @@ function OnCityViewUpdate()
 		
 		local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
 		Controls.CulturePerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iCulturePerTurn) );
+		iCulturePerTurn = iCulturePerTurn;
 		--Controls.CultureBox:SetToolTipString(strToolTip);
 		local cultureStored = pCity:GetJONSCultureStored();
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
 		if iCulturePerTurn > 0 then
-			local cultureTurns = math.ceil(cultureDiff / iCulturePerTurn);
+			local cultureTurns = math.ceil(cultureDiff / (iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL));
 			if (cultureTurns < 1) then
 			   cultureTurns = 1
 			end

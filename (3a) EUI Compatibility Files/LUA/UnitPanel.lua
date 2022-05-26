@@ -399,7 +399,8 @@ local function UpdateCity( instance )
 		instance.Name:SetString( city:GetName() )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn()
-		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / culturePerTurn ) )
+		instance.BorderGrowth:SetString( culturePerTurn > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)) ) )
+
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
 		instance.Button:SetColor( Color( 1, percent, percent, 1 ) )
 	end
@@ -852,7 +853,8 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	end,
 	BorderGrowth = function( control )
 		local city = FindCity( control )
- 		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / city:GetJONSCulturePerTurn() ) ), GetCultureTooltip( city ) )	end,
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)) ) ), GetCultureTooltip( city ) )
+	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )
 		ShowSimpleCityTip( control, city, "[ICON_CAPITAL]" )
@@ -1165,7 +1167,7 @@ local nullOffset = { x=0, y=0 }
 local function UpdateUnitPortrait( unit )
 
 	local name
-	if unit:HasName() or unit:IsGreatPerson() then
+	if unit:IsGreatPerson() then
 		name = unit:GetNameNoDesc()
 		if not name or #name == 0 then
 			name = unit:GetName()

@@ -470,6 +470,7 @@ CvCity::CvCity() :
 	, m_iDeepWaterTileDamage()
 	, m_iNumNearbyMountains()
 	, m_iLocalUnhappinessMod()
+	, m_aiBonusSightEspionage()
 #endif
 	, m_bOwedFoodBuilding()
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1635,6 +1636,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 	m_abTraded.resize(REALLY_MAX_PLAYERS);
 	m_abIgnoredForExpansionBickering.resize(MAX_MAJOR_CIVS);
+	m_aiBonusSightEspionage.resize(MAX_MAJOR_CIVS);
 #endif
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
@@ -1643,7 +1645,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiNumTimesOwned[iI] = 0;
 
 		if (iI < MAX_MAJOR_CIVS)
+		{
 			m_abIgnoredForExpansionBickering[iI] = false;
+			m_aiBonusSightEspionage[iI] = 0;
+		}
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abPaidAdoptionBonus.resize(GC.getNumReligionInfos());
@@ -3481,6 +3486,61 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		}
 	}
 
+	///
+	//Special Sight Shenanigans for Spies...
+	///
+
+	CityEventChoiceTypes eEspionageSight = (CityEventChoiceTypes)GC.getInfoTypeForString("ESPIONAGE_EVENT_CHOICE_REVEAL_AREA");
+	int iSight = /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE);
+	if (eEspionageSight != NO_EVENT_CHOICE_CITY)
+	{
+		CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEspionageSight);
+		if (pkEventInfo != NULL)
+		{
+			iSight = pkEventInfo->getSpyVisionRange();
+		}
+	}
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		PlayerTypes ePlayer = PlayerTypes(i);
+		if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isEverAlive())
+			continue;
+
+		if (GetBonusEspionageSightTurns(ePlayer) > 0)
+		{
+			UpdateBonusEspionageSightTurns(ePlayer, -1);
+			if (GetBonusEspionageSightTurns(ePlayer) == 0)
+			{
+				plot()->changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), iSight, false, NO_INVISIBLE, NO_DIRECTION);
+
+				CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+				if (pNotifications && GC.getGame().getActivePlayer() == ePlayer)
+				{
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY");
+					strMessage << getNameKey();
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY_T");
+					strSummary << getNameKey();
+
+					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), GetID(), ePlayer);
+				}
+
+				uint uiSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyIndexInCity(this);
+				// if we still have established surveillance in the city, keep the lights on a bit.
+				if (GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillance(uiSpyIndex))
+				{
+					plot()->changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
+				}
+			}
+		}
+
+	}
+
+	/////
+	// End
+	////
+
 	if (bEspionageOnly)
 		return;
 
@@ -4727,27 +4787,134 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 			return false;
 	}
 
-	CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(uiSpyIndex);
-	if (pCity)
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		YieldTypes eYield = (YieldTypes)iI;
+		if (eYield == NO_YIELD)
+			continue;
+
+		int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
+		if (iSiphonYield <= 0)
+			continue;
+
+		int iCityYield = getYieldRate(eYield, false);
+		iCityYield *= iSiphonYield;
+		iCityYield /= 100;
+
+		if (iCityYield <= 0)
 		{
-			YieldTypes eYield = (YieldTypes)iI;
-			if (eYield == NO_YIELD)
-				continue;
+			return false;
+		}
+	}
 
-			int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
-			if (iSiphonYield <= 0)
-				continue;
+	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
+		return false;
 
-			int iCityYield = pCity->getYieldRate(eYield, false);
-			iCityYield *= iSiphonYield;
-			iCityYield /= 100;
+	return true;
+}
 
-			if (iCityYield <= 0)
+bool CvCity::IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int iAssumedLevel, PlayerTypes eSpyOwner)
+{
+	if (eSpyOwner == NO_PLAYER)
+		return false;
+
+	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
+	if (pkEventInfo == NULL)
+		return false;
+
+	if (eEvent == NO_EVENT_CITY)
+	{
+		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
+		{
+			CityEventTypes eParentEvent = (CityEventTypes)iLoop;
+			if (eParentEvent != NO_EVENT_CITY)
 			{
-				return false;
+				if (pkEventInfo->isParentEvent(eParentEvent))
+				{
+					eEvent = eParentEvent;
+					break;
+				}
 			}
+		}
+	}
+
+	if (eEvent == NO_EVENT_CITY)
+		return false;
+
+	if (pkEventInfo->GetSpyLevelRequired() > iAssumedLevel)
+		return false;
+
+	if (pkEventInfo->isRequiresCounterSpy() && !GetCityEspionage()->HasCounterSpy())
+		return false;
+
+	//check to see if another spy is already doing this here. We can only have one spy operation of the same type going on in a city at one time.
+	if (!pkEventInfo->IsIgnoreLocalSpies())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (eLoopPlayer == NO_PLAYER)
+				continue;
+
+			CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+			if (!kPlayer.isAlive())
+				continue;
+			if (eLoopPlayer == getOwner())
+				continue;
+			if (eLoopPlayer == eSpyOwner)
+				continue;
+			if (kPlayer.isBarbarian())
+				continue;
+			if (kPlayer.isMinorCiv())
+				continue;
+			if (!kPlayer.GetEspionage())
+				continue;
+			if (kPlayer.GetEspionage()->GetNumSpies() <= 0)
+				continue;
+
+			int iSpyID = kPlayer.GetEspionage()->GetSpyIndexInCity(this);
+			if (iSpyID == -1)
+				continue;
+
+			CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iSpyID);
+			if (pSpy && pSpy->m_eSpyFocus == eEventChoice)
+				return false;
+		}
+	}
+
+	if (pkEventInfo->getStealTech() > 0)
+	{
+		GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
+		int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
+		if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
+			return false;
+	}
+
+	if (pkEventInfo->getForgeGW() > 0)
+	{
+		int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
+		if (iNumGWInCity < pkEventInfo->getForgeGW())
+			return false;
+	}
+
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes)iI;
+		if (eYield == NO_YIELD)
+			continue;
+
+		int iSiphonYield = pkEventInfo->getYieldSiphon(eYield);
+		if (iSiphonYield <= 0)
+			continue;
+
+		int iCityYield = getYieldRate(eYield, false);
+		iCityYield *= iSiphonYield;
+		iCityYield /= 100;
+
+		if (iCityYield <= 0)
+		{
+			return false;
 		}
 	}
 
@@ -4820,6 +4987,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 					}
 				}
 			}
+
 			if (pkEventChoiceInfo->getGrowthMod() != 0)
 			{
 				ChangeGrowthFromEvent(pkEventChoiceInfo->getGrowthMod() * -1);
@@ -5353,6 +5521,9 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 
 	//Duration
 	int iDuration = pkEventChoiceInfo->getEventDuration();
+	if (iDuration <= 0 && pkEventChoiceInfo->getSpyVisionDuration() > 0)
+		iDuration = pkEventChoiceInfo->getSpyVisionDuration();
+
 	if (iDuration > 0)
 	{
 		iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -6596,10 +6767,12 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 			if (pkEventChoiceInfo->getSpyVisionRange() != 0 && eSpyOwner != NO_PLAYER)
 			{
-				int iDelta = pkEventChoiceInfo->getSpyVisionRange() - plot()->getVisiblityCount(GET_PLAYER(eSpyOwner).getTeam());
+				plot()->changeAdjacentSight(GET_PLAYER(eSpyOwner).getTeam(), pkEventChoiceInfo->getSpyVisionRange(), true, NO_INVISIBLE, NO_DIRECTION);
+				int iDuration = pkEventChoiceInfo->getSpyVisionDuration();
+				iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iDuration /= 100;
 
-				if(iDelta != 0)
-					plot()->changeAdjacentSight(GET_PLAYER(eSpyOwner).getTeam(), pkEventChoiceInfo->getSpyVisionRange(), true, NO_INVISIBLE, NO_DIRECTION);
+				SetBonusEspionageSightTurns(eSpyOwner, iDuration);
 			}
 
 			if (pkEventChoiceInfo->getEventPromotion() != -1)
@@ -32873,6 +33046,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abBuildingInvestment);
 	visitor(city.m_abUnitInvestment);
 	visitor(city.m_abBuildingConstructed);
+	visitor(city.m_aiBonusSightEspionage);
 
 	visitor(*city.m_pCityBuildings);
 
@@ -35655,6 +35829,33 @@ void CvCity::SetSappedTurns(int iValue)
 	{
 		m_iSappedTurns = iValue;
 	}
+}
+
+int CvCity::GetBonusEspionageSightTurns(PlayerTypes ePlayer) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "eIndex expected to be < MAX_CIV_PLAYERS");
+
+	return m_aiBonusSightEspionage[ePlayer];
+}
+
+void CvCity::UpdateBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "eIndex expected to be < MAX_CIV_PLAYERS");
+
+	m_aiBonusSightEspionage[ePlayer] += iValue;
+}
+
+void CvCity::SetBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(ePlayer >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "eIndex expected to be < MAX_CIV_PLAYERS");
+
+	m_aiBonusSightEspionage[ePlayer] = iValue;
 }
 
 int CvCity::GetPlagueType() const

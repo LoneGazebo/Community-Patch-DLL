@@ -3448,6 +3448,7 @@ public:
 	int ConvertsCityToPlayerMajorityReligion() const;
 	int getCityDefenseModifier() const;
 	int getSpyVisionRange() const;
+	int getSpyVisionDuration() const;
 	bool isNoLevelUp() const;
 
 	
@@ -3577,6 +3578,7 @@ protected:
 	int m_iCityDefenseModifier;
 	int m_iTriggerPlayerEventChoice;
 	int m_iSpyVisionRange;
+	int m_iSpyVisionDuration;
 	bool m_iIsNoLevelUp;
 
 	//espionage

@@ -1186,7 +1186,7 @@ function GetCultureTooltip(pCity)
 	
 	if iCulturePerTurn > 0 then
 		local iCultureDiff = iCultureNeeded - iCultureStored;
-		local iCultureTurns = math.ceil(iCultureDiff / iCulturePerTurn);
+		local iCultureTurns = math.ceil(iCultureDiff / (iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL)));
 		strCultureToolTip = strCultureToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_CULTURE_TURNS", iCultureTurns);
 	end
 	

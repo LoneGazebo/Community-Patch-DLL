@@ -2310,7 +2310,7 @@ local function UpdateCityViewNow()
 		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
 		local cultureDiff = cultureNext - cultureStored
 		if culturePerTurn > 0 then
-			local cultureTurns = math_max(math_ceil(cultureDiff / culturePerTurn), 1)
+			local cultureTurns = math_max(math_ceil(cultureDiff / (culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL))), 1)
 			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )
 			Controls.CultureTimeTillGrowthLabel:SetHide( false )
 		else
@@ -2325,7 +2325,7 @@ local function UpdateCityViewNow()
 			else
 				Controls.FaithPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetFaithPerTurn() )
 			end
-			Controls.FaithFocusButton:SetDisabled( g_isViewingMode )
+			Controls.FaithFocusButton:Se2tDisabled( g_isViewingMode )
 		end
 
 		local cityGrowth = city:GetFoodTurnsLeft()

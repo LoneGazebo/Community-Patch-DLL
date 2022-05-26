@@ -1640,7 +1640,7 @@ function OnCityViewUpdate()
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
 		if iCulturePerTurn > 0 then
-			local cultureTurns = math.ceil(cultureDiff / iCulturePerTurn);
+			local cultureTurns = math.ceil(cultureDiff / (iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL)));
 			if (cultureTurns < 1) then
 			   cultureTurns = 1
 			end

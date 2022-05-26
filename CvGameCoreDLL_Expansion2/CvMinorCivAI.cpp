@@ -6546,7 +6546,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 				
 				if (bCancelled)
 				{
-					if(itr_quest->IsRevoked())
+					if(itr_quest->IsRevoked(bWar))
 						bQuestRevokedFromBullying = true;
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
@@ -8440,14 +8440,14 @@ bool CvMinorCivAI::IsActiveQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestType
 }
 
 /// Get rid of all active quests
-void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer)
+void CvMinorCivAI::EndAllActiveQuestsForPlayer(PlayerTypes ePlayer, bool bWar)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
 	//antonjs: todo: instead, call for cancel quest (with flag for no notif)
-	DoObsoleteQuestsForPlayer(ePlayer);
+	DoObsoleteQuestsForPlayer(ePlayer, NO_MINOR_CIV_QUEST_TYPE, bWar);
 }
 #if defined(MOD_BALANCE_CORE)
 void CvMinorCivAI::DeleteQuest(PlayerTypes ePlayer, MinorCivQuestTypes eType)
@@ -16434,13 +16434,7 @@ void CvMinorCivAI::DoElection()
 #endif
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 
-				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCapital->plot());
-				int iValueNeeded = 90;
-
-				if (iNewResult > iValueNeeded)
-				{
-					GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID);
-				}
+				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION));
 
 			}
 			else
@@ -17022,7 +17016,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			// Revoke quests if there were any
 			if (GetNumActiveQuestsForPlayer(ePlayer) > 0)
 			{
-				EndAllActiveQuestsForPlayer(ePlayer);
+				EndAllActiveQuestsForPlayer(ePlayer, true);
 			}
 
 			// Nullify Quests - Deprecated?
@@ -17134,7 +17128,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		DoChangeProtectionFromMajor(eEnemyMajorLoop, false, true);
 		if(GetNumActiveQuestsForPlayer(eEnemyMajorLoop) > 0)
 		{
-			EndAllActiveQuestsForPlayer(eEnemyMajorLoop);
+			EndAllActiveQuestsForPlayer(eEnemyMajorLoop, true);
 		}
 #endif
 	}
