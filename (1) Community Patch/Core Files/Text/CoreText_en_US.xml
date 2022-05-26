@@ -2884,7 +2884,7 @@
 			<Text>At least one player lacks the required funds for this agreement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT">
-			<Text>Cannot trade lump sum items (such as Gold) for items given over time (such as Resources).</Text>
+			<Text>Cannot trade one-time items (such as Gold) for items given over time (such as Resources).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_TEAMMATE_TRADE_TT">
 			<Text>A human teammate prevents this action.</Text>
