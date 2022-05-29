@@ -4405,9 +4405,14 @@ bool CvCityReligions::IsReligionHereOtherThan(ReligionTypes eReligion, int iMinF
 	return false;
 }
 
-/// Is there an inquisitor from another religion here?
-bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pIgnoreUnit)
+/// Is there an inquisitor from our religion here?
+bool CvCityReligions::IsDefendedByOurInquisitor(ReligionTypes eReligion, CvUnit* pIgnoreUnit)
 {
+	if (eReligion == NO_RELIGION)
+		return false;
+
+	PlayerTypes eCityOwner = m_pCity->getOwner();
+
 	for (int i=0; i<RING1_PLOTS; i++)
 	{
 		CvPlot* pAdjacentPlot = iterateRingPlots(m_pCity->plot(),i);
@@ -4420,26 +4425,79 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* p
 			if (pLoopUnit == NULL || pIgnoreUnit == pLoopUnit)
 				continue;
 
+			// Only consider Inquisitors
 			CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
-			if (pkEntry && pkEntry->IsProhibitsSpread())
-			{
-#if defined(MOD_RELIGION_ALLIED_INQUISITORS)
-				bool bProtected = (pLoopUnit->getOwner() == m_pCity->getOwner() && pLoopUnit->GetReligionData()->GetReligion() == eReligion);
-				if (!bProtected && MOD_RELIGION_ALLIED_INQUISITORS) {
-					CvPlayer* pCityPlayer = &GET_PLAYER(m_pCity->getOwner());
-					if (pCityPlayer->isMinorCiv() && pCityPlayer->GetMinorCivAI()->GetAlly() == pLoopUnit->getOwner()) {
-						bProtected = true;
-					}
-				}
+			if (!pkEntry || !pkEntry->IsProhibitsSpread())
+				continue;
 
-				if (bProtected)
-#else
-				if (pLoopUnit->getOwner() == m_pCity->getOwner() && pLoopUnit->GetReligionData()->GetReligion() == eReligion)
-#endif
+			// Ignore any units that belong to someone else
+			PlayerTypes eUnitOwner = pLoopUnit->getOwner();
+			if (eUnitOwner != eCityOwner)
+			{
+				bool bAllyUnit = false;
+				if (MOD_RELIGION_ALLIED_INQUISITORS && GET_PLAYER(eCityOwner).isMinorCiv())
 				{
-					return true;
+					PlayerTypes eAlly = GET_PLAYER(eCityOwner).GetMinorCivAI()->GetAlly();
+					if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eUnitOwner).getTeam())
+						bAllyUnit = true;
 				}
+				if (!bAllyUnit)
+					continue;
 			}
+
+			// Inquisitor's religion must match the desired religion
+			ReligionTypes eInquisitorReligion = pLoopUnit->GetReligionData()->GetReligion();
+			if (eInquisitorReligion == eReligion)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+/// Is there an inquisitor from another religion here?
+bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
+{
+	PlayerTypes eCityOwner = m_pCity->getOwner();
+
+	for (int i=0; i<RING1_PLOTS; i++)
+	{
+		CvPlot* pAdjacentPlot = iterateRingPlots(m_pCity->plot(),i);
+		if (!pAdjacentPlot)
+			continue;
+
+		for (int iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
+		{
+			CvUnit* pLoopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
+			if (pLoopUnit == NULL)
+				continue;
+
+			// Only consider Inquisitors
+			CvUnitEntry* pkEntry = GC.getUnitInfo(pLoopUnit->getUnitType());
+			if (!pkEntry || !pkEntry->IsProhibitsSpread())
+				continue;
+
+			// Ignore any units that belong to someone else
+			PlayerTypes eUnitOwner = pLoopUnit->getOwner();
+			if (eUnitOwner != eCityOwner)
+			{
+				bool bAllyUnit = false;
+				if (MOD_RELIGION_ALLIED_INQUISITORS && GET_PLAYER(eCityOwner).isMinorCiv())
+				{
+					PlayerTypes eAlly = GET_PLAYER(eCityOwner).GetMinorCivAI()->GetAlly();
+					if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(eUnitOwner).getTeam())
+						bAllyUnit = true;
+				}
+				if (!bAllyUnit)
+					continue;
+			}
+
+			// Inquisitor's religion must be different from the other religion
+			ReligionTypes eInquisitorReligion = pLoopUnit->GetReligionData()->GetReligion();
+			if (eInquisitorReligion == NO_RELIGION || eReligion == eInquisitorReligion)
+				continue;
+
+			return true;
 		}
 	}
 
@@ -6450,7 +6508,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 			continue;
 
-		if (pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(pUnit->GetReligionData()->GetReligion(),pUnit))
+		if (pLoopCity->GetCityReligions()->IsDefendedByOurInquisitor(pUnit->GetReligionData()->GetReligion(),pUnit))
 			continue;
 
 		int iScoreO = ScoreCityForInquisitorOffensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
@@ -7002,7 +7060,7 @@ bool CvReligionAI::DoReligionDefenseInCities()
 			continue;
 
 		//already have an inquisitor around
-		if (pLoopCity->GetCityReligions()->IsDefendedAgainstSpread(eDesired))
+		if (pLoopCity->GetCityReligions()->IsDefendedByOurInquisitor(eDesired))
 			continue;
 
 		for (int i=RING0_PLOTS; i<RING4_PLOTS; i++)

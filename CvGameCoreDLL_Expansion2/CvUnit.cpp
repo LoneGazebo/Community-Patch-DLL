@@ -11206,7 +11206,7 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 	// Blocked by Inquisitor?
 	if (!MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
 	{
-		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
+		if (getOwner() != pCity->getOwner() && pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
 			return false;
 		}
@@ -11575,11 +11575,7 @@ CvCity *CvUnit::GetSpreadReligionTargetCity() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 int CvUnit::GetConversionStrength(const CvCity* pCity) const
-#else
-int CvUnit::GetConversionStrength() const
-#endif
 {
 	int iReligiousStrength = /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) * GetReligionData()->GetReligiousStrength();
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -11630,7 +11626,7 @@ int CvUnit::GetConversionStrength() const
 	// CUSTOMLOG("Unit conversion str: %i", iReligiousStrength);
 
 	// Blocked by Inquisitor?
-	if (pCity != NULL && MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
+	if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS && pCity != NULL && getOwner() != pCity->getOwner())
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{

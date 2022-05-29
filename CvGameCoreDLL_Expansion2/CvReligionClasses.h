@@ -459,7 +459,8 @@ public:
 	ReligionTypes GetReligionForHolyCity();
 #endif
 	bool IsReligionHereOtherThan(ReligionTypes eReligion, int iMinFollowers = 0);
-	bool IsDefendedAgainstSpread(ReligionTypes eReligion, CvUnit* pIgnoreUnit = NULL);
+	bool IsDefendedByOurInquisitor(ReligionTypes eReligion, CvUnit* pIgnoreUnit = NULL);
+	bool IsDefendedAgainstSpread(ReligionTypes eReligion);
 	bool IsForeignMissionaryNearby(ReligionTypes eReligion);
 	ReligionTypes GetReligiousMajority() const;
 	ReligionTypes GetSimulatedReligiousMajority();

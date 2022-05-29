@@ -488,11 +488,7 @@ public:
 	int GetNumFollowersAfterSpread() const;
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionStrength(const CvCity* pCity) const;
-#else
-	int GetConversionStrength() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool greatperson();
 #endif
