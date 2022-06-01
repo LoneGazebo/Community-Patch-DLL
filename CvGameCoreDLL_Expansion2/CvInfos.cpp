@@ -4488,6 +4488,9 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iGoldenAge(0)
 	, m_iFreeTiles(0)
 	, m_iScience(0)
+// New Goodies modmod
+	, m_iFood(0)
+	, m_iBorderGrowth(0)
 #endif
 	, m_iCulture(0)
 	, m_iFaith(0)
@@ -4591,7 +4594,17 @@ int CvGoodyInfo::getScience() const
 {
 	return m_iScience;
 }
+// New Goodies modmod
+int CvGoodyInfo::getFood() const
+{
+	return m_iFood;
+}
+int CvGoodyInfo::getBorderGrowth() const
+{
+	return m_iBorderGrowth;
+}
 #endif
+//
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
 	return m_iBarbarianUnitProb;
@@ -4687,6 +4700,8 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iGoldenAge = results.GetInt("GoldenAge");
 	m_iFreeTiles = results.GetInt("FreeTiles");
 	m_iScience = results.GetInt("Science");
+	m_iFood = results.GetInt("Food");
+	m_iBorderGrowth = results.GetInt("BorderGrowth");
 #endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");

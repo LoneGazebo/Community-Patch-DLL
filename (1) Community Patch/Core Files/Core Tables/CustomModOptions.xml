@@ -895,7 +895,7 @@
 	<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOS" Value="0"/>
 	<!-- Enable to disable Golden Age Point acquisition during Golden Ages. -->
 	<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
-    <!-- Settler units reduce population by 1 when completed. -->
+     <!-- Settler units reduce population by 1 when completed. -->
     <Row Class="6" Name="BALANCE_CORE_SETTLERS_CONSUME_POP" Value="0"/>
 	<!-- Enable to allow war score and time to affect unit supply during wars. -->
 	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
