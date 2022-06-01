@@ -253,8 +253,10 @@
 	<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 	<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
 	<Row Class="5" Name="ERA_RESTRICTION" Value="0"/>
-    	<!-- See also: Great Generals & Admirals provide combat bonuses for only the era they born and the following era -->
+   	<!-- Great Generals & Admirals provide combat bonuses for only the era they born and the following era -->
 	<Row Class="4" Name="ERA_RESTRICTED_GENERALS" Value="0" DbUpdates="1"/>
+   	<!-- Adds new Goody options for Hinin's Tweaks -->
+	<Row Class="4" Name="NEW_GOODIES" Value="0" DbUpdates="1"/>
 	<!-- Toggle boolean for terrains getting a yield with a feature on them from player traits TradeRouteOnly -->
 	<Row Class="5" Name="USE_TRADE_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
@@ -895,7 +897,7 @@
 	<Row Class="6" Name="BALANCE_RETROACTIVE_PROMOS" Value="0"/>
 	<!-- Enable to disable Golden Age Point acquisition during Golden Ages. -->
 	<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
-     <!-- Settler units reduce population by 1 when completed. -->
+    <!-- Settler units reduce population by 1 when completed. -->
     <Row Class="6" Name="BALANCE_CORE_SETTLERS_CONSUME_POP" Value="0"/>
 	<!-- Enable to allow war score and time to affect unit supply during wars. -->
 	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
