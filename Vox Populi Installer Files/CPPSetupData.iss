@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "2.2.1"
+#define MyAppVersion "2.3"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -138,7 +138,7 @@ begin
   S := '';
 
   S := S + MemoDirInfo + NewLine + NewLine;
-  if IsComponentSelected('FullEUI') or IsComponentSelected('Civ43EUI') then
+  if WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') then
   begin
    S := S + 'Civilization V path' + NewLine;
    S := S + Space + CIVDirPage.Values[0] + NewLine + NewLine;
@@ -156,7 +156,7 @@ end;
 
 function IsEUI: Boolean;
 begin
-  Result := IsComponentSelected('FullEUI') or IsComponentSelected('Civ43EUI');
+  Result := WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI');
 end;
 
 function ShouldSkipPage(CIVDirPageID: Integer): Boolean;
