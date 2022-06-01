@@ -1044,14 +1044,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		if enhancedYieldTechName and (building.TechEnhancedTourism or 0) ~= 0 then
 			tip = S("%s %s %+i[ICON_TOURISM]", tip, enhancedYieldTechName, building.TechEnhancedTourism )
 		end
-	-- CBP
-		if city then
-			local iTourism = activePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_TOURISM);
-			if(iTourism ~= 0) then
-				tip = S("%s %+i[ICON_TOURISM]", tip, iTourism)
-			end
-		end
-	-- END
 		tips:insertIf( #tip > 0 and L"TXT_KEY_CITYVIEW_TOURISM_TEXT" .. ":" .. tip )
 	end
 -- TODO GetInternationalTradeRouteYourBuildingBonus

@@ -12968,7 +12968,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// No XP in first 10 turns
 	if (kGoodyInfo.getExperience() > 0)
 	{
-		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
+		if ((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
 			return false;
 		}
@@ -12982,7 +12982,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Unit Healing
 	if (kGoodyInfo.getDamagePrereq() > 0)
 	{
-		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
+		if ((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
 			return false;
 		}
@@ -13063,6 +13063,13 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+	}
+
+	// New Goodies modmod
+	if (MOD_NEW_GOODIES && (kGoodyInfo.getFood() > 0 || kGoodyInfo.getBorderGrowth() > 0))
+	{
+		if (getNumCities() == 0)
 			return false;
 	}
 
@@ -13635,6 +13642,45 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		}
 
 		changeInstantYieldValue(YIELD_SCIENCE, iScience);
+	}
+
+	// New Goodies modmod 
+	if (MOD_NEW_GOODIES)
+	{
+		int iFood = kGoodyInfo.getFood();
+		if (iFood > 0)
+		{
+			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+			if (pBestCity != NULL)
+			{
+				goodyValueModifier(iFood, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
+				pBestCity->changeFood(iFood);
+				changeInstantYieldValue(YIELD_FOOD, iFood);
+			}
+			else
+			{
+				// Remember that no production was yielded just in case something cares
+				iFood = 0;
+			}
+		}
+
+		int iBorderGrowth = kGoodyInfo.getBorderGrowth();
+		if (iBorderGrowth > 0)
+		{
+
+			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+			if (pBestCity != NULL)
+			{
+				goodyValueModifier(iBorderGrowth, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
+				pBestCity->ChangeJONSCultureStored(iBorderGrowth);
+				changeInstantYieldValue(YIELD_CULTURE_LOCAL, iBorderGrowth);
+			}
+			else
+			{
+				// Remember that no production was yielded just in case something cares
+				iBorderGrowth = 0;
+			}
+		}
 	}
 
 	// Culture

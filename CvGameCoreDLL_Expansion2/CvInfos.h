@@ -1444,6 +1444,10 @@ public:
 	int getGoldenAge() const;
 	int getFreeTiles() const;
 	int getScience() const;
+	// New Goodies modmod
+	int getFood() const;
+	int getBorderGrowth() const;
+	//
 #endif
 	int getCulture() const;
 	int getFaith() const;
@@ -1484,6 +1488,8 @@ protected:
 	int m_iGoldenAge;
 	int m_iFreeTiles;
 	int m_iScience;
+	int m_iFood;
+	int m_iBorderGrowth;
 #endif
 	int m_iCulture;
 	int m_iFaith;
