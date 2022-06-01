@@ -2369,7 +2369,7 @@ local function GetCultureTooltip( city )
 	-- Tile growth
 	tips:insert( "" )
 	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
-	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
 	if borderGrowthRate > 0 then
 		local tipText = ""
 		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / borderGrowthRate), 1)

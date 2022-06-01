@@ -399,7 +399,7 @@ local function UpdateCity( instance )
 		instance.Name:SetString( city:GetName() )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn()
-		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
 		instance.BorderGrowth:SetString( borderGrowthRate > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) )
 
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
@@ -854,7 +854,7 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	end,
 	BorderGrowth = function( control )
 		local city = FindCity( control )
-		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)) ) ), GetCultureTooltip( city ) )
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)) ) ), GetCultureTooltip( city ) )
 	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )
