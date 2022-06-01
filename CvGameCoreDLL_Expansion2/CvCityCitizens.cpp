@@ -3462,7 +3462,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	// Setup prophet properly
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
 		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 

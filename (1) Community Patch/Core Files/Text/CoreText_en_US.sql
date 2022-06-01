@@ -30,6 +30,11 @@ UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
 
+-- Advisors
+UPDATE Language_en_US
+SET Text = 'I''m not sure if the {1_LongCivName:textkey} has an army at all. Any hostilities with them would be laughably one-sided.'
+WHERE Tag = 'TXT_KEY_DIPLOSTRATEGY_MILITARY_STRENGTH_COMPARED_TO_US_PATHETIC';
+
 -- Leaders
 
 -- Assyria UA

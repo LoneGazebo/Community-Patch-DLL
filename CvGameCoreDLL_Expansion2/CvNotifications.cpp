@@ -1824,11 +1824,8 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
-#if defined(MOD_BALANCE_CORE)
+
 		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(m_ePlayer).GetPlayerTraits()->IsAlwaysReligion())
-#else
-		if (pkReligions->GetNumReligionsStillToFound() <= 0)
-#endif
 			return true;	// None left, dismiss the notification
 
 		return pkReligions->HasCreatedReligion(m_ePlayer);
@@ -1839,20 +1836,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
+
+		ReligionTypes eReligion = GET_PLAYER(m_ePlayer).GetReligions()->GetOwnedReligion();
 		if (pkReligions->GetAvailableEnhancerBeliefs(m_ePlayer, eReligion).size() == 0)
 			return true;	// None left, dismiss the notification.
 		if (pkReligions->GetAvailableFollowerBeliefs(m_ePlayer, eReligion).size() == 0)
 			return true;	// None left, dismiss the notification.		
-#else
-		if (pkReligions->GetAvailableEnhancerBeliefs().size() == 0)
-			return true;	// None left, dismiss the notification.
-		if (pkReligions->GetAvailableFollowerBeliefs().size() == 0)
-			return true;	// None left, dismiss the notification.		
 
-		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
-#endif
 		const CvReligion* pReligion = pkReligions->GetReligion(eReligion, m_ePlayer);
 		return (NULL != pReligion && pReligion->m_bEnhanced);
 	}

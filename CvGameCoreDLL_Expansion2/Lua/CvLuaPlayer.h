@@ -315,6 +315,7 @@ protected:
 	LUAAPIEXTN(GetBeliefsInPantheon, table);
 	static int lCanCreatePantheon(lua_State* L);
 	static int lHasCreatedReligion(lua_State* L);
+	static int lGetOwnedReligion(lua_State* L);
 	static int lGetReligionCreatedByPlayer(lua_State* L);
 	static int lGetOriginalReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);

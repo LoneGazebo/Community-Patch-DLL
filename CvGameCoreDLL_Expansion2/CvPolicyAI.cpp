@@ -665,8 +665,8 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 		eChosenBranch = eOrderBranch;
 	}
-#if defined(MOD_ISKA_HERITAGE)
-	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetReligionCreatedByPlayer();
+
+	ReligionTypes ePlayerReligion = pPlayer->GetReligions()->GetOwnedReligion();
 	if (MOD_ISKA_HERITAGE && pPlayer->GetReligions()->HasReligionInMostCities(ePlayerReligion) && ePlayerReligion > RELIGION_PANTHEON)
 	{
 		eChosenBranch = eHeritageBranch;
@@ -683,10 +683,10 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			eChosenBranch = eFreedomBranch;
 		}
 	}
-#endif
+
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
-#if defined(MOD_BALANCE_CORE)
+
 	CvPlayerTraits* pPlayerTraits = pPlayer->GetPlayerTraits();
 	CvCity* pCapital = pPlayer->getCapitalCity(); //Define capital
 	int iPolicyGEorGM = pPlayerTraits->GetPolicyGEorGM();
@@ -694,7 +694,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 		pPlayer->doPolicyGEorGM(iPolicyGEorGM);
 	}
-#endif
+
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{

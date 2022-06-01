@@ -579,7 +579,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local activeCivilizationType
 
 	if g_isReligionEnabled and activePlayer then
-		local religionID = activePlayer:GetReligionCreatedByPlayer()
+		local religionID = activePlayer:GetOwnedReligion()
 		if religionID > 0 then
 			activePlayerBeliefs = Game.GetBeliefsInReligion( religionID )
 		elseif activePlayer:HasCreatedPantheon() then
@@ -2674,7 +2674,7 @@ local function GetMoodInfo( playerID )
 	end
 	-- Religion Founded
 	if g_isReligionEnabled then
-		local religionID = player:GetReligionCreatedByPlayer()
+		local religionID = player:GetOwnedReligion()
 		tips:insertIf( religionID > 0 and tostring( (GameInfo.Religions[ religionID ] or {}).IconString )..BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( religionID ) ) ) )
 	end
 	tips = table( strInfo, tips:concat(", ") )

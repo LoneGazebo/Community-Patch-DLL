@@ -329,6 +329,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBeliefsInPantheon);
 	Method(HasCreatedReligion);
 	Method(CanCreatePantheon);
+	Method(GetOwnedReligion);
 	Method(GetReligionCreatedByPlayer);
 	Method(GetOriginalReligionCreatedByPlayer);
 	Method(GetFoundedReligionEnemyCityCombatMod);
@@ -3750,6 +3751,16 @@ int CvLuaPlayer::lHasCreatedReligion(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetOwnedReligion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const ReligionTypes eReligion = pkPlayer->GetReligions()->GetOwnedReligion();
+	lua_pushinteger(L, eReligion);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
 //bool GetReligionCreatedByPlayer();
 int CvLuaPlayer::lGetReligionCreatedByPlayer(lua_State* L)
 {
@@ -3787,7 +3798,7 @@ int CvLuaPlayer::lGetFoundedReligionEnemyCityCombatMod(lua_State* L)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetReligionCreatedByPlayer();
+			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetOwnedReligion();
 			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
@@ -3818,7 +3829,7 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 		{
 			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetReligionCreatedByPlayer();
+			ReligionTypes eFoundedReligion = GET_PLAYER(pkPlayer->GetID()).GetReligions()->GetOwnedReligion();
 			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
 			{
 				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());

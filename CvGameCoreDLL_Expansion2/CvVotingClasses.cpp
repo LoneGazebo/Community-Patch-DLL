@@ -5319,13 +5319,9 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 		{
 			ReligionTypes eReligion = (ReligionTypes) it->GetProposerDecision()->GetDecision();
 			CvAssert(eReligion != NO_RELIGION);
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion))
-#else
-			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion))
-#endif
+
+			if (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion) || (GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion() == eReligion))
 			{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 				if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
@@ -5363,12 +5359,8 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 				}
 				else
 				{
-#endif
 					iVotes += it->GetEffects()->iVotesForFollowingReligion;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 				}
-#endif
-
 			}
 		}
 	}
@@ -12735,7 +12727,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		CvAssertMsg(eTargetReligion != NO_RELIGION, "Evaluating World Religion for NO_RELIGION. Please send Anton your save file and version.");
 		iExtra = 0;
 
-		ReligionTypes eFoundedReligion = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eFoundedReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
 		if (eFoundedReligion != NO_RELIGION)		// if this player founded a religion
 		{
 			bool bFoundedTargetReligion = eFoundedReligion == eTargetReligion;

@@ -1699,7 +1699,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
-	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 	// sometimes we have no choice

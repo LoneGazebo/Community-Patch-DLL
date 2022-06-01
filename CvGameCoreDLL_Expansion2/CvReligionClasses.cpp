@@ -506,7 +506,7 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 		if (pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
 		{
 			//Do we have a religion?
-			ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(pToCity->getOwner());
+			ReligionTypes ePlayerReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetOwnedReligion();
 
 			if (ePlayerReligion <= RELIGION_PANTHEON)
 			{
@@ -1978,7 +1978,7 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 /// Has this player created a pantheon?
 bool CvGameReligions::HasCreatedPantheon(PlayerTypes ePlayer) const
 {
-	if(GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
+	if (GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
 		return true;
 
 	return false;
@@ -2274,19 +2274,15 @@ int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, Play
 }
 
 /// Has this player created a religion?
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal) const
-#else
-bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer) const
-#endif
 {
-    if (GetReligionCreatedByPlayer(ePlayer) > RELIGION_PANTHEON)
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
+    if (eReligion != NO_RELIGION)
 	{
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
-		if (MOD_RELIGION_LOCAL_RELIGIONS && bIgnoreLocal) {
-			return !(GC.getReligionInfo(GetReligionCreatedByPlayer(ePlayer))->IsLocalReligion());
+		if (MOD_RELIGION_LOCAL_RELIGIONS && bIgnoreLocal) 
+		{
+			return !(GC.getReligionInfo(eReligion)->IsLocalReligion());
 		}
-#endif
 
 		return true;
 	}
@@ -2297,32 +2293,14 @@ bool CvGameReligions::HasCreatedReligion(PlayerTypes ePlayer) const
 /// Has this player reformed their religion?
 bool CvGameReligions::HasAddedReformationBelief(PlayerTypes ePlayer) const
 {
-#if !defined(MOD_BALANCE_CORE)
-	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-#endif
-	ReligionTypes eReligion = GetReligionCreatedByPlayer(ePlayer);
-    if (eReligion > RELIGION_PANTHEON)
+	ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
+    if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pMyReligion = GetReligion(eReligion, ePlayer);
-#if defined(MOD_BALANCE_CORE)
 		if (pMyReligion && pMyReligion->m_bReformed)
 		{
 			return true;
 		}
-#else
-		if (pMyReligion)
-		{
-			for(int iI = 0; iI < pMyReligion->m_Beliefs.GetNumBeliefs(); iI++)
-			{
-				const BeliefTypes eBelief = pMyReligion->m_Beliefs.GetBelief(iI);
-				CvBeliefEntry* pEntry = pkBeliefs->GetEntry((int)eBelief);
-				if (pEntry && pEntry->IsReformationBelief())
-				{
-					return true;
-				}
-			}
-		}
-#endif
 	}
 
 	return false;
@@ -3229,18 +3207,14 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	int iCost = kPlayer.GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/);
 #endif
 
-	ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(kPlayer.GetID());
-	if(ePlayerReligion > RELIGION_PANTHEON)
+	ReligionTypes ePlayerReligion = GET_PLAYER(kPlayer.GetID()).GetReligions()->GetOwnedReligion();
+	if (ePlayerReligion > RELIGION_PANTHEON)
 	{
 		pReligion = GetReligion(ePlayerReligion, kPlayer.GetID());
 	}
 
 	// If player hasn't founded a religion yet, drop out of this if all religions have been founded
-#if defined(MOD_BALANCE_CORE)
-	else if(GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
-#else
-	else if(GetNumReligionsStillToFound() <= 0)
-#endif
+	else if (GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
 	{
 		return false;
 	}
@@ -5302,7 +5276,7 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 		if (pOtherCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
 		{
 			//Do we have a religion?
-			ReligionTypes ePlayerReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(pOtherCity->getOwner());
+			ReligionTypes ePlayerReligion = GET_PLAYER(pOtherCity->getOwner()).GetReligions()->GetOwnedReligion();
 
 			if (ePlayerReligion <= RELIGION_PANTHEON)
 			{
@@ -5659,13 +5633,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		// Notification if the player's city was converted to a religion they didn't found
 		PlayerTypes eOwnerPlayer = m_pCity->getOwner();
 		CvPlayerAI& kOwnerPlayer = GET_PLAYER(eOwnerPlayer);
-		const ReligionTypes eOwnerPlayerReligion = kOwnerPlayer.GetReligions()->GetReligionCreatedByPlayer();
-#if defined(MOD_BALANCE_CORE)
-		if(eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && eReligionController != eOwnerPlayer && eOwnerPlayerReligion > RELIGION_PANTHEON)
-#else
-		if(eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && pNewReligion->m_eFounder != eOwnerPlayer
-			&& eOwnerPlayerReligion > RELIGION_PANTHEON)
-#endif
+		const ReligionTypes eOwnerPlayerReligion = kOwnerPlayer.GetReligions()->GetOwnedReligion();
+
+		if (eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && eReligionController != eOwnerPlayer && eOwnerPlayerReligion > RELIGION_PANTHEON)
 		{
 			if(kOwnerPlayer.GetNotifications())
 			{
@@ -5676,9 +5646,9 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				kOwnerPlayer.GetNotifications()->Add(NOTIFICATION_RELIGION_SPREAD, strMessage.toUTF8(), strSummary.toUTF8(), m_pCity->getX(), m_pCity->getY(), eMajority, -1);
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements!
-			if(eOwnerPlayer == GC.getGame().getActivePlayer()){
+			if (MOD_API_ACHIEVEMENTS && eOwnerPlayer == GC.getGame().getActivePlayer())
+			{
 				const CvReligion* pkReligion = GC.getGame().GetGameReligions()->GetReligion(eOwnerPlayerReligion, eOwnerPlayer);
 				if(pkReligion != NULL)
 				{
@@ -5688,7 +5658,6 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 					}
 				}
 			}
-#endif
 		}
 
 		else if(eOwnerPlayer != eResponsibleParty && eMajority != eOldMajority && eOldMajority == NO_RELIGION)
@@ -6672,7 +6641,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 				}
 
 				//    - Holy city will anger folks, let's not do that one right away
-				ReligionTypes eCityOwnersReligion = GET_PLAYER((PlayerTypes)iPlayerLoop).GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eCityOwnersReligion = GET_PLAYER((PlayerTypes)iPlayerLoop).GetReligions()->GetOwnedReligion();
 				if (eCityOwnersReligion > RELIGION_PANTHEON && pCR->IsHolyCityForReligion(eCityOwnersReligion))
 				{
 					iScore /= 2;
@@ -7163,7 +7132,7 @@ int CvReligionAI::GetSpreadScore() const
 
 bool CvReligionAI::DoFaithPurchases()
 {
-	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(); //founded or conquered
+	ReligionTypes eReligionWeFounded = m_pPlayer->GetReligions()->GetOwnedReligion(); //founded or conquered
 	ReligionTypes eReligionToSpread = GetReligionToSpread(); //independent of founding ...
 
 	CvString strPlayer = m_pPlayer->getCivilizationShortDescription();
@@ -10336,7 +10305,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 		return true;
 
 	//We didn't found? Don't waste too much faith on inquisitors, that's not your problem, man.
-	if (eReligion != m_pPlayer->GetReligions()->GetReligionCreatedByPlayer())
+	if (eReligion != m_pPlayer->GetReligions()->GetOwnedReligion())
 		return true;
 
 	// Count Inquisitors of our religion
@@ -10481,7 +10450,7 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 	int iTurns = (iFaithToNextProphet / max(1, iFaithPerTurn));
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+	ReligionTypes eReligion = GET_PLAYER(m_pPlayer->GetID()).GetReligions()->GetOwnedReligion();
 
 	int iMaxTurns = 30;
 	if (eReligion > RELIGION_PANTHEON)
@@ -10958,8 +10927,7 @@ bool CvReligionAIHelpers::DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, Unit
 			int iLoop;
 			CvCity* pLoopCity;
 
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-			ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(kPlayer.GetID());
+			ReligionTypes eReligion = GET_PLAYER(kPlayer.GetID()).GetReligions()->GetOwnedReligion();
 
 			if (eReligion > RELIGION_PANTHEON)
 			{

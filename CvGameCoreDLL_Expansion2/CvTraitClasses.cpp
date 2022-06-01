@@ -6882,26 +6882,24 @@ void CvPlayerTraits::ChooseMayaBoost()
 	UnitTypes ePossibleGreatPerson;
 
 	// Go for a prophet?
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 	bool bHasReligion = false;
-	if(MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION)
+	if (MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetOwnedReligion() != NO_RELIGION)
 	{
 		bHasReligion = true;
 	}
-#endif
 
 	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 
-	if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+	if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		ReligionTypes eReligion = GET_PLAYER(m_pPlayer->GetID()).GetReligions()->GetOwnedReligion();
 
 		// Have a religion that isn't enhanced yet?
-		if(eReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
-			if(!pMyReligion->m_bEnhanced)
+			if (!pMyReligion->m_bEnhanced)
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6910,17 +6908,16 @@ void CvPlayerTraits::ChooseMayaBoost()
 		// Don't have a religion and they can still be founded?
 		else
 		{
-			if(pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
+			if (pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-		if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+
+		if (MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
 		{
 			eDesiredGreatPerson = NO_UNIT;
 		}
-#endif
 	}
 
 	// Highly wonder competitive and still early in game?

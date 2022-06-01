@@ -5372,7 +5372,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 
 	if (pkBuildingInfo->IsReformation() || pkBuildingInfo->GetReformationFollowerReduction() != 0)
 	{
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pCity->getOwner());

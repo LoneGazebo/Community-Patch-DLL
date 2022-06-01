@@ -9608,7 +9608,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 			eWorldPlayer = (PlayerTypes) iWorldPlayerLoop;
 
 			// If we didn't found a religion, no Grand Temple
-			if(GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eWorldPlayer) == NO_RELIGION)
+			if (GET_PLAYER(eWorldPlayer).GetReligions()->GetOwnedReligion() == NO_RELIGION)
 			{
 				if (pkBuildingInfo->GetBuildingClassType() == (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_GRAND_TEMPLE"))
 				{
@@ -17726,7 +17726,7 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 		if(pkCity)
 		{
 			ReligionTypes eMinorReligion = pkCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eMajorReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(eMajor);
+			ReligionTypes eMajorReligion = GET_PLAYER(eMajor).GetReligions()->GetOwnedReligion();
 
 			if(eMinorReligion != NO_RELIGION &&
 			        eMajorReligion != NO_RELIGION &&

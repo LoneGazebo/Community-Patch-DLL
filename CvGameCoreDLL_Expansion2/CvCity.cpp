@@ -1041,21 +1041,22 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_PANTHEON_FOUNDED);
 	}
 
-	if (bInitialFounding) {
-		if (eInitialReligion != NO_RELIGION) {
+	if (bInitialFounding) 
+	{
+		if (eInitialReligion != NO_RELIGION) 
+		{
 			// Spread an initial religion here if one was given
 			GetCityReligions()->AdoptReligionFully(eInitialReligion);
 		}
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 		else if (MOD_RELIGION_LOCAL_RELIGIONS) 
 		{
 			// Spread a local religion here if one is active
-			if (pReligions->HasCreatedReligion() && GC.getReligionInfo(pReligions->GetReligionCreatedByPlayer())->IsLocalReligion()) {
+			if (pReligions->HasCreatedReligion() && GC.getReligionInfo(pReligions->GetReligionCreatedByPlayer())->IsLocalReligion()) 
+			{
 				GetCityReligions()->AdoptReligionFully(pReligions->GetReligionCreatedByPlayer());
 			}
 		}
-#endif
 	}
 
 	// A new City might change our victory progress
@@ -7333,7 +7334,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			}
 			if (pkEventChoiceInfo->ConvertsCityToPlayerReligion() != 0)
 			{
-				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 				if (eReligion != NO_RELIGION)
 				{
 					GetCityReligions()->ConvertPercentAllOtherFollowers(eReligion, pkEventChoiceInfo->ConvertsCityToPlayerReligion());
@@ -9063,12 +9064,11 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 	// Religion-enabled national wonder
 	if (pkBuildingInfo && pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->IsReformation())
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
@@ -9082,7 +9082,6 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 			return false;
 		}
 	}
-#endif
 
 	// Local Resource requirements met?
 	if (!IsBuildingLocalResourceValid(eBuilding, bTestVisible, toolTipSink))
@@ -18162,7 +18161,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 			if (pUnit != NULL && pUnit->GetReligiousPressureModifier() != 0)
 			{
-				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 				if (eReligion != NO_RELIGION)
 				{
 					if (m_pCityReligions->IsReligionInCity())
@@ -18194,7 +18193,7 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 			if (pOldGarrison != NULL && pOldGarrison->GetReligiousPressureModifier() != 0)
 			{
-				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 				if (eReligion != NO_RELIGION)
 				{
 					if (m_pCityReligions->IsReligionInCity())
@@ -26328,8 +26327,11 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
 	{
-		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
-		if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded != NO_RELIGION && eReligionFounded >= RELIGION_PANTHEON)
+		ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
+		if (eReligionFounded == NO_RELIGION)
+			eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+
+		if (MOD_BALANCE_CORE_BELIEFS && eReligionFounded >= RELIGION_PANTHEON)
 		{
 			ReligionTypes eMajorityReligion = GetCityReligions()->GetReligiousMajority();
 			ReligionTypes ePlayerPantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(getOwner());
@@ -31365,7 +31367,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				ReligionTypes eReligion;
 				if (pkUnitInfo->IsFoundReligion())
 				{
-					eReligion = GET_PLAYER(m_eOwner).GetReligions()->GetReligionCreatedByPlayer();
+					eReligion = GET_PLAYER(m_eOwner).GetReligions()->GetOwnedReligion();
 				}
 				else
 				{
@@ -31908,7 +31910,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			ReligionTypes eReligion;
 			if (pUnit->getUnitInfo().IsFoundReligion())
 			{
-				eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+				eReligion = kPlayer.GetReligions()->GetOwnedReligion();
 			}
 			else
 			{

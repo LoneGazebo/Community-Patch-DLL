@@ -5946,7 +5946,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 		return false;
 
 	if (pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
@@ -6438,7 +6438,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 		return false;
 
 	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
@@ -7701,7 +7701,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_PANTHEON");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -12253,7 +12253,7 @@ int CvPlayer::GetScoreFromReligion() const
 
 	int iScore = 0;
 	CvGameReligions *pGameReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	if (eReligion > RELIGION_PANTHEON)
 	{
 		const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, GetID());
@@ -46793,7 +46793,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 	if(pGreatPeopleUnit->getUnitInfo().IsFoundReligion())
 	{
-		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
 		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
 	}
@@ -50427,7 +50427,10 @@ int CvPlayer::GetScoreFromMilitarySize() const
 //	----------------------------------------------------------------------------
 bool CvPlayer::HasBelief(BeliefTypes iBeliefType) const
 {
-	const ReligionTypes iReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+	ReligionTypes iReligion = GetReligions()->GetOwnedReligion();
+	if (iReligion == NO_RELIGION)
+		iReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, GetID());
 
 	return (pReligion && pReligion->m_Beliefs.HasBelief(iBeliefType));
@@ -50731,12 +50734,12 @@ bool CvPlayer::HasAnyReligion() const
 
 bool CvPlayer::HasReligion(ReligionTypes iReligionType) const
 {
-	return (GetReligions()->GetReligionCreatedByPlayer() == iReligionType);
+	return (GetReligions()->GetOwnedReligion() == iReligionType);
 }
 
 bool CvPlayer::HasEnhancedReligion() const
 {
-	const ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	const ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 	return (pMyReligion && pMyReligion->m_bEnhanced);

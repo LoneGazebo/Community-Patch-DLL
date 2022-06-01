@@ -2998,7 +2998,7 @@ int CvLuaGame::lAddReformation(lua_State* L)
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvGameReligions* pkGameReligions = GC.getGame().GetGameReligions();
-	if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->HasCreatedReligion() && kPlayer.GetReligions()->GetReligionCreatedByPlayer() == eReligion)
+	if (!pkGameReligions->HasAddedReformationBelief(ePlayer) && kPlayer.GetReligions()->HasCreatedReligion() && kPlayer.GetReligions()->GetOwnedReligion() == eReligion)
 	{
 		pkGameReligions->AddReformationBelief(ePlayer, eReligion, eBelief);
 	}

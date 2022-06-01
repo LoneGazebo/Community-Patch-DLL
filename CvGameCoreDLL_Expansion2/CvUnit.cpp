@@ -11068,9 +11068,9 @@ bool CvUnit::CanEnhanceReligion(const CvPlot* pPlot) const
 		return false;
 	}
 
-	ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(getOwner());
+	ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
 	const CvReligion* pReligion = pReligions->GetReligion(eReligion, getOwner());
-	if(pReligion->m_bEnhanced)
+	if (pReligion->m_bEnhanced)
 	{
 		return false;
 	}
@@ -11125,8 +11125,8 @@ bool CvUnit::DoEnhanceReligion()
 			}
 			else
 			{
-				ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(getOwner());
-				if(eReligion != NO_RELIGION)
+				ReligionTypes eReligion = GET_PLAYER(getOwner()).GetReligions()->GetOwnedReligion();
+				if (eReligion != NO_RELIGION)
 				{
 					// Pick a belief for this religion
 #if defined(MOD_EVENTS_ACQUIRE_BELIEFS)

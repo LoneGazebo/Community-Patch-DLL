@@ -5911,7 +5911,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);

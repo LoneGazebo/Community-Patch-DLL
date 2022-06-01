@@ -189,7 +189,7 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 		if civ5_mode then
 			local activePlayerBeliefs
 			if activePlayer:HasCreatedReligion() then
-				activePlayerBeliefs = Game.GetBeliefsInReligion( activePlayer:GetReligionCreatedByPlayer() )
+				activePlayerBeliefs = Game.GetBeliefsInReligion( activePlayer:GetOwnedReligion() )
 			elseif activePlayer:HasCreatedPantheon() then
 				activePlayerBeliefs = { activePlayer:GetBeliefInPantheon() }
 			elseif activePlayer:CanCreatePantheon() then
