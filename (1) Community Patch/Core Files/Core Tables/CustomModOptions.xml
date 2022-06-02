@@ -256,7 +256,7 @@
    	<!-- Great Generals & Admirals provide combat bonuses for only the era they born and the following era -->
 	<Row Class="4" Name="ERA_RESTRICTED_GENERALS" Value="0" DbUpdates="1"/>
    	<!-- Adds new Goody options for Hinin's Tweaks -->
-	<Row Class="4" Name="NEW_GOODIES" Value="0" DbUpdates="1"/>
+	<Row Class="4" Name="NEW_GOODIES" Value="0"/>
 	<!-- Toggle boolean for terrains getting a yield with a feature on them from player traits TradeRouteOnly -->
 	<Row Class="5" Name="USE_TRADE_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
