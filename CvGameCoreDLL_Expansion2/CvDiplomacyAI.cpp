@@ -34251,6 +34251,9 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return;
+
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34347,6 +34350,9 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return;
+
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
@@ -34386,6 +34392,9 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34454,6 +34463,9 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	// We denounced the leader we're talking to - no use whining at this point
@@ -34527,6 +34539,9 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	// We denounced the leader we're talking to - no use whining at this point
@@ -34780,6 +34795,9 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return;
+
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_FYI_BEFRIEND_HUMAN_ENEMY;
@@ -34864,6 +34882,9 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35238,6 +35259,9 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 		if (kTheirPlayer.isHuman() && GC.getGame().IsInsultMessagesDisabled())
 			return;
 
+		if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+			return;
+
 		PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 		PolicyBranchTypes eTheirBranch = kTheirPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -35345,6 +35369,9 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 		return;
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	int iTurnsBetweenStatements = 50;
@@ -35502,6 +35529,9 @@ void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementT
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return;
+
 	int iTurnsBetweenStatements = 50;
 	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
@@ -35626,6 +35656,9 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return;
+
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		DiploStatementTypes eTempStatement = NO_DIPLO_STATEMENT_TYPE;
@@ -35724,6 +35757,9 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
+		return;
+
+	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
