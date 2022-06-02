@@ -1093,6 +1093,10 @@ ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'Science' INTEGER DEFAULT 0;
 
+-- Additional Goody Hut options, requires NEW_GOODIES CustomModOptions to set True
+ALTER TABLE GoodyHuts ADD COLUMN 'Food' INTEGER DEFAULT 0;
+ALTER TABLE GoodyHuts ADD COLUMN 'BorderGrowth' INTEGER DEFAULT 0;
+
 -- Tech Additions
 ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
 ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
