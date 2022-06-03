@@ -15507,7 +15507,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
 								if (!pLoopPlot->IsImprovementPillaged())
 								{
@@ -15534,7 +15534,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
 								if (!pLoopPlot->IsImprovementPillaged())
 								{

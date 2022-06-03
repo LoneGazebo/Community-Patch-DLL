@@ -28915,7 +28915,7 @@ bool CvUnit::UnitBuild(BuildTypes eBuild)
 				if((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GD_INT_GET(RUINS_IMPROVEMENT))))
 				{
 					ResourceTypes eResource = (ResourceTypes)pPlot->getNonObsoleteResourceType(GET_PLAYER(getOwner()).getTeam());
-					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsExpandedImprovementResourceTrade(eResource))
+					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsConnectsResource(eResource))
 					{
 						if(GC.getImprovementInfo(eImprovement)->GetImprovementPillage() != NO_IMPROVEMENT)
 						{

@@ -221,15 +221,13 @@ public:
 	int  GetImprovementResourceYield(int i, int j) const;
 	bool IsImprovementResourceMakesValid(int i) const;
 	bool IsImprovementResourceTrade(int i) const;
-	bool IsExpandedImprovementResourceTrade(int i, bool bIgnorePrimary = false) const;
+	bool IsConnectsResource(int i) const;
 
 	int  GetImprovementResourceDiscoverRand(int i) const;
 	int  GetFlavorValue(int i) const;
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
-	void InitImprovementResourceList(CvImprovementResourceInfo** ppImprovementResource, int iListLen);
-
 	int m_iGoldMaintenance;
 	int m_iCultureBombRadius;
 	int m_iCultureAdjacentSameType;

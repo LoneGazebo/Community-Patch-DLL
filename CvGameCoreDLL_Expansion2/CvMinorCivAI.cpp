@@ -16879,11 +16879,11 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (pImprovementInfo != NULL && pImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+		if (pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource))
 			return false;
 	}
 
-	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false);
+	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
 
 	// There must be a valid improvement for the player to build
 	if(eImprovement == NO_IMPROVEMENT)
