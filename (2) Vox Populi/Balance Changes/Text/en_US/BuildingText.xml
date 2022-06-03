@@ -345,7 +345,7 @@
 			<Text>Produces 1 [ICON_RES_COAL] Coal and [ICON_RES_IRON] Iron.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending turns in deep (non-coastal) water tiles owned by this city take[COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending turns in deep (non-coastal) water tiles owned by this city take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
