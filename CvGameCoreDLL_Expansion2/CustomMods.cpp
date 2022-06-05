@@ -558,6 +558,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(AI_UNIT_PRODUCTION);
 		MOD_OPT_CACHE(ADJACENT_BLOCKADE);
+		MOD_OPT_CACHE(ATTRITION);
 
 		m_bInit = true;
 	}

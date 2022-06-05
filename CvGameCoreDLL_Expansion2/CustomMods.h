@@ -463,6 +463,8 @@
 
 // Land units blockade undefended adjacent tiles
 #define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
+// Units take damage in enemy lands
+#define MOD_ATTRITION								gCustomMods.isATTRITION()
 
 
 //
@@ -1535,7 +1537,8 @@ public:
 
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 	MOD_OPT_DECL(ADJACENT_BLOCKADE);
-	
+	MOD_OPT_DECL(ATTRITION);
+
 protected:
 	bool m_bInit;
 	std::map<std::string, int> m_options;

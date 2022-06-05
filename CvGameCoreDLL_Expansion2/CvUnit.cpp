@@ -8042,6 +8042,12 @@ void CvUnit::DoAttrition()
 
 	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
+		if (MOD_ATTRITION && !isBarbarian() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true)))
+		{
+			strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+			changeDamage(5, NO_PLAYER, 0.0, &strAppendText);
+		}
+
 		if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
 			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
@@ -16253,8 +16259,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 		//Heavy charge without escape
 		if (IsCanHeavyCharge() && !pDefender->CanFallBack(*this, false))
-			iModifier += 50;
-
+		{
+			if (MOD_ATTRITION)
+				iModifier += 25;
+			else
+				iModifier += 50;
+		}
 		//bonus for attacking same unit over and over in a turn?
 		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
