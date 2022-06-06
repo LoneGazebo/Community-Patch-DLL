@@ -41362,7 +41362,6 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 	return NULL;
 }
 
-
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
@@ -41377,7 +41376,8 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	if (!pNewOperation)
 		return NULL;
 
-	//bail if impossible (just to avoid spamming the logs)
+	//bail early if impossible (just to avoid spamming the logs)
+	//note that for performance reasons we don't do real pathfinding here
 	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, pTarget ? pTarget->plot() : NULL, iMaxMissingUnits))
 	{
 		delete pNewOperation;
@@ -41390,8 +41390,12 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	//check if initialization works out
 	pNewOperation->Init(pTarget, pMuster);
 
+	//check number of units again
+	if (pNewOperation->GetNumUnitsNeededToBeBuilt() > iMaxMissingUnits)
+		pNewOperation->SetToAbort(AI_ABORT_NO_UNITS);
+
 	//undo if necessary
-	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID )
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
 	{
 		pNewOperation->LogOperationEnd();
 		deleteAIOperation(pNewOperation->GetID());
@@ -41560,6 +41564,8 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer /* optional */, CvPlot* pTarget /* optional */)
 {
+	int iMaxTargetDistance = 3;
+	
 	// loop through all entries looking for match
 	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
@@ -41568,7 +41574,7 @@ CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationTy
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
-				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot())
+				if(pTarget == NULL || plotDistance(*pTarget,*pThisOperation->GetTargetPlot())<iMaxTargetDistance)
 				{
 					return pThisOperation;
 				}
