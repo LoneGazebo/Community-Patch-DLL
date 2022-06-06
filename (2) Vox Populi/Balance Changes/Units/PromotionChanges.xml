@@ -3963,7 +3963,7 @@
 			<Help>TXT_KEY_PROMOTION_SUPPLY_BOOST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<MilitaryCapChange>2</MilitaryCapChange>
+			<MilitaryCapChange>1</MilitaryCapChange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CIVILIAN</PediaType>

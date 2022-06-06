@@ -30457,6 +30457,13 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (!pUnit)
 		return NULL;
 
+	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+	{
+		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
+		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
+		pUnit->changeDamage( min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
+	}
+
 	addProductionExperience(pUnit, false, bIsPurchase);
 
 	if ((eReason != REASON_BUY && eReason != REASON_FAITH_BUY) || pUnit->getUnitInfo().CanMoveAfterPurchase())

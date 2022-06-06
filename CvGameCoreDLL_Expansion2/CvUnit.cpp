@@ -20647,8 +20647,8 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 	{
 		CvString szMsg;
 		CvString lastMission = tacticalMoveNames[m_eTacticalMove];
-
-		szMsg.Format("KilledInCombat %s, LastMove %s, KilledBy %d", getName().GetCString(), lastMission.c_str(), ePlayer);
+		CvString unitName = getName(); unitName.Replace(' ', '_');  unitName.Replace('\'', '_'); //no spaces etc
+		szMsg.Format("KilledInCombat %s, Domain %d, LastMove %s, KilledBy %d", unitName.c_str(), getDomainType(), lastMission.c_str(), ePlayer);
 		GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg);
 
 		//--- finally ----------------------------
