@@ -442,7 +442,7 @@
     <!-- Enables experimental Unit Production AI tweaks -->
     <Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
     <!-- Land units blockade undefended adjacent tiles -->
-   <Row Class="4" Name="ADJACENT_BLOCKADE" Value="1"/>
+   <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
@@ -845,6 +845,8 @@
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
+	  <!-- Purchased units do not have full health when the city is damaged  -->	
+	<Row Class="6" Name="BALANCE_CORE_UNIT_CREATION_DAMAGED" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
@@ -927,6 +929,8 @@
     <Row Class="6" Name="BALANCE_CORE_BOMBARD_RANGE_BUILDINGS" Value="0"/>
 	<!-- UI is setup to give you a hundreds for tourism (disabled in CP only) -->
 	<Row Class="6" Name="BALANCE_CORE_TOURISM_HUNDREDS" Value="0"/>
+	<!-- Flips open borders to apply in opposite ways - you have to give open borders to gain the tourism bonus -->
+	<Row Class="6" Name="BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS" Value="0"/>
 	<!-- Ranged attacks on injured units no longer get a bonus for the unit being injured -->
 	<Row Class="6" Name="BALANCE_CORE_RANGED_ATTACK_PENALTY" Value="0"/>
 	  <!-- Inquisitors don't block spread, make 50% -->

@@ -2145,18 +2145,18 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
 	{
 		return false;
 	}
-#endif
+
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
-#if defined(MOD_BALANCE_CORE)
+
 		//Polder-specific code for lakes
 		bool bLake = false;
-		if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+		if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
 		{
 			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
@@ -2172,16 +2172,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 				}
 			}
 		}
-		if(!bLake)
-		{
-#endif
-		return false;
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+		if (!bLake)
+			return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+
+	if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
 	{
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
@@ -2197,7 +2192,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			}
 		}
 	}
-#endif
 
 	if(pkImprovementInfo->IsRequiresImprovement())
 	{
@@ -2211,7 +2205,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
-	if(pkImprovementInfo->IsCoastal() && !isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	if(pkImprovementInfo->IsCoastal() && !isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 	{
 		return false;
 	}

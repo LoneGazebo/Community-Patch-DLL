@@ -24618,7 +24618,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CAPITAL", iTempMod);
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	//Blockade
 	if (eIndex == YIELD_GOLD && isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 	{
@@ -24691,7 +24691,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		iModifier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}
-#endif
 
 	// Golden Age Yield Modifier
 	if (GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
@@ -24704,7 +24703,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		if (GetGoldenAgeYieldMod(eIndex) != 0)
 		{
 			iTempMod = GetGoldenAgeYieldMod(eIndex);
@@ -24727,7 +24726,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS", iTempMod);
 		}
-#endif
 	}
 
 	// Religion Yield Rate Modifier

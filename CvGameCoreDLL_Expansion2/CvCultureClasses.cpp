@@ -4586,11 +4586,8 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
 		{
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-			if (!bCheckOpenBorders || GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-			if (!bCheckOpenBorders || kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+			|| (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
 				int iInfluenceOn = GetInfluenceOn((PlayerTypes)iLoopPlayer);
 				int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
@@ -4614,7 +4611,6 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 }
 
 // NON-CULTURE TOURISM BONUSES
-#if defined(MOD_BALANCE_CORE)
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
@@ -4682,7 +4678,7 @@ int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) cons
 
 	return iRtnValue;
 }
-#endif
+
 /// Get extra science from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const
 {
@@ -4950,21 +4946,17 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	// POSITIVE MODIFIERS
 
 	// Open borders with this player
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-	if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GetTourismModifierOpenBorders()) + "[ENDCOLOR]";
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Trade route to one of this player's cities from here
 	if (m_pPlayer->getTeam() == GET_PLAYER(ePlayer).getTeam())
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM", 200) + "[ENDCOLOR]";
 	}
-#endif
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
@@ -5099,11 +5091,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	// NEUTRAL MODIFIERS
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (!GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-	if (!kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", 0) + "[ENDCOLOR]";		
 	}
@@ -6734,11 +6723,8 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if (!bIgnoreOpenBorders)
 	{
 		// Open borders with this player
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (GET_TEAM(kCityPlayer.getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-		if (kTeam.IsAllowsOpenBordersToTeam(kCityPlayer.getTeam()))
-#endif
+		if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(kCityPlayer.getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+			(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(kCityPlayer.getTeam())))
 		{
 			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierOpenBorders();
 		}
@@ -6751,7 +6737,6 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		{
 			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierTradeRoute();
 		}
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoOpenTrade())
 		{
 			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, m_pCity->getOwner(), true))
@@ -6759,7 +6744,6 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 				iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 			}
 		}
-#endif
 	}
 
 	if (!bIgnoreIdeologies)
@@ -7098,11 +7082,8 @@ CvString CvCityCulture::GetTourismTooltip()
 
 				// Open borders with this player
 				CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-				if (kTeam.IsAllowsOpenBordersToTeam(eTeam))
-#endif
+				if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+					(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(eTeam)))
 				{
 					if (openBordersCivs.length() > 0)
 					{

@@ -16416,26 +16416,22 @@ void CvMinorCivAI::DoElection()
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
-				if(ePlayer == GC.getGame().getActivePlayer())
+				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
 				}
-#endif
 
-#if defined(MOD_EVENTS_ESPIONAGE)
 				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
 				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
 
-				if (MOD_EVENTS_ESPIONAGE) {
+				if (MOD_EVENTS_ESPIONAGE) 
+				{
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
-#endif
+
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
-
-				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION));
-
+				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION));
 			}
 			else
 			{

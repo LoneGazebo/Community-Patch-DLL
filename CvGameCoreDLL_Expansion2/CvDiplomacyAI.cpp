@@ -18791,11 +18791,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				else
 				{
 					// Weight for Open Borders
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-					if (pTheirDiplo->IsHasOpenBorders(eMyPlayer))
-#else
-					if (IsHasOpenBorders(ePlayer))
-#endif
+					if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && pTheirDiplo->IsHasOpenBorders(eMyPlayer)) || (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && IsHasOpenBorders(ePlayer)))
 					{
 						vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 
@@ -27444,36 +27440,52 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		return false;
-	}
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetID()))
 		return true;
-#endif
 
 	if (IsUntrustworthy(ePlayer))
 	{
 		return false;
 	}
 
-#if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	//If they need influence over us, we don't want their OB, thanks.
-	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetID()) >= INFLUENCE_TREND_STATIC))
+	if (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 	{
-		return false;
-	}
-#else
-	//If we need influence over them, we want their OB, thanks.
-	if ((m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) > INFLUENCE_LEVEL_FAMILIAR) && (m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer) >= INFLUENCE_TREND_STATIC))
-	{
-		return true;
-	}
-#endif
+		// If going for culture win we always want open borders with civs we need influence on
+		if (IsGoingForCultureVictory())
+		{
+			InfluenceLevelTypes eInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer);
+			InfluenceLevelTrend eInfluenceTrend = m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer);
 
-#if defined(MOD_BALANCE_CORE)
+			if (eInfluenceLevel < INFLUENCE_LEVEL_INFLUENTIAL || eInfluenceTrend <= INFLUENCE_TREND_STATIC)
+				return true;
+		}
+		// If they need influence over us, we don't want their OB, thanks.
+		if (IsCompetingForVictory())
+		{
+			DisputeLevelTypes eVictoryDispute = GetVictoryDisputeLevel(ePlayer);
+			BlockLevelTypes eVictoryBlock = GetVictoryBlockLevel(ePlayer);
+
+			if (eVictoryDispute > DISPUTE_LEVEL_NONE || eVictoryBlock > BLOCK_LEVEL_NONE)
+			{
+				InfluenceLevelTypes eInfluenceLevel = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetID());
+				InfluenceLevelTrend eInfluenceTrend = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetID());
+
+				if (eInfluenceLevel == INFLUENCE_LEVEL_FAMILIAR && eInfluenceTrend == INFLUENCE_TREND_RISING) // Familiar and rising? Slow them down!
+				{
+					return false;
+				}
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR && eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+				{
+					return false;
+				}
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_INFLUENTIAL && eInfluenceTrend != INFLUENCE_TREND_RISING) // Already Influential, but not rising? Let's try to reverse that!
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 	{
 		return false;
@@ -27490,7 +27502,6 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return true;
 	}
-#endif
 
 	if(m_pPlayer->IsCramped() || (GET_PLAYER(ePlayer).getNumCities() * 3) > (m_pPlayer->getNumCities() * 2))
 	{
@@ -27502,7 +27513,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return true;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 	EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
 	if(eNeedRecon != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
@@ -27538,7 +27549,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 			}
 		}
 	}
-#endif
+
 	return false;
 }
 
@@ -27547,11 +27558,6 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		return false;
-	}
 
 	if (IsUntrustworthy(ePlayer))
 	{
@@ -27579,22 +27585,45 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
+	
+	if (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+	{
+		// If going for culture win we always want open borders against civs we need influence on
+		if (IsGoingForCultureVictory())
+		{
+			InfluenceLevelTypes eInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer);
+			InfluenceLevelTrend eInfluenceTrend = m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer);
 
-// If going for culture win we always want open borders against civs we need influence on
-#if defined (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	//If we need influence over them, we want to give OB, thanks.
-	if ((m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) > INFLUENCE_LEVEL_FAMILIAR) && (m_pPlayer->GetCulture()->GetInfluenceTrend(ePlayer) >= INFLUENCE_TREND_STATIC))
-	{
-		return true;
+			if (eInfluenceLevel < INFLUENCE_LEVEL_INFLUENTIAL || eInfluenceTrend <= INFLUENCE_TREND_STATIC)
+				return true;
+		}
+		// If they need influence over us, we don't want to give OB, thanks.
+		if (IsCompetingForVictory())
+		{
+			DisputeLevelTypes eVictoryDispute = GetVictoryDisputeLevel(ePlayer);
+			BlockLevelTypes eVictoryBlock = GetVictoryBlockLevel(ePlayer);
+
+			if (eVictoryDispute > DISPUTE_LEVEL_NONE || eVictoryBlock > BLOCK_LEVEL_NONE)
+			{
+				InfluenceLevelTypes eInfluenceLevel = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetID());
+				InfluenceLevelTrend eInfluenceTrend = GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetID());
+
+				if (eInfluenceLevel == INFLUENCE_LEVEL_FAMILIAR && eInfluenceTrend == INFLUENCE_TREND_RISING) // Familiar and rising? Slow them down!
+				{
+					return false;
+				}
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR && eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+				{
+					return false;
+				}
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_INFLUENTIAL && eInfluenceTrend != INFLUENCE_TREND_RISING) // Already Influential, but not rising? Let's try to reverse that!
+				{
+					return false;
+				}
+			}
+		}
 	}
-#else
-	//If we need influence over them, we want to give OB, thanks.
-	if ((GET_PLAYER(ePlayer).GetCulture()->GetInfluenceLevel(GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (GET_PLAYER(ePlayer).GetCulture()->GetInfluenceTrend(GetID()) >= INFLUENCE_TREND_STATIC))
-	{
-		return false;
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
 	{
 		return false;
@@ -27607,7 +27636,6 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 	{
 		return true;
 	}
-#endif
 
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
 	if (eApproach >= CIV_APPROACH_AFRAID)
@@ -27619,12 +27647,11 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		return true;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).GetDiplomacyAI()->MusteringForNeighborAttack(GetID()))
 	{
 		return true;
 	}
-#endif
+
 	return false;
 }
 
