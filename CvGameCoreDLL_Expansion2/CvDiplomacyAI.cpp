@@ -34251,7 +34251,8 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
@@ -34350,7 +34351,8 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34394,7 +34396,8 @@ void CvDiplomacyAI::DoMinorCivCompetitionStatement(PlayerTypes ePlayer, DiploSta
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if (eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34465,7 +34468,8 @@ void CvDiplomacyAI::DoAngryBefriendedEnemy(PlayerTypes ePlayer, DiploStatementTy
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	// We denounced the leader we're talking to - no use whining at this point
@@ -34541,7 +34545,8 @@ void CvDiplomacyAI::DoAngryDenouncedFriend(PlayerTypes ePlayer, DiploStatementTy
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	// We denounced the leader we're talking to - no use whining at this point
@@ -34795,7 +34800,8 @@ void CvDiplomacyAI::DoFYIBefriendedHumanEnemy(PlayerTypes ePlayer, DiploStatemen
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -34884,7 +34890,8 @@ void CvDiplomacyAI::DoFYIDenouncedHumanFriend(PlayerTypes ePlayer, DiploStatemen
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35259,7 +35266,8 @@ void CvDiplomacyAI::DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTy
 		if (kTheirPlayer.isHuman() && GC.getGame().IsInsultMessagesDisabled())
 			return;
 
-		if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		// We must be able to declare war on them
+		if (!GET_TEAM(GetTeam()).canDeclareWar(kTheirPlayer.getTeam(), GetID()))
 			return;
 
 		PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -35371,7 +35379,8 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	int iTurnsBetweenStatements = 50;
@@ -35529,7 +35538,8 @@ void CvDiplomacyAI::DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementT
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	int iTurnsBetweenStatements = 50;
@@ -35656,7 +35666,8 @@ void CvDiplomacyAI::DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatemen
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
@@ -35759,7 +35770,8 @@ void CvDiplomacyAI::DoTheyFoiledOurProposal(PlayerTypes ePlayer, DiploStatementT
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsInsultMessagesDisabled())
 		return;
 
-	if (GET_TEAM(GetTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+	// We must be able to declare war on them
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 		return;
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)

@@ -427,10 +427,14 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		}
 	}
 
-	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
-
 	// Research Agreements require Gold to be spent.
-	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
+	int iGoldAvailable = GetGoldAvailable(eToPlayer, eItem);
+	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, eToPlayer, ePlayer); // Cost for them
+	if (iCost > 0 && iGoldAvailable < iCost)
+		return false;
+
+	iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
+	iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer); // Cost for us
 	if (iCost > 0 && iGoldAvailable < iCost)
 		return false;
 
@@ -1485,11 +1489,20 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 	if (bSameTeam) // All of the items below shouldn't even be visible in the UI between teammates
 		return strError;
 
-	int iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
-
-	// Research Agreements require Gold to be spent.
-	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer);
+	int iGoldAvailable = GetGoldAvailable(eToPlayer, eItem);
+	int iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, eToPlayer, ePlayer); // Cost for them
+	bool bLackingFunds = false;
 	if (iCost > 0 && iGoldAvailable < iCost)
+	{
+		bLackingFunds = true;
+		strReason = GetLocalizedText("TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS");
+		strTooltip += strDivider;
+		strTooltip += strReason;
+	}
+
+	iGoldAvailable = GetGoldAvailable(ePlayer, eItem);
+	iCost = GC.getGame().GetGameDeals().GetTradeItemGoldCost(eItem, ePlayer, eToPlayer); // Cost for us
+	if (iCost > 0 && iGoldAvailable < iCost && !bLackingFunds)
 	{
 		strReason = GetLocalizedText("TXT_KEY_DIPLO_AGREEMENT_INSUFFICIENT_FUNDS");
 		strTooltip += strDivider;
