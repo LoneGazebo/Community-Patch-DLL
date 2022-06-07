@@ -6420,7 +6420,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(!bResourceUnlocked && bUnlocksResource)
 						{
 							// Appropriate Improvement on this Plot?
-							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eResource)))
+							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eResource)))
 							{
 								for (int iI = 0; iI < MAX_PLAYERS; iI++)
 								{

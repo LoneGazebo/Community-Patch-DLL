@@ -482,7 +482,7 @@ public:
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);
 	ImprovementTypes getImprovementType() const;
-	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
+	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bIgnoreSpecialImprovements = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsImprovementEmbassy() const;

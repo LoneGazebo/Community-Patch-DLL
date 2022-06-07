@@ -2211,7 +2211,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
-	if(pkImprovementInfo->IsCoastal() && !isCoastalLand())
+	if(pkImprovementInfo->IsCoastal() && !isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
 		return false;
 	}
@@ -5861,7 +5861,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE)
 						if(getImprovementType() != NO_IMPROVEMENT)
 						{
-							if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+							if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 							{
 								if(!IsImprovementPillaged())
 								{
@@ -6108,7 +6108,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					// Add Resource Quantity to total
 					if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 						{
 							if(!IsImprovementPillaged())
 							{
@@ -7041,7 +7041,7 @@ ImprovementTypes CvPlot::getImprovementType() const
 }
 
 //	--------------------------------------------------------------------------------
-ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bNonSpecialOnly)
+ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bIgnoreSpecialImprovements)
 {
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -7093,9 +7093,10 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 		if (pImprovementInfo == NULL)
 			continue;
 
-		if (bNonSpecialOnly && !pImprovementInfo->IsImprovementResourceTrade(eResource))
+		if (!pImprovementInfo->IsConnectsResource(eResource))
 			continue;
-		else if (pImprovementInfo->IsExpandedImprovementResourceTrade(eResource, true))
+
+		if (bIgnoreSpecialImprovements && (pImprovementInfo->IsCreatedByGreatPerson() || pImprovementInfo->IsAdjacentCity()))
 			continue;
 
 		if(pImprovementInfo->IsWater() != isWater())
@@ -7753,7 +7754,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if (newImprovementEntry.IsExpandedImprovementResourceTrade(getResourceType()))
+						if (newImprovementEntry.IsConnectsResource(getResourceType()))
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
@@ -7770,7 +7771,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
-					if(newImprovementEntry.IsExpandedImprovementResourceTrade(eResource))
+					if(newImprovementEntry.IsConnectsResource(eResource))
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -7870,7 +7871,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if (GC.getImprovementInfo(eOldImprovement)->IsExpandedImprovementResourceTrade(getResourceType()))
+						if (GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(getResourceType()))
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
 
@@ -7885,7 +7886,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
-					if(GC.getImprovementInfo(eOldImprovement)->IsExpandedImprovementResourceTrade(eResource))
+					if(GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(eResource))
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -8255,7 +8256,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			{
 				if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 				{
-					if(GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+					if(GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 					{
 						if(bPillaged)
 						{
@@ -8377,23 +8378,24 @@ bool CvPlot::HasSpecialImprovement() const
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+		//Works like GP improvement.
 		if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
 		{
 			return true;
 		}
-#if defined(MOD_BALANCE_CORE)
-		//Works like GP improvement.
-		if (pImprovementInfo && pImprovementInfo->IsAdjacentCity())
+
+		//Uniques
+		if (pImprovementInfo && pImprovementInfo->IsSpecificCivRequired())
 		{
 			return true;
 		}
+
 		//Don't delete landmarks!
 		ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 		if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
 		{
 			return true;
 		}
-#endif
 	}
 
 	return false;
@@ -8803,7 +8805,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(false);
 				}
@@ -8819,7 +8821,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(false);
 				}
@@ -8837,7 +8839,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(true);
 				}
@@ -9331,7 +9333,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 				{
 					iReligionChange += iValue;
 				}
@@ -9341,7 +9343,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 				{
 					iReligionChange += iValue;
 				}
@@ -9404,7 +9406,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 			{
 				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 					{
 						iReligionChange += iValue;
 					}
@@ -9414,7 +9416,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 			{
 				if (getImprovementType() != NO_IMPROVEMENT)
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 					{
 						iReligionChange += iValue;
 					}
@@ -12913,7 +12915,7 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 	{
 		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
 #if defined(MOD_BALANCE_CORE)
-		if ((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsExpandedImprovementResourceTrade(eType))
+		if ((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsConnectsResource(eType))
 #else
 		if((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType))
 #endif

@@ -377,7 +377,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if (pImprovement->IsWater() != pLoopPlot->isWater())
 								continue;
 
-							if (pImprovement->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
+							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());

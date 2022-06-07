@@ -681,7 +681,7 @@ int CvLuaPlot::lGetBuildTurnsTotal(lua_State* L)
 int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	ImprovementTypes eImprovement = pkPlot->getImprovementTypeNeededToImproveResource(pkPlot->getOwner());
+	ImprovementTypes eImprovement = pkPlot->getImprovementTypeNeededToImproveResource(pkPlot->getOwner(),true,true);
 
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
@@ -2085,7 +2085,7 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pkImprovementInfo)
 	{
-		bResult = pkImprovementInfo->IsExpandedImprovementResourceTrade(kPlot->getResourceType(GC.getGame().getActiveTeam()));
+		bResult = pkImprovementInfo->IsConnectsResource(kPlot->getResourceType(GC.getGame().getActiveTeam()));
 	}
 
 	lua_pushboolean(L, bResult);

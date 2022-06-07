@@ -7806,7 +7806,7 @@ int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldT
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
 		if (pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson())
 		{
-			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource)))
+			if (pEntry->RequiresResource() && (eResource == NO_RESOURCE || !pkImprovementInfo->IsConnectsResource(eResource)))
 				continue;
 		
 			if (pPlot->HasImprovement((ImprovementTypes)jJ))

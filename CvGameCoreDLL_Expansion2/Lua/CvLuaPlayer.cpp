@@ -11693,7 +11693,7 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eExistingPlotImprovement);
 			if(pkImprovement != NULL)
 			{
-				if (pkImprovement->IsExpandedImprovementResourceTrade(eResource))
+				if (pkImprovement->IsConnectsResource(eResource))
 				{
 					continue;
 				}
@@ -11720,7 +11720,7 @@ int CvLuaPlayer::lGetUnimprovedAvailableLuxuryResource(lua_State* L)
 				continue;
 			}
 
-			if (!pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+			if (!pkImprovementInfo->IsConnectsResource(eResource))
 			{
 				continue;
 			}

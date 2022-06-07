@@ -2541,7 +2541,7 @@ AIOperationAbortReason CvAIOperationDefenseRapidResponse::VerifyOrAdjustTarget(C
 CvPlot* CvAIOperationDefenseRapidResponse::FindBestTarget(CvPlot** ppMuster) const
 {
 	CvPlot* pRefPlot = GetTargetPlot();
-	CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_eOwner,m_eEnemy,DOMAIN_LAND,pRefPlot);
+	CvPlot* pTarget = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_eOwner,m_eEnemy,DOMAIN_LAND,pRefPlot,5);
 	if (ppMuster)
 		*ppMuster = pTarget;
 	return pTarget;
@@ -3260,7 +3260,7 @@ int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const 
 	return iMatchingIndex;
 }
 
-CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, CvPlot* pRefPlot)
+CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, CvPlot* pRefPlot, int iMaxDistance)
 {
 	CvPlot* pBestPlot = NULL;
 	int iMaxEnemyPower = 0;
@@ -3288,7 +3288,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 
 		//we don't want to adjust our target too much
 		int iDistance = pRefPlot ? plotDistance(*pRefPlot,*pLoopPlot) : 0;
-		int iEnemyPower = localPower.second * MapToPercent(iDistance,12,3);
+		int iEnemyPower = localPower.second * MapToPercent(iDistance,max(iMaxDistance,3),3);
 
 		if(iEnemyPower > iMaxEnemyPower)
 		{
@@ -3296,9 +3296,6 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 			pBestPlot = pLoopPlot;
 		}
 	}
-
-	if(pBestPlot == NULL)
-		return pRefPlot;
 
 	return pBestPlot;	
 }
@@ -3459,7 +3456,6 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 		turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 	}
 
-	size_t iExtraUnits = 0;
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 	{
@@ -3468,18 +3464,13 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 		if (iIndex >= 0)
 		{
 			fakeStatus[freeSlots[iIndex].first] = CvArmyFormationSlot( pLoopUnit->GetID(), freeSlots[iIndex].second.m_requiredSlot );
-
-			if (!freeSlots[iIndex].second.m_requiredSlot)
-				iExtraUnits++;
-
 			freeSlots.erase(freeSlots.begin() + iIndex);
-
 			if (freeSlots.empty())
 				break;
 		}
 	}
 
-	//todo: check path for danger? eg embarkartion in enemy-dominated water?
+	//todo: check path for danger? eg embarkation in enemy-dominated water?
 	//	or check if there is enough room to deploy at the target? --> no visibility
 
 	return OperationalAIHelpers::HaveEnoughUnits(fakeStatus,iMaxMissingUnits);

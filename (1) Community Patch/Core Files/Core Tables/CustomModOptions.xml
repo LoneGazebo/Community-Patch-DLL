@@ -442,7 +442,7 @@
     <!-- Enables experimental Unit Production AI tweaks -->
     <Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
     <!-- Land units blockade undefended adjacent tiles -->
-   <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
+   <Row Class="4" Name="ADJACENT_BLOCKADE" Value="1"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

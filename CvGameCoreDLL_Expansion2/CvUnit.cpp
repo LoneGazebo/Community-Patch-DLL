@@ -20643,8 +20643,8 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 	{
 		CvString szMsg;
 		CvString lastMission = tacticalMoveNames[m_eTacticalMove];
-
-		szMsg.Format("KilledInCombat %s, LastMove %s, KilledBy %d", getName().GetCString(), lastMission.c_str(), ePlayer);
+		CvString unitName = getName(); unitName.Replace(' ', '_');  unitName.Replace('\'', '_'); //no spaces etc
+		szMsg.Format("KilledInCombat %s, Domain %d, LastMove %s, KilledBy %d", unitName.c_str(), getDomainType(), lastMission.c_str(), ePlayer);
 		GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg);
 
 		//--- finally ----------------------------
@@ -28911,7 +28911,7 @@ bool CvUnit::UnitBuild(BuildTypes eBuild)
 				if((pPlot->getImprovementType() != NO_IMPROVEMENT) && (pPlot->getImprovementType() != (ImprovementTypes)(GD_INT_GET(RUINS_IMPROVEMENT))))
 				{
 					ResourceTypes eResource = (ResourceTypes)pPlot->getNonObsoleteResourceType(GET_PLAYER(getOwner()).getTeam());
-					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsExpandedImprovementResourceTrade(eResource))
+					if ((eResource == NO_RESOURCE) || !GC.getImprovementInfo(eImprovement)->IsConnectsResource(eResource))
 					{
 						if(GC.getImprovementInfo(eImprovement)->GetImprovementPillage() != NO_IMPROVEMENT)
 						{

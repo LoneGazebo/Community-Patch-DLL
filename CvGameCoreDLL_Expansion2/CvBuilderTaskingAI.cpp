@@ -645,7 +645,12 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			continue;
 
 		// remember the plot
-		AddRoutePlot(pPlot, eRoute, 10);
+		AddRoutePlot(pPlot, eRoute, 54);
+
+		// for citadels also put routes on the neighboring plots ...
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+				AddRoutePlot(iterateRingPlots(pPlot, i), eRoute, 42);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -883,25 +888,23 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 /// Evaluating a plot to see if we can build resources there
 void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
-	ImprovementTypes eExistingPlotImprovement = pPlot->getImprovementType();
-
-	// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-	if(eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement() && !pPlot->IsImprovementPillaged())
-	{
-		return;
-	}
-
 	// check to see if a resource is here. If not, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 	if(eResource == NO_RESOURCE)
-	{
 		return;
+
+	ImprovementTypes eExistingPlotImprovement = pPlot->getImprovementType();
+	if (eExistingPlotImprovement != NO_IMPROVEMENT)
+	{
+		// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
+		if (pPlot->HasSpecialImprovement() || (GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && GET_PLAYER(pUnit->getOwner()).isHuman()))
+			return;
+
+		if (pPlot->IsImprovementPillaged())
+			return;
 	}
 
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-
-	if (pPlot->IsImprovementPillaged())
-		return;
 
 	// loop through the build types to find one that we can use
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
@@ -913,9 +916,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 		if(eImprovement == NO_IMPROVEMENT)
-		{
 			continue;
-		}
 
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if(pkImprovementInfo == NULL)
@@ -928,31 +929,13 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 
 #endif
 
-		if (pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+		if (pkImprovementInfo->IsConnectsResource(eResource))
 		{
 			if(eImprovement == eExistingPlotImprovement)
-			{
-				if(pkImprovementInfo->IsAdjacentCity())
-				{
-					//break if adjacent already here.
-					break;
-				}
-				else
-				{
-					// this plot already has the appropriate improvement to use the resource
-					continue;
-				}
-			}
-			else
-			{
-				// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-				if (eExistingPlotImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement())
-					continue;
-			}
-			if(!pUnit->canBuild(pPlot, eBuild))
-			{
 				continue;
-			}
+
+			if(!pUnit->canBuild(pPlot, eBuild))
+				continue;
 
 			BuilderDirective::BuilderDirectiveType eDirectiveType = BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE;
 			int iWeight = /*300*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_RESOURCE_IMPROVEMENTS);
@@ -985,7 +968,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 					if(pkBuild2 && pkBuild2->getImprovement() == eExistingPlotImprovement)
 					{
 						CvImprovementEntry* pkExistingImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pkBuild2->getImprovement());
-						bPrevImprovementConnects = pkExistingImprovementInfo && pkExistingImprovementInfo->IsExpandedImprovementResourceTrade(eResource);
+						bPrevImprovementConnects = pkExistingImprovementInfo && pkExistingImprovementInfo->IsConnectsResource(eResource);
 						eExistingBuild = eBuild2;
 						break;
 					}
@@ -1066,9 +1049,22 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
-	// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-	if(eExistingImprovement != NO_IMPROVEMENT && pPlot->HasSpecialImprovement() && !pPlot->IsImprovementPillaged())
-		return;
+	if (eExistingImprovement != NO_IMPROVEMENT)
+	{
+		// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
+		if (pPlot->HasSpecialImprovement() || (GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && GET_PLAYER(pUnit->getOwner()).isHuman()))
+		{
+			if (m_bLogging)
+			{
+				CvString strTemp;
+				strTemp.Format("Weight,Improvement Blocked by Special Improvement,%s,,,,%i, %i", GC.getImprovementInfo(pPlot->getImprovementType())->GetType(), pPlot->getX(), pPlot->getY());
+				LogInfo(strTemp, m_pPlayer);
+			}
+			return;
+		}
+		if (pPlot->IsImprovementPillaged())
+			return;
+	}
 
 	if(!m_bEvaluateAdjacent && !pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
 		return;
@@ -1091,48 +1087,31 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 	}
 
-	if (pPlot->IsImprovementPillaged())
-		return;
-
 	if (!m_bEvaluateAdjacent && pPlot->getOwningCityID() == -1)
 		return;
 
 	// loop through the build types to find one that we can use
-	BuildTypes eBuild;
-	BuildTypes eOriginalBuildType;
-	int iBuildIndex;
-	for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
+	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
-		eBuild = (BuildTypes)iBuildIndex;
-		eOriginalBuildType = eBuild;
+		BuildTypes eBuild = (BuildTypes)iBuildIndex;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 		if(pkBuild == NULL)
-		{
 			continue;
-		}
 
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 		if(eImprovement == NO_IMPROVEMENT)
-		{
 			continue;
-		}
 
 		CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-
-		// if this improvement has a defense modifier, ignore it for now
-		//if(pImprovement->GetDefenseModifier() > 0)
-		//{
-		//	continue;
-		//}
 
 		// for bonus resources, check to see if this is the improvement that connects it
 		if(eResource != NO_RESOURCE)
 		{
-			if (!pImprovement->IsExpandedImprovementResourceTrade(eResource))
+			if (!pImprovement->IsConnectsResource(eResource))
 			{
 				if(m_bLogging){
 					CvString strTemp;
-					strTemp.Format("Weight,!pImprovement->IsExpandedImprovementResourceTrade(eResource),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eResource, pPlot->getX(), pPlot->getY());
+					strTemp.Format("Weight,!pImprovement->IsConnectsResource(eResource),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eResource, pPlot->getX(), pPlot->getY());
 					LogInfo(strTemp, m_pPlayer);
 				}
 				continue;
@@ -1147,22 +1126,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				LogInfo(strTemp, m_pPlayer);
 			}
 			continue;
-		}
-		else
-		{
-			// Do we have a special improvement here? (great person improvement, gifted improvement from major civ)
-			if (eExistingImprovement != NO_IMPROVEMENT)
-			{
-				if (pPlot->HasSpecialImprovement() || (GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && GET_PLAYER(pUnit->getOwner()).isHuman()))
-				{
-					if(m_bLogging){
-						CvString strTemp;
-						strTemp.Format("Weight,Improvement Type Blocked by Special Improvement,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
-						LogInfo(strTemp, m_pPlayer);
-					}
-					continue;
-				}
-			}
 		}
 
 		// Only check to make sure our unit can build this after possibly switching this to a repair build in the block of code above
@@ -2049,11 +2012,11 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 			}
 		}
-		//Improvement? Let's not default to great person improvements here.
+
+		//Existing improvement? Let's may not put great person improvements here.
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
-			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(pPlot->getImprovementType());
-			if(pkImprovementInfo && (pkImprovementInfo->IsAdjacentCity() || pkImprovementInfo->IsCreatedByGreatPerson() || (pkImprovementInfo->GetYieldChangePerEra(YIELD_CULTURE) > 0)))
+			if(pPlot->HasSpecialImprovement())
 			{
 				iSecondaryScore -= iBigBuff;
 			}

@@ -15687,7 +15687,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
 								if (!pLoopPlot->IsImprovementPillaged())
 								{
@@ -15714,7 +15714,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if (owningTeam.IsResourceCityTradeable(eLoopResource))
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsExpandedImprovementResourceTrade(eLoopResource)))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
 								if (!pLoopPlot->IsImprovementPillaged())
 								{
@@ -30639,6 +30639,13 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	CvUnit* pUnit = thisPlayer.initUnit(eUnitType, pUnitPlot->getX(), pUnitPlot->getY(), eAIType, eReason);
 	if (!pUnit)
 		return NULL;
+
+	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+	{
+		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
+		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
+		pUnit->changeDamage( min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
+	}
 
 	addProductionExperience(pUnit, false, bIsPurchase);
 

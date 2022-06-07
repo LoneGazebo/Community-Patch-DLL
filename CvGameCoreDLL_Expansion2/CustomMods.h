@@ -221,6 +221,9 @@
 // Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
 #define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
+// Purchased units do not have full health when the city is damaged
+#define MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED	1
+
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)

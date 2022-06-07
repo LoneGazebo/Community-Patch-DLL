@@ -1229,7 +1229,7 @@ void CvPlayerTechs::SetLocalePriorities()
 							if(eImprovement != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-								if (pkImprovementInfo && pkImprovementInfo->IsExpandedImprovementResourceTrade(eResource))
+								if (pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource))
 								{
 									if (pLoopPlot->canHaveImprovement(eImprovement))
 										multiplierValue++;

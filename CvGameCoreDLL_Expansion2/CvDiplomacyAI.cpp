@@ -10251,7 +10251,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			if (eWarState == NO_WAR_STATE_TYPE)
 			{
 				// Adjust danger levels based on # of safe cities compared to the other player.
-				int iNumOurSafeCities = iNumOurCities - iNumOurCitiesInDanger, iNumTheirSafeCities = iNumTheirCities - iNumTheirCitiesInDanger;
+				int iNumOurSafeCities = iNumOurCities - iNumOurCitiesInDanger;
+				int iNumTheirSafeCities = iNumTheirCities - iNumTheirCitiesInDanger;
 
 				if (iNumOurSafeCities > iNumTheirSafeCities)
 				{
@@ -10266,16 +10267,17 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					iTheirDanger /= 100;
 				}
 
+				bool bDangerValid = (iTheirDanger > 0) || (iOurDanger > 0);
 				int iDangerPercent = (iTheirDanger * 100) / max(iOurDanger, 1);
 
-				if (iDangerPercent < 100)
+				if (iDangerPercent < 100 && bDangerValid)
 				{
 					if (WarScore >= 25)
 						eWarState = WAR_STATE_STALEMATE;
 					else
 						eWarState = WAR_STATE_DEFENSIVE;
 				}
-				else if (iDangerPercent > 100)
+				else if (iDangerPercent > 100 && bDangerValid)
 				{
 					if (WarScore <= -25)
 						eWarState = WAR_STATE_STALEMATE;
