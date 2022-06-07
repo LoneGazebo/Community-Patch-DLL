@@ -2085,6 +2085,24 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 
 	if(isAtWar(eTeam))
 	{
+		if (MOD_EVENTS_WAR_AND_PEACE) 
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+		}
+		else 
+		{
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(eTeam);
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+			}
+		}
+
 		setAtWar(eTeam, false, bPacifier);
 		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
 
@@ -2112,7 +2130,6 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE)
 		//Secondary major declarations
 		for(int iI = 0; iI < MAX_TEAMS; iI++)
 		{
@@ -2161,38 +2178,15 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				}
 			}
 		}
-#endif
-
-#if defined(MOD_EVENTS_WAR_AND_PEACE)
-		if (MOD_EVENTS_WAR_AND_PEACE) 
-		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
-		}
-#else
-		else 
-		{
-			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
-			{
-				CvLuaArgsHandle args;
-				args->Push(GetID());
-				args->Push(eTeam);
-
-				bool bResult;
-				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
-			}
-		}
-#endif
 
 		// One shot things
 		DoNowAtWarOrPeace(eTeam, false);
 		GET_TEAM(eTeam).DoNowAtWarOrPeace(GetID(), false);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 		if(MOD_DIPLOMACY_CIV4_FEATURES)
 		{
 			DoUpdateVassalWarPeaceRelationships();
 		}
-#endif
 
 		// Move Units that shouldn't be in each others' territory any more
 		if(bBumpUnits)
