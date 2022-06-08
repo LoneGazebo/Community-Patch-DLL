@@ -1219,7 +1219,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity());
 		}
-		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getUnitName());
+		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}
 #endif
 	// Update UI
