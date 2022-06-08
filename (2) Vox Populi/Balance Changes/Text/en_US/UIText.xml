@@ -1257,14 +1257,14 @@
 			<Text>{1_Num}% Penalty from lack of Trade Routes (Sakoku)[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU">
-			<Text>Due to the birth of {4_UnitName:textkey}, your [ICON_CAPITAL] Capital gains:[NEWLINE][ICON_BULLET]{1_Num} [ICON_GREAT_WRITER] Great Writer Points[NEWLINE][ICON_BULLET]{2_Num}[ICON_GREAT_ARTIST] Artist Points[NEWLINE][ICON_BULLET]{3_Num} [ICON_GREAT_MUSICIAN] Musician Points</Text>
+			<Text>Due to the birth of {4_UnitName:textkey}, your [ICON_CAPITAL] Capital gains:[NEWLINE][ICON_BULLET]{1_Num} [ICON_GREAT_WRITER] Great Writer Points[NEWLINE][ICON_BULLET]{2_Num} [ICON_GREAT_ARTIST] Artist Points[NEWLINE][ICON_BULLET]{3_Num} [ICON_GREAT_MUSICIAN] Musician Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_SAKOKU_S">
 			<Text>Patronage of the Daimyo</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_CONQUEST">
-			<Text>Due to the conquest of {4_CityName}, your [ICON_CAPITAL] Capital gains:[NEWLINE][ICON_BULLET]{1_Num} [ICON_GREAT_WRITER] Great Writer Points[NEWLINE][ICON_BULLET]{2_Num}[ICON_GREAT_ARTIST] Artist Points[NEWLINE][ICON_BULLET]{3_Num} [ICON_GREAT_MUSICIAN] Musician Points</Text>
+			<Text>Due to the conquest of {4_CityName}, your [ICON_CAPITAL] Capital gains:[NEWLINE][ICON_BULLET]{1_Num} [ICON_GREAT_WRITER] Great Writer Points[NEWLINE][ICON_BULLET]{2_Num} [ICON_GREAT_ARTIST] Artist Points[NEWLINE][ICON_BULLET]{3_Num} [ICON_GREAT_MUSICIAN] Musician Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOURISM_EVENT_GWAM_BONUS_CONQUEST_S">
 			<Text>Inspired Victory</Text>
