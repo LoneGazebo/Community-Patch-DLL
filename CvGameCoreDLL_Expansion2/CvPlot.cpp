@@ -4088,7 +4088,6 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 	if (isCity())
 		return true;
 
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
 		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
@@ -4100,7 +4099,6 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 				return true;
 		}
 	}
-#endif
 
 	return false;
 }
