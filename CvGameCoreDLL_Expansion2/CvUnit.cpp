@@ -1219,7 +1219,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_GP_BORN, false, eGreatPerson, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, GET_PLAYER(getOwner()).getCapitalCity());
 		}
-		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getUnitName());
+		GET_PLAYER(getOwner()).doInstantGWAM(eGreatPerson, getGreatName());
 	}
 #endif
 	// Update UI
@@ -8042,7 +8042,7 @@ void CvUnit::DoAttrition()
 
 	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
-		if (MOD_ATTRITION && !isBarbarian() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true)))
+		if (MOD_ATTRITION && !isBarbarian() && !IsCivilianUnit() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true)))
 		{
 			strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 			changeDamage(5, NO_PLAYER, 0.0, &strAppendText);
@@ -29984,9 +29984,27 @@ bool CvUnit::DoFallBack(const CvUnit& attacker)
 
 		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
 		{
+
+			if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+			{
+				CvPlot* pUnitPlot = plot();
+				IDInfoVector currentUnits;
+				if (pUnitPlot->getUnits(&currentUnits) > 0)
+				{
+					for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+					{
+						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+						if (pLoopUnit)
+						{
+							pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+						}
+					}
+				}
+			}
+
 			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 			PublishQueuedVisualizationMoves();
-
 			return true;
 		}
 	}

@@ -465,7 +465,8 @@
 #define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
 // Units take damage in enemy lands
 #define MOD_ATTRITION								gCustomMods.isATTRITION()
-
+// When a military unit retreats, civilians units on the same tile also retreat
+#define MOD_CIVILIANS_RETREAT_WITH_MILITARY			gCustomMods.isCIVILIANS_RETREAT_WITH_MILITARY()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1538,6 +1539,7 @@ public:
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 	MOD_OPT_DECL(ADJACENT_BLOCKADE);
 	MOD_OPT_DECL(ATTRITION);
+	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
 
 protected:
 	bool m_bInit;
