@@ -560,7 +560,9 @@ int CustomMods::getOption(string sOption, int defValue) {
 
 		MOD_OPT_CACHE(AI_UNIT_PRODUCTION);
 		MOD_OPT_CACHE(ADJACENT_BLOCKADE);
-
+		MOD_OPT_CACHE(ATTRITION);
+		MOD_OPT_CACHE(CIVILIANS_RETREAT_WITH_MILITARY);
+		
 		m_bInit = true;
 	}
 

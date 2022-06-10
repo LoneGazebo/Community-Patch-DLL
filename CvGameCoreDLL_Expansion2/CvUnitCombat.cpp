@@ -620,7 +620,10 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			{
 				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
 				{
-					pkDefender->DoFallBack(*pkAttacker);
+					if (MOD_ATTRITION && (pkDefender->plot()->isFortification(pkDefender->getTeam()) || pkDefender->plot()->HasBarbarianCamp()))
+					{ }
+					else
+						pkDefender->DoFallBack(*pkAttacker);
 					//no notifications?
 				}
 

@@ -443,6 +443,10 @@
     <Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
     <!-- Land units blockade undefended adjacent tiles -->
    <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
+    <!-- Units take damage when moving through enemy lands -->
+   <Row Class="4" Name="ATTRITION" Value="0"/>
+    <!-- When a military unit retreats, civilians units on the same tile also retreat -->
+   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

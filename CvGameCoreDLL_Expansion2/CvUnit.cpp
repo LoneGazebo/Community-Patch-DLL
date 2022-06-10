@@ -8042,6 +8042,12 @@ void CvUnit::DoAttrition()
 
 	if (!pPlot->IsFriendlyTerritory(getOwner()))
 	{
+		if (MOD_ATTRITION && !isBarbarian() && !IsCivilianUnit() && isEnemy(pPlot->getTeam(), pPlot) && (GC.getGame().getGameTurn() - getLastMoveTurn() < 2) && !isHasPromotion((PromotionTypes)GC.getInfoTypeForString("PROMOTION_ATTRITION_IMMUNITY", true)))
+		{
+			strAppendText = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+			changeDamage(5, NO_PLAYER, 0.0, &strAppendText);
+		}
+
 		if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
 			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
@@ -16253,8 +16259,12 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 		//Heavy charge without escape
 		if (IsCanHeavyCharge() && !pDefender->CanFallBack(*this, false))
-			iModifier += 50;
-
+		{
+			if (MOD_ATTRITION)
+				iModifier += 25;
+			else
+				iModifier += 50;
+		}
 		//bonus for attacking same unit over and over in a turn?
 		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 		if (iTempModifier != 0)
@@ -29974,9 +29984,27 @@ bool CvUnit::DoFallBack(const CvUnit& attacker)
 
 		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
 		{
+
+			if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+			{
+				CvPlot* pUnitPlot = plot();
+				IDInfoVector currentUnits;
+				if (pUnitPlot->getUnits(&currentUnits) > 0)
+				{
+					for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+					{
+						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+						if (pLoopUnit)
+						{
+							pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+						}
+					}
+				}
+			}
+
 			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 			PublishQueuedVisualizationMoves();
-
 			return true;
 		}
 	}
