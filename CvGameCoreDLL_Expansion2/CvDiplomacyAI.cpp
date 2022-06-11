@@ -27401,35 +27401,16 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 /// Do we want to have an embassy in the player's capital? - this is only used for when to trigger an AI request, not whether or not the AI will accept a deal period
 bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	if (GetPlayer()->IsAITeammateOfHuman())
-	{
-		return false;
-	}
-
 	// May want to make this logic more sophisticated eventually. This will do for now.
-	CivApproachTypes eApproach = GetCivApproach(ePlayer);
-	if(eApproach <= CIV_APPROACH_HOSTILE)
-	{
-		return false;
-	}
-	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
+	if (GetCivApproach(ePlayer) <= CIV_APPROACH_HOSTILE)
 	{
 		return false;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if(IsArmyInPlaceForAttack(ePlayer))
+	if (IsArmyInPlaceForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
 	{
 		return false;
 	}
-	if(IsWantsSneakAttack(ePlayer))
-	{
-		return false;
-	}
-#endif
 
 	return true;
 }
@@ -27437,13 +27418,17 @@ bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
 /// Are we willing to accept Open Borders from eOtherPlayer?
 bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	if (IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(GetID()))
 		return true;
 
 	if (IsUntrustworthy(ePlayer))
+		return false;
+
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
+	{
+		return false;
+	}
+	if (IsArmyInPlaceForAttack(ePlayer))
 	{
 		return false;
 	}
@@ -27459,8 +27444,11 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 			if (eInfluenceLevel < INFLUENCE_LEVEL_INFLUENTIAL || eInfluenceTrend <= INFLUENCE_TREND_STATIC)
 				return true;
 		}
-		// If they need influence over us, we don't want their OB, thanks.
-		if (IsCompetingForVictory())
+	}
+	else
+	{
+		// If they need influence over us and they aren't our liberator or DP, we don't want their OB, thanks.
+		if (IsCompetingForVictory() && !IsHasDefensivePact(ePlayer) && GetNumCitiesLiberatedBy(ePlayer) <= 0)
 		{
 			DisputeLevelTypes eVictoryDispute = GetVictoryDisputeLevel(ePlayer);
 			BlockLevelTypes eVictoryBlock = GetVictoryBlockLevel(ePlayer);
@@ -27474,9 +27462,13 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 				{
 					return false;
 				}
-				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR && eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR) 
 				{
-					return false;
+					if (eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+						return false;
+
+					if (eVictoryDispute == DISPUTE_LEVEL_FIERCE || eVictoryBlock == BLOCK_LEVEL_FIERCE || GetBiggestCompetitor() == ePlayer) // Popular and fiercely competitive? Slow them down!
+						return false;
 				}
 				else if (eInfluenceLevel == INFLUENCE_LEVEL_INFLUENTIAL && eInfluenceTrend != INFLUENCE_TREND_RISING) // Already Influential, but not rising? Let's try to reverse that!
 				{
@@ -27486,64 +27478,54 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
+	if (IsWantsSneakAttack(ePlayer))
 	{
 		return false;
 	}
-	if(IsArmyInPlaceForAttack(ePlayer))
-	{
-		return false;
-	}
-	if(IsWantsSneakAttack(ePlayer))
-	{
-		return false;
-	}
+
 	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
 	}
-
-	if(m_pPlayer->IsCramped() || (GET_PLAYER(ePlayer).getNumCities() * 3) > (m_pPlayer->getNumCities() * 2))
+	if (IsGoingForWorldConquest() || MusteringForNeighborAttack(ePlayer))
+	{
+		return true;
+	}
+	if (GetCivApproach(ePlayer) >= CIV_APPROACH_AFRAID)
 	{
 		return true;
 	}
 
-	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
-	if (eApproach >= CIV_APPROACH_AFRAID)
+	if (m_pPlayer->IsCramped() || (GET_PLAYER(ePlayer).getNumCities() * 3) > (m_pPlayer->getNumCities() * 2))
 	{
 		return true;
 	}
 
 	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-	EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
-	if(eNeedRecon != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
+	EconomicAIStrategyTypes eNeedNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
+	if (m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 	{
 		return true;
 	}
-	if(eNavalRecon != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+	if (m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedNavalRecon))
 	{
-		CvCity* pLoopCity = NULL;
 		int iCityLoop;
-		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
-			if(pLoopCity != NULL && pLoopCity->isCoastal())
+			if (pLoopCity->isCoastal())
 			{
 				return true;
 			}
 		}
 	}
-	if(MusteringForNeighborAttack(ePlayer) || IsGoingForWorldConquest() || IsGoingForCultureVictory())
+
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 	{
-		return true;
-	}
-	AICityStrategyTypes ePocketCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_POCKET_CITY");
-	if(ePocketCity != NO_AICITYSTRATEGY && GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-	{
-		CvCity* pLoopCity = NULL;
+		AICityStrategyTypes ePocketCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_POCKET_CITY");
 		int iCityLoop;
-		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
-			if(pLoopCity != NULL && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(ePocketCity))
+			if (pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(ePocketCity))
 			{
 				return true;
 			}
@@ -27556,9 +27538,6 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 /// Are we willing to give Open Borders to eOtherPlayer?
 bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	if (IsUntrustworthy(ePlayer))
 	{
 		return false;
@@ -27581,14 +27560,23 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 			return false;
 		}
 	}
+
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToWorldConquest())
+	{
+		return false;
+	}
+	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
+	{
+		return false;
+	}
+	if (IsArmyInPlaceForAttack(ePlayer))
 	{
 		return false;
 	}
 	
 	if (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 	{
-		// If going for culture win we always want open borders against civs we need influence on
+		// If going for culture win we always want to open our borders to civs we need influence on
 		if (IsGoingForCultureVictory())
 		{
 			InfluenceLevelTypes eInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer);
@@ -27597,8 +27585,11 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 			if (eInfluenceLevel < INFLUENCE_LEVEL_INFLUENTIAL || eInfluenceTrend <= INFLUENCE_TREND_STATIC)
 				return true;
 		}
-		// If they need influence over us, we don't want to give OB, thanks.
-		if (IsCompetingForVictory())
+	}
+	else
+	{
+		// If they need influence over us and they aren't our liberator or DP, we don't want to give them OB, thanks.
+		if (IsCompetingForVictory() && !IsHasDefensivePact(ePlayer) && GetNumCitiesLiberatedBy(ePlayer) <= 0)
 		{
 			DisputeLevelTypes eVictoryDispute = GetVictoryDisputeLevel(ePlayer);
 			BlockLevelTypes eVictoryBlock = GetVictoryBlockLevel(ePlayer);
@@ -27612,9 +27603,13 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 				{
 					return false;
 				}
-				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR && eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+				else if (eInfluenceLevel == INFLUENCE_LEVEL_POPULAR) 
 				{
-					return false;
+					if (eInfluenceTrend != INFLUENCE_TREND_FALLING) // Popular and not falling? Slow them down!
+						return false;
+
+					if (eVictoryDispute == DISPUTE_LEVEL_FIERCE || eVictoryBlock == BLOCK_LEVEL_FIERCE || GetBiggestCompetitor() == ePlayer) // Popular and fiercely competitive? Slow them down!
+						return false;
 				}
 				else if (eInfluenceLevel == INFLUENCE_LEVEL_INFLUENTIAL && eInfluenceTrend != INFLUENCE_TREND_RISING) // Already Influential, but not rising? Let's try to reverse that!
 				{
@@ -27624,30 +27619,20 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	if (IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
+	if (IsWantsSneakAttack(ePlayer))
 	{
 		return false;
 	}
-	if (IsArmyInPlaceForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
-	{
-		return false;
-	}
+
 	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
 	}
-
-	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
-	if (eApproach >= CIV_APPROACH_AFRAID)
+	if (GetCivApproach(ePlayer) >= CIV_APPROACH_AFRAID)
 	{
 		return true;
 	}
 	if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
-	{
-		return true;
-	}
-
-	if (!GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).GetDiplomacyAI()->MusteringForNeighborAttack(GetID()))
 	{
 		return true;
 	}
