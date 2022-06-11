@@ -621,28 +621,21 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (!path)
 		return;
 
+	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iCost *= path.length();
 	bool bTooExpensive = false;
 	if (iNetGoldTimes100 - iCost <= 6)
-		bTooExpensive = true;
+		return;
 
 	for (int i = 0; i<path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
-
 		if (!pPlot)
 			break;
 
 		if (pPlot->getOwner() != m_pPlayer->GetID())
 			break;
-
-		//and this to see if we actually build it
-		if (bTooExpensive)
-			continue;
-
-		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
-			continue;
 
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);

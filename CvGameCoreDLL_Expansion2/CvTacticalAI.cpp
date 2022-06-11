@@ -1780,6 +1780,11 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 	if (pCity->isInDangerOfFalling())
 		return;
 
+	// Sometimes buying a unit is useless
+	bool bWantUnits = true;
+	if (pCity->getDamage() * 2 > pCity->GetMaxHitPoints() && MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+		bWantUnits = false;
+
 	// If we need additional units - ignore the supply limit here, we're probably losing units anyway
 	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY)
 	{
@@ -1792,16 +1797,18 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 			//otherwise it will be placed outside of the city and most probably die instantly
 			if (!pCity->HasGarrison())
 				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_RANGED, pCity);
-
-			//in water zones buy naval melee
-			if (pZone->IsWater() && pCity->isCoastal())
-				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
-			else
-				//otherwise buy defensive land units
-				if (!MOD_AI_UNIT_PRODUCTION)
-					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
-				else //AI Unit Production : Counter is AA only now
-					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
+			else if (bWantUnits)
+			{
+				//in water zones buy naval melee
+				if (pZone->IsWater() && pCity->isCoastal())
+					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
+				else
+					//otherwise buy defensive land units
+					if (!MOD_AI_UNIT_PRODUCTION)
+						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
+					else //AI Unit Production : Counter is AA only now
+						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
+			}
 		}
 	}
 }
