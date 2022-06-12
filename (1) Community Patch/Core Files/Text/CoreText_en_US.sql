@@ -202,6 +202,11 @@ UPDATE Language_en_US
 SET Text = 'Rocket Artillery is an extremely powerful siege weapon, far superior to the standard artillery. Rocket Artillery does not lose speed in enemy territory, making it much quicker than earlier guns. Although the Rocket Artillery''s sight range is limited, it can use indirect fire to attack targets it cannot see (as long as other friendly units can see them). Like all artillery, it is vulnerable to infantry or armor attack, and should be defended by appropriate units.'
 WHERE Tag = 'TXT_KEY_UNIT_ROCKET_ARTILLERY_STRATEGY';
 
+-- Giant Death Robot
+UPDATE Language_en_US
+SET Text = 'Doesn''t benefit from defensive terrain bonuses, but is otherwise stronger than any other military unit in the game.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_MECH';
+
 
 -- Buildings
 
