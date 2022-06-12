@@ -438,10 +438,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_MORE_50_HP_UNITS">
-			<Text>Target above 50 HP</Text>
+			<Text>Target above 50% HP</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_VS_LESS_50_HP_UNITS">
-			<Text>Target below/at 50 HP</Text>
+			<Text>Target below/at 50% HP</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
@@ -452,12 +452,12 @@
 			<Text>Hellenic League</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
-			<Text>Enemy Defection</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS">
 			<Text>Terrain Modifier</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER">
+			<Text>Ranged Defense Modifier</Text>
 		</Row>
 
 		<!-- Text for HappinessInfo.lua -->

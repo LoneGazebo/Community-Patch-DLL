@@ -318,7 +318,7 @@
 			<Text>The Refinery is a Modern-era building which can only be constructed in 5 Cities total. The Refinery helps your Production and produces 1 Coal and 1 Iron Resource, however it has a high maintenance cost. Only construct if you find yourself without these vital late-game strategic resources.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
-			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. The Minefield increases City Defense and Hit Points, and reduces the movement of enemy naval units and embarked units by 1 around the city. Also damages enemy naval units for 10 Hit Points every time they end their turn adjacent to a water tile worked by the city.</Text>
+			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. With the Minefield in place, enemy ships are stopped immediately after entering the city's territory and are no longer safe to sit back on local ocean tiles outside of range from retaliation from land. Due to their resource requirement, Minefields are best limited to locations particularly vulnerable to naval sieges. Use Minefields to blunt a naval invasion, and then outmaneuver it with your own navy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_HELP">
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
@@ -345,7 +345,7 @@
 			<Text>Produces 1 [ICON_RES_COAL] Coal and [ICON_RES_IRON] Iron.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
-			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending turns in deep (non-coastal) water tiles owned by this city take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast.</Text>
+			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending their turn in deep (non-coastal) water tiles owned by this city take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast with a Harbor.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>

@@ -1,132 +1,80 @@
--- LAND PROMOTIONS
+-- DELETE ENTRIES
 
-	-- Re-insert CP promotions
-	INSERT INTO UnitPromotions(Type, Description, Help, Sound, ReconChange, LostWithUpgrade, PortraitIndex, IconAtlas, PediaType, PediaEntry)
-  VALUES('PROMOTION_RECON_SHORT_RANGE', 'TXT_KEY_PROMOTION_RECON_SHORT_RANGE', 'TXT_KEY_PROMOTION_RECON_SHORT_RANGE_HELP', 'AS2D_IF_LEVELUP', -2, 1, 59, 'ABILITY_ATLAS', 'PEDIA_AIR', 'TXT_KEY_PEDIA_PROMOTION_RECON_SHORT_RANGE');
+-- Delete hangovers
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_1';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_2';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_3';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_1';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_2';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_3';
 
-	INSERT INTO UnitPromotions(Type, Description, Help, Sound, ReconChange, LostWithUpgrade, PortraitIndex, IconAtlas, PediaType, PediaEntry)
-  VALUES('PROMOTION_RECON_LONG_RANGE', 'TXT_KEY_PROMOTION_RECON_LONG_RANGE', 'TXT_KEY_PROMOTION_RECON_LONG_RANGE_HELP', 'AS2D_IF_LEVELUP', 2, 1, 59, 'ABILITY_ATLAS', 'PEDIA_AIR', 'TXT_KEY_PEDIA_PROMOTION_RECON_LONG_RANGE');
+DELETE FROM UnitPromotions_UnitCombats WHERE PromotionType = 'PROMOTION_INSTA_HEAL';
+DELETE FROM UnitPromotions_UnitCombats WHERE PromotionType = 'PROMOTION_REPAIR';
 
-	-- Delete hangovers
+DELETE FROM UnitPromotions_PostCombatRandomPromotion WHERE NewPromotion = 'PROMOTION_RECRUITMENT';
+DELETE FROM UnitPromotions_PostCombatRandomPromotion WHERE NewPromotion = 'PROMOTION_HEROISM';
 
-	DELETE FROM UnitPromotions_Domains 
-	WHERE PromotionType = 'PROMOTION_BOMBARDMENT_1';
+-- Remove Promotions from specific Land UnitCombats
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_BARRAGE_1';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_BARRAGE_2';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_BARRAGE_3';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_ACCURACY_1';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_ACCURACY_2';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SIEGE' AND PromotionType = 'PROMOTION_ACCURACY_3';
+-- Remove Promotions from specific Naval UnitCombats
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALRANGED' AND PromotionType = 'PROMOTION_MORALE';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALRANGED' AND PromotionType = 'PROMOTION_RANGE';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE'  AND PromotionType = 'PROMOTION_MORALE';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE'  AND PromotionType = 'PROMOTION_MOBILITY';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE'  AND PromotionType = 'PROMOTION_SENTRY';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE'  AND PromotionType = 'PROMOTION_LOGISTICS';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_SUBMARINE'   AND PromotionType = 'PROMOTION_MORALE';
+-- Remove Promotions from specific Air UnitCombats
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_BOMBER'  AND PromotionType = 'PROMOTION_AIR_REPAIR';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_BOMBER'  AND PromotionType = 'PROMOTION_BOMBARDMENT_1';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_BOMBER'  AND PromotionType = 'PROMOTION_BOMBARDMENT_2';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_BOMBER'  AND PromotionType = 'PROMOTION_BOMBARDMENT_3';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_1';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_2';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_TARGETING_1';
+DELETE FROM UnitPromotions_UnitCombats WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_TARGETING_2';
 
-	DELETE FROM UnitPromotions_Domains 
-	WHERE PromotionType = 'PROMOTION_BOMBARDMENT_2';
+-- Move Anti-Fighter into UnitPromotions_UnitCombats
+DELETE FROM UnitPromotions_UnitClasses WHERE PromotionType = 'PROMOTION_ANTI_FIGHTER';
 
-	DELETE FROM UnitPromotions_Domains 
-	WHERE PromotionType = 'PROMOTION_BOMBARDMENT_3';
+-- UPDATE ENTRIES
 
-	DELETE FROM UnitPromotions_Domains
-	WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
-
-	DELETE FROM UnitPromotions_Domains
-	WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
-
-	DELETE FROM UnitPromotions_UnitCombats 
-	WHERE PromotionType = 'PROMOTION_INSTA_HEAL';
-	
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE PromotionType = 'PROMOTION_REPAIR';
-
--- NAVAL PROMOTIONS
+-- Fix for Astronomy/Compass change
+UPDATE UnitPromotions_Terrains SET PassableTech = 'TECH_COMPASS' WHERE PromotionType = 'PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY';
 
 -- Replace Targeting with +10% Combat Strength versus land and sea units.
-	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
-	WHERE PromotionType = 'PROMOTION_TARGETING_1';
-
-	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
-	WHERE PromotionType = 'PROMOTION_TARGETING_2';
-
-	UPDATE UnitPromotions_Domains
-	SET Modifier = '10'
-	WHERE PromotionType = 'PROMOTION_TARGETING_3';
+UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_1';
+UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_2';
+UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_3';
+-- Air Promotions -- Update Air Targeting to Hit Water Domain (PROMOTION_AIR_TARGETING_3 not working at all here)
+UPDATE UnitPromotions_Domains SET Modifier = '15' WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1';
+UPDATE UnitPromotions_Domains SET Modifier = '15' WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2';
 
 -- Reduce anti-sub power a little
+UPDATE UnitPromotions_UnitClasses SET Modifier = '33', Attack = '33' WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_I';
+UPDATE UnitPromotions_UnitClasses SET Modifier = '75', Attack = '75' WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_II';
 
-	UPDATE UnitPromotions_UnitClasses
-	SET Modifier = '33', Attack = '33'
-	WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_I';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_ANTI_TANK';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33  WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33  WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
 
-	UPDATE UnitPromotions_UnitClasses
-	SET Modifier = '75', Attack = '75'
-	WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_II';
-
--- Melee Ship promotions a little too high - let's tone down
-
-
-	DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_1';
-	DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_2';
-	DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_3';
-
--- Air Promotions -- Update Air Targeting to Hit Water Domain (PROMOTION_AIR_TARGETING_3 not working at all here)
-	UPDATE UnitPromotions_Domains
-	SET Modifier = '15'
-	WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1';
-
-	UPDATE UnitPromotions_Domains
-	SET Modifier = '15'
-	WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2';
-
--- Siege Promotions -- Weaken them slightly
-
-	UPDATE UnitPromotions
-	SET CityAttack = '100'
-	WHERE Type = 'PROMOTION_CITY_SIEGE';
-
-	UPDATE UnitPromotions
-	SET CityAttack = '100'
-	WHERE Type = 'PROMOTION_CITY_SIEGE_II';
-
-	UPDATE UnitPromotions
-	SET CityAttack = '150'
-	WHERE Type = 'PROMOTION_CITY_ASSAULT';
-
-	
-
-	-- Fix for Astronomy/Compass change
-	UPDATE UnitPromotions_Terrains
-	SET PassableTech = 'TECH_COMPASS'
-	WHERE PromotionType = 'PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY';
-
-	-- Fix for Morale Promotion - should only apply to land units
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_NAVALRANGED' AND PromotionType = 'PROMOTION_MORALE';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE' AND PromotionType = 'PROMOTION_MORALE';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_SUBMARINE' AND PromotionType = 'PROMOTION_MORALE';
-
-	-- Fix for Air Repair Promotion - should only apply to fighters
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_AIR_REPAIR';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_BOMBARDMENT_1';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_BOMBARDMENT_2';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_BOMBER' AND PromotionType = 'PROMOTION_BOMBARDMENT_3';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_1';
-
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_FIGHTER' AND PromotionType = 'PROMOTION_AIR_AMBUSH_2';
-
-	-- Fix for Anti-Fighter (Re-added below)
-	DELETE FROM UnitPromotions_UnitClasses
-	WHERE PromotionType = 'PROMOTION_ANTI_FIGHTER';
-	-- Fix for Logistics - should NOT apply to Naval Melee (They have Blitz)
-	DELETE FROM UnitPromotions_UnitCombats
-	WHERE UnitCombatType = 'UNITCOMBAT_NAVALMELEE' AND PromotionType = 'PROMOTION_LOGISTICS';
+-- INSERT NEW ENTRIES
+INSERT INTO UnitPromotions
+	(Type, Description, Help, Sound, ReconChange, LostWithUpgrade, PortraitIndex, IconAtlas, PediaType, PediaEntry)
+VALUES
+  	('PROMOTION_RECON_SHORT_RANGE', 'TXT_KEY_PROMOTION_RECON_SHORT_RANGE', 'TXT_KEY_PROMOTION_RECON_SHORT_RANGE_HELP', 'AS2D_IF_LEVELUP', -2, 1, 59, 'ABILITY_ATLAS', 'PEDIA_AIR', 'TXT_KEY_PEDIA_PROMOTION_RECON_SHORT_RANGE'),
+    ('PROMOTION_RECON_LONG_RANGE', 'TXT_KEY_PROMOTION_RECON_LONG_RANGE', 'TXT_KEY_PROMOTION_RECON_LONG_RANGE_HELP', 'AS2D_IF_LEVELUP', 2, 1, 59, 'ABILITY_ATLAS', 'PEDIA_AIR', 'TXT_KEY_PEDIA_PROMOTION_RECON_LONG_RANGE');
 
 INSERT INTO UnitPromotions_YieldFromKills
 	(PromotionType, YieldType, Yield)
@@ -166,17 +114,6 @@ VALUES
 	('PROMOTION_BREACHER', 'UNITCOMBAT_NAVALRANGED',0, 0, 10),
 	('PROMOTION_BREACHER', 'UNITCOMBAT_SUBMARINE',0, 0, 10);
 
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50 WHERE PromotionType = 'PROMOTION_ANTI_TANK';
-
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33 WHERE PromotionType = 'PROMOTION_FORMATION_1' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 33 WHERE PromotionType = 'PROMOTION_FORMATION_2' AND UnitCombatType = 'UNITCOMBAT_MOUNTED';
-
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR';
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';
-
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50 WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
-UPDATE UnitPromotions_UnitCombatMods SET Modifier = 25 WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
-
 INSERT INTO UnitPromotions_UnitClasses
 	(PromotionType, UnitClassType, Modifier)
 VALUES
@@ -191,6 +128,13 @@ INSERT INTO UnitPromotions_Features
 VALUES
 	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_JUNGLE', 1),
 	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_FOREST', 1);
+--INSERT INTO UnitPromotions_Features
+--	(PromotionType, FeatureType, ExtraMove)
+--VALUES
+--	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FOREST', '1'),
+--	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_JUNGLE', '1'),
+--	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_MARSH', '1'),
+--	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FLOOD_PLAINS', '1');
 
 INSERT INTO UnitPromotions_Terrains
 	(PromotionType, TerrainType, DoubleMove)
@@ -209,9 +153,6 @@ VALUES
 	('PROMOTION_BUSHIDO', 'PROMOTION_BUSHIDO_HONOR'),
 	('PROMOTION_BUSHIDO', 'PROMOTION_LOYALTY'),
 	('PROMOTION_BUSHIDO', 'PROMOTION_SELF_CONTROL');
-
-DELETE FROM UnitPromotions_PostCombatRandomPromotion WHERE NewPromotion = 'PROMOTION_RECRUITMENT';
-DELETE FROM UnitPromotions_PostCombatRandomPromotion WHERE NewPromotion = 'PROMOTION_HEROISM';
 
 INSERT INTO UnitPromotions_CivilianUnitType
 	(PromotionType, UnitType)
@@ -280,7 +221,6 @@ VALUES
 	('PROMOTION_MOBILITY', 'UNITCOMBAT_MELEE'),
 	('PROMOTION_MOBILITY', 'UNITCOMBAT_GUN'),
 	('PROMOTION_INDIRECT_FIRE', 'UNITCOMBAT_ARCHER'),
-	('PROMOTION_INDIRECT_FIRE', 'UNITCOMBAT_NAVALRANGED'),
 	('PROMOTION_INDIRECT_FIRE', 'UNITCOMBAT_SIEGE'),
 	('PROMOTION_AMBUSH_2', 'UNITCOMBAT_MELEE'),
 	('PROMOTION_AMBUSH_2', 'UNITCOMBAT_GUN'),
@@ -362,50 +302,23 @@ VALUES
 	('PROMOTION_IKLWA', 'UNITCOMBAT_GUN'),
 	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCOMBAT_NAVALMELEE'),
 	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCOMBAT_NAVALMELEE'),
-	('PROMOTION_SEE_INVISIBLE_SUBMARINE', 'UNITCOMBAT_NAVALMELEE');
-
-
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1' AND UnitCombatType = 'UNITCOMBAT_FIGHTER';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2' AND UnitCombatType = 'UNITCOMBAT_FIGHTER';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_BARRAGE_1' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_BARRAGE_2' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_BARRAGE_3' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_ACCURACY_1' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_ACCURACY_2' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_ACCURACY_3' AND UnitCombatType = 'UNITCOMBAT_SIEGE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_INDIRECT_FIRE' AND UnitCombatType = 'UNITCOMBAT_NAVALRANGED';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_RANGE' AND UnitCombatType = 'UNITCOMBAT_NAVALRANGED';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_MOBILITY' AND UnitCombatType = 'UNITCOMBAT_NAVALMELEE';
-
-DELETE FROM UnitPromotions_UnitCombats
-WHERE PromotionType = 'PROMOTION_SENTRY' AND UnitCombatType = 'UNITCOMBAT_NAVALMELEE';
+	('PROMOTION_SEE_INVISIBLE_SUBMARINE', 'UNITCOMBAT_NAVALMELEE'),
+	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_MELEE'),
+	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_GUN'),
+	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_MOUNTED'),
+	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_ARMOR'),
+	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_RECON');
+-- Change all helicopter promotions to Archer (because helicopters are now archers)
+UPDATE UnitPromotions_UnitCombats SET UnitCombatType = 'UNITCOMBAT_ARCHER' WHERE UnitCombatType = 'UNITCOMBAT_HELICOPTER';
 
 INSERT INTO UnitPromotions_Terrains
 	(PromotionType, TerrainType, Attack, Defense, DoubleHeal)
 VALUES
 	('PROMOTION_LONGBOAT', 'TERRAIN_COAST', '15', '15', '1');
+--INSERT INTO UnitPromotions_Terrains
+--	(PromotionType, TerrainType, ExtraMove)
+--VALUES
+--	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'TERRAIN_HILL', '1');
 
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Modifier)
@@ -431,15 +344,6 @@ VALUES
 	('PROMOTION_RECON_BANDEIRANTES', 'YIELD_SCIENCE', 3),
 	('PROMOTION_RECON_BANDEIRANTES', 'YIELD_CULTURE', 3);
 
-INSERT INTO UnitPromotions_UnitCombats
-	(PromotionType, UnitCombatType)
-VALUES
-	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_MELEE'),
-	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_GUN'),
-	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_MOUNTED'),
-	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_ARMOR'),
-	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_RECON');
-
 INSERT INTO UnitPromotions_CivilianUnitType
 	(PromotionType, UnitType)
 VALUES
@@ -451,18 +355,3 @@ VALUES
 	('PROMOTION_SACRED_STEPS', 'UNIT_PIONEER'),
 	('PROMOTION_SACRED_STEPS', 'UNIT_COLONIST'),
 	('PROMOTION_SACRED_STEPS', 'UNIT_WORKBOAT');
-
-UPDATE UnitPromotions_UnitCombats SET UnitCombatType = 'UNITCOMBAT_ARCHER' WHERE UnitCombatType = 'UNITCOMBAT_HELICOPTER';
-
---INSERT INTO UnitPromotions_Features
---	(PromotionType, FeatureType, ExtraMove)
---VALUES
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FOREST', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_JUNGLE', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_MARSH', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FLOOD_PLAINS', '1');
-
---INSERT INTO UnitPromotions_Terrains
---	(PromotionType, TerrainType, ExtraMove)
---VALUES
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'TERRAIN_HILL', '1');

@@ -2,7 +2,7 @@
 -- America
 --------------------
 UPDATE Language_en_US
-SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. 25% discount when purchasing Tiles, founding a City resets Tile purchase costs, and Tile purchases grant +20 [ICON_PRODUCTION] Production, scaling with Era. May purchase tiles owned by other Civilizations.'
+SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. The cost of purchasing a tile is reduced by 25%, and is reset upon founding a City. Purchasing a tile grants +20 [ICON_PRODUCTION] Production, scaling with Era. May purchase tiles owned by other Civilizations.'
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION';
 
 UPDATE Language_en_US
@@ -228,7 +228,7 @@ SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit fr
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE';
 
 UPDATE Language_en_US
-SET Text = 'Only the Celts may build this unit. It has double movement and +25% [ICON_STRENGTH] defense in Hills, Snow, and Tundra. Can pillage enemy improvements at no additional movement cost, and earns 200% of opponents'' [ICON_STRENGTH] combat strength as [ICON_PEACE] Faith when it kills a unit.'
+SET Text = 'Only the Celts may build this unit. It has double movement in Hills, Snow, and Tundra, and +25% [ICON_STRENGTH] Combat Strength if those terrains contain neither Forest nor Jungle. Can pillage enemy improvements at no additional movement cost, and earns 200% of opponents'' [ICON_STRENGTH] Combat Strength as [ICON_PEACE] Faith when it kills a unit.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR';
 
 --------------------
@@ -274,7 +274,7 @@ SET Text = 'The Norwegian Ski Infantry can only be gifted by Minor Civilizations
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has a +25% combat bonus in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
+SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has +25% [ICON_STRENGTH] Combat Strength in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY';
 
 --------------------
@@ -628,7 +628,7 @@ SET Text = 'Classical Era Melee unit that has a mystical weapon whose abilities 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN';
 
 UPDATE Language_en_US
-SET Text = 'Heals 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].[NEWLINE]10 Damage to all adjacent enemy Units [COLOR_POSITIVE_TEXT]each Turn[ENDCOLOR].'
+SET Text = 'Heals 10 HP if the unit begins its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].[NEWLINE]10 Damage to all adjacent enemy Units [COLOR_POSITIVE_TEXT]each Turn[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE_HELP';
 
 UPDATE Language_en_US
@@ -825,6 +825,10 @@ WHERE Tag = 'TXT_KEY_TRAIT_GATEWAY_AFRICA';
 UPDATE Language_en_US
 SET Text = 'Mounted unit that specializes in protecting Moroccan lands. Receives combat bonuses when fighting in Moroccan territory. Ignores terrain penalties. May only be built by Morocco.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY';
+
+UPDATE Language_en_US
+SET Text = 'The Berber Cavalry gives the Moroccans an edge when defending their territory. They they move quickly in the desert, in addition to other difficult terrains. This also allows them to perform raids deep into rough enemy territory but other forces will need to stabilize any gains.'
+WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 
 --------------------
 -- Netherlands
@@ -1056,7 +1060,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 -- Siam
 --------------------
 UPDATE Language_en_US
-SET Text = 'Reduces enemy spy stealing rate by 50%. +2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
+SET Text = '+2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US

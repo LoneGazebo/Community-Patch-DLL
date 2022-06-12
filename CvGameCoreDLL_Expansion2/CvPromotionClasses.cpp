@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1517,7 +1517,7 @@ int CvPromotionEntry::GetOpenAttackPercent() const
 {
 	return m_iOpenAttackPercent;
 }
-/// Accessor: Bonus open terrain attack percent
+/// Accessor: Bonus open terrain combat strength mod
 int CvPromotionEntry::GetOpenFromPercent() const
 {
 	return m_iOpenFromPercent;
@@ -1535,7 +1535,7 @@ int CvPromotionEntry::GetRoughAttackPercent() const
 	return m_iRoughAttackPercent;
 }
 
-/// Accessor: Bonus open terrain attack percent
+/// Accessor: Bonus rough terrain combat strength mod
 int CvPromotionEntry::GetRoughFromPercent() const
 {
 	return m_iRoughFromPercent;
@@ -2526,7 +2526,7 @@ void CvPromotionEntry::SetSound(const char* szVal)
 
 // ARRAYS
 
-/// Returns an array of bonuses when attacking a tile of a given terrain
+/// Percentage bonus when attacking a tile of a given terrain
 int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2540,7 +2540,7 @@ int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 	return -1;
 }
 
-/// Returns an array of bonuses when defending a tile of a given terrain
+/// Percentage bonus when when defending a tile of a given terrain
 int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2554,7 +2554,7 @@ int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 	return-1;
 }
 
-/// Returns an array of bonuses when attacking a tile with a terrain feature
+/// Percentage bonus when when attacking a tile with a given feature
 int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2568,7 +2568,7 @@ int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 	return -1;
 }
 
-/// Returns an array of bonuses when defending a tile with a terrain feature
+/// Percentage bonus when when defending a tile with a given feature
 int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2672,7 +2672,7 @@ int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
 	return 0;
 }
 
-/// Returns an array of bonuses when fighting against a certain unit
+/// Percentage bonus when fighting against a specific unit *combat* class
 int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
@@ -2686,7 +2686,7 @@ int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 	return -1;
 }
 
-/// Returns an array of bonuses when fighting against a type of unit
+/// Percentage bonus when fighting against a specific unit class
 int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
@@ -2700,7 +2700,7 @@ int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 	return -1;
 }
 
-/// Returns an array of bonuses when I have no idea
+/// Percentage bonus when fighting against a unit with a specific domain (LAND/SEA/AIR)
 int CvPromotionEntry::GetDomainModifierPercent(int i) const
 {
 	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
@@ -2742,6 +2742,7 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 	return -1;
 }
 
+/// Percentage bonus when fighting next to friendly unit *combat* classes (increases with more adjacent units)
 #if defined(MOD_BALANCE_CORE)
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) const
 {
@@ -2756,6 +2757,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) co
 	return -1;
 }
 
+/// Percentage bonus when attacking next to friendly unit *combat* classes (increases with more adjacent units)
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
@@ -2769,6 +2771,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) con
 	return -1;
 }
 
+/// Percentage bonus when defending next to friendly unit *combat* classes (increases with more adjacent units) [not enemy as intended]
 int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
@@ -2843,7 +2846,7 @@ bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 }
 
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-/// Returns an array that indicates if a unit can move half as fast in a type of terrain
+/// Indicates if a unit can move half as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2857,7 +2860,7 @@ bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 	return false;
 }
 
-/// Returns an array that indicates if a unit can move half as fast in a type of terrain
+/// Indicates if a unit can move twice as fast in a type of terrain
 int CvPromotionEntry::GetTerrainExtraMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2871,7 +2874,7 @@ int CvPromotionEntry::GetTerrainExtraMove(int i) const
 	return false;
 }
 
-/// Returns an array that indicates if a unit can move half as fast in a type of terrain feature
+/// Indicates if a unit can move half as fast in a type of feature
 bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2885,6 +2888,7 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 	return false;
 }
 
+/// Indicates if a unit can move twice as fast in a type of feature
 int CvPromotionEntry::GetFeatureExtraMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2900,7 +2904,7 @@ int CvPromotionEntry::GetFeatureExtraMove(int i) const
 
 #endif
 #if defined(MOD_BALANCE_CORE)
-/// Returns an array that indicates if a unit can move half as fast in a type of terrain
+/// Indicates if a unit can heal twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2914,7 +2918,7 @@ bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 	return false;
 }
 
-/// Returns an array that indicates if a unit can move half as fast in a type of terrain feature
+/// Indicates if a unit can heal twice as fast in a type of feature
 bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2928,7 +2932,7 @@ bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 	return false;
 }
 #endif
-/// Returns an array that indicates if a terrain type is impassable
+/// Indicates if a terrain type is impassable
 bool CvPromotionEntry::GetTerrainImpassable(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2942,7 +2946,7 @@ bool CvPromotionEntry::GetTerrainImpassable(int i) const
 	return false;
 }
 
-/// Returns an array that indicates what tech is needed to pass through a terrain type
+/// Indicates what tech is needed to pass through a terrain type
 int CvPromotionEntry::GetTerrainPassableTech(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2956,7 +2960,7 @@ int CvPromotionEntry::GetTerrainPassableTech(int i) const
 	return -1;
 }
 
-/// Returns an array that indicates what tech is needed to pass through a terrain feature type
+/// Indicates if a feature type is impassable
 bool CvPromotionEntry::GetFeatureImpassable(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");

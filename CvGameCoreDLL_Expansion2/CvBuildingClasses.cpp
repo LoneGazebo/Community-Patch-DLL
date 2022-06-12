@@ -2667,7 +2667,7 @@ bool CvBuildingEntry::IsAnyBodyOfWater() const
 {
 	return m_bAnyWater;
 }
-/// Is this an obstacle for just the tiles around your city?
+/// How much damage does this building contribute against attacking air unit?
 int CvBuildingEntry::GetCityAirStrikeDefense() const
 {
 	return m_iCityAirStrikeDefense;

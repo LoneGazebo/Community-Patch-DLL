@@ -377,6 +377,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetStrategicResourceCombatPenalty);
 	Method(GetUnhappinessCombatPenalty);
 	Method(AirSweepCombatMod);
+	Method(GetEmbarkDefensiveModifier);
 	Method(CapitalDefenseModifier);
 	Method(CapitalDefenseFalloff);
 
@@ -3739,7 +3740,7 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getDefenseModifier();
+//int getExtraRangedDefenseModifier();
 int CvLuaUnit::lGetRangedDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -4222,6 +4223,12 @@ int CvLuaUnit::lGetUnhappinessCombatPenalty(lua_State* L)
 int CvLuaUnit::lAirSweepCombatMod(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvUnit::GetAirSweepCombatModifier);
+}
+//------------------------------------------------------------------------------
+//int GetEmbarkDefensiveModifier();
+int CvLuaUnit::lGetEmbarkDefensiveModifier(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvUnit::GetEmbarkDefensiveModifier);
 }
 //------------------------------------------------------------------------------
 //int CapitalDefenseModifier();
