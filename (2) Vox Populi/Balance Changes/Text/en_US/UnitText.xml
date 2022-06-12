@@ -412,7 +412,7 @@
 			<Text>Reconnaissance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP">
-			<Text>Gains XP from revealing tiles</Text>
+			<Text>Gains XP from revealing tiles.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_III">
@@ -469,7 +469,7 @@
 			<Text>Military Tradition</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST_HELP">
-			<Text>Permanent +2 Military Cap boost when expended via an ability.</Text>
+			<Text>Permanent +1 Military Cap boost when expended via an ability.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRISONER_WAR">
@@ -995,9 +995,7 @@
 			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_PIONEER_TEXT">
-			<Text>
-				Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.
-			</Text>
+			<Text>Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_PIONEER">
 			<Text>Founds new Cities with advanced infrastructure and additional population.[NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built. Reduces City's [ICON_CITIZEN] Population by 1 when completed.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Cannot found Cities next to anyone's border or if your Empire is very unhappy.[ENDCOLOR]</Text>

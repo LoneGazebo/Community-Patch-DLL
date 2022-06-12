@@ -410,7 +410,7 @@
 
 	-- Bomber Siege
 	UPDATE Language_en_US
-	SET Text = '+50% [ICON__STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_SIEGE_1_HELP';
 	
 	UPDATE Language_en_US
@@ -435,7 +435,7 @@
 	SET Text = '+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_HELP';
 	UPDATE Language_en_US
-	SET Text = 'Siege Engine'
+	SET Text = 'Siege Engine I'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE';
 
 	-- City Siege II
