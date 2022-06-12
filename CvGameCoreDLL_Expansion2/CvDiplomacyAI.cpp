@@ -10286,9 +10286,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else
 				{
-					if (WarScore <= -25)
-						eWarState = WAR_STATE_DEFENSIVE;
-					else if (WarScore >= 25)
+					if (WarScore >= 25)
 						eWarState = WAR_STATE_OFFENSIVE;
 					else
 						eWarState = WAR_STATE_STALEMATE;

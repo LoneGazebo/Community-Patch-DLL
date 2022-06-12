@@ -20703,7 +20703,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 		{
 			WarStateTypes eWarState = GetDiplomacyAI()->GetWarState(eLoopPlayer);
 
-			if (eWarState == WAR_STATE_DEFENSIVE)
+			if (eWarState == WAR_STATE_DEFENSIVE || GetDiplomacyAI()->GetWarScore(eLoopPlayer) <= -25)
 			{
 				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_eID) >= PLAYER_PROXIMITY_CLOSE)
 				{
