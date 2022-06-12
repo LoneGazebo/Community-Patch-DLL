@@ -390,7 +390,6 @@
 			<Help>TXT_KEY_PROMOTION_FORMATION_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BARRAGE_2</PromotionPrereqOr2>
 			<OpenDefense>15</OpenDefense>
 			<OrderPriority>5</OrderPriority>
 			<PortraitIndex>24</PortraitIndex>
@@ -945,7 +944,7 @@
 			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>3</PortraitIndex>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_RANGED</PediaType>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_1</PediaEntry>
 		</Replace>
@@ -958,7 +957,7 @@
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -1457,7 +1456,7 @@
 			<Description>TXT_KEY_PROMOTION_CITY_SIEGE</Description>
 			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>200</CityAttack>
+			<CityAttack>100</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -1465,19 +1464,28 @@
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_SIEGE</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_CITY_ASSAULT</Type>
-			<Description>TXT_KEY_PROMOTION_CITY_ASSUALT</Description>
-			<!-- Typo here! -->
-			<Help>TXT_KEY_PROMOTION_CITY_ASSUALT_HELP</Help>
-			<!-- Typo here! -->
+			<Type>PROMOTION_CITY_SIEGE_II</Type>
+			<Description>TXT_KEY_PROMOTION_CITY_SIEGE_II</Description>
+			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>300</CityAttack>
+			<CityAttack>100</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_ASSUALT</PediaEntry>
-			<!-- Typo here! -->
+			<PediaEntry>TXT_KEY_PROMOTION_CITY_SIEGE_II</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_CITY_ASSAULT</Type>
+			<Description>TXT_KEY_PROMOTION_CITY_ASSUALT</Description>
+			<Help>TXT_KEY_PROMOTION_CITY_ASSUALT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CityAttack>150</CityAttack>
+			<PortraitIndex>59</PortraitIndex>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SIEGE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CITY_ASSUALT</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_DEFENSE_PENALTY</Type>
@@ -2351,18 +2359,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_CHARGE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<HeavyCharge>true</HeavyCharge>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_CITY_SIEGE_II</Type>
-			<Description>TXT_KEY_PROMOTION_CITY_SIEGE_II</Description>
-			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_CITY_SIEGE_II</PediaEntry>
-			<LostWithUpgrade>true</LostWithUpgrade>
-			<CityAttack>250</CityAttack>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_SAPPER</Type>

@@ -3739,7 +3739,7 @@ int CvLuaUnit::lGetDefenseModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getDefenseModifier();
+//int getExtraRangedDefenseModifier();
 int CvLuaUnit::lGetRangedDefenseModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);

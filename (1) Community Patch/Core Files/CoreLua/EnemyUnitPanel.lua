@@ -9,7 +9,7 @@ local g_MyCombatDataIM = InstanceManager:new( "UsCombatInfo", "Text", Controls.M
 local g_TheirCombatDataIM = InstanceManager:new( "ThemCombatInfo", "Text", Controls.TheirCombatResultsStack );
 
 local g_NumButtons = 12;
-local g_lastUnitID = -1;		-- Used to determine if a different pUnit has been selected.
+local g_lastUnitID = -1;-- Used to determine if a different pUnit has been selected.
 
 local maxUnitHitPoints = GameDefines["MAX_HIT_POINTS"];
 
@@ -77,7 +77,7 @@ function UpdateCityPortrait( pCity )
 	Controls.UnitBackColor:SetColor( flagColor );
 	Controls.UnitIcon:SetColor( iconColor );
 
-	IconHookup( 0, g_iPortraitSize, "ENEMY_CITY_ATLAS", Controls.UnitPortrait );				
+	IconHookup( 0, g_iPortraitSize, "ENEMY_CITY_ATLAS", Controls.UnitPortrait );
 end
 
 
@@ -95,7 +95,7 @@ function UpdateUnitPortrait( pUnit )
 		
 	local flagOffset, flagAtlas = UI.GetUnitFlagIcon(pUnit);
 
-	local textureOffset, textureSheet = IconLookup( flagOffset, 32, flagAtlas );				
+	local textureOffset, textureSheet = IconLookup( flagOffset, 32, flagAtlas );
 	Controls.UnitIcon:SetTexture( textureSheet );
 	Controls.UnitIconShadow:SetTexture( textureSheet );
 	Controls.UnitIcon:SetTextureOffset( textureOffset );
@@ -110,7 +110,7 @@ function UpdateUnitPortrait( pUnit )
 	Controls.UnitIcon:SetColor( iconColor );
 
 	local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon(pUnit);
-	textureOffset, textureSheet = IconLookup( portraitOffset, g_iPortraitSize, portraitAtlas );				
+	textureOffset, textureSheet = IconLookup( portraitOffset, g_iPortraitSize, portraitAtlas );
 	if textureOffset == nil then
 		textureSheet = defaultErrorTextureSheet;
 		textureOffset = nullOffset;
@@ -151,7 +151,7 @@ function UpdateUnitPromotions(pUnit)
 				until(promotionIcon == nil or promotionIcon:IsHidden() == true);
 				
 				if promotionIcon ~= nil then
-					IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, promotionIcon );				
+					IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, promotionIcon );
 					promotionIcon:SetHide(false);
 				end
 			end
@@ -173,7 +173,7 @@ function UpdateCityStats(pCity)
 	Controls.UnitStatStrength:SetText(strength);
 	
 	Controls.UnitMovementBox:SetHide(true);
-	Controls.UnitRangedAttackBox:SetHide(true);	
+	Controls.UnitRangedAttackBox:SetHide(true);
 	
 end
 
@@ -306,7 +306,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 		local hexID = ToHexFromGrid( Vector2( pFromPlot:GetX(), pFromPlot:GetY()) );
 		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
 		
-		local hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
+		hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
 		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
 		--JFD ends
 		
@@ -347,8 +347,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				iMyDamageInflicted = pMyUnit:GetRangeCombatDamage(nil, pCity, false);
 				
 				if (pPlot ~= nil and pCity ~= nil and pMyUnit ~= nil and pMyUnit:GetDomainType() == DomainTypes.DOMAIN_AIR) then
-					iTheirDamageInflicted = pCity:GetAirStrikeDefenseDamage(pMyUnit, false);	
-					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pPlot, nil, true, true);		
+					iTheirDamageInflicted = pCity:GetAirStrikeDefenseDamage(pMyUnit, false);
+					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pPlot, nil, true, true);
 					bInterceptPossible = true;
 				end
 				
@@ -366,35 +366,36 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 			
 			-- City's max HP
-			local maxCityHitPoints = pCity:GetMaxHitPoints();
-			if (iMyDamageInflicted > maxCityHitPoints) then
-				iMyDamageInflicted = maxCityHitPoints;
+			local theirMaxCityHitPoints = pCity:GetMaxHitPoints();
+			if (iMyDamageInflicted > theirMaxCityHitPoints) then
+				iMyDamageInflicted = theirMaxCityHitPoints;
 			end
 			-- Unit's max HP
-			local maxUnitHitPoints = pMyUnit:GetMaxHitPoints();
-			if (iTheirDamageInflicted > maxUnitHitPoints) then
-				iTheirDamageInflicted = maxUnitHitPoints;
+			local myMaxUnitHitPoints = pMyUnit:GetMaxHitPoints();
+			if (iTheirDamageInflicted > myMaxUnitHitPoints) then
+				iTheirDamageInflicted = myMaxUnitHitPoints;
 			end
 			
 			local bTheirCityLoss = false;
 			local bMyUnitLoss = false;
 			-- Will their City be captured in combat?
-			if (pCity:GetDamage() + iMyDamageInflicted >= maxCityHitPoints) then
-				bCityLoss = true;
+			if (pCity:GetDamage() + iMyDamageInflicted >= theirMaxCityHitPoints) then
+				bTheirCityLoss = true;
 			end
 			-- Will my Unit die in combat?
-			if (pMyUnit:GetDamage() + iTheirDamageInflicted >= maxUnitHitPoints) then
+			if (pMyUnit:GetDamage() + iTheirDamageInflicted >= myMaxUnitHitPoints) then
 				bMyUnitLoss = true;
 			end
 			
 			-- now do the health bars
 			
-			DoUpdateHealthBars(maxUnitHitPoints, maxCityHitPoints, pMyUnit:GetDamage(), pCity:GetDamage(), iMyDamageInflicted, iTheirDamageInflicted)
+			DoUpdateHealthBars(myMaxUnitHitPoints, theirMaxCityHitPoints, pMyUnit:GetDamage(), pCity:GetDamage(), iMyDamageInflicted, iTheirDamageInflicted)
 			
 			-- Now do text stuff
 			
 			local controlTable;
 			local strText;
+			local iModifier;
 			
 			local maxBonusDisplay = 4; -- maxim number of bonuses displayed without misc. bonus
 			local bonusCount = 0; -- counting how many bonuses the unit has
@@ -441,7 +442,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (iTheirFireSupportCombatDamage > 0) then
 				bonusSum = bonusSum + iTheirFireSupportCombatDamage;
-				bonusCount = bonusCount + 1;					
+				bonusCount = bonusCount + 1;
 			end
 			
 			-- My Damage
@@ -552,7 +553,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (pMyUnit:GetReverseGreatGeneralModifier() ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end			
 
 			-- Blockaded
@@ -564,7 +565,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (pCity:IsBlockadedTest()) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 
 			-- Policy Attack bonus
@@ -592,11 +593,11 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif(iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 			
 			-- City Attack bonus
-			local iModifier = pMyUnit:CityAttackModifier();
+			iModifier = pMyUnit:CityAttackModifier();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				
 				
@@ -624,7 +625,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 			
 			-- Sapper unit modifier
@@ -658,7 +659,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 
 			-- Civ Trait Bonus
@@ -756,7 +757,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 
 			--NearbyPromotion Unit that gives a combat bonus
@@ -793,7 +794,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			-- Nearby UnitClass modifier
 			iModifier = pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
@@ -847,7 +848,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 
 			-- Attack Modifier
@@ -944,7 +945,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 		local hexID = ToHexFromGrid( Vector2( pFromPlot:GetX(), pFromPlot:GetY()) );
 		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
 		
-		local hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
+		hexID = ToHexFromGrid( Vector2( pToPlot:GetX(), pToPlot:GetY()) );
 		Events.SerialEventHexHighlight( hexID, true, Vector4( 0.7, 0, 0, 1 ), "ValidFireTargetBorder");
 		--JFD ends
 		
@@ -981,7 +982,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						-- suicide missile attack
 						iTheirDamageInflicted = pMyUnit:GetCurrHitPoints();
 					end
-					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);		
+					iNumVisibleAAUnits = pMyUnit:GetInterceptorCount(pToPlot, pTheirUnit, true, true);
 					bInterceptPossible = true;
 				end
 				
@@ -994,7 +995,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					local iTheirDamage = pTheirUnit:GetDamage();
 					
 					iMyRangedSupportDamageInflicted = pMyUnit:GetRangeCombatDamage(pTheirUnit, nil, false);
-					iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(false, iTheirDamage + iMyRangedSupportDamageInflicted);
+					local iTheirDamageModifier = pTheirUnit:GetDamageCombatModifier(false, iTheirDamage + iMyRangedSupportDamageInflicted);
 					iTheirStrength = iTheirStrength * (100 + iTheirDamageModifier) / 100;
 				end
 				
@@ -1110,7 +1111,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iTheirFireSupportCombatDamage > 0) then
 				bonusSum = bonusSum + iTheirFireSupportCombatDamage;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			
 			-- Combat Strength
@@ -1209,7 +1210,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;				
+				bonusCount = bonusCount + 1;
 			end
 			
 			-- Great General bonus
@@ -1291,7 +1292,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif(iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			
 			if (not bRanged) then
@@ -1364,7 +1365,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;	
+				bonusCount = bonusCount + 1;
 			end
 			-- Nearby UnitClass modifier
 			iModifier = pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
@@ -1402,7 +1403,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- 	   bonusCount = bonusCount + 1;
 			-- 	elseif (iModifier ~= 0) then
 			-- 		bonusSum = bonusSum + iModifier;
-			-- 		bonusCount = bonusCount + 1;				
+			-- 		bonusCount = bonusCount + 1;
 			-- 	end		
 			-- end
 
@@ -1415,7 +1416,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif(iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 				
 
@@ -1431,7 +1432,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- Attack mod
@@ -1443,7 +1444,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				iModifier = pMyPlayer:GetFoundedReligionFriendlyCityCombatMod(pToPlot);
@@ -1454,7 +1455,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 -- COMMUNITY PATCH CHANGE
 				iModifier = pMyUnit:GetCombatVersusOtherReligionOwnLands(pTheirUnit);
@@ -1465,7 +1466,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 --END
 			end
@@ -1481,7 +1482,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0 and pTheirUnit:IsHigherPopThan(pMyUnit)) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			iModifier = pMyUnit:GetAllianceCSStrength();
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1491,7 +1492,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 --END		
 			
@@ -1506,7 +1507,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0 and pTheirUnit:IsHigherTechThan(pMyUnit:GetUnitType())) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 					
@@ -1519,7 +1520,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0 and pTheirUnit:IsLargerCivThan(pMyUnit)) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 					
 			-- CapitalDefenseModifier
@@ -1558,7 +1559,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;					
+					bonusCount = bonusCount + 1;
 				end
 				
 				iModifier = pMyPlayer:GetFoundedReligionEnemyCityCombatMod(pToPlot);
@@ -1569,7 +1570,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 
@@ -1583,7 +1584,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 --END
@@ -1603,8 +1604,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
-			-- UnitClassModifier
-			iModifier = pMyUnit:GetUnitClassModifier(pTheirUnit:GetUnitClassType());
+			-- UnitClassModifier & UnitClassAttackModifier
+			iModifier = pMyUnit:GetUnitClassModifier(pTheirUnit:GetUnitClassType()) + pMyUnit:UnitClassAttackModifier(pTheirUnit:GetUnitClassType());
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
@@ -1613,20 +1614,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
-			end
-
-			-- UnitClassAttackModifier
-			iModifier = pMyUnit:UnitClassAttackModifier(pTheirUnit:GetUnitClassType());
-			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pTheirUnit:GetUnitClassType()].Description);
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS" , unitClassType );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				bonusCount = bonusCount + 1;
-			elseif (iModifier ~= 0) then
-				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
 			end
 
 			-- UnitCombatModifier
@@ -1669,7 +1657,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 -- END
 	
@@ -1717,7 +1705,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				     
+					bonusCount = bonusCount + 1;     
 				end
 			else
 				iModifier = pMyUnit:AttackFullyHealedModifier();
@@ -1729,7 +1717,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;							
+					bonusCount = bonusCount + 1;
 				end
 			end
 
@@ -1743,7 +1731,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			else
 				iModifier = pMyUnit:AttackBelow50Modifier();
@@ -1755,7 +1743,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 
@@ -1770,7 +1758,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 			
@@ -1786,7 +1774,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- OpenRangedAttackModifier
@@ -1799,7 +1787,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;							
+					bonusCount = bonusCount + 1;
 				end
 			end
 			
@@ -1812,7 +1800,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 			
@@ -1828,7 +1816,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			
 				-- RoughRangedAttackModifier
@@ -1858,7 +1846,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;				
+						bonusCount = bonusCount + 1;
 					end
 				else
 					-- RoughAttackModifier
@@ -1871,7 +1859,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;				
+						bonusCount = bonusCount + 1;
 					end
 				end
 			end
@@ -1888,7 +1876,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			else
 			
@@ -1906,7 +1894,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				if (pToPlot:IsHills()) then
@@ -1923,7 +1911,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 			end
@@ -1941,7 +1929,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 
@@ -1954,7 +1942,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 
 			-- Civ Trait Bonus
@@ -1966,7 +1954,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0 and pMyPlayer:IsGoldenAge()) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 
 			iModifier = pMyPlayer:GetTraitCityStateCombatModifier();
@@ -2145,7 +2133,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 
 				-- Great General bonus
@@ -2162,7 +2150,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_GA_NEAR" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					else
-						bonusSum = bonusSum + iModifier;						
+						bonusSum = bonusSum + iModifier;
 					end
 					bonusCount = bonusCount + 1;
 					
@@ -2174,7 +2162,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (pTheirUnit:IsIgnoreGreatGeneralBenefit()) then
 						bonusSum = bonusSum - iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 				
@@ -2187,7 +2175,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetGreatGeneralCombatModifier() ~= 0 and pTheirUnit:IsStackedGreatGeneral()) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;			
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- Reverse Great General bonus
@@ -2199,7 +2187,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetReverseGreatGeneralModifier() ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 
 				-- CBP (Monopoly)
@@ -2211,7 +2199,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif(iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 
 			-- COMMUNITY (Resistance)
@@ -2223,7 +2211,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif(iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			--END
 
@@ -2239,7 +2227,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (pTheirUnit:IsFriendlyUnitAdjacent(bCombatUnit) ) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 
@@ -2259,7 +2247,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end	
 
 				-- FortifyModifier
@@ -2272,7 +2260,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				-- NearbyPromotion Unit Bonus
 				iModifier = pTheirUnit:GetGiveCombatModToUnit();
@@ -2283,7 +2271,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetGiveCombatModToUnit() ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				--NearbyPromotion Unit that gets a bonus near cities?
 				iModifier = pTheirUnit:GetNearbyCityBonusCombatMod();
@@ -2294,7 +2282,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetNearbyCityBonusCombatMod() ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				 
 				
@@ -2307,7 +2295,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetNearbyImprovementModifier(pToPlot) ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				-- Nearby UnitClass modifier
 				iModifier = pTheirUnit:GetNearbyUnitClassModifierFromUnitClass(pToPlot);
@@ -2318,7 +2306,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (pTheirUnit:GetNearbyUnitClassModifierFromUnitClass(pToPlot) ~= 0 ) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- Flanking bonus
@@ -2331,7 +2319,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 
@@ -2345,7 +2333,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 					
 					iModifier = pTheirPlayer:GetFoundedReligionFriendlyCityCombatMod(pToPlot);
@@ -2356,7 +2344,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 -- COMMUNITY PATCH CHANGE
 					iModifier = pTheirUnit:GetCombatVersusOtherReligionOwnLands(pMyUnit);
@@ -2367,7 +2355,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 --END
 				end
@@ -2384,7 +2372,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 					
 					iModifier = pTheirPlayer:GetFoundedReligionEnemyCityCombatMod(pToPlot);
@@ -2395,7 +2383,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 
@@ -2409,24 +2397,22 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 --END
 				
-				-- Defense Modifier
-				
-
+				-- DefenseModifier / RangedDefenseModifier
 				if(bRanged) then
 					iModifier = pTheirUnit:GetRangedDefenseModifier();
 					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end	
 				else
 					iModifier = pTheirUnit:GetDefenseModifier();
@@ -2437,37 +2423,21 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;				
+						bonusCount = bonusCount + 1;
 					end
 				end
-
-
-
-				-- UnitClassDefenseModifier
-				iModifier = pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					local unitClassBonus = Locale.ConvertTextKey(GameInfo.UnitClasses[pMyUnit:GetUnitClassType()].Description);
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassBonus );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
-				end
-
-				-- HERE CHANGE
-				-- UnitClassDefenceAttackModifier
-				iModifier = pTheirUnit:UnitClassAttackModifier(pMyUnit:GetUnitClassType());
+				
+				-- UnitClassModifier & UnitClassDefenseModifier
+				iModifier = pTheirUnit:GetUnitClassModifier(pMyUnit:GetUnitClassType()) + pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitClasses[pMyUnit:GetUnitClassType()].Description);
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS" , unitClassType );
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;			
+					bonusCount = bonusCount + 1;
 				end
 
 				---- ClassDefenseModifier
@@ -2475,7 +2445,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				--if (iModifier ~= 0) then
 					--controlTable = g_TheirCombatDataIM:GetInstance();
 					--strText = "Defense Bonus: " .. iModifier .. "%";
-	----				strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pMyUnit:getUnitClassType()).GetTextKey()));
+					---- strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, GC.getUnitClassInfo(pMyUnit:getUnitClassType()).GetTextKey()));
 				--end
 
 				-- UnitCombatModifier
@@ -2531,7 +2501,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 -- END
 
@@ -2551,7 +2521,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- HillsDefenseModifier
@@ -2565,7 +2535,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 				
@@ -2580,21 +2550,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0 ) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
-					end
-				end
-				
-				-- Logistics Combat Penalty 
-				if(bRanged) then
-					iModifier = pTheirUnit:GetRangedAttackModifier();
-					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RANGED_ATTACK_MODIFIER" );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 						bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;				
 					end
 				end
 
@@ -2609,7 +2565,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 
@@ -2623,7 +2579,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 	
 -- COMMUNITY PATCH CHANGE	
@@ -2637,7 +2593,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0 and pMyUnit:IsHigherPopThan(pTheirUnit)) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				iModifier = pTheirUnit:GetAllianceCSStrength();
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -2647,7 +2603,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 --END
 				-- CombatBonusVsHigherTech
@@ -2661,7 +2617,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0 and pMyUnit:IsHigherTechThan(pTheirUnit:GetUnitType())) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				end
 				
@@ -2674,7 +2630,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0 and pMyUnit:IsLargerCivThan(pTheirUnit)) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 								
 				-- CapitalDefenseModifier
@@ -2696,7 +2652,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 							bonusCount = bonusCount + 1;
 						elseif (iModifier > 0) then
 							bonusSum = bonusSum + iModifier;
-							bonusCount = bonusCount + 1;						
+							bonusCount = bonusCount + 1;
 						end
 					end
 				end
@@ -2713,7 +2669,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 				else
 				
@@ -2727,7 +2683,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
 						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;					
+						bonusCount = bonusCount + 1;
 					end
 					
 					if (pToPlot:IsHills()) then
@@ -2740,7 +2696,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 							bonusCount = bonusCount + 1;
 						elseif (iModifier ~= 0) then
 							bonusSum = bonusSum + iModifier;
-							bonusCount = bonusCount + 1;						
+							bonusCount = bonusCount + 1;
 						end
 					end
 				end
@@ -2754,7 +2710,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0 and pTheirPlayer:IsGoldenAge()) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- ExtraCombatPercent
@@ -2767,7 +2723,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;							
+					bonusCount = bonusCount + 1;
 				end
 				
 				-- Displays miscellaneous bonus here if there are more than 4 bonuses
@@ -2775,7 +2731,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_MISC_BONUS" );
 					controlTable.Value:SetText( GetFormattedText(strText, bonusSum, false, true) ); -- bonusSum instead of iModifier
-				end				
+				end
 			end
 		end
 	end
@@ -2797,13 +2753,13 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	g_TheirCombatDataIM:ResetInstances();
 	
 	--Set Initial Values
-	local myCityMaxHP = myCity:GetMaxHitPoints();
-	local myCityCurHP = myCity:GetDamage();
+	local myCityMaxHitPoints = myCity:GetMaxHitPoints();
+	local myCityCurHitPoints = myCity:GetDamage();
 	local myCityDamageInflicted = myCity:RangeCombatDamage(theirUnit, nil);
 	local myCityStrength = myCity:GetStrengthValue(true, false, theirUnit);
 	
-	local theirUnitMaxHP = theirUnit:GetMaxHitPoints();
-	local theirUnitCurHP = theirUnit:GetDamage();
+	local theirUnitMaxHitPoints = theirUnit:GetMaxHitPoints();
+	local theirUnitCurHitPoints = theirUnit:GetDamage();
 	local theirUnitDamageInflicted = 0;
 	local theirUnitStrength = myCity:RangeCombatUnitDefense(theirUnit);
 	local iTheirPlayer = theirUnit:GetOwner();
@@ -2812,15 +2768,15 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	local maxBonusDisplay = 4; -- maxim number of bonuses displayed without misc. bonus
 	local bonusCount = 0; -- counting how many bonuses the unit has
 	local bonusSum = 0; -- where all the extra bonuses are added
-
-	if (myCityDamageInflicted > theirUnitMaxHP) then
-		myCityDamageInflicted = theirUnitMaxHP;
+	
+	if (myCityDamageInflicted > theirUnitMaxHitPoints) then
+		myCityDamageInflicted = theirUnitMaxHitPoints;
 	end
-				
+	
 	-- City vs Unit is ranged attack
 	Controls.RangedAttackIndicator:SetHide(false);
 	Controls.RangedAttackButtonLabel:SetText(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_INTERFACEMODE_RANGE_ATTACK")));
-		
+	
 	-- Their Damage
 	Controls.TheirDamageValue:SetText("[COLOR_RED]" .. theirUnitDamageInflicted .. "[ENDCOLOR]");
 	
@@ -2833,8 +2789,8 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	-- My Strength
 	Controls.MyStrengthValue:SetText( Locale.ToNumber(myCityStrength / 100, "#.#"));
 	
-	DoUpdateHealthBars(myCityMaxHP, theirUnitMaxHP, myCityCurHP, theirUnitCurHP, myCityDamageInflicted, theirUnitDamageInflicted);
-					
+	DoUpdateHealthBars(myCityMaxHitPoints, theirUnitMaxHitPoints, myCityCurHitPoints, theirUnitCurHitPoints, myCityDamageInflicted, theirUnitDamageInflicted);
+	
 	Controls.RangedAttackIndicator:SetHide(false);
 	Controls.SafeAttackIndicator:SetHide(true);
 	Controls.RiskyAttackIndicator:SetHide(true);
@@ -2848,7 +2804,10 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 					
 	-- Show some bonuses
 	if (theirUnit:IsCombatUnit()) then
-
+		local iModifier;
+		local controlTable;
+		local strText;
+		
 		local myPlayerID = myCity:GetOwner();
 		local myPlayer = Players[myPlayerID];
 		
@@ -2893,7 +2852,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 
 		-- Great General bonus
@@ -2923,7 +2882,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (theirUnit:IsIgnoreGreatGeneralBenefit()) then
 				bonusSum = bonusSum - iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		
@@ -2936,7 +2895,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (theirUnit:GetGreatGeneralCombatModifier() ~= 0 and theirUnit:IsStackedGreatGeneral()) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 
 		-- Reverse Great General bonus
@@ -2948,7 +2907,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (theirUnit:GetReverseGreatGeneralModifier() ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;				
+			bonusCount = bonusCount + 1;
 		end
 		
 		-- Adjacent Modifier
@@ -2962,7 +2921,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (theirUnit:IsFriendlyUnitAdjacent(bCombatUnit)) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 
@@ -2976,19 +2935,17 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 -- END
 		
 		-- Plot Defense
 		iModifier = theirPlot:DefenseModifier(theirUnit:GetTeam(), false, false);
-
 		-- special treatment for mobile units
 		if (theirUnit:NoDefensiveBonus() and iModifier>0) then
 			-- only improvements (forts) count
 			iModifier = iModifier - theirPlot:DefenseModifier(theirUnit:GetTeam(), true, false);
 		end
-
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TERRAIN_MODIFIER" );
@@ -2996,7 +2953,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 
 		-- FortifyModifier
@@ -3009,7 +2966,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		
 
@@ -3023,7 +2980,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 	
 			iModifier = pTheirPlayer:GetFoundedReligionFriendlyCityCombatMod(theirPlot);
@@ -3034,7 +2991,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		
@@ -3050,7 +3007,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			
 			iModifier = pTheirPlayer:GetFoundedReligionEnemyCityCombatMod(theirPlot);
@@ -3061,7 +3018,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 
@@ -3074,19 +3031,19 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 --END
 
-		local iModifier = theirUnit:GetRangedDefenseModifier();
+		iModifier = theirUnit:GetRangedDefenseModifier();
 		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 			controlTable = g_TheirCombatDataIM:GetInstance();
-			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+			controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0 ) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end	
 		
 		-- HillsDefenseModifier
@@ -3100,7 +3057,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		
@@ -3115,7 +3072,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		
@@ -3130,7 +3087,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif(iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 
@@ -3145,7 +3102,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;				
+			bonusCount = bonusCount + 1;
 		end
 
 		-- CapitalDefenseModifier
@@ -3166,7 +3123,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier > 0) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 		end
@@ -3183,7 +3140,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		else
 		
@@ -3197,7 +3154,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 			
 			if (theirPlot:IsHills()) then
@@ -3210,7 +3167,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 					bonusCount = bonusCount + 1;
 				elseif (iModifier ~= 0 ) then
 					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;				
+					bonusCount = bonusCount + 1;
 				end
 			end
 		end
@@ -3223,7 +3180,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (theirUnit:GetSapperAreaEffectBonus(myCity) ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		-- Civ Trait Bonus
 		iModifier = theirPlayer:GetTraitGoldenAgeCombatModifier();
@@ -3234,7 +3191,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0 and theirPlayer:IsGoldenAge() ) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		
 		-- ExtraCombatPercent
@@ -3247,7 +3204,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0 ) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		
 		-- Displays miscellaneous bonus here if there are more than 4 bonuses
@@ -3271,7 +3228,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 -- CBP
@@ -3284,7 +3241,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 -- END		
 		if (myCity:GetGarrisonedUnit() ~= nil) then		
@@ -3296,7 +3253,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		
@@ -3309,7 +3266,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			bonusCount = bonusCount + 1;
 		elseif (iModifier ~= 0) then
 			bonusSum = bonusSum + iModifier;
-			bonusCount = bonusCount + 1;		
+			bonusCount = bonusCount + 1;
 		end
 		
 		
@@ -3323,7 +3280,7 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			elseif (iModifier ~= 0 and theirPlayer:IsGoldenAge() ) then
 				bonusSum = bonusSum + iModifier;
-				bonusCount = bonusCount + 1;			
+				bonusCount = bonusCount + 1;
 			end
 		end
 		

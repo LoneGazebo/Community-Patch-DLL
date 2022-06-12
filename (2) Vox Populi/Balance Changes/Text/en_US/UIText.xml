@@ -460,6 +460,10 @@
 			<Text>Terrain Modifier</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_EUPANEL_RANGED_DEFENSE_MODIFIER">
+			<Text>Ranged Defense Modifier</Text>
+		</Row>
+
 		<!-- Text for HappinessInfo.lua -->
 		<Row Tag ="TXT_KEY_HAPPINESS_FROM_MONOPOLY">
 			<Text>Monopolies</Text>
