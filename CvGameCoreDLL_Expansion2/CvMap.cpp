@@ -1623,7 +1623,7 @@ void CvMap::calculateAreas()
 
 	//log the result
 #if defined(VPDEBUG)
-	if (GC.getLogging() && )
+	if (GC.getLogging())
 	{
 		static int iCallCount = 0; //apparently this is called multiple times
 		FILogFile* pLog = LOGFILEMGR.GetLog( CvString::format("MapAreas%02d.txt",iCallCount++).c_str(), FILogFile::kDontTimeStamp);
