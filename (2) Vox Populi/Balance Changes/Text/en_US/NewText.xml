@@ -148,6 +148,10 @@
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
+			<Text>Enemy Defection</Text>
+		</Row>
 		
 		<!-- America UA Tweak -->
 		<Row Tag="TXT_KEY_NOTIFICATION_RESET_PLOT_COST">

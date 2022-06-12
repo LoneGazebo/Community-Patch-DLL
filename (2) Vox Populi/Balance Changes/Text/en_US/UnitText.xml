@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Created by ModBuddy on 3/2/2016 5:01:33 PM -->
+<!-- This file contains text for NEW Promotions, Units, etc. that did not exist in BRAVE NEW WORLD -->
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT">
@@ -75,7 +75,7 @@
 			<Text>Prize Rules</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>Receive [ICON_GOLD] Gold in your Capital after defeating an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>Receive [ICON_GOLD] Gold in your Capital after defeating an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I">
@@ -221,7 +221,7 @@
 			<Text>Guerilla Fighter</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All tiles cost 1 [ICON_MOVES] Movement point.</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All tiles cost 1 [ICON_MOVES] Movement.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
@@ -434,10 +434,10 @@
 
 
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
-			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR].</Text>
+			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Gunships[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_II_HELP">
-			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR].</Text>
+			<Text>+100% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Air Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Helicopter Gunships[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE">
@@ -445,13 +445,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE_HELP">
 			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_EVASION_I_HELP">
-			<Text>+33% Chance to [COLOR_POSITIVE_TEXT]Evade Air Interception[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_EVASION_II_HELP">
-			<Text>+33% Chance to [COLOR_POSITIVE_TEXT]Evade Air Interception[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III">
@@ -682,13 +675,13 @@
 			<Text>Firing Doctrine</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ACCURACY_4_HELP">
-			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50 HP[ENDCOLOR].</Text>
+			<Text>+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4">
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength if adjacent to a [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength if adjacent to a [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
@@ -722,7 +715,7 @@
 			<Text>Breacher</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BREACHER_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Enemy Unit[ENDCOLOR] when defending.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to a Unit defeated by this Unit.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when defending.[NEWLINE]Deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to a Unit defeated by this Unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT">
 			<Text>Encirclement</Text>
@@ -735,20 +728,20 @@
 			<Text>Boarded (I)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_I_HELP">
-			<Text>-2 [ICON_MOVES] Move for 1 Turn.</Text>
+			<Text>-2 [ICON_MOVES] Movement for 1 Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II">
 			<Text>Boarded (II)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOARDED_II_HELP">
-			<Text>-4 [ICON_MOVES] Moves for 1 Turn.</Text>
+			<Text>-4 [ICON_MOVES] Movement for 1 Turn.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
 			<Text>Minelayer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement points for Enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this Unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].</Text>
+			<Text>-10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_NEGATIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]-2 [ICON_MOVES] Movement for Enemy Naval Units that start their turn [COLOR_POSITIVE_TEXT]Adjacent[ENDCOLOR] to this Unit (unless immune to [COLOR_POSITIVE_TEXT]ZOC[ENDCOLOR]).[NEWLINE][NEWLINE]Available once you have researched [COLOR_CYAN]Combustion[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOMBARDMENT_4">
@@ -861,13 +854,13 @@
 			<Text>Precision</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TERROR_HELP">
-			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TERROR_II">
 			<Text>Precision II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TERROR_II_HELP">
-			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50 HP[ENDCOLOR].</Text>
+			<Text>+25% [ICON_RANGE_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 		
 
@@ -875,7 +868,7 @@
 			<Text>Coup de Grace</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP">
-			<Text>+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50 HP[ENDCOLOR].</Text>
+			<Text>+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY">
 			<Text>Parthian Tactics</Text>
