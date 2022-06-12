@@ -227,6 +227,10 @@ protected:
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
+
+	static int lIsDoubleBorderGrowthGA(lua_State* L);
+	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
+
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromCities(lua_State* L);

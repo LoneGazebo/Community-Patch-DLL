@@ -1921,9 +1921,13 @@ public:
 	int GetNoUnhappyIsolation() const;
 	void ChangeNoUnhappyIsolation(int iChange);
 
-	bool IsDoubleBorderGA() const;
-	int GetDoubleBorderGA() const;
-	void ChangeDoubleBorderGA(int iChange);
+	bool IsDoubleBorderGrowthGA() const;
+	int GetDoubleBorderGrowthGA() const;
+	void ChangeDoubleBorderGrowthGA(int iChange);
+
+	bool IsDoubleBorderGrowthWLTKD() const;
+	int GetDoubleBorderGrowthWLTKD() const;
+	void ChangeDoubleBorderGrowthWLTKD(int iChange);
 
 	bool IsIncreasedQuestInfluence() const;
 	int GetIncreasedQuestInfluence() const;
@@ -3177,7 +3181,8 @@ protected:
 	int m_iExtraMoves;
 	int m_iNoUnhappinessExpansion;
 	int m_iNoUnhappyIsolation;
-	int m_iDoubleBorderGA;
+	int m_iDoubleBorderGrowthGA;
+	int m_iDoubleBorderGrowthWLTKD;
 	int m_iIncreasedQuestInfluence;
 	int m_iCultureBombBoost;
 	int m_iPuppetProdMod;
@@ -3988,7 +3993,8 @@ SYNC_ARCHIVE_VAR(int, m_iXPopulationConscription)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappinessExpansion)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappyIsolation)
-SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGA)
+SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthGA)
+SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthWLTKD)
 SYNC_ARCHIVE_VAR(int, m_iIncreasedQuestInfluence)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombBoost)
 SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)

@@ -77,7 +77,7 @@ WHERE Type = 'POLICY_THEOCRACY';
 
 -- Reformation (Now Monasticism)
 UPDATE Policies
-SET AddReformationBelief = '0', DoubleBorderGA = '1', NoUnhappfromXSpecialists = '1', PortraitIndex = '47'
+SET AddReformationBelief = '0', DoubleBorderGrowthGA = '1', DoubleBorderGrowthWLTKD = '1', NoUnhappfromXSpecialists = '1', PortraitIndex = '47'
 WHERE Type = 'POLICY_REFORMATION';
 
 INSERT INTO Policy_WLTKDYieldMod

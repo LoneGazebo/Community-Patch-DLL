@@ -299,7 +299,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
-	m_bDoubleBorderGA(false),
+	m_bDoubleBorderGrowthGA(false),
+	m_bDoubleBorderGrowthWLTKD(false),
 	m_iIncreasedQuestInfluence(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iGreatEngineerHurryModifier(0),
@@ -745,7 +746,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
-	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
+	m_bDoubleBorderGrowthGA = kResults.GetBool("DoubleBorderGrowthGA");
+	m_bDoubleBorderGrowthWLTKD = kResults.GetBool("DoubleBorderGrowthWLTKD");
 	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iGreatEngineerHurryModifier = kResults.GetInt("GreatEngineerHurryModifier");
@@ -2982,9 +2984,14 @@ bool CvPolicyEntry::GetNoUnhappyIsolation() const
 	return m_bNoUnhappyIsolation;
 }
 /// Does this Policy generate double border growth during GAs?
-bool CvPolicyEntry::GetDoubleBorderGA() const
+bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
 {
-	return m_bDoubleBorderGA;
+	return m_bDoubleBorderGrowthGA;
+}
+/// Does this Policy generate double border growth during WLTKD?
+bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
+{
+	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Increased influence from quests?
 int CvPolicyEntry::GetIncreasedQuestInfluence() const

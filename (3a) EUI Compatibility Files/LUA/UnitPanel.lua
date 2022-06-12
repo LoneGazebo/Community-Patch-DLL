@@ -337,6 +337,7 @@ end
 local function UpdateCity( instance )
 	local city = instance and g_activePlayer:GetCityByID( instance[1] )
 	if city then
+		local cityOwner = Players[city:GetOwner()]
 		local itemInfo, portraitOffset, portraitAtlas, buildPercent
 		local turnsRemaining = city:GetProductionTurnsLeft()
 		local productionNeeded = city:GetProductionNeeded()
@@ -400,6 +401,11 @@ local function UpdateCity( instance )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn()
 		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+
+		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2
+		end
+
 		instance.BorderGrowth:SetString( borderGrowthRate > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) )
 
 		local percent = 1 - city:GetDamage() / ( gk_mode and city:GetMaxHitPoints() or GameDefines.MAX_CITY_HIT_POINTS )
@@ -854,7 +860,12 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 	end,
 	BorderGrowth = function( control )
 		local city = FindCity( control )
-		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / (city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)) ) ), GetCultureTooltip( city ) )
+		local cityOwner = Players[city:GetOwner()]
+		local borderGrowthRate = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2
+		end
+		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) ), GetCultureTooltip( city ) )
 	end,
 	CityIsCapital = function( control )
 		local city = FindCity( control )

@@ -241,6 +241,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGAPFromTraits);
 	// Culture
 
+	Method(IsDoubleBorderGrowthGA);
+	Method(IsDoubleBorderGrowthWLTKD);
+
 	Method(GetTotalJONSCulturePerTurn);
 
 	Method(GetJONSCulturePerTurnFromCities);
@@ -3006,6 +3009,18 @@ int CvLuaPlayer::lGetGAPFromTraits(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+//int IsDoubleBorderGrowthGA();
+int CvLuaPlayer::lIsDoubleBorderGrowthGA(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::IsDoubleBorderGrowthGA);
+}
+//------------------------------------------------------------------------------
+//int IsDoubleBorderGrowthWLTKD();
+int CvLuaPlayer::lIsDoubleBorderGrowthWLTKD(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::IsDoubleBorderGrowthWLTKD);
+}
 //------------------------------------------------------------------------------
 //int GetTotalJONSCulturePerTurn();
 int CvLuaPlayer::lGetTotalJONSCulturePerTurn(lua_State* L)

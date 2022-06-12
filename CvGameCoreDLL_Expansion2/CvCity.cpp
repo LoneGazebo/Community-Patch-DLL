@@ -2718,12 +2718,16 @@ void CvCity::doTurn()
 		if (iBorderGrowth > 0)
 		{
 			ChangeJONSCultureStored(iBorderGrowth);
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			if (GET_PLAYER(getOwner()).IsDoubleBorderGA() && (GET_PLAYER(getOwner()).isGoldenAge() || (GetWeLoveTheKingDayCounter() > 0)))
+
+			// Double border growth during GA or WLTKD? These intentionally do not stack!
+			if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthGA() && GET_PLAYER(getOwner()).isGoldenAge())
 			{
 				ChangeJONSCultureStored(iBorderGrowth);
 			}
-#endif
+			else if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0)
+			{
+				ChangeJONSCultureStored(iBorderGrowth);
+			}
 		}
 
 		// Enough Culture to acquire a new Plot?

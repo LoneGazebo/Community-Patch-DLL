@@ -228,6 +228,11 @@ local g_cityToolTips = {
 				local cultureNeeded = city:GetJONSCultureThreshold()
 				local culturePerTurn = city:GetJONSCulturePerTurn()
 				local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+
+				if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+					borderGrowthRate = borderGrowthRate * 2
+				end
+
 				local turnsRemaining
 				if borderGrowthRate > 0 then
 					turnsRemaining = math_max(math_ceil((cultureNeeded - cultureStored ) / borderGrowthRate), 1)

@@ -697,7 +697,8 @@ CvPlayer::CvPlayer() :
 	, m_iExtraMoves()
 	, m_iNoUnhappinessExpansion()
 	, m_iNoUnhappyIsolation()
-	, m_iDoubleBorderGA()
+	, m_iDoubleBorderGrowthGA()
+	, m_iDoubleBorderGrowthWLTKD()
 	, m_iIncreasedQuestInfluence()
 	, m_iCultureBombBoost()
 	, m_iPuppetProdMod()
@@ -1567,7 +1568,8 @@ void CvPlayer::uninit()
 	m_iExtraMoves = 0;
 	m_iNoUnhappinessExpansion = 0;
 	m_iNoUnhappyIsolation = 0;
-	m_iDoubleBorderGA = 0;
+	m_iDoubleBorderGrowthGA = 0;
+	m_iDoubleBorderGrowthWLTKD = 0;
 	m_iIncreasedQuestInfluence = 0;
 	m_iCultureBombBoost = 0;
 	m_iPuppetProdMod = 0;
@@ -35651,24 +35653,38 @@ void CvPlayer::ChangeNoUnhappyIsolation(int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsDoubleBorderGA() const
+bool CvPlayer::IsDoubleBorderGrowthGA() const
 {
-	return GetDoubleBorderGA() > 0;
+	return GetDoubleBorderGrowthGA() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetDoubleBorderGA() const
+int CvPlayer::GetDoubleBorderGrowthGA() const
 {
-	return m_iDoubleBorderGA;
+	return m_iDoubleBorderGrowthGA;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeDoubleBorderGA(int iChange)
+void CvPlayer::ChangeDoubleBorderGrowthGA(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iDoubleBorderGA += iChange;
-	}
+	m_iDoubleBorderGrowthGA += iChange;
+}
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsDoubleBorderGrowthWLTKD() const
+{
+	return GetDoubleBorderGrowthWLTKD() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDoubleBorderGrowthWLTKD() const
+{
+	return m_iDoubleBorderGrowthWLTKD;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDoubleBorderGrowthWLTKD(int iChange)
+{
+	m_iDoubleBorderGrowthWLTKD += iChange;
 }
 //Increased influence from CS quests
 //	--------------------------------------------------------------------------------
@@ -44001,7 +44017,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 		ChangeNoUnhappinessExpansion(pPolicy->GetNoUnhappinessExpansion() * iChange);
 		ChangeNoUnhappyIsolation(pPolicy->GetNoUnhappyIsolation() * iChange);
-		ChangeDoubleBorderGA(pPolicy->GetDoubleBorderGA() * iChange);
+		ChangeDoubleBorderGrowthGA(pPolicy->GetDoubleBorderGrowthGA() * iChange);
+		ChangeDoubleBorderGrowthWLTKD(pPolicy->GetDoubleBorderGrowthWLTKD() * iChange);
 		changeGarrisonsOccupiedUnhapppinessMod(pPolicy->GetGarrisonsOccupiedUnhapppinessMod() * iChange);
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
@@ -46131,7 +46148,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iExtraMoves);
 	visitor(player.m_iNoUnhappinessExpansion);
 	visitor(player.m_iNoUnhappyIsolation);
-	visitor(player.m_iDoubleBorderGA);
+	visitor(player.m_iDoubleBorderGrowthGA);
+	visitor(player.m_iDoubleBorderGrowthWLTKD);
 	visitor(player.m_iIncreasedQuestInfluence);
 	visitor(player.m_iCultureBombBoost);
 	visitor(player.m_iPuppetProdMod);

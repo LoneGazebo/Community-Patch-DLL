@@ -314,7 +314,8 @@ public:
 	int GetYieldFromTech(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
-	bool GetDoubleBorderGA() const;
+	bool GetDoubleBorderGrowthGA() const;
+	bool GetDoubleBorderGrowthWLTKD() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetGreatEngineerHurryModifier() const;
@@ -747,7 +748,8 @@ private:
 	int* m_piYieldFromTech;
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
-	bool m_bDoubleBorderGA;
+	bool m_bDoubleBorderGrowthGA;
+	bool m_bDoubleBorderGrowthWLTKD;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryModifier;
 	int m_iTechCostXCitiesMod;

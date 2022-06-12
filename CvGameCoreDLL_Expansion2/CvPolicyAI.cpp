@@ -3388,7 +3388,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 20;
 		}
 	}
-	if (PolicyInfo->GetDoubleBorderGA())
+	if (PolicyInfo->GetDoubleBorderGrowthGA() || PolicyInfo->GetDoubleBorderGrowthWLTKD())
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{

@@ -833,8 +833,11 @@ ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
 -- No Unhapppiness from Isolation
 ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT 0;
 
--- Double City Border Growth During GA
-ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
+-- Double City Border Growth During GA (does not stack with WLTKD)
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGrowthGA' BOOLEAN DEFAULT 0;
+
+-- Double City Border Growth During WLTKD (does not stack with GA)
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGrowthWLTKD' BOOLEAN DEFAULT 0;
 
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
