@@ -624,7 +624,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iCost *= path.length();
-	bool bTooExpensive = false;
 	if (iNetGoldTimes100 - iCost <= 6)
 		return;
 

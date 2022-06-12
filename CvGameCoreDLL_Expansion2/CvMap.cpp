@@ -1622,7 +1622,8 @@ void CvMap::calculateAreas()
 	}
 
 	//log the result
-	if (GC.getLogging() && VPDEBUG)
+#if defined(VPDEBUG)
+	if (GC.getLogging() && )
 	{
 		static int iCallCount = 0; //apparently this is called multiple times
 		FILogFile* pLog = LOGFILEMGR.GetLog( CvString::format("MapAreas%02d.txt",iCallCount++).c_str(), FILogFile::kDontTimeStamp);
@@ -1637,6 +1638,7 @@ void CvMap::calculateAreas()
 				pPlot->getX(), pPlot->getY(), pPlot->getTerrainType(), pPlot->getFeatureType(), pPlot->getArea()).c_str());
 		}
 	}
+#endif
 }
 
 
