@@ -39561,7 +39561,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							{
 								PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 								
-								if (eThirdParty == eLoopPlayer || eThirdParty == eFromPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eFromPlayer).getTeam())
+								if (eThirdParty == eLoopPlayer || eThirdParty == eFromPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eFromPlayer).getTeam() || GET_PLAYER(eThirdParty).isHuman())
 									continue;
 								
 								if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))
@@ -39581,11 +39581,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 							{
 								PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 								
-								if (eThirdParty == eLoopPlayer || eThirdParty == eFromPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eFromPlayer).getTeam())
+								if (eThirdParty == eLoopPlayer || eThirdParty == eFromPlayer || GET_PLAYER(eThirdParty).getTeam() == GET_PLAYER(eFromPlayer).getTeam() || GET_PLAYER(eThirdParty).isHuman())
 									continue;
 
 								// Only if not a *better* friend/ally of the master (because the AI will often befriend vassals.)
-								if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsFriendOrAlly(eFromPlayer) && GetCachedOpinionWeight(eFromPlayer) < GetCachedOpinionWeight(eLoopPlayer))
+								if (GET_PLAYER(eThirdParty).GetDiplomacyAI()->IsFriendOrAlly(eFromPlayer) && GET_PLAYER(eThirdParty).GetDiplomacyAI()->GetCachedOpinionWeight(eFromPlayer) < GET_PLAYER(eThirdParty).GetDiplomacyAI()->GetCachedOpinionWeight(eLoopPlayer))
 									continue;
 								
 								if (GET_PLAYER(eFromPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerValid(eThirdParty) && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(eThirdParty))

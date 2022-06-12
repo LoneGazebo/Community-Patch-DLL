@@ -9523,32 +9523,20 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 //  We are no longer the vassal of eTeam
 void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification)
 {
-	CvString strBuffer;
-	int iI;
-	
-	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID");
-	
-	if(!IsVassal(eTeam))
+	if (eTeam == NO_TEAM || eTeam == GetID() || !IsVassal(eTeam))
 		return;
 
 	// What does it mean when we break vassalage
-	CvPlayer* pOurPlayer;
-	PlayerTypes eOurPlayer;
-	for(int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
+	for (int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
 	{
-		eOurPlayer = (PlayerTypes) iOurPlayerLoop;
-		pOurPlayer = &GET_PLAYER(eOurPlayer);
-			
-		if(pOurPlayer->isAlive())
+		PlayerTypes eOurPlayer = (PlayerTypes) iOurPlayerLoop;
+		CvPlayer* pOurPlayer = &GET_PLAYER(eOurPlayer);
+
+		if (pOurPlayer->isAlive() && pOurPlayer->getTeam() == GetID())
 		{
-			// Our Team
-			if(pOurPlayer->getTeam() == GetID())
-			{
-				pOurPlayer->GetDiplomacyAI()->DoWeEndedVassalageWithSomeone(eTeam);
-				GET_TEAM(eTeam).SetVassalTax(eOurPlayer, 0);
-				GET_TEAM(eTeam).SetNumTurnsSinceVassalTaxSet(eOurPlayer, -1);
-			}
+			pOurPlayer->GetDiplomacyAI()->DoWeEndedVassalageWithSomeone(eTeam);
+			GET_TEAM(eTeam).SetVassalTax(eOurPlayer, 0);
+			GET_TEAM(eTeam).SetNumTurnsSinceVassalTaxSet(eOurPlayer, -1);
 		}
 	}
 
@@ -9569,38 +9557,52 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	}
 
 	// Not peaceful end of vassalage? Declare war!
-	if(!bPeaceful)
-	{
+	if (!bPeaceful)
 		declareWar(eTeam);
-	}
 
 	// Update war/peace relationships for all of eTeam's vassals
-	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+	for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
-		if(GET_TEAM((TeamTypes)iTeamLoop).GetMaster() == eTeam)
+		if (GET_TEAM((TeamTypes)iTeamLoop).GetMaster() == eTeam)
 		{
 			GET_TEAM((TeamTypes)iTeamLoop).DoUpdateVassalWarPeaceRelationships();
 		}
 	}
 
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		// Update Happiness for all players
-		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
 		{
 			GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
 		}
 	}
 
 	vector<PlayerTypes> vOurTeam = getPlayers();
-	for(size_t i=0; i<vOurTeam.size(); i++)
+	vector<PlayerTypes> vTheirTeam = GET_TEAM(eTeam).getPlayers();
+	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
+		if (!kPlayer.isMajorCiv())
+			continue;
+
 		if (kPlayer.isAlive())
 		{
 			vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
 			kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v, false, true, true);
+		}
+
+		// Clear resurrection mark to prevent a later backstabbing penalty
+		if (!bPeaceful)
+		{
+			for (size_t j=0; j<vTheirTeam.size(); j++)
+			{
+				if (!GET_PLAYER(vTheirTeam[j]).isMajorCiv())
+					continue;
+
+				kPlayer.GetDiplomacyAI()->SetResurrectedBy(vTheirTeam[j], false);
+			}
 		}
 	}
 
@@ -9610,7 +9612,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 
 	Localization::String locString, summaryString;
 
-	for (iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iI;
 
@@ -9671,7 +9673,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
-	strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
+	CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_ENDED_VASSALAGE", getName().GetCString(), GET_TEAM(eTeam).getName().GetCString());
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer, -1, -1);
 }
 
