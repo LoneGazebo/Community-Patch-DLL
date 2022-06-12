@@ -2092,7 +2092,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end		
 			end			
 			
-			if (pTheirUnit:IsCombatUnit()) then
+			if (pTheirUnit:IsCombatUnit() and pTheirUnit:IsEmbarked()) then
+				-- Embarked unit only has one possible combat strength modifier
+				iModifier = pTheirUnit:GetEmbarkDefensiveModifier();
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_EMBARKATION_DEFENSE" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+			elseif (pTheirUnit:IsCombatUnit()) then
 
 				-- Damaged unit (cannot combine with other modifiers as it is multiplicative with them)
 				iModifier = pTheirUnit:GetDamageCombatModifier(bRanged);
@@ -2803,11 +2811,18 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 	Controls.StalemateIndicator:SetHide(true);
 					
 	-- Show some bonuses
-	if (theirUnit:IsCombatUnit()) then
-		local iModifier;
-		local controlTable;
-		local strText;
-		
+	local iModifier;
+	local controlTable;
+	local strText;
+	if (theirUnit:IsCombatUnit() and theirUnit:IsEmbarked()) then
+		-- Embarked unit only has one possible combat strength modifier
+		iModifier = theirUnit:GetEmbarkDefensiveModifier();
+		if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_EMBARKATION_DEFENSE" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
+	elseif (theirUnit:IsCombatUnit()) then
 		local myPlayerID = myCity:GetOwner();
 		local myPlayer = Players[myPlayerID];
 		
