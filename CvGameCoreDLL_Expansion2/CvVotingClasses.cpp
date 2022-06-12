@@ -4286,50 +4286,11 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iReligionVotes = 0;
 	if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
-		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
-		bool bOwned = eReligion != NO_RELIGION;
-		if (!bOwned)
-		{
-			eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
-		}
-		if (eReligion != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
-			if (pReligion)
-			{
-				CvCity* pHolyCity = bOwned ? pReligion->GetHolyCity() : GET_PLAYER(ePlayer).getCapitalCity();
-				if (pHolyCity != NULL)
-				{
-					int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(ePlayer, pHolyCity, true);
-					if (iExtraVotes > 0)
-					{
-						int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
-						if (iNumMinor > 0)
-						{
-							iReligionVotes = (iExtraVotes * iNumMinor);
-						}
-						iVotes += iReligionVotes;
-					}
-
-					int iNumImprovementInfos = GC.getNumImprovementInfos();
-					for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
-					{
-						int iPotentialVotes = pReligion->m_Beliefs.GetVoteFromOwnedImprovement((ImprovementTypes)jJ);
-						if (iPotentialVotes > 0)
-						{
-							int numImprovements = GET_PLAYER(ePlayer).getImprovementCount((ImprovementTypes)jJ);
-							int iTempVotes = numImprovements / iPotentialVotes;
-							iReligionVotes += iTempVotes;
-							iVotes += iTempVotes;
-						}
-					}
-				}
-			}
-		}
+		iReligionVotes += GET_PLAYER(ePlayer).GetReligionVotes();
+		iVotes += iReligionVotes;
 	}
 
 	int iPolicyVotes = 0;
-
 	iPolicyVotes = GET_PLAYER(ePlayer).GetFreeWCVotes();
 	if (iPolicyVotes > 0)
 	{

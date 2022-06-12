@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1486,7 +1486,7 @@ public:
 	int getDropRange() const;
 	void changeDropRange(int iChange);
 
-	bool isOutOfAttacks() const;
+	bool isOutOfAttacks(bool bIgnoreMoves = false) const;
 	void setMadeAttack(bool bNewValue);
 
 	int GetNumInterceptions() const;

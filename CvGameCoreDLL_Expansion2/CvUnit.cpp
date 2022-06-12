@@ -11683,7 +11683,7 @@ int CvUnit::GetScaleAmount(int iAmountToScale) const
 		if (iScaleAmount <= 0)
 			continue;
 
-		int iOwned = GET_PLAYER(getOwner()).CountAllImprovement(eImprovement, true);
+		int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement, true);
 		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
 		iExtra /= 100;
 
@@ -11711,7 +11711,7 @@ int CvUnit::getDiscoverAmount()
 			iValue = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
 
 #if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			//Let's make the GM a little more flexible.
+			//Let's make the GS a little more flexible.
 			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			{
 				//scale up our value
@@ -12231,18 +12231,13 @@ bool CvUnit::trade()
 		if(m_pUnitInfo->GetNumGoldPerEra() > 0)
 		{
 			int iCap = 5;
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 			//Let's make the GM a little more flexible.
-			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			{
-				iCap = GetScaleAmount(iCap);
-			}
-#endif
+			iCap = GetScaleAmount(iCap);
 			iCap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
 			iCap /= 100;
+
 			CvCity* pLoopCity;
 			int iCityLoop;
-
 			// Loop through owner's cities.
 			for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
 			{
@@ -16545,45 +16540,40 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-	// Siege bonus
-	if (bAttacking)
-	{
-		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
-	}
-
-	// Great General nearby
-	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
-	{
-		iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
-	}
-
-	if (!bIgnoreUnitAdjacencyBoni && GetAdjacentModifier() != 0)
-	{
-		// Adjacent Friendly military Unit?
-		if (pMyPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
-		{
-			iModifier += GetAdjacentModifier();
-			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
-			{
-				const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
-				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
-				if (iModPerAdjacent != 0)
-				{
-					int iNumFriendliesAdjacent = pMyPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
-					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
-				}
-			}
-		}
-	}
-
 	// sometimes we want to ignore the finer points
 	if (!bQuickAndDirty)
 	{
-		// Reverse Great General nearby
-		int iReverseGGModifier = GetReverseGreatGeneralModifier(pMyPlot);
-		if (iReverseGGModifier != 0)
+		if (!bIgnoreUnitAdjacencyBoni)
 		{
-			iModifier += iReverseGGModifier;
+			// Adjacent Friendly military Unit?
+			if (pMyPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+			{
+				iModifier += GetAdjacentModifier();
+				for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
+				{
+					const UnitCombatTypes eUnitCombat = static_cast<UnitCombatTypes>(iI);
+					int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
+					iModPerAdjacent += bAttacking ? getCombatModPerAdjacentUnitCombatAttackMod(eUnitCombat) : getCombatModPerAdjacentUnitCombatDefenseMod(eUnitCombat);
+					if (iModPerAdjacent != 0)
+					{
+						int iNumFriendliesAdjacent = pMyPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+						iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
+					}
+				}
+			}
+
+			// Great General nearby
+			if (!IsIgnoreGreatGeneralBenefit())
+			{
+				iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
+			}
+
+			// Reverse Great General nearby
+			int iReverseGGModifier = GetReverseGreatGeneralModifier(pMyPlot);
+			if (iReverseGGModifier != 0)
+			{
+				iModifier += iReverseGGModifier;
+			}
 		}
 
 		// Improvement with combat bonus (from trait) nearby
@@ -16730,8 +16720,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		else
 			iModifier += attackFullyHealedModifier();
 
-		//More than half?
-		if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() * .5))
+		//More than half (integer division accounting for possible odd Max HP)?
+		if (pOtherUnit->getDamage() < ((pOtherUnit->GetMaxHitPoints()+1) / 2))
 			iModifier += attackAbove50HealthModifier();
 		else
 			iModifier += attackBelow50HealthModifier();
@@ -16839,6 +16829,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Ranged attack mod
 	if(bAttacking)
 	{
+		iModifier += GetNearbyCityBonusCombatMod(pMyPlot);
 		iModifier += GetRangedAttackModifier();
 		iModifier += getAttackModifier();
 	}
@@ -24278,10 +24269,10 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::isOutOfAttacks() const
+bool CvUnit::isOutOfAttacks(bool bIgnoreMoves) const
 {
 	VALIDATE_OBJECT
-	if (!canMove())
+	if (!bIgnoreMoves && !canMove())
 		return true;
 
 	// Units with blitz don't run out of attacks!
@@ -24415,7 +24406,8 @@ void CvUnit::setPromotionReady(bool bNewValue)
 void CvUnit::testPromotionReady()
 {
 	VALIDATE_OBJECT
-	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && canAcquirePromotionAny());
+	
+	setPromotionReady(((getExperienceTimes100() / 100) >= experienceNeeded()) && !isOutOfAttacks(true) && canAcquirePromotionAny());
 }
 
 
@@ -26260,10 +26252,6 @@ bool CvUnit::isPromotionValid(PromotionTypes ePromotion) const
 bool CvUnit::canAcquirePromotionAny() const
 {
 	VALIDATE_OBJECT
-
-	// Can't promote a unit that is out of moves and has attacked
-	if (!canMove() && getNumAttacksMadeThisTurn() > 0)
-		return false;
 
 	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
