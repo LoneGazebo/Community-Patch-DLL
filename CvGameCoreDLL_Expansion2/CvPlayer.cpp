@@ -12689,19 +12689,25 @@ void CvPlayer::findNewCapital()
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_CITY_RAZING))
+	if (GC.getGame().isOption(GAMEOPTION_NO_CITY_RAZING))
 	{
 		return false;
 	}
 
 	// If we don't own this city right now then we can't raze it!
-	if(pCity->getOwner() != GetID())
+	if (pCity->getOwner() != GetID())
+	{
+		return false;
+	}
+
+	// Humans cannot raze in a OCC game - it's destroyed instead
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(pCity->getOwner()).isHuman())
 	{
 		return false;
 	}
 
 	// Can't raze a city that originally belonged to us
-	if(pCity->getOriginalOwner() == GetID())
+	if (pCity->getOriginalOwner() == GetID())
 	{
 		return false;
 	}
@@ -12724,14 +12730,12 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		}
 	}
 
-#if defined(MOD_EVENTS_CITY_RAZING)
-	if (MOD_EVENTS_CITY_RAZING) {
+	if (MOD_EVENTS_CITY_RAZING)
+	{
 		// Note the subtle difference between CanRazeOverride and PlayerCanRaze, the former needs everyone to agree, the latter anyone
-		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanRaze, pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_TRUE) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanRaze, pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_TRUE)
 			return true;
-		}
 	}
-#endif
 
 	// No razing of capitals
 	CvPlayer* pOriginalOwner = &GET_PLAYER(pCity->getOriginalOwner());
