@@ -2397,7 +2397,6 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE)
 				if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
 				{
 					int iNumMarried = 0;
@@ -2419,11 +2418,10 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 					}
 				}
-#endif
+
 				// Apply mod
 				iGPPChange *= (100 + iMod);
 				iGPPChange /= 100;
-
 			}
 		}
 	}

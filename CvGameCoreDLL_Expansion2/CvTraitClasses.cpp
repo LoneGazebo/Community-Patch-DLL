@@ -152,6 +152,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCanGoldInternalTradeRoutes(false),
 	m_iExtraTradeRoutesPerXOwnedCities(0),
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
+	m_iMinorInfluencePerGiftedUnit(0),
 	m_bIsCapitalOnly(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -929,6 +930,11 @@ int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
 int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
 {
 	return m_iExtraTradeRoutesPerXOwnedVassals;
+}
+/// Gifting units to City-States awards Influence per turn while the units remain alive
+int CvTraitEntry::GetMinorInfluencePerGiftedUnit() const
+{
+	return m_iMinorInfluencePerGiftedUnit;
 }
 bool CvTraitEntry::IsCapitalOnly() const
 {
@@ -2409,6 +2415,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
+	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");
 	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -3994,6 +4001,7 @@ void CvPlayerTraits::SetIsDiplomat()
 		GetLuxuryHappinessRetention() != 0 ||
 		GetTradeBuildingModifier() != 0 ||
 		GetVotePerXCSAlliance() != 0 ||
+		GetMinorInfluencePerGiftedUnit() > 0 ||
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 		(MOD_DIPLOMACY_CITYSTATES && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
 #endif
@@ -4465,6 +4473,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
 			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
+			m_iMinorInfluencePerGiftedUnit += trait->GetMinorInfluencePerGiftedUnit();
 			if (trait->IsCapitalOnly())
 			{
 				m_bIsCapitalOnly = true;
@@ -5229,6 +5238,7 @@ void CvPlayerTraits::Reset()
 	m_bCanGoldInternalTradeRoutes = false;
 	m_iExtraTradeRoutesPerXOwnedCities = 0;
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
+	m_iMinorInfluencePerGiftedUnit = 0;
 	m_bIsCapitalOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -7461,6 +7471,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bCanGoldInternalTradeRoutes);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedCities);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedVassals);
+	visitor(playerTraits.m_iMinorInfluencePerGiftedUnit);
 	visitor(playerTraits.m_bIsCapitalOnly);
 	visitor(playerTraits.m_iInvestmentModifier);
 	visitor(playerTraits.m_iCombatBonusVsHigherTech);

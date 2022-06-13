@@ -1730,6 +1730,9 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMissionarySpreads' INTEGER DEFAULT 0;
 -- If the player has this building, they ignore the global Defensive Pact limit
 ALTER TABLE Buildings ADD COLUMN 'IgnoreDefensivePactLimit' BOOLEAN DEFAULT 0;
 
+-- Gifting units to City-States awards Influence per turn while the units remain alive
+ALTER TABLE Traits ADD COLUMN 'MinorInfluencePerGiftedUnit' INTEGER DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 

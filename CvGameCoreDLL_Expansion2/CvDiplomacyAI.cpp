@@ -10363,33 +10363,16 @@ void CvDiplomacyAI::DoUpdateWarStates()
 /// What is the integer value of how well we think the war with ePlayer is going?
 int CvDiplomacyAI::GetWarScore(PlayerTypes ePlayer)
 {
-	if ((int)ePlayer < 0 || (int)ePlayer >= MAX_CIV_PLAYERS) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
 
 	if (!IsAtWar(ePlayer))
 		return 0;
 
-	int iWarScore = GET_PLAYER(ePlayer).GetWarDamageValue(GetID());
-	int iTheirWarScore = GetPlayer()->GetWarDamageValue(ePlayer);
-	int iAverageScore = 0;
+	int iWarDamageWeInflicted = GET_PLAYER(ePlayer).GetWarDamageValue(GetID());
+	int iWarDamageTheyInflicted = GetPlayer()->GetWarDamageValue(ePlayer);
 
-	if (iWarScore == iTheirWarScore)
-	{
-		iAverageScore = 0;
-	}
-	else if (iWarScore > iTheirWarScore)
-	{
-		iAverageScore = iWarScore - iTheirWarScore;
-	}
-	else if (iTheirWarScore > iWarScore)
-	{
-		iAverageScore = iTheirWarScore - iWarScore;
-		iAverageScore *= -1;
-	}
-
-	//Doubled because of the 'average' above.
-	iAverageScore *= 2;
-
-	return range(iAverageScore, -100, 100);
+	int iWarScore = (iWarDamageWeInflicted - iWarDamageTheyInflicted) * 2;
+	return range(iWarScore, -100, 100);
 }
 
 int CvDiplomacyAI::GetHighestWarscore()
@@ -23647,6 +23630,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		bAnyFriendshipBonus = true;
 	}
 	if (pTraits->GetAllianceCSDefense() > 0)
+	{
+		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
+		bAnyFriendshipBonus = true;
+	}
+	if (pTraits->GetMinorInfluencePerGiftedUnit() > 0)
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 5;
 		bAnyFriendshipBonus = true;

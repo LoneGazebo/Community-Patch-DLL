@@ -229,17 +229,18 @@ class CvMinorCivIncomingUnitGift
 {
 public:
 	CvMinorCivIncomingUnitGift();
-	CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns);
+	CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns, PlayerTypes eFromPlayer);
 
 	template<typename MinorCivIncomingUnitGift, typename Visitor>
 	static void Serialize(MinorCivIncomingUnitGift& minorCivIncomingUnitGift, Visitor& visitor);
 
-	void init(const CvUnit& srcUnit, int iArriveInTurns);
+	void init(const CvUnit& srcUnit, int iArriveInTurns, PlayerTypes eFromPlayer);
 
 	int getArrivalCountdown() const;
 	UnitTypes getUnitType() const;
 	CvPlot* getFromPlot() const;
 	PlayerTypes getOriginalOwner() const;
+	PlayerTypes getGiftedByPlayer() const;
 	int getGameTurnCreated() const;
 	bool isHasPromotion(PromotionTypes ePromotion) const;
 	int getPromotionDuration(PromotionTypes ePromotion) const;
@@ -260,6 +261,7 @@ public:
 	void setUnitType(UnitTypes eNewUnitType);
 	void setFromXY(int iFromX, int iFromY);
 	void setOriginalOwner(PlayerTypes eNewOriginalOwner);
+	void setGiftedByPlayer(PlayerTypes ePlayer);
 	void setGameTurnCreated(int iNewValue);
 	void setHasPromotion(PromotionTypes ePromotion, bool bNewValue);
 	void setPromotionDuration(PromotionTypes ePromotion, int iNewValue);
@@ -283,6 +285,7 @@ private:
 	int m_iFromX;
 	int m_iFromY;
 	PlayerTypes m_eOriginalOwner;
+	PlayerTypes m_eGiftedByPlayer;
 	int m_iGameTurnCreated;
 	CvBitfield m_HasPromotions;
 	std::map<PromotionTypes, int> m_PromotionDuration;

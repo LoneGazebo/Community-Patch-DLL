@@ -4020,6 +4020,7 @@ CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
 	, m_iFromX(0)
 	, m_iFromY(0)
 	, m_eOriginalOwner(NO_PLAYER)
+	, m_eGiftedByPlayer(NO_PLAYER)
 	, m_iGameTurnCreated(0)
 	, m_bPromotedFromGoody(false)
 	, m_iExperienceTimes100(0)
@@ -4031,13 +4032,13 @@ CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift()
 }
 
 ///
-CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns)
+CvMinorCivIncomingUnitGift::CvMinorCivIncomingUnitGift(const CvUnit& srcUnit, int iArriveInTurns, PlayerTypes eFromPlayer)
 {
-	init(srcUnit, iArriveInTurns);
+	init(srcUnit, iArriveInTurns, eFromPlayer);
 }
 
 ///
-void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
+void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns, PlayerTypes eFromPlayer)
 {
 	reset();
 
@@ -4045,6 +4046,7 @@ void CvMinorCivIncomingUnitGift::init(const CvUnit& srcUnit, int iArriveInTurns)
 	setUnitType(srcUnit.getUnitType());
 	setFromXY(srcUnit.getX(), srcUnit.getY());
 	setOriginalOwner(srcUnit.GetOriginalOwner());
+	setGiftedByPlayer(eFromPlayer);
 	setGameTurnCreated(srcUnit.getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
@@ -4088,6 +4090,12 @@ CvPlot* CvMinorCivIncomingUnitGift::getFromPlot() const
 PlayerTypes CvMinorCivIncomingUnitGift::getOriginalOwner() const
 {
 	return m_eOriginalOwner;
+}
+
+///
+PlayerTypes CvMinorCivIncomingUnitGift::getGiftedByPlayer() const
+{
+	return m_eGiftedByPlayer;
 }
 
 ///
@@ -4202,6 +4210,12 @@ void CvMinorCivIncomingUnitGift::setOriginalOwner(PlayerTypes eNewOriginalOwner)
 }
 
 ///
+void CvMinorCivIncomingUnitGift::setGiftedByPlayer(PlayerTypes ePlayer)
+{
+	m_eGiftedByPlayer = ePlayer;
+}
+
+///
 void CvMinorCivIncomingUnitGift::setGameTurnCreated(int iNewValue)
 {
 	m_iGameTurnCreated = iNewValue;
@@ -4291,6 +4305,7 @@ bool CvMinorCivIncomingUnitGift::hasIncomingUnit() const
 void CvMinorCivIncomingUnitGift::applyToUnit(PlayerTypes eFromPlayer, CvUnit& destUnit) const
 {
 	destUnit.SetOriginalOwner(getOriginalOwner());
+	destUnit.SetGiftedByPlayer(getGiftedByPlayer());
 	destUnit.setGameTurnCreated(getGameTurnCreated());
 	for (int i = 0; i < GC.getNumPromotionInfos(); ++i)
 	{
@@ -4332,6 +4347,7 @@ void CvMinorCivIncomingUnitGift::Serialize(MinorCivIncomingUnitGift& minorCivInc
 		visitor(minorCivIncomingUnitGift.m_iFromX);
 		visitor(minorCivIncomingUnitGift.m_iFromY);
 		visitor(minorCivIncomingUnitGift.m_eOriginalOwner);
+		visitor(minorCivIncomingUnitGift.m_eGiftedByPlayer);
 		visitor(minorCivIncomingUnitGift.m_iGameTurnCreated);
 		visitor(minorCivIncomingUnitGift.m_HasPromotions);
 		visitor(minorCivIncomingUnitGift.m_PromotionDuration);
@@ -10915,81 +10931,71 @@ void CvMinorCivAI::DoFriendship()
 	Localization::String strSummary;
 	const char* strMinorsNameKey = GetPlayer()->getNameKey();
 
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if(GET_PLAYER(ePlayer).isAlive())
+		if (!GET_PLAYER(ePlayer).isAlive() || !IsHasMetPlayer(ePlayer))
+			continue;
+
+		// Look at the base friendship (not counting war status etc.) and change it
+		int iOldFriendship = GetBaseFriendshipWithMajor(ePlayer);
+		int iChangeThisTurn = GetFriendshipChangePerTurnTimes100(ePlayer);
+		int iFriendshipAnchor = GetFriendshipAnchorWithMajor(ePlayer);
+		int iNewFriendship = iOldFriendship + (iChangeThisTurn / 100);
+
+		if (iOldFriendship >= iFriendshipAnchor && iNewFriendship < iFriendshipAnchor)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!IsHasMetPlayer(ePlayer))
-			{
-				continue;
-			}
-#endif
-			// Update friendship even if the player hasn't met us yet, since we may have heard things through the grapevine (Wary Of, SP, etc.)
+			// If we are at or above anchor, don't let the decay dip us below it
+			SetFriendshipWithMajor(ePlayer, iFriendshipAnchor);
+		}
+		else if (iChangeThisTurn != 0)
+		{
+			ChangeFriendshipWithMajorTimes100(ePlayer, iChangeThisTurn);
+		}
+		else
+		{
+			// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
+			DoFriendshipChangeEffects(ePlayer, iOldFriendship, iNewFriendship);
+		}
 
-			// Look at the base friendship (not counting war status etc.) and change it
-			int iOldFriendship = GetBaseFriendshipWithMajor(ePlayer);
-			int iChangeThisTurn = GetFriendshipChangePerTurnTimes100(ePlayer);
-			int iFriendshipAnchor = GetFriendshipAnchorWithMajor(ePlayer);
-			int iNewFriendship = iOldFriendship + (iChangeThisTurn / 100);
-			if(iOldFriendship >= iFriendshipAnchor && iNewFriendship < iFriendshipAnchor)
-			{
-				// If we are at or above anchor, don't let the decay dip us below it
-				SetFriendshipWithMajor(ePlayer, iFriendshipAnchor);
-			}
-			else if (iChangeThisTurn != 0)
-			{
-				ChangeFriendshipWithMajorTimes100(ePlayer, iChangeThisTurn);
-			}
-			else
-			{
-				// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
-				DoFriendshipChangeEffects(ePlayer, iOldFriendship, iNewFriendship);
-			}
+		// Notification for status changes
+		if (GetPlayer()->isAlive() && GetPermanentAlly() != ePlayer)
+		{
+			const int iTurnsWarning = 2;
+			const int iAlliesThreshold = GetAlliesThreshold(ePlayer) * 100;
+			const int iFriendsThreshold = GetFriendsThreshold(ePlayer) * 100;
+			int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 
-			// Notification for status changes
-			if(GetPlayer()->isAlive() && IsHasMetPlayer(ePlayer))
+			if (IsAllies(ePlayer))
 			{
-				const int iTurnsWarning = 2;
-				const int iAlliesThreshold = GetAlliesThreshold(ePlayer) * 100;
-				const int iFriendsThreshold = GetFriendsThreshold(ePlayer) * 100;
-
-				int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				if(IsAllies(ePlayer) && GetPermanentAlly() != ePlayer)
+				if (iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iAlliesThreshold &&
+					iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iAlliesThreshold)
 				{
-					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iAlliesThreshold &&
-						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iAlliesThreshold)
-					{
-						strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_ALLIES");
-						strMessage << strMinorsNameKey;
-						strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
-						strSummary << strMinorsNameKey;
+					strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_ALLIES");
+					strMessage << strMinorsNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
+					strSummary << strMinorsNameKey;
 
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
-					}
-#if defined(MOD_API_ACHIEVEMENTS)
-					if(!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
-					}
-#endif
-
+					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 				}
-				else if(IsFriends(ePlayer) && GetPermanentAlly() != ePlayer)
-				{
-					if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iFriendsThreshold &&
-						iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iFriendsThreshold)
-					{
-						strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_FRIENDS");
-						strMessage << strMinorsNameKey;
-						strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
-						strSummary << strMinorsNameKey;
 
-						AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
-					}
+				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
+				}
+			}
+			else if (IsFriends(ePlayer))
+			{
+				if (iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iFriendsThreshold &&
+					iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iFriendsThreshold)
+				{
+					strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_FRIENDS");
+					strMessage << strMinorsNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
+					strSummary << strMinorsNameKey;
+
+					AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 				}
 			}
 		}
@@ -11001,119 +11007,18 @@ void CvMinorCivAI::DoFriendship()
 /// with this minor, in which case there is no friendship change per turn.
 int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 {
+	if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv() || GetPlayer()->getCapitalCity() == NULL)
+		return 0;
+
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	int iChangeThisTurn = 0;
-	if(ePlayer == NO_PLAYER)
-		return 0;
+	int iCurrentInfluence = GetBaseFriendshipWithMajor(ePlayer);
+	int iRestingPoint = GetFriendshipAnchorWithMajor(ePlayer);
+	int iUnitGiftInfluence = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit();
+	int iShift = 0;
 
-	if(GetPlayer()->getCapitalCity() == NULL)
-		return 0;
-
-	// Modifier to rate based on traits and religion
-	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
-	int iReligionMod = 0;
-	if (IsSameReligionAsMajor(ePlayer))
-		iReligionMod += /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION);
-
-	// Relation to anchor point?
-	int iBaseFriendship = GetBaseFriendshipWithMajor(ePlayer);
-	int iFriendshipAnchor = GetFriendshipAnchorWithMajor(ePlayer);
-	if (iBaseFriendship == iFriendshipAnchor)
-	{
-		// Change rate is 0
-	}
-	else if (iBaseFriendship > iFriendshipAnchor)
-	{
-		// Hostile Minors have Friendship decay quicker
-		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-			iChangeThisTurn += /*-150*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE);
-		// Aggressor!
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
-		else if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->getCapitalCity()->getDamage() > 0) && IsProtectedByMajor(ePlayer))
-			iChangeThisTurn += /*-600*/ (GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR) * 3);
-#endif
-		else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
-			iChangeThisTurn += /*-200*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR);
-		// Normal decay
-		else
-			iChangeThisTurn += /*-100*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN);
-
-		//Influence decay increases the higher your influence over 100;
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS &&  iBaseFriendship > 100)
-		{
-			float iInfluenceTotal = GetBaseFriendshipWithMajorTimes100(ePlayer) * .001f;
-
-			if (iInfluenceTotal != 0)
-				iChangeThisTurn += (int)iInfluenceTotal*-1;
-		}
-		// Decay modified (Trait, policies, shared religion, etc.)
-		int iDecayMod = 100;
-		iDecayMod += GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod();
-		iDecayMod += (-1) * (iTraitMod / 2);
-		iDecayMod += (-1) * (iReligionMod / 2);
-		
-		if (iDecayMod < 0)
-			iDecayMod = 0;
-
-		iChangeThisTurn *= iDecayMod;
-		iChangeThisTurn /= 100;
-	}
-	else
-	{
-		iChangeThisTurn += /*100*/ GC.getMINOR_FRIENDSHIP_NEGATIVE_INCREASE_PER_TURN();
-
-		// Recovery modified (Trait, policies, shared religion, etc.)
-		int iRecoveryMod = 100;
-		iRecoveryMod += iTraitMod;
-		iRecoveryMod += iReligionMod;
-		
-		if (iRecoveryMod < 0)
-			iRecoveryMod = 0;
-
-		iChangeThisTurn *= iRecoveryMod;
-		iChangeThisTurn /= 100;
-	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (IsAllies(ePlayer) && GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
-	{
-		iChangeThisTurn = 0;
-	}
-	//No CS drop for allies - Cold War fun!
-	else if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
-	{
-		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if(pLeague != NULL)
-		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(eLoopPlayer != NO_PLAYER)
-				{
-					if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
-					{
-						iChangeThisTurn = 0;
-					}
-				}
-			}
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if (iBaseFriendship > iFriendshipAnchor && !GET_PLAYER(ePlayer).IsAtWarWith(GetPlayer()->GetID()))
-	{
-		if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(ePlayer))
-		{
-			iChangeThisTurn = 0;
-		}
-	}
-#endif
-	// Shift on top of base rate
+	// Influence bonus from special sources (policies, etc.)
 	if (GET_TEAM(kPlayer.getTeam()).isHasMet(GetPlayer()->getTeam()))
 	{
-		int iShift = 0;
-
 		if (kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE) != 0)
 		{
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
@@ -11132,10 +11037,125 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE);
 			iShift += kPlayer.GetPlayerTraits()->GetAfraidMinorPerTurnInfluence();
 		}
-		
-		if (iShift != 0)
+
+		// Bonus Influence from unit gifts
+		if (iUnitGiftInfluence != 0)
 		{
-			iChangeThisTurn += iShift;
+			int iLoop;
+			for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iLoop))
+			{
+				if (!pLoopUnit->IsCombatUnit() || pLoopUnit->isDelayedDeath())
+					continue;
+
+				if (pLoopUnit->GetGiftedByPlayer() != ePlayer)
+					continue;
+
+				iShift += iUnitGiftInfluence * 100;
+			}
+		}
+	}
+
+	// Nothing to change!
+	if (iCurrentInfluence == iRestingPoint)
+		return iShift;
+
+	int iChangeThisTurn = 0;
+
+	// Below resting point? Influence goes up!
+	if (iCurrentInfluence < iRestingPoint)
+	{
+		iChangeThisTurn += /*100*/ GD_INT_GET(MINOR_FRIENDSHIP_NEGATIVE_INCREASE_PER_TURN);
+		int iReligionBonus = IsSameReligionAsMajor(ePlayer) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
+
+		if (iChangeThisTurn > 0)
+		{
+			iChangeThisTurn *= (100 + iReligionBonus);
+			iChangeThisTurn /= 100;
+
+			iChangeThisTurn *= (100 + kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier());
+			iChangeThisTurn /= 100;
+		}
+		else
+			iChangeThisTurn = 0;
+	}
+	// Above resting point? Influence goes down!
+	else if (iCurrentInfluence > iRestingPoint)
+	{
+		if (GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
+			iChangeThisTurn += /*-200*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR);
+		else if (GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+			iChangeThisTurn += /*-150*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE);
+		else
+			iChangeThisTurn += /*-100*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN);
+
+		if (MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		{
+			//Influence decay increases the higher your influence over 100. >= 100 equals -1, >= 200 equals -2.82, >= 300 equals -5.2, >= 400 equals -8, >= 500 equals -11.18, and so on.
+			int iScalingInfluenceDecay = iCurrentInfluence / 10000;
+			if (iScalingInfluenceDecay > 0)
+			{
+				float fExponent = /*1.5*/ GD_FLOAT_GET(MINOR_INFLUENCE_SCALING_DECAY_EXPONENT);
+				double iExtraDecay = pow((double)iScalingInfluenceDecay, (double)fExponent) * -100;
+				iChangeThisTurn += (int)iExtraDecay;
+			}
+
+			// Multiply decay rate towards protectors if capital has taken damage
+			if (GetPlayer()->getCapitalCity()->getDamage() > 0 && IsProtectedByMajor(ePlayer))
+			{
+				iChangeThisTurn *= /*300*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER);
+				iChangeThisTurn /= 100;
+			}
+		}
+
+		// Reductions to decay?
+		if (iChangeThisTurn < 0)
+		{
+			int iDecayMod = 100 + GET_PLAYER(ePlayer).GetMinorFriendshipDecayMod();
+			iDecayMod += IsSameReligionAsMajor(ePlayer) ? /*-25*/ (GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) / -2) : 0;
+			iDecayMod += kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier() / -2;
+
+			if (iDecayMod < 0)
+				iDecayMod = 0;
+
+			iChangeThisTurn *= iDecayMod;
+			iChangeThisTurn /= 100;
+		}
+		else
+			iChangeThisTurn = 0;
+	}
+
+	iChangeThisTurn += iShift;
+
+	if (iChangeThisTurn < 0)
+	{
+		// No City-State decay while at war? (Autocracy tenet)
+		if (IsAllies(ePlayer) && GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
+		{
+			iChangeThisTurn = 0;
+		}
+		// Diplomatic Marriage active? (Austria UA)
+		else if (!kPlayer.IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(ePlayer))
+		{
+			iChangeThisTurn = 0;
+		}
+		// Cold War fun?
+		else if (MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if (eLoopPlayer != NO_PLAYER)
+					{
+						if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
+						{
+							iChangeThisTurn = 0;
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -11143,7 +11163,29 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	iChangeThisTurn *= 100;							// this could produce int over 32000
 	iChangeThisTurn /= GC.getGame().getGameSpeedInfo().getTrainPercent();
 
-	return iChangeThisTurn;
+	// Decay can't bring a player below their resting point, and recovery (except through special bonuses) can't bring a player above their resting point
+	int iRtnValue = iChangeThisTurn;
+	int iDelta = iRestingPoint - iCurrentInfluence;
+
+	if (iCurrentInfluence > iRestingPoint && iChangeThisTurn < 0)
+	{
+		iRtnValue = max(iChangeThisTurn, iDelta);
+	}
+	else if (iCurrentInfluence < iRestingPoint && iChangeThisTurn > 0)
+	{
+		if (iShift > 0)
+		{
+			int iChangeThisTurnWithoutShift = iChangeThisTurn - iShift;
+			if (iChangeThisTurnWithoutShift > 0)
+			{
+				iRtnValue = min(iChangeThisTurnWithoutShift, iDelta) + iShift;
+			}
+		}
+		else
+			iRtnValue = min(iChangeThisTurn, iDelta);
+	}
+
+	return iRtnValue;
 }
 
 // What is the level of Friendship between this Minor and the requested Major Civ?

@@ -325,6 +325,7 @@ CvUnit::CvUnit() :
 	, m_bAITurnProcessed()
 	, m_eOwner()
 	, m_eOriginalOwner()
+	, m_eGiftedByPlayer()
 	, m_eCapturingPlayer()
 	, m_bCapturedAsIs()
 	, m_eUnitType()
@@ -1666,6 +1667,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_bWaitingForMove = false;
 	m_eOwner = eOwner;
 	m_eOriginalOwner = eOwner;
+	m_eGiftedByPlayer = NO_PLAYER;
 	m_eCapturingPlayer = NO_PLAYER;
 	m_bCapturedAsIs = false;
 	m_eUnitType = eUnit;
@@ -5985,19 +5987,6 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		return false;
 	}
 
-	if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
-	{
-		CvMinorCivAI* pMinorCivAI = GET_PLAYER(pPlot->getOwner()).GetMinorCivAI();
-		CvAssert(pMinorCivAI);
-		if (pMinorCivAI)
-		{
-			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
-			{
-				return false;
-			}
-		}
-	}
-
 	if(pPlot->getOwner() == getOwner())
 	{
 		return false;
@@ -6051,20 +6040,15 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 			}
 		}
 	}
-#if defined(MOD_NO_MAJORCIV_GIFTING)
-	else
+	else if (MOD_NO_MAJORCIV_GIFTING)
 	{
-		if(MOD_NO_MAJORCIV_GIFTING)
-		{
-			return false;
-		}
+		return false;
 	}
-#endif
 
 	// No for religious units
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
 	{
-			return false;
+		return false;
 	}
 
 	if(bTestTransport)
@@ -6088,7 +6072,6 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		}
 	}
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (atWar(pPlot->getTeam(), getTeam()))
 		return false;
 
@@ -6101,9 +6084,6 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 	}
 
 	return true;
-#else
-	return !atWar(pPlot->getTeam(), getTeam());
-#endif
 }
 
 
@@ -6116,18 +6096,16 @@ void CvUnit::gift(bool bTestTransport)
 	CvUnit* pLoopUnit;
 	CvPlot* pPlot;
 	CvString strBuffer;
-	PlayerTypes eOwner;
+	PlayerTypes eCurrentOwner = getOwner();
 
-	if(!canGift(false, bTestTransport))
-	{
+	if (!canGift(false, bTestTransport))
 		return;
-	}
 
 	pPlot = plot();
 
 	pUnitNode = pPlot->headUnitNode();
 
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 
@@ -6147,10 +6125,8 @@ void CvUnit::gift(bool bTestTransport)
 
 	CvAssertMsg(pGiftUnit != NULL, "GiftUnit is not assigned a valid value");
 
-	if(pGiftUnit != NULL)
+	if (pGiftUnit != NULL)
 	{
-		eOwner = getOwner();
-
 		pGiftUnit->convert(this, false);
 		pGiftUnit->setupGraphical();
 
@@ -6158,19 +6134,22 @@ void CvUnit::gift(bool bTestTransport)
 		pGiftUnit->GetReligionDataMutable()->SetReligiousStrength(GetReligionData()->GetReligiousStrength());
 		pGiftUnit->GetReligionDataMutable()->SetSpreadsUsed(GetReligionData()->GetSpreadsUsed());
 
-		if(pGiftUnit->getOwner() == GC.getGame().getActivePlayer())
+		if (pGiftUnit->getOwner() == GC.getGame().getActivePlayer())
 		{
-			strBuffer = GetLocalizedText("TXT_KEY_MISC_GIFTED_UNIT_TO_YOU", GET_PLAYER(eOwner).getNameKey(), pGiftUnit->getNameKey());
-			DLLUI->AddUnitMessage(0, pGiftUnit->GetIDInfo(), pGiftUnit->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_UNITGIFTED", MESSAGE_TYPE_INFO, pGiftUnit->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pGiftUnit->getX(), pGiftUnit->getY(), true, true*/);
+			strBuffer = GetLocalizedText("TXT_KEY_MISC_GIFTED_UNIT_TO_YOU", GET_PLAYER(eCurrentOwner).getNameKey(), pGiftUnit->getNameKey());
+			DLLUI->AddUnitMessage(0, pGiftUnit->GetIDInfo(), pGiftUnit->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 		}
+
+		// Set gifted by player
+		pGiftUnit->SetGiftedByPlayer(eCurrentOwner);
 
 		CvPlayer* pMinorCiv = &GET_PLAYER(pGiftUnit->getOwner());
 
 		// Gift to Minor Civ
-		CvPlayer& kPlayer = GET_PLAYER(getOwner());
-		if(!kPlayer.isMinorCiv() && pMinorCiv->isMinorCiv())
+		CvPlayer& kPlayer = GET_PLAYER(eCurrentOwner);
+		if (!kPlayer.isMinorCiv() && pMinorCiv->isMinorCiv())
 		{
-			pMinorCiv->GetMinorCivAI()->DoUnitGiftFromMajor(eOwner, pGiftUnit, /*bDistanceGift*/ false);
+			pMinorCiv->GetMinorCivAI()->DoUnitGiftFromMajor(eCurrentOwner, pGiftUnit, /*bDistanceGift*/ false);
 		}
 	}
 }
@@ -6241,8 +6220,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 	// Maxed out unit class for Player
 	if(GET_PLAYER(eToPlayer).isUnitClassMaxedOut(getUnitClassType(), GET_PLAYER(eToPlayer).getUnitClassMaking(getUnitClassType())))
 		return false;
-	
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
+
 	if(atWar(eToTeam, getTeam()))
 		return false;
 	
@@ -6252,10 +6230,7 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 		}
 	}
 	
-	return true;
-#else
-	return !atWar(eToTeam, getTeam());
-#endif				
+	return true;			
 }
 
 //	--------------------------------------------------------------------------------
@@ -24549,6 +24524,18 @@ void CvUnit::SetOriginalOwner(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
+PlayerTypes CvUnit::GetGiftedByPlayer() const
+{
+	return m_eGiftedByPlayer;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetGiftedByPlayer(PlayerTypes ePlayer)
+{
+	m_eGiftedByPlayer = ePlayer;
+}
+
+//	--------------------------------------------------------------------------------
 PlayerTypes CvUnit::getCapturingPlayer() const
 {
 	VALIDATE_OBJECT
@@ -26956,6 +26943,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	// FIXME - Values in this chunk were formerly FAutoVariables. Remove any that shouldn't be saved.
 	visitor(unit.m_eOwner);
 	visitor(unit.m_eOriginalOwner);
+	visitor(unit.m_eGiftedByPlayer);
 	visitor(unit.m_iX);
 	visitor(unit.m_iY);
 	visitor(unit.m_iID);

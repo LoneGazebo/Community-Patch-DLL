@@ -1531,6 +1531,9 @@ public:
 	PlayerTypes GetOriginalOwner() const;
 	void SetOriginalOwner(PlayerTypes ePlayer);
 
+	PlayerTypes GetGiftedByPlayer() const;
+	void SetGiftedByPlayer(PlayerTypes ePlayer);
+
 	PlayerTypes getCapturingPlayer() const;
 	void setCapturingPlayer(PlayerTypes eNewValue);
 	bool IsCapturedAsIs() const;
@@ -1968,6 +1971,7 @@ protected:
 
 	PlayerTypes m_eOwner;
 	PlayerTypes m_eOriginalOwner;
+	PlayerTypes m_eGiftedByPlayer;
 	UnitTypes m_eUnitType;
 	int m_iX;
 	int m_iY;
@@ -2408,6 +2412,7 @@ void ClearUnitDeltas();
 SYNC_ARCHIVE_BEGIN(CvUnit)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eOwner)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eOriginalOwner)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_eGiftedByPlayer)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eUnitType)
 SYNC_ARCHIVE_VAR(int, m_iX)
 SYNC_ARCHIVE_VAR(int, m_iY)

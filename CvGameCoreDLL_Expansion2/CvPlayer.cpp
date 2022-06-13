@@ -37495,7 +37495,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	if (!pUnit) { return; }
 
 	// Gift to a minor civ for friendship
-	if(isMinorCiv() && eFromPlayer < MAX_MAJOR_CIVS)
+	if(isMinorCiv() && GET_PLAYER(eFromPlayer).isMajorCiv())
 	{
 		CvMinorCivAI* pMinorCivAI = GetMinorCivAI();
 		CvAssert(pMinorCivAI);
@@ -37505,7 +37505,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 			CvAssertMsg(!unitGift.hasIncomingUnit(), "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
 			if (!unitGift.hasIncomingUnit())
 			{
-				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS));
+				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS), eFromPlayer);
 			}
 		}
 
