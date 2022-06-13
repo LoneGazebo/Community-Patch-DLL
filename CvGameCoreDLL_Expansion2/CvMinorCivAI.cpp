@@ -11011,8 +11011,8 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		return 0;
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	int iCurrentInfluence = GetBaseFriendshipWithMajor(ePlayer);
-	int iRestingPoint = GetFriendshipAnchorWithMajor(ePlayer);
+	int iCurrentInfluence = GetBaseFriendshipWithMajorTimes100(ePlayer);
+	int iRestingPoint = GetFriendshipAnchorWithMajor(ePlayer) * 100;
 	int iUnitGiftInfluence = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit();
 	int iShift = 0;
 
@@ -11069,10 +11069,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 		if (iChangeThisTurn > 0)
 		{
-			iChangeThisTurn *= (100 + iReligionBonus);
-			iChangeThisTurn /= 100;
-
-			iChangeThisTurn *= (100 + kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier());
+			iChangeThisTurn *= (100 + iReligionBonus + kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier());
 			iChangeThisTurn /= 100;
 		}
 		else
