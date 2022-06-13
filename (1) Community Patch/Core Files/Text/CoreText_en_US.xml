@@ -2985,8 +2985,11 @@
 		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE_VASSAL">
 			<Text>Vassals cannot make peace.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_LOCKED_INTO_WAR">
+			<Text>A war agreement with another leader prevents this action.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BLOCKED_DIPLOMACY">
-			<Text>A diplomatic situation prevents this action.</Text>
+			<Text>A leader who has a Defensive Pact with the target also has a Declaration of Friendship or Defensive Pact with one of us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BLOCKED_GAME_RULE">
 			<Text>A special game rule prevents this action.</Text>

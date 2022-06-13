@@ -2501,7 +2501,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			// War deal?
 			if (pFromTeam->GetNumTurnsLockedIntoWar(eTargetTeam) > 0 || GET_TEAM(eTargetTeam).GetNumTurnsLockedIntoWar(eFromTeam) > 0)
 			{
-				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_DIPLOMACY");
+				return GetLocalizedText("TXT_KEY_DIPLO_BLOCKED_LOCKED_INTO_WAR");
 			}
 
 			// Either side can't make peace yet?
