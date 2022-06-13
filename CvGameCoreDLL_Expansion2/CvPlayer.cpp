@@ -12147,7 +12147,7 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 
 	int iScore = 0;
 
-	//iScore += GetScoreFromCities(); //ignore this, it's covered by pop and land
+	iScore += GetScoreFromCities();
 	iScore += GetScoreFromPopulation();
 	iScore += GetScoreFromLand();
 	iScore += GetScoreFromWonders();
