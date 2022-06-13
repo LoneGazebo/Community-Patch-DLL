@@ -4077,7 +4077,7 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 	return false;
 }
 
-bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
+bool CvPlot::isFortification(TeamTypes eOccupyingTeam) const
 {
 	if (isCity())
 		return true;
@@ -4085,8 +4085,8 @@ bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
 		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
-
-		if (getTeam() == eDefenderTeam && !IsImprovementPillaged())
+		TeamTypes eOwnerTeam = getTeam();
+		if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && !IsImprovementPillaged())
 		{
 			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())

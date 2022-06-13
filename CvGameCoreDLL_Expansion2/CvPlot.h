@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -227,7 +227,7 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool isFortification(TeamTypes eDefenderTeam) const;
+	bool isFortification(TeamTypes eOccupyingTeam) const;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
