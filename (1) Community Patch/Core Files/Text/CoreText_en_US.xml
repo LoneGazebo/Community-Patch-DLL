@@ -3297,7 +3297,7 @@
 			<Text>You killed or captured their civilians!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
-			<Text>You killed or captured civilians during war!</Text>
+			<Text>You killed or captured civilians from other civilizations!</Text>
 		</Row>
 		
 		<!-- Stolen Artifacts Diplo Mod -->
