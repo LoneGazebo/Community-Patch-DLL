@@ -239,7 +239,6 @@ GoodyHutUpgradeUnitClass = 'UNITCLASS_RIFLEMAN',
 PurchaseOnly = 0,								
 PolicyType = NULL,									
 ExtraMaintenanceCost = 0,
-Combat = 27,
 RequiresFaithPurchaseEnabled = 1					
 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 
