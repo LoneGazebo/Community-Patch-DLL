@@ -191,6 +191,12 @@ protected:
 
 	static int lCanMove(lua_State* L);
 	static int lHasMoved(lua_State* L);
+
+	static int lIsLinked(lua_State* L);
+	static int lIsGrouped(lua_State* L);
+	static int lDoLinkedMovement(lua_State* L);
+	static int lDoGroupMovement(lua_State* L);
+
 	static int lRange(lua_State* L);
 	static int lNukeDamageLevel(lua_State* L);
 
