@@ -6733,7 +6733,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 				else
 				{
-					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(pkEventChoiceInfo->getForgeGW() * 10);
+					int iGoldenAgeTurns = GET_PLAYER(eSpyOwner).getGoldenAgeLength(pkEventChoiceInfo->getForgeGW() * 10);
+					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(iGoldenAgeTurns);
 				}
 			}
 
@@ -6757,7 +6758,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 				else
 				{
-					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(pkEventChoiceInfo->getForgeGW() * 10);
+					int iGoldenAgeTurns = GET_PLAYER(eSpyOwner).getGoldenAgeLength(pkEventChoiceInfo->getForgeGW() * 10);
+					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(iGoldenAgeTurns);
 				}
 			}
 
@@ -10417,7 +10419,7 @@ void CvCity::DoTestResourceDemanded()
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
 
-				ChangeWeLoveTheKingDayCounter(/*20*/ iWLTKD);
+				ChangeWeLoveTheKingDayCounter(iWLTKD);
 
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
@@ -14383,9 +14385,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									}
 									if (pFreeUnit->isGoldenAgeOnBirth())
 									{
-										int iGoldenAgeTurns = owningPlayer.getGoldenAgeLength();
-										int iValue = owningPlayer.GetGoldenAgeProgressMeter();
-										owningPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+										owningPlayer.changeGoldenAgeTurns(owningPlayer.getGoldenAgeLength());
 									}
 									if (pFreeUnit->isCultureBoost())
 									{
@@ -14707,9 +14707,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									}
 									if (pFreeUnit->isGoldenAgeOnBirth())
 									{
-										int iGoldenAgeTurns = owningPlayer.getGoldenAgeLength();
-										int iValue = owningPlayer.GetGoldenAgeProgressMeter();
-										owningPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+										owningPlayer.changeGoldenAgeTurns(owningPlayer.getGoldenAgeLength());
 									}
 									if (pFreeUnit->isCultureBoost())
 									{

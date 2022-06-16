@@ -1299,12 +1299,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			int iGATurnsfromGPBirth = pPlayer->GetPlayerTraits()->GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass(getUnitClassType())); // Get number of GA turns as defined in table Trait_GoldenAgeFromGreatPersonBirth for this GP type
 			if (iGATurnsfromGPBirth > 0) // If someone defined a positive value (no such thing as negative GA turns!)
 			{
-				iGATurnsfromGPBirth = iGATurnsfromGPBirth * (100 + pPlayer->getGoldenAgeModifier()) / 100; // Adjust for in-game modifiers (eg Persia, GA monopoly, etc)
-				iGATurnsfromGPBirth *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent(); // Adjust for game speed
-				iGATurnsfromGPBirth /= 100;
-				int iValue = pPlayer->GetGoldenAgeProgressMeter();
-				// Do not increase the cost of the next GA
-				pPlayer->changeGoldenAgeTurns(iGATurnsfromGPBirth, iValue, true);
+				pPlayer->changeGoldenAgeTurns(pPlayer->getGoldenAgeLength(iGATurnsfromGPBirth), true);
 			}
 		}
 	}
@@ -12992,13 +12987,7 @@ bool CvUnit::goldenAge()
 	int iGoldenAgeTurns = GetGoldenAgeTurns();
 	if (iGoldenAgeTurns > 0)
 	{
-
-#if defined(MOD_BALANCE_CORE)
-		int iValue = kPlayer.GetGoldenAgeProgressMeter();
-		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
-#else
-		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns);
-#endif
+		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, true);
 		kPlayer.changeNumUnitGoldenAges(1);
 	}
 
@@ -13064,9 +13053,7 @@ int CvUnit::GetGoldenAgeTurns() const
 	}
 #endif
 	// Game Speed mod
-
-	iGoldenAgeTurns *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent();
-	iGoldenAgeTurns /= 100;
+	iGoldenAgeTurns = GC.getGame().goldenAgeLength(iGoldenAgeTurns);
 
 	if(iGoldenAgeTurns < 1)
 		iGoldenAgeTurns = 1;
