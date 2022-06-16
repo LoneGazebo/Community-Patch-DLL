@@ -672,7 +672,7 @@
 
 	-- Adjusted Buffalo stuff
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 33%.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BUFFALO_HORNS_HELP';
 
 	UPDATE Language_en_US
