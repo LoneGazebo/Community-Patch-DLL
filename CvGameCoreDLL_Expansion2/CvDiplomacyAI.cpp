@@ -5280,7 +5280,8 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 
 	for (CvCity* pOtherCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pOtherCity != NULL; pOtherCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
-		if (!pOtherCity->plot())
+		CvPlot* pCityPlot = pOtherCity->plot();
+		if (!pCityPlot)
 			continue;
 
 		// Only count settled cities, not conquered ones
@@ -5292,23 +5293,28 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 			continue;
 
 		int iTurnFounded = pOtherCity->getGameTurnFounded();
-		int iDistanceFromTheirCapital = plotDistance(*pOtherCity->plot(), *pTheirCapital->plot());
+		int iDistanceFromTheirCapital = plotDistance(*pCityPlot, *pTheirCapital->plot());
 
 		// Which city of ours (acquired earlier than this one) is closest?
 		for (CvCity* pOurLoopCity = m_pPlayer->firstCity(&iCityLoop2); pOurLoopCity != NULL; pOurLoopCity = m_pPlayer->nextCity(&iCityLoop2))
 		{
-			if (!pOurLoopCity->plot())
+			CvPlot* pOurCityPlot = pOurLoopCity->plot();
+			if (!pOurCityPlot)
 				continue;
 
 			// If we acquired our city after they founded theirs, they're not being aggressive
 			if (pOurLoopCity->getGameTurnAcquired() > iTurnFounded)
 				continue;
 
-			// Must be closer to this city than to their capital
-			if (plotDistance(*pOtherCity->plot(), *pOurLoopCity->plot()) >= iDistanceFromTheirCapital)
+			// Must be on same land area
+			if (pCityPlot->getArea() != pOurCityPlot->getArea())
 				continue;
 
-			int iDistance = plotDistance(*pOtherCity->plot(), *pOurLoopCity->plot());
+			// Must be closer to this city than to their capital
+			int iDistance = plotDistance(*pCityPlot, *pOurCityPlot);
+			if (iDistanceFromTheirCapital <= iDistance)
+				continue;
+
 			if (iDistance < iMinDistance)
 			{
 				iMinDistance = iDistance;
@@ -12052,21 +12058,26 @@ void CvDiplomacyAI::DoExpansionBickering()
 				continue;
 
 			// Must be closer to our closest city than to their capital
-			if (plotDistance(*pLoopCity->plot(), *pTheirCapital->plot()) <= iDistanceFromUs)
+			if (plotDistance(*pCityPlot, *pTheirCapital->plot()) <= iDistanceFromUs)
 				continue;
 
 			// Check to see if any of our cities within range of them were founded earlier than theirs was
 			for (CvCity* pOurLoopCity = GetPlayer()->firstCity(&iLoop2); pOurLoopCity != NULL; pOurLoopCity = GetPlayer()->nextCity(&iLoop2))
 			{
-				if (!pOurLoopCity->plot())
+				CvPlot* pOurCityPlot = pOurLoopCity->plot();
+				if (!pOurCityPlot)
 					continue;
 
 				// If we acquired our city after they founded theirs, they're not being aggressive
 				if (pOurLoopCity->getGameTurnAcquired() > iTurnFounded)
 					continue;
 
+				// Must be on same land area
+				if (pCityPlot->getArea() != pOurCityPlot->getArea())
+					continue;
+
 				// Is this city near them?
-				if (plotDistance(*pLoopCity->plot(), *pOurLoopCity->plot()) > iExpansionBickerRange)
+				if (plotDistance(*pCityPlot, *pOurCityPlot) > iExpansionBickerRange)
 					continue;
 
 				// We've got a reason to be mad!

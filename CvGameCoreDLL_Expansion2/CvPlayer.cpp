@@ -34480,19 +34480,38 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	// This should be fixed, but might have unforeseen ramifications so...
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
 
+	// Trigger war victory bonuses for all majors at war if a major was killed
+	vector<PlayerTypes> vAtWarWithPossibleVictim;
+	if (kPossibleVictimPlayer.isMajorCiv())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePossibleVictimPlayer).getTeam())
+				continue;
+
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).IsAtWarWith(ePossibleVictimPlayer))
+				vAtWarWithPossibleVictim.push_back(eLoopPlayer);
+		}
+	}
+
 	// This may 'kill' the player if it is deemed that he does not have the proper cities/units to stay alive
 	kPossibleVictimPlayer.verifyAlive(GetID());
 
 	// You... you killed him!
-	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv() && isMajorCiv())
+	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv())
 	{
 		// Leader pops up and whines
-		if (!CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
+		if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
 		{
 			kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 		}
 
-		DoWarVictoryBonuses();
+		for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
+		{
+			GET_PLAYER(*it).DoWarVictoryBonuses();
+		}
 	}
 }
 
