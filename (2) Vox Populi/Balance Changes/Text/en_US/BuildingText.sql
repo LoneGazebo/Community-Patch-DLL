@@ -498,7 +498,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Barracks in the City 
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_STONEHENGE_HELP', 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Council and 50 [ICON_PEACE] Faith in the City in which it is built.');
+VALUES ('TXT_KEY_BUILDING_STONEHENGE_HELP', 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Council and 60 [ICON_PEACE] Faith in the City in which it is built.');
 
 UPDATE Language_en_US
 SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stone Works in the City in which it is built. "We Love the King Day" begins in the City. During "We Love the King Day", City [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold increase by +10%.'

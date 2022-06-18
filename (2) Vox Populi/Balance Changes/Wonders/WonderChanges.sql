@@ -41,7 +41,7 @@ SET Cost = '150', PrereqTech = 'TECH_THE_WHEEL', FreeBuildingThisCity = 'BUILDIN
 WHERE Type = 'BUILDING_STONEHENGE';
 
 INSERT INTO Building_InstantYield (BuildingType, YieldType, Yield)
-VALUES ('BUILDING_STONEHENGE' , 'YIELD_FAITH' , '50');
+VALUES ('BUILDING_STONEHENGE' , 'YIELD_FAITH' , '60');
 
 UPDATE Building_YieldChanges
 SET Yield = '2'
