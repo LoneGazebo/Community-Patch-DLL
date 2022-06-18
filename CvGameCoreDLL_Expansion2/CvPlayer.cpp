@@ -17025,7 +17025,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			{
 				int iNumSpies = pBuildingInfo->GetExtraSpies();
 #if defined(MOD_BALANCE_CORE_SPIES)
-				if (MOD_BALANCE_CORE_SPIES) {
+				if (MOD_BALANCE_CORE_SPIES) 
+				{
 					//Optional: Spies scaled for the number of City-States in the game.
 					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 					if(iNumMinor > 1)

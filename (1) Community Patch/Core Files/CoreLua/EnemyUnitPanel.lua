@@ -557,13 +557,13 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end			
 
 			-- Blockaded
-			iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
-			if (pCity:IsBlockadedTest() and bonusCount < maxBonusDisplay) then				
+			iModifier = GameDefines["BLOCKADED_CITY_ATTACK_MODIFIER"];
+			if (pCity:IsBlockadedTest() and iModifier ~= 0 and bonusCount < maxBonusDisplay) then				
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				bonusCount = bonusCount + 1;
-			elseif (pCity:IsBlockadedTest()) then
+			elseif (pCity:IsBlockadedTest() and iModifier ~= 0) then
 				bonusSum = bonusSum + iModifier;
 				bonusCount = bonusCount + 1;
 			end
@@ -584,7 +584,7 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 
-			-- CBP (Monopoly)
+			-- VP (Monopoly)
 			iModifier = pMyUnit:GetMonopolyAttackBonus();
 			if(iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();

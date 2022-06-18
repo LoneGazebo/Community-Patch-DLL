@@ -18,7 +18,7 @@ INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', '10';
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
 
 
--- Defensive Pact limits (note that the first two values are updated in (2) Vox Populi)
+-- Defensive Pact limits (note that these values are updated in (2) Vox Populi)
 INSERT INTO Defines (Name, Value) SELECT 'DEFENSIVE_PACT_LIMIT_BASE', '99'; -- The base number of Defensive Pacts that a civilization can form. If set to -1 or lower, Defensive Pacts cannot be formed. Each player on a team counts as 1 Defensive Pact.
 INSERT INTO Defines (Name, Value) SELECT 'DEFENSIVE_PACT_LIMIT_SCALER', '0'; -- Additional number of Defensive Pacts permitted for each X other major civilizations ingame. 0 disables the scaler.
 INSERT INTO Defines (Name, Value) SELECT 'AI_DEFENSIVE_PACT_LIMIT_BASE', '2'; -- Limit for AI players. Only does anything if lower than the base limit.
@@ -55,6 +55,7 @@ INSERT INTO Defines(Name, Value) SELECT 'AI_CONFIG_MILITARY_MELEE_PER_AA', '2'; 
 INSERT INTO Defines(Name, Value) SELECT 'AI_CONFIG_MILITARY_TILES_PER_SHIP', '6'; -- Number of water tiles per ship for (small?) bodies of water
 
 UPDATE Defines SET Value = '-40' WHERE Name = 'CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER';
+INSERT INTO Defines(Name, Value) SELECT 'BLOCKADED_CITY_ATTACK_MODIFIER', '0';
 
 -- Combat mechanic changes that are considered "core"
 UPDATE Defines SET Value = '-50' WHERE Name = 'AIR_SWEEP_INTERCEPTION_DAMAGE_MOD';

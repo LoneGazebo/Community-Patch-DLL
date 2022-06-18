@@ -16093,7 +16093,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 	//resource monopolies
 	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
-#if defined(MOD_BALANCE_CORE)
 	// Adjacent Friendly military Unit? (attack mod only)
 	if (pFromPlot != NULL && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 	{
@@ -16110,7 +16109,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			}
 		}
 	}
-#endif
 
 	////////////////////////
 	// KNOWN DESTINATION PLOT
@@ -16123,10 +16121,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		{
 			iModifier += cityAttackModifier();
 
+			// City is blockaded
+			if (pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
+				iModifier += /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER);
+
 			// Nearby unit sapping this city
 			iModifier += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
 
-#if defined(MOD_BALANCE_CORE)
 			//bonus for attacking same unit over and over in a turn?
 			int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
@@ -16134,7 +16135,6 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier *= pToPlot->getPlotCity()->GetNumTimesAttackedThisTurn(getOwner());
 				iModifier += iTempModifier;
 			}
-#endif
 
 			// City Defending against a Barbarian
 			if (isBarbarian())
@@ -16705,9 +16705,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
 		{
 			iModifier += pTraits->GetCityStateCombatModifier();
-#if defined(MOD_BALANCE_CORE)
 			iModifier += kPlayer.GetCityStateCombatModifier();
-#endif
 		}
 
 		//bonus for attacking same unit over and over in a turn?
@@ -16766,7 +16764,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		// Attacking a City
 		if (bAttacking)
+		{
 			iModifier += cityAttackModifier();
+
+			// City is blockaded?
+			if (pCity->IsBlockadedWaterAndLand())
+				iModifier += /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER);
+		}
 
 		// Nearby unit sapping this city
 		iModifier += kPlayer.GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pOtherPlot);
@@ -16785,11 +16789,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
 			iModifier += pTraits->GetCityStateCombatModifier();
-#if defined(MOD_BALANCE_CORE)
 			iModifier += kPlayer.GetCityStateCombatModifier();
-#endif
 		}
-#if defined(MOD_BALANCE_CORE)
 		// Bonus against Major Civ Cities
 		if(GET_PLAYER(pCity->getOwner()).isMajorCiv())
 		{
@@ -16798,7 +16799,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += pTraits->GetConquestOfTheWorldCityAttack();
 			}
 		}
-#endif
 	}
 
 	// Ranged attack mod
@@ -18765,7 +18765,7 @@ void CvUnit::changeGroundAttackDamage(int iValue)
 int CvUnit::cityAttackModifier() const
 {
 	VALIDATE_OBJECT
-		return (getExtraCityAttackPercent());
+	return (getExtraCityAttackPercent());
 }
 
 
