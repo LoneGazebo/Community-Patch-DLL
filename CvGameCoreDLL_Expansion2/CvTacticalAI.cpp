@@ -6917,9 +6917,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 		//city blockaded? not 100% accurate, but anyway
 		if (tactPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1) == pTestPlot->countPassableNeighbors(NO_DOMAIN))
-			iDamageDealt += iDamageDealt / 5;
+		{
+			iDamageDealt *= max(100 + /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER), 0);
+			iDamageDealt /= 100;
+		}
 
-		//prefer ranged attacks over melee attacks (except if it's a kill, see below) 
+		//prefer ranged attacks over melee attacks (except if it's a kill, see below)
 		if (iDamageReceived > 0)
 			bScoreReduction = true;
 
