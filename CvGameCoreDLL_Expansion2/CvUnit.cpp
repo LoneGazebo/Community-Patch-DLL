@@ -1037,18 +1037,28 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 #endif
 
-	// Strip off Ocean Impassable promotion because of trait?
+	// Strip off Water Impeding promotions with the correct trait
 	if(kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
 	{
-		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
-		if(isHasPromotion(ePromotionOceanImpassable))
+		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 		{
-			setHasPromotion(ePromotionOceanImpassable, false);
-		}
-		PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY);
-		if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
-		{
-			setHasPromotion(ePromotionOceanImpassableUntilAstronomy, false);
+			const PromotionTypes eWaterPromotion = static_cast<PromotionTypes>(iI);
+			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eWaterPromotion);
+			if(pkPromotionInfo)
+			{
+				if( pkPromotionInfo->GetTerrainImpassable(TERRAIN_OCEAN) ||
+					pkPromotionInfo->GetTerrainHalfMove  (TERRAIN_OCEAN) ||
+					pkPromotionInfo->GetTerrainExtraMove (TERRAIN_OCEAN) ||
+					pkPromotionInfo->GetTerrainImpassable(TERRAIN_COAST) ||
+					pkPromotionInfo->GetTerrainHalfMove  (TERRAIN_COAST) ||
+					pkPromotionInfo->GetTerrainExtraMove (TERRAIN_COAST) )
+				{
+					if(isHasPromotion(eWaterPromotion))
+					{
+						setHasPromotion(eWaterPromotion, false);
+					}
+				}
+			}
 		}
 	}
 
@@ -31533,7 +31543,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			if (pkPromotionInfo->GetTerrainExtraMove(iI))		// Don't know how this is different from DoubleMove
+			if (pkPromotionInfo->GetTerrainExtraMove(iI))
 			{
 				iExtra = (iFlavorMobile * 3);
 				iExtra *= 5;

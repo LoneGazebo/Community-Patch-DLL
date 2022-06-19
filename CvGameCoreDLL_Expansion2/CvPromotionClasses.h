@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -332,9 +332,9 @@ public:
 	bool GetFeatureDoubleMove(int i) const;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	bool GetTerrainHalfMove(int i) const;
-	int GetTerrainExtraMove(int i) const;
+	bool GetTerrainExtraMove(int i) const;
 	bool GetFeatureHalfMove(int i) const;
-	int GetFeatureExtraMove(int i) const;
+	bool GetFeatureExtraMove(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool GetTerrainDoubleHeal(int i) const;
@@ -645,9 +645,9 @@ protected:
 	bool* m_pbFeatureDoubleMove;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	bool* m_pbTerrainHalfMove;
-	int* m_piTerrainExtraMove;
+	bool* m_pbTerrainExtraMove;
 	bool* m_pbFeatureHalfMove;
-	int* m_piFeatureExtraMove;
+	bool* m_pbFeatureExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbTerrainDoubleHeal;

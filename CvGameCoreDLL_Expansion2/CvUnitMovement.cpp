@@ -530,15 +530,15 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
-	if (pPlot->isHills() && pUnit->isHillsDoubleMove())
+	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
 	{
 		iModifier /= 2;
 	}
-	else if (pPlot->isHills() && pUnit->isTerrainHalfMove(TERRAIN_HILL))
+	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier *= 2;
 	}
-	else if (pPlot->isMountain() && pUnit->isMountainsDoubleMove())
+	else if (pUnit->isMountainsDoubleMove() && pPlot->isMountain())
 	{
 		iModifier /= 2;
 	}
@@ -562,7 +562,7 @@ int CvUnitMovement::GetMovementCostAdderFromPromotions(const CvUnit* pUnit, cons
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
-	if (pPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
+	if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
 	}
