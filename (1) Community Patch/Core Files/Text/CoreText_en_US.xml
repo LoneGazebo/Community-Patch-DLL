@@ -7407,7 +7407,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_NO_ACTIONS_POSSIBLE">
-			<Text>There are no available Spy Actions to complete in this City.</Text>
+			<Text>There are no available Offensive Spy Actions to complete in this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
 			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>

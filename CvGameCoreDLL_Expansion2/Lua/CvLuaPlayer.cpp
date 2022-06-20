@@ -15997,6 +15997,36 @@ int CvLuaPlayer::lGetAvailableSpyRelocationCities(lua_State* L)
 
 					lua_rawseti(L, -2, index++);
 				}
+				else if (pkPlayerEspionage->CanMoveSpyTo(pCity, uiSpyIndex, true))
+				{
+					lua_createtable(L, 0, 0);
+					const int t = lua_gettop(L);
+
+					lua_pushinteger(L, kPlayer.GetID());
+					lua_setfield(L, t, "PlayerID");
+
+					lua_pushinteger(L, pCity->GetID());
+					lua_setfield(L, t, "CityID");
+
+					lua_pushinteger(L, kPlayer.getCivilizationType());
+					lua_setfield(L, t, "CivilizationType");
+
+					lua_pushinteger(L, kPlayer.getTeam());
+					lua_setfield(L, t, "Team");
+
+					CvString strName = pCity->getName();
+					lua_pushstring(L, strName.c_str());
+					lua_setfield(L, t, "Name");
+
+					lua_pushinteger(L, pCity->getPopulation());
+					lua_setfield(L, t, "Population");
+
+					//TODO: Replace temp 99 w/ City Potential Espionage Value.
+					lua_pushinteger(L, 99);
+					lua_setfield(L, t, "Potential");
+
+					lua_rawseti(L, -2, index++);
+				}
 			}
 		}
 	}
@@ -16011,7 +16041,8 @@ int CvLuaPlayer::lCanMoveSpyTo(lua_State* L)
 
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 	uint spyID = luaL_checkinteger(L, 3);
-	lua_pushboolean(L, pkPlayerEspionage->CanMoveSpyTo(pkCity, spyID, false));
+	bool bAsDiplomat = luaL_optbool(L, 4, false);
+	lua_pushboolean(L, pkPlayerEspionage->CanMoveSpyTo(pkCity, spyID, bAsDiplomat));
 	return 1;
 }
 //------------------------------------------------------------------------------

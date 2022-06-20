@@ -2110,6 +2110,8 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		}
 	}
 
+	bool bCannotDie = (iChancetoKill <= 0);
+
 	//Chance to detect decreases based on city potency. More SECURITY = less likely!
 	int iDefensePower = 5 * max(1, (10 - pCity->GetEspionageRanking()));
 	iDefensePower += iBaseDefense;
@@ -2123,13 +2125,16 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		int iCounterSpy = kPlayer.GetEspionage()->GetSpyIndexInCity(pCity);
 		CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iCounterSpy);
 
-		iChancetoKill = (pSpy->m_eRank+1) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+		if(!bCannotDie)
+			iChancetoKill = (pSpy->m_eRank+1) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		if (pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
 		{
 			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
 			if (pkEventChoiceInfo != NULL)
 			{
-				iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+				if (!bCannotDie)
+					iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+
 				iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
 			}
 		}
@@ -2138,7 +2143,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 	//and increased again by player potency
 	iDefModifiers = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 	iChancetoIdentify += iDefModifiers;
-	iChancetoKill += iDefModifiers;
+
+	if (!bCannotDie)
+		iChancetoKill += iDefModifiers;
 
 	switch (eEspionage)
 	{
@@ -2158,6 +2165,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		}
 		case ESPIONAGE_TYPE_KILL:
 		{
+			if (bCannotDie)
+				return 0;
+
 			iDefensePower *= iChancetoKill;
 			iDefensePower /= 100;
 
@@ -2180,7 +2190,7 @@ CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTy
 	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
 
 	//success! we didn't die...
-	if (iResult > iKillChance)
+	if ((iKillChance <= 0) || (iResult > iKillChance))
 	{
 		if (iResult > iIdentifyChance)
 			return SPY_RESULT_DETECTED;
@@ -2865,6 +2875,9 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 
 	if (bAsDiplomat)
 	{
+		if (!GET_PLAYER(pCity->getOwner()).isMajorCiv())
+			return false;
+
 		// diplomatic spy must be in capital
 		if (!pCity->isCapital() || pCity->getOwner() == m_pPlayer->GetID())
 		{

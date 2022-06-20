@@ -1187,7 +1187,10 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 						CvGreatWorkBuildingInMyEmpire building;
 						building.m_eBuilding = eBuilding;
 						building.m_iCityID = pLoopCity->GetID();
-						building.m_bEndangered = (pLoopCity->getDamage() > 0);
+						if (pLoopCity->isCapital())
+							building.m_bEndangered = false;
+						else
+							building.m_bEndangered = (pLoopCity->getDamage() > 0);
 
 						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
 						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
@@ -1301,11 +1304,18 @@ void CvPlayerCulture::DoSwapGreatWorks()
 						building.m_eBuilding = eBuilding;
 						building.m_iCityID = pLoopCity->GetID();
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-						building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
+						if (pLoopCity->isCapital())
+							building.m_bEndangered = false;
+						else
+							building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
+
 						building.m_bPuppet = pLoopCity->IsPuppet();
 						building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
 #else
-						building.m_bEndangered = (pLoopCity->getDamage() > 0);
+						if (pLoopCity->isCapital())
+							building.m_bEndangered = false;
+						else
+							building.m_bEndangered = (pLoopCity->getDamage() > 0);
 #endif
 
 						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
