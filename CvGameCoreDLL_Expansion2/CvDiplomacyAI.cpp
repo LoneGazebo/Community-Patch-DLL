@@ -15205,7 +15205,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Cold war - increases emphasis for ideologies
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	bool bColdWar = false;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pLeague != NULL)
 	{
 		// Loop through all (known) Players
@@ -15222,7 +15221,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 	}
-#endif
 
 	// Previous approach
 	bool bFirstUpdate = false;
@@ -15356,54 +15354,52 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if (pMinor && pMinorCivAI)
+
+				// Quests increasing war likelihood
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_WAR) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_WAR) == ePlayer)
 				{
-					// Quests increasing war likelihood
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_WAR) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_WAR) == ePlayer)
+					iNumWarQuests++;
+				}
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY))
+				{
+					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
+					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
+
+					CvPlot* pPlot = GC.getMap().plot(iX, iY);
+					if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{
 						iNumWarQuests++;
 					}
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY))
-					{
-						int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
-						int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
+				}
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_LIBERATION))
+				{
+					PlayerTypes eMinorToLiberate = (PlayerTypes) pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
+					int iX = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalX();
+					int iY = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalY();
 
-						CvPlot* pPlot = GC.getMap().plot(iX, iY);
-						if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
-						{
-							iNumWarQuests++;
-						}
-					}
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_LIBERATION))
+					CvPlot* pPlot = GC.getMap().plot(iX, iY);
+					if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{
-						PlayerTypes eMinorToLiberate = (PlayerTypes) pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
-						int iX = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalX();
-						int iY = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalY();
-
-						CvPlot* pPlot = GC.getMap().plot(iX, iY);
-						if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
-						{
-							iNumWarQuests++;
-						}
+						iNumWarQuests++;
 					}
-					// Quests increasing hostile likelihood
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
-					{
-						iNumHostileQuests++;
-					}
-					// Quests increasing friendly likelihood
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) == ePlayer)
+				}
+				// Quests increasing hostile likelihood
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
+				{
+					iNumHostileQuests++;
+				}
+				// Quests increasing friendly likelihood
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) == ePlayer)
+				{
+					iNumFriendlyQuests++;
+				}
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE))
+				{
+					ResourceTypes eResource = (ResourceTypes) pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE);
+					
+					if (GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ true) <= 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) > 0)
 					{
 						iNumFriendlyQuests++;
-					}
-					if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE))
-					{
-						ResourceTypes eResource = (ResourceTypes) pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE);
-						
-						if (GET_PLAYER(eMyPlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ true) <= 0 && GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, /*bIncludeImport*/ false) > 0)
-						{
-							iNumFriendlyQuests++;
-						}
 					}
 				}
 			}
@@ -15538,7 +15534,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * -GetCoopWarScore(ePlayer);
 		}
-		else if (IsDoFAccepted(ePlayer) || (GetMeanness() < 6))
+		else if (IsDoFAccepted(ePlayer) || GetMeanness() < 6)
 		{
 			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * -GetCoopWarScore(ePlayer);
 		}
@@ -16054,7 +16050,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Don't be aggressive towards our friends or distant players without a good reason.
 			if (bModerateAggressiveDesire)
 			{
-				bWantsOpportunityAttack = bCloseToWorldConquest || bProvokedUs || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest;
+				bWantsOpportunityAttack = bCloseToWorldConquest || bProvokedUs || bEverCapturedKeyCity || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bEarlyGameCompetitor || GetBiggestCompetitor() == ePlayer || GetPrimeLeagueCompetitor() == ePlayer || bVictoryConcern || bTheyAreCloseToWorldConquest || GC.getGame().IsAIAggressiveMode();
 			}
 			else
 			{
@@ -16065,8 +16061,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					bWantsOpportunityAttack |= IsConqueror() || bConquerorTraits || bProvokedUs || (bEasyTarget && eOpinion <= CIV_OPINION_COMPETITOR) || eOpinion <= CIV_OPINION_ENEMY || bEarlyGameCompetitor || IsPlayerRecklessExpander(ePlayer) || IsPlayerWonderSpammer(ePlayer);
 				}
-
-				bWantsOpportunityAttack |= GC.getGame().IsAIAggressiveMode();
 			}
 		}
 	}
