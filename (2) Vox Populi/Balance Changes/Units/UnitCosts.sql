@@ -64,14 +64,13 @@
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 	UPDATE Units SET Cost = '220', FaithCost = '300' WHERE Type = 'UNIT_SIAMESE_WARELEPHANT';
 
-	UPDATE Units SET Cost = '280', FaithCost = '350' WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
-
 	UPDATE Units SET Cost = '160', FaithCost = '350' WHERE Type = 'UNIT_CARAVEL';
 	UPDATE Units SET Cost = '160', FaithCost = '350' WHERE Type = 'UNIT_PORTUGUESE_NAU';
 	UPDATE Units SET Cost = '175', FaithCost = '350' WHERE Type = 'UNIT_GALLEASS';
 
 	-- Renaissance
 
+	UPDATE Units SET Cost = '275', FaithCost = '400' WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 	UPDATE Units SET Cost = '300', FaithCost = '400' WHERE Type = 'UNIT_OTTOMAN_JANISSARY';
 	UPDATE Units SET Cost = '300', FaithCost = '400' WHERE Type = 'UNIT_SPANISH_TERCIO';
 	UPDATE Units SET Cost = '300', FaithCost = '400' WHERE Type = 'UNIT_ZULU_IMPI';

@@ -233,13 +233,12 @@ VALUES		('CIVILIZATION_GERMANY',	'UNITCLASS_TERCIO',	'UNIT_GERMAN_LANDSKNECHT');
 
 UPDATE Units SET 
 Class = 'UNITCLASS_TERCIO', 						
-PrereqTech = 'TECH_GUILDS',			
+PrereqTech = 'TECH_GUNPOWDER',			
 ObsoleteTech = 'TECH_REPLACEABLE_PARTS', 			
 GoodyHutUpgradeUnitClass = 'UNITCLASS_RIFLEMAN', 	
 PurchaseOnly = 0,								
 PolicyType = NULL,									
-ExtraMaintenanceCost = 1,
-Combat = 26,
+ExtraMaintenanceCost = 0,
 RequiresFaithPurchaseEnabled = 1					
 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 
