@@ -9585,9 +9585,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 			int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
-			//Weight minor civ gift units higher, so they're more likely to spawn each game.
+			//Weight minor civ gift units higher, so they're more likely to spawn each game (Careful, +50 caused Minor Civs Gifts to take up more than 50% of Military UU slots).
 			if (pkUnitInfo->IsMinorCivGift())
-				iRandom += 50;
+				iRandom += 5;
 
 			veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
