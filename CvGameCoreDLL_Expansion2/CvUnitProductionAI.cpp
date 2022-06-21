@@ -601,11 +601,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(bCombat)
 			{
+				int GermanyMultiplier = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0 ? 2 : 1; // Germany UA encourages producing lots of units to gift to City-States
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize() * GermanyMultiplier;
 				int iValue = iDesired - iCurrent;
 
-				iValue *= 1 + kPlayer.GetCurrentEra();
+				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 
 				if (iCurrent * 2 < iDesired)
 					iValue *= 2;
@@ -665,8 +666,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (bCombat)
 			{
+				int GermanyMultiplier = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0 ? 2 : 1; // Germany UA encourages producing lots of units to gift to City-States
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * GermanyMultiplier;
 				int iValue = iDesired - iCurrent;
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
@@ -839,8 +841,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += (iProductionBonus / 5);
 		}
-		
-#if defined(MOD_DIPLOMACY_CITYSTATES)	
+
 		//Diplomatic Units!
 		if(MOD_DIPLOMACY_CITYSTATES &&  pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 		{
@@ -904,7 +905,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			iBonus += iInfluence;
 		}
-#endif
+
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");

@@ -1182,7 +1182,7 @@ void CvHomelandAI::ExecuteUnitGift()
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
 			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
 			{
-				if (pUnit->CanDistanceGift(pMinor->GetID()))
+				if (pUnit->CanDistanceGift(pMinor->GetID()) && pUnit->canUseForAIOperation())
 				{
 					vUnitIDs.push_back(pUnit->GetID());
 					bFoundOne = true;
@@ -1213,7 +1213,7 @@ void CvHomelandAI::ExecuteUnitGift()
 		}
 	}
 
-	// No City-State quest? Do we get extra Influence for unit gifts?
+	// No City-State quest? But are we Germany?
 	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
 	{
 		// Don't consider gifting if we're in military trouble
@@ -1223,105 +1223,134 @@ void CvHomelandAI::ExecuteUnitGift()
 		// Do we have units to spare?
 		bool bCanSendLandUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEUTRAL;
 		bool bCanSendNavalUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEUTRAL;
-		PlayerTypes eBestLandGiftTarget = bCanSendLandUnit ? GET_PLAYER(ePlayer).GetBestGiftTarget(DOMAIN_LAND) : NO_PLAYER;
-		PlayerTypes eBestSeaGiftTarget = bCanSendNavalUnit ? GET_PLAYER(ePlayer).GetBestGiftTarget(DOMAIN_SEA) : NO_PLAYER;
+		bool bPrioritizeLand = false, bPrioritizeNaval = false;
 
-		// Prioritize land unit gifts first, they tend to survive longer
-		if (eBestLandGiftTarget != NO_PLAYER)
+		if (bCanSendLandUnit && bCanSendNavalUnit)
 		{
-			vector<int> vUnitIDs;
-			bool bFoundOne = false;
-			for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-			{
-				CvUnit* pUnit = m_pPlayer->getUnit(*it);
-				if (pUnit && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
-				{
-					if (pUnit->CanDistanceGift(eBestLandGiftTarget))
-					{
-						vUnitIDs.push_back(pUnit->GetID());
-						bFoundOne = true;
-					}
-				}
-			}
-			if (bFoundOne)
-			{
-				CvUnit* pGiftedUnit = NULL;
-				int GiftedUnitID = -1;
-				int iLowestXP = INT_MAX;
-				for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
-				{
-					CvUnit* pUnit = m_pPlayer->getUnit(*it);
-					int iXP = pUnit->getExperienceTimes100();
-
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
-
-					// Avoid giving away unique units if we don't have to
-					if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
-						iXP *= 2;
-
-					if (iXP < iLowestXP)
-					{
-						pGiftedUnit = m_pPlayer->getUnit(*it);
-						iLowestXP = iXP;
-						GiftedUnitID = pUnit->GetID();
-					}
-				}
-				GET_PLAYER(eBestLandGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
-				UnitProcessed(GiftedUnitID);
-				return;
-			}
+			if (GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() < GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState())
+				bPrioritizeLand = true;
+			else if (GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() < GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState())
+				bPrioritizeNaval = true;
 		}
-		// If not, try a naval gift
-		if (eBestSeaGiftTarget != NO_PLAYER)
+
+		if (bPrioritizeLand)
 		{
-			vector<int> vUnitIDs;
-			bool bFoundOne = false;
-			for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
-			{
-				CvUnit* pUnit = m_pPlayer->getUnit(*it);
-				if (pUnit && pUnit->getDomainType() == DOMAIN_SEA && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
-				{
-					if (pUnit->CanDistanceGift(eBestSeaGiftTarget))
-					{
-						vUnitIDs.push_back(pUnit->GetID());
-						bFoundOne = true;
-					}
-				}
-			}
-			if (bFoundOne)
-			{
-				CvUnit* pGiftedUnit = NULL;
-				int GiftedUnitID = -1;
-				int iLowestXP = INT_MAX;
-				for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
-				{
-					CvUnit* pUnit = m_pPlayer->getUnit(*it);
-					int iXP = pUnit->getExperienceTimes100();
-
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
-
-					// Avoid giving away unique units if we don't have to
-					if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
-						iXP *= 2;
-
-					if (iXP < iLowestXP)
-					{
-						pGiftedUnit = m_pPlayer->getUnit(*it);
-						iLowestXP = iXP;
-						GiftedUnitID = pUnit->GetID();
-					}
-				}
-				GET_PLAYER(eBestSeaGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
-				UnitProcessed(GiftedUnitID);
+			if (SendUnitGift(DOMAIN_LAND))
 				return;
+
+			if (SendUnitGift(DOMAIN_SEA))
+				return;
+		}
+		else if (bPrioritizeNaval)
+		{
+			if (SendUnitGift(DOMAIN_SEA))
+				return;
+
+			if (SendUnitGift(DOMAIN_LAND))
+				return;
+		}
+		else
+		{
+			if (bCanSendLandUnit)
+			{
+				if (SendUnitGift(DOMAIN_LAND))
+					return;
+
+				if (SendUnitGift(DOMAIN_SEA))
+					return;
+			}
+			else if (bCanSendNavalUnit)
+			{
+				if (SendUnitGift(DOMAIN_SEA))
+					return;
 			}
 		}
 	}
 
 	return;
 }
+
+/// Try to send a valid unit gift for the specified domain; return true if successful
+bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
+{
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+	PlayerTypes eBestGiftTarget = GET_PLAYER(ePlayer).GetBestGiftTarget(eDomain);
+
+	if (eBestGiftTarget != NO_PLAYER)
+	{
+		vector<int> vUnitIDs;
+		bool bFoundOne = false;
+		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		{
+			CvUnit* pUnit = m_pPlayer->getUnit(*it);
+			if (pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			{
+				// Don't send a siege unit
+				if (eDomain == DOMAIN_LAND && pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+					continue;
+
+				if (pUnit->CanDistanceGift(eBestGiftTarget) && pUnit->canUseForAIOperation())
+				{
+					// Check tech - don't gift obsolete units as we'll lose the Influence bonus if it's upgraded
+					UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+					if (eUpgradeUnitType != NO_UNIT)
+					{
+						CvUnitEntry* pUpgradeUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
+						if (pUpgradeUnitInfo)
+						{
+							TechTypes ePrereqTech = (TechTypes) pUpgradeUnitInfo->GetPrereqAndTech();
+							if (ePrereqTech != NO_TECH)
+							{
+								if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+									continue;
+
+								if (GET_TEAM(GET_PLAYER(eBestGiftTarget).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+									continue;
+							}
+						}
+					}
+
+					vUnitIDs.push_back(pUnit->GetID());
+					bFoundOne = true;
+				}
+			}
+		}
+		if (bFoundOne)
+		{
+			CvUnit* pGiftedUnit = NULL;
+			int GiftedUnitID = -1;
+			int iLowestXP = INT_MAX;
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				int iXP = pUnit->getExperienceTimes100();
+
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+				// Unique units last longer before upgrading, so they'll give us a longer Influence bonus
+				if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
+				{
+					iXP /= 2;
+					iXP -= 1;
+				}
+
+				if (iXP < iLowestXP)
+				{
+					pGiftedUnit = m_pPlayer->getUnit(*it);
+					iLowestXP = iXP;
+					GiftedUnitID = pUnit->GetID();
+				}
+			}
+			GET_PLAYER(eBestGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
+			UnitProcessed(GiftedUnitID);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {

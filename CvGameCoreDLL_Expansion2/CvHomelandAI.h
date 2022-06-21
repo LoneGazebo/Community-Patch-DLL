@@ -244,6 +244,8 @@ private:
 	void PlotAircraftRebase();
 
 	void ExecuteUnitGift();
+	bool SendUnitGift(DomainTypes eDomain);
+
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
 

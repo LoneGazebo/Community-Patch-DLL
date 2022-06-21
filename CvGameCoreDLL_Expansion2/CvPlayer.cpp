@@ -37560,6 +37560,8 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 {
 	int iBestValue = 0;
 	PlayerTypes eBestMinor = NO_PLAYER;
+	bool bIsGermany = GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0;
+
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
@@ -37724,7 +37726,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				}
 
 				//Nobody likes hostile city-states.
-				if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+				if (!bIsGermany && pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 				{
 					iScore /= 2;
 				}
@@ -37839,6 +37841,29 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 					{
 						iScore *= 4;
 					}
+				}
+
+				// If we're Germany, don't concentrate our unit gifts too much
+				if (bIsGermany)
+				{
+					int iCurrentShift = pMinorCivAI->GetFriendshipChangePerTurnTimes100(GetID());
+
+					// Don't count any natural recovery in this anti-concentration modifier
+					if (pMinorCivAI->GetEffectiveFriendshipWithMajor(GetID()) < pMinorCivAI->GetFriendshipAnchorWithMajor(GetID()))
+					{
+						int iReduction = /*100*/ GD_INT_GET(MINOR_FRIENDSHIP_NEGATIVE_INCREASE_PER_TURN);
+						int iReligionBonus = pMinorCivAI->IsSameReligionAsMajor(GetID()) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
+						if (iReduction > 0)
+						{
+							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateFriendshipModifier());
+							iReduction /= 100;
+							iCurrentShift -= iReduction;
+						}
+					}
+
+					iCurrentShift /= 100;
+					if (iCurrentShift > 1)
+						iScore /= iCurrentShift;
 				}
 
 				//All CSs should theoretically be valuable if we've gotten this far.
