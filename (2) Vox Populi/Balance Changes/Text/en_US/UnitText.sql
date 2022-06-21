@@ -447,7 +447,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_MACHINE_GUN_STRATEGY';
 
 	UPDATE Language_en_US
-	SET Text = 'Atomic era ranged unit. Deals great damage to Armor Units.'
+	SET Text = 'Information era ranged unit. Deals great damage to Armor Units.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_BAZOOKA';
 
 	UPDATE Language_en_US
