@@ -2438,7 +2438,6 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 /// Delete older units no longer needed by military AI
 void CvMilitaryAI::DisbandObsoleteUnits()
 {
-
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
 

@@ -6014,7 +6014,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		return false;
 
 	// Minors
-	if(GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+	if (GET_PLAYER(pPlot->getOwner()).isMinorCiv())
 	{
 		// No settlers
 		if(isFound() || IsFoundAbroad())
@@ -6028,17 +6028,21 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
 
-		// No non-combat units
-		if(!IsCombatUnit())
-		{
-			CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+		CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
+		// No non-combat units
+		if (!IsCombatUnit())
+		{
 			// Unless okay by trait
-			if(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() == 0 || !IsGreatPerson())
+			if (kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() == 0 || !IsGreatPerson())
 			{
 				return false;
 			}
 		}
+
+		// City-State can't be above their unit cap
+		if (!kPlayer.CanGiftUnit(pPlot->getOwner()))
+			return false;
 	}
 	else if (MOD_NO_MAJORCIV_GIFTING)
 	{
@@ -6182,11 +6186,11 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 		if (eScoutClass != NO_UNITCLASS && eScoutClass == getUnitClassType())
 			return false;
 
-		// No non-combat units
-		if(!IsCanAttack())
-		{
-			CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+		CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
+		// No non-combat units
+		if (!IsCanAttack())
+		{
 			// Unless okay by trait
 			if(kPlayer.GetPlayerTraits()->GetGreatPersonGiftInfluence() == 0 || !IsGreatPerson())
 			{
@@ -6194,16 +6198,15 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 			}
 		}
 
-		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
-		CvAssert(pMinorCivAI);
+		// City-State can't be above their unit cap
+		if (!kPlayer.CanGiftUnit(eToPlayer))
+			return false;
 
-		if (pMinorCivAI)
+		// Is there a distance gift from us waiting to be delivered?
+		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
+		if (pMinorCivAI && pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
 		{
-			// Is there a distance gift from us waiting to be delivered?
-			if (pMinorCivAI->getIncomingUnitGift(getOwner()).getArrivalCountdown() != -1)
-			{
-				return false;
-			}
+			return false;
 		}
 	}
 

@@ -1144,14 +1144,14 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 }
 void CvHomelandAI::ExecuteUnitGift()
 {
-	UnitTypes eUnitType = NO_UNIT;
 	if (!m_pPlayer->isMajorCiv())
-	{
 		return;
-	}
-	PlayerTypes ePlayer = m_pPlayer->GetID();
 
+	UnitTypes eUnitType = NO_UNIT;
+	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvPlayer* pMinor = NULL;
+
+	// First fulfill any City-State quests
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
@@ -1162,7 +1162,7 @@ void CvHomelandAI::ExecuteUnitGift()
 			{
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 				
-				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
 				{
 					if (pMinorCivAI->getIncomingUnitGift(ePlayer).getArrivalCountdown() == -1)
 					{
@@ -1175,20 +1175,151 @@ void CvHomelandAI::ExecuteUnitGift()
 	}
 	if (pMinor && eUnitType != NO_UNIT)
 	{
+		vector<int> vUnitIDs;
+		bool bFoundOne = false;
 		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->isDelayedDeath())
+			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
 			{
-				if (!pUnit->IsGarrisoned())
+				if (pUnit->CanDistanceGift(pMinor->GetID()))
 				{
-					pMinor->AddIncomingUnit(ePlayer, pUnit);
-					UnitProcessed(pUnit->GetID());
-					return;
+					vUnitIDs.push_back(pUnit->GetID());
+					bFoundOne = true;
 				}
 			}
 		}
+
+		if (bFoundOne)
+		{
+			CvUnit* pGiftedUnit = NULL;
+			int GiftedUnitID = -1;
+			int iLowestXP = INT_MAX;
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				int iXP = pUnit->getExperienceTimes100();
+
+				if (iXP < iLowestXP)
+				{
+					pGiftedUnit = m_pPlayer->getUnit(*it);
+					iLowestXP = iXP;
+					GiftedUnitID = pUnit->GetID();
+				}
+			}
+			pMinor->AddIncomingUnit(ePlayer, pGiftedUnit);
+			UnitProcessed(GiftedUnitID);
+			return;
+		}
 	}
+
+	// No City-State quest? Do we get extra Influence for unit gifts?
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+	{
+		// Don't consider gifting if we're in military trouble
+		if (GET_PLAYER(ePlayer).IsNoNewWars() || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+			return;
+
+		// Do we have units to spare?
+		bool bCanSendLandUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEUTRAL;
+		bool bCanSendNavalUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEUTRAL;
+		PlayerTypes eBestLandGiftTarget = bCanSendLandUnit ? GET_PLAYER(ePlayer).GetBestGiftTarget(DOMAIN_LAND) : NO_PLAYER;
+		PlayerTypes eBestSeaGiftTarget = bCanSendNavalUnit ? GET_PLAYER(ePlayer).GetBestGiftTarget(DOMAIN_SEA) : NO_PLAYER;
+
+		// Prioritize land unit gifts first, they tend to survive longer
+		if (eBestLandGiftTarget != NO_PLAYER)
+		{
+			vector<int> vUnitIDs;
+			bool bFoundOne = false;
+			for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				if (pUnit && pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+				{
+					if (pUnit->CanDistanceGift(eBestLandGiftTarget))
+					{
+						vUnitIDs.push_back(pUnit->GetID());
+						bFoundOne = true;
+					}
+				}
+			}
+			if (bFoundOne)
+			{
+				CvUnit* pGiftedUnit = NULL;
+				int GiftedUnitID = -1;
+				int iLowestXP = INT_MAX;
+				for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+				{
+					CvUnit* pUnit = m_pPlayer->getUnit(*it);
+					int iXP = pUnit->getExperienceTimes100();
+
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+					// Avoid giving away unique units if we don't have to
+					if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
+						iXP *= 2;
+
+					if (iXP < iLowestXP)
+					{
+						pGiftedUnit = m_pPlayer->getUnit(*it);
+						iLowestXP = iXP;
+						GiftedUnitID = pUnit->GetID();
+					}
+				}
+				GET_PLAYER(eBestLandGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
+				UnitProcessed(GiftedUnitID);
+				return;
+			}
+		}
+		// If not, try a naval gift
+		if (eBestSeaGiftTarget != NO_PLAYER)
+		{
+			vector<int> vUnitIDs;
+			bool bFoundOne = false;
+			for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				if (pUnit && pUnit->getDomainType() == DOMAIN_SEA && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+				{
+					if (pUnit->CanDistanceGift(eBestSeaGiftTarget))
+					{
+						vUnitIDs.push_back(pUnit->GetID());
+						bFoundOne = true;
+					}
+				}
+			}
+			if (bFoundOne)
+			{
+				CvUnit* pGiftedUnit = NULL;
+				int GiftedUnitID = -1;
+				int iLowestXP = INT_MAX;
+				for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+				{
+					CvUnit* pUnit = m_pPlayer->getUnit(*it);
+					int iXP = pUnit->getExperienceTimes100();
+
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+					// Avoid giving away unique units if we don't have to
+					if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
+						iXP *= 2;
+
+					if (iXP < iLowestXP)
+					{
+						pGiftedUnit = m_pPlayer->getUnit(*it);
+						iLowestXP = iXP;
+						GiftedUnitID = pUnit->GetID();
+					}
+				}
+				GET_PLAYER(eBestSeaGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
+				UnitProcessed(GiftedUnitID);
+				return;
+			}
+		}
+	}
+
 	return;
 }
 /// When nothing better to do, have units patrol to an adjacent tiles
@@ -4922,7 +5053,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 	bool rtnValue = false;
 
 	ClearCurrentMoveUnits(eMove);
-			
+
 	// Loop through all units available to homeland AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{

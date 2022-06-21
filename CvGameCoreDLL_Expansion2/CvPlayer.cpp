@@ -36466,11 +36466,11 @@ void CvPlayer::DoBankruptcy()
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE)
 		return;
 
-	if(isBarbarian())
+	if (!isMajorCiv())
 		return;
 
 	// If the player has more units than cities, start disbanding things
-	if( getNumMilitaryUnits() > 3 + GetCurrentEra() + getNumCities() )
+	if (getNumMilitaryUnits() > 3 + GetCurrentEra() + getNumCities())
 	{
 		int iLandScore = MAX_INT;
 		int iNavalScore = MAX_INT;
@@ -36487,7 +36487,7 @@ void CvPlayer::DoBankruptcy()
 			pScrapUnit = pNavalUnit;
 
 		//AI players try to gift their units away
-		if (pScrapUnit && !isMinorCiv() && !isHuman())
+		if (pScrapUnit && !isHuman())
 		{
 			PlayerTypes eMinor = GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)
@@ -36499,7 +36499,7 @@ void CvPlayer::DoBankruptcy()
 		}
 
 		//get rid of it
-		if(pScrapUnit)
+		if (pScrapUnit)
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -37487,18 +37487,8 @@ bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
 {
 	if (GET_PLAYER(eToPlayer).isMinorCiv())
 	{
-		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
-		CvAssert(pMinorCivAI);
-		if (pMinorCivAI)
-		{
-			if (pMinorCivAI->getIncomingUnitGift(GetID()).getArrivalCountdown() != -1)
-			{
-				return false;
-			}
-		}
-
 		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
-		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
+		int iMax = GET_PLAYER(eToPlayer).GetNumUnitsSupplied(false);
 
 		if (iNum >= iMax)
 			return false;
@@ -37582,8 +37572,13 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				if (pCity == NULL)
 					continue;
 
-				//First, the exclusions!
+				// City-State can't be above their unit cap
 				if (!CanGiftUnit(eLoopMinor))
+					continue;
+
+				// Is there a distance gift from us waiting to be delivered?
+				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
+				if (pMinorCivAI->getIncomingUnitGift(m_eID).getArrivalCountdown() != -1)
 					continue;
 
 				//No ships for landlocked players
@@ -37593,8 +37588,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				// Skip if not revealed.
 				if (!pCity->isRevealed(getTeam(),false,false))
 					continue;
-
-				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
+				
 				int iFriendship = pMinorCivAI->GetFriendshipFromUnitGift(GetID(), false, true);
 
 				if (!GET_TEAM(eMinor->getTeam()).isHasMet(getTeam()))
@@ -37604,11 +37598,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				{
 					continue;
 				}
-				if (pMinorCivAI->GetPermanentAlly() == GetID())
-				{
-					continue;
-				}
-				if (pMinorCivAI->GetPermanentAlly() != GetID() && pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+				if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 				{
 					continue;
 				}
@@ -37638,13 +37628,12 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				// Approaches
 				// **************************
 
-				int iScore = 100;
 				CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(eLoopMinor);
 
-				if (eApproach == CIV_APPROACH_NEUTRAL)
-				{
-					iScore /= 2;
-				}
+				if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_HOSTILE)
+					continue;
+
+				int iScore = eApproach == CIV_APPROACH_FRIENDLY ? 100 : 50;
 
 				// **************************
 				// Benefits to Us!
