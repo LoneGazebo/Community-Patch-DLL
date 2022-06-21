@@ -4248,11 +4248,19 @@ int CvGame::countKnownTechNumTeams(TechTypes eTech)
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::goldenAgeLength() const
+int CvGame::goldenAgeLength(int iManualLength) const
 {
 	int iLength;
-
-	iLength = /*10*/ GD_INT_GET(GOLDEN_AGE_LENGTH);
+	
+	// Sometimes we need to alter a manual number of golden age turns by the game speed
+	if (iManualLength >= 0)
+	{
+		iLength = iManualLength;
+	}
+	else
+	{
+		iLength = /*10*/ GD_INT_GET(GOLDEN_AGE_LENGTH);
+	}
 
 	iLength *= getGameSpeedInfo().getGoldenAgePercent();
 	iLength /= 100;

@@ -1665,11 +1665,11 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					//Do a golden age on war if we can
 					if(kAttackingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
 					{
-						kAttackingPlayer.changeGoldenAgeTurns(kAttackingPlayer.getGoldenAgeLength(), kAttackingPlayer.GetGoldenAgeProgressMeter());
+						kAttackingPlayer.changeGoldenAgeTurns(kAttackingPlayer.getGoldenAgeLength());
 					}
 					if(kDefendingPlayer.GetPlayerTraits()->IsGoldenAgeOnWar())
 					{
-						kDefendingPlayer.changeGoldenAgeTurns(kDefendingPlayer.getGoldenAgeLength(), kDefendingPlayer.GetGoldenAgeProgressMeter());
+						kDefendingPlayer.changeGoldenAgeTurns(kDefendingPlayer.getGoldenAgeLength());
 					}
 					// Best unit on an improvement DOW?
 					if(kAttackingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 and their respective logos are all trademarks of Take-Two interactive Software, Inc.
 All other marks and trademarks are the property of their respective owners.
@@ -3214,9 +3214,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
-			int iValue = kPlayer.GetGoldenAgeProgressMeter();
-			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
 		}
 		if (newUnit->isCultureBoost())
 		{
@@ -3426,9 +3424,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
-			int iValue = kPlayer.GetGoldenAgeProgressMeter();
-			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
 		}
 		if (newUnit->isCultureBoost())
 		{

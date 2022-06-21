@@ -2846,9 +2846,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 		if(pNewUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = getGoldenAgeLength();
-			int iValue = GetGoldenAgeProgressMeter();
-			changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			changeGoldenAgeTurns(getGoldenAgeLength());
 		}
 		if(pNewUnit->isCultureBoost())
 		{
@@ -3400,9 +3398,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->IsConquestOfTheWorld())
 			{
 				if (isGoldenAge())
-					changeGoldenAgeTurns(3, GetGoldenAgeProgressMeter());
+					changeGoldenAgeTurns(getGoldenAgeLength(3));
 				else
-					changeGoldenAgeTurns(5, GetGoldenAgeProgressMeter());
+					changeGoldenAgeTurns(getGoldenAgeLength(5));
 			}
 
 			// Culture bonus turns from conquering a city?
@@ -9207,9 +9205,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			if(pkEventChoiceInfo->getGoldenAgeTurns() > 0)
 			{
 				int iTurns = pkEventChoiceInfo->getGoldenAgeTurns();
-				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iTurns /= 100;
-				changeGoldenAgeTurns(max(1, iTurns), true);
+				iTurns = iTurns * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+				changeGoldenAgeTurns(getGoldenAgeLength(max(1, iTurns)), true);
 			}
 			if(pkEventChoiceInfo->getNumFreeGreatPeople() > 0)
 			{
@@ -16962,13 +16959,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		// Golden Age
 		if(pBuildingInfo->IsGoldenAge())
 		{
-			int iGoldenAgeTurns = getGoldenAgeLength();
-#if defined(MOD_BALANCE_CORE)
-			int iValue = GetGoldenAgeProgressMeter();
-			changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
-#else
-			changeGoldenAgeTurns(iGoldenAgeTurns);
-#endif
+			changeGoldenAgeTurns(getGoldenAgeLength(), true);
 		}
 
 		// Global Pop change
@@ -19767,19 +19758,7 @@ void CvPlayer::DoWarVictoryBonuses()
 	int iTurns = GetPlayerTraits()->GetGoldenAgeFromVictory();
 	if(iTurns > 0)
 	{
-		if(iTurns < GC.getGame().goldenAgeLength())
-		{
-			iTurns = GC.getGame().goldenAgeLength();
-		}
-		// Player modifier
-		int iLengthModifier = getGoldenAgeModifier();
-
-		if(iLengthModifier != 0)
-		{
-			iTurns = iTurns * (100 + iLengthModifier) / 100;
-		}
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iTurns, iValue, true);
+		changeGoldenAgeTurns(getGoldenAgeLength(iTurns), true);
 	}
 
 	int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_WAR);
@@ -24965,16 +24944,10 @@ void CvPlayer::DoProcessGoldenAge()
 			{
 				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
 #if defined(MOD_BALANCE_CORE)
-				int iValue = GetGoldenAgeProgressMeter();
 #endif
 				SetGoldenAgeProgressMeter(iOverflow);
 				
-				int iLength = getGoldenAgeLength();
-#if defined(MOD_BALANCE_CORE)
-				changeGoldenAgeTurns(iLength, iValue);
-#else
-				changeGoldenAgeTurns(iLength);
-#endif
+				changeGoldenAgeTurns(getGoldenAgeLength());
 
 				// If it's the active player then show the popup
 				if(GetID() == GC.getGame().getActivePlayer())
@@ -25204,20 +25177,15 @@ bool CvPlayer::isGoldenAge() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvPlayer::changeGoldenAgeTurns(int iChange, int iValue, bool bFree)
-#else
-void CvPlayer::changeGoldenAgeTurns(int iChange)
-#endif
+void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 {
 	Localization::String locString;
 	Localization::String locSummaryString;
 
-	bool bOldGoldenAge;
-
 	if(iChange != 0)
 	{
-		bOldGoldenAge = isGoldenAge();
+		bool bOldGoldenAge = isGoldenAge();
+		int iThreshold = GetGoldenAgeProgressThreshold();
 
 		m_iGoldenAgeTurns = (m_iGoldenAgeTurns + iChange);
 		CvAssert(getGoldenAgeTurns() >= 0);
@@ -25226,22 +25194,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 		{
 			GC.getMap().updateYield();	// Do the entire map, so that any potential golden age bonus is reflected in the yield icons.
 
-			if(isGoldenAge())
-			{
-				if (!bFree)
-				{
-					ChangeNumGoldenAges(1);
-				}
-			}
-			else
+			if(!isGoldenAge())
 			{
 				gDLL->GameplayGoldenAgeEnded();
 
-#if defined(MOD_EVENTS_GOLDEN_AGE)
 				if (MOD_EVENTS_GOLDEN_AGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), false, 0);
 				}
-#endif
 #if defined(MOD_BALANCE_CORE)
 				int iLoop;
 				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -25277,16 +25236,18 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		if (iChange > 0)
 		{
+			if (!(bFree && MOD_BALANCE_CORE))
+			{
+				ChangeNumGoldenAges(1);
+			}
 #if defined(MOD_BALANCE_CORE)
 			//Instant Boost
 			CvCity* pCapitalCity = getCapitalCity();
 			if (pCapitalCity != NULL)
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 			}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
+			
 			if (GetGoldenAgeTourism() > 0)
 			{
 				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
@@ -25325,15 +25286,15 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
-				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
-				iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iValue2 /= 100;
+				int iValue = GetPlayerTraits()->GetWLTKDGATimer();
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
 				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iValue);
 					}
 				}
 				CvNotifications* pNotification = GetNotifications();
@@ -25341,7 +25302,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				{
 					CvString strMessage;
 					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
+					strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue);
 					strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
 					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
 				}
@@ -25358,11 +25319,9 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 			gDLL->GameplayGoldenAgeStarted();
 
-#if defined(MOD_EVENTS_GOLDEN_AGE)
 			if (MOD_EVENTS_GOLDEN_AGE) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
 			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			int iLoop;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -25381,18 +25340,16 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getGoldenAgeLength() const
+// get the number of turns this Golden Age will occur over
+// (optional input allows manually sets the length with included length modifiers)
+int CvPlayer::getGoldenAgeLength(int iManualLength) const
 {
-	int iTurns = GC.getGame().goldenAgeLength();
+	int iTurns = GC.getGame().goldenAgeLength(iManualLength);
 
 	// Player modifier
 	int iLengthModifier = getGoldenAgeModifier();
 
-#if defined(MOD_BALANCE_CORE)
 	if(iLengthModifier != 0)
-#else
-	if(iLengthModifier > 0)
-#endif
 	{
 		iTurns = iTurns * (100 + iLengthModifier) / 100;
 	}
@@ -29196,9 +29153,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			}
 			if(pNewGreatPeople->isGoldenAgeOnBirth())
 			{
-				int iGoldenAgeTurns = getGoldenAgeLength();
-				int iValue = GetGoldenAgeProgressMeter();
-				changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+				changeGoldenAgeTurns(getGoldenAgeLength());
 			}
 			if(pNewGreatPeople->isCultureBoost())
 			{
@@ -44872,23 +44827,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	int iGoldenAgeTurns = pPolicy->GetGoldenAgeTurns() * iChange;
 	if(iGoldenAgeTurns > 0)
 	{
-		// Player modifier
-		int iLengthModifier = getGoldenAgeModifier();
-
-		if(iLengthModifier > 0)
-		{
-			iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
-		}
-
-		// Game Speed mod
-		iGoldenAgeTurns *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent();
-		iGoldenAgeTurns /= 100;
-#if defined(MOD_BALANCE_CORE)
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
-#else
-		changeGoldenAgeTurns(iGoldenAgeTurns);
-#endif
+		changeGoldenAgeTurns(getGoldenAgeLength(iGoldenAgeTurns));
 	}
 
 	// Free Techs
@@ -45016,9 +44955,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									}
 									if(pNewUnit->isGoldenAgeOnBirth())
 									{
-										int iGoldenAgeTurns = getGoldenAgeLength();
-										int iValue = GetGoldenAgeProgressMeter();
-										changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+										changeGoldenAgeTurns(getGoldenAgeLength());
 									}
 									if(pNewUnit->isCultureBoost())
 									{
@@ -46932,9 +46869,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{
-		int iGoldenAgeTurns = getGoldenAgeLength();
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
 	if(pGreatPeopleUnit->isCultureBoost())
 	{
@@ -47089,9 +47024,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{
-		int iGoldenAgeTurns = getGoldenAgeLength();
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
 	if(pGreatPeopleUnit->isCultureBoost())
 	{

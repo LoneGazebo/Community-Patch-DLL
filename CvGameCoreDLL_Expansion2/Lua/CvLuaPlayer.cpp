@@ -7171,10 +7171,15 @@ int CvLuaPlayer::lGetGoldenAgeTurns(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getGoldenAgeTurns);
 }
 //------------------------------------------------------------------------------
-//int getGoldenAgeLength();
+//int getGoldenAgeLength(int iManualTurns);
 int CvLuaPlayer::lGetGoldenAgeLength(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getGoldenAgeLength);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iManualTurns = luaL_optint(L, 2, -1);
+
+	const int iResult = pkPlayer->getGoldenAgeLength(iManualTurns);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool isGoldenAge();
@@ -7183,10 +7188,15 @@ int CvLuaPlayer::lIsGoldenAge(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::isGoldenAge);
 }
 //------------------------------------------------------------------------------
-//void changeGoldenAgeTurns(int iChange);
+//void changeGoldenAgeTurns(int iChange, bool bFree);
 int CvLuaPlayer::lChangeGoldenAgeTurns(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::changeGoldenAgeTurns);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iTurns = lua_tointeger(L, 2);
+	const bool bFree = luaL_optbool(L, 3, false);
+
+	pkPlayer->changeGoldenAgeTurns(pkPlayer->getGoldenAgeLength(iTurns), bFree);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //int getNumUnitGoldenAges();
