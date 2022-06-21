@@ -7177,7 +7177,8 @@ int CvLuaPlayer::lGetGoldenAgeLength(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iManualTurns = luaL_optint(L, 2, -1);
 
-	pkPlayer->getGoldenAgeLength(iManualTurns);
+	const int iResult = pkPlayer->getGoldenAgeLength(iManualTurns);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -7195,7 +7196,7 @@ int CvLuaPlayer::lChangeGoldenAgeTurns(lua_State* L)
 	const bool bFree = luaL_optbool(L, 3, false);
 
 	pkPlayer->changeGoldenAgeTurns(pkPlayer->getGoldenAgeLength(iTurns), bFree);
-	return 1;
+	return 0;
 }
 //------------------------------------------------------------------------------
 //int getNumUnitGoldenAges();
