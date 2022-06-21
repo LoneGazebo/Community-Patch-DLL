@@ -601,10 +601,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if(bCombat)
 			{
-				int GermanyMultiplier = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0 ? 2 : 1; // Germany UA encourages producing lots of units to gift to City-States
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumNavalUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize() * GermanyMultiplier;
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				int iValue = iDesired - iCurrent;
+
+				// German UA encourages producing lots of units to gift to City-States
+				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+					iBonus += 75;
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 
@@ -666,10 +669,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (bCombat)
 			{
-				int GermanyMultiplier = kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0 ? 2 : 1; // Germany UA encourages producing lots of units to gift to City-States
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
-				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize() * GermanyMultiplier;
+				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
 				int iValue = iDesired - iCurrent;
+
+				// German UA encourages producing lots of units to gift to City-States
+				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+					iBonus += 150;
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 

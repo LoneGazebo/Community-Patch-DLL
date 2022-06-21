@@ -1177,10 +1177,10 @@ void CvHomelandAI::ExecuteUnitGift()
 	{
 		vector<int> vUnitIDs;
 		bool bFoundOne = false;
-		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		int iLoop;
+		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
 			{
 				if (pUnit->CanDistanceGift(pMinor->GetID()) && pUnit->canUseForAIOperation())
 				{
@@ -1280,10 +1280,10 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 	{
 		vector<int> vUnitIDs;
 		bool bFoundOne = false;
-		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		int iLoop;
+		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			if (pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
 			{
 				// Don't send a siege unit
 				if (eDomain == DOMAIN_LAND && pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
