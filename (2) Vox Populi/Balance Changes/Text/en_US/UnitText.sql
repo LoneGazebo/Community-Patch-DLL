@@ -190,7 +190,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_STEALTH_BOMBER_STRATEGY';
 
 	UPDATE Language_en_US
-	SET Text = 'The Guided Missile is a one-shot unit which is destroyed when it attacks an enemy target. The Guided Missile may be based in a player-owned friendly city or aboard a nuclear submarine or missile cruiser. They may move from base to base or attack an enemy unit or city with their range of "6". See the rules on Missiles for more information.'
+	SET Text = 'The Guided Missile is a one-shot unit which is destroyed when it attacks an enemy target. The Guided Missile may be based in a player-owned friendly city or aboard a nuclear submarine or missile cruiser. They may move from base to base or attack an enemy unit. See the rules on Missiles for more information.'
 	WHERE Tag = 'TXT_KEY_UNIT_GUIDED_MISSILE_STRATEGY';
 
 	UPDATE Language_en_US

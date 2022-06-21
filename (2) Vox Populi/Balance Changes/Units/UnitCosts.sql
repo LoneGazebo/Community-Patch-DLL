@@ -3,7 +3,7 @@
 	UPDATE Units SET HurryCostModifier = '-1' WHERE Type = 'UNIT_SETTLER';
 
 	UPDATE Units SET Cost = '40' WHERE Type = 'UNIT_WORKBOAT';
-	UPDATE Units SET Cost = '90' WHERE Type = 'UNIT_CARAVAN';	
+	UPDATE Units SET Cost = '90' WHERE Type = 'UNIT_CARAVAN';
 	UPDATE Units SET Cost = '140' WHERE Type = 'UNIT_CARGO_SHIP';
 	UPDATE Units SET Cost = '80' WHERE Type = 'UNIT_WORKER';
 
@@ -15,22 +15,22 @@
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_INCAN_SLINGER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_ARCHER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_CHARIOT_ARCHER';
-	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';	
-	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_SPEARMAN';	
-	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_GREEK_HOPLITE';			
+	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
+	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_SPEARMAN';
+	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_GREEK_HOPLITE';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_PERSIAN_IMMORTAL';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR';
 	UPDATE Units SET Cost = '80' , FaithCost = '100' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';	
-	UPDATE Units SET Cost = '90' , FaithCost = '100' WHERE Type = 'UNIT_HORSEMAN';
-	UPDATE Units SET Cost = '100' , FaithCost = '200' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
-	
+	UPDATE Units SET Cost = '90' , FaithCost = '100' WHERE Type = 'UNIT_HORSEMAN';	
+	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+
 
 -- Classical
-	
-	UPDATE Units SET Cost = '90', FaithCost = '200' WHERE Type = 'UNIT_SCOUT';
+
+	UPDATE Units SET Cost = '90',  FaithCost = '200' WHERE Type = 'UNIT_SCOUT';
 	UPDATE Units SET Cost = '90', FaithCost = '200' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
-	UPDATE Units SET Cost = '90', FaithCost = '200' WHERE Type = 'UNIT_COMPOSITE_BOWMAN';
-	UPDATE Units SET Cost = '80', FaithCost = '200' WHERE Type = 'UNIT_MAYAN_ATLATLIST';
+	UPDATE Units SET Cost = '90',  FaithCost = '200' WHERE Type = 'UNIT_COMPOSITE_BOWMAN';
+	UPDATE Units SET Cost = '80',  FaithCost = '200' WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 	UPDATE Units SET Cost = '90', FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
 	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_BYZANTINE_DROMON';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
@@ -41,12 +41,12 @@
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_SWORDSMAN';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_CATAPULT';
 	UPDATE Units SET Cost = '120', FaithCost = '300' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
-	UPDATE Units SET Cost = '140', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER';
 	UPDATE Units SET Cost = '125', FaithCost = '150' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
-	
+	UPDATE Units SET Cost = '160', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER'; -- UNIT_LONGSWORDSMAN replacement, available early
+
 
 -- Medieval
-	
+
 	UPDATE Units SET Cost = '135', FaithCost = '300' WHERE Type = 'UNIT_PIKEMAN';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_CROSSBOWMAN';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_BANDEIRANTES';
@@ -70,7 +70,7 @@
 	UPDATE Units SET Cost = '160', FaithCost = '350' WHERE Type = 'UNIT_PORTUGUESE_NAU';
 	UPDATE Units SET Cost = '175', FaithCost = '350' WHERE Type = 'UNIT_GALLEASS';
 
-	-- Renaissance
+-- Renaissance
 
 	UPDATE Units SET Cost = '300', FaithCost = '400' WHERE Type = 'UNIT_OTTOMAN_JANISSARY';
 	UPDATE Units SET Cost = '300', FaithCost = '400' WHERE Type = 'UNIT_SPANISH_TERCIO';
@@ -78,7 +78,7 @@
 	UPDATE Units SET Cost = '325', FaithCost = '400' WHERE Type = 'UNIT_AMERICAN_MINUTEMAN';
 	UPDATE Units SET Cost = '325', FaithCost = '400' WHERE Type = 'UNIT_FRENCH_MUSKETEER';
 	UPDATE Units SET Cost = '325', FaithCost = '400' WHERE Type = 'UNIT_MUSKETMAN';
-	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_CUIRASSIER';	
+	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_CUIRASSIER';
 	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';	
 	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_LANCER';
@@ -86,7 +86,7 @@
 	UPDATE Units SET Cost = '350', FaithCost = '400' WHERE Type = 'UNIT_CANNON';
 
 	UPDATE Units SET Cost = '350', FaithCost = '450' WHERE Type = 'UNIT_PRIVATEER';
-	UPDATE Units SET Cost = '350', FaithCost = '450' WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR';
+	UPDATE Units SET Cost = '350', FaithCost = '450' WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR';	
 	UPDATE Units SET Cost = '375', FaithCost = '450' WHERE Type = 'UNIT_ENGLISH_SHIPOFTHELINE';					
 	UPDATE Units SET Cost = '375', FaithCost = '450' WHERE Type = 'UNIT_FRIGATE';
 
@@ -102,8 +102,8 @@
 	UPDATE Units SET Cost = '800', FaithCost = '600' WHERE Type = 'UNIT_BERBER_CAVALRY';
 	UPDATE Units SET Cost = '900', FaithCost = '600' WHERE Type = 'UNIT_FIELD_GUN';
 
-	UPDATE Units SET Cost = '550' WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'; -- More changes in Honor.sql
-	
+	UPDATE Units SET Cost = '550'					 WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION'; -- More changes in Honor.sql
+
 	UPDATE Units SET Cost = '450', FaithCost = '225' WHERE Type = 'UNIT_ARCHAEOLOGIST';
 
 	UPDATE Units SET Cost = '900', FaithCost = '650' WHERE Type = 'UNIT_IRONCLAD';
@@ -111,20 +111,20 @@
 
 
 -- Modern
-	UPDATE Units SET Cost = '900', FaithCost = '700' WHERE Type = 'UNIT_GREAT_WAR_INFANTRY';
-	UPDATE Units SET Cost = '950', FaithCost = '700' WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN';
-	UPDATE Units SET Cost = '950', FaithCost = '700' WHERE Type = 'UNIT_MACHINE_GUN';
-	UPDATE Units SET Cost = '950', FaithCost = '700' WHERE Type = 'UNIT_PARATROOPER';					
+	UPDATE Units SET Cost = '900',  FaithCost = '700' WHERE Type = 'UNIT_GREAT_WAR_INFANTRY';
+	UPDATE Units SET Cost = '950',  FaithCost = '700' WHERE Type = 'UNIT_ANTI_AIRCRAFT_GUN';
+	UPDATE Units SET Cost = '950',  FaithCost = '700' WHERE Type = 'UNIT_MACHINE_GUN';
+	UPDATE Units SET Cost = '950',  FaithCost = '700' WHERE Type = 'UNIT_PARATROOPER';
 	UPDATE Units SET Cost = '1000', FaithCost = '700' WHERE Type = 'UNIT_WWI_TANK';
 	UPDATE Units SET Cost = '850', FaithCost = '700' WHERE Type = 'UNIT_WWI_BOMBER';
 	UPDATE Units SET Cost = '800', FaithCost = '700' WHERE Type = 'UNIT_TRIPLANE';
 	UPDATE Units SET Cost = '1300', FaithCost = '700' WHERE Type = 'UNIT_ARTILLERY';
 
 -- Atomic
-	
-	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_INFANTRY';		
+
+	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_INFANTRY';
 	UPDATE Units SET Cost = '1200', FaithCost = '800' WHERE Type = 'UNIT_ANTI_TANK_GUN';
-	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_BAZOOKA';	
+	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_BAZOOKA';
 	UPDATE Units SET Cost = '1800', FaithCost = '800' WHERE Type = 'UNIT_GERMAN_PANZER';
 	UPDATE Units SET Cost = '1400', FaithCost = '800' WHERE Type = 'UNIT_FIGHTER';
 	UPDATE Units SET Cost = '1500', FaithCost = '800' WHERE Type = 'UNIT_BOMBER';
@@ -133,7 +133,7 @@
 	UPDATE Units SET Cost = '1800', FaithCost = '800' WHERE Type = 'UNIT_TANK';
 
 	UPDATE Units SET Cost = '1600', FaithCost = '1000' WHERE Type = 'UNIT_SUBMARINE';
-	UPDATE Units SET Cost = '1800', FaithCost = '1000' WHERE Type = 'UNIT_BATTLESHIP';	
+	UPDATE Units SET Cost = '1800', FaithCost = '1000' WHERE Type = 'UNIT_BATTLESHIP';
 	UPDATE Units SET Cost = '1600', FaithCost = '1000' WHERE Type = 'UNIT_DESTROYER';
 	UPDATE Units SET Cost = '1800', FaithCost = '1000' WHERE Type = 'UNIT_CARRIER';
 
@@ -169,7 +169,7 @@
 -- Faith Purchase Enablers
 	UPDATE Units
 	SET RequiresFaithPurchaseEnabled = '1'
-	WHERE Type IN 
+	WHERE Type IN
 	('UNIT_WWI_TANK',
 	'UNIT_HELICOPTER_GUNSHIP',
 	'UNIT_JET_FIGHTER',

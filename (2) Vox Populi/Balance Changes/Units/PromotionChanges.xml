@@ -1412,6 +1412,7 @@
 			<Help>TXT_KEY_PROMOTION_SIGHT_PENALTY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<VisibilityChange>-1</VisibilityChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
