@@ -1144,7 +1144,7 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 }
 void CvHomelandAI::ExecuteUnitGift()
 {
-	if (!m_pPlayer->isMajorCiv())
+	if (!m_pPlayer->isMajorCiv() || m_pPlayer->isHuman())
 		return;
 
 	UnitTypes eUnitType = NO_UNIT;
