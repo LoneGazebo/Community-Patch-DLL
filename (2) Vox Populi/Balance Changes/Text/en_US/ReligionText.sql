@@ -490,7 +490,7 @@ SET Text = 'Abode of Peace'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities. Minimum [ICON_INFLUENCE] Influence with City-States following your Religion is [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 20%.'
+SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 20%.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR';
 
 
