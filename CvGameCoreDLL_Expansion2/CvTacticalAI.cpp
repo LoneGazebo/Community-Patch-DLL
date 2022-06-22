@@ -5432,7 +5432,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 	// Is this unit in a base in danger?
 	if (pUnitPlot->isCity())
 	{
-		if (pUnitPlot->getPlotCity()->isInDangerOfFalling())
+		if (pUnitPlot->getPlotCity()->isInDangerOfFalling(true))
 			return true;
 
 		if (pUnit->shouldHeal() && m_pPlayer->GetPlotDanger(pUnitPlot->getPlotCity())>0)

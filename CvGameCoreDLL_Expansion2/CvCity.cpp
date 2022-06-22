@@ -35371,10 +35371,12 @@ void CvCity::flipDamageReceivedPerTurn()
 	m_iDamageTakenThisTurn = 0;
 }
 
-bool CvCity::isInDangerOfFalling() const
+bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 {
 	int iHitpoints = GetMaxHitPoints() - getDamage();
-	if (m_iDamageTakenLastTurn > iHitpoints)
+	int iExtraDamage = bExtraCareful ? m_iDamageTakenLastTurn / 3 : 0;
+
+	if (m_iDamageTakenLastTurn+iExtraDamage > iHitpoints)
 		return true;
 
 	//special: if a city has just been conquered it's vulnerable but m_iDamageTakenLastTurn is zero

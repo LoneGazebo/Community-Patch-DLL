@@ -1651,7 +1651,7 @@ public:
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);
 	void flipDamageReceivedPerTurn();
-	bool isInDangerOfFalling() const;
+	bool isInDangerOfFalling(bool bExtraCareful=false) const;
 	bool isUnderSiege() const;
 	int getDamageTakenLastTurn() const;
 #endif
