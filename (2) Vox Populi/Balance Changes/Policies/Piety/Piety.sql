@@ -101,7 +101,7 @@ WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_FAITH';
 
 UPDATE Buildings
 SET Description = 'TXT_KEY_BUILDING_MONASTERY'
-WHERE BuildingType = 'BUILDING_MONASTERY';
+WHERE Type = 'BUILDING_MONASTERY';
 
 -- Free Religion (Now Iconography)
 UPDATE Policies
