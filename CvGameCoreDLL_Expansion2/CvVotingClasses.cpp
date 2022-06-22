@@ -12358,9 +12358,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							WarStateTypes eWarState = pDiploAI->GetWarState(eLoopPlayer);
 							if (eWarState != NO_WAR_STATE_TYPE)
 							{
-								if (eWarState == WAR_STATE_STALEMATE && pDiploAI->GetWarScore(eLoopPlayer) <= -25)
-									eWarState = WAR_STATE_DEFENSIVE;
-
 								iWarStates += 2 * ((int)eWarState - WAR_STATE_STALEMATE) - 1;
 							}
 						}
@@ -12431,9 +12428,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					WarStateTypes eWarState = pDiploAI->GetWarState(eLoopPlayer);
 					if (eWarState != NO_WAR_STATE_TYPE)
 					{
-						if (eWarState == WAR_STATE_STALEMATE && pDiploAI->GetWarScore(eLoopPlayer) <= -25)
-							eWarState = WAR_STATE_DEFENSIVE;
-
 						iWarStates += 2 * ((int)eWarState - WAR_STATE_STALEMATE) - 1;
 					}
 				}

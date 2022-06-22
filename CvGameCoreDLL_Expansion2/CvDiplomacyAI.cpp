@@ -10110,14 +10110,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
-						if (pLoopCity->isInDangerOfFalling())
+						if (pLoopCity->isInDangerOfFalling(true))
 							iDangerMod += 3;
 						else
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
 							if (pLoopCity->getOriginalOwner() == GetID())
 							{
@@ -10141,7 +10141,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					{
 						iNumOurCitiesInDanger++;
 					}
-					else if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
 						iNumOurCitiesInDanger++;
 					}
@@ -10179,14 +10179,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
-						if (pLoopCity->isInDangerOfFalling())
+						if (pLoopCity->isInDangerOfFalling(true))
 							iDangerMod += 3;
 						else
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
 							bSeriousDangerThem = true;
 						}
@@ -10202,7 +10202,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					{
 						iNumTheirCitiesInDanger++;
 					}
-					else if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 					{
 						iNumTheirCitiesInDanger++;
 					}
@@ -10280,12 +10280,16 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					if (WarScore >= 25)
 						eWarState = WAR_STATE_STALEMATE;
+					else if (WarScore > 0)
+						eWarState = WAR_STATE_TROUBLED;
 					else
 						eWarState = WAR_STATE_DEFENSIVE;
 				}
 				else if (iDangerPercent > 100 && bDangerValid)
 				{
 					if (WarScore <= -25)
+						eWarState = WAR_STATE_TROUBLED;
+					else if (WarScore < 0)
 						eWarState = WAR_STATE_STALEMATE;
 					else
 						eWarState = WAR_STATE_OFFENSIVE;
@@ -10294,6 +10298,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					if (WarScore >= 25)
 						eWarState = WAR_STATE_OFFENSIVE;
+					else if (WarScore <= -25)
+						eWarState = WAR_STATE_TROUBLED;
 					else
 						eWarState = WAR_STATE_STALEMATE;
 				}
@@ -10303,9 +10309,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			{
 				eWarState = WAR_STATE_NEARLY_WON;
 			}
-			else if (WarScore <= -50 && eWarState == WAR_STATE_DEFENSIVE)
+			else if (WarScore <= -50)
 			{
-				eWarState = WAR_STATE_NEARLY_DEFEATED;
+				if (eWarState == WAR_STATE_DEFENSIVE)
+					eWarState = WAR_STATE_NEARLY_DEFEATED;
+				else if (eWarState == WAR_STATE_TROUBLED)
+					eWarState = WAR_STATE_DEFENSIVE;
 			}
 
 			//Exceptions?
@@ -10313,7 +10322,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			//If low warscore, no serious danger, and it has been a while since either side captured a city, let's bring it down to calm.
 			if (!bSeriousDangerThem && !bSeriousDangerUs && WarScore <= 20 && WarScore >= -20)
 			{
-				if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) > 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) > 10)
+				if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) >= 10)
 					eWarState = WAR_STATE_CALM;
 			}
 
@@ -10322,15 +10331,19 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			{
 				if (eWarState == WAR_STATE_NEARLY_WON)
 				{
-					iStateAllWars += 2;
+					iStateAllWars += 4;
 				}
 				else if (eWarState == WAR_STATE_OFFENSIVE)
 				{
-					iStateAllWars += (bSeriousDangerThem && !bSeriousDangerUs) ? 2 : 1;
+					iStateAllWars += (bSeriousDangerThem && !bSeriousDangerUs) ? 4 : 2;
+				}
+				else if (eWarState == WAR_STATE_TROUBLED)
+				{
+					iStateAllWars -= bSeriousDangerUs ? 2 : 1;
 				}
 				else if (eWarState == WAR_STATE_DEFENSIVE)
 				{
-					iStateAllWars -= bSeriousDangerUs ? 2 : 1;
+					iStateAllWars -= bSeriousDangerUs ? 4 : 2;
 
 					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
@@ -10356,11 +10369,11 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	}
 
 	// Finalize overall assessment
-	if (iStateAllWars < -1 || GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	if (iStateAllWars < -2 || GetStateAllWars() == STATE_ALL_WARS_LOSING)
 	{
 		SetStateAllWars(STATE_ALL_WARS_LOSING);
 	}
-	else if (iStateAllWars > 1)
+	else if (iStateAllWars > 2)
 	{
 		SetStateAllWars(STATE_ALL_WARS_WINNING);
 	}
@@ -11522,7 +11535,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 				continue;
 			}
 
-			if (eWarState == WAR_STATE_DEFENSIVE || eWarState == WAR_STATE_NEARLY_DEFEATED || GetWarScore(ePlayer) <= -25)
+			if (eWarState < WAR_STATE_STALEMATE)
 			{
 				SetEasyTarget(ePlayer, false);
 				continue;
@@ -11604,7 +11617,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 
 					if (GET_PLAYER(ePlayer).isMinorCiv()) // caution requirement is lower for City-States
 					{
-						if (GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE || GetWarScore(eLoopPlayer) <= -25)
+						if (GetWarState(eLoopPlayer) <= WAR_STATE_TROUBLED)
 						{
 							SetEasyTarget(ePlayer, false);
 							bValueSet = true;
@@ -11613,7 +11626,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 					}
 					else
 					{
-						if (GetWarState(eLoopPlayer) <= WAR_STATE_DEFENSIVE || GetWarScore(eLoopPlayer) <= -25)
+						if (GetWarState(eLoopPlayer) <= WAR_STATE_TROUBLED)
 						{
 							SetEasyTarget(ePlayer, false);
 							bValueSet = true;
@@ -15185,7 +15198,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			
 			if (IsPlayerValid(eLoopPlayer) && eLoopPlayer != ePlayer && GET_PLAYER(eLoopPlayer).isMajorCiv() && IsAtWar(eLoopPlayer))
 			{
-				if (!GetPlayer()->IsNoNewWars() && GetWarState(eLoopPlayer) > WAR_STATE_DEFENSIVE)
+				if (!GetPlayer()->IsNoNewWars() && GetWarState(eLoopPlayer) > WAR_STATE_TROUBLED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar())
@@ -15328,7 +15341,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Conquest bias: must be a stalemate or better to apply (or not at war yet)
 	if (IsGoingForWorldConquest() || bCloseToWorldConquest)
 	{
-		if (GetWarState(ePlayer) == NO_WAR_STATE_TYPE || (GetWarState(ePlayer) > WAR_STATE_DEFENSIVE && GetWarScore(ePlayer) > -25))
+		if (GetWarState(ePlayer) == NO_WAR_STATE_TYPE || GetWarState(ePlayer) > WAR_STATE_TROUBLED)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += bCloseToWorldConquest ? vApproachBias[CIV_APPROACH_WAR] * 2 : vApproachBias[CIV_APPROACH_WAR];
 
@@ -17213,25 +17226,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * 5 * iTheirAttackMultiplier;
 		break;
 	case WAR_STATE_DEFENSIVE:
+	case WAR_STATE_TROUBLED:
 		vApproachScores[CIV_APPROACH_AFRAID] += vApproachBias[CIV_APPROACH_AFRAID] * 2 * iTheirAttackMultiplier;
 		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iTheirAttackMultiplier;
 		vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2 * iTheirAttackMultiplier;
 		break;
 	case WAR_STATE_STALEMATE:
 	case WAR_STATE_CALM:
-	{
-		if (GetWarScore(ePlayer) <= -25)
-		{
-			vApproachScores[CIV_APPROACH_AFRAID] += vApproachBias[CIV_APPROACH_AFRAID] * 2 * iTheirAttackMultiplier;
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iTheirAttackMultiplier;
-			vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2 * iTheirAttackMultiplier;
-		}
-		else
-		{
-			vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
-		}
+		vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2;
 		break;
-	}
 	case WAR_STATE_OFFENSIVE:
 		vApproachScores[CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 2 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * iAttackMultiplier;
 		vApproachScores[CIV_APPROACH_DECEPTIVE] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_DECEPTIVE] * 2 * iAttackMultiplier : vApproachBias[CIV_APPROACH_DECEPTIVE] * iAttackMultiplier;
@@ -18099,7 +18102,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
 
 				// Not significantly war weary? We should ignore certain players for the war state check.
-				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState != WAR_STATE_DEFENSIVE && eLoopWarState != WAR_STATE_NEARLY_DEFEATED)
+				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState > WAR_STATE_TROUBLED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar())
@@ -18129,21 +18132,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE];
 					break;
 				case WAR_STATE_STALEMATE:
-				{
-					if (GetWarScore(eLoopPlayer) <= -25)
-					{
-						vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2 * iTheirAttackMultiplier;
-						vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2 * iTheirAttackMultiplier;
-						vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2 * iTheirAttackMultiplier;
-					}
-					else
-					{
-						vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2 * iTheirAttackMultiplier;
-						vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iTheirAttackMultiplier;
-						vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iTheirAttackMultiplier;
-					}
+					vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 2 * iTheirAttackMultiplier;
+					vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * iTheirAttackMultiplier;
+					vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * iTheirAttackMultiplier;
 					break;
-				}
+				case WAR_STATE_TROUBLED:
 				case WAR_STATE_DEFENSIVE:
 					vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2 * iTheirAttackMultiplier;
 					vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2 * iTheirAttackMultiplier;
@@ -18307,11 +18300,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					{
 						int iBonusMod = (int)GetVictoryBlockLevel(ePlayer) + (int)GetVictoryDisputeLevel(ePlayer) + (int)GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer);
 
-						if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer) == WAR_STATE_STALEMATE && GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarScore(ePlayer) <= -25)
-							iBonusMod--;
-
 						if (IsAtWar(ePlayer))
-							iBonusMod += (int)GetWarState(ePlayer) - 3;
+							iBonusMod += (int)GetWarState(ePlayer) - 4;
 
 						if (!bOtherWarPlayerCloseToTarget && iBonusMod > 0)
 							iBonusMod /= 2;
@@ -19019,7 +19009,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		else
 		{
 			int iFlavorNuke = GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-			iHowLikelyAreTheyToNukeUs = iFlavorNuke * iFlavorNuke; // use nukes has to pass 2 rolls
+			iHowLikelyAreTheyToNukeUs = iFlavorNuke * 10;
 		}
 	}
 
@@ -19029,19 +19019,19 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 3 * iAttackMultiplier : 0;
 		vApproachScores[CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 3 * iAttackMultiplier : 0;
 
-		if (bWantsOpportunityAttack && bEasyTarget)
+		if (bWantsOpportunityAttack)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 5 * iAttackMultiplier;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 5 * iAttackMultiplier;
 		}
 	}
 	// Do they have nukes and we don't?
-	else if (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 && GetPlayer()->getNumNukeUnits() == 0 && iHowLikelyAreTheyToNukeUs >= 50)
+	else if (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 && GetPlayer()->getNumNukeUnits() == 0 && iHowLikelyAreTheyToNukeUs >= 60)
 	{
 		vApproachScores[CIV_APPROACH_AFRAID] += vApproachBias[CIV_APPROACH_AFRAID] * 5 * iTheirAttackMultiplier;
 	}
 	// Do we both have nukes?
-	else if (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 && GetPlayer()->getNumNukeUnits() > 0 && iHowLikelyAreTheyToNukeUs >= 25)
+	else if (GET_PLAYER(ePlayer).getNumNukeUnits() > 0 && GetPlayer()->getNumNukeUnits() > 0 && iHowLikelyAreTheyToNukeUs >= 30)
 	{
 		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 2 * iTheirAttackMultiplier;
 	}
@@ -24375,7 +24365,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// If we're already at war with this City-State and the war is going badly, abort!
 	if (IsAtWar(ePlayer))
 	{
-		if (GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE || GetWarScore(ePlayer) <= -25)
+		if (GetWarState(ePlayer) <= WAR_STATE_TROUBLED)
 		{
 			vApproachScores[CIV_APPROACH_WAR] = 0;
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
@@ -24575,7 +24565,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	}
 
 	// STEP 1: See if we're in a critical state and check which players are valid
-	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling() || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
+	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling(true) || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
 	bool bMakePeaceWithAllMinors = false;
 	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
@@ -24671,14 +24661,10 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			{
 				bCriticalState = true;
 			}
-			else if (eWarState == WAR_STATE_DEFENSIVE)
+			else if (eWarState <= WAR_STATE_TROUBLED)
 			{
-				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer))
+				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= -25)
 					bMakePeaceWithAllMinors = true;
-			}
-			else if (eWarState == WAR_STATE_STALEMATE && GetWarScore(eLoopPlayer) <= -25)
-			{
-				bMakePeaceWithAllMinors = true;
 			}
 		}
 		else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -24919,14 +24905,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
-					if (pLoopCity->isInDangerOfFalling())
+					if (pLoopCity->isInDangerOfFalling(true))
 						iDangerMod += 3;
 					else
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
 						if (pLoopCity->getOriginalOwner() == GetID())
 						{
@@ -24971,14 +24957,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 				{
-					if (pLoopCity->isInDangerOfFalling())
+					if (pLoopCity->isInDangerOfFalling(true))
 						iDangerMod += 3;
 					else
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
 						bSeriousDangerThem = true;
 					}
@@ -25098,7 +25084,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 								{
 									bReadyForVassalage = false;
 								}
-								else if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+								else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
 								{
 									bReadyForVassalage = false;
 								}
@@ -25447,7 +25433,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		// Okay, so no automatic peace. But should we consider peace at all?
 		bool bConsiderPeace = bReadyForVassalage || bPhonyWar || bSeriousDangerUs || bInTerribleShape || bWarWeary;
 		bConsiderPeace |= GetCivApproach(*it) > CIV_APPROACH_HOSTILE;
-		bConsiderPeace |= GetWarState(*it) <= WAR_STATE_DEFENSIVE;
+		bConsiderPeace |= GetWarState(*it) <= WAR_STATE_TROUBLED;
 		bConsiderPeace |= iWarDuration >= 30;
 
 		// Not worth making peace with. Proceed.
@@ -25656,6 +25642,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iPeaceScore -= bLosingOverall ? -5 * iTheirMultiplier : 2 * iOurMultiplier;
 			break;
 		case WAR_STATE_STALEMATE:
+		case WAR_STATE_TROUBLED:
 			iPeaceScore += bLosingOverall ? 5 * iTheirMultiplier : 2 * iTheirMultiplier;
 			break;
 		case WAR_STATE_DEFENSIVE:
@@ -25680,9 +25667,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					continue;
 				if (GET_PLAYER(*iter).GetProximityToPlayer(*it) < PLAYER_PROXIMITY_CLOSE)
 					continue;
-				if (GET_PLAYER(*iter).GetDiplomacyAI()->GetWarState(*it) <= WAR_STATE_DEFENSIVE)
-					continue;
-				if (GET_PLAYER(*iter).GetDiplomacyAI()->GetWarState(*it) == WAR_STATE_STALEMATE && GET_PLAYER(*iter).GetDiplomacyAI()->GetWarScore(*it) <= -25)
+				if (GET_PLAYER(*iter).GetDiplomacyAI()->GetWarState(*it) <= WAR_STATE_TROUBLED)
 					continue;
 
 				switch (GET_PLAYER(*iter).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(*it))
@@ -25741,7 +25726,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			// However, do not factor this in when losing
 			if (!bInTerribleShape)
 			{
-				if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_DEFENSIVE))
+				if (iWarScore > 0 || (iWarScore > -15 && GetPlayerTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_TROUBLED))
 				{
 					if (bCapturedAnyCityFromUs)
 					{
@@ -27692,7 +27677,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 
 	// War state too high or too low
 	WarStateTypes eWarState = GetWarState(ePlayer);
-	if (eWarState >= WAR_STATE_OFFENSIVE || eWarState <= WAR_STATE_DEFENSIVE)
+	if (eWarState >= WAR_STATE_OFFENSIVE || eWarState <= WAR_STATE_TROUBLED)
 		return false;
 
 	// War score is too high
@@ -28524,14 +28509,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 									ChangeRecentAssistValue(ePlayer, -50);
 									break;
 								case WAR_STATE_STALEMATE:
-								{
-									if (GetWarScore(eAttackedPlayer) <= -25)
-										ChangeRecentAssistValue(ePlayer, -200);
-									else
-										ChangeRecentAssistValue(ePlayer, -100);
-
+									ChangeRecentAssistValue(ePlayer, -100);
 									break;
-								}
+								case WAR_STATE_TROUBLED:
 								case WAR_STATE_DEFENSIVE:
 									ChangeRecentAssistValue(ePlayer, -200);
 									break;
@@ -29716,7 +29696,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, -50);
 							
 							// Extra bonus if they're doing badly in the war
-							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer) <= WAR_STATE_DEFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarScore(ePlayer) <= -25)
+							if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer) <= WAR_STATE_TROUBLED)
 							{
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, -25);
 							}
@@ -38749,7 +38729,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 								GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -50);
 								
 								// Extra bonus if they're doing badly in the war
-								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(eMyPlayer) <= WAR_STATE_DEFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarScore(eMyPlayer) <= -25)
+								if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(eMyPlayer) <= WAR_STATE_TROUBLED)
 								{
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -25);
 								}
@@ -43210,7 +43190,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 						{
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, -75);
 						}
-						else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer) == WAR_STATE_DEFENSIVE || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarScore(ePlayer) <= -25)
+						else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetWarState(ePlayer) <= WAR_STATE_TROUBLED)
 						{
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, -35);
 						}
@@ -48210,7 +48190,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 
 	if (!bLiberate)
 	{
-		bool bBadWarDecision = eOldOwner != NO_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_DEFENSIVE || GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
+		bool bBadWarDecision = eOldOwner != NO_PLAYER && IsAtWar(eOldOwner) && (GetWarState(eOldOwner) <= WAR_STATE_TROUBLED || GetWarScore(eOldOwner) <= -10) && (!GET_PLAYER(ePlayerToLiberate).isAlive() || GET_PLAYER(ePlayerToLiberate).IsAtWarWith(eOldOwner));
 
 		// Player we'd be liberating is alive
 		if (GET_PLAYER(ePlayerToLiberate).isAlive())
@@ -51913,6 +51893,9 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 		case WAR_STATE_STALEMATE:
 			strTemp.Format("WST Stalemate");
 			break;
+		case WAR_STATE_TROUBLED:
+			strTemp.Format("WST Troubled");
+			break;
 		case WAR_STATE_DEFENSIVE:
 			strTemp.Format("WST DEFENSIVE");
 			break;
@@ -54748,7 +54731,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 
 		iNumCitiesInDanger++;
 
-		if (pLoopCity->isInDangerOfFalling() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
+		if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
 		{
 			// Our last city about to fall?
 			if (GetPlayer()->getNumCities() == 1)
@@ -54772,7 +54755,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 
 		iNumTheirCitiesInDanger++;
 
-		if (pLoopCity->isInDangerOfFalling() || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
+		if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/3))
 		{
 			return false;
 		}
@@ -55098,21 +55081,15 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 				WarStateTypes eOurWarState = GetWarState(eLoopPlayer);
 				WarStateTypes eTheirWarState = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer);
 
-				if (eOurWarState == WAR_STATE_STALEMATE && GetWarScore(eLoopPlayer) <= -25)
-					eOurWarState = WAR_STATE_DEFENSIVE;
-
-				if (eTheirWarState == WAR_STATE_STALEMATE && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarScore(eLoopPlayer) <= -25)
-					eTheirWarState = WAR_STATE_DEFENSIVE;
-
 				// Are they doing better than us?
-				if (eOurWarState < WAR_STATE_OFFENSIVE && eTheirWarState > WAR_STATE_DEFENSIVE && eTheirWarState > eOurWarState)
+				if (eOurWarState < WAR_STATE_OFFENSIVE && eTheirWarState > WAR_STATE_STALEMATE && eTheirWarState > eOurWarState)
 				{
 					iWantVassalageScore += ((int)eTheirWarState - (int)eOurWarState) * 30;
 				}
 				// Are they doing worse than us?
 				else if (eTheirWarState < WAR_STATE_OFFENSIVE && eOurWarState > eTheirWarState)
 				{
-					iWantVassalageScore -= ((int)eOurWarState - (int)eTheirWarState) * 30;
+					iWantVassalageScore -= ((int)eOurWarState - (int)eTheirWarState) * 20;
 				}
 			}
 			// We're at war and they're not?
@@ -55132,8 +55109,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 					iWantVassalageScore -= 10;
 					break;
 				case WAR_STATE_STALEMATE:
-					iWantVassalageScore += GetWarScore(eLoopPlayer) > -25 ? 10 * iStrengthFactor : 30 * iStrengthFactor;
+					iWantVassalageScore += 10 * iStrengthFactor;
 					break;
+				case WAR_STATE_TROUBLED:
 				case WAR_STATE_DEFENSIVE:
 					iWantVassalageScore += 30 * iStrengthFactor;
 					break;
@@ -55163,10 +55141,11 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 						iWantVassalageScore -= 100 * iStrengthFactor * iOpinionFactor; // eep! No thanks!
 						break;
 					case WAR_STATE_DEFENSIVE:
+					case WAR_STATE_TROUBLED:
 						iWantVassalageScore -= 30 * iStrengthFactor * iOpinionFactor; // should probably bail!
 						break;
 					case WAR_STATE_STALEMATE:
-						iWantVassalageScore -= GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarScore(eLoopPlayer) > -25 ? 10 * iStrengthFactor * iOpinionFactor : 30 * iStrengthFactor * iOpinionFactor; // bail if they're too strong or we don't dislike them enough
+						iWantVassalageScore -= 10 * iStrengthFactor * iOpinionFactor; // bail if they're too strong or we don't dislike them enough
 						break;
 					case WAR_STATE_CALM:
 						iWantVassalageScore -= 5 * iStrengthFactor * iOpinionFactor;

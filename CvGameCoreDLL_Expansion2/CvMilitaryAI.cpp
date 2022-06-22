@@ -2191,7 +2191,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 			if (GET_PLAYER(ePlayer).isMajorCiv())
 			{
 				CivOpinionTypes eCivOpinion = m_pPlayer->GetDiplomacyAI()->GetCivOpinion(ePlayer);
-				if (eMilitaryStrength == STRENGTH_POWERFUL || eCurrentWarState == WAR_STATE_DEFENSIVE)
+				if (eMilitaryStrength == STRENGTH_POWERFUL || eCurrentWarState <= WAR_STATE_TROUBLED)
 				{
 					// roll every turn
 					bRollForNuke = true;
@@ -2330,7 +2330,7 @@ void CvMilitaryAI::DoCityAttacks(PlayerTypes ePlayer)
 	if (iReservesTotal >= m_iRecDefensiveLandUnits || (m_pPlayer->GetNumOffensiveOperations(DOMAIN_LAND)+m_pPlayer->GetNumOffensiveOperations(DOMAIN_SEA)) <= 0)
 	{
 		WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
-		if(eWarState >= WAR_STATE_STALEMATE)
+		if (eWarState >= WAR_STATE_TROUBLED)
 		{
 			RequestCityAttack(ePlayer, 2);
 			if (GET_PLAYER(ePlayer).isMajorCiv())
