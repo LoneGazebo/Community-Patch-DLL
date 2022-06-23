@@ -10309,12 +10309,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			{
 				eWarState = WAR_STATE_NEARLY_WON;
 			}
-			else if (WarScore <= -50)
+			else if (WarScore <= -50 && eWarState == WAR_STATE_DEFENSIVE)
 			{
-				if (eWarState == WAR_STATE_DEFENSIVE)
-					eWarState = WAR_STATE_NEARLY_DEFEATED;
-				else if (eWarState == WAR_STATE_TROUBLED)
-					eWarState = WAR_STATE_DEFENSIVE;
+				eWarState = WAR_STATE_NEARLY_DEFEATED;
 			}
 
 			//Exceptions?
@@ -18102,7 +18099,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
 
 				// Not significantly war weary? We should ignore certain players for the war state check.
-				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState > WAR_STATE_TROUBLED)
+				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && (eLoopWarState == NO_WAR_STATE_TYPE || eLoopWarState > WAR_STATE_TROUBLED))
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar())
