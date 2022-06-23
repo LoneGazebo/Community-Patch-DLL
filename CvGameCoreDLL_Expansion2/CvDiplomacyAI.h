@@ -44,6 +44,8 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
+#define WARSCORE_THRESHOLD_POSITIVE (+25)
+#define WARSCORE_THRESHOLD_NEGATIVE (-25)
 
 //=====================================
 // CvDiplomacyAI
@@ -124,6 +126,8 @@ public:
 	int GetForgiveness() const;
 	int GetChattiness() const;
 	int GetMeanness() const;
+	int GetWarscoreThresholdPositive() const;
+	int GetWarscoreThresholdNegative() const;
 
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;

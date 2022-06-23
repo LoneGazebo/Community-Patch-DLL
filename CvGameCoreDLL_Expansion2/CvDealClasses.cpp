@@ -5161,11 +5161,11 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 			if (bDoWarVictoryBonuses)
 			{
-				if (GET_PLAYER(eReceivingPlayer).GetDiplomacyAI()->GetWarScore(eGivingPlayer) >= 25)
+				if (GET_PLAYER(eReceivingPlayer).GetDiplomacyAI()->GetWarScore(eGivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eReceivingPlayer).DoWarVictoryBonuses();
 				}
-				else if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eReceivingPlayer) >= 25)
+				else if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eReceivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
 				}

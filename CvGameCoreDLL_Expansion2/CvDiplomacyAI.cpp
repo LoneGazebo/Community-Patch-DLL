@@ -2333,6 +2333,18 @@ int CvDiplomacyAI::GetMeanness() const
 	return m_iMeanness;
 }
 
+int CvDiplomacyAI::GetWarscoreThresholdPositive() const
+{
+	//todo: customize this a bit based on personality
+	return WARSCORE_THRESHOLD_POSITIVE;
+}
+
+int CvDiplomacyAI::GetWarscoreThresholdNegative() const
+{
+	//todo: customize this a bit based on personality
+	return WARSCORE_THRESHOLD_NEGATIVE;
+}
+
 /// What is this AI leader's bias towards a particular Major Civ Approach?
 int CvDiplomacyAI::GetMajorCivApproachBias(CivApproachTypes eApproach) const
 {
@@ -10242,14 +10254,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			}
 			else if (!bSeriousDangerUs && bSeriousDangerThem)
 			{
-				if (WarScore > -25)
+				if (WarScore > GetWarscoreThresholdPositive())
 					eWarState = WAR_STATE_OFFENSIVE;
 				else
 					eWarState = WAR_STATE_STALEMATE;
 			}
 			else if (bSeriousDangerUs && bSeriousDangerThem)
 			{
-				if (WarScore > -25 && WarScore < 25)
+				if (WarScore > GetWarscoreThresholdNegative() && WarScore < GetWarscoreThresholdPositive())
 					eWarState = WAR_STATE_STALEMATE;
 			}
 
@@ -10278,7 +10290,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 				if (iDangerPercent < 100 && bDangerValid)
 				{
-					if (WarScore >= 25)
+					if (WarScore >= GetWarscoreThresholdPositive())
 						eWarState = WAR_STATE_STALEMATE;
 					else if (WarScore > 0)
 						eWarState = WAR_STATE_TROUBLED;
@@ -10287,7 +10299,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else if (iDangerPercent > 100 && bDangerValid)
 				{
-					if (WarScore <= -25)
+					if (WarScore <= GetWarscoreThresholdNegative())
 						eWarState = WAR_STATE_TROUBLED;
 					else if (WarScore < 0)
 						eWarState = WAR_STATE_STALEMATE;
@@ -10296,20 +10308,20 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else
 				{
-					if (WarScore >= 25)
+					if (WarScore >= GetWarscoreThresholdPositive())
 						eWarState = WAR_STATE_OFFENSIVE;
-					else if (WarScore <= -25)
+					else if (WarScore <= GetWarscoreThresholdNegative())
 						eWarState = WAR_STATE_TROUBLED;
 					else
 						eWarState = WAR_STATE_STALEMATE;
 				}
 			}
 
-			if (WarScore >= 50 && eWarState == WAR_STATE_OFFENSIVE)
+			if (WarScore >= GetWarscoreThresholdPositive()*2 && eWarState == WAR_STATE_OFFENSIVE)
 			{
 				eWarState = WAR_STATE_NEARLY_WON;
 			}
-			else if (WarScore <= -50 && eWarState == WAR_STATE_DEFENSIVE)
+			else if (WarScore <= GetWarscoreThresholdNegative()*2 && eWarState == WAR_STATE_DEFENSIVE)
 			{
 				eWarState = WAR_STATE_NEARLY_DEFEATED;
 			}
@@ -10317,7 +10329,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			//Exceptions?
 
 			//If low warscore, no serious danger, and it has been a while since either side captured a city, let's bring it down to calm.
-			if (!bSeriousDangerThem && !bSeriousDangerUs && WarScore <= 20 && WarScore >= -20)
+			if (!bSeriousDangerThem && !bSeriousDangerUs && WarScore <= GetWarscoreThresholdPositive() && WarScore >= GetWarscoreThresholdNegative())
 			{
 				if (GetPlayer()->GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) >= 10 && GET_PLAYER(eLoopPlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) >= 10)
 					eWarState = WAR_STATE_CALM;
@@ -18264,7 +18276,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 							}
 						}
 						// Do we hate the other guy? Then let's be more reluctant to go to war.
-						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && GetWarScore(ePlayer) < 25 && (!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) > -10))
+						else if (!bUntrustworthy && !IsDenouncedByPlayer(ePlayer) && GetNumCitiesCapturedBy(ePlayer) <= 0 && GetWarScore(ePlayer) < GetWarscoreThresholdPositive() && 
+							(!IsAtWar(ePlayer) || IsPhonyWar(ePlayer, true) || GetWarScore(ePlayer) > GetWarscoreThresholdNegative()/2))
 						{
 							if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer || IsEndgameAggressiveTo(eLoopPlayer))
 							{
@@ -24660,7 +24673,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			}
 			else if (eWarState <= WAR_STATE_TROUBLED)
 			{
-				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= -25)
+				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= WARSCORE_THRESHOLD_NEGATIVE)
 					bMakePeaceWithAllMinors = true;
 			}
 		}
@@ -25691,7 +25704,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				iAlliesMod = -10;
 			}
 		}
-		if (iWarScore <= -25 && GetWarState(*it) < WAR_STATE_OFFENSIVE)
+		if (iWarScore <= WARSCORE_THRESHOLD_NEGATIVE && GetWarState(*it) < WAR_STATE_OFFENSIVE)
 		{
 			iAlliesMod /= 2;
 		}
@@ -27679,7 +27692,7 @@ bool CvDiplomacyAI::IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection 
 
 	// War score is too high
 	int iWarScore = GetPlayer()->GetDiplomacyAI()->GetWarScore(ePlayer);
-	if (iWarScore <= -25 || iWarScore >= 25)
+	if (iWarScore <= GetWarscoreThresholdNegative() || iWarScore >= GetWarscoreThresholdPositive())
 		return false;
 
 	// We want to conquer them!
