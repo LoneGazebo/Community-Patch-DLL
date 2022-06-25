@@ -2111,7 +2111,7 @@ void CvGlobals::init()
 	};
 
 
-	int aiCityPlotPriority[MAX_CITY_PLOTS] =
+	int aiRingFromLinearOffset[MAX_CITY_PLOTS] =
 	{
 		0,
 		1,  1,  1,  1,  1,  1,
@@ -2206,7 +2206,7 @@ void CvGlobals::init()
 	memcpy(m_aiPlotDirectionY, aiPlotDirectionY, sizeof(m_aiPlotDirectionY));
 	memcpy(m_aiRingPlotXOffset, aiRingPlotXOffset, sizeof(m_aiRingPlotXOffset));
 	memcpy(m_aiRingPlotYOffset, aiRingPlotYOffset, sizeof(m_aiRingPlotYOffset));
-	memcpy(m_aiCityPlotPriority, aiCityPlotPriority, sizeof(m_aiCityPlotPriority));
+	memcpy(m_aiRingFromLinearOffset, aiRingFromLinearOffset, sizeof(m_aiRingFromLinearOffset));
 	memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
 	memcpy(m_aaiRingPlotIndex, aaiRingPlotIndex, sizeof(m_aaiRingPlotIndex));
@@ -2491,9 +2491,9 @@ void CvGlobals::SetPostTurnAutosaves(bool bEnable)
 }
 
 
-int* CvGlobals::getCityPlotPriority()
+int* CvGlobals::getRingFromLinearOffset()
 {
-	return m_aiCityPlotPriority;
+	return m_aiRingFromLinearOffset;
 }
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)

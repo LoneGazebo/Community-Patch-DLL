@@ -6274,38 +6274,47 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isFriendlyUnit(eForPlayer, true, false))
 		return false;
 
-	//need to do additional checks in water
-	if (isWater())
+	if (MOD_ADJACENT_BLOCKADE)
 	{
-		int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
+		int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : 1;
+
+		int iClosestFriendly = INT_MAX;
+		int iClosestEnemy = INT_MAX;
 		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 		{
 			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
+			if (pNeighbor && pNeighbor->getLandmass() == getLandmass() && !pNeighbor->isCity())
 			{
 				//no halo around embarked units
 				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
-					return true;
+					iClosestEnemy = min(iClosestEnemy, GC.getRingFromLinearOffset()[i]);
+				if (pNeighbor->isFriendlyUnit(eForPlayer, true, false))
+					iClosestFriendly = min(iClosestFriendly, GC.getRingFromLinearOffset()[i]);
 			}
 		}
-	}
 
-	// MOD_ADJACENT_BLOCKADE : Land units blockade undefended adjacent tiles
-	if (MOD_ADJACENT_BLOCKADE && !isWater())
+		return iClosestEnemy < iClosestFriendly;
+	}
+	else
 	{
-		for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++)
+		//need to do additional checks only in water
+		if (isWater())
 		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
+			int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
+			for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false))
-					return true;
+				CvPlot* pNeighbor = iterateRingPlots(this, i);
+				if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
+				{
+					//no halo around embarked units
+					if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+						return true;
+				}
 			}
 		}
-	}
 
-	return false;
+		return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -8923,8 +8932,8 @@ void CvPlot::updateOwningCity()
 				if(pLoopCity->getOwner() == getOwner())
 				{
 					if((pBestCity == NULL) ||
-						    (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
-						    ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
+						    (GC.getRingFromLinearOffset()[iI] < GC.getRingFromLinearOffset()[iBestPlot]) ||
+						    ((GC.getRingFromLinearOffset()[iI] == GC.getRingFromLinearOffset()[iBestPlot]) &&
 						        ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
 						        ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
 						        (pLoopCity->GetID() < pBestCity->GetID())))))

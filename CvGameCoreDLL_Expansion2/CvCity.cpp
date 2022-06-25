@@ -2505,6 +2505,11 @@ void CvCity::doTurn()
 	setMadeAttack(false);
 	GetCityBuildings()->SetSoldBuildingThisTurn(false);
 
+	//not a full re-allocation but see if we can shift some citizens around
+	//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
+	GetCityCitizens()->DoVerifyWorkingPlots();
+	GetCityCitizens()->OptimizeWorkedPlots(false);
+	updateNetHappiness();
 	UpdateTerrainImprovementNeed();
 
 	GetCityStrategyAI()->DoTurn();
@@ -2667,12 +2672,6 @@ void CvCity::doTurn()
 			}
 		}
 	}
-
-	//not a full re-allocation but see if we can shift some citizens around
-	//DoReallocateCitizens() will be called less frequently when a building is added, a plot is claimed, population changes etc
-	GetCityCitizens()->DoVerifyWorkingPlots();
-	GetCityCitizens()->OptimizeWorkedPlots(false);
-	updateNetHappiness();
 #endif
 
 	bool bRazed = DoRazingTurn();
@@ -30640,7 +30639,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (!pUnit)
 		return NULL;
 
-	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && (!pUnit->IsCivilianUnit() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport() || pUnit->IsSapper()))
+	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && pUnit->IsCombatUnit())
 	{
 		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
 		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
