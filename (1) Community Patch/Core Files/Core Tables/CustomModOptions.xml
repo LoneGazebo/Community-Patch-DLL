@@ -849,7 +849,7 @@
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
-	  <!-- Purchased units do not have full health when the city is damaged  -->	
+	  <!-- Purchased COMBAT units do not have full health when the city is damaged  -->	
 	<Row Class="6" Name="BALANCE_CORE_UNIT_CREATION_DAMAGED" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>

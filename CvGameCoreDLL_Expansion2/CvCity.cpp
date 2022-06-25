@@ -30640,7 +30640,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (!pUnit)
 		return NULL;
 
-	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && (!pUnit->IsCivilianUnit() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport() || pUnit->IsSapper()))
 	{
 		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
 		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
