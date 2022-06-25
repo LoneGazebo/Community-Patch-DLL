@@ -13186,8 +13186,8 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	{
 		if(thisUnitDomain == DOMAIN_SEA)
 		{
-			//fast check for ocean (-1) or any lake (1) allows building ships
-			if(!isWater() && !isCoastalLand(-1) && !isCoastalLand(1))
+			//fast check for ocean (-1)
+			if(!isCoastalLand(-1) || !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
 			{
 				return false;
 			}
