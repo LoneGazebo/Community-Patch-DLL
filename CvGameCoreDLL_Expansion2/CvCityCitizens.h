@@ -134,7 +134,7 @@ public:
 	void SetBlockaded(CvPlot* pPlot);
 	void ClearBlockades();
 
-	void DoVerifyWorkingPlots();
+	bool DoVerifyWorkingPlots();
 
 	const std::vector<int>& GetWorkedPlots() const { return m_vWorkedPlots; }
 

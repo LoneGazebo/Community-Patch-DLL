@@ -918,7 +918,6 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 		//Check for test below.
 		if(pkImprovementInfo->IsSpecificCivRequired() && m_pPlayer->getCivilizationType() != pkImprovementInfo->GetRequiredCivilization())
 			continue;
-
 #endif
 
 		if (pkImprovementInfo->IsConnectsResource(eResource))

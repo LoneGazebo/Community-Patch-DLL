@@ -9003,6 +9003,7 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 		if (pCurrentCity != NULL && pCurrentCity->GetCityCitizens()->IsWorkingPlot(this))
 		{
 			pCurrentCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+			pCurrentCity->GetCityCitizens()->SetForcedWorkingPlot(this, false);
 			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 

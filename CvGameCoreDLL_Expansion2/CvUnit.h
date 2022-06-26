@@ -1482,6 +1482,8 @@ public:
 	void rotateFacingDirectionClockwise();
 	void rotateFacingDirectionCounterClockwise();
 
+	int GetBlockadeRange() const;
+
 	bool isSuicide() const;
 	bool isTrade() const;
 
