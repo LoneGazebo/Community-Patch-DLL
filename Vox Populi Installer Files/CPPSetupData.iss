@@ -57,6 +57,7 @@ Source: "(4b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(4b) UI - Promotion
 Source: "LUA for (1) CP\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly     
 Source: "LUA for (2) VP\LUA\*"; DestDir: "{app}\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI FullNoEUI Civ43NoEUI
 
 [Components]
 Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -76,6 +77,7 @@ Name: "43CivEUI"; Description: "43 Civ Vox Populi (with EUI)"
 
 [InstallDelete]
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
+Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\VPUI"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Vox Populi"
@@ -104,11 +106,11 @@ var
 
 procedure InitializeWizard;
 begin
-  // Create the EUI path page
+  // Create the DLC path page
 
   CIVDirPage := CreateInputDirPage(wpSelectComponents,
-    'Select the Civilization V path', 'Where should EUI files be installed?',
-    'Select the Civilization V folder in which the Setup should install EUI files, then click Next. If the installer does not select the correct folder by default, please click Browse and choose the right folder ',
+    'Select the Civilization V folder', 'Where should the UI files be installed?',
+    'Select the Civilization V folder in which the Setup will install the UI files, then click Next. If the installer does not select the correct folder by default, please click Browse and choose the correct folder ',
     False, '');
   CIVDirPage.Add('');
 
@@ -138,7 +140,7 @@ begin
   S := '';
 
   S := S + MemoDirInfo + NewLine + NewLine;
-  if WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') then
+  if WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') or WizardIsComponentSelected('FullNoEUI') or WizardIsComponentSelected('Civ43NoEUI') then
   begin
    S := S + 'Civilization V path' + NewLine;
    S := S + Space + CIVDirPage.Values[0] + NewLine + NewLine;
@@ -154,9 +156,9 @@ begin
   Result := CIVDirPage.Values[0];
 end;
 
-function IsEUI: Boolean;
+function IsUI: Boolean;
 begin
-  Result := WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI');
+  Result := WizardIsComponentSelected('FullEUI') or WizardIsComponentSelected('Civ43EUI') or WizardIsComponentSelected('FullNoEUI') or WizardIsComponentSelected('Civ43NoEUI');
 end;
 
 function ShouldSkipPage(CIVDirPageID: Integer): Boolean;
@@ -164,6 +166,6 @@ begin
   Result := False;
   if CIVDirPageID = CIVDirPage.ID then
   begin
-    Result := not IsEUI;
+    Result := not IsUI;
   end;
 end;
