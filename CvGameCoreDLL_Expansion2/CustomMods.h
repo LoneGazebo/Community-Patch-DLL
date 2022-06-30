@@ -27,6 +27,9 @@
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
+//// TEMPORARY
+#define MOD_BALANCE_VP	gCustomMods.isBALANCE_VP()
+
 //////////////////////////
 //MULTIPLAYER INSTRUCTIONS:
 /////////////////////////////////////////
@@ -1253,6 +1256,7 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
+	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(ABC_TRIGGER_CHANGE);

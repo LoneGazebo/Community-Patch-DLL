@@ -1,5 +1,9 @@
 UPDATE CustomModOptions
 SET Value = '1'
+WHERE Name = 'BALANCE_VP';
+
+UPDATE CustomModOptions
+SET Value = '1'
 WHERE Name = 'BALANCE_CORE_MINORS';
 
 UPDATE CustomModOptions
