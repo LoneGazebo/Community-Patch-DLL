@@ -2147,6 +2147,7 @@ public:
 	int GetCombatAttackBonusFromMonopolies() const;
 	int GetCombatDefenseBonusFromMonopolies() const;
 	void UpdateMonopolyCache();
+	void UpdatePlotBlockades();
 
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);

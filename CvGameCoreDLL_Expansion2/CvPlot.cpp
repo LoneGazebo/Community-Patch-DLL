@@ -6274,47 +6274,22 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isFriendlyUnit(eForPlayer, true, false))
 		return false;
 
-	if (MOD_ADJACENT_BLOCKADE)
+	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;
+	int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : iLandRange;
+
+	for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 	{
-		int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : 1;
-
-		int iClosestFriendly = INT_MAX;
-		int iClosestEnemy = INT_MAX;
-		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
+		CvPlot* pNeighbor = iterateRingPlots(this, i);
+		//landmass change is equivalent to domain change
+		if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
 		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getLandmass() == getLandmass() && !pNeighbor->isCity())
-			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
-					iClosestEnemy = min(iClosestEnemy, GC.getRingFromLinearOffset()[i]);
-				if (pNeighbor->isFriendlyUnit(eForPlayer, true, false))
-					iClosestFriendly = min(iClosestFriendly, GC.getRingFromLinearOffset()[i]);
-			}
+			//no halo around embarked units
+			if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+				return true;
 		}
-
-		return iClosestEnemy < iClosestFriendly;
 	}
-	else
-	{
-		//need to do additional checks only in water
-		if (isWater())
-		{
-			int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
-			for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
-			{
-				CvPlot* pNeighbor = iterateRingPlots(this, i);
-				if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
-				{
-					//no halo around embarked units
-					if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
-						return true;
-				}
-			}
-		}
 
-		return false;
-	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------

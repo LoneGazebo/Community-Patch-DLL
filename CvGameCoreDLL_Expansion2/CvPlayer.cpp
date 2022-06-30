@@ -38273,6 +38273,13 @@ void CvPlayer::UpdateMonopolyCache()
 	}
 }
 
+void CvPlayer::UpdatePlotBlockades()
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		pLoopCity->GetCityCitizens()->DoVerifyWorkingPlots();
+}
+
 int CvPlayer::GetCombatAttackBonusFromMonopolies() const
 {
 	return m_iCombatAttackBonusFromMonopolies;

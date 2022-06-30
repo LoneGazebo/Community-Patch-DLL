@@ -41,6 +41,7 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 
 		if (bWarStateChanged)
 		{
+			kPlayer.UpdatePlotBlockades();
 			kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
 			GC.getGame().GetGameTrade()->InvalidateTradePathCache(ePlayer);
 		}
