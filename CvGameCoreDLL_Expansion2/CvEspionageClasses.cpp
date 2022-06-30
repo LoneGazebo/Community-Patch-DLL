@@ -4577,13 +4577,11 @@ bool CvPlayerEspionage::IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncl
 		return false;
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// They are our vassal, so yes, we have a diplomat already
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 	{
 		return true;
 	}
-#endif
 
 	int iSpyIndex = GetSpyIndexInCity(pTheirCapital);
 

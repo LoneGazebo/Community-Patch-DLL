@@ -817,7 +817,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Research agreements aren't enabled
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
 				return false;
 
 			// Neither of us yet has the Tech for RA
@@ -1172,7 +1172,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		case TRADE_ITEM_MAPS:
 		{
-			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
 			// AI teammate of human
@@ -1203,7 +1203,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		case TRADE_ITEM_TECHS:
 		{
-			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
 			// AI teammate of human
@@ -1255,7 +1255,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		case TRADE_ITEM_VASSALAGE:
 		{
-			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
 			// AI teammate of human
@@ -1281,7 +1281,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			if (bSameTeam || !MOD_DIPLOMACY_CIV4_FEATURES)
+			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
 
 			// AI teammate of human
@@ -1895,7 +1895,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strError;
 
 			// Research agreements aren't enabled
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
 				return strError;
 
 			// We already have a Research Agreement! To-do: Renew Research Agreement deals?
@@ -2000,7 +2000,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_MAPS:
 		{
-			if (!MOD_DIPLOMACY_CIV4_FEATURES)
+			if (!MOD_BALANCE_VP)
 				return strError;
 
 			// AI teammate of human
@@ -2130,7 +2130,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_VASSALAGE:
 		{
-			if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
 				return strError;
 
 			// We are already their vassal
@@ -2322,7 +2322,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 		case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
-			if (!MOD_DIPLOMACY_CIV4_FEATURES || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			if (!MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
 				return strError;
 
 			// They have no vassals to revoke!
@@ -3666,10 +3666,9 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_VOTE_COMMITMENT:
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	case TRADE_ITEM_VASSALAGE:
+	case TRADE_ITEM_TECHS:
 	case TRADE_ITEM_MAPS:
-#endif
 		return DEAL_NONRENEWABLE;
 		break;
 
@@ -3683,11 +3682,6 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 
 		// doesn't matter
 	case TRADE_ITEM_GOLD:
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	case TRADE_ITEM_TECHS:
-#else
-	case TRADE_ITEM_MAPS:
-#endif
 	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;
 		break;
@@ -3907,7 +3901,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	return saveTo;
 }
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 /// Insert a tech trade
 void CvDeal::AddTechTrade(PlayerTypes eFrom, TechTypes eTech)
 {
@@ -4036,7 +4029,6 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 		}
 	}
 }
-#endif
 
 //=====================================
 // CvGameDeals
@@ -6102,25 +6094,15 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_PEACE_TREATY:
 				strTemp.Format("***** Peace Treaty Trade *****");
 				break;
-#if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
 				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
 				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
-#else
-			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade *****");
-				break;
-			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade *****");
-				break;
-#endif
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			case TRADE_ITEM_MAPS:
 				strTemp.Format("***** Map Trade *****");
 				break;
@@ -6133,25 +6115,20 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_VASSALAGE_REVOKE:
 				strTemp.Format("***** Revoke Vassalage Trade *****");
 				break;
-#endif
-#if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_ALLOW_EMBASSY:
 				strTemp.Format("***** Embassy Trade *****");
 				break;
-#endif
 			default:
 				strTemp.Format("***** UNKNOWN TRADE!!! *****");
 				break;
 			}
 			strOutBuf += ", " + strTemp;
 
-#if defined(MOD_BALANCE_CORE)
 			if (itemIter->m_iValue != INT_MAX)
 			{
 				strTemp.Format("(value %d - %s)", itemIter->m_iValue, itemIter->m_bValueIsEven ? "equalized" : "raw");
 				strOutBuf += ", " + strTemp;
 			}
-#endif
 
 			pLog->Msg(strOutBuf);
 		}
@@ -6340,25 +6317,15 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 			case TRADE_ITEM_PEACE_TREATY:
 				strTemp.Format("***** Peace Treaty Trade *****");
 				break;
-#if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
 				strTemp.Format("***** Third Party Peace Trade versus ID %s *****", GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
 				strTemp.Format("***** Third Party War Trade versus ID %s *****" , GET_PLAYER((PlayerTypes)itemIter->m_iData1).getCivilizationDescriptionKey());
 				break;
-#else
-			case TRADE_ITEM_THIRD_PARTY_PEACE:
-				strTemp.Format("***** Third Party Peace Trade *****");
-				break;
-			case TRADE_ITEM_THIRD_PARTY_WAR:
-				strTemp.Format("***** Third Party War Trade *****");
-				break;
-#endif
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			case TRADE_ITEM_MAPS:
 				strTemp.Format("***** Map Trade *****");
 				break;
@@ -6371,25 +6338,20 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 			case TRADE_ITEM_VASSALAGE_REVOKE:
 				strTemp.Format("***** Revoke Vassalage Trade *****");
 				break;
-#endif
-#if defined(MOD_BALANCE_CORE)
 			case TRADE_ITEM_ALLOW_EMBASSY:
 				strTemp.Format("***** Embassy Trade *****");
 				break;
-#endif
 			default:
 				strTemp.Format("***** UNKNOWN TRADE!!! *****");
 				break;
 			}
 			strOutBuf += ", " + strTemp;
 
-#if defined(MOD_BALANCE_CORE)
 			if (itemIter->m_iValue != INT_MAX)
 			{
 				strTemp.Format("(value %d - %s)", itemIter->m_iValue, itemIter->m_bValueIsEven ? "equalized" : "raw");
 				strOutBuf += ", " + strTemp;
 			}
-#endif
 
 			pLog->Msg(strOutBuf);
 		}

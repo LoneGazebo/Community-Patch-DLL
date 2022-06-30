@@ -1646,16 +1646,13 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 		if (bMinorsOnly && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 			continue;
 
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		if (bExcludeVassals && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
 		{
-			if (bExcludeVassals && GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(m_pPlayer->getTeam()))
-			{
-				continue;
-			}
-			if (bExcludeMasters && GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-				continue;
-			}
+			continue;
+		}
+		if (bExcludeMasters && GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(eLoopPlayer).getTeam()))
+		{
+			continue;
 		}
 
 		int iLoop = 0;

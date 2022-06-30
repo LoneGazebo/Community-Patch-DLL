@@ -84,9 +84,7 @@ CvTechEntry::CvTechEntry(void):
 #if defined(MOD_CIV6_EUREKA)
 	m_iEurekaPerMillion(0),
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageTradingAllowed(false),
-#endif
 	m_pabFreePromotion(NULL)
 {
 }
@@ -159,11 +157,9 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
-	}
-#endif
+
+	m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
+
 #if defined(MOD_BALANCE_CORE)
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_bCorporationsEnabled = kResults.GetBool("CorporationsEnabled");
@@ -2749,10 +2745,8 @@ void CvTeamTechs::SetEurekaCounter(TechTypes eTech, int newEurakaCount)
 }
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 /// Can you permit vassalage to be traded?
 bool CvTechEntry::IsVassalageTradingAllowed() const
 {
 	return m_bVassalageTradingAllowed;
 }
-#endif

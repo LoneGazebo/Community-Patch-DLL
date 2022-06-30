@@ -4069,10 +4069,10 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 			return false;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
 		return false;
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
 		return false;
 
 	if (pkEventInfo->isRequiresWarMinor())
@@ -4504,10 +4504,10 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			return false;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
 		return false;
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
 		return false;
 
 	if (pkEventInfo->hasNearbyFeature() != -1)
@@ -6155,13 +6155,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		}
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -16064,7 +16064,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 
 			// Research agreements are not active, therefore this building now increases science yield by 25%
-			if (MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			if (MOD_BALANCE_VP && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
 			{
 				if (pBuildingInfo->GetMedianTechPercentChange() > 0)
 				{
@@ -28507,7 +28507,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 				return false;
 
 			//can't buy the master's plots if you're a vassal
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
+			if (GET_TEAM(getTeam()).IsVassal(pTargetPlot->getTeam()))
 				return false;
 
 			// Bad idea for AI to steal?

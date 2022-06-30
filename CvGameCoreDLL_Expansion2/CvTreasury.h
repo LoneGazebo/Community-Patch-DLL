@@ -110,7 +110,6 @@ public:
 	int AverageIncome100(int iTurns);
 	void LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalGoldMaintenance() const;
 
 	int GetMyShareOfVassalTaxes() const;
@@ -122,7 +121,7 @@ public:
 	int GetExpensePerTurnFromVassalTaxesTimes100() const;
 	int GetExpensePerTurnFromVassalTaxes() const;
 	void SetExpensePerTurnFromVassalTaxesTimes100(int iValue);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int GetContractGoldMaintenance();
 #endif
@@ -137,9 +136,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iInternalTradeGoldBonus;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iExpensePerTurnFromVassalTax;
-#endif
 	int m_iCityConnectionTradeRouteGoldModifier;
 	int m_iCityConnectionTradeRouteGoldChange;
 

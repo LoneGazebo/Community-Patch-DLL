@@ -138,10 +138,8 @@ struct CvResolutionEffects
 #if defined(MOD_BALANCE_CORE)
 	int iChangeTourism;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int iVassalMaintenanceGoldPercent;
 	bool bEndAllCurrentVassals;
-#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvResolutionEffects&);
@@ -1413,10 +1411,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetTourismMod() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalMaintenanceGoldPercent() const;
 	bool IsEndAllCurrentVassals() const;
-#endif
 
 protected:
 	ResolutionDecisionTypes m_eVoterDecision;
@@ -1464,10 +1460,8 @@ protected:
 	int m_iIsWorldWar;
 	bool m_bEmbargoIdeology;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iVassalMaintenanceGoldPercent;
 	bool m_bEndAllCurrentVassals;
-#endif
 
 private:
 	CvResolutionEntry(const CvResolutionEntry&);

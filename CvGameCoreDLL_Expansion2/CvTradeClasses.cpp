@@ -1258,7 +1258,7 @@ void CvGameTrade::ClearAllCivTradeRoutes (PlayerTypes ePlayer, bool bFromEmbargo
 			}
 			else if (bMatchesOrigin || bMatchesDest)
 			{
-				if (MOD_DIPLOMACY_CIV4_FEATURES && bFromEmbargo)
+				if (bFromEmbargo)
 				{
 					// Master/vassal trade routes aren't cancelled by an embargo
 					if (GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()) || GET_TEAM(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).getTeam()).IsVassal(GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).getTeam()))
@@ -5408,7 +5408,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 	}
 
 	int iExtraTradeRoutesPerXOwnedCities = m_pPlayer->GetPlayerTraits()->GetExtraTradeRoutesPerXOwnedCities();
-	if (iExtraTradeRoutesPerXOwnedCities > 0) // someone might put a negative value, but per negative number of cities doesnt make sense, so we ignore those cases
+	if (iExtraTradeRoutesPerXOwnedCities > 0) // someone might put a negative value, but per negative number of cities doesn't make sense, so we ignore those cases
 	{
 		int iNumCities = m_pPlayer->getNumCities();
 		if (iNumCities > 0)
@@ -5417,20 +5417,16 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		}
 	}
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	int iExtraTradeRoutesPerXOwnedVassals = m_pPlayer->GetPlayerTraits()->GetExtraTradeRoutesPerXOwnedVassals();
+	if (iExtraTradeRoutesPerXOwnedVassals > 0) // someone might put a negative value, but per negative number of cities doesn't make sense, so we ignore those cases
 	{
-		int iExtraTradeRoutesPerXOwnedVassals = m_pPlayer->GetPlayerTraits()->GetExtraTradeRoutesPerXOwnedVassals();
-		if (iExtraTradeRoutesPerXOwnedVassals > 0) // someone might put a negative value, but per negative number of cities doesnt make sense, so we ignore those cases
+		int iNumVassals = GET_TEAM(m_pPlayer->getTeam()).GetNumVassals();
+		if (iNumVassals > 0)
 		{
-			int iNumVassals = GET_TEAM(m_pPlayer->getTeam()).GetNumVassals();
-			if (iNumVassals > 0)
-			{
-				iNumRoutes += iNumVassals / iExtraTradeRoutesPerXOwnedVassals;
-			}
+			iNumRoutes += iNumVassals / iExtraTradeRoutesPerXOwnedVassals;
 		}
 	}
-#endif
+
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(m_pPlayer->GetFreeTradeRoute() > 0)

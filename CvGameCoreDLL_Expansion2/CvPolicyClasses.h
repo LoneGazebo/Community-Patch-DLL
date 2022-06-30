@@ -201,10 +201,8 @@ public:
 	bool CanBullyFriendlyCS() const;
 	int GetBullyGlobalCSReduction() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalsNoRebel() const;
 	int GetVassalCSBonusModifier() const;
-#endif
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
@@ -619,10 +617,8 @@ private:
 	bool m_bNoCSDecayAtWar;
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalsNoRebel;
 	int m_iVassalCSBonusModifier;
-#endif
 
 	int m_iSharedReligionTourismModifier;
 	int m_iTradeRouteTourismModifier;

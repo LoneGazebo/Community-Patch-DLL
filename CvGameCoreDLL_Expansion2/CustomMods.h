@@ -325,8 +325,6 @@
 #define MOD_ANY_PANTHEON							gCustomMods.isANY_PANTHEON()
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 #define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
-// Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
-#define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
 #define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
 // Grants Celts maximum up to 3 unimproved adjacent forests for faith
@@ -1400,7 +1398,6 @@ public:
 	MOD_OPT_DECL(CITY_STATE_SCALE);
 	MOD_OPT_DECL(ANY_PANTHEON);
 
-	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(ALTERNATE_CELTS);

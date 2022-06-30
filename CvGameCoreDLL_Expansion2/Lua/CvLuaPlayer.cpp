@@ -13394,7 +13394,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 		// Vassalage?
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_BALANCE_VP)
 		{
 			if (pDiplo->IsMaster(ePlayer))
 			{
@@ -14274,7 +14274,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+		if (MOD_BALANCE_VP)
 		{
 			if (pDiplo->IsMaster(ePlayer))
 			{

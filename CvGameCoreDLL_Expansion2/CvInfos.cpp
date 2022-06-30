@@ -3633,14 +3633,12 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMin(0),
 #endif
 	m_iMilitaryRatingDecayPercent(0),
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
 	m_iMinimumVassalTurns(75),
 	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),
-#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3901,16 +3899,12 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
-		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
-		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
-		m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
-		m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
-		m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
-	}
-#endif
+	m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
+	m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
+	m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
+	m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
+	m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
+	m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
 
 	//GameTurnInfos
 	{
@@ -7974,9 +7968,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
 	m_iWarmongerPercent(0),
-	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageEnabled(false),
-	#endif
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),
@@ -8255,11 +8247,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
 	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
-	}
-#endif
+	m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
 	m_uiCityBombardEffectTagHash = FString::Hash(m_strCityBombardEffectTag);
@@ -11647,7 +11635,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	return true;
 }
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //------------------------------------------------------------------------------
 bool CvEraInfo::getVassalageEnabled() const
 {
@@ -11683,7 +11670,6 @@ int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
 {
 	return m_iNumTurnsBetweenVassals;
 }
-#endif
 
 /// Helper function to read in an integer array of data sized according to number of building types
 void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)

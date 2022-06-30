@@ -1188,14 +1188,12 @@ public:
 	int getLeaguePercent() const;
 	int getNumTurnIncrements() const;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int getTechCostPerTurnMultiplier() const;
 	int getMinimumVoluntaryVassalTurns() const;
 	int getMinimumVassalTurns() const;
 	int getNumTurnsBetweenVassals() const;
 	int getMinimumVassalLiberateTurns() const;
 	int getMinimumVassalTaxTurns() const;
-#endif
 
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
 	void allocateGameTurnInfos(const int iSize);
@@ -1246,14 +1244,12 @@ protected:
 #endif
 	int m_iLeaguePercent;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iTechCostPerTurnMultiplier;
 	int m_iMinimumVoluntaryVassalTurns;
 	int m_iMinimumVassalTurns;
 	int m_iNumTurnsBetweenVassals;
 	int m_iMinimumVassalLiberateTurns;
 	int m_iMinimumVassalTaxTurns;
-#endif
 
 	int m_iNumTurnIncrements;
 
@@ -2544,10 +2540,7 @@ public:
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
 	int getWarmongerPercent() const;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool getVassalageEnabled() const;
-#endif
 
 	const char* GetCityBombardEffectTag() const;
 	uint GetCityBombardEffectTagHash() const;
@@ -2606,10 +2599,7 @@ protected:
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
 	int m_iWarmongerPercent;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalageEnabled;
-#endif
 
 	CvString m_strCityBombardEffectTag;
 	CvString m_strAudioUnitVictoryScript;

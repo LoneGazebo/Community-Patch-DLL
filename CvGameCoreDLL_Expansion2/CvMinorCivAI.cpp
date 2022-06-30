@@ -10517,7 +10517,7 @@ int CvMinorCivAI::GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQue
 CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 {
 	//Find best (relatively) close unrevealed plot for this civ to discover.
-	if(MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isMapTrading())
+	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isMapTrading())
 	{
 		return NULL;
 	}

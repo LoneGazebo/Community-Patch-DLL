@@ -722,9 +722,7 @@ public:
 	int GetCityAutomatonWorkersChange() const;
 	void changeCityAutomatonWorkersChange(int iChange);
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
-#endif
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 

@@ -187,10 +187,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoCSDecayAtWar (false),
 	m_bBullyFriendlyCS(false),
 	m_iBullyGlobalCSReduction(0),
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalsNoRebel(false),
 	m_iVassalCSBonusModifier(0),
-#endif
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
@@ -689,10 +687,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
 	m_iBullyGlobalCSReduction = kResults.GetInt("BullyGlobalCSInfluenceShift");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalsNoRebel = kResults.GetBool("VassalsNoRebel");
 	m_iVassalCSBonusModifier = kResults.GetInt("VassalCSBonusModifier");
-#endif
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
@@ -2264,7 +2260,6 @@ int CvPolicyEntry::GetBullyGlobalCSReduction() const
 {
 	return m_iBullyGlobalCSReduction;
 }
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 bool CvPolicyEntry::IsVassalsNoRebel() const
 {
 	return m_bVassalsNoRebel;
@@ -2273,7 +2268,6 @@ int CvPolicyEntry::GetVassalCSBonusModifier() const
 {
 	return m_iVassalCSBonusModifier;
 }
-#endif
 
 /// Boost to tourism bonus for shared religion
 int CvPolicyEntry::GetSharedReligionTourismModifier() const

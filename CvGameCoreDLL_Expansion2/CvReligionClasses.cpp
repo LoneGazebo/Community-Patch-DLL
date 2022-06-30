@@ -2981,7 +2981,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	iPressureMod += pFromCity->GetCityReligions()->GetReligiousPressureModifier(eReligion);
 
 	// Double pressure to vassals
-	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
+	if (GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 	{
 		iPressureMod += 100;
 	}

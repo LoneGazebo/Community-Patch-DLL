@@ -2451,8 +2451,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 						GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
 				}
 			}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES && pPlot && (iUnitValue > 0 || iCivValue > 0)) 
+
+			if (pPlot && (iUnitValue > 0 || iCivValue > 0))
 			{
 				iCivValue /= 5;
 
@@ -2573,7 +2573,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					}
 				}
 			}
-#endif
+
 			if (iCivValue == 0)
 			{
 				// Update military rating for both players
@@ -10362,7 +10362,7 @@ bool CvUnit::pillage()
 					iTileValue /= 100;
 
 					// Did the plot owner's master fail to protect their territory?
-					if (MOD_DIPLOMACY_CIV4_FEATURES && !isBarbarian() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
+					if (!isBarbarian() && GET_PLAYER(pPlot->getOwner()).isMajorCiv() && GET_PLAYER(pPlot->getOwner()).IsVassalOfSomeone())
 					{
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{

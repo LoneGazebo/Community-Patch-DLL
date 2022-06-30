@@ -6416,7 +6416,7 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 		return true;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
@@ -6438,7 +6438,7 @@ bool CvGame::IsShowAllOpinionValues() const
 		return true;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
@@ -6696,17 +6696,16 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					/*
+					if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
 					{
-						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
-						{
-							return false;
-						}
-						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
-						{
-							return false;
-						}
+						return false;
 					}
+					if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+					{
+						return false;
+					}
+					*/
 				}
 			}
 		}
@@ -6752,17 +6751,16 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					/*
+					if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
 					{
-						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
-						{
-							return false;
-						}
-						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
-						{
-							return false;
-						}
+						return false;
 					}
+					if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+					{
+						return false;
+					}
+					*/
 				}
 			}
 		}
@@ -12781,12 +12779,9 @@ void CvGame::DoTestConquestVictory()
 		int iNumCapitalsControlled = 0;
 		if(GET_TEAM((TeamTypes)iTeamLoop).isAlive())
 		{
-			//C4DF: We skip vassals for count!
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
-					continue;
-			}
+			if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
+				continue;
+
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -12804,32 +12799,29 @@ void CvGame::DoTestConquestVictory()
 					}
 				}
 			}
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
 			{
-				if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
+				for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
 				{
-					for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
+					if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
 					{
-						if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
+						//C4DF: We include vassals for count!
+						if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
+							continue;
+
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							//C4DF: We include vassals for count!
-							if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
-								continue;
+							eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
 							{
-								eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-								if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
+								int iCityLoop;
+								CvCity* pLoopCity = NULL;
+								for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 								{
-									int iCityLoop;
-									CvCity* pLoopCity = NULL;
-									for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+									if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
 									{
-										if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
-										{
-											iNumCapitalsControlled += 1;
-										}
+										iNumCapitalsControlled += 1;
 									}
 								}
 							}

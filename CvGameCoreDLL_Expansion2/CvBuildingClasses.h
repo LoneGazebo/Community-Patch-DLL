@@ -232,9 +232,7 @@ public:
 
 	int GetPurchaseCooldownReduction(bool bCivilian = false) const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int GetNationalPopulationRequired() const;
 	int GetLocalPopulationRequired() const;
@@ -847,9 +845,7 @@ private:
 	int m_iEventRequiredActive;
 	int m_iCityEventRequiredActive;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalLevyEra;
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int m_iNationalPopRequired;
 	int m_iLocalPopRequired;

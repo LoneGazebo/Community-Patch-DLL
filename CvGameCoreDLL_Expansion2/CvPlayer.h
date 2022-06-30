@@ -750,14 +750,11 @@ public:
 	void SetHappinessPerXPopulation(int iValue);
 	void ChangeHappinessPerXPopulation(int iChange);
 
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	void ChangeIsVassalsNoRebel(int iValue);
 	bool IsVassalsNoRebel() const;
 
 	void ChangeVassalCSBonusModifier(int iValue);
 	int GetVassalCSBonusModifier() const;
-#endif
 
 	void UpdateHappinessFromMinorCivs();
 	int GetHappinessFromMinorCivs() const;
@@ -2863,7 +2860,7 @@ public:
 	int GetScoreFromMinorAllies() const;
 	int GetScoreFromMilitarySize() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	CvString GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const;
 	CvString GetVassalIndependenceTooltipAsVassal() const;
 
@@ -2881,7 +2878,6 @@ public:
 
 	void DoVassalLevy();
 	void SetVassalLevy(bool bValue);
-#endif
 
 	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
@@ -3024,10 +3020,8 @@ protected:
 	int m_iCanBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;	
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iIsVassalsNoRebel;
-	int m_iVassalCSBonusModifier;		
-#endif
+	int m_iVassalCSBonusModifier;
 	int m_iHappinessFromLeagues;
 	int m_iWoundedUnitDamageMod;
 	int m_iUnitUpgradeCostMod;
@@ -3564,10 +3558,9 @@ protected:
 	std::vector<int> m_paiHurryCount;
 	std::vector<int> m_paiHurryModifier;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalLevy;
 	int m_iVassalGoldMaintenanceMod;
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiNumCitiesFreeChosenBuilding;
 	std::vector<bool> m_pabFreeChosenBuildingNewCity;

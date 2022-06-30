@@ -227,9 +227,6 @@
 	<!-- The hurry sub-feature of DIPLOMACY_CITYSTATES -->
     <Row Class="6" Name="DIPLOMACY_CITYSTATES_HURRY" Value="0"/>
 
-	<!-- Changes for the Civ4 Diplomacy Features mod by Putmalk (v36) -->
-	<!-- See also: "Diplomacy - CivIV Features" -->
-    <Row Class="6" Name="DIPLOMACY_CIV4_FEATURES" Value="0"/>
 	<!-- Allows Land Units to become Cargo of Melee Ships -->
 	<Row Class="5" Name="CARGO_SHIPS" Value="0"/>
 	<!-- Switch Value to 1 to allow Ranged Boats to fire from Cities or Passable Improvements -->

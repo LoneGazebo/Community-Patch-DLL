@@ -433,7 +433,6 @@ public:
 
 	void setDynamicTurnsSimultMode(bool simultaneousTurns);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVoluntaryVassal(TeamTypes eIndex) const;
 	bool IsVassal(TeamTypes eIndex) const;
 	void setVassal(TeamTypes eIndex, bool bNewValue, bool bVoluntary = false);
@@ -491,7 +490,6 @@ public:
 	void ChangeNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iChange);
 
 	int GetSSProjectCount();
-#endif
 
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);
@@ -613,7 +611,6 @@ protected:
 
 	int* m_aiForceTeamVoteEligibilityCount;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iVassalageTradingAllowedCount;
 	bool* m_pabTradeTech;
 
@@ -627,7 +624,6 @@ protected:
 	// Only major civs can be taxed
 	Firaxis::Array< int, MAX_MAJOR_CIVS > m_aiNumTurnsSinceVassalTaxSet;
 	Firaxis::Array< int, MAX_MAJOR_CIVS > m_aiVassalTax;
-#endif
 
 	bool* m_abCanLaunch;
 	bool* m_abVictoryAchieved;

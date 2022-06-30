@@ -499,10 +499,8 @@ CvPlayer::CvPlayer() :
 	, m_iCanBullyFriendlyCS()
 	, m_iBullyGlobalCSReduction()
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_iIsVassalsNoRebel()
 	, m_iVassalCSBonusModifier()
-#endif
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier()
 #endif
@@ -759,10 +757,8 @@ CvPlayer::CvPlayer() :
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
 	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_bVassalLevy()
 	, m_iVassalGoldMaintenanceMod()
-#endif
 	, m_iPreviousBestSettlePlot()
 	, m_iFoundValueOfCapital()
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -1297,10 +1293,8 @@ void CvPlayer::uninit()
 	m_iCanBullyFriendlyCS = 0;
 	m_iBullyGlobalCSReduction = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iIsVassalsNoRebel = 0;
 	m_iVassalCSBonusModifier = 0;
-#endif
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
 	m_iSpyStartingRank = 0;
@@ -1712,11 +1706,8 @@ void CvPlayer::uninit()
 	m_eHolyCityConqueror = NO_PLAYER;
 	m_bHasAdoptedStateReligion = false;
 	m_lastGameTurnInitialAIProcessed = -1;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevy = false;
 	m_iVassalGoldMaintenanceMod = 0;
-#endif
 #if defined(MOD_BATTLE_ROYALE)
 	m_iNumMilitarySeaUnits = 0;
 	m_iNumMilitaryAirUnits = 0; 
@@ -3209,7 +3200,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GetDiplomacyAI()->ChangeWarProgressScore(eOldOwner, iWinnerProgressValue);
 
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
-				if (MOD_DIPLOMACY_CIV4_FEATURES && GetNumVassals() > 0)
+				if (GetNumVassals() > 0)
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -3227,7 +3218,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
-				if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(eOldOwner).IsVassalOfSomeone())
+				if (GET_PLAYER(eOldOwner).IsVassalOfSomeone())
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -6042,13 +6033,13 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
-	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
+	if (pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
 		return false;
 
 
@@ -6534,10 +6525,10 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
 	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
@@ -7935,13 +7926,13 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -9796,7 +9787,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) == 0)
+			if (GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) == 0)
 			{
 				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
@@ -9809,7 +9800,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Add resurrection notification
 			Localization::String strMessage;
 
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
+			if (GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
 			}
@@ -11080,8 +11071,7 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-		DoVassalLevy();
+	DoVassalLevy();
 
 	SetHasUUPeriod();
 
@@ -11484,10 +11474,9 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Gold
 	GetTreasury()->DoGold();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Tax out from after we've calculated our gold for this turn
 	GetTreasury()->CalculateExpensePerTurnFromVassalTaxes();
-#endif
+
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
@@ -12152,11 +12141,8 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 	iScore += GetScoreFromGreatWorks();
 	iScore += GetScoreFromReligion();
 	iScore += GetScoreFromTechs();
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		iScore += GetScoreFromVassals();
-	}
-#endif
+	iScore += GetScoreFromVassals();
+
 #if defined(MOD_BALANCE_CORE)
 	iScore += GetScoreFromMinorAllies();
 	iScore += GetScoreFromMilitarySize();
@@ -18727,17 +18713,13 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Temporary boost from bonus turns
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his science
-		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
-	}
+	// We have vassals, we get x% of their culture
+	iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
 	}
-#endif
 
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
@@ -18984,17 +18966,13 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 		// Culture from Religion
 		iCulturePerTurn += GetCulturePerTurnFromReligion();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			// We're a vassal of someone, we get x% of his science
-			iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
-		}
+		// We have vassals, we get x% of their culture
+		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
 
 		if (MOD_BALANCE_CORE_JFD)
 		{
 			iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
 		}
-#endif
 
 		// Golden Age bonus
 		if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
@@ -20092,8 +20070,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-		iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
+	iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
 
 	if (MOD_BALANCE_CORE_JFD)
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
@@ -20321,12 +20298,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Increase from Leagues
 	m_iHappiness += GetHappinessFromLeagues();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Increase from Vassals
-		m_iHappiness += GetHappinessFromVassals();
-	}
-#endif
+	// Increase from Vassals
+	m_iHappiness += GetHappinessFromVassals();
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int iLoop;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -23316,7 +23290,6 @@ int CvPlayer::GetBullyGlobalCSReduction() const
 }
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 void CvPlayer::ChangeIsVassalsNoRebel(int iValue)
 {
 	if (iValue != 0)
@@ -23340,7 +23313,7 @@ int CvPlayer::GetVassalCSBonusModifier() const
 {
 	return m_iVassalCSBonusModifier;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// Change the amount of Happiness we're getting from large empires
 void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
@@ -23621,12 +23594,11 @@ int CvPlayer::TestDefensePactsToVotes(int iChange)
 	if(iChange > 0)
 	{
 		iDefensePactsToVotes = (GetDiplomacyAI()->GetNumDefensePacts() * iChange);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+
+		if (MOD_BALANCE_VP)
 		{
 			iDefensePactsToVotes += GetNumVassals();
 		}
-#endif
 	}
 	
 	return iDefensePactsToVotes;
@@ -36260,17 +36232,14 @@ int CvPlayer::GetScienceTimes100() const
 	// If we have a negative Treasury + GPT then it gets removed from Science
 	iValue += GetScienceFromBudgetDeficitTimes100();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his science
-		iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
-	}
+	// We have vassals, we get x% of their science
+	iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iValue += GetYieldPerTurnFromMinors(YIELD_FAITH) * 100;
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	{
@@ -43851,10 +43820,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
-#endif
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
@@ -50083,7 +50050,6 @@ bool CancelActivePlayerEndTurn()
 	return true;
 }
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //	--------------------------------------------------------------------------------
 ///	Get the amount of Happiness we're getting from our vassals
 int CvPlayer::GetHappinessFromVassals() const
@@ -50455,8 +50421,6 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
 
 	return szTooltip;
 }
-
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 int CvPlayer::GetScoreFromMinorAllies() const

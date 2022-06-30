@@ -230,10 +230,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iPurchaseCooldownReduction(0),
 	m_iPurchaseCooldownReductionCivilian(0),
 #endif
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra(false),
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	m_iNationalPopRequired(-1),
 	m_iLocalPopRequired(-1),
@@ -580,9 +577,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iPurchaseCooldownReduction = kResults.GetInt("PurchaseCooldownReduction");
 	m_iPurchaseCooldownReductionCivilian = kResults.GetInt("PurchaseCooldownReductionCivilian");
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
 	m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
@@ -4183,12 +4178,11 @@ int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
 }
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 bool CvBuildingEntry::IsVassalLevyEra() const
 {
 	return m_bVassalLevyEra;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 int CvBuildingEntry::GetNationalPopulationRequired() const
 {
