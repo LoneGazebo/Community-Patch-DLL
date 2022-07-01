@@ -1367,6 +1367,8 @@ public:
 	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier, const CvPlot* pAtPlot = NULL) const;
 #endif
 
+	bool IsCombatSupportUnit() const;
+
 	bool IsGreatGeneral() const;
 	int GetGreatGeneralCount() const;
 	void ChangeGreatGeneralCount(int iChange);
@@ -1479,6 +1481,8 @@ public:
 	void setFacingDirection(DirectionTypes facingDirection);
 	void rotateFacingDirectionClockwise();
 	void rotateFacingDirectionCounterClockwise();
+
+	int GetBlockadeRange() const;
 
 	bool isSuicide() const;
 	bool isTrade() const;

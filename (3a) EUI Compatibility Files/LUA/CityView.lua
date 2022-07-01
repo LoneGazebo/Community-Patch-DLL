@@ -1632,8 +1632,8 @@ local function UpdateWorkingHexesNow()
 						iconID = 9
 						tipKey = "TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE"
 
-					-- Blockaded water plot
-					elseif plot:IsWater() and city:IsPlotBlockaded( plot ) then
+					-- Blockaded plot
+					elseif city:IsPlotBlockaded( plot ) then
 						iconID = 13
 						tipKey = "TXT_KEY_CITYVIEW_BLOCKADED_CITY_TILE"
 						cityPlotIndex = nil

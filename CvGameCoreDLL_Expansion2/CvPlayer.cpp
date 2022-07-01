@@ -38242,6 +38242,13 @@ void CvPlayer::UpdateMonopolyCache()
 	}
 }
 
+void CvPlayer::UpdatePlotBlockades()
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		pLoopCity->GetCityCitizens()->DoVerifyWorkingPlots();
+}
+
 int CvPlayer::GetCombatAttackBonusFromMonopolies() const
 {
 	return m_iCombatAttackBonusFromMonopolies;
@@ -47972,7 +47979,7 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (!pPlot)
 		return;
 
-	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
+	if (pUnit->IsCombatSupportUnit())
 	{
 		bool bFound = false;
 		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
@@ -48069,9 +48076,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 			continue;
 		}
 
-		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || 
-			(pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || 
-			 pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
+		if (pLoopUnit->IsCombatSupportUnit())
 			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
@@ -48179,7 +48184,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 		{
 			case AE_GREAT_GENERAL:
 			{
-				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
+				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
 				break;
 			}

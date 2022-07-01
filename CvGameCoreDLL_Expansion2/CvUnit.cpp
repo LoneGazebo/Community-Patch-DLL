@@ -2397,7 +2397,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			int iCivValue = 0;
 			if (IsCivilianUnit() && (GetOriginalOwner() == eUnitOwner || isBarbarian()))
 			{
-				if (!IsGreatGeneral() && !IsGreatAdmiral() && !IsCityAttackSupport() && !IsSapper())
+				if (!IsCombatSupportUnit())
 				{
 					// AI cares less about lost workers / etc in lategame
 					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(eUnitOwner).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
@@ -2803,10 +2803,25 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		//check if this removes a blockade immediately (would be lifted anyhow once the enemy turn starts but nice for humans)
 		if (IsCombatUnit())
 		{
-			CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
-			if (pOwningCity && isEnemy(pPlot->getTeam()))
-				pOwningCity->GetCityCitizens()->DoVerifyWorkingPlots();
+			set<CvCity*> affectedCities;
+			for (int i = 0; i < RING_PLOTS[GetBlockadeRange()]; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
+				if (pNeighbor && pNeighbor->getLandmass()==pPlot->getLandmass() && pNeighbor->isBlockaded(pNeighbor->getOwner()))
+					affectedCities.insert( pPlot->getEffectiveOwningCity() );
+			}
+
+			for (set<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
+			{
+				//we assume blockades are lifted ... so find better plot assignments
+				if ((*it) && (*it)->GetCityCitizens()->DoVerifyWorkingPlots())
+					(*it)->GetCityCitizens()->OptimizeWorkedPlots(false);
+			}
 		}
+
+		// Clear cached danger in the vicinity for instant update
+		if (ePlayer!=NO_PLAYER)
+			GET_PLAYER(ePlayer).ResetDangerCache(*pPlot,3);
 	}
 
 	// Remove Resource Quantity from Used
@@ -7282,19 +7297,21 @@ bool CvUnit::canUseForTacticalAI() const
 		return false;
 
 	//we want all barbarians ...
-	if (!IsCanAttack() && !isBarbarian())
-	{
-		if (IsCityAttackSupport() || IsGreatGeneral() || IsGreatAdmiral())
-		{
-			GreatPeopleDirectiveTypes eDirective = GetGreatPeopleDirective();
-			if (eDirective == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
-				return true;
-		}
+	if (isBarbarian())
+		return true;
 
-		return false;
+	if (IsCombatUnit())
+		return true;
+
+	if (IsCombatSupportUnit())
+	{
+		if (IsGreatPerson())
+			return GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+		else
+			return true;
 	}
 
-	return true;
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -15116,7 +15133,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if(!IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
+	if(!IsCombatUnit() && !IsCombatSupportUnit())
 	{
 		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
 	}
@@ -23676,6 +23693,11 @@ void CvUnit::DoFinishBuildIfSafe()
 }
 #endif 
 
+bool CvUnit::IsCombatSupportUnit() const
+{
+	return IsGreatGeneral() || IsGreatAdmiral() || IsCityAttackSupport() || IsSapper();
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsGreatGeneral() const
 {
@@ -23685,9 +23707,7 @@ bool CvUnit::IsGreatGeneral() const
 	if(IsCombatUnit())
 		return false;
 	if(getUnitInfo().GetUnitAIType(UNITAI_GENERAL))
-	{
 		return true;
-	}
 #endif
 
 	return GetGreatGeneralCount() > 0;
@@ -23716,9 +23736,7 @@ bool CvUnit::IsGreatAdmiral() const
 	if(IsCombatUnit())
 		return false;
 	if(getUnitInfo().GetUnitAIType(UNITAI_ADMIRAL))
-	{
 		return true;
-	}
 #endif
 
 	return GetGreatAdmiralCount() > 0;
@@ -24231,6 +24249,26 @@ void CvUnit::rotateFacingDirectionCounterClockwise()
 	//change direction
 	DirectionTypes newDirection = (DirectionTypes)((m_eFacingDirection + NUM_DIRECTION_TYPES - 1) % NUM_DIRECTION_TYPES);
 	setFacingDirection(newDirection);
+}
+
+int CvUnit::GetBlockadeRange() const
+{
+	switch (getDomainType())
+	{
+	case DOMAIN_LAND:
+	case DOMAIN_HOVER:
+		if (MOD_ADJACENT_BLOCKADE)
+			return 1;
+		else
+			return 0;
+	case DOMAIN_SEA:
+		return range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE), 0, 3);
+	case DOMAIN_AIR:
+	case DOMAIN_IMMOBILE:
+		return 0;
+	}
+
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------

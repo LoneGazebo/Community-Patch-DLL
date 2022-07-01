@@ -539,6 +539,8 @@ local function ClearHexHighlights()
 	Events_ClearHexHighlightStyle( "WorkedOutline" )
 	Events_ClearHexHighlightStyle( "OwnedFill")
 	Events_ClearHexHighlightStyle( "OwnedOutline" )
+	Events_ClearHexHighlightStyle( "EnemyFill")
+	Events_ClearHexHighlightStyle( "EnemyOutline" )
 	Events_ClearHexHighlightStyle( "CityLimits" )
 	g_cityHexHighlight = false
 end
@@ -1344,8 +1346,13 @@ local function RefreshCityBannersNow()
 						-- city plots that are owned but not worked
 						if not city:IsWorkingPlot( plot ) then
 							local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
-							Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
-							Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+							if city:IsPlotBlockaded( plot ) then
+								Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyFill" )
+								Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyOutline" )
+							else
+								Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
+								Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+							end
 						end
 					end
 				else

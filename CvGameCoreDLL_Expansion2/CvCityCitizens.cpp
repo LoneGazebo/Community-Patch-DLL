@@ -1281,7 +1281,8 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 		// If we were force-working this Plot, turn it off
 		if (bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false, updateMode); //this automatically removes forced status
+			SetWorkingPlot(pWorstPlot, false, updateMode); 
+			SetForcedWorkingPlot(pWorstPlot, false);
 			return true;
 		}
 		else if (!IsForcedWorkingPlot(pWorstPlot))
@@ -1330,10 +1331,17 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			if (IsCanWork(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
 				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+
+				//if it's forced, don't even look at the value
+				if (IsForcedWorkingPlot(iPlotLoop))
+				{
+					iChosenValue = iValue;
+					return pLoopPlot;
+				}
+
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
-					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1342,10 +1350,17 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			if (IsCanWorkWithOverride(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
 				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+
+				//if it's forced, don't even look at the value
+				if (IsForcedWorkingPlot(iPlotLoop))
+				{
+					iChosenValue = iValue;
+					return pLoopPlot;
+				}
+
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
-					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1796,11 +1811,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 	}
 	else
 	{
+		//do not reset the "forced working plot" status! we want to remember that
 		if (it != m_vWorkedPlots.end())
 			m_vWorkedPlots.erase(it);
-
-		//make sure we stay consistent
-		SetForcedWorkingPlot(pPlot, false);
 	}
 
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
@@ -2207,10 +2220,11 @@ void CvCityCitizens::ClearBlockades()
 }
 
 /// Check all Plots by this City to see if we can actually be working them (if we are)
-void CvCityCitizens::DoVerifyWorkingPlots()
+bool CvCityCitizens::DoVerifyWorkingPlots()
 {
-	ClearBlockades();
-
+	std::vector<int> oldBlocks = m_vBlockadedPlots;
+	m_vBlockadedPlots.clear();
+	
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
@@ -2220,14 +2234,21 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 		//cache which plots are blockaded, the check can be expensive
 		if (pPlot->isBlockaded(m_pCity->getOwner()))
 			SetBlockaded(pPlot);
+	}
 
-		//worked plot might be invalid now ... so move the citizen somewhere else
-		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
+	//re-assign all plots which are unavailable right now
+	for (size_t iI = 0; iI < m_vBlockadedPlots.size(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(m_vBlockadedPlots[iI]);
+		if (IsWorkingPlot(pPlot) && !IsCanWork(pPlot))
 		{
 			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
+
+	//did anything change?
+	return m_vBlockadedPlots != oldBlocks;
 }
 
 

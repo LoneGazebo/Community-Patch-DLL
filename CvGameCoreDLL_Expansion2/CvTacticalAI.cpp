@@ -2035,10 +2035,6 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 			if (pUnit->IsRecentlyDeployedFromOperation() && (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2))
 				continue;
 
-			// Special moves for support units
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-				continue;
-
 			// Am I in the current dominance zone?
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
@@ -2133,7 +2129,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 						continue;
 
 					//don't use multiple generals
-					if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 					{
 						if (bHaveSupportUnit)
 							continue;
@@ -5622,14 +5618,8 @@ void CvTacticalAI::UnitProcessed(int iID)
 /// Is this civilian target of the highest priority?
 bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
-	bool bRtnValue = false;
 	CvUnit* pUnit = pTarget->GetUnitPtr();
-	if(pUnit)
-	{
-		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-			bRtnValue = true;
-	}
-	return bRtnValue;
+	return pUnit->IsCombatSupportUnit();
 }
 
 /// Is this civilian target of high priority?
@@ -8374,6 +8364,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	int iPlotTypeScore[] = { 0,30,20,10,0 };
 
 	//try to find out who is most relevant
+	bool bHaveSupport = false;
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
@@ -8383,6 +8374,17 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 
 		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
 			itUnit->iImportanceScore += 11; //we need siege units for attacking cities
+
+		if (itUnit->eStrategy == MS_SUPPORT)
+		{
+			if (bHaveSupport)
+				itUnit->iImportanceScore = 0;
+			else
+			{
+				itUnit->iImportanceScore += 13;
+				bHaveSupport = true;
+			}
+		}
 	}
 
 	std::sort(availableUnits.begin(), availableUnits.end());
@@ -9830,7 +9832,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 	//first pass: make sure there are no duplicates and other invalid inputs
 	set<CvUnit*> ourUnits;
-	bool bHaveSupportUnit = false;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
@@ -9838,15 +9839,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		//ignore units on other islands, we can find better moves for them
 		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
-
-		//don't use multiple generals
-		if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-		{
-			if (bHaveSupportUnit)
-				continue;
-			else
-				bHaveSupportUnit = true;
-		}
 
 		//units outside of their native domain are a problem because they violate 1UPT
 		//we treat embarked units non-combat units (see addAvailableUnit)
@@ -10074,7 +10066,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	//first pass: make sure there are no duplicates and other invalid inputs
 	set<CvUnit*> ourUnits;
-	bool bHaveSupportUnit = false;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
@@ -10082,15 +10073,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		//ignore units on other islands, we can find better moves for them
 		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
-
-		//don't use multiple generals
-		if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-		{
-			if (bHaveSupportUnit)
-				continue;
-			else
-				bHaveSupportUnit = true;
-		}
 
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
