@@ -4384,12 +4384,12 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			else if (pLoopUnit->plot()->isCity())
 				nAirUnitsInCities++;
 		}
-		else if (pLoopUnit->AI_getUnitAIType()==UNITAI_CARRIER_SEA)
+		else if (pLoopUnit->domainCargo() == DOMAIN_AIR)
 		{
 			nSlotsInCarriers += pLoopUnit->cargoSpace();
 
 			//for simplicity we don't do carrier to carrier rebasing, only carrier to city
-			CvCity* pRefCity = m_pPlayer->GetClosestCityByPathLength(pLoopUnit->plot());
+			CvCity* pRefCity = m_pPlayer->GetClosestCityByPlots(pLoopUnit->plot());
 			if (pRefCity)
 			{
 				pRefCity->AttachUnit(pLoopUnit);

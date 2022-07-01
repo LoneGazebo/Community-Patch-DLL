@@ -3062,7 +3062,7 @@ void CvMilitaryAI::LogAvailableForces()
 			}
 
 			// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general/admiral
-			else if(!pLoopUnit->IsCombatUnit() && !(pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsCityAttackSupport()))
+			else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsCombatSupportUnit())
 			{
 				continue;
 			}

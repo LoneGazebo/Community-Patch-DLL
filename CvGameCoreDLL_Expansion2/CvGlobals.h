@@ -273,7 +273,7 @@ public:
 		return m_aiRingPlotYOffset;
 	}
 
-	int* getCityPlotPriority();
+	int* getRingFromLinearOffset();
 	int getRingIterationIndexHex(int i, int j);
 
 	DirectionTypes* getTurnLeftDirection();
@@ -2575,7 +2575,7 @@ protected:
 
 	int m_aiRingPlotXOffset[MAX_CITY_PLOTS];
 	int m_aiRingPlotYOffset[MAX_CITY_PLOTS];
-	int m_aiCityPlotPriority[MAX_CITY_PLOTS];
+	int m_aiRingFromLinearOffset[MAX_CITY_PLOTS];
 	int m_aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1];
 
 	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];

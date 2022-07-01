@@ -6274,34 +6274,18 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isFriendlyUnit(eForPlayer, true, false))
 		return false;
 
-	//need to do additional checks in water
-	if (isWater())
-	{
-		int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
-		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
-		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
-			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
-					return true;
-			}
-		}
-	}
+	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;
+	int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : iLandRange;
 
-	// MOD_ADJACENT_BLOCKADE : Land units blockade undefended adjacent tiles
-	if (MOD_ADJACENT_BLOCKADE && !isWater())
+	for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 	{
-		for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++)
+		CvPlot* pNeighbor = iterateRingPlots(this, i);
+		//landmass change is equivalent to domain change
+		if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
 		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
-			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false))
-					return true;
-			}
+			//no halo around embarked units
+			if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+				return true;
 		}
 	}
 
@@ -8923,8 +8907,8 @@ void CvPlot::updateOwningCity()
 				if(pLoopCity->getOwner() == getOwner())
 				{
 					if((pBestCity == NULL) ||
-						    (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
-						    ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
+						    (GC.getRingFromLinearOffset()[iI] < GC.getRingFromLinearOffset()[iBestPlot]) ||
+						    ((GC.getRingFromLinearOffset()[iI] == GC.getRingFromLinearOffset()[iBestPlot]) &&
 						        ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
 						        ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
 						        (pLoopCity->GetID() < pBestCity->GetID())))))
@@ -8994,6 +8978,7 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 		if (pCurrentCity != NULL && pCurrentCity->GetCityCitizens()->IsWorkingPlot(this))
 		{
 			pCurrentCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+			pCurrentCity->GetCityCitizens()->SetForcedWorkingPlot(this, false);
 			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 

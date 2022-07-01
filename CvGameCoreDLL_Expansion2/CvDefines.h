@@ -13,7 +13,7 @@
 #define CITY_HOME_PLOT										(0)
 #define MIN_CITY_RADIUS										(2)
 // MAX_CITY_RADIUS should be the same as MAXIMUM_ACQUIRE_PLOT_DISTANCE in the XML, ie 5
-// If you want to increase this value, you must also add to the arrays aiRingPlotXOffset, aiRingPlotYOffset, aiCityPlotPriority and aaiRingPlotIndex in CvGlobals.cpp
+// If you want to increase this value, you must also add to the arrays aiRingPlotXOffset, aiRingPlotYOffset, aiRingFromLinearOffset and aaiRingPlotIndex in CvGlobals.cpp
 #define AVG_CITY_RADIUS										(3)
 #define MAX_CITY_RADIUS										(5)
 #define MAX_CITY_PLOTS										((6 * (1+MAX_CITY_RADIUS) * MAX_CITY_RADIUS / 2) + 1)
