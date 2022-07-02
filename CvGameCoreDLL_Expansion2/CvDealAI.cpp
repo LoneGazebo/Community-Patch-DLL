@@ -1947,7 +1947,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				}
 			}
 
-			if (MOD_DIPLOMACY_CITYSTATES)
+			if (MOD_BALANCE_VP)
 			{
 				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 				if (eResource == ePaper)

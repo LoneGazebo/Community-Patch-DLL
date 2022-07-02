@@ -7563,16 +7563,12 @@ void CvTeam::testCircumnavigated()
 			{
 				if(eTeamID == kPlayer.getTeam())
 				{
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 					GC.getGame().SetTeamThatCircumnavigated(eTeamID);
-#endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-					if(!kGame.isGameMultiPlayer() && kPlayer.isHuman())
+					if (MOD_API_ACHIEVEMENTS && !kGame.isGameMultiPlayer() && kPlayer.isHuman())
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_ROUND_WORLD);
 					}
-#endif
 				}
 
 				if(iActivePlayerID == iI)

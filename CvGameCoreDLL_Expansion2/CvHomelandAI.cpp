@@ -532,14 +532,9 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotMissionaryMoves();
 	PlotInquisitorMoves();
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	//this is for embassies - diplomatic missions are handled via AI operation
-	if (MOD_DIPLOMACY_CITYSTATES)
-	{
-		PlotDiplomatMoves();
-		PlotMessengerMoves();
-	}
-#endif
+	PlotDiplomatMoves();
+	PlotMessengerMoves();
 
 	PlotSSPartMoves();
 
@@ -1851,7 +1846,6 @@ void CvHomelandAI::PlotEngineerMoves()
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Find moves for great diplomats
 void CvHomelandAI::PlotDiplomatMoves()
 {
@@ -1888,11 +1882,7 @@ void CvHomelandAI::PlotMessengerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_DIPLOMAT))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER)
-#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1906,7 +1896,6 @@ void CvHomelandAI::PlotMessengerMoves()
 		ExecuteMessengerMoves();
 	}
 }
-#endif
 
 /// Find moves for great merchants
 void CvHomelandAI::PlotMerchantMoves()
@@ -3595,7 +3584,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 void CvHomelandAI::ExecuteDiplomatMoves()
 {
 	CHomelandUnitArray::iterator it;
@@ -3740,7 +3728,6 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		UnitProcessed(pUnit->GetID());
 	}
 }
-#endif
 
 void CvHomelandAI::ExecuteMerchantMoves()
 {

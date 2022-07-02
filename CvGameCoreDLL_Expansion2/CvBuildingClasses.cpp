@@ -172,7 +172,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iXBuiltTriggersIdeologyChoice(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iExtraLeagueVotes(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iSingleLeagueVotes(0),
 	m_iFaithToVotesBase(0),
 	m_iCapitalsToVotesBase(0),
@@ -181,7 +180,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDPToVotesBase(0),
 	m_bIgnoreDefensivePactLimit(false),
 	m_iGPExpendInfluenceBase(0),
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier(0),
 	m_iEmpireNeedsModifierGlobal(0),
@@ -293,9 +291,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
 	m_piSeaResourceYieldChange(NULL),
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_piGrowthExtraYield(NULL),
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_piYieldFromDeath(NULL),
 #endif
@@ -428,9 +424,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piYieldFromDeath);
 #endif
@@ -738,7 +732,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iXBuiltTriggersIdeologyChoice = kResults.GetInt("XBuiltTriggersIdeologyChoice");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iSingleLeagueVotes = kResults.GetInt("SingleLeagueVotes");
 	m_iFaithToVotesBase = kResults.GetInt("FaithToVotes");
 	m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
@@ -747,7 +740,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iDPToVotesBase = kResults.GetInt("DPToVotes");
 	m_bIgnoreDefensivePactLimit = kResults.GetBool("IgnoreDefensivePactLimit");
 	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier = kResults.GetInt("EmpireNeedsModifier");
 	m_iEmpireNeedsModifierGlobal = kResults.GetInt("EmpireNeedsModifierGlobal");
@@ -2435,7 +2427,7 @@ int CvBuildingEntry::GetExtraLeagueVotes() const
 {
 	return m_iExtraLeagueVotes;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+
 int CvBuildingEntry::GetSingleVotes() const
 {
 	return m_iSingleLeagueVotes;
@@ -2478,7 +2470,7 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 {
 	return m_iGPExpendInfluenceBase;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 int CvBuildingEntry::GetEmpireNeedsModifier() const
 {
@@ -2921,8 +2913,6 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 	return m_strThemingBonusHelp;
 }
 // ARRAYS
-
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 /// Change to yield by type
 int CvBuildingEntry::GetUnhappinessNeedsFlatReduction(int i) const
 {
@@ -2955,7 +2945,6 @@ int CvBuildingEntry::GetNeedBuildingThisCity() const
 	return m_iNeedBuildingThisCity;
 }
 
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 /// Change to yield by type if unit defeated in battle
 int CvBuildingEntry::GetYieldFromDeath(int i) const

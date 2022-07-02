@@ -190,9 +190,7 @@ void CvPlot::reset()
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_bImprovementEmbassy = false;
-#endif
 
 	m_bIsFreshwater = false;
 	m_bIsAdjacentToLand = false;
@@ -215,9 +213,7 @@ void CvPlot::reset()
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
-#endif
 	m_eRouteType = NO_ROUTE;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_eUnitIncrement = 0;
@@ -2551,7 +2547,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 						//citadels only in adjacent _unowned_ territory
 						if (getTeam() == NO_TEAM)
 						{
@@ -2560,52 +2555,37 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						}
 						else if (getTeam() != eTeam)
 							return false;
-#else
-						if (getTeam() != eTeam && !isAdjacentTeam(eTeam, false))
-						{
-							return false;
-						}
-#endif
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
 					{
 						bool bCityStateTerritory = false;
-						if (isOwned())
+						if (isOwned() && GET_PLAYER(getOwner()).isMinorCiv())
 						{
-							if (GET_PLAYER(getOwner()).isMinorCiv())
-							{
-								bCityStateTerritory = true;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								//Let's check for Embassies.
-								if(GC.getImprovementInfo(eImprovement)->IsEmbassy())
-								{
-									int iCityLoop;
-									for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-									{
-										if(pLoopCity != NULL)
-										{
-											for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-											{
-												CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+							bCityStateTerritory = true;
 
-												if(pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
-												{
-													if (pCityPlot->IsImprovementEmbassy())
-														return false;
-												}
-											}
+							// Let's check for Embassies.
+							if (GC.getImprovementInfo(eImprovement)->IsEmbassy())
+							{
+								int iCityLoop;
+								for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+								{
+									for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+									{
+										CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+										if (pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
+										{
+											if (pCityPlot->IsImprovementEmbassy())
+												return false;
 										}
 									}
 								}
-#endif
 							}
 						}
 
 						if (!bCityStateTerritory)
-						{
 							return false;
-						}
 					}
 					else if(getTeam() != eTeam) 
 					{//only buildable in own culture
@@ -3797,36 +3777,34 @@ CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, Pla
 //	--------------------------------------------------------------------------------
 bool CvPlot::isOwned() const
 {
-	return (getOwner() != NO_PLAYER);
+	return getOwner() != NO_PLAYER;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBarbarian() const
 {
-	return (getOwner() == BARBARIAN_PLAYER);
+	return getOwner() == BARBARIAN_PLAYER;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRevealedBarbarian() const
 {
-	return (getRevealedOwner(GC.getGame().getActiveTeam(), true) == BARBARIAN_PLAYER);
+	return getRevealedOwner(GC.getGame().getActiveTeam(), true) == BARBARIAN_PLAYER;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasBarbarianCamp()
 {
-	return (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
+	return getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasDig()
 {
-	return (getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE));
+	return getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE);
 }
-#endif
 
 bool CvPlot::isVisible(TeamTypes eTeam, bool bDebug) const
 {
@@ -3841,7 +3819,7 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 	if (eTeam == NO_TEAM)
 		return false;
 
-	return ((getVisibilityCount(eTeam) > 0));
+	return getVisibilityCount(eTeam) > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -5818,9 +5796,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
 					}
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 					// Embassy extra vote in WC mod
-					if (MOD_DIPLOMACY_CITYSTATES && pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
+					if (pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
 					{
 						if (eBuilder != NO_PLAYER)
 						{
@@ -5830,7 +5807,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 					//Resource from improvement - change ownership if needed.
 					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
@@ -6071,9 +6048,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #endif
 				}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy is here (somehow- city-state conquest/reconquest, perhaps?
-				if(MOD_DIPLOMACY_CITYSTATES && eImprovement != NO_IMPROVEMENT)
+				if (eImprovement != NO_IMPROVEMENT)
 				{
 					// Add vote
 					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -6095,7 +6071,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							SetImprovementEmbassy(false);
 					}
 				}
-#endif
 
 				if(getResourceType() != NO_RESOURCE)
 				{
@@ -7347,17 +7322,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					setResourceType(eResourceFromImprovement, iQuantity);
 				}
 #endif
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy extra vote in WC mod
-				if(MOD_DIPLOMACY_CITYSTATES && oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
+				if (oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					if (owningPlayer.isMinorCiv())
 					{
 						GET_PLAYER(eOldBuilder).ChangeImprovementLeagueVotes(oldImprovementEntry.GetCityStateExtraVote() * -1);
 					}
 				}
-#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			else
@@ -7758,9 +7730,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy extra vote in WC mod
-				if(MOD_DIPLOMACY_CITYSTATES && newImprovementEntry.GetCityStateExtraVote() > 0 && eBuilder != NO_PLAYER)
+				if (newImprovementEntry.GetCityStateExtraVote() > 0 && eBuilder != NO_PLAYER)
 				{
 					if (owningPlayer.isMinorCiv())
 					{
@@ -7774,7 +7745,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					SetImprovementEmbassy(true);
 				else
 					SetImprovementEmbassy(false);
-#endif
 			}
 #if defined(MOD_BALANCE_CORE) || defined(MOD_IMPROVEMENTS_EXTENSIONS)
 			else if(!isOwned())
@@ -8167,7 +8137,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementEmbassy() const
 {
@@ -8179,7 +8148,6 @@ void CvPlot::SetImprovementEmbassy(bool bEmbassy)
 {
 	m_bImprovementEmbassy = bEmbassy;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementPassable() const
@@ -8750,7 +8718,6 @@ void CvPlot::SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue)
 	m_ePlayerThatClearedBarbCampHere = eNewValue;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::GetPlayerThatClearedDigHere() const
 {
@@ -8762,7 +8729,6 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 {
 	m_ePlayerThatClearedDigHere = eNewValue;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Link the resource on this plot to pCity. Note that this does NOT set the link to be active - this must be done manually

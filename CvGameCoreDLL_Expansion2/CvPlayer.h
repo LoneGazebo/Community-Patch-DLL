@@ -325,9 +325,7 @@ public:
 #else
 	void foundCity(int iX, int iY);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
-#endif
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
@@ -486,10 +484,8 @@ public:
 
 	int GetJONSCultureCityModifier() const;
 	void ChangeJONSCultureCityModifier(int iChange);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetLeagueCultureCityModifier() const;
 	void ChangeLeagueCultureCityModifier(int iChange);
-#endif
 
 	int getJONSCulture() const;
 	void setJONSCulture(int iNewValue);
@@ -779,7 +775,6 @@ public:
 #endif
 
 	int GetExtraLeagueVotes() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
 	int GetFaithToVotes() const;
@@ -831,7 +826,6 @@ public:
 	int GetScienceRateFromLeagueAid() const;
 	void ChangeScienceRateFromLeagueAid(int iChange);
 	void SetScienceRateFromLeagueAid(int iValue);
-#endif
 
 	void ChangeExtraLeagueVotes(int iChange);
 
@@ -907,9 +901,7 @@ public:
 
 	// Golden Age Stuff
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void DoProcessVotes();
-#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	void DoChangeGreatGeneralRate();
 	void DoChangeGreatAdmiralRate();
@@ -979,10 +971,8 @@ public:
 	void incrementGreatArtistsCreated(bool bIsFree);
 	int getGreatMusiciansCreated(bool bExcludeFree) const;
 	void incrementGreatMusiciansCreated(bool bIsFree);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatsCreated(bool bExcludeFree) const;
 	void incrementGreatDiplomatsCreated(bool bIsFree);
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1Created(bool bExcludeFree) const;
 	void incrementGPExtra1Created(bool bIsFree);
@@ -1021,10 +1011,8 @@ public:
 	void incrementGreatArtistsCreated();
 	int getGreatMusiciansCreated() const;
 	void incrementGreatMusiciansCreated();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatsCreated() const;
 	void incrementGreatDiplomatsCreated();
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1Created() const;
 	void incrementGPExtra1Created();
@@ -1059,10 +1047,8 @@ public:
 	void incrementAdmiralsFromFaith();
 	int getEngineersFromFaith() const;
 	void incrementEngineersFromFaith();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getDiplomatsFromFaith() const;
 	void incrementDiplomatsFromFaith();
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1FromFaith() const;
 	void incrementGPExtra1FromFaith();
@@ -1101,9 +1087,7 @@ public:
 	int getGreatMerchantRateModifier() const;
 	int getGreatScientistRateModifier() const;
 	int getGreatEngineerRateModifier() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatRateModifier() const;
-#endif
 	int getDomesticGreatGeneralRateModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int getArtsyGreatPersonRateModifier();
@@ -3038,7 +3022,6 @@ protected:
 	int m_iConversionModifier;
 #endif
 	int m_iExtraLeagueVotes;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iImprovementLeagueVotes;
 	int m_iFaithToVotes;
 	int m_iCapitalsToVotes;
@@ -3052,7 +3035,6 @@ protected:
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
 	int m_iLeagueCultureCityModifier;
-#endif
 	int m_iAdvancedStartPoints;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
@@ -3078,9 +3060,7 @@ protected:
 	int m_iFreeGreatWritersCreated;
 	int m_iFreeGreatArtistsCreated;
 	int m_iFreeGreatMusiciansCreated;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iFreeGreatDiplomatsCreated;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGPExtra1Created;
 	int m_iGPExtra2Created;
@@ -3105,10 +3085,8 @@ protected:
 	int m_iGreatWritersCreated;
 	int m_iGreatArtistsCreated;
 	int m_iGreatMusiciansCreated;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iGreatDiplomatsCreated;
 	int m_iDiplomatsFromFaith;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGPExtra1FromFaith;
 	int m_iGPExtra2FromFaith;
@@ -3140,9 +3118,7 @@ protected:
 	int m_iGreatArtistRateModifier;
 	int m_iGreatMusicianRateModifier;
 	int m_iGreatMerchantRateModifier;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iGreatDiplomatRateModifier;
-#endif
 	int m_iGreatScientistRateModifier;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryMod;

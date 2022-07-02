@@ -306,7 +306,6 @@ public:
 	int GetCityStateTradeRouteProductionModifier() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetExtraLeagueVotes() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetSingleVotes() const;
 	int GetFaithToVotes() const;
 	int GetCapitalsToVotes() const;
@@ -315,7 +314,6 @@ public:
 	int GetDPToVotes() const;
 	bool IsIgnoreDefensivePactLimit() const;
 	int GetGPExpendInfluence() const;
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetEmpireNeedsModifier() const;
 	int GetEmpireNeedsModifierGlobal() const;
@@ -400,8 +398,6 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
-
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	int GetUnhappinessNeedsFlatReduction(int i) const;
 	int* GetUnhappinessNeedsFlatReductionArray() const;
 
@@ -409,7 +405,7 @@ public:
 	int* GetGrowthExtraYieldArray() const;
 
 	int GetNeedBuildingThisCity() const;
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetYieldFromDeath(int i) const;
 	int* GetYieldFromDeathArray() const;
@@ -786,7 +782,6 @@ private:
 	int m_iCityStateTradeRouteProductionModifier;
 	int m_iGreatScientistBeakerModifier;
 	int m_iExtraLeagueVotes;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iSingleLeagueVotes;
 	int m_iFaithToVotesBase;
 	int m_iCapitalsToVotesBase;
@@ -795,7 +790,6 @@ private:
 	int m_iDPToVotesBase;
 	bool m_bIgnoreDefensivePactLimit;
 	int m_iGPExpendInfluenceBase;
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iEmpireNeedsModifier;
 	int m_iEmpireNeedsModifierGlobal;
@@ -919,10 +913,8 @@ private:
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;
 	int* m_piSeaResourceYieldChange;
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	int* m_piGrowthExtraYield;
 	int m_iNeedBuildingThisCity;
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piYieldFromDeath;
 #endif

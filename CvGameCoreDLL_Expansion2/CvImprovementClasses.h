@@ -75,9 +75,7 @@ public:
 	int GetPillageGold() const;
 	int GetResourceExtractionMod() const;
 	int GetLuxuryCopiesSiphonedFromMinor() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetCityStateExtraVote() const;
-#endif
 	int GetHappinessOnConstruction() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceFromImprovement() const;
@@ -140,9 +138,7 @@ public:
 	bool IsInAdjacentFriendly() const;
 	bool IsIgnoreOwnership() const;
 	bool IsOnlyCityStateTerritory() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsEmbassy() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetObsoleteTech() const;
 	bool IsAdjacentLake() const;
@@ -249,9 +245,7 @@ protected:
 	int m_iPillageGold;
 	int m_iResourceExtractionMod;
 	int m_iLuxuryCopiesSiphonedFromMinor;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iImprovementLeagueVotes;
-#endif
 	int m_iHappinessOnConstruction;
 #if defined(MOD_BALANCE_CORE)
 	int m_iImprovementResource;
@@ -311,9 +305,7 @@ protected:
 	bool m_bInAdjacentFriendly;
 	bool m_bIgnoreOwnership;
 	bool m_bOnlyCityStateTerritory;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool m_bIsEmbassy;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGetObsoleteTech;
 	bool m_bAdjacentLake;

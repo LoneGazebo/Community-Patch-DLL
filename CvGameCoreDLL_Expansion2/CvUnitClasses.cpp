@@ -50,10 +50,8 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iScaleFromNumGWs(0),
 	m_iScaleFromNumThemes(0),
 	m_iNumGoldPerEra(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra(0),
 	m_iProductionCostPerEra(0),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
 	m_iBeliefUnlock(NO_BELIEF),
@@ -301,10 +299,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iScaleFromNumGWs = kResults.GetInt("ScaleFromNumGWs");
 	m_iScaleFromNumThemes = kResults.GetInt("ScaleFromNumThemes");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
 	m_iProductionCostPerEra = kResults.GetInt("ProductionCostAddedPerEra");
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
 	m_bFreeUpgrade = kResults.GetBool("FreeUpgrade");
@@ -923,7 +919,6 @@ int CvUnitEntry::GetNumGoldPerEra() const
 	return m_iNumGoldPerEra;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Era boost to influence (for great people)
 int CvUnitEntry::GetNumInfPerEra() const
 {
@@ -933,7 +928,7 @@ int CvUnitEntry::GetProductionCostPerEra() const
 {
 	return m_iProductionCostPerEra;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 /// Free Luxuries in Capital (for great people)
 int CvUnitEntry::GetNumFreeLux() const

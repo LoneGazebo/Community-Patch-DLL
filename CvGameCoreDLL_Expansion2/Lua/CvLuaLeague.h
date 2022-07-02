@@ -81,10 +81,10 @@ protected:
 
 	static int lGetArtsyGreatPersonRateModifier(lua_State* L);
 	static int lGetScienceyGreatPersonRateModifier(lua_State* L);
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+
 	LUAAPIEXTN(GetSpaceShipProductionMod, int);
 	LUAAPIEXTN(GetSpaceShipPurchaseMod, int);
-#endif
+
 	LUAAPIEXTN(GetPotentialVotesForMember, int);
 	LUAAPIEXTN(IsPlayerEmbargoed, bool, iPlayer);
 	static int lGetResolutionName(lua_State* L);

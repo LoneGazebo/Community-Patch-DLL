@@ -790,7 +790,7 @@ public:
 	bool IsWaryOfTeam(TeamTypes eTeam) const;
 	void SetWaryOfTeam(TeamTypes eTeam, bool bValue);
 
-#if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE_MINORS)
 	int GetTurnLastAttacked(TeamTypes eTeam) const;
 	void SetTurnLastAttacked(TeamTypes eTeam, int iTurn);
 	int GetJerkTurnsRemaining(TeamTypes eTeam) const;
@@ -854,19 +854,18 @@ private:
 
 	bool m_abRouteConnectionEstablished[MAX_MAJOR_CIVS];
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool m_bIsRebellion;
 	int m_iTurnsSinceRebellion;
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;
 	int m_iTakeoverTurn; //not serialized
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int m_iTurnLiberated;
 #endif
 
-#if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE_MINORS)
 	int m_aiTurnLastAttacked[MAX_CIV_TEAMS];
 	bool m_abIgnoreJerk[MAX_CIV_TEAMS];
 	bool m_abIsMarried[MAX_MAJOR_CIVS];

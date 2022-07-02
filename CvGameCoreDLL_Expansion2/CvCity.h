@@ -1055,9 +1055,7 @@ public:
 	void UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield);
 #endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseScienceFromArt() const;
-#endif
 
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
 
@@ -1076,7 +1074,6 @@ public:
 
 	int GetBaseYieldRateFromProcess(YieldTypes eIndex) const;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);
 
@@ -1091,11 +1088,10 @@ public:
 	void ChangeTotalGreatWorkAid(int iChange);
 	int GetTotalGreatWorkAid() const;
 	void SetTotalGreatWorkAid(int iValue);
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
@@ -1858,15 +1854,11 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromBuildings;
 	std::vector<int> m_aiBaseYieldRateFromSpecialists;
 	std::vector<int> m_aiBaseYieldRateFromMisc;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiChangeGrowthExtraYield;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
 	int m_iHappinessFromLuxuries;

@@ -104,6 +104,11 @@
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
 			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
+
+		<!-- Diplomatic Mission (No Gold) -->
+		<Row Tag="TXT_KEY_DIPLOMATIC_MISSION_RESULT_NO_GOLD">
+			<Text>You have gained {1_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">

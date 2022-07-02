@@ -393,7 +393,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	bool bOneSided = this->GetSurrenderingPlayer() != NO_PLAYER || this->GetDemandingPlayer() != NO_PLAYER || this->GetRequestingPlayer() != NO_PLAYER;
 
 	// Can't trade anything if embargoed by the World Congress (except for peace deals)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal && eItem != TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
+	if (MOD_BALANCE_VP && !bPeaceDeal && eItem != TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
@@ -1443,7 +1443,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 		return strError;
 
 	// Can't trade anything if embargoed by the World Congress (except for peace deals)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && !bPeaceDeal)
+	if (MOD_BALANCE_VP && !bPeaceDeal)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))

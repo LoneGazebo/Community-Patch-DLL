@@ -1091,16 +1091,13 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 
 		CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 
-		if (MOD_DIPLOMACY_CITYSTATES)
+		if(pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
 		{
-			if(pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
+			if(pTargetCity->getOriginalOwner() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
 			{
-				if(pTargetCity->getOriginalOwner() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
-				{
-					fDesirability *= /*200*/ GD_INT_GET(AI_MILITARY_RECAPTURING_CITY_STATE);
-					fDesirability /= 100;
-				}	
-			}
+				fDesirability *= /*200*/ GD_INT_GET(AI_MILITARY_RECAPTURING_CITY_STATE);
+				fDesirability /= 100;
+			}	
 		}
 
 		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))

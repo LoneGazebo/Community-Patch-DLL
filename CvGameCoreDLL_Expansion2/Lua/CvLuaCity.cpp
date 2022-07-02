@@ -472,10 +472,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromProcess);
 	Method(GetBaseYieldRateFromTradeRoutes);
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
-#endif
+
 	Method(GetYieldFromCityYield);
 
 	Method(GetBaseYieldRateFromReligion);
@@ -4537,13 +4536,11 @@ int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
 	lua_pushinteger(L, iReturnValue);
 	return 1;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
 {

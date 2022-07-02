@@ -429,40 +429,35 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 						}
 					}
 					EconomicAIStrategyTypes eStrategyConquest = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_CONQUEST");
-		
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+
+					//CSD Project Rewards
+					if (pRewardInfo->GetAttackBonusTurns() > 0)
 					{
-						//CSD Project Rewards
-						if (pRewardInfo->GetAttackBonusTurns() > 0)
+						if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
 						{
-							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
-							{
-								iModifier += 300;
-							}
-							else
-							{
-								iModifier += 150;
-							}
+							iModifier += 300;
 						}
-						if (pRewardInfo->GetBaseFreeUnits() > 0)
+						else
 						{
-							if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
-							{
-								iModifier += 300;
-							}
-							else
-							{
-								iModifier += 150;
-							}
-						}
-						// Temporary Culture Modifier
-						if (pRewardInfo->GetNumFreeGreatPeople() > 0)
-						{
-							iModifier += 500;
+							iModifier += 150;
 						}
 					}
-#endif
+					if (pRewardInfo->GetBaseFreeUnits() > 0)
+					{
+						if(eStrategyConquest != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyConquest))
+						{
+							iModifier += 300;
+						}
+						else
+						{
+							iModifier += 150;
+						}
+					}
+					// Temporary Culture Modifier
+					if (pRewardInfo->GetNumFreeGreatPeople() > 0)
+					{
+						iModifier += 500;
+					}
 				}
 			}
 		}

@@ -350,12 +350,10 @@ CvCity::CvCity() :
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier()
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_aiBaseYieldRateFromLeague()
 	, m_iTotalScienceyAid()
 	, m_iTotalArtsyAid()
 	, m_iTotalGreatWorkAid()
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	, m_iEmpireNeedsModifier()
 	, m_iChangePovertyUnhappiness()
@@ -364,9 +362,7 @@ CvCity::CvCity() :
 	, m_iChangeIlliteracyUnhappiness()
 	, m_iChangeMinorityUnhappiness()
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	, m_aiChangeGrowthExtraYield()
-#endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iNukeInterceptionChance()
 	, m_iTradeRouteSeaDistanceModifier()
@@ -1403,7 +1399,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiBaseYieldRateFromBuildings.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromSpecialists.resize(NUM_YIELD_TYPES);
 	m_aiBaseYieldRateFromMisc.resize(NUM_YIELD_TYPES);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_aiBaseYieldRateFromLeague.resize(NUM_YIELD_TYPES);
 	m_iTotalScienceyAid = 0;
 	m_iTotalArtsyAid = 0;
@@ -1412,7 +1407,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iHappinessFromEmpire = 0;
 	m_iHappinessFromLuxuries = 0;
 	m_iUnhappinessFromEmpire = 0;
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier = 0;
 	m_iChangePovertyUnhappiness = 0;
@@ -1423,9 +1417,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iEventHappiness = 0;
 	m_iCityEventCooldown = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iBorderObstacleWater = 0;
 	m_iBorderObstacleCity = 0;
@@ -1540,12 +1532,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiBaseYieldRateFromBuildings[iI] = 0;
 		m_aiBaseYieldRateFromSpecialists[iI] = 0;
 		m_aiBaseYieldRateFromMisc[iI] = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 		m_aiBaseYieldRateFromLeague[iI] = 0;
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 		m_aiChangeGrowthExtraYield[iI] = 0;
-#endif
 #if defined(MOD_BALANCE_CORE)
 		m_aiGreatWorkYieldChange[iI] = 0;
 		m_aiYieldFromKnownPantheons[iI] = 0;
@@ -11919,14 +11907,11 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	iCost *= (100 + GET_PLAYER(getOwner()).GetUnitPurchaseCostModifier());
 	iCost /= 100;
 
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+	int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
+	if (bIsSpaceshipPart && iLimitSpaceshipPurchase != 0)
 	{
-		int iLimitSpaceshipPurchase = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
-		if (bIsSpaceshipPart && iLimitSpaceshipPurchase != 0)
-		{
-			iCost *= (100 + GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner()));
-			iCost /= 100;
-		}
+		iCost *= (100 + GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner()));
+		iCost /= 100;
 	}
 
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
@@ -12102,13 +12087,11 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
 						iNum = kPlayer.getAdmiralsFromFaith();
 					}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-					else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true /*bHideAssert*/))
+					else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true /*bHideAssert*/))
 					{
 						eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PATRONAGE", true /*bHideAssert*/);
 						iNum = kPlayer.getDiplomatsFromFaith();
 					}
-#endif
 #if defined(MOD_BALANCE_CORE)
 					if (pkUnitInfo->IsGPExtra() == 1)
 					{
@@ -12266,17 +12249,15 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			}
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
-		//Modify for Resolution
-		int iGetSpaceShipPurchaseMod = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
-		if ((pkUnitInfo->GetBaseHurry() > 0) && (iGetSpaceShipPurchaseMod != 0))
-		{
-			iCost *= (100 + iGetSpaceShipPurchaseMod);
-			iCost /= 100;
-		}
+
+	//Modify for Resolution
+	int iGetSpaceShipPurchaseMod = GC.getGame().GetGameLeagues()->GetSpaceShipPurchaseMod(getOwner());
+	if ((pkUnitInfo->GetBaseHurry() > 0) && (iGetSpaceShipPurchaseMod != 0))
+	{
+		iCost *= (100 + iGetSpaceShipPurchaseMod);
+		iCost /= 100;
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 
 	/*
@@ -12974,8 +12955,8 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES && GetBaseYieldRateFromLeague(YIELD_PRODUCTION) > 0)
+
+	if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_PRODUCTION) > 0)
 	{
 		int iTempLeagueMod = GetBaseYieldRateFromLeague(YIELD_PRODUCTION);
 		iMultiplier += iTempLeagueMod;
@@ -12984,7 +12965,7 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_LEAGUE", iTempLeagueMod);
 		}
 	}
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if (MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).IsPuppetProdMod() && IsPuppet())
 	{
@@ -13213,15 +13194,12 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 
 		iTempMod = thisPlayer.getSpaceProductionModifier();
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			int iLimitSpaceshipProduction = GC.getGame().GetGameLeagues()->GetSpaceShipProductionMod(getOwner());
-			if (iLimitSpaceshipProduction != 0)
-			{
-				iTempMod += iLimitSpaceshipProduction;
-			}
+		int iLimitSpaceshipProduction = GC.getGame().GetGameLeagues()->GetSpaceShipProductionMod(getOwner());
+		if (iLimitSpaceshipProduction != 0)
+		{
+			iTempMod += iLimitSpaceshipProduction;
 		}
-#endif
+
 		iMultiplier += iTempMod;
 		if (toolTipSink && iTempMod)
 		{
@@ -14468,8 +14446,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (!pFreeUnit->jumpToNearestValidPlot())
 										pFreeUnit->kill(false);	// Could not find a valid spot!
 								}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								else if (MOD_DIPLOMACY_CITYSTATES && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+								else if (MOD_BALANCE_VP && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 								{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 									owningPlayer.incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -14479,7 +14456,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (!pFreeUnit->jumpToNearestValidPlot())
 										pFreeUnit->kill(false);	// Could not find a valid spot!
 								}
-#endif
 #if defined(MOD_BALANCE_CORE)
 								else if (pkUnitInfo->IsGPExtra() == 1)
 								{
@@ -14790,8 +14766,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (!pFreeUnit->jumpToNearestValidPlot())
 										pFreeUnit->kill(false);	// Could not find a valid spot!
 								}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								else if (MOD_DIPLOMACY_CITYSTATES && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+								else if (MOD_BALANCE_VP && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 								{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 									owningPlayer.incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -14801,7 +14776,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (!pFreeUnit->jumpToNearestValidPlot())
 										pFreeUnit->kill(false);	// Could not find a valid spot!
 								}
-#endif
 #if defined(MOD_BALANCE_CORE)
 								else if (pkUnitInfo->IsGPExtra() == 1)
 								{
@@ -17491,15 +17465,15 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+
 		//Resolution League Bonus	
-		if (MOD_DIPLOMACY_CITYSTATES && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
+		if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
 		{
 			int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
 		}
-#endif
+
 		if (iTotalMod <= 0)
 			return 0;
 
@@ -17696,14 +17670,14 @@ int CvCity::getGrowthMods() const
 		int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 		iTotalMod += iMod;
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+
 	//Resolution League Bonus	
-	if (MOD_DIPLOMACY_CITYSTATES && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
+	if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
 	{
 		int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
 		iTotalMod += iMod;
 	}
-#endif
+
 	if (iTotalMod <= -100)
 		return 0;
 
@@ -24919,7 +24893,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WONDER_POLICY", iTempMod);
 		}
 
-		if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueAid())
+		if (MOD_BALANCE_VP && GET_PLAYER(getOwner()).IsLeagueAid())
 		{
 			iTempMod = GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 			iModifier += iTempMod;
@@ -25159,14 +25133,11 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		iValue += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(eIndex) * iEra;
 	}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	if (GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
 	{
 		iValue += GetBaseScienceFromArt();
 	}
-#endif
 
-#if defined(MOD_YIELD_MODIFIER_FROM_UNITS)
 	if (MOD_YIELD_MODIFIER_FROM_UNITS)
 	{
 		CvPlot* pCityPlot = plot();
@@ -25179,7 +25150,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 			}
 		}
 	}
-#endif
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	if (eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
@@ -25219,13 +25189,11 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	return iValue;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Where is our Science coming from?
 int CvCity::GetBaseScienceFromArt() const
 {
 	return GetBaseYieldRateFromLeague(YIELD_SCIENCE);
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Great Works
@@ -25410,7 +25378,6 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 	return (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 10000;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvCity::GetBaseYieldRateFromLeague(YieldTypes eIndex) const
 {
@@ -25492,8 +25459,8 @@ void CvCity::SetTotalGreatWorkAid(int iValue)
 	if (GetTotalGreatWorkAid() != iValue)
 		m_iTotalGreatWorkAid = iValue;
 }
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+
+#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetGrowthExtraYield(YieldTypes eIndex) const
@@ -26960,7 +26927,7 @@ void CvCity::DoBarbIncursion()
 		return;
 
 	// Found a CS city to spawn near
-	if (MOD_DIPLOMACY_CITYSTATES_QUESTS && GET_PLAYER(getOwner()).isBarbarian() && GET_PLAYER(getOriginalOwner()).isMinorCiv())
+	if (MOD_BALANCE_VP && GET_PLAYER(getOwner()).isBarbarian() && GET_PLAYER(getOriginalOwner()).isMinorCiv())
 	{
 		if (CvBarbarians::ShouldSpawnBarbFromCity(plot()))
 		{
@@ -32012,12 +31979,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
 #endif
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-			else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+			else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 			{
 				kPlayer.incrementDiplomatsFromFaith();
 			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			else if (pUnit->getUnitInfo().IsGPExtra() == 1)
 			{

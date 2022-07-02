@@ -88,9 +88,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iPillageGold(0),
 	m_iResourceExtractionMod(0),
 	m_iLuxuryCopiesSiphonedFromMinor(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iImprovementLeagueVotes(0),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iHappinessOnConstruction(0),
 	m_iImprovementResource(NO_RESOURCE),
@@ -140,9 +138,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bInAdjacentFriendly(false),
 	m_bIgnoreOwnership(false),
 	m_bOnlyCityStateTerritory(false),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_bIsEmbassy(false),
-#endif
 #if defined(MOD_BALANCE_CORE)
 	m_iGetObsoleteTech(NO_TECH),
 	m_bAdjacentLake(false),
@@ -321,11 +317,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bInAdjacentFriendly = kResults.GetBool("InAdjacentFriendly");
 	m_bIgnoreOwnership = kResults.GetBool("IgnoreOwnership");
 	m_bOnlyCityStateTerritory = kResults.GetBool("OnlyCityStateTerritory");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
 	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
-	}
-#endif
 #if defined(MOD_BALANCE_CORE)
 	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
 	m_iGetObsoleteTech = GC.getInfoTypeForString(szObsoleteTech, true);
@@ -349,11 +341,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bSpecificCivRequired = kResults.GetBool("SpecificCivRequired");
 	m_iResourceExtractionMod = kResults.GetInt("ResourceExtractionMod");
 	m_iLuxuryCopiesSiphonedFromMinor = kResults.GetInt("LuxuryCopiesSiphonedFromMinor");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
-	}
-#endif
+	m_iImprovementLeagueVotes = kResults.GetInt("ImprovementLeagueVotes");
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
@@ -899,13 +887,12 @@ int CvImprovementEntry::GetLuxuryCopiesSiphonedFromMinor() const
 	return m_iLuxuryCopiesSiphonedFromMinor;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Does this improvement grant an extra World Congress vote?
 int CvImprovementEntry::GetCityStateExtraVote() const
 {
 	return m_iImprovementLeagueVotes;
 }
-#endif
+
 int CvImprovementEntry::GetHappinessOnConstruction() const
 {
 	return m_iHappinessOnConstruction;
@@ -1157,13 +1144,11 @@ bool CvImprovementEntry::IsOnlyCityStateTerritory() const
 {
 	return m_bOnlyCityStateTerritory;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Can only of this improvement be built in City-State lands?
 bool CvImprovementEntry::IsEmbassy() const
 {
 	return m_bIsEmbassy;
 }
-#endif
 #if defined(MOD_BALANCE_CORE)
 int CvImprovementEntry::GetObsoleteTech() const
 {

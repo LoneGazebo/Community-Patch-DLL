@@ -1639,12 +1639,10 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_GOOD_AIRLIFT_CITY")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(GetCity());
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(GetCity()); 
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
-					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity()); 
-#endif
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity());
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
@@ -3466,12 +3464,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 					{
 						iMod += pCity->GetPlayer()->getGreatEngineerRateModifier();
 					}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-					else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+					else if(MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 					{
 						iMod += pCity->GetPlayer()->getGreatDiplomatRateModifier();
 					}
-#endif
 
 					iGPPChange *= (100 + iMod);
 					iGPPChange /= 100;
@@ -3611,7 +3607,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 	return false;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Do we need more Diplomatic Units? Check and see.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 {
@@ -3711,7 +3706,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 	}
 	return false;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
@@ -4780,47 +4775,43 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iDiploValue += (pkBuildingInfo->GetMinorFriendshipChange() / 2);
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES)
+
+	if(pkBuildingInfo->GetCapitalsToVotes() > 0)
 	{
-		if(pkBuildingInfo->GetCapitalsToVotes() > 0)
+		iDiploValue += 25;
+	}
+	if(pkBuildingInfo->GetRAToVotes() > 0)
+	{
+		iDiploValue += 25;
+	}
+	if(pkBuildingInfo->GetDoFToVotes() > 0)
+	{
+		iDiploValue += 25;
+	}
+	if(pkBuildingInfo->GetFaithToVotes() > 0)
+	{
+		iDiploValue += 25;
+	}
+	if(pkBuildingInfo->GetDPToVotes() > 0)
+	{
+		iDiploValue += 25;
+	}
+	if(pkBuildingInfo->GetGPExpendInfluence() > 0)
+	{
+		iDiploValue += 25;
+	}
+	UnitCombatTypes eUnitCombat = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY", true);
+	if(eUnitCombat != NO_UNITCOMBAT)
+	{
+		if(pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) > 0)
 		{
-			iDiploValue += 25;
-		}
-		if(pkBuildingInfo->GetRAToVotes() > 0)
-		{
-			iDiploValue += 25;
-		}
-		if(pkBuildingInfo->GetDoFToVotes() > 0)
-		{
-			iDiploValue += 25;
-		}
-		if(pkBuildingInfo->GetFaithToVotes() > 0)
-		{
-			iDiploValue += 25;
-		}
-		if(pkBuildingInfo->GetDPToVotes() > 0)
-		{
-			iDiploValue += 25;
-		}
-		if(pkBuildingInfo->GetGPExpendInfluence() > 0)
-		{
-			iDiploValue += 25;
-		}
-		UnitCombatTypes eUnitCombat = (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_DIPLOMACY", true);
-		if(eUnitCombat != NO_UNITCOMBAT)
-		{
-			if(pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat) > 0)
+			iDiploValue += pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat);
+			if (pCity != NULL)
 			{
-				iDiploValue += pkBuildingInfo->GetUnitCombatProductionModifier((int)eUnitCombat);
-				if (pCity != NULL)
-				{
-					iDiploValue += pCity->getUnitCombatProductionModifier(eUnitCombat);
-				}
+				iDiploValue += pCity->getUnitCombatProductionModifier(eUnitCombat);
 			}
 		}
 	}
-#endif
 
 	if(pkBuildingInfo->GetAirModifier() > 0)
 	{

@@ -693,10 +693,8 @@ public:
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	TeamTypes GetTeamThatCircumnavigated() const;
 	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
-#endif
 
 	bool AnyoneHasBelief(BeliefTypes iBeliefType) const;
 	bool AnyoneHasBuilding(BuildingTypes iBuildingType) const;
@@ -846,9 +844,8 @@ protected:
 	EraTypes m_eGameEra;
 	bool m_bArchaeologyTriggered;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	bool m_bVictoryRandomization;
 	int m_iCultureAverage;

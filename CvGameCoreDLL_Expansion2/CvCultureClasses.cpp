@@ -3387,9 +3387,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #else
 			pPlot->SetImprovementPillaged(false);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 			if (pUnit)
 				pUnit->kill(true);
 
@@ -3473,9 +3472,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
 
 		pHousingCity->UpdateAllNonPlotYields(true);
 		if (pUnit)
@@ -3500,9 +3498,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
@@ -3559,9 +3557,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
@@ -3631,9 +3629,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 		if (pUnit)
 			pUnit->kill(true);
 	}

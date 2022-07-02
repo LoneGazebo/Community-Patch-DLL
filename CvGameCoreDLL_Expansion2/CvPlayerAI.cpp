@@ -496,7 +496,7 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			}
 			else if (GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
-				if (MOD_DIPLOMACY_CITYSTATES)
+				if (MOD_BALANCE_VP)
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 				else
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_MERCHANT");
@@ -1297,11 +1297,9 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		case UNITAI_ADMIRAL:
 			eDirective = GetDirectiveAdmiral(pLoopUnit);
 			break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 		case UNITAI_DIPLOMAT:
 			eDirective = GetDirectiveDiplomat(pLoopUnit);
 			break;
-#endif
 		}
 
 		pLoopUnit->SetGreatPeopleDirective(eDirective);
@@ -1937,7 +1935,6 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	return NULL;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -2539,7 +2536,6 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 
 	return pCity->plot();
 }
-#endif
 
 CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 {

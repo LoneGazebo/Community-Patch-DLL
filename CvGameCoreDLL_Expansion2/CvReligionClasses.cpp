@@ -10649,7 +10649,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 				{
-					if (!MOD_DIPLOMACY_CITYSTATES && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
+					if (!MOD_BALANCE_VP && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 					{
 						iScore += 200;
 					}
@@ -10692,7 +10692,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 						iScore += 100;
 					}
 				}
-				else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+				else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
 					EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
 					if (eStrategy != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy))

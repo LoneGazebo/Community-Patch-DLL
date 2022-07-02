@@ -217,16 +217,6 @@
     <!-- See also: "Diplomacy - No Leaderheads" -->
     <Row Class="4" Name="DIPLOMACY_NO_LEADERHEADS" Value="0"/>
 
-	  <!-- Changes for the City State Diplomacy mod by Gazebo (v35) -->
-	<!-- See also: "Diplomacy - City States" -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES" Value="0"/>
-	<!-- The quests sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_QUESTS" Value="0"/>
-	<!-- The resolutions sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_RESOLUTIONS" Value="0"/>
-	<!-- The hurry sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_HURRY" Value="0"/>
-
 	<!-- Allows Land Units to become Cargo of Melee Ships -->
 	<Row Class="5" Name="CARGO_SHIPS" Value="0"/>
 	<!-- Switch Value to 1 to allow Ranged Boats to fire from Cities or Passable Improvements -->

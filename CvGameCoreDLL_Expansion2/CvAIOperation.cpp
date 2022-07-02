@@ -2084,7 +2084,6 @@ CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* p
 		GET_PLAYER(pUnit->getOwner()).FindBestMerchantTargetPlotForPuppet(pUnit);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCivilianDiplomatDelegation
 ////////////////////////////////////////////////////////////////////////////////
@@ -2138,7 +2137,6 @@ bool CvAIOperationCivilianDiplomatDelegation::PerformMission(CvUnit* pDiplomat)
 	SetToAbort(AI_ABORT_NO_TARGET);
 	return false;
 }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCivilianConcertTour

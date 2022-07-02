@@ -4002,9 +4002,7 @@ void CvPlayerTraits::SetIsDiplomat()
 		GetTradeBuildingModifier() != 0 ||
 		GetVotePerXCSAlliance() != 0 ||
 		GetMinorInfluencePerGiftedUnit() > 0 ||
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		(MOD_DIPLOMACY_CITYSTATES && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
-#endif
+		(MOD_BALANCE_VP && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
 		)
 	{
 		m_bIsDiplomat = true;
@@ -6971,7 +6969,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-		if (MOD_DIPLOMACY_CITYSTATES)
+		if (MOD_BALANCE_VP)
 		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 		}
@@ -6980,12 +6978,9 @@ void CvPlayerTraits::ChooseMayaBoost()
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
 		}
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0 && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				eDesiredGreatPerson = ePossibleGreatPerson;
-			}
+			eDesiredGreatPerson = ePossibleGreatPerson;
 		}
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -7000,20 +6995,15 @@ void CvPlayerTraits::ChooseMayaBoost()
 			}
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_BALANCE_VP)
 	{
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0 && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				eDesiredGreatPerson = ePossibleGreatPerson;
-			}
+			eDesiredGreatPerson = ePossibleGreatPerson;
 		}
 	}
-#endif
 
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -7094,12 +7084,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 									{
 										ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
 
-										if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+										if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
 										}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-										else if(MOD_DIPLOMACY_CITYSTATES)
+										else if (MOD_BALANCE_VP)
 										{
 											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 
@@ -7108,7 +7097,6 @@ void CvPlayerTraits::ChooseMayaBoost()
 												eDesiredGreatPerson = ePossibleGreatPerson;
 											}
 										}
-#endif
 									}
 								}
 							}

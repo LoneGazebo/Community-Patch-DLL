@@ -300,10 +300,8 @@ bool IsTestCityStrategy_IsInternationalTradeOrigin(CvCity* pCity);
 bool IsTestCityStrategy_NeedCultureBuilding(CvCity* pCity);
 bool IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity);
 bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessScience(CvCity *pCity);

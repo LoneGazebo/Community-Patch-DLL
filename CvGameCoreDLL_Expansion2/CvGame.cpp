@@ -1164,9 +1164,7 @@ void CvGame::uninit()
 	m_eReligionTech = NO_TECH;
 	m_eIndustrialRoute = NO_ROUTE;
 	m_eGameEra = NO_ERA;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_eTeamThatCircumnavigated = NO_TEAM;
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_bVictoryRandomization = false;
 	m_iCultureAverage = 0;
@@ -11551,7 +11549,7 @@ void CvGame::SetHighestSpyPotential()
 
 void CvGame::DoBarbCountdown()
 {
-	if (!MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (!MOD_BALANCE_VP)
 		return;
 
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -12315,7 +12313,6 @@ void CvGame::DoUpdateIndustrialRoute()
 	m_eIndustrialRoute = eIndustrialRoute;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 TeamTypes CvGame::GetTeamThatCircumnavigated() const
 {
@@ -12327,7 +12324,6 @@ void CvGame::SetTeamThatCircumnavigated(TeamTypes eNewValue)
 {
 	m_eTeamThatCircumnavigated = eNewValue;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvSiteEvaluatorForSettler* CvGame::GetSettlerSiteEvaluator()

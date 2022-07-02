@@ -531,9 +531,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGoldenAgeGreatScientistRateModifier);
 	Method(GetGoldenAgeGreatEngineerRateModifier);
 	Method(GetGoldenAgeGreatMerchantRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(GetGoldenAgeGreatDiplomatRateModifier);
-#endif
 
 	Method(GetHurryModifier);
 
@@ -552,12 +550,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGreatScientistRateModifier);
 	Method(GetGreatMerchantRateModifier);
 	Method(GetGreatEngineerRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(GetGreatDiplomatRateModifier);
 	Method(GetScienceRateFromMinorAllies);
 	Method(GetScienceRateFromLeagueAid);
 	Method(GetLeagueCultureCityModifier);
-#endif
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
 
@@ -568,9 +564,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetPolicyGreatScientistRateModifier);
 	Method(GetPolicyGreatMerchantRateModifier);
 	Method(GetPolicyGreatEngineerRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(GetPolicyGreatDiplomatRateModifier);
-#endif
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetMonopolyGreatPersonRateModifier);
@@ -7296,7 +7290,6 @@ int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
 }
 
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 {
@@ -7310,7 +7303,6 @@ int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int getHurryModifier(HurryTypes  eHurry);
 int CvLuaPlayer::lGetHurryModifier(lua_State* L)
@@ -7418,7 +7410,6 @@ int CvLuaPlayer::lGetGreatMerchantRateModifier(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::getGreatMerchantRateModifier);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 //int getGreatDiplomatRateModifier();
 int CvLuaPlayer::lGetGreatDiplomatRateModifier(lua_State* L)
@@ -7442,7 +7433,6 @@ int CvLuaPlayer::lGetLeagueCultureCityModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetLeagueCultureCityModifier);
 }
-#endif
 //int GetArtsyGreatPersonRateModifier();
 int CvLuaPlayer::lGetArtsyGreatPersonRateModifier(lua_State* L)
 {
@@ -7531,7 +7521,6 @@ int CvLuaPlayer::lGetPolicyGreatMerchantRateModifier(lua_State* L)
 	}
 	return 1;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 //int GetPolicyGreatDiplomatRateModifier();
 int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
@@ -7540,7 +7529,6 @@ int CvLuaPlayer::lGetPolicyGreatDiplomatRateModifier(lua_State* L)
 	lua_pushinteger(L, pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE));
 	return 1;
 }
-#endif
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //------------------------------------------------------------------------------
@@ -9128,7 +9116,7 @@ int CvLuaPlayer::lGetFriendshipFromUnitGift(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE_MINORS)
 //------------------------------------------------------------------------------
 //int GetJerk(TeamTypes eTeam);
 int CvLuaPlayer::lGetJerk(lua_State* L)
@@ -15477,7 +15465,7 @@ int CvLuaPlayer::lIsTradeSanctioned(lua_State* L)
 	const PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	bool bResult = false;
 
-	if (!MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	if (!MOD_BALANCE_VP)
 	{
 		lua_pushboolean(L, bResult);
 		return 1;

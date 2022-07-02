@@ -54,9 +54,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatMusicianRateModifier(0),
 	m_iGreatMerchantRateModifier(0),
 	m_iGreatScientistRateModifier(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier(0),
-#endif
 	m_iDomesticGreatGeneralRateModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
@@ -522,9 +520,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatArtistRateModifier = kResults.GetInt("GreatArtistRateModifier");
 	m_iGreatMusicianRateModifier = kResults.GetInt("GreatMusicianRateModifier");
 	m_iGreatMerchantRateModifier = kResults.GetInt("GreatMerchantRateModifier");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
-#endif
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
@@ -1574,13 +1570,11 @@ int CvPolicyEntry::GetGreatMerchantRateModifier() const
 	return m_iGreatMerchantRateModifier;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 ///  Change in spawn rate for great diplomats
 int CvPolicyEntry::GetGreatDiplomatRateModifier() const
 {
 	return m_iGreatDiplomatRateModifier;
 }
-#endif
 
 ///  Change in spawn rate for great scientists
 int CvPolicyEntry::GetGreatScientistRateModifier() const
@@ -4493,11 +4487,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();
 				break;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
 				break;
-#endif
 			case POLICYMOD_GREAT_SCIENTIST_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatScientistRateModifier();
 				break;
