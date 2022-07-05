@@ -200,7 +200,8 @@ public:
 	int GetBullyGlobalCSReduction() const;
 #endif
 	bool IsVassalsNoRebel() const;
-	int GetVassalCSBonusModifier() const;
+	int GetVassalYieldBonusModifier() const;
+	int GetCSYieldBonusModifier() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
@@ -614,7 +615,8 @@ private:
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;
 	bool m_bVassalsNoRebel;
-	int m_iVassalCSBonusModifier;
+	int m_iVassalYieldBonusModifier;
+	int m_iCSYieldBonusModifier;
 
 	int m_iSharedReligionTourismModifier;
 	int m_iTradeRouteTourismModifier;

@@ -2406,7 +2406,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += 25 * GET_TEAM(pPlayer->getTeam()).GetNumVassals();
 		}
 	}
-	if (PolicyInfo->GetVassalCSBonusModifier() && GET_TEAM(pPlayer->getTeam()).GetNumVassals() > 0)
+	if (PolicyInfo->GetVassalYieldBonusModifier() && GET_TEAM(pPlayer->getTeam()).GetNumVassals() > 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
@@ -2417,7 +2417,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += 10;
 		}
 	}
-	if (PolicyInfo->GetVassalCSBonusModifier() && GET_TEAM(pPlayer->getTeam()).GetNumVassals() > 0)
+	if (PolicyInfo->GetCSYieldBonusModifier() && pPlayer->GetNumCSAllies() > 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{

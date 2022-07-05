@@ -500,7 +500,8 @@ CvPlayer::CvPlayer() :
 	, m_iBullyGlobalCSReduction()
 #endif
 	, m_iIsVassalsNoRebel()
-	, m_iVassalCSBonusModifier()
+	, m_iVassalYieldBonusModifier()
+	, m_iCSYieldBonusModifier()
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier()
 #endif
@@ -1288,7 +1289,8 @@ void CvPlayer::uninit()
 	m_iBullyGlobalCSReduction = 0;
 #endif
 	m_iIsVassalsNoRebel = 0;
-	m_iVassalCSBonusModifier = 0;
+	m_iVassalYieldBonusModifier = 0;
+	m_iCSYieldBonusModifier = 0;
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
 	m_iSpyStartingRank = 0;
@@ -23141,7 +23143,7 @@ void CvPlayer::ChangeHappinessPerXPopulation(int iChange)
 {
 	SetHappinessPerXPopulation(m_iHappinessPerXPopulation + iChange);
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 //	--------------------------------------------------------------------------------
 /// How much Happiness are we getting from large empires?
 int CvPlayer::GetHappinessPerXPopulationGlobal() const
@@ -23212,10 +23214,7 @@ int CvPlayer::GetCSAlliesLowersPolicyNeedWonders() const
 
 void CvPlayer::ChangePositiveWarScoreTourismMod(int iChange)
 {
-	if (iChange != 0)
-	{
-		m_iPositiveWarScoreTourismMod += iChange;
-	}
+	m_iPositiveWarScoreTourismMod += iChange;
 }
 int CvPlayer::GetPositiveWarScoreTourismMod() const
 {
@@ -23224,71 +23223,61 @@ int CvPlayer::GetPositiveWarScoreTourismMod() const
 
 void CvPlayer::ChangeIsNoCSDecayAtWar(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iIsNoCSDecayAtWar += iValue;
-	}
+	m_iIsNoCSDecayAtWar += iValue;
 }
 bool CvPlayer::IsNoCSDecayAtWar() const
 {
-	return (m_iIsNoCSDecayAtWar > 0);
+	return m_iIsNoCSDecayAtWar > 0;
 }
 void CvPlayer::ChangeCanBullyFriendlyCS(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iCanBullyFriendlyCS += iValue;
-	}
+	m_iCanBullyFriendlyCS += iValue;
 }
 bool CvPlayer::IsCanBullyFriendlyCS() const
 {
-	return (m_iCanBullyFriendlyCS > 0);
+	return m_iCanBullyFriendlyCS > 0;
 }
 void CvPlayer::ChangeBullyGlobalCSReduction(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iBullyGlobalCSReduction += iValue;
-	}
+	m_iBullyGlobalCSReduction += iValue;
 }
 int CvPlayer::GetBullyGlobalCSReduction() const
 {
 	return m_iBullyGlobalCSReduction;
 }
-#endif
 
 void CvPlayer::ChangeIsVassalsNoRebel(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iIsVassalsNoRebel += iValue;
-	}
+	m_iIsVassalsNoRebel += iValue;
 }
 bool CvPlayer::IsVassalsNoRebel() const
 {
-	return (m_iIsVassalsNoRebel > 0);
+	return m_iIsVassalsNoRebel > 0;
 }
 
-void CvPlayer::ChangeVassalCSBonusModifier(int iValue)
+void CvPlayer::ChangeVassalYieldBonusModifier(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iVassalCSBonusModifier += iValue;
-	}
+	m_iVassalYieldBonusModifier += iValue;
 }
-int CvPlayer::GetVassalCSBonusModifier() const
+int CvPlayer::GetVassalYieldBonusModifier() const
 {
-	return m_iVassalCSBonusModifier;
+	return m_iVassalYieldBonusModifier;
+}
+
+void CvPlayer::ChangeCSYieldBonusModifier(int iValue)
+{
+	m_iCSYieldBonusModifier += iValue;
+}
+int CvPlayer::GetCSYieldBonusModifier() const
+{
+	return m_iCSYieldBonusModifier;
 }
 
 //	--------------------------------------------------------------------------------
 /// Change the amount of Happiness we're getting from large empires
 void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iXCSAlliesLowersPolicyNeedWonders += iChange;
-	}
+	m_iXCSAlliesLowersPolicyNeedWonders += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -43684,7 +43673,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
-	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
+	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
+	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
@@ -45884,7 +45874,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCanBullyFriendlyCS);
 	visitor(player.m_iBullyGlobalCSReduction);
 	visitor(player.m_iIsVassalsNoRebel);
-	visitor(player.m_iVassalCSBonusModifier);
+	visitor(player.m_iVassalYieldBonusModifier);
+	visitor(player.m_iCSYieldBonusModifier);
 	visitor(player.m_iHappinessFromLeagues);
 	visitor(player.m_iWoundedUnitDamageMod);
 	visitor(player.m_iUnitUpgradeCostMod);
@@ -49930,12 +49921,12 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalCSBonusModifier());
+		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 200;
 	}
 	else
 	{
-		iAmount = GET_PLAYER(ePlayer).GetExcessHappiness() * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalCSBonusModifier());
+		iAmount = GET_PLAYER(ePlayer).GetExcessHappiness() * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 100;
 	}
 
@@ -49969,17 +49960,17 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 			{
 			case YIELD_CULTURE:
 				iFreeYield = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_FAITH:
 				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurn();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_SCIENCE:
 				iFreeYield = GET_PLAYER(ePlayer).GetScience();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			}

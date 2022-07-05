@@ -189,7 +189,11 @@ SET VassalsNoRebel = 'true'
 WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
 
 UPDATE Policies
-SET VassalCSBonusModifier = '25'
+SET VassalYieldBonusModifier = '25'
+WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
+
+UPDATE Policies
+SET CSYieldBonusModifier = '25'
 WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
 
 UPDATE Policies

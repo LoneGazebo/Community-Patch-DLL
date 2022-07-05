@@ -13277,7 +13277,7 @@ int CvMinorCivAI::GetCurrentCultureBonus(PlayerTypes ePlayer)
 	iAmount += GetCurrentCultureFlatBonus(ePlayer);
 	iAmount += GetCurrentCulturePerBuildingBonus(ePlayer); //antonjs: This feature was prototyped, but later removed. Its value is 0 (no bonus).
 
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iAmount /= 100;
 
 	return iAmount;
@@ -13356,7 +13356,7 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iAmount /= 100;
 
 	return iAmount;
@@ -13612,7 +13612,7 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iAmount /= 100;
 
 	return iAmount;
@@ -13765,7 +13765,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iAmount /= 100;
 
 	return iAmount;
@@ -13917,7 +13917,7 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 		iAmount /= 100;
 	}
 
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iAmount /= 100;
 
 	return iAmount;
@@ -13976,7 +13976,7 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 		iBonus /= 100;
 	}
 
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iBonus /= 100;
 
 	return iBonus;
@@ -14025,7 +14025,7 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 		iBonus /= 100;
 	}
 
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iBonus /= 100;
 
 	return iBonus;
@@ -14060,7 +14060,7 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 		iBonus /= 100;
 	}
 
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iBonus /= 100;
 
 	return iBonus;
@@ -14095,7 +14095,7 @@ int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 		iBonus /= 100;
 	}
 
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetVassalCSBonusModifier());
+	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
 	iBonus /= 100;
 
 	return iBonus;

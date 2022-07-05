@@ -714,7 +714,8 @@ ALTER TABLE Policies ADD COLUMN 'GreatGeneralExtraBonus' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'BullyGlobalCSInfluenceShift' INTEGER DEFAULT 0;
 
 -- More yields from Vassals and CSs
-ALTER TABLE Policies ADD COLUMN 'VassalCSBonusModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'VassalYieldBonusModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CSYieldBonusModifier' INTEGER DEFAULT 0;
 
 -- Can bully friendly CSs (no penalty)
 ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;

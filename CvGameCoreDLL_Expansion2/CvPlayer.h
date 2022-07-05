@@ -749,8 +749,11 @@ public:
 	void ChangeIsVassalsNoRebel(int iValue);
 	bool IsVassalsNoRebel() const;
 
-	void ChangeVassalCSBonusModifier(int iValue);
-	int GetVassalCSBonusModifier() const;
+	void ChangeVassalYieldBonusModifier(int iValue);
+	int GetVassalYieldBonusModifier() const;
+
+	void ChangeCSYieldBonusModifier(int iValue);
+	int GetCSYieldBonusModifier() const;
 
 	void UpdateHappinessFromMinorCivs();
 	int GetHappinessFromMinorCivs() const;
@@ -3006,7 +3009,8 @@ protected:
 	int m_iBullyGlobalCSReduction;	
 #endif
 	int m_iIsVassalsNoRebel;
-	int m_iVassalCSBonusModifier;
+	int m_iVassalYieldBonusModifier;
+	int m_iCSYieldBonusModifier;
 	int m_iHappinessFromLeagues;
 	int m_iWoundedUnitDamageMod;
 	int m_iUnitUpgradeCostMod;
@@ -3834,7 +3838,8 @@ SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
 SYNC_ARCHIVE_VAR(int, m_iCanBullyFriendlyCS)
 SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)
 SYNC_ARCHIVE_VAR(int, m_iIsVassalsNoRebel)
-SYNC_ARCHIVE_VAR(int, m_iVassalCSBonusModifier)
+SYNC_ARCHIVE_VAR(int, m_iVassalYieldBonusModifier)
+SYNC_ARCHIVE_VAR(int, m_iCSYieldBonusModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromLeagues)
 SYNC_ARCHIVE_VAR(int, m_iWoundedUnitDamageMod)
 SYNC_ARCHIVE_VAR(int, m_iUnitUpgradeCostMod)
