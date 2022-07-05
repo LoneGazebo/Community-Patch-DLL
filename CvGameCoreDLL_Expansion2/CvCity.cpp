@@ -12206,7 +12206,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 		else if (pkUnitInfo->IsRemoveHeresy())
 		{
-			if (eFollowingReligion == NO_RELIGION || eCityReligion != eFollowingReligion)
+			if (eCityReligion == NO_RELIGION)
 				return 0;
 
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));

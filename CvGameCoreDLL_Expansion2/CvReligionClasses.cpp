@@ -110,11 +110,7 @@ void CvReligionXMLEntries::DeleteArray()
 /// Get a specific entry
 CvReligionEntry* CvReligionXMLEntries::GetEntry(int index)
 {
-#if defined(MOD_BALANCE_CORE)
 	return (index!=NO_RELIGION) ? m_paReligionEntries[index] : NULL;
-#else
-	return m_paReligionEntries[index];
-#endif
 }
 
 //=====================================
@@ -3864,9 +3860,12 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 
 	int iNumFollowingCities = 0;
 	int iLoop = 0;
-	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pCity->GetCityReligions()->GetReligiousMajority() == eReligion)
+		if (pCity->IsIgnoreCityForHappiness())
+			continue;
+
+		if (pCity->GetCityReligions()->GetReligiousMajority() == eReligion)
 			iNumFollowingCities++;
 	}
 
