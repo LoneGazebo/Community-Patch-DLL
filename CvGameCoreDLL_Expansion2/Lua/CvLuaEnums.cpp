@@ -496,6 +496,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(TASK_ADD_SPECIALIST);
 	RegisterEnum(TASK_REMOVE_SPECIALIST);
 	RegisterEnum(TASK_LOCK_SPECIALIST);
+	RegisterEnum(TASK_RESET_SPECIALISTS);
 	RegisterEnum(TASK_CHANGE_WORKING_PLOT);
 	RegisterEnum(TASK_REMOVE_SLACKER);
 	RegisterEnum(TASK_CLEAR_WORKING_OVERRIDE);

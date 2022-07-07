@@ -7726,6 +7726,11 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes)iData2, true, CvCity::YIELD_UPDATE_GLOBAL);
 		break;
 	}
+	case TASK_RESET_SPECIALISTS:
+	{
+		GetCityCitizens()->SetNoAutoAssignSpecialists(false, true, true);
+		break;
+	}
 
 	case TASK_CHANGE_WORKING_PLOT:
 		GetCityCitizens()->DoAlterWorkingPlot(/*CityPlotIndex*/ iData1);

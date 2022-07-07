@@ -572,9 +572,9 @@ bool CvCityCitizens::IsNoAutoAssignSpecialists() const
 }
 
 /// Sets this City's Specialists to be under automation
-void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate)
+void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate, bool bReset)
 {
-	if (m_bNoAutoAssignSpecialists != bValue)
+	if (m_bNoAutoAssignSpecialists != bValue || bReset)
 	{
 		m_bNoAutoAssignSpecialists = bValue;
 
