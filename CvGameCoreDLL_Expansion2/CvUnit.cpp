@@ -145,6 +145,7 @@ CvUnit::CvUnit() :
 	, m_bIsGrouped()
 	, m_iLinkedMaxMoves()
 	, m_LinkedUnitIDs()
+	, m_LinkedLeaderUnit()
 	, m_bImmobile()
 	, m_iExperienceTimes100()
 	, m_iLevel()
@@ -4688,6 +4689,8 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 
 		case COMMAND_CANCEL_ALL:
 			ClearMissionQueue();
+			if (IsLinked())
+				SetIsLinked(false);
 			break;
 
 		case COMMAND_STOP_AUTOMATION:

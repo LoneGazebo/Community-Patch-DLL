@@ -609,6 +609,8 @@ public:
 	void SetIsLinked(bool bValue);
 	bool IsLinkedLeader() const;
 	void SetIsLinkedLeader(bool bValue);
+	void GetLinkedLeader(CvUnit* pLinkedLeader);
+	void SetLinkedLeader(CvUnit* pLinkedLeader);
 	bool IsGrouped() const;
 	void SetIsGrouped(bool bValue);
 	void SetLinkedUnits(UnitIdContainer LinkedUnits);
