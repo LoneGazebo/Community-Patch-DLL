@@ -236,9 +236,9 @@ function OnPopupMessage(popupInfo)
 	UpdateDisplay();
 
 	if bnw_mode then
-		local player = Players[Game.GetActivePlayer()]
-		if m_PopupInfo.Data2 == 2 or (player and player:GetNumFreeTenets() > 0) or 
-		(player and player:HasIdeology("POLICY_BRANCH_AUTOCRACY") or player:HasIdeology("POLICY_BRANCH_FREEDOM") or player:HasIdeology("POLICY_BRANCH_ORDER")) then
+		local player = Players[Game.GetActivePlayer()] 
+		if m_PopupInfo.Data2 == 2 or (player and 
+		(player:GetNumFreeTenets() > 0 or player:IsPolicyBranchUnlocked(GameInfo.PolicyBranchTypes["POLICY_BRANCH_AUTOCRACY"].ID) or player:IsPolicyBranchUnlocked(GameInfo.PolicyBranchTypes["POLICY_BRANCH_FREEDOM"].ID) or player:IsPolicyBranchUnlocked(GameInfo.PolicyBranchTypes["POLICY_BRANCH_ORDER"].ID))) then
 			TabSelect(g_Tabs["Ideologies"]);
 		else
 			TabSelect(g_Tabs["SocialPolicies"]);
