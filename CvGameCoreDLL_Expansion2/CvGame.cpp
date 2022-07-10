@@ -10866,7 +10866,7 @@ static unsigned long giLastState = 0;
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getTurnSlice()*3;
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*37 + getActivePlayer()*73;
 
 	/*
 	//safety check
@@ -10886,7 +10886,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	if (pLog)
 	{
 		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "turn %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), iNum, iResult, input.getX(), input.getY());
+		sprintf_s(szOut, "turn %d, turnslice %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), getTurnSlice(), iNum, iResult, input.getX(), input.getY());
 		pLog->Msg(szOut);
 	}
 	*/
@@ -10896,7 +10896,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getTurnSlice() + abs(iExtraSeed);
+	unsigned long iState = getGameTurn()*11 + getActivePlayer()*19 + abs(iExtraSeed);
 
 	/*
 	//safety check
@@ -10916,7 +10916,7 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	if (pLog)
 	{
 		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "turn %d, max %d, res %d, seed %d\n", getGameTurn(), iNum, iResult, iExtraSeed);
+		sprintf_s(szOut, "turn %d, turnslice %d, max %d, res %d, seed %d\n", getGameTurn(), getTurnSlice(), iNum, iResult, iExtraSeed);
 		pLog->Msg(szOut);
 	}
 	*/
