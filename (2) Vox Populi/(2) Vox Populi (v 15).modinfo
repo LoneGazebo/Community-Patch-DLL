@@ -377,7 +377,7 @@
     <File md5="F06C4088C4DE736C9C45FF4618A9D053" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
     <File md5="1F2C35FA92430584AEDCC6A50C0EC3E5" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
     <File md5="5E9040EE51D1ADBC521C5204DE3023B7" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
-    <File md5="47D3E2F133EC86C1866B6D7EF805E3B4" import="0">Balance Changes/Ideologies/Order/OrderChanges.sql</File>
+    <File md5="A3FFD2D77315EC25E4B227528468A15B" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
     <File md5="569FB4A5A75DEBA0CDF0B7618E9DB5C3" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
     <File md5="A917B1BEB1112AA508686AFBB1665252" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
@@ -396,7 +396,7 @@
     <File md5="93509F7CF1039D275CAEFAD33ACCC658" import="0">Balance Changes/Policies/Honor/Honor.sql</File>
     <File md5="369D0D55F2074DB6716951D65650DAC7" import="0">Balance Changes/Policies/Liberty/Liberty.sql</File>
     <File md5="FF6BE3CCABD5098173CE35C96B1C445D" import="0">Balance Changes/Policies/Patronage/Patronage.sql</File>
-    <File md5="9F8826AE773ED87FD4A92BC4D15E7D9E" import="0">Balance Changes/Policies/Rationalism/RationalismChanges.sql</File>
+    <File md5="52CF0A2B83CEB6A9B5B23BD7A44DF714" import="0">Balance Changes/Policies/Rationalism/Rationalism.sql</File>
     <File md5="3029E3A36E829DF0321E237F0895A166" import="0">Balance Changes/Policies/Tradition/Tradition.sql</File>
     <File md5="BC10C6D120151E5BC32901B82269AAE6" import="0">Balance Changes/Projects/NewProjects.xml</File>
     <File md5="F2A4623D7F178BAC489128761215C762" import="0">Balance Changes/Projects/Projects.sql</File>
@@ -915,7 +915,7 @@
       <UpdateDatabase>Balance Changes/Policies/Tradition/Tradition.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Commerce/Commerce.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Patronage/Patronage.sql</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Policies/Rationalism/RationalismChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Policies/Rationalism/Rationalism.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Exploration/Exploration.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Aesthetics/Aesthetics.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Piety/Piety.sql</UpdateDatabase>
@@ -947,7 +947,7 @@
       <UpdateDatabase>Balance Changes/Tech/TechCostChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Tech/TechFlavors.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Ideologies/TourismChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Ideologies/Order/OrderChanges.sql</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Ideologies/Order/Order.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Ideologies/Autocracy/Autocracy.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Ideologies/Freedom/Freedom.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Policies/Flavors/FlavorNuke.sql</UpdateDatabase>

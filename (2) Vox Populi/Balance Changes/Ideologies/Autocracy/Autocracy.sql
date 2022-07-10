@@ -1,53 +1,52 @@
--- Clausewitz's Legacy
+-- Clausewitz's Legacy (now Martial Spirit)
 
 UPDATE Policies
-SET WarWearinessModifier = '25'
+SET
+	WarWearinessModifier = 25,
+	RazingSpeedBonus = 100,
+	Level = 2
 WHERE Type = 'POLICY_NEW_ORDER';
 
-UPDATE Policies
-SET RazingSpeedBonus = '100'
-WHERE Type = 'POLICY_NEW_ORDER';
+
+-- Cult of Personality
 
 UPDATE Policies
-SET Level = '2'
-WHERE Type = 'POLICY_NEW_ORDER';
-
--- Cult of Personality 
-
-UPDATE Policies
-SET NumFreeGreatPeople = '1'
-WHERE Type = 'POLICY_CULT_PERSONALITY';
-
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '1'
-WHERE Type = 'POLICY_CULT_PERSONALITY';
-
-UPDATE Policies
-SET PositiveWarScoreTourismMod = '50'
+SET
+	NumFreeGreatPeople = 1,
+	IncludesOneShotFreeUnits = 1,
+	PositiveWarScoreTourismMod = 50
 WHERE Type = 'POLICY_CULT_PERSONALITY';
 
 
 -- Elite Forces
-UPDATE Policies
-SET ExpModifier = '50'
-WHERE Type = 'POLICY_ELITE_FORCES';
 
 UPDATE Policies
-SET FreeExperience = '15'
+SET
+	WoundedUnitDamageMod = 0,
+	ExpModifier = 50,
+	FreeExperience = 15
 WHERE Type = 'POLICY_ELITE_FORCES';
 
-UPDATE Policies
-SET WoundedUnitDamageMod = '0'
-WHERE Type = 'POLICY_ELITE_FORCES';
 
--- Fortified Borders
+-- Fortified Borders (now New World Order)
 
 DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_FORTIFIED_BORDERS';
 
+INSERT INTO Policy_BuildingClassProductionModifiers
+	(PolicyType, BuildingClassType, ProductionModifier)
+VALUES
+	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_CONSTABLE', 100),
+	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_POLICE_STATION', 100);
+
 -- Futurism
+
+DELETE FROM Policy_TourismOnUnitCreation
+WHERE PolicyType = 'POLICY_FUTURISM';
+
 UPDATE Policies
-SET EventTourism = '3'
+SET
+	EventTourism = 3
 WHERE Type = 'POLICY_FUTURISM';
 
 INSERT INTO Policy_ConquerorYield
@@ -55,24 +54,32 @@ INSERT INTO Policy_ConquerorYield
 VALUES
 	('POLICY_FUTURISM', 'YIELD_TOURISM', 50);
 
-DELETE FROM Policy_TourismOnUnitCreation
-WHERE PolicyType = 'POLICY_FUTURISM';
-
 INSERT INTO Policy_GreatWorkYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_FUTURISM', 'YIELD_CULTURE', 2);
 
+
 -- Industrial Espionage (now Lebensraum)
-UPDATE Policies
-SET StealTechFasterModifier = '0'
-WHERE Type = 'POLICY_INDUSTRIAL_ESPIONAGE';
 
 UPDATE Policies
-SET CultureBombBoost = '1'
+SET
+	StealTechFasterModifier = 0,
+	CultureBombBoost = 1
 WHERE Type = 'POLICY_INDUSTRIAL_ESPIONAGE';
+
+INSERT INTO Policy_YieldFromBorderGrowth
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_INDUSTRIAL_ESPIONAGE', 'YIELD_CULTURE', 10),
+	('POLICY_INDUSTRIAL_ESPIONAGE', 'YIELD_GOLDEN_AGE_POINTS', 10);
+
 
 -- Lightning Warfare
+
+DELETE FROM Policy_FreePromotions
+WHERE PolicyType = 'POLICY_LIGHTNING_WARFARE';
+
 
 -- Militarism
 
@@ -80,20 +87,51 @@ DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_MILITARISM';
 
 UPDATE Policies
-SET Level = '3'
+SET
+	Level = 3
 WHERE Type = 'POLICY_MILITARISM';
 
--- Mobilization
+
+-- Mobilization (now Military-Industrial Complex)
+
 UPDATE Policies
-SET UnitUpgradeCostMod = '-33'
+SET
+	UnitUpgradeCostMod = -33
 WHERE Type = 'POLICY_MOBILIZATION';
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_FORT', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_SCIENCE', 3),
+
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_EKI', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_SPAIN_HACIENDA', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_POLDER', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_CHATEAU', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_KASBAH', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_BRAZILWOOD_CAMP', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_MOAI', 'YIELD_SCIENCE', 3),
+	('POLICY_MOBILIZATION', 'IMPROVEMENT_FEITORIA', 'YIELD_SCIENCE', 3);
+
 
 -- Police State
 
--- Nationalism
+INSERT INTO Policy_BuildingClassHappiness
+	(PolicyType, BuildingClassType, Happiness)
+VALUES
+	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 1);
+
+
+-- Nationalism (now Commerce Raiders)
 
 UPDATE Policies
-SET UnitGoldMaintenanceMod = '0'
+SET
+	UnitGoldMaintenanceMod = 0
 WHERE Type = 'POLICY_NATIONALISM';
 
 INSERT INTO Policy_ResourcefromCSAlly
@@ -101,109 +139,79 @@ INSERT INTO Policy_ResourcefromCSAlly
 VALUES
 	('POLICY_NATIONALISM', 'RESOURCE_OIL', 100),
 	('POLICY_NATIONALISM', 'RESOURCE_COAL', 100);
+
+INSERT INTO Policy_BuildingClassYieldModifiers
+	(PolicyType, BuildingClassType, YieldType, YieldMod)
+VALUES
+	('POLICY_NATIONALISM', 'BUILDINGCLASS_SEAPORT', 'YIELD_PRODUCTION', 10);
+
+
 -- Third Alternative
 
 DELETE FROM Policy_CapitalYieldChanges
 WHERE PolicyType = 'POLICY_THIRD_ALTERNATIVE';
 
 UPDATE Policies
-SET UnitGoldMaintenanceMod = '-25'
+SET
+	UnitGoldMaintenanceMod = -25
 WHERE Type = 'POLICY_THIRD_ALTERNATIVE';
 
+
 -- Total War
+
 UPDATE Policies
-SET FreeExperience = '0'
+SET
+	FreeExperience = 0,
+	MilitaryProductionModifier = 0,
+	WarScoreModifier = 25,
+	MinorBullyScoreModifier = 25
 WHERE Type = 'POLICY_TOTAL_WAR';
 
-UPDATE Policies
-SET MilitaryProductionModifier = '0'
-WHERE Type = 'POLICY_TOTAL_WAR';
+
+-- Gunboat Diplomacy (now Tyranny)
 
 UPDATE Policies
-SET WarScoreModifier = '25'
-WHERE Type = 'POLICY_TOTAL_WAR';
-
-UPDATE Policies
-SET MinorBullyScoreModifier = '25'
-WHERE Type = 'POLICY_TOTAL_WAR';
-
--- Gunboat
-
-UPDATE Policies
-SET MinorBullyScoreModifier = '0'
-WHERE Type = 'POLICY_GUNBOAT_DIPLOMACY';
-
-UPDATE Policies
-SET CanBullyFriendlyCS = '1'
-WHERE Type = 'POLICY_GUNBOAT_DIPLOMACY';
-
-UPDATE Policies
-SET BullyGlobalCSInfluenceShift = '10'
-WHERE Type = 'POLICY_GUNBOAT_DIPLOMACY';
-
-UPDATE Policies
-SET AfraidMinorPerTurnInfluence = '0'
+SET
+	MinorBullyScoreModifier = 0,
+	AfraidMinorPerTurnInfluence = 0,
+	CanBullyFriendlyCS = 1,
+	BullyGlobalCSInfluenceShift = 10
 WHERE Type = 'POLICY_GUNBOAT_DIPLOMACY';
 
 
 -- United Front
-UPDATE Policies
-SET MilitaryUnitGiftExtraInfluence = '0'
-WHERE Type = 'POLICY_UNITED_FRONT';
 
 UPDATE Policies
-SET CityStateUnitFrequencyModifier = '300'
+SET
+	MilitaryUnitGiftExtraInfluence = 0,
+	CityStateUnitFrequencyModifier = 300,
+	NoAlliedCSInfluenceDecayAtWar = 1,
+	ExtraSupplyPerPopulation = 50
 WHERE Type = 'POLICY_UNITED_FRONT';
 
-UPDATE Policies
-SET NoAlliedCSInfluenceDecayAtWar = '1'
-WHERE Type = 'POLICY_UNITED_FRONT';
 
-UPDATE Policies
-SET ExtraSupplyPerPopulation = '50'
-WHERE Type = 'POLICY_UNITED_FRONT';
-
--- Autarky
+-- Autarky (now Iron Fist)
 
 DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_UNIVERSAL_HEALTHCARE_A';
 
 UPDATE Policies
-SET Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP'
+SET
+	Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A',
+	Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP',
+	Civilopedia = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A',
+	VassalsNoRebel = 1,
+	VassalYieldBonusModifier = 25,
+	CSYieldBonusModifier = 25,
+	WorkerSpeedModifier = 50
 WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
 
-UPDATE Policies
-SET Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
+
+--Militarism (now Air Supremacy)
 
 UPDATE Policies
-SET Civilopedia = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
-UPDATE Policies
-SET Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
-UPDATE Policies
-SET VassalsNoRebel = 'true'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
-UPDATE Policies
-SET VassalYieldBonusModifier = '25'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
-UPDATE Policies
-SET CSYieldBonusModifier = '25'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
-UPDATE Policies
-SET WorkerSpeedModifier = '50'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_A';
-
---Militarism
-
-UPDATE Policies
-SET AllCityFreeBuilding = 'BUILDINGCLASS_AIRPORT'
+SET
+	AllCityFreeBuilding = 'BUILDINGCLASS_AIRPORT'
 WHERE Type = 'POLICY_MILITARISM';
 
 INSERT INTO Policy_UnitClassReplacements
@@ -211,7 +219,13 @@ INSERT INTO Policy_UnitClassReplacements
 VALUES
 	('POLICY_MILITARISM', 'UNITCLASS_FIGHTER', 'UNITCLASS_ZERO');
 
--- Building Class Changes
+
+
+----------------------
+-- Combined Insertions
+----------------------
+
+-- Building Changes
 
 INSERT INTO Policy_BuildingClassYieldChanges
 	(PolicyType, BuildingClassType, YieldType, YieldChange)
@@ -227,41 +241,7 @@ VALUES
 	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_POLICE_STATION', 'YIELD_PRODUCTION', 5),
 	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_POLICE_STATION', 'YIELD_CULTURE', 3);
 
-INSERT INTO Policy_BuildingClassProductionModifiers
-	(PolicyType, BuildingClassType, ProductionModifier)
-VALUES
-	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_CONSTABLE', 100),
-	('POLICY_FORTIFIED_BORDERS', 'BUILDINGCLASS_POLICE_STATION', 100);
-
-INSERT INTO Policy_BuildingClassHappiness
-	(PolicyType, BuildingClassType, Happiness)
-VALUES
-	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 1);
-
--- Improvement Changes
-
-INSERT INTO Policy_ImprovementYieldChanges
-	(PolicyType, ImprovementType, YieldType, Yield)
-VALUES
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_FORT', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_CITADEL', 'YIELD_SCIENCE', 3);
-
-INSERT INTO Policy_BuildingClassYieldModifiers
-	(PolicyType, BuildingClassType, YieldType, YieldMod)
-VALUES
-	('POLICY_NATIONALISM', 'BUILDINGCLASS_SEAPORT', 'YIELD_PRODUCTION', 10);
-
--- Border Growth Changes
-
-INSERT INTO Policy_YieldFromBorderGrowth
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_INDUSTRIAL_ESPIONAGE', 'YIELD_CULTURE', 10),
-	('POLICY_INDUSTRIAL_ESPIONAGE', 'YIELD_GOLDEN_AGE_POINTS', 10);
-
 -- Promotions
-DELETE FROM Policy_FreePromotions
-WHERE PolicyType = 'POLICY_LIGHTNING_WARFARE';
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
@@ -279,7 +259,8 @@ VALUES
 	('PROMOTION_PRIZE_RULES', 'UNITCOMBAT_SUBMARINE'),
 	('PROMOTION_PRIZE_RULES', 'UNITCOMBAT_NAVALMELEE');
 
--- Unit Bonuses
+-- Unit Changes
+
 INSERT INTO Policy_UnitCombatProductionModifiers
 	(PolicyType, UnitCombatType, ProductionModifier)
 VALUES
@@ -293,19 +274,3 @@ VALUES
 	('POLICY_TOTAL_WAR', 'UNITCOMBAT_GUN', 25),
 	('POLICY_TOTAL_WAR', 'UNITCOMBAT_ARMOR', 25),
 	('POLICY_TOTAL_WAR', 'UNITCOMBAT_HELICOPTER', 25);
-
-INSERT INTO Policy_ImprovementYieldChanges
-	(PolicyType, ImprovementType, YieldType, Yield)
-VALUES
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_TERRACE_FARM', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_EKI', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_SPAIN_HACIENDA', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_POLDER', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_CHATEAU', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_KASBAH', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_BRAZILWOOD_CAMP', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_MOAI', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_FEITORIA', 'YIELD_SCIENCE', 3),
-	('POLICY_MOBILIZATION', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_SCIENCE', 3);
