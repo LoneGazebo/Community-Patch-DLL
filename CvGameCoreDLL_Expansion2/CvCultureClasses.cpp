@@ -1184,28 +1184,33 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						CvGreatWorkBuildingInMyEmpire building;
-						building.m_eBuilding = eBuilding;
-						building.m_iCityID = pLoopCity->GetID();
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > 0);
+						//do not put great works in cities which might be lost soon
+						if (!pLoopCity->isInDangerOfFalling(true))
+						{
+							CvGreatWorkBuildingInMyEmpire building;
+							building.m_eBuilding = eBuilding;
+							building.m_iCityID = pLoopCity->GetID();
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > 0);
 
-						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
-						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
-						{
-							aGreatWorkBuildingsWriting.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
-						{
-							aGreatWorkBuildingsArt.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
-						{
-							aGreatWorkBuildingsMusic.push_back(building);
+							GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
+							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+							{
+								aGreatWorkBuildingsWriting.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+							{
+								aGreatWorkBuildingsArt.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
+							{
+								aGreatWorkBuildingsMusic.push_back(building);
+							}
 						}
 
+						//but do consider great works in all cities to be moved!
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
@@ -1300,38 +1305,43 @@ void CvPlayerCulture::DoSwapGreatWorks()
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						CvGreatWorkBuildingInMyEmpire building;
-						building.m_eBuilding = eBuilding;
-						building.m_iCityID = pLoopCity->GetID();
+						//do not put great works in cities which might be lost soon
+						if (!pLoopCity->isInDangerOfFalling(true))
+						{
+							CvGreatWorkBuildingInMyEmpire building;
+							building.m_eBuilding = eBuilding;
+							building.m_iCityID = pLoopCity->GetID();
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
 
-						building.m_bPuppet = pLoopCity->IsPuppet();
-						building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
+							building.m_bPuppet = pLoopCity->IsPuppet();
+							building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
 #else
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > 0);
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > 0);
 #endif
 
-						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
-						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
-						{
-							aGreatWorkBuildingsWriting.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
-						{
-							aGreatWorkBuildingsArt.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
-						{
-							aGreatWorkBuildingsMusic.push_back(building);
+							GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
+							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+							{
+								aGreatWorkBuildingsWriting.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+							{
+								aGreatWorkBuildingsArt.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
+							{
+								aGreatWorkBuildingsMusic.push_back(building);
+							}
 						}
 
+						//but do consider great works in all cities to be moved
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
