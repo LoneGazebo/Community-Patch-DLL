@@ -233,23 +233,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if (pUnit->getDomainType() == DOMAIN_SEA)
-		{
-			//sea units can typically not leave their area - catch this case, 
-			//else there will be a long and useless pathfinding operation
-			CvPlot* pCurPlot = pUnit->plot();
-			if (pCurPlot->isCity())
-			{
-				if (!pCurPlot->getPlotCity()->HasAccessToArea(vExplorePlots[ui].pPlot->getArea()))
-					continue;
-			}
-			else
-			{
-				if (pCurPlot->getArea() != vExplorePlots[ui].pPlot->getArea())
-					continue;
-			}
-		}
-
 		if(vExplorePlots[ui].pPlot == pUnit->plot())
 			continue;
 
@@ -263,6 +246,9 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		vPlotsByDistance.push_back( std::make_pair( (iDist2*100)/vExplorePlots[ui].score, vExplorePlots[ui]) );
 	}
+
+	if (vPlotsByDistance.empty())
+		return NULL;
 
 	//sorts ascending by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
@@ -2656,7 +2642,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				}
 			}
 
-			int iRandom = GC.getGame().getSmallFakeRandNum(47,*pEvalPlot);
+			int iRandom = GC.getGame().getSmallFakeRandNum(23,*pEvalPlot);
 			int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 			//careful with plots that are too dangerous

@@ -834,22 +834,22 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		}
 
 		//action may depend on city
-		CvCity* pCity = pPlot->getEffectiveOwningCity();
+		CvCity* pWorkingCity = pPlot->getEffectiveOwningCity();
 
 		//in our own plots we can build anything
 		if (pPlot->getOwner() == pUnit->getOwner())
 		{
 			UpdateCurrentPlotYields(pPlot);
 
-			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-			AddImprovingResourcesDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-			AddImprovingPlotsDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddImprovingResourcesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
 			{
-				AddChopDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-				AddScrubFalloutDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-				AddRepairTilesDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-				AddRemoveRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+				AddChopDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddScrubFalloutDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			}
 		}
 		else if (m_bEvaluateAdjacent && !pPlot->isOwned() && pPlot->isAdjacentPlayer(pUnit->getOwner()))
@@ -857,13 +857,13 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 			UpdateCurrentPlotYields(pPlot);
 
 			//some special improvements and roads
-			AddImprovingPlotsDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
-			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 		}
 		else
 		{
 			//only roads
-			AddRouteDirectives(pUnit, pPlot, pCity, iMoveTurnsAway);
+			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 		}
 	}
 
@@ -1606,10 +1606,11 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 	}
 }
 
-void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
-	if (!pPlot || pPlot->getOwner() != pUnit->getOwner())
+	// do not check pWorkingCity for razing but the actual owning city ...
+	if (!pPlot || pPlot->getOwner() != pUnit->getOwner() || pPlot->getOwningCity()->IsRazing())
 	{
 		return;
 	}
@@ -1627,7 +1628,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
 		iWeight *= 10;
 
-	if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+	if (pWorkingCity && pWorkingCity->GetCityCitizens()->IsWorkingPlot(pPlot))
 		iWeight *= 2;
 
 	if (iWeight > 0)
