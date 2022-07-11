@@ -1625,8 +1625,8 @@ local function UpdateWorkingHexesNow()
 						iconID = 9
 						tipKey = "TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE"
 
-					-- Blockaded water plot
-					elseif plot:IsWater() and city:IsPlotBlockaded( plot ) then
+					-- Blockaded plot
+					elseif city:IsPlotBlockaded( plot ) then
 						iconID = 13
 						tipKey = "TXT_KEY_CITYVIEW_BLOCKADED_CITY_TILE"
 						cityPlotIndex = nil
@@ -2310,6 +2310,11 @@ local function UpdateCityViewNow()
 		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
 		local cultureDiff = cultureNext - cultureStored
 		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+
+		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2
+		end
+
 		if borderGrowthRate > 0 then
 			local cultureTurns = math_max(math_ceil(cultureDiff / borderGrowthRate), 1)
 			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )

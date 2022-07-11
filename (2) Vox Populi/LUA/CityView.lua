@@ -1963,6 +1963,11 @@ function OnCityViewUpdate()
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
 		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL);
+
+		if ((pCity:GetWeLoveTheKingDayCounter() > 0 and pPlayer:IsDoubleBorderGrowthWLTKD()) or (pPlayer:IsGoldenAge() and pPlayer:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2;
+		end
+
 		if borderGrowthRate > 0 then
 			local cultureTurns = math.ceil(cultureDiff / borderGrowthRate);
 			if (cultureTurns < 1) then
