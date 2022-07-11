@@ -572,9 +572,9 @@ bool CvCityCitizens::IsNoAutoAssignSpecialists() const
 }
 
 /// Sets this City's Specialists to be under automation
-void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate)
+void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate, bool bReset)
 {
-	if (m_bNoAutoAssignSpecialists != bValue)
+	if (m_bNoAutoAssignSpecialists != bValue || bReset)
 	{
 		m_bNoAutoAssignSpecialists = bValue;
 
@@ -1176,7 +1176,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging)
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging, bool NoSpecialists)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
@@ -1184,7 +1184,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
-	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && ( IsNoAutoAssignSpecialists() || NoSpecialists );
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
 	int iSpecialistValue = -1;

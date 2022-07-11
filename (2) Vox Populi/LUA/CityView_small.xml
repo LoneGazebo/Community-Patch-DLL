@@ -384,6 +384,7 @@
           <Box Anchor="L,B" Color="27.53.64.255" Offset="0,0" Size="254,2"/>
         </Button>
         <Stack Anchor="L,T" Size="0,0" StackGrowth="B" Padding="0" ID="BuildingStack">
+        <Stack Anchor="L,T" ID="SpecialistStack" StackGrowth="B">
           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="SpecialBuildingsHeader">
             <Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="SpecialBuildingsHeaderLabel"/>
           </Button>
@@ -395,9 +396,19 @@
             <CheckBox Style="SquareCheck" Anchor="L,B" ID="NoAutoSpecialistCheckbox" ToolTip="TXT_KEY_CITYVIEW_SPECIALISTCONTROL_TT">
               <Label Offset="0,0" Anchor="R,C" AnchorSide="O.I" String="TXT_KEY_CITYVIEW_MANUAL_SPEC_CONTROL" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" Hidden="0"/>
             </CheckBox>
-            <Box Anchor="L,B" Color="27.53.64.255" Offset="0,0" Size="254,2"/>
+              <Box Anchor="L,B" Color="27.53.64.255" Offset="0,0" Size="254,2"/>
           </Box>
-          <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="GreatWorkHeader">
+		  <Button Size="254,32" Anchor="L,B" ID="ResetSpecialistsButton" ToolTip="Click here to have the governor reassign specialists.">
+			<ShowOnMouseOver>
+			  <AlphaAnim Anchor="L,C" Size="254,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".7" AlphaEnd=".3">
+				<Grid Size="254,28" Offset="0,0" Padding="0,0" Style="GridSquareHL8"/>
+			  </AlphaAnim>
+			</ShowOnMouseOver>
+			<Label Anchor="C,C" String="Reset Specialists" Font="TwCenMT16" FontStyle="Shadow" ColorLayer0="Beige" ColorLayer1="Black" TextAnchor="R,C" TextAnchorSide="O,O"/>
+		  </Button>
+			<Box Anchor="L,B" Color="27.53.64.255" Offset="0,0" Size="254,2" ID="ResetSpecialistsFooter"/>
+        </Stack>
+           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="GreatWorkHeader">
             <Label Anchor="L,C" Offset="12,-2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatWorkHeaderLabel"/>
           </Button>
           <Button Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds" ID="WondersHeader">

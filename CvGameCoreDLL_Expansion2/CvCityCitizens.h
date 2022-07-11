@@ -79,7 +79,7 @@ public:
 	void SetAutomated(bool bValue);
 
 	bool IsNoAutoAssignSpecialists() const;
-	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false);
+	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false, bool bReset = false);
 
 	int GetExcessFoodThreshold100() const;
 	bool IsAvoidGrowth() const;
@@ -100,7 +100,7 @@ public:
 	int GetNumCitizensWorkingPlots() const;
 	void ChangeNumCitizensWorkingPlots(int iChange);
 
-	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false);
+	bool DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging = false, bool NoSpecialists = false);
 	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
 
 	void SetDirty(bool bValue);

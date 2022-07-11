@@ -7707,10 +7707,15 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 	}
 
-	case TASK_LOCK_SPECIALIST:
+	case TASK_UNSLOT_SPECIALIST:
 	{
-		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, false, CvCity::YIELD_UPDATE_LOCAL);
-		GetCityCitizens()->DoAddSpecialistToBuilding(/*eBuilding*/ (BuildingTypes)iData2, true, CvCity::YIELD_UPDATE_GLOBAL);
+		GetCityCitizens()->DoRemoveSpecialistFromBuilding(/*eBuilding*/ (BuildingTypes)iData2, bOption, CvCity::YIELD_UPDATE_LOCAL);
+		GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL, false, true);
+		break;
+	}
+	case TASK_RESET_SPECIALISTS:
+	{
+		GetCityCitizens()->SetNoAutoAssignSpecialists(false, true, true);
 		break;
 	}
 
