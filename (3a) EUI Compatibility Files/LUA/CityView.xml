@@ -299,6 +299,15 @@
 						</Label>
 						<Box Anchor="L,B" Color="27.53.64.255" Size="254,2"/>
 					</Box>
+					<Button ID="ResetSpecialistsButton" Void1="0" Size="254,32" Anchor="L,C" ToolTip="Click here to have the governor reassign specialists.">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="254,28" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".7" AlphaEnd=".3">
+								<Grid Size="254,28" Style="GridSquareHL8"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+						<Label Anchor="C,C" String="Reset Specialists" Font="TwCenMT16" TextAnchor="R,C" TextAnchorSide="O,O"/>
+					</Button>
+					<Box ID="ResetSpecialistsFooter" Anchor="L,B" Color="27.53.64.255" Size="254,2" />
 				</Stack>
 				<!-- Great Work Buildings -->
 				<Button ID="GreatWorkHeader" Anchor="L,C" Size="254,27" Offset="2,0" Texture="CivilopediaButtons272x27.dds">
