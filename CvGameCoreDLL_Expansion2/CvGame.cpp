@@ -10866,6 +10866,7 @@ static unsigned long giLastState = 0;
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
+	//do not use turnslice here, it changes after reload!
 	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*37 + getActivePlayer()*73;
 
 	/*
@@ -10896,6 +10897,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
+	//do not use turnslice here, it changes after reload!
 	unsigned long iState = getGameTurn()*11 + getActivePlayer()*19 + abs(iExtraSeed);
 
 	/*
