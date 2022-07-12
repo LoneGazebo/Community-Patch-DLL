@@ -4208,24 +4208,26 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReli
 
 	return iRtnValue;
 }
-#if defined(MOD_BALANCE_CORE)
+
 int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 {
-	CvCity *pLoopCity;
-	int iCityLoop;
 	int iRtnValue = 0;
 	
 	if (eReligion > RELIGION_PANTHEON)
 	{
-		for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		int iCityLoop;
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
+			if (pLoopCity->IsIgnoreCityForHappiness())
+				continue;
+
 			iRtnValue += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
 		}
 	}
 
 	return iRtnValue;
 }
-#endif
+
 //=====================================
 // CvCityReligions
 //=====================================

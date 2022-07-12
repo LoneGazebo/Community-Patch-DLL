@@ -12119,13 +12119,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 /// How close to one of our cities must a newly-settled city be in order to trigger our aggression?
 int CvDiplomacyAI::GetExpansionBickerRange() const
 {
-	if (GetPlayer()->GetPlayerTraits()->IsExpansionist())
-		return /*7*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH);
-
-	if (GetPlayer()->isHuman())
-		return /*6*/ GD_INT_GET(EXPANSION_BICKER_RANGE_MEDIUM);
-
-	if (GetBoldness() >= 8)
+	if (GetPlayer()->isHuman() || GetPlayer()->GetPlayerTraits()->IsExpansionist() || GetBoldness() >= 8)
 		return /*7*/ GD_INT_GET(EXPANSION_BICKER_RANGE_HIGH);
 
 	if (GetBoldness() >= 4)

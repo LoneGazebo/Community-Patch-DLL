@@ -12200,18 +12200,9 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
 		iCost = iCost * iMultiplier / 100;
 
-		if (pkUnitInfo->IsSpreadReligion())
+		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 		{
-			if (eCityReligion == NO_RELIGION)
-				return 0;
-
-			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
-			iCost = iCost * iMultiplier / 100;
-		}
-
-		else if (pkUnitInfo->IsRemoveHeresy())
-		{
-			if (eCityReligion == NO_RELIGION)
+			if (eCityReligion == NO_RELIGION || eCityReligion == RELIGION_PANTHEON)
 				return 0;
 
 			iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
@@ -12231,26 +12222,22 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 
 	// Modify by any beliefs
-	if (bIncludeBeliefDiscounts && !pkUnitInfo->IsFoundReligion())
+	if (bIncludeBeliefDiscounts && !pkUnitInfo->IsFoundReligion() && eCityReligion > RELIGION_PANTHEON)
 	{
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		if (eMajority > RELIGION_PANTHEON)
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+		if (pReligion)
 		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
+			int iReligionCostMod = 0;
+
+			if (pkUnitInfo->IsSpreadReligion())
+				iReligionCostMod = pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this);
+			else if (pkUnitInfo->IsRemoveHeresy())
+				iReligionCostMod = pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
+
+			if (iReligionCostMod != 0)
 			{
-				int iReligionCostMod = 0;
-
-				if (pkUnitInfo->IsSpreadReligion())
-					iReligionCostMod = pReligion->m_Beliefs.GetMissionaryCostModifier(getOwner(), this);
-				else if (pkUnitInfo->IsRemoveHeresy())
-					iReligionCostMod = pReligion->m_Beliefs.GetInquisitorCostModifier(getOwner(), this);
-
-				if (iReligionCostMod != 0)
-				{
-					iCost *= (100 + iReligionCostMod);
-					iCost /= 100;
-				}
+				iCost *= (100 + iReligionCostMod);
+				iCost /= 100;
 			}
 		}
 	}
@@ -30611,7 +30598,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (!pUnit)
 		return NULL;
 
-	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && pUnit->IsCombatUnit())
+	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && !pUnit->IsCivilianUnit())
 	{
 		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
 		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
