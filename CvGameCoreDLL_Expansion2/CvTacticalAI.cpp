@@ -2070,9 +2070,17 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (!pTargetZone || pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
 		return;
 
-	//don't try to reinforce wilderness zones or other players' cities
+	//don't try to reinforce wilderness zones
 	CvCity* pZoneCity = pTargetZone->GetZoneCity();
-	if (!pZoneCity || pZoneCity->getTeam() != m_pPlayer->getTeam())
+	if (!pZoneCity)
+		return;
+	
+	//don't try to reinforce neutral zones
+	if (pZoneCity->getTeam() != m_pPlayer->getTeam() && !m_pPlayer->IsAtWarWith(pZoneCity->getOwner()))
+		return;
+
+	//sometimes we do not need further reinforcement
+	if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY && pTargetZone->GetRangedDominanceFlag(100) == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
@@ -2095,10 +2103,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 				if (pUnitZone && pUnitZone != pTargetZone)
 				{
-					//we do not need it further reinforcement
-					if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-						continue;
-
 					//we should not pull units from zones which need them
 					if (pUnitZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pUnitZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())

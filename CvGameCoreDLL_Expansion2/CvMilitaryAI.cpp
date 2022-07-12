@@ -979,7 +979,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 			{
 				CvString playerName = GetPlayer()->getCivilizationShortDescription();
 				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
-				CvString msg = CvString::format( "%d, %s, requested attack on, %s, from, %s, not possible\n", 
+				CvString msg = CvString::format( "%d, %s, requested attack on, %s, from, %s, not possible for lack of units\n", 
 					GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), pTargetPlot->getPlotCity()->getName().c_str(), pMusterPlot->getPlotCity()->getName().c_str());
 				pLog->Msg( msg.c_str() );
 			}
