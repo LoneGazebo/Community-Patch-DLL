@@ -1453,12 +1453,12 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 /// How much is a Resource worth?
 int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	CvAssert(pkResourceInfo != NULL);
-	if (pkResourceInfo == NULL)
+	if (!pkResourceInfo)
 		return 0;
+
+	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
+		return INT_MAX;
 
 	//Integer zero check...
 	if (iNumTurns <= 0)
@@ -1485,16 +1485,16 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
 			//Has to be above average to affect price. Will usually result in a x2-x3 modifier
-			iFlavorResult += ((iResourceFlavor + iPersonalityFlavorValue) / 6);
+			iFlavorResult += (iResourceFlavor + iPersonalityFlavorValue) / 6;
 			iFlavors++;
 		}
 	}
-	if ((iFlavorResult > 0) && (iFlavors > 0))
+	if (iFlavorResult > 0 && iFlavors > 0)
 	{
 		//Get the average multiplier from the number of Flavors being considered.
 		iItemValue *= (iFlavorResult / iFlavors);
 	}
-			
+
 	if (bFromMe)
 	{
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
@@ -1523,10 +1523,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 
 		if (GetPlayer()->IsEmpireUnhappy() && iNumAvailable == 1)
-		{
-			return INT_MAX;
-		}
-		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
 		{
 			return INT_MAX;
 		}
@@ -1601,6 +1597,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	}
 	else
 	{
+		/*
 		int iNumAvailable = GetPlayer()->getNumResourceTotal(eResource);
 
 		for (uint i = 0; i < pRenewDeals.size(); i++)
@@ -1609,11 +1606,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			if (pRenewDeal)
 				iNumAvailable -= pRenewDeal->GetNumResourcesInDeal(eOtherPlayer, eResource);
 		}
-
-		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
-			return 0;
-		if (iNumAvailable > 0 && !GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-			return 0;
+		*/
 
 		if (GetPlayer()->IsEmpireUnhappy())
 		{
@@ -1624,8 +1617,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			//we don't want resources that won't get us a bonus.
 			int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);
-			int iNumResourceImported = iNumAvailable;
-			if (iNumResourceOwned == 0 && iNumResourceImported >= 0)
+			if (iNumResourceOwned == 0)
 			{
 				bool bBad = false;
 				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -1657,7 +1649,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 			if (iFactor > 1)
 			{
-				iItemValue *= iFactor; //last one is x as valuable
+				iItemValue *= iFactor;
 				iItemValue /= 2;
 			}
 		}
@@ -1757,17 +1749,8 @@ int CvDealAI::GetResourceRatio(PlayerTypes eSeller, PlayerTypes eBuyer, Resource
 /// How much is a Resource worth?
 int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Resource with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	//this is to reduce rounding errors
-	int iValueScale = 10;
-
-	//more or less arbitrary base value
-	int iItemValue = (GC.getGame().getCurrentEra()+2);
-
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	CvAssert(pkResourceInfo != NULL);
-	if (pkResourceInfo == NULL)
+	if (!pkResourceInfo)
 		return 0;
 
 	if (iResourceQuantity == 0)
@@ -1778,6 +1761,12 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		iNumTurns = 1;
 
 	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
+
+	//this is to reduce rounding errors
+	int iValueScale = 10;
+
+	//more or less arbitrary base value
+	int iItemValue = GC.getGame().getCurrentEra()+2;
 
 	int iFlavorResult = 0;
 	int iFlavors = 0;
@@ -1795,8 +1784,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		}
 	}
 	//Get the average multiplier from the number of Flavors being considered.
-	if ((iFlavorResult > 0) && (iFlavors > 0))
-		iItemValue += (iFlavorResult / iFlavors);
+	if (iFlavorResult > 0 && iFlavors > 0)
+		iItemValue += iFlavorResult / iFlavors;
 
 	if (bFromMe)
 	{
@@ -1858,13 +1847,13 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 
 			//Increase value based on number remaining (up to 10).
-			iItemValue += ((10 - min(10, iNumRemaining)) * (10 - min(10, iNumRemaining)));
+			iItemValue += (10 - min(10, iNumRemaining)) * (10 - min(10, iNumRemaining));
 
 			//How much do we have compared to them?
 			int iResourceRatio = GetResourceRatio(GetPlayer()->GetID(), eOtherPlayer, eResource, iResourceQuantity);
 
 			//More we have compared to them, the less what we have is worth,and vice-versa!
-			iItemValue *= max(50, iResourceRatio);
+			iItemValue *= iResourceRatio;
 			iItemValue /= 100;
 
 			// Approach is important
@@ -1934,31 +1923,16 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			}
 			//Are we going for science win? Buy aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes)GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-			if (!bFromMe && eApolloProgram != NO_PROJECT)
+			if (eApolloProgram != NO_PROJECT && GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
 			{
-				if (GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
+				ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+				if (eResource == eAluminumResource)
 				{
-					ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-					if (eResource == eAluminumResource)
-					{
-						iItemValue *= 10;
-						iItemValue /= 8;
-					}
+					iItemValue *= 10;
+					iItemValue /= 8;
 				}
 			}
 
-			if (MOD_BALANCE_VP)
-			{
-				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
-				if (eResource == ePaper)
-				{
-					if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
-					{
-						iItemValue *= 10;
-						iItemValue /= 8;
-					}
-				}
-			}
 			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->GetMonopolyPercent(eResource) < GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource))
 			{
 				int iNumResourceOwned = GetPlayer()->getNumResourceTotal(eResource, false);

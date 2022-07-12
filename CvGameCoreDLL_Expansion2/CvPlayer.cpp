@@ -22098,30 +22098,22 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport) const
 {
+	// No Happiness if banned by World Congress
 	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 		return 0;
 
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if(pkResourceInfo)
+	if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
-		// Only look at Luxuries
-		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-		{
-			return 0;
-		}
-
 		// Any extras?
-		else if (getNumResourceAvailable(eResource, /*bIncludeImport*/ bIncludeImport) > 0)
+		if (getNumResourceAvailable(eResource, /*bIncludeImport*/ bIncludeImport) > 0)
 		{
 			return pkResourceInfo->getHappiness();
 		}
-
-		else if(GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
+		// Vanilla Netherlands UA? (retain 50% of the Happiness if you trade away your last copy)
+		else if (GetPlayerTraits()->GetLuxuryHappinessRetention() > 0 && getResourceExport(eResource) > 0)
 		{
-			if(getResourceExport(eResource) > 0)
-			{
-				return ((pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
-			}
+			return (pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100;
 		}
 	}
 
