@@ -85,6 +85,7 @@
 
 		<!-- Happy & Golden Age -->
 		<TextButton ID="HappinessString" Anchor="L,T" String="TXT_KEY_TOP_PANEL_HAPPINESS_OFF" ColorLayer0="255,255,200,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Container Size="10,1" />
 		<Label ID="HappyTurns" Anchor="L,T" Offset="0,9" Color0="White,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
 		<Box ID="HappyBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
 			<Bar ID="HappyBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="White,128" Direction="Up"/>
@@ -99,10 +100,23 @@
 
 		<!-- Gold  -->
 		<TextButton ID="GoldPerTurn" Anchor="L,T" String="000 (+000)" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
-
+		<Container Size="10,1" />
+		
+		<!-- Yields  -->
+		<TextButton ID="InstantYieldsIcon" Anchor="L,T" String="Instant!" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Container Size="5,1" />
+		
+		<!-- Supply -->
+		<TextButton ID="UnitSupplyString" Anchor="L,T" String="000 (+000)" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Button ID="UnitSupplyIcon" Hidden="1" NoStateChange="1" Anchor="L,T" Offset="-5,-13" Size="5.5" ToolTipType="TooltipTypeTopPanel" />
+		<Container Size="10,1" />	
+		
+		<!-- Luxury Resources  -->
+		<TextButton ID="LuxuryResources" Anchor="L,T" String="Luxury Resources" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Container Size="5,1" />
+		
 		<!-- Warnings  -->
 		<Label String = " "/>
-		<Image ID="UnitSupplyString" Anchor="L,T" Offset="2,-4" Texture="OverSupplyLimit.dds" Size="20.20" />
 		<Label ID="WarningString" Anchor="L,T" />
 	</Stack>
 
@@ -138,7 +152,9 @@
 	</ToolTipType>
 
 	<Instance Name="ResourceInstance">
-		<TextButton ID="ResourceItem" Anchor="R,T" ToolTipType="TooltipTypeTopPanel" />
+		<Image ID="Image" Size="32,32" Offset="-12,-12" Sampler="Linear" Hidden="1">
+			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="4,3" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
+		</Image>
 	</Instance>
 
 </Context>

@@ -1,5 +1,6 @@
 -------------------------------
 -- TopPanel.lua
+-- modified by balparmak for VP-EUI
 -- coded by bc1 from Civ V 1.0.3.276 code
 -- code is common using gk_mode and bnw_mode switches
 -- compatible with Putmalk's Civ IV Diplomacy Features Mod v10
@@ -16,6 +17,44 @@ print( "Loading EUI top panel",ContextPtr,os.clock(), [[
   |_|\___/| .__/|_|   \__,_|_| |_|\___|_|
           |_|
 ]])
+
+-- TOP PANEL OPTIONS
+
+local ReplaceIcons = true -- replaces cropped, outsized icons of Pantheon, Prophet and other Great Persons with font icons, uses Trade icon instead of GMerchant for Luxury Resources
+local PerTurnOnLeft = true -- moves GoldPernTurn and FaithPerTurn to the left of their respective icons, to be consistent with other yields
+local HideTechIcon = true -- removes the icon of currently researched text
+local CondensedHappiness = true -- Remove Happy & Unhappy icons (keeps their numbers), and replace Citizen Icon with a dynamic Happiness one
+local ExtraCondensedHappiness = false -- Remove Happy & Unhappy numbers, only display the percentage with the dynamic happiness icon
+local NoParentheses = true -- Remove parentheses from supply text
+local HideMenuButton = false -- set true to hide
+local HideCivilopediaButton = false -- set true to hide
+------------------------------
+
+local NavalSupplyID = GameInfoTypes.RESOURCE_SAILORS -- Support for Separate Naval Supply mod
+
+-- GP Font Icons
+local GPFontIconList = {
+	UNITCLASS_ENGINEER = "[ICON_GREAT_ENGINEER]",
+	UNITCLASS_GREAT_GENERAL = "[ICON_GREAT_GENERAL]",
+	UNITCLASS_SCIENTIST = "[ICON_GREAT_SCIENTIST]",
+	UNITCLASS_MERCHANT = "[ICON_GREAT_MERCHANT]",
+	UNITCLASS_ARTIST = "[ICON_GREAT_ARTIST]",
+	UNITCLASS_MUSICIAN = "[ICON_GREAT_MUSICIAN]",
+	UNITCLASS_WRITER = "[ICON_GREAT_WRITER]",
+	UNITCLASS_GREAT_ADMIRAL = "[ICON_GREAT_ADMIRAL]",
+	UNITCLASS_GREAT_DIPLOMAT = "[ICON_DIPLOMAT]",
+	UNITCLASS_PROPHET = "[ICON_PROPHET]",
+--	UNIT_VENETIAN_MERCHANT = "[ICON_GREAT_MERCHANT_VENICE]"
+}
+
+
+local FaithFontIconList = {
+	RELIGION_PANTHEON = "[ICON_ITP_PANTHEON]",
+	UNITCLASS_PROPHET = "[ICON_ITP_RELIGION]",
+	UNITCLASS_MISSIONARY = " [ICON_MISSIONARY]",
+	UNITCLASS_INQUISITOR = "[ICON_INQUISITOR]",
+}
+
 local civ5_mode = InStrategicView ~= nil
 local civBE_mode = not civ5_mode
 local gk_mode = Game.GetReligionName ~= nil
@@ -323,7 +362,12 @@ local function UpdateTopPanelNow()
 
 	Controls.InstantYieldsIcon:SetText( S("[ICON_CAPITAL]") )
 	-- my modification for Luxury Resources
-	Controls.LuxuryResources:SetText( S("[ICON_GREAT_MERCHANT]") )
+	if ReplaceIcons then
+--		Controls.LuxuryImage:SetHide(false)
+		Controls.LuxuryResources:SetText(S("[ICON_TRADE]"))
+	else
+		Controls.LuxuryResources:SetText( S("[ICON_GREAT_MERCHANT]") )
+	end
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -335,7 +379,7 @@ local function UpdateTopPanelNow()
 
 		-- Gold being deducted from our Science ?
 		if g_activePlayer:GetScienceFromBudgetDeficitTimes100() == 0 then
-			strSciencePerTurn = g_scienceTextColor .. strSciencePerTurn .. "[ENDCOLOR][ICON_RESEARCH]"	-- Normal Science state
+			strSciencePerTurn = " "..g_scienceTextColor .. strSciencePerTurn .. "[ENDCOLOR][ICON_RESEARCH]"	-- Normal Science state
 		else
 			strSciencePerTurn = "[COLOR:255:0:60:255]" .. strSciencePerTurn .. "[ENDCOLOR][ICON_RESEARCH]"	-- Science deductions
 		end
@@ -373,8 +417,8 @@ local function UpdateTopPanelNow()
 
 			-- if we have one, update the tech picture
 			local techInfo = techID and techID ~= -1 and GameInfo.Technologies[ techID ]
-			Controls.ScienceTurns:SetText( strScienceTurnsRemaining )
-			Controls.TechIcon:SetHide(not (techInfo and IconHookup( techInfo.PortraitIndex, 45, techInfo.IconAtlas, Controls.TechIcon )) )
+			Controls.ScienceTurns:SetText( L("[COLOR_RESEARCH_STORED]"..strScienceTurnsRemaining.."[ENDCOLOR]") )
+			Controls.TechIcon:SetHide(HideTechIcon or not (techInfo and IconHookup( techInfo.PortraitIndex, 45, techInfo.IconAtlas, Controls.TechIcon )) )
 		end
 	end
 
@@ -397,14 +441,16 @@ local function UpdateTopPanelNow()
 
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
-		if numResourceUsed > 0
-			or ( g_activePlayer:IsResourceRevealed(resourceID)
-			and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
-		then
-			resourceInstance.Count:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) )
-			resourceInstance.Image:SetHide( false )
-		else
-			resourceInstance.Image:SetHide( true )
+		if not resource.HideInTopPanel then
+			if numResourceUsed > 0
+				or ( g_activePlayer:IsResourceRevealed(resourceID)
+				and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
+			then
+				resourceInstance.Count:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) )
+				resourceInstance.Image:SetHide( false )
+			else
+				resourceInstance.Image:SetHide( true )
+			end
 		end
 	end
 
@@ -428,7 +474,11 @@ local function UpdateTopPanelNow()
 		-- Update gold stats
 		-----------------------------
 
-		Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", g_activePlayer:GetGold(), g_activePlayer:CalculateGoldRate() )
+		if PerTurnOnLeft then 
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", g_activePlayer:CalculateGoldRate(), g_activePlayer:GetGold() )
+		else
+			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", g_activePlayer:GetGold(), g_activePlayer:CalculateGoldRate() )
+		end
 
 		-----------------------------
 		-- Update Happy & Golden Age
@@ -446,9 +496,47 @@ local function UpdateTopPanelNow()
 
 			local happypop = g_activePlayer:GetHappinessFromCitizenNeeds()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
+			local happycounttext = " ([COLOR_POSITIVE_TEXT]"..L(happypop).."[ENDCOLOR]/[COLOR_NEGATIVE_TEXT]"..L(unhappypop).."[ENDCOLOR])"
+--			if NoParentheses then
+--				happycounttext = " [COLOR_POSITIVE_TEXT]"..L(happypop).."[ENDCOLOR]/[COLOR_NEGATIVE_TEXT]"..L(unhappypop).."[ENDCOLOR]"
+--			end
 			local percent = g_activePlayer:GetExcessHappiness()
+			local percentString = ""
 
-			happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, happypop)
+			if CondensedHappiness then
+				if percent >= 75 then --ecstatic
+					happinessText = "[ICON_HAPPINESS_1][COLOR_FONT_GREEN]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 75 and percent > 60 then -- content
+					happinessText = "[ICON_ITP_HAPPINESS_CONTENT][COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
+				elseif percent <= 60 and percent >= 50 then -- swing vote
+					happinessText = "[ICON_ITP_HAPPINESS_NEUTRAL][COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 50 and percent >= 35 then  -- unhappy
+					happinessText = "[ICON_HAPPINESS_3][COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 35 and percent >= 20 then  -- very unhappy
+					happinessText = "[ICON_HAPPINESS_4][COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+				else -- 20<= winter palace vibes
+					happinessText = "[ICON_RESISTANCE][COLOR_RED]"..L(percent).."%[ENDCOLOR]"
+				end
+				if not ExtraCondensedHappiness then
+					happinessText = happinessText..happycounttext
+				end
+			else				
+				if percent >= 75 then --ecstatic
+					percentString = "[ICON_CITIZEN] [COLOR_FONT_GREEN]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 75 and percent > 60 then -- content
+					percentString = "[ICON_ITP_CITIZEN_CONTENT] [COLOR_POSITIVE_TEXT]"..L(percent).."%[ENDCOLOR]"
+				elseif percent <= 60 and percent >= 50 then -- swing vote
+					percentString = "[ICON_ITP_CITIZEN_NEUTRAL] [COLOR_SELECTED_TEXT]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 50 and percent >= 35 then  -- unhappy
+					percentString = "[ICON_ITP_CITIZEN_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+				elseif percent < 35 and percent >= 20 then  -- very unhappy
+					percentString = "[ICON_ITP_CITIZEN_VERY_UNHAPPY] [COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+				else -- 20<= winter palace vibes
+					percentString = "[ICON_RESISTANCE] [COLOR_RED]"..L(percent).."%[ENDCOLOR]"
+				end
+				happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percentString, unhappypop, happypop)
+			end											 
+
 			Controls.HappinessString:SetText(happinessText)
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
@@ -537,14 +625,35 @@ local function UpdateTopPanelNow()
 				Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
 			else
 				Controls.FaithBox:SetHide(true)
-				Controls.FaithString:SetText( S("[ICON_PEACE]%i(+%i)", faithProgress, faithPerTurn ) )
+				if PerTurnOnLeft then			
+					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
+				else
+					Controls.FaithString:SetText( S("[ICON_PEACE]%i(+%i)", faithProgress, faithPerTurn ) )
+				end
 			end
 
 			Controls.FaithTurns:SetText( turnsRemaining )
 
-			Controls.FaithIcon:SetHide( not (faithTarget and IconHookup(faithTarget.PortraitIndex, iconSize, faithTarget.IconAtlas, Controls.FaithIcon) ) )
+			if ReplaceIcons then
+				if faithTarget then
+					Controls.FaithIcon:SetHide(false)
+					Controls.FaithIcon:SetOffsetVal(-7,-17)
+					Controls.FaithTurns:SetOffsetVal(-12,9)
+					if faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_BUILDING then
+						Controls.FaithIcon:SetText("[ICON_ITP_RELIGIOUS_BUILDING]")	
+					elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_UNIT or faithTarget == GameInfo.Units.UNIT_PROPHET then
+							Controls.FaithIcon:SetText(FaithFontIconList[faithTarget.Class])	
+					else 
+						Controls.FaithIcon:SetText("[ICON_ITP_PANTHEON]")	
+					end
+				else
+					Controls.FaithIcon:SetHide(true)
+					Controls.FaithIcon:SetText("")	
+				end
+			else
+				Controls.FaithIcon:SetHide( not (faithTarget and IconHookup(faithTarget.PortraitIndex, iconSize, faithTarget.IconAtlas, Controls.FaithIcon) ) )
+			end
 		end
-
 		-----------------------------
 		-- Update Great People
 		-----------------------------
@@ -553,10 +662,18 @@ local function UpdateTopPanelNow()
 		if gp then
 			Controls.GpBar:SetPercent( gp.Progress / gp.Threshold )
 			Controls.GpBarShadow:SetPercent( (gp.Progress+gp.Change) / gp.Threshold )
-			Controls.GpTurns:SetText(gp.Turns)
+			Controls.GpTurns:SetText(L("[COLOR:255:234:128:255]"..gp.Turns.."[ENDCOLOR]"))
 			Controls.GpBox:SetHide(false)
 			local gpUnit = GameInfo.Units[ gp.Class.DefaultUnit ]
-			Controls.GpIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.GpIcon)))
+			if ReplaceIcons then
+				Controls.GpIcon:SetHide(not gpUnit)
+--				Controls.GpIcon:SetTexture("Blank.dds")
+				Controls.GpIcon:SetText(GPFontIconList[gpUnit.Class])
+				Controls.GpIcon:SetOffsetVal(-5,-8)
+--				Controls.GpTurns:SetOffsetVal(-4,9)
+			else
+				Controls.GpIcon:SetHide(not (gpUnit and IconHookup(gpUnit.PortraitIndex, 45, gpUnit.IconAtlas, Controls.GpIcon)))
+			end
 		else
 			Controls.GpBox:SetHide(true)
 			Controls.GpIcon:SetHide(true)
@@ -569,14 +686,49 @@ local function UpdateTopPanelNow()
 		local iUnitsSupplied = g_activePlayer:GetNumUnitsSupplied();
 		local iUnitsTotal = g_activePlayer:GetNumUnitsToSupply();
 
-		if(iUnitsTotal > iUnitsSupplied)then
-			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+
+		if ( iUnitsTotal > iUnitsSupplied ) then
+			if NoParentheses then
+				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+			else
+				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+			end
 		else
-			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
+			if NoParentheses then
+				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] %i/%i", iUnitsTotal, iUnitsSupplied ) )
+			else
+				Controls.UnitSupplyString:SetText( S("  [ICON_WAR] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
+			end
 		end
 
 		Controls.UnitSupplyString:SetHide(false);
 		Controls.UnitSupplyIcon:SetHide(false);
+
+		-----------------------------
+		-- Update Naval Supply
+		-----------------------------
+		local iNavalSupplyUsed = g_activePlayer:GetNumResourceUsed( NavalSupplyID )
+		local iNavalSupplyRemaining = g_activePlayer:GetNumResourceAvailable(NavalSupplyID, true)
+		local iNavalSupplyTotal = iNavalSupplyUsed + iNavalSupplyRemaining
+
+		if NavalSupplyID ~= nil then
+			if ( iNavalSupplyUsed > iNavalSupplyTotal ) then
+				if NoParentheses then
+					Controls.NavalSupplyString:SetText( S("  [ICON_NAVAL_SUPPLY] [COLOR_NEGATIVE_TEXT]%i/%i[ENDCOLOR]", iNavalSupplyUsed, iNavalSupplyTotal ) )
+				else
+					Controls.NavalSupplyString:SetText( S("  [ICON_NAVAL_SUPPLY] [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iNavalSupplyUsed, iNavalSupplyTotal ) )
+				end
+			else
+				if NoParentheses then
+					Controls.NavalSupplyString:SetText( S("  [ICON_NAVAL_SUPPLY] %i/%i", iNavalSupplyUsed, iNavalSupplyTotal ) )
+				else
+					Controls.NavalSupplyString:SetText( S("  [ICON_NAVAL_SUPPLY] (%i/%i)", iNavalSupplyUsed, iNavalSupplyTotal ) )
+				end
+			end
+
+			Controls.NavalSupplyString:SetHide(false);
+			Controls.NavalSupplyIcon:SetHide(false);
+		end
 
 		-----------------------------
 		-- Update Alerts
@@ -601,8 +753,16 @@ local function UpdateTopPanelNow()
 		-- International Trade Routes
 		-----------------------------
 		if bnw_mode then
-			Controls.InternationalTradeRoutes:SetText( S( "%i/%i[ICON_INTERNATIONAL_TRADE]", g_activePlayer:GetNumInternationalTradeRoutesUsed(), g_activePlayer:GetNumInternationalTradeRoutesAvailable() ) )
-			Controls.TourismString:SetText( S( "%+i[ICON_TOURISM]", g_activePlayer:GetTourism() / 100 ) )
+			local activeRoutes = g_activePlayer:GetNumInternationalTradeRoutesUsed()
+			local availableRoutes = g_activePlayer:GetNumInternationalTradeRoutesAvailable() 
+			
+			if activeRoutes < availableRoutes then -- Green when available
+				Controls.InternationalTradeRoutes:SetText( S( "[COLOR_POSITIVE_TEXT]%i/%i[ENDCOLOR] [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
+				Controls.InternationalTradeRoutes:SetAlpha(1.5)
+			else
+				Controls.InternationalTradeRoutes:SetText( S( "%i/%i [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
+			end	
+			Controls.TourismString:SetText( S( "%+i [ICON_TOURISM]", g_activePlayer:GetTourism() / 100 ) )
 		end
 	else
 		-----------------------------
@@ -661,7 +821,7 @@ local function UpdateTopPanelNow()
 
 		local cultureTheshold = g_activePlayer:GetNextPolicyCost()
 		local cultureProgressNext = cultureProgress + culturePerTurn
-		local turnsRemaining = ""
+		local turnsRemaining = 0
 
 		if cultureTheshold > 0 then
 			Controls.CultureBar:SetPercent( cultureProgress / cultureTheshold )
@@ -674,7 +834,7 @@ local function UpdateTopPanelNow()
 			Controls.CultureBox:SetHide(true)
 		end
 
-		Controls.CultureTurns:SetText(turnsRemaining)
+		Controls.CultureTurns:SetText( S("[COLOR:255:75:255:255]%i[ENDCOLOR]", turnsRemaining))
 		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%i[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
 	end
 
@@ -691,6 +851,8 @@ end
 ---------------
 Controls.CivilopediaButton:RegisterCallback( Mouse.eLClick, function() GamePedia( "" ) end )
 
+Controls.CivilopediaButton:SetHide(HideCivilopediaButton)
+Controls.MenuButton:SetHide(HideMenuButton)
 ---------------
 -- Menu
 ---------------
@@ -1186,11 +1348,18 @@ if civ5_mode then
 			-- Basic explanation of Happiness
 			end
 
+			local happypop = g_activePlayer:GetHappinessFromCitizenNeeds()
+			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 			if g_isBasicHelp then
         		tips:insert( "" )
-				tips:insert( L"TXT_KEY_CP_HAPPINESS_EXPLANATION" )
+				if CondensedHappiness then
+					tips:insert( L("TXT_KEY_ITP_HAPPINESS_EXPLANATION", happypop, unhappypop) )
+				else
+					tips:insert( L"TXT_KEY_CP_HAPPINESS_EXPLANATION" )
+				end
+			elseif CondensedHappiness then
+				tips:insert( L("TXT_KEY_ITP_HAPPINESS_SUMMARY", happypop, unhappypop) )
 			end
-
 			------------
 			-- Happiness
 
@@ -2042,6 +2211,12 @@ if civ5_mode and gk_mode then
 		
 	end
 
+--[[
+	if ReplaceIcons then
+		g_toolTipHandler.LuxuryImage = g_toolTipHandler.LuxuryResources
+		Controls.LuxuryImage:SetToolTipCallback( requestTextToolTip )
+	end
+]]--
 	Controls.LuxuryResources:SetToolTipCallback( requestTextToolTip )
 	Controls.LuxuryResources:SetHide( false )
 end
@@ -2656,6 +2831,13 @@ for resource in GameInfo.Resources() do
 		instance.Count:SetToolTipCallback( ResourcesTipHandler )
 		instance.Count:RegisterCallback( Mouse.eLClick, OnResourceLClick )
 		instance.Count:RegisterCallback( Mouse.eRClick, OnResourceRClick )
+	end
+
+	if resourceID == NavalSupplyID then
+		Controls.NavalSupplyString:SetVoid1( NavalSupplyID )
+		Controls.NavalSupplyIcon:SetVoid1( NavalSupplyID )
+		Controls.NavalSupplyString:SetToolTipCallback( ResourcesTipHandler )
+		Controls.NavalSupplyIcon:SetToolTipCallback( ResourcesTipHandler )		
 	end
 end
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<GameData>
+	<IconFontTextures>
+		<Row>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconFontTextureFile>FontIconsITP</IconFontTextureFile>
+		</Row>
+	</IconFontTextures>
+
+	<IconFontMapping>
+		<Row>
+			<IconName>ICON_ITP_HAPPINESS_CONTENT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>1</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_HAPPINESS_NEUTRAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>2</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_NAVAL_SUPPLY</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>3</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_PANTHEON</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>4</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGION</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>5</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_BUILDING</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>6</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_CITIZEN_CONTENT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>7</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_CITIZEN_NEUTRAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>8</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_CITIZEN_UNHAPPY</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>9</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_CITIZEN_VERY_UNHAPPY</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>10</IconMapping>
+		</Row>
+	</IconFontMapping>	
+</GameData>
