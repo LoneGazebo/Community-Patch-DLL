@@ -17309,7 +17309,8 @@ int CvLuaPlayer::lDoEventChoice(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const EventChoiceTypes eEventChoice = (EventChoiceTypes)lua_tointeger(L, 2);
-	pkPlayer->DoEventChoice(eEventChoice);
+	const EventTypes eParentEvent = (EventTypes)luaL_optint(L, 3, NO_EVENT);
+	pkPlayer->DoEventChoice(eEventChoice, eParentEvent);
 	return 1;
 }
 int CvLuaPlayer::lDoStartEvent(lua_State* L)
