@@ -122,29 +122,32 @@ local function GamePopup( popupType, data2 )
 end
 local GamePedia = Events.SearchForPediaEntry
 
-local function Colorize( x )
+local function Colorize( x, str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
 end
-local function ColorizeSigned( x )
+local function ColorizeSigned( x , str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]+" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]+" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
 end
-local function ColorizeAbs( x )
+local function ColorizeAbs( x, str )
+	str = str or ""
 	if x > 0 then
-		return "[COLOR_POSITIVE_TEXT]" .. x .. "[ENDCOLOR]"
+		return "[COLOR_POSITIVE_TEXT]" .. x .. str .. "[ENDCOLOR]"
 	elseif x < 0 then
-		return "[COLOR_WARNING_TEXT]" .. -x .. "[ENDCOLOR]"
+		return "[COLOR_WARNING_TEXT]" .. -x .. str .. "[ENDCOLOR]"
 	else
 		return "0"
 	end
@@ -184,9 +187,16 @@ local function ScanGP( player )
 						gpChange = gpChange + building.GreatPeopleRateChange
 					end
 				end
+				-- Vox Populi
+				gpChange = gpChange + city:GetExtraSpecialistPoints(specialist.ID);
+				gpChange = gpChange + player:GetMonopolyGreatPersonRateChange(specialist.ID);
 
 				local gpChangePlayerMod = player:GetGreatPeopleRateModifier()
 				local gpChangeCityMod = city:GetGreatPeopleRateModifier()
+				-- CBP
+				gpChangeCityMod = gpChangeCityMod + city:GetSpecialistCityModifier(specialist.ID);
+				local gpChangeMonopolyMod = player:GetMonopolyGreatPersonRateModifier(specialist.ID);
+				--END
 				local gpChangePolicyMod = 0
 				local gpChangeWorldCongressMod = 0
 				local gpChangeGoldenAgeMod = 0
@@ -233,18 +243,41 @@ local function ScanGP( player )
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatScientistRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatScientistRateModifier()
+						end
+-- END
 					elseif specialist.GreatPeopleUnitClass == "UNITCLASS_MERCHANT" then
 						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatMerchantRateModifier()
 						gpChangePolicyMod = gpChangePolicyMod + player:GetPolicyGreatMerchantRateModifier()
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatMerchantRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatMerchantRateModifier()
+						end
+-- END
 					elseif specialist.GreatPeopleUnitClass == "UNITCLASS_ENGINEER" then
 						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatEngineerRateModifier()
 						gpChangePolicyMod = gpChangePolicyMod + player:GetPolicyGreatEngineerRateModifier()
 						if worldCongress then
 							gpChangeWorldCongressMod = gpChangeWorldCongressMod + worldCongress:GetScienceyGreatPersonRateModifier()
 						end
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatEngineerRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatEngineerRateModifier()
+						end
+-- END
+					-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
+					elseif player.GetGreatDiplomatRateModifier and specialist.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT" then
+						gpChangePlayerMod = gpChangePlayerMod + player:GetGreatDiplomatRateModifier()
+--CBP
+						if isGoldenAge and player:GetGoldenAgeGreatDiplomatRateModifier() > 0 then
+							gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + player:GetGoldenAgeGreatDiplomatRateModifier()
+						end
+-- END
 					end
 
 					-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
@@ -257,7 +290,8 @@ local function ScanGP( player )
 
 				end
 
-				gpChange = gpChange * (1 + (gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod) / 100)
+				local gpChangeMod = gpChangePlayerMod + gpChangePolicyMod + gpChangeWorldCongressMod + gpChangeCityMod + gpChangeGoldenAgeMod + gpChangeMonopolyMod;
+				gpChange = (gpChangeMod / 100 + 1) * gpChange
 
 				if gpChange > 0 then
 					local gpTurns = math_ceil( (gpThreshold - gpProgress) / gpChange )
@@ -287,6 +321,9 @@ local function UpdateTopPanelNow()
 
 	g_requestTopPanelUpdate = false
 
+	Controls.InstantYieldsIcon:SetText( S("[ICON_CAPITAL]") )
+	-- my modification for Luxury Resources
+	Controls.LuxuryResources:SetText( S("[ICON_GREAT_MERCHANT]") )
 	-----------------------------
 	-- Update science stats
 	-----------------------------
@@ -344,6 +381,16 @@ local function UpdateTopPanelNow()
 	-----------------------------
 	-- Update Resources
 	-----------------------------
+	
+	local leaderID = -1;
+	local traitType = "";
+	if g_activePlayer ~= nil then
+		leaderID = g_activePlayer:GetLeaderType();
+		for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
+			traitType = leaderTraits.TraitType;
+			break;
+		end
+	end
 
 	for resourceID, resourceInstance in pairs( g_resourceString ) do
 		local resource = GameInfo.Resources[ resourceID ]
@@ -351,12 +398,13 @@ local function UpdateTopPanelNow()
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if numResourceUsed > 0
-			or ( g_activeTeamTechs:HasTech(GameInfoTypes[resource.TechReveal])
-			and ( civBE_mode or g_activeTeamTechs:HasTech(GameInfoTypes[resource.TechCityTrade]) ) )
+			or ( g_activePlayer:IsResourceRevealed(resourceID)
+			and ( civBE_mode or g_activePlayer:IsResourceCityTradeable(resourceID) ) )
 		then
-			resourceInstance:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) .. resource.IconString )
+			resourceInstance.Count:SetText( Colorize( g_activePlayer:GetNumResourceAvailable(resourceID, true) ) )
+			resourceInstance.Image:SetHide( false )
 		else
-			resourceInstance:SetText( "" )
+			resourceInstance.Image:SetHide( true )
 		end
 	end
 
@@ -393,37 +441,25 @@ local function UpdateTopPanelNow()
 		if g_isHappinessEnabled then
 
 			local happinessText
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
+			local excessHappiness = g_activePlayer:GetHappinessForGAP()
 			local turnsRemaining = ""
 
-			if not g_activePlayer:IsEmpireUnhappy() then
+			local happypop = g_activePlayer:GetHappinessFromCitizenNeeds()
+			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
+			local percent = g_activePlayer:GetExcessHappiness()
 
-				happinessText = S("[COLOR:60:255:60:255]%i[ENDCOLOR][ICON_HAPPINESS_1]", excessHappiness)
-
-			elseif g_activePlayer:IsEmpireVeryUnhappy() then
-
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_4]", -excessHappiness)
-				unhappyFoodModifier = GameDefines.VERY_UNHAPPY_GROWTH_PENALTY
-				if not bnw_mode then
-					unhappyProductionModifier = GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY
-				end
-
-			else -- IsEmpireUnhappy
-
-				happinessText = S("[COLOR:255:60:60:255]%i[ENDCOLOR][ICON_HAPPINESS_3]", -excessHappiness)
-				unhappyFoodModifier = GameDefines.UNHAPPY_GROWTH_PENALTY
-			end
+			happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, happypop)
 			Controls.HappinessString:SetText(happinessText)
-
-			if bnw_mode and excessHappiness < 0 then
-				unhappyProductionModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_PRODUCTION_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_PRODUCTION_PENALTY )
-				unhappyGoldModifier = math_max( -excessHappiness * GameDefines.VERY_UNHAPPY_GOLD_PENALTY_PER_UNHAPPY, GameDefines.VERY_UNHAPPY_MAX_GOLD_PENALTY )
-			end
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-			local happyProgressNext = happyProgress + excessHappiness
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			-- END
+			local happyProgressNext = (happyProgress + excessHappiness + iGAPReligion + iGAPTrait + iGAPCities);
 
 			if goldenAgeTurns > 0 then
 				Controls.GoldenAgeAnim:SetHide(false)
@@ -435,7 +471,7 @@ local function UpdateTopPanelNow()
 					Controls.HappyBar:SetPercent( happyProgress / happyNeeded )
 					Controls.HappyBarShadow:SetPercent( happyProgressNext / happyNeeded )
 					if excessHappiness > 0 then
-						turnsRemaining = math_ceil((happyNeeded - happyProgress) / excessHappiness)
+						turnsRemaining = math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
 					end
 					Controls.HappyBox:SetHide(false)
 				else
@@ -483,7 +519,7 @@ local function UpdateTopPanelNow()
 					iconSize = 48
 					faithNeeded = Game.GetMinimumFaithNextPantheon()
 
-				elseif Game.GetNumReligionsStillToFound() > 0 then
+				elseif Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) > 0 then
 
 					faithTarget = GameInfo.Units.UNIT_PROPHET
 					faithNeeded = g_activePlayer:GetMinimumFaithNextGreatProphet()
@@ -528,52 +564,25 @@ local function UpdateTopPanelNow()
 		end
 
 		-----------------------------
+		-- Update Military
+		-----------------------------
+		local iUnitsSupplied = g_activePlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = g_activePlayer:GetNumUnitsToSupply();
+
+		if(iUnitsTotal > iUnitsSupplied)then
+			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] [COLOR_NEGATIVE_TEXT](%i/%i)[ENDCOLOR]", iUnitsTotal, iUnitsSupplied ) )
+		else
+			Controls.UnitSupplyString:SetText( S("  [ICON_WAR] (%i/%i)", iUnitsTotal, iUnitsSupplied ) )
+		end
+
+		Controls.UnitSupplyString:SetHide(false);
+		Controls.UnitSupplyIcon:SetHide(false);
+
+		-----------------------------
 		-- Update Alerts
 		-----------------------------
 
-		local unitSupplyProductionModifier = g_activePlayer:GetUnitProductionMaintenanceMod()
-		local globalProductionModifier = unhappyProductionModifier + unitSupplyProductionModifier
-
-		if globalProductionModifier < 0
-			or unhappyFoodModifier < 0
-			or unhappyGoldModifier < 0
-		then
-			local tips = table()
-
-			if g_activePlayer:IsEmpireVeryUnhappy() then
-				tips:insert( L"TXT_KEY_TP_EMPIRE_VERY_UNHAPPY" )
-
-			elseif g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( L"TXT_KEY_TP_EMPIRE_UNHAPPY" )
-			end
-
-			if unitSupplyProductionModifier < 0 then
-				tips:insert( L("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", g_activePlayer:GetNumUnitsSupplied(), g_activePlayer:GetNumUnitsOutOfSupply(), -unitSupplyProductionModifier ) )
-			end
-
-			local warningText = ""
-			if unhappyFoodModifier < 0 then
-				warningText = S("%+g%%[ICON_FOOD]", unhappyFoodModifier )
-			end
-			if globalProductionModifier < 0 then
-				warningText = warningText .. S("%+g%%[ICON_PRODUCTION]", globalProductionModifier )
-			end
-			if unhappyGoldModifier < 0 then
-				if globalProductionModifier == unhappyGoldModifier then
-					warningText = warningText .. g_currencyIcon
-				else
-					warningText = warningText .. S("%+g%%%s", unhappyGoldModifier, g_currencyIcon )
-				end
-			end
-			Controls.WarningString:SetText( " [COLOR:255:60:60:255]" .. warningText .. "[ENDCOLOR]" )
-
-			Controls.WarningString:SetToolTipString( tips:concat( "[NEWLINE][NEWLINE]" ) )
-			Controls.WarningString:SetHide(false)
-			Controls.UnitSupplyString:SetHide(false)
-		else
-			Controls.WarningString:SetHide(true)
-			Controls.UnitSupplyString:SetHide(true)
-		end
+		Controls.WarningString:SetHide(true)
 
 		-----------------------------
 		-- Update date
@@ -593,7 +602,7 @@ local function UpdateTopPanelNow()
 		-----------------------------
 		if bnw_mode then
 			Controls.InternationalTradeRoutes:SetText( S( "%i/%i[ICON_INTERNATIONAL_TRADE]", g_activePlayer:GetNumInternationalTradeRoutesUsed(), g_activePlayer:GetNumInternationalTradeRoutesAvailable() ) )
-			Controls.TourismString:SetText( S( "%+i[ICON_TOURISM]", g_activePlayer:GetTourism() ) )
+			Controls.TourismString:SetText( S( "%+i[ICON_TOURISM]", g_activePlayer:GetTourism() / 100 ) )
 		end
 	else
 		-----------------------------
@@ -827,8 +836,8 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			if g_activePlayer.GetScienceFromVassalTimes100 then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetScienceFromVassalTimes100() / 100 )
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) )
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
@@ -836,61 +845,76 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 				tips:insertLocalizedIfNonZero( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
 				tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", g_activePlayer:GetScienceRateFromLeagueAid() )
 			end
-
+-- CBP 
+			-- Putmalk
+			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
+			-- Science from Religion
+			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
+			
+			-- Science % lost from unhappiness
+			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
+			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
+--END
 			-- Science from Research Agreements
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", g_activePlayer:GetScienceFromResearchAgreementsTimes100() / 100 )
 
 			-- Show Research Agreements
-
-			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
-			local gameTurn = Game.GetGameTurn() - 1
-			local researchAgreementCounters = {}
-
-			PushScratchDeal()
-			for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
-				UI.LoadCurrentDeal( g_activePlayerID, i )
-				g_deal:ResetIterator()
-				repeat
-					if bnw_mode then
-						itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
-					else
-						itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
-					end
---local itemKey for k,v in pairs( TradeableItems ) do if itemType == v then itemKey = k break end end
---print( "Deal #", i, "item type", itemType, itemKey, "duration", duration, "finalTurn", finalTurn, "data1", data1, "data2", data2, "fromPlayerID", fromPlayerID)
-					if itemType == TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT and fromPlayerID ~= g_activePlayerID then
-						researchAgreementCounters[fromPlayerID] = finalTurn - gameTurn
-						break
-					end
-				until not itemType
-			end
-			PopScratchDeal()
-
-			local tipIndex = #tips
-
-			for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
-
-				local player = Players[playerID]
-				local teamID = player:GetTeam()
-
-				if playerID ~= g_activePlayerID and player:IsAlive() and g_activeTeam:IsHasMet(teamID) then
-
-					-- has reseach agreement ?
-					if g_activeTeam:IsHasResearchAgreement(teamID) then
-						tips:insert( "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
-						if researchAgreementCounters[playerID] then
-							tips:append( " " .. g_scienceTextColor .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", researchAgreementCounters[playerID] ) ) .. "[ENDCOLOR]" )
+-- CBP
+			-- No research if using C4DF
+			if(g_bAllowResearchAgreements) then
+-- END
+				local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
+				local gameTurn = Game.GetGameTurn() - 1
+				local researchAgreementCounters = {}
+	
+				PushScratchDeal()
+				for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
+					UI.LoadCurrentDeal( g_activePlayerID, i )
+					g_deal:ResetIterator()
+					repeat
+						if bnw_mode then
+							itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
+						else
+							itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
 						end
-					else
-						tips:insert( "[ICON_BULLET][COLOR_WARNING_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
+	--local itemKey for k,v in pairs( TradeableItems ) do if itemType == v then itemKey = k break end end
+	--print( "Deal #", i, "item type", itemType, itemKey, "duration", duration, "finalTurn", finalTurn, "data1", data1, "data2", data2, "fromPlayerID", fromPlayerID)
+						if itemType == TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT and fromPlayerID ~= g_activePlayerID then
+							researchAgreementCounters[fromPlayerID] = finalTurn - gameTurn
+							break
+						end
+					until not itemType
+				end
+				PopScratchDeal()
+	
+				local tipIndex = #tips
+	
+				for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
+	
+					local player = Players[playerID]
+					local teamID = player:GetTeam()
+	
+					if playerID ~= g_activePlayerID and player:IsAlive() and g_activeTeam:IsHasMet(teamID) then
+	
+						-- has reseach agreement ?
+						if g_activeTeam:IsHasResearchAgreement(teamID) then
+							tips:insert( "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
+							if researchAgreementCounters[playerID] then
+								tips:append( " " .. g_scienceTextColor .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", researchAgreementCounters[playerID] ) ) .. "[ENDCOLOR]" )
+							end
+						else
+							tips:insert( "[ICON_BULLET][COLOR_WARNING_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
+						end
 					end
 				end
+	
+				if #tips > tipIndex then
+					tips:insert( tipIndex+1, "" )
+					tips:insert( tipIndex+2, L"TXT_KEY_DO_RESEARCH_AGREEMENT" )
+				end
+-- CBP
 			end
-
-			if #tips > tipIndex then
-				tips:insert( tipIndex+1, "" )
-				tips:insert( tipIndex+2, L"TXT_KEY_DO_RESEARCH_AGREEMENT" )
-			end
+-- END
 		else
 			-- Science from Health
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HEALTH", g_activePlayer:GetScienceFromHealthTimes100() / 100 )
@@ -941,12 +965,17 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local tips = table()
 
 	local goldPerTurnFromDiplomacy = g_activePlayer:GetGoldPerTurnFromDiplomacy()
-	local goldPerTurnFromOtherPlayers = math_max(0,goldPerTurnFromDiplomacy) * 100
+	local goldPerTurnFromOtherPlayers = math_max(0,goldPerTurnFromDiplomacy)
 	local goldPerTurnToOtherPlayers = -math_min(0,goldPerTurnFromDiplomacy)
 
-	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() * 100 or 0
-	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
-	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
+	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() or 0
+	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100() / 100;
+	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100() / 100;
+-- C4DF
+	-- Gold from Vassals
+	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	local iGoldFromVassalTax = math.floor(g_activePlayer:GetMyShareOfVassalTaxes() / 100);
+-- END
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
 	local goldPerTurnFromPolicies = 0
@@ -955,14 +984,17 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local unitSupply = g_activePlayer:CalculateUnitSupply()
 	local buildingMaintenance = g_activePlayer:GetBuildingGoldMaintenance()
 	local improvementMaintenance = g_activePlayer:GetImprovementGoldMaintenance()
-	local vassalMaintenance = g_activePlayer.GetVassalGoldMaintenance and g_activePlayer:GetVassalGoldMaintenance() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+-- BEGIN C4DF
+	local iExpenseFromVassalTaxes = g_activePlayer:GetExpensePerTurnFromVassalTaxes();
+	local iVassalMaintenance = g_activePlayer:GetVassalGoldMaintenance();
+-- END C4DF
 	local routeMaintenance = 0
 	local beaconEnergyDelta = 0
 
 	if bnw_mode then
-		tradeRouteGold = g_activePlayer:GetGoldFromCitiesMinusTradeRoutesTimes100()
+		tradeRouteGold = g_activePlayer:GetGoldFromCitiesMinusTradeRoutesTimes100() / 100;
 		goldPerTurnFromCities, tradeRouteGold = tradeRouteGold, goldPerTurnFromCities - tradeRouteGold
-		playerTraitGold = g_activePlayer:GetGoldPerTurnFromTraits() * 100
+		playerTraitGold = g_activePlayer:GetGoldPerTurnFromTraits()
 		if g_activePlayer:IsAnarchy() then
 			tips:insert( L("TXT_KEY_TP_ANARCHY", g_activePlayer:GetAnarchyNumTurns() ) )
 			tips:insert( "" )
@@ -970,8 +1002,21 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	end
 
 	-- Total gold
+-- CBP
+		-- Gold gained from happiness
+	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
+	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
+
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold -- C4DF
+-- C4DF CHANGE
+	if (iGoldFromVassals > 0) then
+		explicitIncome = explicitIncome + iGoldFromVassals;
+	end
+	if (iGoldFromVassalTax > 0) then
+		explicitIncome = explicitIncome + iGoldFromVassalTax;
+	end
+-- C4DF END CHANGE
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -984,7 +1029,15 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 		beaconEnergyDelta = g_activePlayer:GetBeaconEnergyCostPerTurn()
 	end
 	tips:insert( L( "TXT_KEY_TP_AVAILABLE_GOLD", totalWealth ) )
-	local totalExpenses = unitCost + unitSupply + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + vassalMaintenance + routeMaintenance + beaconEnergyDelta
+	local totalExpenses = unitCost + unitSupply + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + routeMaintenance + beaconEnergyDelta
+-- BEGIN C4DF
+	if (iVassalMaintenance > 0) then
+		totalExpenses = totalExpenses + iVassalMaintenance;
+	end
+	if (iExpenseFromVassalTaxes > 0) then
+		totalExpenses = totalExpenses + iExpenseFromVassalTaxes;
+	end
+-- END C4DF
 	tips:insert( "" )
 
 	-- Gold per turn
@@ -998,34 +1051,48 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	-- Income
 
 	tips:insert( "[COLOR_WHITE]" )
-	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", totalIncome / 100 ) )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", goldPerTurnFromCities / 100 )
+
+	-- EDIT CBP
+	tips:insert( L("TXT_KEY_TP_TOTAL_INCOME", math.floor(totalIncome) ) )
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_CITY_OUTPUT", math.floor(goldPerTurnFromCities) )
 
 	if bnw_mode then
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), cityConnectionGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", tradeRouteGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold / 100 )
-		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies / 100 )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_CITY_CONNECTIONS", g_currencyString), math.floor(cityConnectionGold) )
+		tips:insertLocalizedBulletIfNonZero( civ5_mode and "TXT_KEY_TP_GOLD_FROM_ITR" or "TXT_KEY_TP_ENERGY_FROM_TRADE_ROUTES", math.floor(tradeRouteGold) )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TRAITS", g_currencyString), playerTraitGold )
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_FROM_POLICIES", goldPerTurnFromPolicies )
 	else
-		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), cityConnectionGold / 100 )
+		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), math.floor(cityConnectionGold) )
 	end
-
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
+-- C4DF
+	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), iGoldFromVassals)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSAL_TAX", g_currencyString), iGoldFromVassalTax)
+-- END
+--CBP
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_INTERNAL_TRADE", g_currencyString), iInternalRouteGold)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers )
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion )
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", math.floor(totalIncome - explicitIncome) )
+-- CBP
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
+--END
 	tips:insert( "[ENDCOLOR]" )
 
 	-- Spending
 
+--END
 	tips:insert( "[COLOR:255:150:150:255]" .. L("TXT_KEY_TP_TOTAL_EXPENSES", totalExpenses ) )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNIT_MAINT", unitCost )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_UNIT_SUPPLY", g_currencyString), unitSupply )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_BUILDING_MAINT", g_currencyString), buildingMaintenance )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
-	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", vassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
+
 	tips:insert( "[ENDCOLOR]" )
 
 	-- show gold available for trade to the active player
@@ -1101,346 +1168,103 @@ if civ5_mode then
 
 		if g_isHappinessEnabled then
 			local tips = table()
-			local excessHappiness = g_activePlayer:GetExcessHappiness()
 
-			if not g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( L("TXT_KEY_TP_TOTAL_HAPPINESS", excessHappiness) )
-			elseif g_activePlayer:IsEmpireVeryUnhappy() then
-				tips:insert( L("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_4]", -excessHappiness) )
-			else
-				tips:insert( L("TXT_KEY_TP_TOTAL_UNHAPPINESS", "[ICON_HAPPINESS_3]", -excessHappiness) )
-			end
+		-- CBP EDITS HERE
 
-			local policiesHappiness = g_activePlayer:GetHappinessFromPolicies()
-			local resourcesHappiness = g_activePlayer:GetHappinessFromResources()
-			local happinessFromExtraResources = g_activePlayer:GetHappinessFromResourceVariety()
-			local extraLuxuryHappiness = g_activePlayer:GetExtraHappinessPerLuxury()
-			local buildingHappiness = g_activePlayer:GetHappinessFromBuildings()
-
-			local cityHappiness = 0
-			local garrisonedUnitsHappiness = 0
-			local minorCivHappiness = 0
-			local religionHappiness = 0
-			if gk_mode then
-				cityHappiness = g_activePlayer:GetHappinessFromCities()
-				minorCivHappiness = g_activePlayer:GetHappinessFromMinorCivs()
-				religionHappiness = g_activePlayer:GetHappinessFromReligion()
-			else
-				garrisonedUnitsHappiness = g_activePlayer:GetHappinessFromGarrisonedUnits()
-				-- Loop through all the Minors the active player knows
-				for minorPlayerID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
-					minorCivHappiness = minorCivHappiness + g_activePlayer:GetHappinessFromMinor(minorPlayerID)
-				end
-			end
-			local tradeRouteHappiness = g_activePlayer:GetHappinessFromTradeRoutes()
-			local naturalWonderHappiness = g_activePlayer:GetHappinessFromNaturalWonders()
-			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
-			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
-			local totalHappiness = g_activePlayer:GetHappiness()
-			local happinessFromVassals = g_activePlayer.GetHappinessFromVassals and g_activePlayer:GetHappinessFromVassals() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-
-			if g_activePlayer:IsEmpireVeryUnhappy() then
-
-				if g_activePlayer:IsEmpireSuperUnhappy() then
-					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY" .. "[ENDCOLOR]" )
-				else
-					tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_VERY_UNHAPPY" .. "[ENDCOLOR]" )
-				end
+			if (g_activePlayer:IsEmpireSuperUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
+					tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")  .. "[ENDCOLOR]" )
+			elseif (g_activePlayer:IsEmpireSuperUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
+				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")  .. "[ENDCOLOR]" )
+			elseif (g_activePlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then	
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[ENDCOLOR]" )
+			elseif (g_activePlayer:IsEmpireVeryUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS") .. "[ENDCOLOR]" )
 			elseif g_activePlayer:IsEmpireUnhappy() then
-
-				tips:insert( "[COLOR:255:60:60:255]" .. L"TXT_KEY_TP_EMPIRE_UNHAPPY" .. "[ENDCOLOR]" )
-			end
+				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[ENDCOLOR]" )
+			else
+				tips:insert( "[COLOR:150:255:150:255]" .. L("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[ENDCOLOR]" )
 			-- Basic explanation of Happiness
+			end
 
 			if g_isBasicHelp then
-				tips:insert( L"TXT_KEY_TP_HAPPINESS_EXPLANATION" )
-				tips:insert( "" )
+        		tips:insert( "" )
+				tips:insert( L"TXT_KEY_CP_HAPPINESS_EXPLANATION" )
 			end
-
-			-- Individual Resource Info
-
-			local baseHappinessFromResources = 0
-			local numHappinessResources = 0
-			local availableResources = ""
-			local missingResources = ""
-
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-
-				local numResourceAvailable = g_activePlayer:GetNumResourceAvailable(resource.ID, true)
-				if numResourceAvailable > 0 then
-					local resourceHappiness = gk_mode and g_activePlayer:GetHappinessFromLuxury( resourceID ) or resource.Happiness	-- GetHappinessFromLuxury includes extra happiness
-					if resourceHappiness > 0 then
-						availableResources = availableResources
-							.. " [COLOR_POSITIVE_TEXT]"
-							.. numResourceAvailable
-							.. "[ENDCOLOR]"
-							.. resource.IconString
-						numHappinessResources = numHappinessResources + 1
-						baseHappinessFromResources = baseHappinessFromResources + resourceHappiness
-					end
-				elseif numResourceAvailable == 0 then
-					missingResources = missingResources .. resource.IconString
-				else
-					missingResources = missingResources
-						.. " [COLOR_WARNING_TEXT]"
-						.. numResourceAvailable
-						.. "[ENDCOLOR]"
-						.. resource.IconString
-				end
-			end
-
-			--------------
-			-- Unhappiness
-			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation()
-			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
-			local unhappinessFromPop = g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - unhappinessFromPupetCities
-
-			tips:insert( "[COLOR:255:150:150:255]" .. L( "TXT_KEY_TP_UNHAPPINESS_TOTAL", g_activePlayer:GetUnhappiness() ) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_min(policiesHappiness,0) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", bnw_mode and g_activePlayer:GetUnhappinessFromPublicOpinion() or 0 )
 
 			------------
 			-- Happiness
+
+			local religionhappiness = g_activePlayer:GetHappinessFromReligion();
+			local naturalwonderhappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local minorcivhappiness = g_activePlayer:GetHappinessFromMinorCivs();
+			local leaguehappiness = g_activePlayer:GetHappinessFromLeagues();
+			local vassalhappiness = g_activePlayer:GetHappinessFromVassals();
+			local eventhappiness = g_activePlayer:GetEventHappiness();
+			local tradehappiness = g_activePlayer:GetHappinessFromTradeRoutes();
+			local resourcehappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
+			local perresourcehappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
+			local handicaphappiness = g_activePlayer:GetHandicapHappiness();
+			local localcityhappiness = g_activePlayer:GetEmpireHappinessFromCities();
+
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
-			tips:insert( L("TXT_KEY_TP_HAPPINESS_SOURCES", totalHappiness ) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicapHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math_max(policiesHappiness,0) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_BUILDINGS", buildingHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITIES", cityHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_GARRISONED_UNITS", garrisonedUnitsHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradeRouteHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalWonderHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_COUNT", extraHappinessPerCity )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorCivHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leagueHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-
-			-- Happiness from Luxury Variety
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
-
-			-- Extra Happiness from each Luxury
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
-
-			-- Misc Happiness from Resources
-			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - (extraLuxuryHappiness * numHappinessResources)
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
-
-			if #availableResources > 0 then
-				tips:insert( "[ICON_BULLET]" .. L( "TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", resourcesHappiness ) )
-				tips:insert( "  " .. availableResources )
-			end
-
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicaphappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalwonderhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorcivhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leaguehappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", vassalhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness )
+    		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", localcityhappiness )
 			tips:insert( "[ENDCOLOR]" )
 
-
-			----------------------------
-			-- Local Resources in Cities
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
-
-			-- Resources from city terrain
-			for city in g_activePlayer:Cities() do
-				local numConnectedResource = {}
-				local numUnconnectedResource = {}
-				for plot in CityPlots( city ) do
-					local resourceID = plot:GetResourceType( g_activeTeamID )
-					local numResource = plot:GetNumResource()
-					if numResource > 0
-						and Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
-					then
-						if plot:IsCity() or (not plot:IsImprovementPillaged() and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
-							numConnectedResource[resourceID] = (numConnectedResource[resourceID] or 0) + numResource
-						else
-							numUnconnectedResource[resourceID] = (numUnconnectedResource[resourceID] or 0) + numResource
-						end
-					end
-				end
-				local tip = ""
-				for _, resource in pairs( g_luxuries) do
-					local resourceID = resource.ID
-					if (numConnectedResource[resourceID] or 0) > 0 then
-						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
-					end
-					if (numUnconnectedResource[resourceID] or 0) > 0 then
-						tip = tip .. " " .. ColorizeAbs( -numUnconnectedResource[resourceID] ) .. resource.IconString
-					end
-				end
-				if #tip > 0 then
-					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
-				end
+			--------------
+			-- Unhappiness
+			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
+			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
+--CBP
+			local unhappinessFromPop = (g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromPupetCities)
+			if(unhappinessFromPop < 0)then
+				unhappinessFromPop = 0
 			end
 
-			----------------------------
-			-- Import & Export Breakdown
-			----------------------------
-			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
-			local gameTurn = Game.GetGameTurn()-1
-			local Exports = {}
-			local Imports = {}
-			for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
-				Exports[ playerID ] = {}
-				Imports[ playerID ] = {}
-			end
-			PushScratchDeal()
-			for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
-				UI.LoadCurrentDeal( g_activePlayerID, i )
-				local otherPlayerID = g_deal:GetOtherPlayer( g_activePlayerID )
-				g_deal:ResetIterator()
-				repeat
-					if bnw_mode then
-						itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
-					else
-						itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
-					end
-					-- data1 is resourceID, data2 is quantity
+			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
+			local iUnhappinessFromWar = g_activePlayer:GetUnhappinessFromWarWeariness();
+			local totalunhappiness = iUnhappinessFromWar + iUnhappinessPublicOpinion;
+--END	
+			tips:insert( "[COLOR:255:150:150:255]" )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWar)	
+			
+			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
+			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
+			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
+			local iUnhappinessFromDefense = g_activePlayer:GetUnhappinessFromCityDefense();
+			local iUnhappinessFromConnection = g_activePlayer:GetUnhappinessFromCityConnection();
+			local iUnhappinessFromMinority = g_activePlayer:GetUnhappinessFromCityMinority();
+			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromCityScience();
+			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromCityCulture();
 
-					if data2 and itemType == TradeableItems.TRADE_ITEM_RESOURCES and Game.GetResourceUsageType( data1 ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
-						local trade
-						if fromPlayerID == g_activePlayerID then
-							trade = Exports[otherPlayerID]
-						else
-							trade = Imports[fromPlayerID]
-						end
-						local resourceTrade = trade[ data1 ]
-						if not resourceTrade then
-							resourceTrade = {}
-							trade[ data1 ] = resourceTrade
-						end
-						resourceTrade[finalTurn] = (resourceTrade[finalTurn] or 0) + data2
-					end
-				until not itemType
-			end
-			PopScratchDeal()
-
-			----------------------------
-			-- Imports
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_IMPORTED" .. tip )
-				for playerID, array in pairs( Imports ) do
-					local tip = ""
-					for resourceID, row in pairs( array ) do
-						for turn, quantity in pairs(row) do
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
-							end
-						end
-					end
-					if #tip > 0 then
-						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
-					end
-				end
-				for minorID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
-					local minor = Players[ minorID ]
-					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
-						local tip = ""
-						for _, resource in pairs( g_luxuries) do
-							local quantity = minor:GetResourceExport(resource.ID)
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. resource.IconString
-							end
-						end
-						if #tip > 0 then
-							tips:insert( "[ICON_BULLET]" .. minor:GetCivilizationShortDescription() .. tip )
-						end
-					end
-				end
-			end
-
-			----------------------------
-			-- Exports
-			----------------------------
-			local tip = ""
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local quantity = g_activePlayer:GetResourceExport( resourceID )
-				if quantity > 0 then
-					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
-				end
-			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_EXPORTED" .. tip )
-				for playerID, array in pairs( Exports ) do
-					local tip = ""
-					for resourceID, row in pairs( array ) do
-						for turn, quantity in pairs(row) do
-							if quantity > 0 then
-								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
-							end
-						end
-					end
-					if #tip > 0 then
-						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
-					end
-				end
-			end
-			-- show resources available for trade to the active player
-
---			tips:insert( L"TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" )
---			tips:insert( missingResources )
-			tips:insert( "" )
-			tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" )
-
-			----------------------------
-			-- Available for Import
-			----------------------------
-			for _, resource in pairs( g_luxuries) do
-				local resourceID = resource.ID
-				local resources = table()
-				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
-
-					local player = Players[playerID]
-					local isMinorCiv = player:IsMinorCiv()
-
-					-- Valid player? - Can't be us, has to be alive and met, can't be allied city state
-					if playerID ~= g_activePlayerID
-						and player:IsAlive()
-						and g_activeTeam:IsHasMet( player:GetTeam() )
-						and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
-					then
-
-
-						local numResource = ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
-							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
-							or 0
-						if numResource > 0 then
-							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
-						end
-					end
-				end
-				if #resources > 0 then
-					tips:insert( "[ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") )
-				end
-			end
-
+-- COMMUNITY PATCH CHANGES BELOW		
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
+			
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_DEFENSE", iUnhappinessFromDefense )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CONNECTION", iUnhappinessFromConnection )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
+			tips:insert( "[ENDCOLOR]" )
+--END CHANGES
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 		else
 			return setTextToolTip( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
@@ -1458,10 +1282,15 @@ if civ5_mode then
 		if g_isHappinessEnabled then
 
 			local tips = table()
+			local excessHappiness = g_activePlayer:GetHappinessForGAP()
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
 			local happyProgress = g_activePlayer:GetGoldenAgeProgressMeter()
 			local happyNeeded = g_activePlayer:GetGoldenAgeProgressThreshold()
-
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			local iGAPTrait = g_activePlayer:GetGAPFromTraits();
+			local iGAPCities = g_activePlayer:GetGAPFromCities();
+			--END
 			if goldenAgeTurns > 0 then
 				if bnw_mode and g_activePlayer:GetGoldenAgeTourismModifier() > 0 then
 					tips:insert( Locale.ToUpper"TXT_KEY_UNIQUE_GOLDEN_AGE_ANNOUNCE" )
@@ -1469,20 +1298,32 @@ if civ5_mode then
 					tips:insert( Locale.ToUpper"TXT_KEY_GOLDEN_AGE_ANNOUNCE" )
 				end
 				tips:insert( L( "TXT_KEY_TP_GOLDEN_AGE_NOW", goldenAgeTurns ) )
-			else
-				local excessHappiness = g_activePlayer:GetExcessHappiness()
-				tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YELLOW]"
-					.. Locale.ToUpper( "TXT_KEY_SPECIALISTSANDGP_GOLDENAGE_HEADING4_TITLE" )
-					.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
-				if excessHappiness > 0 then
-					tips:insert( L("TXT_KEY_MISSION_START_GOLDENAGE") .. ": [COLOR_YELLOW]"
-						.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math_ceil((happyNeeded - happyProgress) / excessHappiness) ) )
-						.. "[ENDCOLOR]"	.. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", excessHappiness) )
-				elseif excessHappiness < 0 then
-					tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
-				end
 			end
-
+			tips:insert( L( "TXT_KEY_PROGRESS_TOWARDS", "[COLOR_YELLOW]"
+				.. Locale.ToUpper( "TXT_KEY_SPECIALISTSANDGP_GOLDENAGE_HEADING4_TITLE" )
+				.. "[ENDCOLOR]" ) .. " " .. happyProgress .. " / " .. happyNeeded )
+			if excessHappiness > 0 then
+				tips:insert( L("TXT_KEY_MISSION_START_GOLDENAGE") .. ": [COLOR_YELLOW]"
+					.. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities)) ) )
+					.. "[ENDCOLOR]"	.. "[NEWLINE][NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION", excessHappiness) )
+			elseif excessHappiness < 0 then
+				tips:insert( "[COLOR_WARNING_TEXT]" .. L("TXT_KEY_TP_GOLDEN_AGE_LOSS", -excessHappiness) .. "[ENDCOLOR]" )
+			end
+			-- CBP
+			local iGAPReligion = g_activePlayer:GetGAPFromReligion();
+			if (iGAPReligion > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
+			end
+				
+			if (iGAPTrait > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
+			end
+				
+			if (iGAPCities > 0) then
+				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
+			end
+			-- END
+			
 			if g_isBasicHelp then
 				tips:insert( "" )
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then
@@ -1523,6 +1364,14 @@ if civ5_mode then
 				tipText = tipText .. "[NEWLINE][NEWLINE]"
 					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_3", L("TXT_KEY_CO_VICTORY_INFLUENTIAL_OF", numInfluential, numToBeInfluential) )
 			end
+
+			--CBP
+			local iTourismPenalty = g_activePlayer:GetTourismPenalty();
+
+			tipText = tipText .. "[NEWLINE][NEWLINE]"
+					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty )
+			--END
+
 			return setTextToolTip( tipText )
 		end
 		Controls.TourismString:SetHide(false)
@@ -1786,7 +1635,7 @@ g_toolTipHandler.CultureString = function()-- control )
 
 		if civ5_mode then
 			-- Culture from Minor Civs
-			local culturePerTurnFromMinorCivs = g_activePlayer:GetJONSCulturePerTurnFromMinorCivs()
+			local culturePerTurnFromMinorCivs = g_activePlayer:GetCulturePerTurnFromMinorCivs()
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_MINORS", culturePerTurnFromMinorCivs )
 
 			-- Culture from Religion
@@ -1801,15 +1650,32 @@ g_toolTipHandler.CultureString = function()-- control )
 			end
 
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local culturePerTurnFromVassals = g_activePlayer.GetJONSCulturePerTurnFromVassals and g_activePlayer:GetJONSCulturePerTurnFromVassals() or 0
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
-
+-- C4DF
+			local culturePerTurnFromVassals = 0;
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
+			end
+-- END
 			-- Culture from Golden Age
-			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+-- CBP
+	
+			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals)
+			
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
+-- END
+		
 		else
 			-- Uncategorized Culture
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromTraits )
 		end
+
+		-- CBP
+		if(g_activePlayer:GetTechsToFreePolicy() >= 0)then
+			tips:insert( "[NEWLINE][NEWLINE]" )
+			tips:insert( L("TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY", g_activePlayer:GetTechsToFreePolicy()) )
+		end
+--END 
 
 		-- Let people know that building more cities makes policies harder to get
 
@@ -1858,12 +1724,21 @@ if civ5_mode and gk_mode then
 			-- Faith from Religion
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 
+-- C4DF
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+			end
+-- END			
+-- COMMUNITY PATCH CHANGE
+
+--END
+
 			-- New World Deluxe Scenario ( you still need to delete TopPanel.lua from ...\Steam\SteamApps\common\sid meier's civilization v\assets\DLC\DLC_07\Scenarios\Conquest of the New World Deluxe\UI )
 			if EUI.deluxe_scenario then
 				tips:insertLocalized( "TXT_KEY_NEWWORLD_SCENARIO_TP_RELIGION_TOOLTIP" )
 			else
 				if g_activePlayer:HasCreatedPantheon() then
-					if (Game.GetNumReligionsStillToFound() > 0 or g_activePlayer:HasCreatedReligion())
+					if (Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()) > 0 or g_activePlayer:HasCreatedReligion())
 						and (g_activePlayer:GetCurrentEra() < GameInfoTypes.ERA_INDUSTRIAL)
 					then
 						tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_NEXT_PROPHET", g_activePlayer:GetMinimumFaithNextGreatProphet() )
@@ -1877,7 +1752,7 @@ if civ5_mode and gk_mode then
 				end
 
 				tips:insert( "" )
-				tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math_max( Game.GetNumReligionsStillToFound(), 0 ) ) )
+				tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math_max( Game.GetNumReligionsStillToFound(false, Game.GetActivePlayer()), 0 ) ) )
 
 				if g_activePlayer:GetCurrentEra() >= GameInfoTypes.ERA_INDUSTRIAL then
 					tips:insert( "" )
@@ -1925,6 +1800,308 @@ if civ5_mode and gk_mode then
 	Controls.FaithIcon:SetHide( false )
 end
 
+if civ5_mode and gk_mode then 
+	g_toolTipHandler.InstantYieldsIcon = function()-- control )
+		local iPlayerID = Game.GetActivePlayer();
+		local pPlayer = Players[iPlayerID];
+
+		local strInstantYieldToolTip = pPlayer:GetInstantYieldHistoryTooltip(10);
+
+		local tips = table()
+
+		tips:insert( strInstantYieldToolTip )	
+
+		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+	end
+
+	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
+	Controls.InstantYieldsIcon:SetHide( false )
+end
+
+-- my modification for Luxury Resources
+if civ5_mode and gk_mode then 
+	g_toolTipHandler.LuxuryResources = function()-- control )
+			local tips = table()
+		----------------------------
+			-- Local Resources in Cities
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetNumResourceTotal( resourceID, false ) + g_activePlayer:GetResourceExport( resourceID ) - g_activePlayer:GetResourcesFromGP(resourceID)
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
+
+			-- Resources from city terrain
+			for city in g_activePlayer:Cities() do
+				local numConnectedResource = {}
+				local numUnconnectedResource = {}
+				for plot in CityPlots( city ) do
+					local resourceID = plot:GetResourceType( g_activeTeamID )
+					local numResource = plot:GetNumResource()
+					if numResource > 0
+						and Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
+					then
+						if plot:IsCity() or (not plot:IsImprovementPillaged() and plot:IsResourceConnectedByImprovement( plot:GetImprovementType() )) then
+							numConnectedResource[resourceID] = (numConnectedResource[resourceID] or 0) + numResource
+						else
+							numUnconnectedResource[resourceID] = (numUnconnectedResource[resourceID] or 0) + numResource
+						end
+					end
+				end
+				local tip = ""
+				for _, resource in pairs( g_luxuries) do
+					local resourceID = resource.ID
+					if (numConnectedResource[resourceID] or 0) > 0 then
+						tip = tip .. " " .. ColorizeAbs( numConnectedResource[resourceID] ) .. resource.IconString
+					end
+					if (numUnconnectedResource[resourceID] or 0) > 0 then
+						tip = tip .. " " .. ColorizeAbs( -numUnconnectedResource[resourceID] ) .. resource.IconString
+					end
+				end
+				if #tip > 0 then
+					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
+				end
+			end
+
+			----------------------------
+			-- GP Resources
+			----------------------------
+			local GPtip = ""
+			for _, resource in pairs( g_luxuries) do
+				local numResourceGP = g_activePlayer:GetResourcesFromGP(resource.ID)
+				if numResourceGP > 0 then
+					GPtip = GPtip .. "[NEWLINE][ICON_BULLET]" .. ColorizeAbs( numResourceGP ) .. resource.IconString
+				end
+			end
+			if #GPtip > 0 then
+				tips:insert( "[NEWLINE]" .. L"TXT_KEY_EO_GP_RESOURCES" .. GPtip)
+			end
+
+			----------------------------
+			-- Import & Export Breakdown
+			----------------------------
+			local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
+			local gameTurn = Game.GetGameTurn()-1
+			local Exports = {}
+			local Imports = {}
+			for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
+				Exports[ playerID ] = {}
+				Imports[ playerID ] = {}
+			end
+			PushScratchDeal()
+			for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
+				UI.LoadCurrentDeal( g_activePlayerID, i )
+				local otherPlayerID = g_deal:GetOtherPlayer( g_activePlayerID )
+				g_deal:ResetIterator()
+				repeat
+					if bnw_mode then
+						itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID = g_deal:GetNextItem()
+					else
+						itemType, duration, finalTurn, data1, data2, fromPlayerID = g_deal:GetNextItem()
+					end
+					-- data1 is resourceID, data2 is quantity
+
+					if data2 and itemType == TradeableItems.TRADE_ITEM_RESOURCES and Game.GetResourceUsageType( data1 ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
+						local trade
+						if fromPlayerID == g_activePlayerID then
+							trade = Exports[otherPlayerID]
+						else
+							trade = Imports[fromPlayerID]
+						end
+						local resourceTrade = trade[ data1 ]
+						if not resourceTrade then
+							resourceTrade = {}
+							trade[ data1 ] = resourceTrade
+						end
+						resourceTrade[finalTurn] = (resourceTrade[finalTurn] or 0) + data2
+					end
+				until not itemType
+			end
+			PopScratchDeal()
+
+			----------------------------
+			-- Imports
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetResourceImport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			if #tip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_RESOURCES_IMPORTED" .. tip )
+				for playerID, array in pairs( Imports ) do
+					local tip = ""
+					for resourceID, row in pairs( array ) do
+						for turn, quantity in pairs(row) do
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
+							end
+						end
+					end
+					if #tip > 0 then
+						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
+					end
+				end
+				for minorID = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS-1 do
+					local minor = Players[ minorID ]
+					if minor and minor:IsAlive() and minor:GetAlly() == g_activePlayerID then
+						local tip = ""
+						for _, resource in pairs( g_luxuries) do
+							local quantity = minor:GetResourceExport(resource.ID)
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. resource.IconString
+							end
+						end
+						if #tip > 0 then
+							tips:insert( "[ICON_BULLET]" .. minor:GetCivilizationShortDescription() .. tip )
+						end
+					end
+				end
+			end
+
+			----------------------------
+			-- Exports
+			----------------------------
+			local tip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local quantity = g_activePlayer:GetResourceExport( resourceID )
+				if quantity > 0 then
+					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
+				end
+			end
+			if #tip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_RESOURCES_EXPORTED" .. tip )
+				for playerID, array in pairs( Exports ) do
+					local tip = ""
+					for resourceID, row in pairs( array ) do
+						for turn, quantity in pairs(row) do
+							if quantity > 0 then
+								tip = tip .. " " .. quantity .. GameInfo.Resources[ resourceID ].IconString .. "(" .. turn - gameTurn .. ")"
+							end
+						end
+					end
+					if #tip > 0 then
+						tips:insert( "[ICON_BULLET]" .. Players[ playerID ]:GetCivilizationShortDescription() .. tip )
+					end
+				end
+			end
+			-- show resources available for trade to the active player
+
+--			tips:insert( L"TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" )
+--			tips:insert( missingResources )
+
+			----------------------------
+			-- Available for Import
+			----------------------------
+			local availableTip = ""
+			for _, resource in pairs( g_luxuries) do
+				local resourceID = resource.ID
+				local resources = table()
+				for playerID = 0, GameDefines.MAX_CIV_PLAYERS - 1 do
+
+					local player = Players[playerID]
+					local isMinorCiv = player:IsMinorCiv()
+
+					-- Valid player? - Can't be us, has to be alive and met, can't be allied city state
+					if playerID ~= g_activePlayerID
+						and player:IsAlive()
+						and g_activeTeam:IsHasMet( player:GetTeam() )
+						and not (isMinorCiv and player:IsAllies( g_activePlayerID ))
+					then
+
+
+						local numResource = ( isMinorCiv and player:GetNumResourceTotal(resourceID, false) + player:GetResourceExport( resourceID ) )
+							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
+							or 0
+						if numResource > 0 then
+							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
+						end
+					end
+				end
+				if #resources > 0 then
+					availableTip = availableTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
+				end
+			end
+
+			if #availableTip > 0 then
+				tips:insert( "" )
+				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. availableTip)
+			end
+
+	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+		
+	end
+
+	Controls.LuxuryResources:SetToolTipCallback( requestTextToolTip )
+	Controls.LuxuryResources:SetHide( false )
+end
+-------------------------------------------------
+-- Military Tooltip & Click Actions
+-------------------------------------------------
+if civ5_mode and gk_mode then
+	g_toolTipHandler.UnitSupplyString = function()-- control )
+
+		local iPlayerID = Game.GetActivePlayer();
+		local pPlayer = Players[iPlayerID];
+
+		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
+		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
+		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+		local iWarWearinessReduction = pPlayer:GetWarWeariness();
+		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+		local iTechReduction = pPlayer:GetTechSupplyReduction();
+		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
+	
+		local strUnitSupplyToolTip = "";
+		if(iUnitsOver > 0) then
+			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
+		end
+
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
+
+		if(strUnitSupplyToolTip ~= "") then
+			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
+		else
+			strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
+		end
+
+		local tips = table()
+
+		tips:insert( strUnitSupplyToolTip )	
+
+		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+	end
+
+	g_toolTipHandler.UnitSupplyIcon = g_toolTipHandler.UnitSupplyString
+
+	local function OnUnitSupplyLClick()
+		return GamePopup( ButtonPopupTypes.BUTTONPOPUP_MILITARY_OVERVIEW )
+	end
+
+	Controls.UnitSupplyString:RegisterCallback( Mouse.eLClick, OnUnitSupplyLClick )
+	Controls.UnitSupplyString:SetToolTipCallback( requestTextToolTip )
+	Controls.UnitSupplyString:SetHide( false )
+	Controls.UnitSupplyIcon:RegisterCallback( Mouse.eLClick, OnUnitSupplyLClick )
+	Controls.UnitSupplyIcon:SetToolTipCallback( requestTextToolTip )
+	Controls.UnitSupplyIcon:SetHide( false )
+end
+
 -------------------------------------------------
 -- Strategic Resources Tooltips & Click Actions
 -------------------------------------------------
@@ -1941,14 +2118,15 @@ local function ResourcesToolTip( control )
 		local numResourceUsed = g_activePlayer:GetNumResourceUsed( resourceID )
 
 		if numResourceUsed > 0 or
-			( g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechReveal ] ) and
-			g_activeTeamTechs:HasTech( GameInfoTypes[ resource.TechCityTrade ] ) )
+			( g_activePlayer:IsResourceRevealed(resourceID) and
+			g_activePlayer:IsResourceCityTradeable(resourceID) )
 		then
---			local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
+	--		local numResourceTotal = g_activePlayer:GetNumResourceTotal( resourceID, true )	-- true means includes both imports & minors - but exports are deducted regardless
 			local numResourceAvailable = g_activePlayer:GetNumResourceAvailable( resourceID, true )	-- same as (total - used)
 			local numResourceExport = g_activePlayer:GetResourceExport( resourceID )
-			local numResourceImport = g_activePlayer:GetResourceImport( resourceID ) + g_activePlayer:GetResourceFromMinors( resourceID )
-			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport
+			local numResourceImport = g_activePlayer:GetResourceImport( resourceID )
+			local numResourceMisc = g_activePlayer:GetResourcesMisc(resourceID)
+			local numResourceLocal = g_activePlayer:GetNumResourceTotal( resourceID, false ) + numResourceExport - numResourceMisc
 
 			tips:insert( ColorizeAbs(numResourceAvailable) .. resource.IconString .. " " .. Locale.ToUpper(resource.Description) )
 			tips:insert( "----------------" )
@@ -1957,7 +2135,7 @@ local function ResourcesToolTip( control )
 			-- Local Resources in Cities
 			----------------------------
 			tips:insert( "" )
-			tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_LOCAL_RESOURCES" )
+			tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" )
 
 			-- Resources from city terrain
 			for city in g_activePlayer:Cities() do
@@ -2039,6 +2217,50 @@ local function ResourcesToolTip( control )
 					end
 				end
 			end
+
+			----------------------------
+			-- Misc Resources
+			----------------------------
+
+			if numResourceMisc > 0 then
+				tips:insert( "" )
+				tips:insert( Colorize(numResourceMisc) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
+
+				
+				local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
+				local numResourceCorp = g_activePlayer:GetResourcesFromCorporation(resourceID)
+				local numResourceFranchises = g_activePlayer:GetResourcesFromFranchises(resourceID)
+				local numResourceCSAlly = g_activePlayer:GetResourceFromCSAlliances(resourceID)
+
+				--want the total, but before GetStrategicResourceMod and GetResourceModFromReligion are applied, so have to remove Misc then add back in parts of it
+				local totalBeforeMod =  g_activePlayer:GetNumResourceTotal( resourceID, false ) - numResourceMisc + numResourceGP + numResourceCorp + numResourceFranchises + numResourceCSAlly
+
+				local stratResMod = g_activePlayer:GetStrategicResourceMod()
+				local resourceModRel = g_activePlayer:GetResourceModFromReligion(resourceID)
+
+				if numResourceGP > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceGP) .. resource.IconString .. " " .. L"TXT_KEY_EO_GP_RESOURCES" )
+				end
+				if numResourceCorp > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCorp) .. resource.IconString .. " " .. L"TXT_KEY_EO_CORP_RESOURCES" )
+				end
+				if numResourceFranchises > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceFranchises) .. resource.IconString .. " " .. L"TXT_KEY_EO_FRANCHISE_RESOURCES" )
+				end
+				if numResourceCSAlly > 0 then
+					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCSAlly) .. resource.IconString .. " " .. L"TXT_KEY_EO_CS_ALLY_RESOURCES" )
+				end
+				if stratResMod > 0 and Game.GetResourceUsageType(resource.ID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
+					local change = math_floor(((totalBeforeMod * stratResMod) / 100) - totalBeforeMod)
+					totalBeforeMod = totalBeforeMod + change
+					tips:insert( "[ICON_BULLET]" .. ColorizeSigned(stratResMod, "%") .. " (" .. Colorize(change) .. ") " .. resource.IconString .. " " .. L"TXT_KEY_EO_STRAT_MOD_RESOURCES" )
+				end
+				if resourceModRel > 0 then
+					local change = math_floor(((totalBeforeMod * (100 + resourceModRel)) / 100) - totalBeforeMod)
+					tips:insert( "[ICON_BULLET]" .. ColorizeSigned(resourceModRel, "%") .. " (" .. Colorize(change) .. ") " .. resource.IconString .. " " .. L"TXT_KEY_EO_REL_MOD_RESOURCES" )
+				end
+			end
+
 			----------------------------
 			-- Import & Export Breakdown
 			----------------------------
@@ -2219,7 +2441,7 @@ local function ResourcesToolTip( control )
 				if numResource > 0 then
 					-- count how many such buildings player has
 					local numExisting = g_activePlayer:CountNumBuildings( buildingID )
-					-- count how many such units player is building
+					-- count how many such buildings player is building
 					local numBuilds = 0
 					for city in g_activePlayer:Cities() do
 						for i=0, city:GetOrderQueueLength()-1 do
@@ -2228,6 +2450,7 @@ local function ResourcesToolTip( control )
 								numBuilds = numBuilds + 1
 							end
 						end
+						numExisting = numExisting - city:GetNumFreeBuilding( buildingID ) -- free buildings do not consume resources
 					end
 					-- can player build this building someday ?
 					local canBuildSomeday
@@ -2265,6 +2488,100 @@ local function ResourcesToolTip( control )
 									end
 								end
 							end
+						end
+						if totalResource > 0 then
+							tipIndex = tipIndex+1
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+						else
+							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
+						end
+					end
+				end
+			end
+			for improvement in GameInfo.Improvements() do
+				local improvementID = improvement.ID
+				local numResource = Game.GetNumResourceRequiredForImprovement(improvementID, resourceID)
+				if numResource > 0 then
+					-- how many improvements are the player responsible for
+					local numExisting = g_activePlayer:GetResponsibleForImprovementCount(improvementID)
+					-- how many improvements is the player currently building
+					local numBuilds = 0
+					for unit in g_activePlayer:Units() do
+						if unit:IsWork() then
+							local improvementBuildingID = unit:GetImprovementBuildType()
+							if improvementBuildingID == improvementID then
+								numBuilds = numBuilds + 1
+							end
+						end
+					end
+					-- can player build this improvement someday ?
+					local canBuildSomeday = true
+					if ( civ5_mode and improvement.ObsoleteTech and g_activeTeamTechs:HasTech( GameInfoTypes[improvement.ObsoleteTech] ) ) then
+						canBuildSomeday = false
+					end
+					if (improvement.CivilizationType and GameInfoTypes[improvement.CivilizationType] ~= g_activeCivilization) then
+						canBuildSomeday = false
+					end
+					if canBuildSomeday or numExisting > 0 or numBuilds > 0 then
+						local totalResource = (numExisting + numBuilds) * numResource
+						local tip = L( improvement.Description )
+						if canBuildSomeday then
+							local tech
+							for build in GameInfo.Builds() do
+								if build.ImprovementType then
+									if improvementID == GameInfoTypes[build.ImprovementType] then
+										if build.PrereqTech then
+											tech = GameInfo.Technologies[ build.PrereqTech ]
+										end
+										break
+									end
+								end
+							end
+							if tech and not g_activeTeamTechs:HasTech( tech.ID ) then
+								tip = S( "%s [COLOR_CYAN]%s[ENDCOLOR]", tip, L(tech.Description) )
+							end
+						end
+						if totalResource > 0 then
+							tipIndex = tipIndex+1
+							tips:insert( tipIndex, "[ICON_BULLET]" .. totalResource .. resource.IconString .. " = " ..  numExisting .. " (+" .. numBuilds .. ") " .. tip )
+						else
+							tips:insert( "[ICON_BULLET] (" .. numResource .. "/" .. tip .. ")" )
+						end
+					end
+				end
+			end
+			for route in GameInfo.Routes() do
+				local routeID = route.ID
+				local numResource = Game.GetNumResourceRequiredForRoute(routeID, resourceID)
+				if numResource > 0 then
+					-- how many routes is the player responsible for
+					local numExisting = g_activePlayer:GetResponsibleForRouteCount(routeID)
+					-- how many improvements is the player currently building
+					local numBuilds = 0
+					for unit in g_activePlayer:Units() do
+						if unit:IsWork() then
+							local routeBuildingID = unit:GetRouteBuildType()
+							if routeBuildingID == routeID then
+								numBuilds = numBuilds + 1
+							end
+						end
+					end
+					if numExisting > 0 or numBuilds > 0 then
+						local totalResource = (numExisting + numBuilds) * numResource
+						local tip = L( route.Description )
+						local tech
+						for build in GameInfo.Builds() do
+							if build.RouteType then
+								if routeID == GameInfoTypes[build.RouteType] then
+									if build.PrereqTech then
+										tech = GameInfo.Technologies[ build.PrereqTech ]
+									end
+									break
+								end
+							end
+						end
+						if tech and not g_activeTeamTechs:HasTech( tech.ID ) then
+							tip = S( "%s [COLOR_CYAN]%s[ENDCOLOR]", tip, L(tech.Description) )
 						end
 						if totalResource > 0 then
 							tipIndex = tipIndex+1
@@ -2330,12 +2647,15 @@ for resource in GameInfo.Resources() do
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
 		local instance = {}
 		ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
-		instance = instance.ResourceItem
 		g_resourceString[ resourceID ] = instance
-		instance:SetVoid1( resourceID )
-		instance:SetToolTipCallback( ResourcesTipHandler )
-		instance:RegisterCallback( Mouse.eLClick, OnResourceLClick )
-		instance:RegisterCallback( Mouse.eRClick, OnResourceRClick )
+		IconHookup( resource.PortraitIndex, 45, resource.IconAtlas, instance.Image )
+		instance.Image:SetTextureSizeVal( 32, 32 ) --lower numbers look bigger
+		instance.Image:NormalizeTexture()
+
+		instance.Count:SetVoid1( resourceID )
+		instance.Count:SetToolTipCallback( ResourcesTipHandler )
+		instance.Count:RegisterCallback( Mouse.eLClick, OnResourceLClick )
+		instance.Count:RegisterCallback( Mouse.eRClick, OnResourceRClick )
 	end
 end
 
@@ -2396,6 +2716,9 @@ function()
 	if g_clockFormat then
 		Controls.CurrentTime:SetText( os_date( g_clockFormat ) )
 	end
+
+	g_activePlayerID = Game.GetActivePlayer()
+	g_activePlayer = Players[g_activePlayerID]
 
 	if g_isPopupUp ~= UI.IsPopupUp() then
 		Controls.TopPanelMask:SetHide( g_isPopupUp or g_isSmallScreen )
