@@ -1157,8 +1157,8 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
 	{
 		if (MOD_BALANCE_VP)
 		{
-			ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
-			if (eReligion != NO_RELIGION)
+			ReligionTypes eReligion = (ReligionTypes) pMinor->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
+			if (eReligion != NO_RELIGION && eReligion == GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false))
 			{
 				int iStartFollowers = pMinor->GetMinorCivAI()->GetQuestData1(ePlayer, eType);
 				int iEndFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
@@ -2315,13 +2315,14 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	// Faith contest
 	else if(m_eType == MINOR_CIV_QUEST_CONTEST_FAITH)
 	{
-		ReligionTypes eReligion = pAssignedPlayer->GetReligions()->GetStateReligion();
-		if (MOD_BALANCE_CORE_QUEST_CHANGES)
+		ReligionTypes eReligion = pAssignedPlayer->GetReligions()->GetStateReligion(false);
+		if (MOD_BALANCE_VP)
 		{
 			if (eReligion != NO_RELIGION)
 			{
 				int iStartFollowers = GC.getGame().GetGameReligions()->GetNumFollowers(eReligion);
 				m_iData1 = iStartFollowers;
+				m_iData2 = eReligion;
 			}
 		}
 		else
@@ -6979,9 +6980,9 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		int NumReligions = GC.getGame().GetGameReligions()->GetNumReligionsFounded(true);
 
-		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion();
+		ReligionTypes eReligion = GET_PLAYER(ePlayer).GetReligions()->GetStateReligion(false);
 
-		if (MOD_BALANCE_CORE_QUEST_CHANGES && eReligion == NO_RELIGION)
+		if (MOD_BALANCE_VP && eReligion == NO_RELIGION)
 			return false;
 
 		// Renaissance era or Later
