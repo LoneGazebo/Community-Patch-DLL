@@ -4614,6 +4614,14 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
 			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			PlayerTypes eTargetPlayer = GET_TEAM(eTargetTeam).getLeaderID();
+			if (eTargetPlayer == NO_PLAYER)
+				break;
+
+			if (!bIsPeaceDeal && !bCityState && GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
+			{
+				GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+			}
 
 			// Make peace!
 			GET_TEAM(eGivingTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bCityState, eGivingPlayer);
@@ -4627,11 +4635,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				// Skip global reactions for CS allies in a peace treaty.
 				if (bIsPeaceDeal)
 				{
-					PlayerTypes eTargetMinor = GET_TEAM(eTargetTeam).getLeaderID();
-					if (eTargetMinor == NO_PLAYER)
-						break;
-
-					PlayerTypes eAlly = GET_PLAYER(eTargetMinor).GetMinorCivAI()->GetAlly();
+					PlayerTypes eAlly = GET_PLAYER(eTargetPlayer).GetMinorCivAI()->GetAlly();
 					if (eAlly != NO_PLAYER)
 					{
 						if (GET_PLAYER(eAlly).getTeam() == eGivingTeam || GET_PLAYER(eAlly).getTeam() == eReceivingTeam)
@@ -4700,7 +4704,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 								strText << Localization::Lookup("TXT_KEY_UNMET_PLAYER");
 							}
 							strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-							strText << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
+							strText << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_PEACE_OTHER_S");
 							if (bMetBroker)
 							{
@@ -4711,7 +4715,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 								strSummary << Localization::Lookup("TXT_KEY_UNMET_PLAYER");
 							}
 							strSummary << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-							strSummary << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
+							strSummary << GET_PLAYER(eTargetPlayer).getCivilizationShortDescriptionKey();
 							pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
 					}
@@ -4748,18 +4752,14 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						// Allies, PTPs, friends of the City-State - bonus to recent assistance for the peacemaker!
 						else
 						{
-							PlayerTypes eTargetMinor = GET_TEAM(eTargetTeam).getLeaderID();
-							if (eTargetMinor == NO_PLAYER)
+							if (!GET_PLAYER(eTargetPlayer).isMinorCiv() || GET_PLAYER(eTargetPlayer).getNumCities() <= 0)
 								continue;
 
-							if (!GET_PLAYER(eTargetMinor).isMinorCiv() || GET_PLAYER(eTargetMinor).getNumCities() <= 0)
-								continue;
-
-							if (GET_PLAYER(eTargetMinor).GetMinorCivAI()->IsAllies(ePlayer))
+							if (GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsAllies(ePlayer))
 							{
 								GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
 							}
-							else if (GET_PLAYER(eTargetMinor).GetMinorCivAI()->IsFriends(ePlayer) || GET_PLAYER(eTargetMinor).GetMinorCivAI()->IsProtectedByMajor(ePlayer))
+							else if (GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsFriends(ePlayer) || GET_PLAYER(eTargetPlayer).GetMinorCivAI()->IsProtectedByMajor(ePlayer))
 							{
 								if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomat()
 									|| GET_PLAYER(ePlayer).GetDiplomacyAI()->IsGoingForDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory())

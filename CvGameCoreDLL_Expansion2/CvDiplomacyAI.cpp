@@ -22919,17 +22919,17 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 		}
 	}
 
-	bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
+	//bool bBold = GetBoldness() > 7 || GetPlayer()->GetPlayerTraits()->IsWarmonger() || (IsCompetingForVictory() && IsGoingForWorldConquest());
 	bool bCloseToWorldConquest = IsCloseToWorldConquest();
 	bool bGoingForWorldConquest = IsGoingForWorldConquest();
 
-	int iConflictLimit = bBold ? 15 : 10;
-	int iPotentialWarLimit = iConflictLimit * 2;
+	int iConflictLimit = /*bBold ? 15 : */10;
+	int iPotentialWarLimit = iConflictLimit + 5;
 
 	// Limit our willingness for conflict in the very early game.
 	if (GetPlayer()->GetCurrentEra() <= 1)
 	{
-		iConflictLimit = 10;
+		//iConflictLimit = 10;
 		iPotentialWarLimit = 10;
 	}
 
