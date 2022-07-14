@@ -37683,10 +37683,6 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	{
 		m_paiNumResourceUsed[eIndex] = m_paiNumResourceUsed[eIndex] + iChange;
 	}
-#if !defined(MOD_BALANCE_CORE)
-	if(iChange > 0)
-		DoTestOverResourceNotification(eIndex);
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -37896,13 +37892,6 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 			GET_PLAYER((PlayerTypes)iPlayerLoop).UpdateResourcesSiphoned();
 		}
 	}
-
-#if !defined(MOD_BALANCE_CORE)
-		if (iChange < 0 && !bIgnoreResourceWarning)
-		{
-			DoTestOverResourceNotification(eIndex);
-		}
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -38665,13 +38654,8 @@ void CvPlayer::UpdateResourcesSiphoned()
 /// Are we over our resource limit? If so, give out a notification
 void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 {
-#if defined(MOD_BALANCE_CORE)
 	if((getNumResourceAvailable(eIndex, true) < 0) && (getNumResourceUsed(eIndex) > 0))
-#else
-	if(getNumResourceAvailable(eIndex, true) < 0)
-#endif
 	{
-#if defined(MOD_BALANCE_CORE)
 		//Flip the amount available as our drain pool - helper for cities to prevent empire wide drop.
 		setResourceShortageValue(eIndex, (getNumResourceAvailable(eIndex, true) * -1));
 		int iUnitLoop;
@@ -38697,7 +38681,7 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 		}
 		if(!bTest)
 			return;
-#endif
+
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 		if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 		{
@@ -38708,11 +38692,7 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 				strText << pkResourceInfo->GetTextKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT");
 				strSummary << pkResourceInfo->GetTextKey();
-#if defined(MOD_BALANCE_CORE)
 				pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
-#else
-				pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
-#endif
 			}
 		}
 	}

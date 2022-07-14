@@ -579,6 +579,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			// Resources can have a "AI will stop trading" era - if it's been passed, AI won't trade this
 			if (!pFromPlayer->isHuman() && pFromTeam->IsResourceObsolete(eResource))
 				return false;
+			if (!pToPlayer->isHuman() && pToTeam->IsResourceObsolete(eResource))
+				return false;
 
 			// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
 			int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
