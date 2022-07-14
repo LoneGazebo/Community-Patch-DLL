@@ -176,7 +176,7 @@ CommitItems["EventChoices"] = function(selection, playerID)
 			print("Making Choice" .. eventChoiceType);
 			local eventChoice = GameInfo.EventChoices[eventChoiceType];
 			if(eventChoice ~= nil) then
-				activePlayer:DoEventChoice(eventChoice.ID);
+				activePlayer:DoEventChoice(eventChoice.ID, m_PopupInfo.Data2);
 				-- Event Choice Audio
 				local eventChoiceAudio = eventChoice.EventChoiceAudio
 				if eventChoiceAudio then
