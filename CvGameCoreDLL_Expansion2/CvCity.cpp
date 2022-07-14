@@ -2394,8 +2394,6 @@ void CvCity::doTurn()
 
 	if (getDamage() > 0 && !IsBlockadedWaterAndLand())
 	{
-		CvAssertMsg(m_iDamage <= GetMaxHitPoints(), "Somehow a city has more damage than hit points. Please show this to a gameplay programmer immediately.");
-
 		int iHitsHealed = /*20 in CP, 8 in VP*/ GD_INT_GET(CITY_HIT_POINTS_HEALED_PER_TURN);
 
 		int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
@@ -2404,10 +2402,24 @@ void CvCity::doTurn()
 
 		iHitsHealed += iBuildingDefense / 1000;
 
-#if defined(MOD_BALANCE_CORE)
-		if (!IsEnemyInRange(AVG_CITY_RADIUS, false))
+		if (MOD_BALANCE_VP)
 		{
 			iHitsHealed += getPopulation();
+
+			bool bAnyPlotBlockaded = false;
+			for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
+
+				if (pAdjacentPlot && pAdjacentPlot->isBlockaded(getOwner()))
+				{
+					bAnyPlotBlockaded = true;
+					break;
+				}
+			}
+
+			if (!bAnyPlotBlockaded)
+				iHitsHealed *= 5;
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -2416,20 +2428,16 @@ void CvCity::doTurn()
 			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
 				int iPile = getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue();
-
 				iHitsHealed += iPile / 100;
 			}
 		}
-#endif
+
 		changeDamage(-iHitsHealed);
 	}
 
 	if (getDamage() < 0)
-	{
 		setDamage(0);
-	}
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		if (GetPlagueTurns() > 0)
@@ -2437,10 +2445,10 @@ void CvCity::doTurn()
 			ChangePlagueTurns(-1);
 		}
 	}
+
 	if (GetSappedTurns() > 0)
 		ChangeSappedTurns(-1);
 
-#endif
 #if defined(MOD_BALANCE_CORE)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{

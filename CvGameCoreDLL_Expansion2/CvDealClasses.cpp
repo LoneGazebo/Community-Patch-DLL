@@ -654,13 +654,37 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 
-			// Can't already have this city in the deal
-			if (!bFinalizing && IsCityTrade(ePlayer, iData1, iData2))
-				return false;
+			if (!bFinalizing)
+			{
+				// Can't already have this city in the deal
+				if (IsCityTrade(ePlayer, iData1, iData2))
+					return false;
 
-			// Can't trade a city if not at full HP and enemies are nearby (except in a peace deal)
-			if (!bPeaceDeal && pCity->getDamage() > 0 && (pCity->getDamageTakenLastTurn() > 0 || pCity->IsEnemyInRange(AVG_CITY_RADIUS, false)))
-				return false;
+				// If trading with AI, can't trade more than one city per player at a time
+				if (!bHumanToHuman && ContainsItemType(TRADE_ITEM_CITIES, ePlayer))
+					return false;
+			}
+
+			// Can't trade a city if sapped, or if not at full HP and enemies are nearby (except in a peace deal)
+			if (!bPeaceDeal)
+			{
+				if (pCity->GetSappedTurns() > 0)
+					return false;
+
+				if (pCity->getDamage() > 0)
+				{
+					if (pCity->getDamageTakenLastTurn() > 0)
+						return false;
+
+					for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iLoop));
+
+						if (pAdjacentPlot && pAdjacentPlot->isBlockaded(ePlayer))
+							return false;
+					}
+				}
+			}
 
 			break;
 		}
