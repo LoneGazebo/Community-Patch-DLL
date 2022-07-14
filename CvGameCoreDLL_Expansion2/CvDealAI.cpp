@@ -1918,10 +1918,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			break;
 		}
 
-		//greatly increase this if we're at a deficit of resources.
-		if (GetPlayer()->getResourceShortageValue(eResource) > 0)
-			iItemValue += iItemValue / 2;
-
 		//Scale with game speed.
 		iItemValue *= iNumTurns;
 
@@ -1935,11 +1931,17 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			int iAmountAfterThisResource = iLoop + iNumberAvailableToUs;
 
 			if (iAmountAfterThisResource > 5)
-				iValueToAdd = 0;
-			else if (iAmountAfterThisResource > 0)
 			{
-				iValueToAdd *= 100 - (iAmountAfterThisResource * 10);
+				iValueToAdd = 0;
+			}
+			else if (iAmountAfterThisResource > 1)
+			{
+				iValueToAdd *= 100 - ((iAmountAfterThisResource - 1) * 15);
 				iValueToAdd /= 100;
+			}
+			else if (iAmountAfterThisResource < 1) //greatly increase this if we're actually at a deficit of resources.
+			{
+				iValueToAdd += iItemValue / 2;
 			}
 
 			iFinalValue += iValueToAdd;

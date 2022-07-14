@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="107" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="108" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -188,7 +188,7 @@
     <File md5="DF444BC0B8CD5C04C08568EF45780F9D" import="1">Art/Splash/Karlstejn_WonderSplash.dds</File>
     <File md5="A1B4D441370E5E3308EF01AEB7B9F1B1" import="1">Art/Splash/motherlandsplash.dds</File>
     <File md5="503E4C958296A2F1D9097970C1971199" import="1">Art/Splash/SlaterSplash.dds</File>
-    <File md5="DB93F9A870945A307CF7423643466BE3" import="1">Art/Splash/TheJewelSplash.dds</File>
+    <File md5="00D529A1E8584E63D5086EC13A59E333" import="1">Art/Splash/TheJewelSplash.dds</File>
     <File md5="27D8F6F68F034BC5BF15DE7698735EA7" import="1">Art/Units/ArmoredCar/FordM1918.dds</File>
     <File md5="BE230C14A4443DC6A4F8AB32F49CE261" import="1">Art/Units/ArmoredCar/FordM1918.fxsxml</File>
     <File md5="DAADB92335DB6FE0FD9EBC1A9F608A3E" import="1">Art/Units/ArmoredCar/FordM1918.gr2</File>
@@ -369,7 +369,7 @@
     <File md5="C36A7D603D8D28E0CBE107D95D893FB9" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
     <File md5="394BC1C1FFB02FF746133AAD1FC16142" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
     <File md5="32B0D654159D76C3F81DA93861FD2E9D" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
-    <File md5="2E5ADA79B52364DFF54A9A60773C924D" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
+    <File md5="1F2C35FA92430584AEDCC6A50C0EC3E5" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
     <File md5="5E9040EE51D1ADBC521C5204DE3023B7" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
     <File md5="A3FFD2D77315EC25E4B227528468A15B" import="0">Balance Changes/Ideologies/Order/OrderChanges.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
@@ -407,7 +407,7 @@
     <File md5="46BB5D2E8708BD057E603F99C1C1D2E7" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="B8C30B352B7855FDA53910DEC09948B1" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="C9CFABFFD372288F06FFB45C710DF27A" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="94204913326A91212D97A213C4F4D4DA" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="85FF09AD75F55AA6E080460C77EC5B06" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="2623C14DF7A1C323B97FC87F608C9F51" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BB9C8A8D4F9BF63E348080E377C19D3A" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
@@ -425,10 +425,10 @@
     <File md5="28772D2D29092F2FBC96616B98CB798D" import="0">Balance Changes/Units/NewUnits.sql</File>
     <File md5="89C29454E90DEDBE8255713A3E9F9FE0" import="0">Balance Changes/Units/PromotionChanges.xml</File>
     <File md5="BFF6B23AEDB35595A01F03048CFD27AE" import="0">Balance Changes/Units/UnitCombat.sql</File>
-    <File md5="9511D96F449E118DB527911768A600D6" import="0">Balance Changes/Units/UniqueUnits.sql</File>
-    <File md5="6EEE9EE4A635ACFF341D5F06FCCC4005" import="0">Balance Changes/Units/MountedUnits.sql</File>
+    <File md5="A9187430F4699FCA58B179C22AC17490" import="0">Balance Changes/Units/UniqueUnits.sql</File>
+    <File md5="99CFC6FA052271B1DF51966BCABC25E0" import="0">Balance Changes/Units/MountedUnits.sql</File>
     <File md5="1DAB4A3E6171444094A0CE5FB8F06965" import="0">Balance Changes/Units/RangedUnits.sql</File>
-    <File md5="696576139AC72FB6818DB719362A468A" import="0">Balance Changes/Units/MeleeUnits.sql</File>
+    <File md5="087C878249E0D6A794CE6D09786E2CBE" import="0">Balance Changes/Units/MeleeUnits.sql</File>
     <File md5="E0DECD35B93CD03A3625D52C63C8972A" import="0">Balance Changes/Units/NavalUnits.sql</File>
     <File md5="8B6C1FFD31C7B93B5AA7984D38A95ED6" import="0">Balance Changes/Units/UnitBuildingPurchaseRequired.sql</File>
     <File md5="5B731A636B34E05CDEE39D54A99ABF37" import="0">Balance Changes/Units/UnitCooldowns.sql</File>
@@ -445,7 +445,7 @@
     <File md5="3EC867BA78549256F49456BEAE3618D8" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
     <File md5="CC83B83AB81435CD8A9AA268155FD57B" import="0">Balance Changes/Worlds/WorldSizes.sql</File>
     <File md5="141A4126B327E5610F6396C10F26322A" import="0">CommunityOptions.sql</File>
-    <File md5="A9C652907A00E39812F3BC5D70EA7AEC" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
+    <File md5="47C668AB87260601675D4B3A566FEF1A" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
     <File md5="6942D9F5FF49A7AFA7408D32C6EC946D" import="1">Core Files/CoreLua/EspionageOverview.lua</File>
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">Core Files/CoreLua/EspionageOverview.xml</File>
     <File md5="9D229DD64FA74E1A750B9974ECC0F105" import="1">Core Files/CoreLua/AssignStartingPlots.lua</File>
@@ -463,9 +463,9 @@
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="70BFC66C77548A6AA08CB71DB336F226" import="1">LUA/CityView.lua</File>
-    <File md5="394F2339E22FF9B0B3885CA20479C41F" import="1">LUA/CityView.xml</File>
-    <File md5="E5321D0DBDDDF5F5DD58D9CEDB93FF5C" import="1">LUA/CityView_small.xml</File>
+    <File md5="F0125F27D955873CE85A527C8685939F" import="1">LUA/CityView.lua</File>
+    <File md5="0148E0C18ABBCF79092836538025008D" import="1">LUA/CityView.xml</File>
+    <File md5="E611F253AB510B73CF55EF2AD2A2372D" import="1">LUA/CityView_small.xml</File>
     <File md5="18A1ECCDC4B7D9F0C2785EF35DC7BA1F" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
     <File md5="0F36E9923D32508E9DF09CE94A1B0BC2" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
     <File md5="90E5C23859C1EEF44EE7351827190F9C" import="1">Core Files/CoreLua/CultureOverview.lua</File>
@@ -628,8 +628,8 @@
     <File md5="FB153D1BEF1DA997567B0DBBF771FE1E" import="0">CSD/Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">CSD/Buildings/BuildingGrowthYield.xml</File>
     <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">CSD/Gameplay/UpdateDefines.sql</File>
-    <File md5="EA5860444C5CA063BFEBE27B1AA6457A" import="0">CSD/Gameplay/CSDTable.sql</File>
-    <File md5="3A8B1EE0BF522FBEE6FC3EAB318E87A4" import="0">CSD/Gameplay/GameplayText.sql</File>
+    <File md5="E7D6F0307F25EA433ED916312FE9E5BE" import="0">CSD/Gameplay/CSDTable.sql</File>
+    <File md5="9B94F8D8DE7D7F477BA498CD989D64B7" import="0">CSD/Gameplay/GameplayText.sql</File>
     <File md5="CF8BD06200818A9E72B0C33D5203174B" import="0">CSD/Gameplay/Gameplay.sql</File>
     <File md5="00C3521183F921A16193D243609A08AE" import="0">CSD/Gameplay/GoldGifts.sql</File>
     <File md5="C4565E3416EC26ADAAC66FF1ABE58B2B" import="0">CSD/Improvements/Build.xml</File>
@@ -655,7 +655,7 @@
     <File md5="8050930951C51832D14A659C7DD22C3F" import="1">C4DF/Images/vassal80hl.dds</File>
     <File md5="EBFC0930CA7CF1C4F9629A962A7710C8" import="1">C4DF/LUA/VassalageOverview.lua</File>
     <File md5="30BA62E79F70C9FFDC0236C4ACE9AEC0" import="1">C4DF/LUA/VassalageOverview.xml</File>
-    <File md5="E515594E3D21C946A01FC49F4FEF1E01" import="0">C4DF/SQL/NewColumns.sql</File>
+    <File md5="E294C0751A95D8CA5F49E516BBF2D61B" import="0">C4DF/SQL/NewColumns.sql</File>
     <File md5="B150DE1D6850A1BB7F6E4873AE35380E" import="0">C4DF/XML/Gameplay/C4DFConcepts.xml</File>
     <File md5="384BE74C9B3DC914EE853E98789C83AB" import="0">C4DF/XML/Gameplay/C4DFDiplomacyResponses.xml</File>
     <File md5="954B0F030CD7C265C861693A8644D795" import="0">C4DF/XML/Gameplay/C4DFGameOptions.xml</File>

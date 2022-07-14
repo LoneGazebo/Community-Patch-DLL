@@ -52,7 +52,7 @@ WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 -- Austria
 ---------------------------
 -- Hussar now a Cuirassier unit
-UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_CUIRASSIER' WHERE UnitType = 'UNIT_AUSTRIAN_HUSSAR';
 
@@ -221,7 +221,7 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_GERMAN_PANZER
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_PANZER', 'TXT_KEY_UNIT_GERMAN_PANZER', 'UNIT_GERMAN_PANZER');
 
-UPDATE Units SET Class = 'UNITCLASS_PANZER', PolicyType = 'POLICY_PATRIOTIC_WAR', , Moves = '5', UnitArtInfo = 'ART_DEF_UNIT_TANK', PortraitIndex = '13', UnitFlagIconOffset = '57'  WHERE Type = 'UNIT_GERMAN_PANZER';
+UPDATE Units SET Class = 'UNITCLASS_PANZER', PolicyType = 'POLICY_PATRIOTIC_WAR', Moves = '5', UnitArtInfo = 'ART_DEF_UNIT_TANK', PortraitIndex = '13', UnitFlagIconOffset = '57'  WHERE Type = 'UNIT_GERMAN_PANZER';
 
 UPDATE Units SET UnitArtInfo = 'ART_DEF_UNIT_U_GERMAN_PANZER', UnitFlagIconOffset = '58', PortraitIndex = '39' WHERE Type = 'UNIT_TANK';
 

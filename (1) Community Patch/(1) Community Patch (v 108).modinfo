@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="107">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="108">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(2.4.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(2.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>107</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>108</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -110,13 +110,13 @@
     <File md5="4E508F5AA1D796DB0A5E1A4CDACBBD4F" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="B2F0CFF1DF2DD8539265D9873D6A61FD" import="0">Core Files/Core Changes/TextChanges.sql</File>
     <File md5="5C7E085831AF9566647DF96132E80362" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="345E4CF9F62763FCE95A7AD89856D53E" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
-    <File md5="8058A9E2FC0AABB52EC6C49E9B5D8FF4" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
+    <File md5="03CE12FCE76E123751DA66846C3481A0" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="BD84554C47AF3711312F7CF7027ACCC3" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="CC09592152BB35966216C0094BD1F936" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="0E84595C3A86B3C2E0D515203439A630" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="A78E6081936DB2D2A59D290C4555B001" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="C76456E5709C8F3FB98EDCD48926DFE7" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -151,7 +151,7 @@
     <File md5="4C0FA5BDC561A08771875B67938B484E" import="1">Core Files/CoreLua/EventArt/SunHeat.dds</File>
     <File md5="7CC44079C17A550A92E808DF9D781B61" import="0">Core Files/CoreLua/EventOverview.xml</File>
     <File md5="F96BAF543AB02586B4CD913507F7420E" import="1">Core Files/CoreLua/EventChoice.mp3</File>
-    <File md5="6DA9943C95E9C9BE8149F4D48115D8FD" import="0">Core Files/CoreLua/EventChoicePopup.lua</File>
+    <File md5="72D4B7847940DFC5F85FB76C4248BDA2" import="0">Core Files/CoreLua/EventChoicePopup.lua</File>
     <File md5="213DD9B4CD1DB151EC26DBD1F996E4A7" import="0">Core Files/CoreLua/EventChoicePopup.xml</File>
     <File md5="C52150B6258A39219B526BA1601E9153" import="0">Core Files/CoreLua/EventChoicePopupCity.lua</File>
     <File md5="2FBF778B6AF3317CA4105412226E02DE" import="0">Core Files/CoreLua/EventChoicePopupCity.xml</File>
@@ -159,7 +159,7 @@
     <File md5="695FACA1BA4A5C15D3595EF99B6B658C" import="0">Core Files/CoreLua/EventPopup.xml</File>
     <File md5="D34DBE771326E8740FF4354E860675FD" import="0">Core Files/CoreLua/EventOverview.lua</File>
     <File md5="AE2515A56CC80041728985BA2BF89F09" import="0">Core Files/CoreLua/EspionageChoicePopup.xml</File>
-    <File md5="0BB86F491B62AF63C94A4E8ED8E425D5" import="1">Core Files/CoreLua/InGame.lua</File>
+    <File md5="9CAEA290DF1D34FB790F4DD39092B7C0" import="1">Core Files/CoreLua/InGame.lua</File>
     <File md5="56E67473CBCDEA9E3AAE1D815B738FB1" import="0">Core Files/CoreLua/EspionageChoicePopup.lua</File>
     <File md5="BF44E18E8DB303517A633F14D43BAC69" import="1">Core Files/CoreLua/MPList.lua</File>
     <File md5="FAE13602CE1A44D64D734538BE4C1AAD" import="1">Core Files/CoreLua/PathHelpManager.lua</File>
@@ -225,9 +225,9 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="813334484381DDDE4C59EA726F18E58E" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="D8BB131DBC138CBC97AFF8B22499A667" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="A1343F73F0F961FFF8D1ED04CFAC9A83" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="930D6B9D0BFC67DD4A03FD03FA4CBBF1" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="DD602898B85DC9117B01307C578F6DBB" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
