@@ -2099,7 +2099,6 @@ public:
 	void DoTradeInfluenceAP();
 #endif
 	void DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit);
-	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
 

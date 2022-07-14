@@ -37244,20 +37244,6 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 
 	AddIncomingUnit(eFromPlayer, pUnit);
 }
-bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
-{
-	if (GET_PLAYER(eToPlayer).isMinorCiv())
-	{
-		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
-		int iMax = GET_PLAYER(eToPlayer).GetNumUnitsSupplied(false);
-
-		if (iNum >= iMax)
-			return false;
-
-		return true;
-	}
-	return false;
-}
 //	--------------------------------------------------------------------------------
 /// Someone sent us a present!
 void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
@@ -37333,10 +37319,6 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 			{
 				CvCity* pCity = eMinor->getCapitalCity();
 				if (pCity == NULL)
-					continue;
-
-				// City-State can't be above their unit cap
-				if (!CanGiftUnit(eLoopMinor))
 					continue;
 
 				// Is there a distance gift from us waiting to be delivered?

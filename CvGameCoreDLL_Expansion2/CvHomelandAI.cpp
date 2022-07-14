@@ -1301,13 +1301,18 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 			CvUnit* pGiftedUnit = NULL;
 			int GiftedUnitID = -1;
 			int iLowestXP = INT_MAX;
+			int iStrongestUnitComparison = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(eDomain) * 85;
 			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
-				int iXP = pUnit->getExperienceTimes100();
-
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+				// Don't send weak units, we don't want them to be disbanded
+				if ((pkUnitInfo->GetPower() * 100) < iStrongestUnitComparison)
+					continue;
+
+				int iXP = pUnit->getExperienceTimes100();
 
 				// Unique units last longer before upgrading, so they'll give us a longer Influence bonus
 				if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())

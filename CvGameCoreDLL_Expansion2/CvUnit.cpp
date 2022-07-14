@@ -6047,10 +6047,6 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) const
 				return false;
 			}
 		}
-
-		// City-State can't be above their unit cap
-		if (!kPlayer.CanGiftUnit(pPlot->getOwner()))
-			return false;
 	}
 	else if (MOD_NO_MAJORCIV_GIFTING)
 	{
@@ -6205,10 +6201,6 @@ bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 				return false;
 			}
 		}
-
-		// City-State can't be above their unit cap
-		if (!kPlayer.CanGiftUnit(eToPlayer))
-			return false;
 
 		// Is there a distance gift from us waiting to be delivered?
 		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
