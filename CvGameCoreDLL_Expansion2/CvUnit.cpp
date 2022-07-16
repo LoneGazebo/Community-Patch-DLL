@@ -145,7 +145,6 @@ CvUnit::CvUnit() :
 	, m_bIsGrouped()
 	, m_iLinkedMaxMoves()
 	, m_LinkedUnitIDs()
-	, m_LinkedLeaderUnit()
 	, m_bImmobile()
 	, m_iExperienceTimes100()
 	, m_iLevel()
@@ -3316,6 +3315,13 @@ void CvUnit::doTurn()
 			}
 		}
 	}				
+
+	// prevent linked units in movement from asking orders
+	if (IsLinked() && !IsLinkedLeader())
+	{
+		SetTurnProcessed(true);
+	}
+
 #endif
 	doDelayedDeath();
 #if defined(MOD_BALANCE_CORE)
@@ -5430,8 +5436,6 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 	}
 
-	//important, first do the move, then subtract the cost
-	//that way setXY can tell whether it's the initial move this turn
 	if (IsLinkedLeader()) // moving the whole stack, one plot at a time
 	{
 		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
@@ -5450,17 +5454,20 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 		if (bCanDoLinkedMove)
 		{
-			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
 			{
 				CvUnit* pLinkedUnit = LinkedUnits[iI];
-//				pLinkedUnit->move(targetPlot, true);
-				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), 0, true);
-				pLinkedUnit->PushMission(CvTypes::getMISSION_SKIP(), -1, -1, 0, true); // to stop linked units from asking orders
+				pLinkedUnit->move(targetPlot, true);
+//				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), 0, true);
+//				pLinkedUnit->PushMission(CvTypes::getMISSION_SKIP(), -1, -1, 0, true); // to stop linked units from asking orders
 			}
+
+			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 		}
 	}
-	else 
+	//important, first do the move, then subtract the cost
+	//that way setXY can tell whether it's the initial move this turn
+	else
 	{
 		setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 	}
@@ -15372,6 +15379,40 @@ void CvUnit::SetLinkedMaxMoves(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetSlowestUnitIDOnPlot() const
+{
+	VALIDATE_OBJECT
+
+	const CvPlot* pCurrentPlot = plot();
+
+	if (pCurrentPlot == NULL)
+		return 0;
+
+	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
+	CvUnit* pLoopUnit = NULL;
+	int iLowestCurrentMoves = getMoves();
+	int iSlowestUnitID = GetID();
+
+	while (pUnitNode != NULL)
+	{
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
+
+		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		{
+			int iLoopMoves = pLoopUnit->getMoves();
+
+			if (iLoopMoves < iLowestCurrentMoves) {
+				iLowestCurrentMoves = iLoopMoves;
+				iSlowestUnitID = pLoopUnit->GetID();
+			}
+		}
+	}
+
+	return iSlowestUnitID;
+}
+
+//	--------------------------------------------------------------------------------
 void CvUnit::DoLinkedMovement(CvPlot* pDestPlot)
 {
 	VALIDATE_OBJECT
@@ -15424,7 +15465,7 @@ void CvUnit::DoLinkedMovement(CvPlot* pDestPlot)
 		}
 	}
 	SetLinkedUnits(LinkedUnitIDs);
-	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY()); // we're doing the movement in move()
+	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY()); // we're moving other units in move()
 }
 
 //	--------------------------------------------------------------------------------
@@ -28569,6 +28610,11 @@ bool CvUnit::ReadyToMove() const
 	}
 
 	if(IsBusy())
+	{
+		return false;
+	}
+
+	if (IsLinked() && !IsLinkedLeader()) // do not ask orders for units following another
 	{
 		return false;
 	}

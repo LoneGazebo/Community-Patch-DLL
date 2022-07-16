@@ -116,8 +116,7 @@ function ShowMovementRangeIndicator()
 
 	if bAlt then 
 		print ("displaying linked movement range")
---		Events.ShowMovementRange( iPlayerID, unit:GetSlowestUnitIDOnPlot() );
-		Events.ShowMovementRange( iPlayerID, unit:GetID() );
+		Events.ShowMovementRange( iPlayerID, unit:GetSlowestUnitIDOnPlot() );
 	else
 		Events.ShowMovementRange( iPlayerID, unit:GetID() );
 	end
@@ -808,12 +807,10 @@ function MovementRButtonUp()
 			
 			elseif bAlt and not bCtrl and not bShift then
 			-- alt + rclick moves all units on the tile together / call normal movement thing for the unit, followed by DoLinkedMovement()
---				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_LINKED_MOVEMENT, plotX, plotY, 0, false, true);				
 				print("TRYING LINKED MOVEMENT")
 				pHeadSelectedUnit:DoLinkedMovement(plot)
 			elseif bAlt and bCtrl and not bShift then
 				-- alt + ctrl + rclick moves units adjacent to this tile in formation / call normal movement thing for the unit, followed by DoGroupMovement()
---				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_GROUP_MOVEMENT, plotX, plotY, 0, false, true);				
 				print("TRYING GROUP MOVEMENT")
 				pHeadSelectedUnit:DoGroupMovement(plot)
 			elseif bShift and not bCtrl and not bAlt then -- VP/bal: holding down shift queues move orders

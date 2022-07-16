@@ -617,6 +617,7 @@ public:
 	UnitIdContainer GetLinkedUnits();
 	int GetLinkedMaxMoves() const;
 	void SetLinkedMaxMoves(int iValue);
+	int GetSlowestUnitIDOnPlot() const;
 	void DoLinkedMovement(CvPlot* pDestPlot);
 	void DoGroupMovement(CvPlot* pDestPlot);
 
