@@ -242,8 +242,6 @@ protected:
 
 	//for debugging
 	CvString m_strName;
-
-	CRITICAL_SECTION m_cs;
 };
 
 //-------------------------------------------------------------------------------------------------
