@@ -190,7 +190,7 @@ public:
 	T ChooseAtRandom(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
 		// the easy case
-		if (GC.getGame().isReallyNetworkMultiPlayer())
+		if (CvPreGame::isReallyNetworkMultiPlayer())
 			return m_items[0].m_Element;
 
 		// Based on the number of elements we have, pick one at random
@@ -202,7 +202,7 @@ public:
 	T ChooseByWeight(RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
 		// the easy case
-		if (GC.getGame().isReallyNetworkMultiPlayer())
+		if (CvPreGame::isReallyNetworkMultiPlayer())
 			return m_items[0].m_Element;
 
 		// Random roll up to total weight
@@ -245,7 +245,7 @@ public:
 		}
 
 		// the easy case
-		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
+		if (iNumChoices == 1 || CvPreGame::isReallyNetworkMultiPlayer())
 			return m_items[0].m_Element;
 
 		// All of the choices have a weight of 0 so pick randomly
