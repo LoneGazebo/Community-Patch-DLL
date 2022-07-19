@@ -18,6 +18,93 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 namespace CvInfosSerializationHelper
 {
+
+/// Helper function to read a single type ID as a string and convert it to an ID
+int Read(FDataStream& kStream, bool* bValid = NULL);
+/// Helper function to read a single resource type ID as a hash and convert it to an ID
+int ReadHashed(FDataStream& kStream, bool* bValid = NULL);
+/// Helper function to read a single type ID as a string and convert it to an ID using the database (not InfoTables)
+int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid = NULL);
+
+/// Helper function to write out an info type ID as string
+bool Write(FDataStream& kStream, const CvBaseInfo* pkInfo);
+/// Helper function to write out an info type ID as a hash
+bool WriteHashed(FDataStream& kStream, const CvBaseInfo* pkInfo);
+
+// Declare a basic serialization info helper
+#define DECLARE_SERIALIZATION_INFO_TYPE_HELPER(theType) \
+extern bool Write(FDataStream& kStream, const theType eType); \
+extern bool WriteHashed(FDataStream& kStream, const theType eType);
+
+// Implement a basic serialization info helper
+#define IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(theType, theInfoAccess, theNoEnum) \
+bool Write(FDataStream& kStream, const theType eType) \
+{ \
+	if(eType != theNoEnum) \
+		return Write(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
+	else \
+		return Write(kStream, (const CvBaseInfo*)NULL); \
+} \
+bool WriteHashed(FDataStream& kStream, const theType eType) \
+{ \
+	if(eType != theNoEnum) \
+		return WriteHashed(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
+	else \
+		return WriteHashed(kStream, (const CvBaseInfo*)NULL); \
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Start Type specific functions.
+
+// These functions convert a runtime type ID (index) to a unique type
+// string or hash
+
+// The V0 tag table for ResourceTypes
+extern const char* ms_V0ResourceTags[27];
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ResourceTypes);
+extern const char* ms_V0PolicyTags[60];
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PolicyTypes);
+extern const char* ms_V0PolicyBranchTags[10];
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PolicyBranchTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(TechTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BeliefTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ReligionTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PlayerColorTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(MinorCivTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SpecialistTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EmphasizeTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ProjectTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VoteTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VoteSourceTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SpecialUnitTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VictoryTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildingTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PromotionTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(UnitTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(FeatureTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PlotTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(TerrainTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(AICityStrategyTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SmallAwardTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(RouteTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ProcessTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ImprovementTypes);
+#if defined(MOD_BALANCE_CORE)
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventChoiceTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CityEventTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CityEventChoiceTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventClassTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildingClassTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CorporationTypes);
+DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ContractTypes);
+#endif
+// Can't use this because nothing ever respects the values.  They are all hard-coded in the enum
+//DECLARE_SERIALIZATION_INFO_TYPE_HELPER(UnitAITypes);
+
+/// End Type specific functions
+
 /// Read an array of T values and assume that the index in the array is the V0 index
 template<typename TData>
 void ReadV0DataArray(FDataStream& kStream, TData* paArray, int iArraySize, const char** ppszV0Tags, uint uiV0TagCount)
@@ -519,15 +606,6 @@ void ReadTypeArrayDBLookup(FDataStream& kStream, std::vector<TType>& aArray, con
 
 
 
-/// Helper function to read a single type ID as a string and convert it to an ID
-int Read(FDataStream& kStream, bool* bValid = NULL);
-
-/// Helper function to read a single resource type ID as a hash and convert it to an ID
-int ReadHashed(FDataStream& kStream, bool* bValid = NULL);
-
-/// Helper function to read a single type ID as a string and convert it to an ID using the database (not InfoTables)
-int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid = NULL);
-
 
 //////////////////////////////////////////////////////////////////////////
 /// Writers
@@ -677,86 +755,7 @@ void WriteHashedTypeArray(FDataStream& kStream, TType* paArray, uint uiArraySize
 
 #define CVINFO_V0_TAG_COUNT(x)	(sizeof(x) / sizeof(const char*))
 #define CVINFO_V0_TAGS(x)	&x[0], sizeof(x) / sizeof(const char*)
-
-// Declare a basic serialization info helper
-#define DECLARE_SERIALIZATION_INFO_TYPE_HELPER(theType) \
-extern bool Write(FDataStream& kStream, const theType eType); \
-extern bool WriteHashed(FDataStream& kStream, const theType eType);
-
-// Implement a basic serialization info helper
-#define IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(theType, theInfoAccess, theNoEnum) \
-bool Write(FDataStream& kStream, const theType eType) \
-{ \
-	if(eType != theNoEnum) \
-		return Write(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
-	else \
-		return Write(kStream, (const CvBaseInfo*)NULL); \
-} \
-bool WriteHashed(FDataStream& kStream, const theType eType) \
-{ \
-	if(eType != theNoEnum) \
-		return WriteHashed(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
-	else \
-		return WriteHashed(kStream, (const CvBaseInfo*)NULL); \
-}
-
 //////////////////////////////////////////////////////////////////////////
-// Start Type specific functions.
-
-// These functions convert a runtime type ID (index) to a unique type
-// string or hash
-
-// The V0 tag table for ResourceTypes
-extern const char* ms_V0ResourceTags[27];
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ResourceTypes);
-extern const char* ms_V0PolicyTags[60];
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PolicyTypes);
-extern const char* ms_V0PolicyBranchTags[10];
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PolicyBranchTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(TechTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BeliefTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ReligionTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PlayerColorTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(MinorCivTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SpecialistTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EmphasizeTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ProjectTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VoteTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VoteSourceTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SpecialUnitTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(VictoryTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildingTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PromotionTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(UnitTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(FeatureTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(PlotTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(TerrainTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(AICityStrategyTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(SmallAwardTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(RouteTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ProcessTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ImprovementTypes);
-#if defined(MOD_BALANCE_CORE)
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventChoiceTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CityEventTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CityEventChoiceTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(EventClassTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(BuildingClassTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(CorporationTypes);
-DECLARE_SERIALIZATION_INFO_TYPE_HELPER(ContractTypes);
-#endif
-// Can't use this because nothing ever respects the values.  They are all hard-coded in the enum
-//DECLARE_SERIALIZATION_INFO_TYPE_HELPER(UnitAITypes);
-
-/// End Type specific functions
-//////////////////////////////////////////////////////////////////////////
-
-/// Helper function to write out an info type ID as string
-bool Write(FDataStream& kStream, const CvBaseInfo* pkInfo);
-/// Helper function to write out an info type ID as a hash
-bool WriteHashed(FDataStream& kStream, const CvBaseInfo* pkInfo);
 }
 
 #endif // CVINFOSSERIALIZATIONHELPER_H
