@@ -32,6 +32,21 @@ local HideCivilopediaButton = false -- set true to hide
 
 local NavalSupplyID = GameInfoTypes.RESOURCE_SAILORS -- Support for Separate Naval Supply mod
 
+local IsDX11 = not UI.IsDX9()
+if IsDX11 then
+	print("RUNNING DX11, LOWERING CONTRAST")
+	Controls.SciencePerTurn:SetAlpha( 1.0 )
+	Controls.ScienceTurns:SetAlpha( 1.0 )
+	Controls.CultureString:SetAlpha( 1.0 )
+	Controls.CultureTurns:SetAlpha( 1.0 )
+	Controls.FaithTurns:SetAlpha( 1.0 )
+	Controls.GoldPerTurn:SetAlpha( 1.0 )
+	Controls.HappyTurns:SetAlpha( 1.0 )
+	Controls.UnitSupplyString:SetAlpha( 1.0 )
+	Controls.NavalSupplyString:SetAlpha( 1.0 )
+	Controls.GpTurns:SetAlpha( 1.0 )	
+end
+
 -- GP Font Icons
 local GPFontIconList = {
 	UNITCLASS_ENGINEER = "[ICON_GREAT_ENGINEER]",
