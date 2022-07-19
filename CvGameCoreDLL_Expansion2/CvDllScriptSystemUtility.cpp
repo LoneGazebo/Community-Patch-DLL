@@ -14,12 +14,12 @@
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 
-#include "Lua\CvLuaSupport.h"
-#include "Lua\CvLuaCity.h"
-#include "Lua\CvLuaDeal.h"
-#include "Lua\CvLuaPlot.h"
-#include "Lua\CvLuaUnit.h"
-#include "Lua\CvLuaLeague.h"
+#include "Lua/CvLuaSupport.h"
+#include "Lua/CvLuaCity.h"
+#include "Lua/CvLuaDeal.h"
+#include "Lua/CvLuaPlot.h"
+#include "Lua/CvLuaUnit.h"
+#include "Lua/CvLuaLeague.h"
 
 #include "CvReplayInfo.h"
 #include "CvReplayMessage.h"

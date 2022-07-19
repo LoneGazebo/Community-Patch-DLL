@@ -31,7 +31,7 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 #include "CvBarbarians.h"
-#include <CvEnumMap.h>
+#include "CvEnumMap.h"
 
 #if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"

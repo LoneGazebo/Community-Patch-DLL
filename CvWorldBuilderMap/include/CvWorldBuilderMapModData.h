@@ -21,7 +21,7 @@
 #ifndef CvWorldBuilderMapModData_h
 #define CvWorldBuilderMapModData_h
 
-#include "FireWorks\FUncopyable.h"
+#include "FireWorks/FUncopyable.h"
 
 class CvWorldBuilderMapModData;
 class ModType;
