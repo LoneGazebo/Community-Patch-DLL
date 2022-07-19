@@ -6246,7 +6246,7 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isEnemyUnit(eForPlayer, true, true))
 		return true;
 
-	if (isFriendlyUnit(eForPlayer, true, false))
+	if (isFriendlyUnit(eForPlayer, true, false) || isNeutralUnit(eForPlayer, true, true))
 		return false;
 
 	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;

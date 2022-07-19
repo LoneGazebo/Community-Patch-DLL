@@ -2217,6 +2217,11 @@ void CvCityCitizens::ClearBlockades()
 	m_vBlockadedPlots.clear();
 }
 
+bool CvCityCitizens::AnyPlotBlockaded() const
+{
+	return !m_vBlockadedPlots.empty();
+}
+
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 bool CvCityCitizens::DoVerifyWorkingPlots()
 {
@@ -2226,7 +2231,7 @@ bool CvCityCitizens::DoVerifyWorkingPlots()
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
-		if (!pPlot)
+		if (!pPlot || !pPlot->isEffectiveOwner(m_pCity))
 			continue;
 
 		//cache which plots are blockaded, the check can be expensive
