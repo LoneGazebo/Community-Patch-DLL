@@ -25,7 +25,7 @@
 //
 //+++++++++++++++++++++++++
 
-#include "..\FInputDevice.h"
+#include "../FInputDevice.h"
 
 class FKBInputDevice : public FInputDevice
 {
