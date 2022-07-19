@@ -8380,6 +8380,10 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeMilitaryPromise(GetID()))
 		return true;
 
+	// Can't ask this of your vassal or master
+	if (IsVassal(ePlayer) || IsMaster(ePlayer))
+		return true;
+
 	// Observer can't ask this
 	if (!GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).isObserver())
 		return true;
