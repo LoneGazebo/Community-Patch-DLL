@@ -53,75 +53,9 @@ namespace FLua
 
 	namespace Details
 	{
-		// Used by FLua::ErrorHandler to trick the compiler
-		template<class TOut, class TIn>
-		TOut UnsafeCast(TIn inVal)
-		{
-			FLUA_COMPILE_TIME_CONDITION(sizeof(TIn) == sizeof(TOut), CantUseUnsafeCast);
-			union { TIn inVal; TOut outVal; } u;
-			u.inVal = inVal;
-			return u.outVal;
-		}
-
 		void LockAccess();
 		void UnlockAccess();	
 	}
-
-	// ErrorHandler - Called when FLua encounters an error.  Use SetErrorHandler to set it to your own function.
-	class ErrorHandler
-	{
-	public:
-		typedef void(*ErrorHandlerStaticFunc)(const TCHAR*);
-
-		// Static functions
-		ErrorHandler(ErrorHandlerStaticFunc pfn) :
-			m_pkClass(NULL),
-			m_pfnFunc(Details::UnsafeCast<ErrorHandlerFunc>(pfn))
-			{ assert(pfn); }
-		
-		// Member functions
-		template<class T, class TFuncOwner>
-		ErrorHandler(T *p, void(TFuncOwner::*pfn)(const TCHAR*)) :
-			m_pkClass(Details::UnsafeCast<ErrorHandlerClass*>(p)),
-			m_pfnFunc(Details::UnsafeCast<ErrorHandlerFunc>(pfn))
-			{ assert(pfn); }
-
-		// Const Member functions
-		template<class T, class TFuncOwner>
-		ErrorHandler(const T *p, void(TFuncOwner::*pfn)(const TCHAR*)const) :
-			m_pkClass(Details::UnsafeCast<ErrorHandlerClass*>(p)),
-			m_pfnFunc(Details::UnsafeCast<ErrorHandlerFunc>(pfn))
-			{ assert(pfn); }
-
-		// Call the error handler
-		void operator()( _In_z_ const TCHAR *szError) const;
-
-	private:
-		class ErrorHandlerClass {};
-		typedef void(ErrorHandlerClass::*ErrorHandlerFunc)(const TCHAR*);
-		ErrorHandlerClass *m_pkClass;
-		ErrorHandlerFunc m_pfnFunc;
-	};
-
-	namespace Details {
-		static void DefaultErrorHandler(const TCHAR *szError) { fprintf_s(stderr, _T("%s\n"), szError); }
-		struct ErrorHandlerHolder { static inline ErrorHandler &Get() { static ErrorHandler kHandler = &DefaultErrorHandler; return kHandler; } };
-	}
-
-	// SetErrorHandler - Determines which function FLua will call in the case of an error
-	static void SetErrorHandler(ErrorHandler kHandler) { Details::ErrorHandlerHolder::Get() = kHandler; }
-	static ErrorHandler GetErrorHandler() { return Details::ErrorHandlerHolder::Get(); }
-
-	// ScopedErrorHandler - Assign a special error handler for the current scope.  Previous error handler is restored in dtor.
-	class ScopedErrorHandler
-	{
-	public:
-		explicit ScopedErrorHandler(ErrorHandler kErrorHandler);
-		~ScopedErrorHandler();
-
-	private:
-		ErrorHandler m_kPrevErrorHandler;
-	};
 
 	// CreateLuaState - Creates a new lua state and loads all standard lua libraries.
 	_Ret_opt_ lua_State *CreateLuaState();
