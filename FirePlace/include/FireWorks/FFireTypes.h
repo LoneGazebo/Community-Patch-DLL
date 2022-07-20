@@ -406,21 +406,14 @@ typedef dword FOURCC;  // <DirectX/DmDls.h> & <PlatformSDK/MMSystem.h>
 
 
 #ifndef		WIN32
-struct GUID
+#include <cstring>
+typedef struct _GUID
 {
 	unsigned long  Data1;
 	unsigned short Data2;
 	unsigned short Data3;
 	byte           Data4[ 8 ];
-
-	GUID( void )
-	{
-		Data1 = 0;
-		Data2 = 0;
-		Data3 = 0;
-		memset( Data4, 0, sizeof ( Data4 ) );
-	}
-};
+} GUID;
 
 inline bool operator==( const GUID & lhs, const GUID & rhs )
 {
