@@ -11,7 +11,10 @@
 #include "CvGlobals.h"
 #include "FCallStack.h"
 #include "FStlContainerSerialization.h"
-#include "stackwalker\StackWalker.h"
+
+#ifdef STACKWALKER
+#include "stackwalker/StackWalker.h"
+#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -115,7 +118,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 						ulNum, ul, ullNewSeed, m_ulCallCount, m_ulResetCount, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
 					pLog->Msg(szOut);
 
-#if defined(MOD_CORE_DEBUGGING)
+#if defined(MOD_CORE_DEBUGGING) && defined(STACKWALKER)
 					if(MOD_CORE_DEBUGGING)
 					{
 						gStackWalker.SetLog(pLog);
