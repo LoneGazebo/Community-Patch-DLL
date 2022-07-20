@@ -4640,7 +4640,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
+	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge() || kBuilding.GetPopulationChange() != 0)
 		return false;
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
