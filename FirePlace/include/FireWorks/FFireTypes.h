@@ -192,12 +192,6 @@ typedef DWORD		threadid_t;
 
 typedef unsigned short port_t;
 
-#ifdef		_PS3
-typedef unsigned int socklen_t;
-#else	//	_PS3
-typedef int socklen_t;
-#endif	//	_PS3
-
 // These classes allow an STL object to compare object values instead of
 // comparing the value of the objects' pointers.
 #include <functional>
