@@ -184,14 +184,14 @@ protected:
 	NodeState LinkChild(CvAStarNode* node, CvAStarNode* check);
 	void UpdateDownstreamNodes(CvAStarNode* node);
 
-	inline int xRange(int iX) const;
-	inline int yRange(int iY) const;
+	int xRange(int iX) const;
+	int yRange(int iY) const;
 	bool isValid(int iX, int iY) const;
 
 	void PrecalcNeighbors(CvAStarNode* node);
 
-	inline int udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data);
-	inline int udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const;
+	int udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data);
+	int udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const;
 
 	//--------------------------------------- PROTECTED DATA -------------------------------------------
 protected:
