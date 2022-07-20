@@ -1473,7 +1473,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
-	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra())*iNumTurns/2;
+	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra()+2)*iNumTurns/2;
 
 	if (bFromMe)
 	{
