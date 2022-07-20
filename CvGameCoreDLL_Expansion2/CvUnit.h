@@ -609,16 +609,17 @@ public:
 	void SetIsLinked(bool bValue);
 	bool IsLinkedLeader() const;
 	void SetIsLinkedLeader(bool bValue);
-	void GetLinkedLeader(CvUnit* pLinkedLeader);
-	void SetLinkedLeader(CvUnit* pLinkedLeader);
+	int GetLinkedLeaderID() const;
+	void SetLinkedLeaderID(int iLinkedLeaderID);
 	bool IsGrouped() const;
 	void SetIsGrouped(bool bValue);
 	void SetLinkedUnits(UnitIdContainer LinkedUnits);
 	UnitIdContainer GetLinkedUnits();
 	int GetLinkedMaxMoves() const;
 	void SetLinkedMaxMoves(int iValue);
-	int GetSlowestUnitIDOnPlot() const;
-	void DoLinkedMovement(CvPlot* pDestPlot);
+	void LinkUnits();
+	void UnlinkUnits();
+	void MoveLinkedLeader(CvPlot* pDestPlot);
 	void DoGroupMovement(CvPlot* pDestPlot);
 
 	int GetRange() const;
@@ -1997,6 +1998,7 @@ protected:
 	bool m_bIsGrouped;
 	int m_iLinkedMaxMoves;
 	UnitIdContainer m_LinkedUnitIDs;
+	int m_iLinkedLeaderID;
 	int m_iArmyId;
 	int m_iBaseCombat;
 	int m_iBaseRangedCombat;
@@ -2441,6 +2443,7 @@ SYNC_ARCHIVE_VAR(bool, m_bIsLinkedLeader)
 SYNC_ARCHIVE_VAR(bool, m_bIsGrouped)
 SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
 SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
+SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)
 SYNC_ARCHIVE_VAR(int, m_iBaseCombat)
 SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)

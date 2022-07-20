@@ -543,8 +543,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						else //cannot move or no need to move
 						{
 							bDone = true;
-							if (hUnit->IsGrouped() || hUnit->IsLinkedLeader()) {
-								hUnit->SetIsLinkedLeader(false);
+							if (hUnit->IsGrouped()) {
 								hUnit->SetIsGrouped(false);
 							}
 						}

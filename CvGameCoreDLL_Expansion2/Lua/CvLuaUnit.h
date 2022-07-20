@@ -193,9 +193,11 @@ protected:
 	static int lHasMoved(lua_State* L);
 
 	static int lIsLinked(lua_State* L);
+	static int lIsLinkedLeader(lua_State* L);
 	static int lIsGrouped(lua_State* L);
-	static int lGetSlowestUnitIDOnPlot(lua_State* L);
-	static int lDoLinkedMovement(lua_State* L);
+	static int lLinkUnits(lua_State* L);
+	static int lUnlinkUnits(lua_State* L);
+	static int lMoveLinkedLeader(lua_State* L);
 	static int lDoGroupMovement(lua_State* L);
 
 	static int lRange(lua_State* L);

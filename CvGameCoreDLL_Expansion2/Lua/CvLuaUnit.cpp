@@ -191,9 +191,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(HasMoved);
 
 	Method(IsLinked);
+	Method(IsLinkedLeader);
 	Method(IsGrouped);
-	Method(GetSlowestUnitIDOnPlot);
-	Method(DoLinkedMovement);
+	Method(LinkUnits);
+	Method(UnlinkUnits);
+	Method(MoveLinkedLeader);
 	Method(DoGroupMovement);
 
 	Method(Range);
@@ -2420,6 +2422,16 @@ int CvLuaUnit::lIsLinked(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//bool IsLinkedLeader();
+int CvLuaUnit::lIsLinkedLeader(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsLinkedLeader();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //bool IsGrouped();
 int CvLuaUnit::lIsGrouped(lua_State* L)
 {
@@ -2429,24 +2441,31 @@ int CvLuaUnit::lIsGrouped(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int GetSlowestUnitIDOnPlot();
-int CvLuaUnit::lGetSlowestUnitIDOnPlot(lua_State* L)
+//------------------------------------------------------------------------------ 
+//void LinkUnits();
+int CvLuaUnit::lLinkUnits(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const int iResult = pkUnit->GetSlowestUnitIDOnPlot();
 
-	lua_pushinteger(L, iResult);
-	return 1;
+	pkUnit->LinkUnits();
+	return 0;
 }
-//------------------------------------------------------------------------------ 
-//void DoLinkedMovement();
-int CvLuaUnit::lDoLinkedMovement(lua_State* L)
+//------------------------------------------------------------------------------
+//void UnlinkUnits();
+int CvLuaUnit::lUnlinkUnits(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	pkUnit->UnlinkUnits();
+
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lMoveLinkedLeader(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
 
-	pkUnit->DoLinkedMovement(pkDestPlot);
+	pkUnit->MoveLinkedLeader(pkDestPlot);
 	return 0;
 }
 //------------------------------------------------------------------------------
