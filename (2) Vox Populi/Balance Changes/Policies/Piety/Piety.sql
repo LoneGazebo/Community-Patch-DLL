@@ -85,6 +85,11 @@ INSERT INTO Policy_WLTKDYieldMod
 VALUES
 	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
 
+INSERT INTO Policy_GoldenAgeYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
+
 UPDATE Buildings
 SET PolicyType = 'POLICY_PIETY', UnlockedByBelief = '0', FaithCost = '200'
 WHERE Type = 'BUILDING_MONASTERY';
