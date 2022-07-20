@@ -35,6 +35,8 @@
 #include	"FArray.h"
 #include	"FCrc32.h"
 
+#include	<string>
+
 #ifdef		_DEBUG
 #define		ENABLE_FSTRING_STATS
 #endif	//	_DEBUG

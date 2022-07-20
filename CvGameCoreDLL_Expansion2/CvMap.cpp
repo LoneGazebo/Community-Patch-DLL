@@ -24,10 +24,6 @@
 #include "CvInfos.h"
 #include "CvInfosSerializationHelper.h"
 #include "CvEnumMapSerialization.h"
-// for GUIDs
-typedef struct tagMSG* LPMSG;
-#include <objbase.h>
-#include <sstream>
 
 // must be included after all other headers
 #include "LintFree.h"
