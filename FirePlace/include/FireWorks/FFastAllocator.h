@@ -610,7 +610,11 @@ void* operator new(size_t uiSize, FFixedBlockAllocator< T, bPODType, AllocPool, 
 	if( kAlloc.m_uiSize == kAlloc.m_uiCapacity )
 	{
 		FAssertMsg(false, "Fixed-size allocator is full!" );
-		return UINT_MAX;
+#ifdef __cpp_exceptions
+		throw std::bad_alloc();
+#else
+		abort();
+#endif
 	}
 
 	unsigned int uiPos;
