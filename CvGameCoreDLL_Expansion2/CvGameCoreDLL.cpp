@@ -8,18 +8,43 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvGlobals.h"
 #include "ICvDLLUserInterface.h"
+#ifdef _WIN32
 #include "Win32/FDebugHelper.h"
+#endif
 #include "CvDllContext.h"
 
 // must be included after all other headers
 #include "LintFree.h"
 
+extern "C" {
 //------------------------------------------------------------------------------
-extern "C" ICvGameContext1* DllGetGameContext()
+#ifdef _WIN32
+__declspec(dllexport)
+#else
+__attribute__((visibility("default")))
+#endif
+ICvGameContext1* DllGetGameContext()
 {
 	return CvDllGameContext::GetSingleton();
 }
 //------------------------------------------------------------------------------
+#ifndef _WIN32
+__attribute__((constructor))
+#endif
+static void initialize()
+{
+	CvDllGameContext::InitializeSingleton();
+}
+#ifndef _WIN32
+__attribute__((destructor))
+#endif
+static void uninitialize()
+{
+	CvDllGameContext::DestroySingleton();
+	GC.setDLLIFace(NULL);
+}
+#ifdef _WIN32
+#include <MMSystem.h>
 BOOL APIENTRY DllMain(HANDLE hModule,
                       DWORD  ul_reason_for_call,
                       LPVOID)
@@ -35,7 +60,7 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 		MMRESULT iTimeSet = timeBeginPeriod(1);		// set timeGetTime and sleep resolution to 1 ms, otherwise it's 10-16ms
 		DEBUG_VARIABLE(iTimeSet);
 		CvAssertMsg(iTimeSet==TIMERR_NOERROR, "failed setting timer resolution to 1 ms");
-		CvDllGameContext::InitializeSingleton();
+		initialize();
 	}
 	break;
 	case DLL_THREAD_ATTACH:
@@ -47,10 +72,11 @@ BOOL APIENTRY DllMain(HANDLE hModule,
 	case DLL_PROCESS_DETACH:
 		OutputDebugString("DLL_PROCESS_DETACH\n");
 		timeEndPeriod(1);
-		CvDllGameContext::DestroySingleton();
-		GC.setDLLIFace(NULL);
+		uninitialize();
 		break;
 	}
 
 	return TRUE;	// success
+}
+#endif
 }
