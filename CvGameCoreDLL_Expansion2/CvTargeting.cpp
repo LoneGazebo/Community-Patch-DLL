@@ -92,7 +92,7 @@ static int ms_HexDirection[3][3] =
 	}
 };
 
-inline CvPlot* PlotFromHex(CvMap& kMap, int iHexX, int iHexY)
+CvPlot* PlotFromHex(CvMap& kMap, int iHexX, int iHexY)
 {
 	// NOTE: Y is the same in both hex space and grid space.
 	return kMap.plot( hexspaceXToX(iHexX, iHexY), iHexY );	

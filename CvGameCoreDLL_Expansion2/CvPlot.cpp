@@ -4177,7 +4177,7 @@ bool CvPlot::isUnit() const
 }
 
 //	-----------------------------------------------------------------------------------------------
-inline static bool isEnemy(const CvUnit* pUnit, TeamTypes eOtherTeam, bool bAlwaysHostile)
+static bool isEnemy(const CvUnit* pUnit, TeamTypes eOtherTeam, bool bAlwaysHostile)
 {
 	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
 	{
@@ -4189,7 +4189,7 @@ inline static bool isEnemy(const CvUnit* pUnit, TeamTypes eOtherTeam, bool bAlwa
 }
 
 //	-----------------------------------------------------------------------------------------------
-inline static bool isOtherTeam(const CvUnit* pUnit, TeamTypes eOtherTeam)
+static bool isOtherTeam(const CvUnit* pUnit, TeamTypes eOtherTeam)
 {
 	if(pUnit->canCoexistWithEnemyUnit(eOtherTeam))
 	{

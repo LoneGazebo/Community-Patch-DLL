@@ -27,7 +27,6 @@ public:
 	CvTeam();
 	~CvTeam();
 
-	// inlined for performance reasons, only in the dll
 	static CvTeam& getTeam(TeamTypes eTeam);
 	static void initStatics();
 	static void freeStatics();

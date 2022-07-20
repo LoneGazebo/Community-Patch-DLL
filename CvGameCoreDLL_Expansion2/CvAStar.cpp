@@ -253,7 +253,7 @@ void CvAStar::Reset()
 }
 
 
-inline int CvAStar::xRange(int iX) const
+int CvAStar::xRange(int iX) const
 {
 	if(m_bWrapX)
 	{
@@ -277,7 +277,7 @@ inline int CvAStar::xRange(int iX) const
 }
 
 
-inline int CvAStar::yRange(int iY) const
+int CvAStar::yRange(int iY) const
 {
 	if(m_bWrapY)
 	{
@@ -300,7 +300,7 @@ inline int CvAStar::yRange(int iY) const
 	}
 }
 
-inline bool CvAStar::isValid(int iX, int iY) const
+bool CvAStar::isValid(int iX, int iY) const
 {
 	if((iX < 0) || (iX >= m_iColumns))
 	{
@@ -315,12 +315,12 @@ inline bool CvAStar::isValid(int iX, int iY) const
 	return true;
 }
 
-inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data)
+int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data)
 {
 	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
 }
 
-inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const
+int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const
 {
 	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
 }
