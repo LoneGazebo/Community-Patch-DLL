@@ -164,7 +164,7 @@ public:
 		vector<T> tempVector;
 
 		// Loop through until adding each item that is above threshold
-		for (unsigned int i = 0; i < m_pItems.size(); i++)
+		for (unsigned int i = 0; i < this->m_pItems.size(); i++)
 		{
 			WeightedElement elem = m_items[i];
 			if (elem.m_iWeight >= iCutoff)

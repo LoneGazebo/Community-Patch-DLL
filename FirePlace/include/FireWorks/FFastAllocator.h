@@ -542,7 +542,7 @@ public:
 
 			m_uiFirstEmpty = uiIndex;
 		}else{
-			T* pRoot = &m_vec[m_uiFirstEmpty];
+			T* pRoot = &this->m_vec[m_uiFirstEmpty];
 			element.ALLOC_SetNext( pRoot->ALLOC_GetNext() );
 			pRoot->ALLOC_SetNext(uiIndex);
 		}

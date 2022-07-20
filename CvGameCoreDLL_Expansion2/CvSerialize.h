@@ -291,8 +291,8 @@ public:
 		std::string result = FAutoVariableBase::debugDump(callStacks);
 		result += std::string("\n") + getContainer().debugDump(*this) + std::string("\n");
 #if !defined(FINAL_RELEASE)
-		result += std::string("local value=") + FSerialization::toString(m_value) + "\n";
-		result += std::string("remote value=") + FSerialization::toString(m_remoteValue) + "\n";
+		result += std::string("local value=") + FSerialization::toString(this->m_value) + "\n";
+		result += std::string("remote value=") + FSerialization::toString(this->m_remoteValue) + "\n";
 #endif
 		return result;
 	}

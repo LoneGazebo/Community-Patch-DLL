@@ -291,21 +291,21 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	FFastVector(const THIS_TYPE& RHS)
 	{
-		m_uiCurrSize = RHS.m_uiCurrSize;
-		m_uiCurrMaxSize = RHS.m_uiCurrMaxSize;
+		this->m_uiCurrSize = RHS.m_uiCurrSize;
+		this->m_uiCurrMaxSize = RHS.m_uiCurrMaxSize;
 		if( RHS.m_uiCurrMaxSize)
 		{
-			m_pData = Alloc(RHS.m_uiCurrMaxSize);
+			this->m_pData = Alloc(RHS.m_uiCurrMaxSize);
 		}
 #ifdef BREAK_ON_REPEATED_RESIZE
-		m_nResizeTimes = 0;
+		this->m_nResizeTimes = 0;
 #endif
 		Copy(RHS);
 	};
 	FFastVector(unsigned int uiStartingMaxSize = 0)
 	{
 #ifdef BREAK_ON_REPEATED_RESIZE
-		m_nResizeTimes = 0;
+		this->m_nResizeTimes = 0;
 #endif
 		this->m_pData = Alloc(uiStartingMaxSize);
 	};
@@ -313,11 +313,11 @@ public:
 		Free(this->m_pData, this->m_uiCurrSize);
 	};
 	void operator = (const THIS_TYPE& RHS){
-		if( m_uiCurrMaxSize <= RHS.m_uiCurrSize){
-			Free(m_pData, m_uiCurrSize);
-			m_pData = Alloc(RHS.m_uiCurrMaxSize);
+		if( this->m_uiCurrMaxSize <= RHS.m_uiCurrSize){
+			Free(this->m_pData, this->m_uiCurrSize);
+			this->m_pData = Alloc(RHS.m_uiCurrMaxSize);
 		}else{
-			Destroy(m_pData, m_uiCurrSize);
+			Destroy(this->m_pData, this->m_uiCurrSize);
 		}
 		Copy(RHS);
 	};
@@ -337,7 +337,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	void setsize( unsigned int uiNewSize ){
 		SetSize(uiNewSize);
-		m_uiCurrSize = MIN(uiNewSize, m_uiCurrMaxSize);
+		this->m_uiCurrSize = MIN(uiNewSize, this->m_uiCurrMaxSize);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -347,10 +347,10 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	void resize( unsigned int uiNewSize )
 	{
-		if( m_uiCurrMaxSize < uiNewSize ){
+		if( this->m_uiCurrMaxSize < uiNewSize ){
 			GrowSize(uiNewSize);
 		}
-		m_uiCurrSize = MIN(uiNewSize, m_uiCurrMaxSize);
+		this->m_uiCurrSize = MIN(uiNewSize, this->m_uiCurrMaxSize);
 	};
 
 
@@ -359,10 +359,10 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	unsigned int push_back()
 	{
-		if( m_uiCurrSize == m_uiCurrMaxSize )
-			GrowSize(m_uiCurrMaxSize);
-		new( (void*)&m_pData[m_uiCurrSize] )T();
-		return m_uiCurrSize++;
+		if( this->m_uiCurrSize == this->m_uiCurrMaxSize )
+			GrowSize(this->m_uiCurrMaxSize);
+		new( (void*)&this->m_pData[this->m_uiCurrSize] )T();
+		return this->m_uiCurrSize++;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +383,7 @@ public:
 		if( uNewSize > this->m_uiCurrMaxSize )
 		{
 #ifdef BREAK_ON_REPEATED_RESIZE
-			FAssert( ++m_nResizeTimes < BREAK_ON_REPEATED_RESIZE );
+			FAssert( ++this->m_nResizeTimes < BREAK_ON_REPEATED_RESIZE );
 #endif
 			GrowSize(uNewSize);
 		}
@@ -586,11 +586,11 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	FStaticVector(const THIS_TYPE& RHS)
 	{
-		m_uiCurrSize = RHS.m_uiCurrSize;
-		m_uiCurrMaxSize = RHS.m_uiCurrMaxSize;
-		m_pData = Alloc(RHS.m_uiCurrMaxSize);
+		this->m_uiCurrSize = RHS.m_uiCurrSize;
+		this->m_uiCurrMaxSize = RHS.m_uiCurrMaxSize;
+		this->m_pData = Alloc(RHS.m_uiCurrMaxSize);
 #ifdef BREAK_ON_STATIC_RESIZE
-		m_iNumResized = 0;
+		this->m_iNumResized = 0;
 #endif
 		Copy(RHS);
 	};
@@ -599,13 +599,13 @@ public:
 		this->m_uiCurrMaxSize = L;
 		this->m_pData = Alloc(this->m_uiCurrMaxSize);
 #ifdef BREAK_ON_STATIC_RESIZE
-		m_iNumResized = 0;
+		this->m_iNumResized = 0;
 #endif
     };
 	FStaticVector(unsigned int uiStartingMaxSize)
 	{
-		m_uiCurrMaxSize = uiStartingMaxSize;
-		m_pData = Alloc(m_uiCurrMaxSize);
+		this->m_uiCurrMaxSize = uiStartingMaxSize;
+		this->m_pData = Alloc(this->m_uiCurrMaxSize);
 #ifdef BREAK_ON_STATIC_RESIZE
 		m_iNumResized = 0;
 #endif
@@ -614,11 +614,11 @@ public:
 		Free(this->m_pData, this->m_uiCurrSize);
 	};
 	void operator = (const THIS_TYPE& RHS){
-		if( m_uiCurrMaxSize <= RHS.m_uiCurrSize){
-			Free(m_pData, m_uiCurrSize);
-			m_pData = Alloc(RHS.m_uiCurrMaxSize);
+		if( this->m_uiCurrMaxSize <= RHS->m_uiCurrSize){
+			Free(this->m_pData, this->m_uiCurrSize);
+			this->m_pData = Alloc(RHS->m_uiCurrMaxSize);
 		}else{
-			Destroy(m_pData, m_uiCurrSize);
+			Destroy(this->m_pData, this->m_uiCurrSize);
 		}
 		Copy(RHS);
 	};
@@ -626,14 +626,14 @@ public:
     bool operator == (const THIS_TYPE& RHS) const {
         bool bResult = false;
 
-        if( m_uiCurrSize != RHS.m_uiCurrSize )
+        if( this->m_uiCurrSize != RHS->m_uiCurrSize )
         {
             goto Cleanup;
         }
 
-        for( UINT uIdx = 0; uIdx < m_uiCurrSize; ++uIdx )
+        for( UINT uIdx = 0; uIdx < this->m_uiCurrSize; ++uIdx )
         {
-            if( m_pData[ uIdx ] != RHS.m_pData[ uIdx ] )
+            if( this->m_pData[ uIdx ] != RHS->m_pData[ uIdx ] )
             {
                 goto Cleanup;
             }
@@ -681,56 +681,56 @@ Cleanup:
 	void push_back( const T* pElements,  unsigned int uiNum)
 	{
 		m_bIsResized = false;
-		unsigned int uNewSize = uiNum + m_uiCurrSize;
-		if( uNewSize > m_uiCurrMaxSize )
+		unsigned int uNewSize = uiNum + this->m_uiCurrSize;
+		if( uNewSize > this->m_uiCurrMaxSize )
 			GrowSize(uNewSize);
 
 		if(bPODType)
-			memcpy( (void*) &m_pData[m_uiCurrSize], pElements, sizeof(T) * uiNum );
+			memcpy( (void*) &this->m_pData[this->m_uiCurrSize], pElements, sizeof(T) * uiNum );
 		else
-			for(unsigned int i = m_uiCurrSize; i < uNewSize; ++i)
-				new( (void*)&m_pData[i] )T(*(pElements++));
+			for(unsigned int i = this->m_uiCurrSize; i < uNewSize; ++i)
+				new( (void*)&this->m_pData[i] )T(*(pElements++));
 		
-		m_uiCurrSize = uNewSize;
+		this->m_uiCurrSize = uNewSize;
 	}
     // remove the element pointed to by 'it' and shrink the list
     void erase( iterator it )
 	{
 		m_bIsResized = false;
 
-		unsigned int uIndex = it - m_pData;
+		unsigned int uIndex = it - this->m_pData;
 
-        for(unsigned int i = uIndex; i + 1< m_uiCurrSize; ++i)
+        for(unsigned int i = uIndex; i + 1< this->m_uiCurrSize; ++i)
         {
-            m_pData[i] = m_pData[i+1];
+            this->m_pData[i] = this->m_pData[i+1];
         }
 		
-		--m_uiCurrSize;
+		--this->m_uiCurrSize;
 	}
 
 	//Add uiNum copies of element to the end of the vector.
 	void push_back_copy( const T& element, unsigned int uiNum  )
 	{
 		m_bIsResized = false;
-		uiNum += m_uiCurrSize;
-		if( uiNum > m_uiCurrMaxSize )
+		uiNum += this->m_uiCurrSize;
+		if( uiNum > this->m_uiCurrMaxSize )
 		{
 #ifdef BREAK_ON_STATIC_RESIZE
 			FAssert( ++m_iNumResized < BREAK_ON_STATIC_RESIZE );
 #endif
 			GrowSize(uiNum);
 		}
-		for(unsigned int i = m_uiCurrSize; i < uiNum; ++i){
-			new( (void*)&m_pData[i] )T(element);
+		for(unsigned int i = this->m_uiCurrSize; i < uiNum; ++i){
+			new( (void*)&this->m_pData[i] )T(element);
 		}
-		m_uiCurrSize = uiNum;
+		this->m_uiCurrSize = uiNum;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//Returns false if the vector has grown larger than the local memory store
 	/////////////////////////////////////////////////////////////////////////////////////
 	bool is_local_only() const{
-		return (m_pData == m_aData);
+		return (this->m_pData == this->m_aData);
 	};
 
 protected:
@@ -770,19 +770,19 @@ protected:
 	//Grow the internal data store to fit N elements compactly
 	void GrowSizeToFit(unsigned int uiFit)
 	{
-		if( uiFit <= m_uiCurrMaxSize )
+		if( uiFit <= this->m_uiCurrMaxSize )
 			return;
 
-		m_uiCurrMaxSize = uiFit;
-		T* pTemp = Alloc(m_uiCurrMaxSize);
+		this->m_uiCurrMaxSize = uiFit;
+		T* pTemp = Alloc(this->m_uiCurrMaxSize);
 		if( bPODType ){
-			memcpy( (void*)pTemp, (void*)m_pData, sizeof(T)*m_uiCurrSize);
+			memcpy( (void*)pTemp, (void*)this->m_pData, sizeof(T)*this->m_uiCurrSize);
 		}else{
-			for(unsigned int i = 0; i < m_uiCurrSize; ++i)
-				new( (void*)&(pTemp[i]) )T( m_pData[i]);
+			for(unsigned int i = 0; i < this->m_uiCurrSize; ++i)
+				new( (void*)&(pTemp[i]) )T( this->m_pData[i]);
 		}
-		Free(m_pData, m_uiCurrSize);
-		m_pData = pTemp;
+		Free(this->m_pData, this->m_uiCurrSize);
+		this->m_pData = pTemp;
 
 		m_bIsResized = true;
 	};
@@ -1121,39 +1121,39 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	FFixedVector(const THIS_TYPE& RHS)
 	{
-		m_uiCurrSize = MIN(RHS.m_uiCurrSize, m_uiCurrMaxSize);
+		this->m_uiCurrSize = MIN(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
 		CopyMin(RHS);
 	};
 
 	FFixedVector()
     {
-		m_uiCurrMaxSize = 0;
-		m_pData = Alloc(m_uiCurrMaxSize);
+		this->m_uiCurrMaxSize = 0;
+		this->m_pData = Alloc(this->m_uiCurrMaxSize);
     };
 	FFixedVector(unsigned int uiStartingMaxSize)
 	{
-		m_uiCurrMaxSize = uiStartingMaxSize;
-		m_pData = Alloc(m_uiCurrMaxSize);
+		this->m_uiCurrMaxSize = uiStartingMaxSize;
+		this->m_pData = Alloc(this->m_uiCurrMaxSize);
 	};
 	~FFixedVector(){
-		Free(m_pData, m_uiCurrSize);
+		Free(this->m_pData, this->m_uiCurrSize);
 	};
 	void operator = (const THIS_TYPE& RHS){
-		Destroy(m_pData, m_uiCurrSize);
+		Destroy(this->m_pData, this->m_uiCurrSize);
 		CopyMin(RHS);
 	};
 
     bool operator == (const THIS_TYPE& RHS) const {
         bool bResult = false;
 
-        if( m_uiCurrSize != RHS.m_uiCurrSize )
+        if( this->m_uiCurrSize != RHS->m_uiCurrSize )
         {
             goto Cleanup;
         }
 
-        for( UINT uIdx = 0; uIdx < m_uiCurrSize; ++uIdx )
+        for( UINT uIdx = 0; uIdx < this->m_uiCurrSize; ++uIdx )
         {
-            if( m_pData[ uIdx ] != RHS.m_pData[ uIdx ] )
+            if( this->m_pData[ uIdx ] != RHS->m_pData[ uIdx ] )
             {
                 goto Cleanup;
             }
@@ -1171,10 +1171,10 @@ Cleanup:
 	/////////////////////////////////////////////////////////////////////////////////////
 	void reserve(unsigned int uiResSize )
 	{
-		if (m_uiCurrMaxSize == 0)
+		if (this->m_uiCurrMaxSize == 0)
 		{
-			m_uiCurrMaxSize = uiResSize;
-			m_pData = Alloc(m_uiCurrMaxSize);
+			this->m_uiCurrMaxSize = uiResSize;
+			this->m_pData = Alloc(this->m_uiCurrMaxSize);
 		}
 	};
 
@@ -1184,13 +1184,13 @@ Cleanup:
 	void resize(unsigned int uiNewSize )
 	{
 		reserve(uiNewSize);
-		if (uiNewSize <= m_uiCurrMaxSize){
+		if (uiNewSize <= this->m_uiCurrMaxSize){
 			if(!bPODType)
 			{
-				for(unsigned int i = m_uiCurrSize; i < uiNewSize; ++i)
-					new( (void*)&m_pData[i] )T();
+				for(unsigned int i = this->m_uiCurrSize; i < uiNewSize; ++i)
+					new( (void*)&this->m_pData[i] )T();
 			}
-			m_uiCurrSize = uiNewSize;
+			this->m_uiCurrSize = uiNewSize;
 		}
 	};
 
@@ -1198,54 +1198,54 @@ Cleanup:
 	//Add/remove elements
 	/////////////////////////////////////////////////////////////////////////////////////
 	unsigned int push_back(const T& element){
-		if( m_uiCurrSize < m_uiCurrMaxSize )
+		if( this->m_uiCurrSize < this->m_uiCurrMaxSize )
 		{
-			new( (void*)&m_pData[m_uiCurrSize] )T(element);
-			return m_uiCurrSize++;
+			new( (void*)&this->m_pData[this->m_uiCurrSize] )T(element);
+			return this->m_uiCurrSize++;
 		}
-		return m_uiCurrSize;
+		return this->m_uiCurrSize;
 	};
 
 	//Add n elements to the end of the vector
 	void push_back( const T* pElements,  unsigned int uiNum)
 	{
-		unsigned int uNewSize = uiNum + m_uiCurrSize;
-		FAssert(uNewSize < m_uiCurrMaxSize);
-		if( uNewSize <= m_uiCurrMaxSize )
+		unsigned int uNewSize = uiNum + this->m_uiCurrSize;
+		FAssert(uNewSize < this->m_uiCurrMaxSize);
+		if( uNewSize <= this->m_uiCurrMaxSize )
 		{
 			if(bPODType)
-				memcpy( (void*) &m_pData[m_uiCurrSize], pElements, sizeof(T) * uiNum );
+				memcpy( (void*) &this->m_pData[this->m_uiCurrSize], pElements, sizeof(T) * uiNum );
 			else
-				for(unsigned int i = m_uiCurrSize; i < uNewSize; ++i)
-					new( (void*)&m_pData[i] )T(*(pElements++));
+				for(unsigned int i = this->m_uiCurrSize; i < uNewSize; ++i)
+					new( (void*)&this->m_pData[i] )T(*(pElements++));
 
-			m_uiCurrSize = uNewSize;
+			this->m_uiCurrSize = uNewSize;
 		}
 	}
     // remove the element pointed to by 'it' and shrink the list
     void erase( iterator it )
 	{
-		unsigned int uIndex = it - m_pData;
+		unsigned int uIndex = it - this->m_pData;
 
-        for(unsigned int i = uIndex; i + 1< m_uiCurrSize; ++i)
+        for(unsigned int i = uIndex; i + 1< this->m_uiCurrSize; ++i)
         {
-            m_pData[i] = m_pData[i+1];
+            this->m_pData[i] = this->m_pData[i+1];
         }
 		
-		--m_uiCurrSize;
+		--this->m_uiCurrSize;
 	}
 
 	//Add uiNum copies of element to the end of the vector.
 	void push_back_copy( const T& element, unsigned int uiNum  )
 	{
-		uiNum += m_uiCurrSize;
-		FAssert(uiNum <= m_uiCurrMaxSize);
-		if( uiNum <= m_uiCurrMaxSize )
+		uiNum += this->m_uiCurrSize;
+		FAssert(uiNum <= this->m_uiCurrMaxSize);
+		if( uiNum <= this->m_uiCurrMaxSize )
 		{
-			for(unsigned int i = m_uiCurrSize; i < uiNum; ++i){
-				new( (void*)&m_pData[i] )T(element);
+			for(unsigned int i = this->m_uiCurrSize; i < uiNum; ++i){
+				new( (void*)&this->m_pData[i] )T(element);
 			}
-			m_uiCurrSize = uiNum;
+			this->m_uiCurrSize = uiNum;
 		}
 	};
 
@@ -1253,12 +1253,12 @@ protected:
 
 	//Copy list of elements, calling copy constructor for each element
 	void CopyMin(const THIS_TYPE& RHS){
-		m_uiCurrSize = MIN(RHS.m_uiCurrSize, m_uiCurrMaxSize);
+		this->m_uiCurrSize = MIN(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
 		if( bPODType ){
-			memcpy( (void*)m_pData, (void*)RHS.m_pData, sizeof(T)*m_uiCurrSize);
+			memcpy( (void*)this->m_pData, (void*)RHS->m_pData, sizeof(T)*this->m_uiCurrSize);
 		}else{
-			for(unsigned int i = 0; i < m_uiCurrSize; ++i){
-				new( (void*)&m_pData[i] )T( RHS.m_pData[i] );
+			for(unsigned int i = 0; i < this->m_uiCurrSize; ++i){
+				new( (void*)&this->m_pData[i] )T( RHS->m_pData[i] );
 			}
 		}
 	};
@@ -1268,7 +1268,7 @@ protected:
 		if (uiSize > 0)
 		{
 			T* pRet = (T*)FMALLOCALIGNED( uiSize*sizeof(T), __alignof(T), AllocPool, nSubID );
-			m_uiCurrMaxSize = uiSize;
+			this->m_uiCurrMaxSize = uiSize;
 			return pRet;
 		}
 		return NULL;

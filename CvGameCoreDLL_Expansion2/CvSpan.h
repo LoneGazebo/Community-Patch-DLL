@@ -251,7 +251,7 @@ public:
 	template<typename It>
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, It>::Type last)
 	{
-		CvAssert(m_end - m_begin == 0);
+		CvAssert(this->m_end - this->m_begin == 0);
 	}
 	template<typename U, std::size_t N>
 	inline CvSpan(const CvSpan<U, N>& src, typename CvMeta::EnableIf<CvMeta::IsSame<typename CvSpan<U, N>::ValueType, ValueType>::Value && (N == 0 || N == DYNAMIC_EXTENT), int>::Type = 0)

@@ -196,11 +196,11 @@ public:
 	////////////////////////////////////////////////////////////////////////
 	// Member functions which get/use various iterators
 	////////////////////////////////////////////////////////////////////////
-	iterator begin(){ return iterator( m_uiFirst, this ); };
+	iterator begin(){ return iterator( this->m_uiFirst, this ); };
 	iterator end(){ return iterator( ANCHOR_NODE_INDEX, this ); };
-	const_iterator begin() const{ return const_iterator( m_uiFirst, this ); };
+	const_iterator begin() const{ return const_iterator( this->m_uiFirst, this ); };
 	const_iterator end() const{ return const_iterator( ANCHOR_NODE_INDEX, this ); };
-	const_iterator begin_const() const{ return const_iterator( m_uiFirst, this ); };
+	const_iterator begin_const() const{ return const_iterator( this->m_uiFirst, this ); };
 	const_iterator end_const() const{ return const_iterator( ANCHOR_NODE_INDEX, this ); };
 
 	iterator get_iterator( unsigned int index ){ 
@@ -243,8 +243,8 @@ public:
 	const T& get_element( unsigned int i ) const{ return BASE_TYPE::get_element( i ).data; };
 
 
-	const ALLOC_TYPE& get_allocator() const{ return m_kAllocator; };
-	ALLOC_TYPE& get_allocator(){ return m_kAllocator; };
+	const ALLOC_TYPE& get_allocator() const{ return this->m_kAllocator; };
+	ALLOC_TYPE& get_allocator(){ return this->m_kAllocator; };
 
 };
 
@@ -305,24 +305,24 @@ public:
 		};
 		base_iterator& operator++(){
 			if( m_uiCurrPos == ANCHOR_NODE_INDEX ){
-				m_uiCurrPos = m_pFastList->m_uiFirst;
+				m_uiCurrPos = this->m_pFastList->m_uiFirst;
 			}else{
-				m_uiCurrPos = m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
+				m_uiCurrPos = this->m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
 			}
 			return *this;
 		};
 
 		base_iterator& Inc_prefetch_next(){
 			if( m_uiCurrPos == ANCHOR_NODE_INDEX ){
-				m_uiCurrPos = m_pFastList->m_uiFirst;
+				m_uiCurrPos = this->m_pFastList->m_uiFirst;
 			}else{
-				m_uiCurrPos = m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
+				m_uiCurrPos = this->m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
 			}
 
 			if( m_uiCurrPos!=ANCHOR_NODE_INDEX ) {
-				const uint uiNextPos = m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
+				const uint uiNextPos = this->m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_GetNext();
 				if( uiNextPos!=ANCHOR_NODE_INDEX )
-					PrefetchRegion(reinterpret_cast<const char*>(m_pFastList->get_allocator().GetStoragePtr())+(uiNextPos*sizeof(MultiListNodePolicy<T>)), sizeof(MultiListNodePolicy<T>) );
+					this->PrefetchRegion(reinterpret_cast<const char*>(this->m_pFastList->get_allocator().GetStoragePtr())+(uiNextPos*sizeof(MultiListNodePolicy<T>)), sizeof(MultiListNodePolicy<T>) );
 			}
 			return *this;
 		};
@@ -333,9 +333,9 @@ public:
 		}
 		base_iterator& operator--(){
 			if( m_uiCurrPos == ANCHOR_NODE_INDEX ){
-				m_uiCurrPos = m_pFastList->m_uiLast;
+				m_uiCurrPos = this->m_pFastList->m_uiLast;
 			}else{
-				m_uiCurrPos = m_pFastList->get_allocator()[m_uiCurrPos].LIST_GetPrev();
+				m_uiCurrPos = this->m_pFastList->get_allocator()[m_uiCurrPos].LIST_GetPrev();
 			}
 			return *this;
 		};
@@ -351,7 +351,7 @@ public:
 
 		//Determine if this position is valid, or if it has been deleted.
 		bool is_valid(){
-			return !m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_IsDeleted();
+			return !this->m_pFastList->get_allocator()[ m_uiCurrPos ].LIST_IsDeleted();
 		};
 
 		//Get the index into the array that the iterator is currently pointing to.
@@ -377,10 +377,10 @@ public:
 		~iterator(){};
 
 		T& operator*(){
-			return m_pFastList->get_allocator()[ m_uiCurrPos ];
+			return this->m_pFastList->get_allocator()[ this->m_uiCurrPos ];
 		};
 		T* operator->(){
-			return &m_pFastList->get_allocator()[ m_uiCurrPos ];
+			return &this->m_pFastList->get_allocator()[ this->m_uiCurrPos ];
 		};
 	};
 
@@ -397,10 +397,10 @@ public:
 		~const_iterator(){};
 
 		const T & operator*() const{
-			return m_pFastList->get_allocator()[ m_uiCurrPos ];
+			return this->m_pFastList->get_allocator()[ this->m_uiCurrPos ];
 		};
 		const T* operator->() const{
-			return &m_pFastList->get_allocator()[ m_uiCurrPos ];
+			return &this->m_pFastList->get_allocator()[ this->m_uiCurrPos ];
 		};
 	};
 
@@ -465,7 +465,7 @@ public:
 
 	//Push a new element to the front of a list
 	unsigned int push_front( const T& x ){
-		unsigned int uiNewIndex = get_allocator().Alloc( x );
+		unsigned int uiNewIndex = this->get_allocator().Alloc( x );
 		push_front_existing( uiNewIndex );
 		return uiNewIndex;
 	};
@@ -482,7 +482,7 @@ public:
 	//Push a new element to the back of a list
 	unsigned int push_back( const T& x )
 	{
-		unsigned int uiNewIndex = get_allocator().Alloc( x );
+		unsigned int uiNewIndex = this->get_allocator().Alloc( x );
 		push_back_existing( uiNewIndex );
 		return uiNewIndex;
 	};
@@ -497,18 +497,18 @@ public:
 
 
 	T& front() {
-		return get_allocator()[ m_uiFirst ];
+		return this->get_allocator()[ m_uiFirst ];
 	};
 	T& back() {
-		return get_allocator()[ m_uiLast ];
+		return this->get_allocator()[ m_uiLast ];
 	};
 	unsigned int front_index() const { return m_uiFirst; };
 	unsigned int back_index() const { return m_uiLast; };
 	const T& front() const {
-		return get_allocator()[ m_uiFirst ];
+		return this->get_allocator()[ m_uiFirst ];
 	};
 	const T& back() const {
-		return get_allocator()[ m_uiLast ];
+		return this->get_allocator()[ m_uiLast ];
 	};
 
 	bool empty() const{
@@ -536,11 +536,11 @@ public:
 	const_iterator end_const() const{ return const_iterator( ANCHOR_NODE_INDEX, this ); };
 
 	iterator get_iterator( unsigned int index ){ 
-		assert( get_allocator().is_element_valid( index ) );
+		assert( this->get_allocator().is_element_valid( index ) );
 		return iterator( index, this );
 	};
 	const_iterator get_iterator_const( unsigned int index ) const{ 
-		assert( get_allocator().is_element_valid( index ) )
+		assert( this->get_allocator().is_element_valid( index ) );
 			return const_iterator( index, this );
 	};
 
@@ -553,12 +553,12 @@ public:
 	// get_iterator function were used.
 	////////////////////////////////////////////////////////////////////////
 	iterator erase( unsigned int uiIndex ){
-		const unsigned int uiNext = get_allocator()[uiIndex].LIST_GetNext();
+		const unsigned int uiNext = this->get_allocator()[uiIndex].LIST_GetNext();
 		UnLink( uiIndex, uiNext );
 		return iterator( uiNext, this );
 	};
 	iterator erase( iterator  it ){
-		const unsigned int uiNext = get_allocator()[it.get_index()].LIST_GetNext();
+		const unsigned int uiNext = this->get_allocator()[it.get_index()].LIST_GetNext();
 		UnLink( it.get_index(), uiNext );
 		return iterator( uiNext, this );
 	};
@@ -571,7 +571,7 @@ public:
 	void pop_front()
 	{
 		if( m_uiFirst != ANCHOR_NODE_INDEX){
-			unsigned int uiNewFront = get_allocator()[ m_uiFirst ].LIST_GetNext();
+			unsigned int uiNewFront = this->get_allocator()[ m_uiFirst ].LIST_GetNext();
 			UnLink( m_uiFirst, uiNewFront );
 			m_uiFirst = uiNewFront;
 		}
@@ -579,7 +579,7 @@ public:
 	void pop_back()
 	{
 		if( m_uiLast != ANCHOR_NODE_INDEX ){
-			unsigned int uiNewBack = get_allocator()[ m_uiLast ].LIST_GetPrev();
+			unsigned int uiNewBack = this->get_allocator()[ m_uiLast ].LIST_GetPrev();
 			UnLink( m_uiLast, ANCHOR_NODE_INDEX );
 			m_uiLast = uiNewBack;
 		}
@@ -589,13 +589,13 @@ public:
 	//Accessors which are not in the STL but should be because the STL is stupid.
 	////////////////////////////////////////////////////////////////////////
 	bool is_element_valid(unsigned int i) const{
-		return get_allocator().is_element_valid(i);
+		return this->get_allocator().is_element_valid(i);
 	};
 	T& get_element( unsigned int i ){
-		return get_allocator()[i];
+		return this->get_allocator()[i];
 	};
 	const T& get_element(unsigned int i) const{
-		return get_allocator()[i];
+		return this->get_allocator()[i];
 	};
 
 protected:
@@ -603,14 +603,14 @@ protected:
 	//Set the internal links to add element i before element j
 	void InsertBefore(unsigned int i, unsigned int j)
 	{
-		assert( get_allocator().is_element_valid(i) );
+		assert( this->get_allocator().is_element_valid(i) );
 
-		T* a = &get_allocator()[i];
+		T* a = &this->get_allocator()[i];
 		if( j == ANCHOR_NODE_INDEX ){
 			a->LIST_SetNext(ANCHOR_NODE_INDEX);
 			a->LIST_SetPrev(ANCHOR_NODE_INDEX);
 		}else{
-			T* b = &get_allocator()[j];
+			T* b = &this->get_allocator()[j];
 
 			//Set the links for the new node
 			unsigned int uiBPrev = b->LIST_GetPrev();
@@ -619,7 +619,7 @@ protected:
 
 			//Fix the links for the next and previous nodes
 			if( uiBPrev != ANCHOR_NODE_INDEX )
-				get_allocator()[uiBPrev].LIST_SetNext(i);
+				this->get_allocator()[uiBPrev].LIST_SetNext(i);
 			b->LIST_SetPrev(i);
 		}
 	};
@@ -627,14 +627,14 @@ protected:
 	//Set the internal links to add element i after element j
 	void InsertAfter(unsigned int i, unsigned int j)
 	{
-		assert( get_allocator().is_element_valid(i) );
+		assert( this->get_allocator().is_element_valid(i) );
 
-		T* a = &get_allocator()[i];
+		T* a = &this->get_allocator()[i];
 		if( j == ANCHOR_NODE_INDEX ){
 			a->LIST_SetNext(ANCHOR_NODE_INDEX);
 			a->LIST_SetPrev(ANCHOR_NODE_INDEX);
 		}else{
-			T* b = &get_allocator()[j];
+			T* b = &this->get_allocator()[j];
 
 			//Set the links for the new node
 			unsigned int uiBNext = b->LIST_GetNext();
@@ -643,7 +643,7 @@ protected:
 
 			//Fix the links for the next and previous nodes
 			if( uiBNext != ANCHOR_NODE_INDEX )
-				get_allocator()[uiBNext].LIST_SetPrev(i);
+				this->get_allocator()[uiBNext].LIST_SetPrev(i);
 			b->LIST_SetNext(i);
 		}
 	};
@@ -651,26 +651,26 @@ protected:
 	//Reverse-Unlink an internal chain of elements and add them to the free space.
 	void UnLink( unsigned int uiStart, unsigned int uiEnd ){
 		if( uiStart == ANCHOR_NODE_INDEX ){ return; }
-		assert( get_allocator().is_element_valid(uiStart) );
+		assert( this->get_allocator().is_element_valid(uiStart) );
 
 		if( uiStart == m_uiFirst){ m_uiFirst = uiEnd; }
-		uiStart = get_allocator()[uiStart].LIST_GetPrev();
+		uiStart = this->get_allocator()[uiStart].LIST_GetPrev();
 		if( uiEnd == ANCHOR_NODE_INDEX ){
 			uiEnd = m_uiLast;
 			m_uiLast = uiStart;
 		}else{
-			assert( get_allocator().is_element_valid(uiEnd) );
-			uiEnd = get_allocator()[uiEnd].LIST_GetPrev();
+			assert( this->get_allocator().is_element_valid(uiEnd) );
+			uiEnd = this->get_allocator()[uiEnd].LIST_GetPrev();
 		}
 
 		while( uiStart != uiEnd ){
-			T& kEnd = get_allocator()[uiEnd];
+			T& kEnd = this->get_allocator()[uiEnd];
 			unsigned int uiNext = kEnd.LIST_GetNext();
 			unsigned int uiPrev = kEnd.LIST_GetPrev();
-			if( uiNext != ANCHOR_NODE_INDEX ) get_allocator()[uiNext].LIST_SetPrev( uiPrev );
-			if( uiPrev != ANCHOR_NODE_INDEX ) get_allocator()[uiPrev].LIST_SetNext( uiNext );
+			if( uiNext != ANCHOR_NODE_INDEX ) this->get_allocator()[uiNext].LIST_SetPrev( uiPrev );
+			if( uiPrev != ANCHOR_NODE_INDEX ) this->get_allocator()[uiPrev].LIST_SetNext( uiNext );
 			kEnd.LIST_SetDeleted(true);
-			get_allocator().FreeIfDeleted(uiEnd);
+			this->get_allocator().FreeIfDeleted(uiEnd);
 
 			m_uiSize--;
 
@@ -1147,10 +1147,10 @@ public:
 		~iterator(){};
 
 		T& operator*() const{
-			return (*m_pFastList->m_pVec)[m_uiCurrPos];
+			return (*this->m_pFastList->m_pVec)[this->m_uiCurrPos];
 		};
 		T* operator->() const{
-			return &(*m_pFastList->m_pVec)[m_uiCurrPos];
+			return &(*this->m_pFastList->m_pVec)[this->m_uiCurrPos];
 		};
 	};
 
@@ -1165,10 +1165,10 @@ public:
 		~const_iterator(){};
 
 		const T& operator*() const{
-			return (*m_pFastList->m_pVec)[m_uiCurrPos];
+			return (*this->m_pFastList->m_pVec)[this->m_uiCurrPos];
 		};
 		const T* operator->() const{
-			return &(*m_pFastList->m_pVec)[m_uiCurrPos];
+			return &(*this->m_pFastList->m_pVec)[this->m_uiCurrPos];
 		};
 	};
 
