@@ -2405,21 +2405,8 @@ void CvCity::doTurn()
 		if (MOD_BALANCE_VP)
 		{
 			iHitsHealed += getPopulation();
-
-			bool bAnyPlotBlockaded = false;
-			for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
-
-				if (pAdjacentPlot && pAdjacentPlot->isBlockaded(getOwner()))
-				{
-					bAnyPlotBlockaded = true;
-					break;
-				}
-			}
-
-			if (!bAnyPlotBlockaded)
-				iHitsHealed *= 5;
+			if (!GetCityCitizens()->AnyPlotBlockaded())
+				iHitsHealed *= 3;
 		}
 
 		if (getProductionProcess() != NO_PROCESS)

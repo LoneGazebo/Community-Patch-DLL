@@ -133,6 +133,7 @@ public:
 	bool IsBlockaded(CvPlot* pPlot) const;
 	void SetBlockaded(CvPlot* pPlot);
 	void ClearBlockades();
+	bool AnyPlotBlockaded() const;
 
 	bool DoVerifyWorkingPlots();
 
