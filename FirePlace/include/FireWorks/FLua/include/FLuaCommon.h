@@ -22,16 +22,6 @@
 
 class FCriticalSection;
 
-// Kind of like an assert for the compiler.  If the condition is not true then a compilation error is caused.
-#ifdef __clang__
-#define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) static_assert(CONDITION, #ERR_NAME)
-#else
-#define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) typedef int ERROR_##ERR_NAME[(CONDITION)? 1 : -1]
-#endif // __clang__
-
-// Forces a compile time error.  Useful for template specializations that aren't suppose to compile.
-#define FLUA_COMPILE_TIME_ERROR(ERR_NAME) FLUA_COMPILE_TIME_CONDITION(false, ERR_NAME)
-
 #define FLUA_MULTITHREAD_SUPPORT
 
 namespace FLua
@@ -572,14 +562,6 @@ namespace FLua
 		};
 
 		// Call - Use this to call functions using a lua_State
-		template<class TFunc>
-		static int Call(TFunc pfn, lua_State *L, const TCHAR *szLuaFnName) {
-			// Compile error if there is no specialization of Call for this function signature.
-			// If you get a compile error here it means that you probably exposed a function
-			// whose signature is not yet recognized by FLua.  You cannot expose this function
-			// until a template specialization for its signature is added.
-			FLUA_COMPILE_TIME_ERROR(CantDoCall);
-		}
 
 		// Call for lua_CFunctions
 		static inline int Call(lua_CFunction pfn, lua_State *L, const TCHAR * /*szLuaFnName*/ ) { return (*pfn)(L); }
@@ -725,20 +707,7 @@ namespace FLua
 	//   and take a lua_State* as its first argument.  If the lua encounters an error it will jump out of the
 	//   function and return to MakeProtectedCall where it will report the error.  A return value of true means
 	//   that the function executed without error.
-	template<class TFunc>
-	static bool MakeProtectedCall(lua_State *L, TFunc pfn) {
-		// Compile error if there is no specialization of MakeProtectedCall for this function signature.
-		// If you get a compile error here it means that you are trying to use MakeProtectedCall on a
-		// function is not yet supported.  You cannot expose this function until a template specialization
-		// for its signature is added.
-		FLUA_COMPILE_TIME_ERROR(CantDoProtectedCall);
-		return false;
-	}
-
-	// MakeProtectedCall specializations for static functions
-
-	template<>
-	bool MakeProtectedCall(lua_State *L, void(*pfn)(lua_State*)) {
+	static bool MakeProtectedCall(lua_State *L, void(*pfn)(lua_State*)) {
 		typedef void(*Func)(lua_State*); // typedef for the function signature
 		struct CallStruct { // The call struct serves as our user data
 			CallStruct(Func pfnFunc) : m_pfnFunc(pfnFunc) {}
