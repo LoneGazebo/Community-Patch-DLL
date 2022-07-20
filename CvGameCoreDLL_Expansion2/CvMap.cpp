@@ -981,7 +981,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 
 	// XXX look for barbarian cities???
 
-	int iBestValue = MAXINT;
+	int iBestValue = INT_MAX;
 	CvCity* pBestCity = NULL;
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
