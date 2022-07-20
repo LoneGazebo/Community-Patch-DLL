@@ -673,7 +673,7 @@ namespace FLua
 		void SetToStringForFunc(lua_State *L, lua_CFunction pfnToString);
 
 		// DescribeType - Used to describe function arguments and return values to lua.
-		template<class T> static const char *DescribeType() { return TypeNameHolder<StripPtrAndRef<T>::Result>::Get(); }
+		template<class T> static const char *DescribeType() { return TypeNameHolder<typename StripPtrAndRef<T>::Result>::Get(); }
 		template<> const char *DescribeType<void>() { return "void"; }
 		template<> const char *DescribeType<bool>() { return "bool"; }
 		template<> const char *DescribeType<const bool>() { return "const bool"; }

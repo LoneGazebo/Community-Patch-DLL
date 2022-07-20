@@ -213,7 +213,7 @@ template<typename ElementType, typename ClassContainer>
 FAutoVariable<std::vector<ElementType>, ClassContainer> & FAutoVariable<std::vector<ElementType>, ClassContainer>::operator=(const std::vector<ElementType> & rhs)
 {
 	clear();
-	std::vector<ElementType>::const_iterator i;
+	typename std::vector<ElementType>::const_iterator i;
 	for(i = rhs.begin(); i != rhs.end(); ++i)
 	{
 		push_back(*i);
@@ -355,7 +355,7 @@ template<typename ElementType, typename ClassContainer>
 void FAutoVariable<std::vector<ElementType>, ClassContainer>::insert(size_t index, const ElementType & v)
 {
 	m_owner.touch(*this);
-	std::vector<ElementType>::iterator i = m_value.begin() + index;
+	typename std::vector<ElementType>::iterator i = m_value.begin() + index;
 	m_value.insert(i, v);
 	m_commands.push_back(AutoVectorCommand<ElementType>(AutoVectorCommand<ElementType>::INSERT, index, v));
 }
@@ -396,7 +396,7 @@ void FAutoVariable<std::vector<ElementType>, ClassContainer>::erase(size_t index
 {
 	m_owner.touch(*this);
 
-	std::vector<ElementType>::iterator i = m_value.begin() + index;
+	typename std::vector<ElementType>::iterator i = m_value.begin() + index;
 	m_value.erase(i);
 	m_commands.push_back(AutoVectorCommand<ElementType>(AutoVectorCommand<ElementType>::ERASE, index, ElementType()));
 	

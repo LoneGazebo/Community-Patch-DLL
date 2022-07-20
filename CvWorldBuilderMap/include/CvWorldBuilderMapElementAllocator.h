@@ -177,7 +177,7 @@ public:
 	template<class TargetType, uint TargetInitialSize>
 	void ConvertTo(CvWorldBuilderMapElementAllocator<TargetType, TargetInitialSize> &kTarget) const
 	{
-		typedef CvWorldBuilderMapElementAllocator<TargetType, TargetInitialSize>::Entry TargetEntry;
+		typedef typename CvWorldBuilderMapElementAllocator<TargetType, TargetInitialSize>::Entry TargetEntry;
 
 		kTarget.Release();
 

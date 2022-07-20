@@ -604,7 +604,7 @@ namespace FLua
 		// 0 args with return value
 		template<class TClass, class TFuncOwner, class TRet>
 		static int Call(TRet(TFuncOwner::*pfn)(), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
 			if( lua_gettop(L) == 1 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -623,7 +623,7 @@ namespace FLua
 		// 1 arg with no return value
 		template<class TClass, class TFuncOwner, class TArg0>
 		static int Call(void(TFuncOwner::*pfn)(TArg0), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 2 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -643,8 +643,8 @@ namespace FLua
 		// 1 arg with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 2 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -668,8 +668,8 @@ namespace FLua
 		// 2 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 3 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -690,9 +690,9 @@ namespace FLua
 		// 2 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 3 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -717,9 +717,9 @@ namespace FLua
 		// 3 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 4 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -743,10 +743,10 @@ namespace FLua
 		// 3 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 4 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -774,10 +774,10 @@ namespace FLua
 		// 4 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 5 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -803,11 +803,11 @@ namespace FLua
 		// 4 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 5 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -837,11 +837,11 @@ namespace FLua
 		// 5 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 6 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -869,12 +869,12 @@ namespace FLua
 		// 5 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 6 ) {
 				TClass *pkObj = FLua::Details::Get<TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -924,7 +924,7 @@ namespace FLua
 		// 0 args with return value
 		template<class TClass, class TFuncOwner, class TRet>
 		static int Call(TRet(TFuncOwner::*pfn)()const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
 			if( lua_gettop(L) == 1 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -943,7 +943,7 @@ namespace FLua
 		// 1 arg with no return value
 		template<class TClass, class TFuncOwner, class TArg0>
 		static int Call(void(TFuncOwner::*pfn)(TArg0)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 2 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -963,8 +963,8 @@ namespace FLua
 		// 1 arg with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 2 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -988,8 +988,8 @@ namespace FLua
 		// 2 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 3 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1010,9 +1010,9 @@ namespace FLua
 		// 2 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 3 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1037,9 +1037,9 @@ namespace FLua
 		// 3 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 4 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1063,10 +1063,10 @@ namespace FLua
 		// 3 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 4 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1094,10 +1094,10 @@ namespace FLua
 		// 4 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 5 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1123,11 +1123,11 @@ namespace FLua
 		// 4 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 5 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1157,11 +1157,11 @@ namespace FLua
 		// 5 args with no return value
 		template<class TClass, class TFuncOwner, class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(void(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 6 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {
@@ -1189,12 +1189,12 @@ namespace FLua
 		// 5 args with return value
 		template<class TClass, class TFuncOwner, class TRet, class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(TRet(TFuncOwner::*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4)const, lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 6 ) {
 				const TClass *pkObj = FLua::Details::Get<const TClass*>(L, 1);
 				if( pkObj != NULL) {

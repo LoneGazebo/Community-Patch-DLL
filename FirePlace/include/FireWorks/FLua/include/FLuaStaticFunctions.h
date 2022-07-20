@@ -148,7 +148,7 @@ namespace FLua
 		// 0 args with return value
 		template<class TRet>
 		static int Call(TRet(*pfn)(), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
 			if( lua_gettop(L) == 0 ) {
 				TRet ret = (*pfn)();
 				RetAnalog pushMe = ToLuaAnalog<RetAnalog>::Convert(ret);
@@ -162,7 +162,7 @@ namespace FLua
 		// 1 arg with no return value
 		template<class TArg0>
 		static int Call(void(*pfn)(TArg0), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 1 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -177,8 +177,8 @@ namespace FLua
 		// 1 arg with return value
 		template<class TRet, class TArg0>
 		static int Call(TRet(*pfn)(TArg0), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
 			if( lua_gettop(L) == 1 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -197,8 +197,8 @@ namespace FLua
 		// 2 args with no return value
 		template<class TArg0, class TArg1>
 		static int Call(void(*pfn)(TArg0, TArg1), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 2 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -214,9 +214,9 @@ namespace FLua
 		// 2 args with return value
 		template<class TRet, class TArg0, class TArg1>
 		static int Call(TRet(*pfn)(TArg0, TArg1), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
 			if( lua_gettop(L) == 2 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -236,9 +236,9 @@ namespace FLua
 		// 3 args with no return value
 		template<class TArg0, class TArg1, class TArg2>
 		static int Call(void(*pfn)(TArg0, TArg1, TArg2), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 3 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -258,10 +258,10 @@ namespace FLua
 		// 3 args with return value
 		template<class TRet, class TArg0, class TArg1, class TArg2>
 		static int Call(TRet(*pfn)(TArg0, TArg1, TArg2), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
 			if( lua_gettop(L) == 3 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -284,10 +284,10 @@ namespace FLua
 		// 4 args with no return value
 		template<class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(void(*pfn)(TArg0, TArg1, TArg2, TArg3), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 4 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -309,11 +309,11 @@ namespace FLua
 		// 4 args with return value
 		template<class TRet, class TArg0, class TArg1, class TArg2, class TArg3>
 		static int Call(TRet(*pfn)(TArg0, TArg1, TArg2, TArg3), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
 			if( lua_gettop(L) == 4 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -338,11 +338,11 @@ namespace FLua
 		// 5 args with no return value
 		template<class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(void(*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 5 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);
@@ -366,12 +366,12 @@ namespace FLua
 		// 5 args with return value
 		template<class TRet, class TArg0, class TArg1, class TArg2, class TArg3, class TArg4>
 		static int Call(TRet(*pfn)(TArg0, TArg1, TArg2, TArg3, TArg4), lua_State *L, const TCHAR *szLuaFnName) {
-			typedef PushAnalog<TRet>::Result RetAnalog;
-			typedef LuaAnalog<TArg0>::Result Analog0;
-			typedef LuaAnalog<TArg1>::Result Analog1;
-			typedef LuaAnalog<TArg2>::Result Analog2;
-			typedef LuaAnalog<TArg3>::Result Analog3;
-			typedef LuaAnalog<TArg4>::Result Analog4;
+			typedef typename PushAnalog<TRet>::Result RetAnalog;
+			typedef typename LuaAnalog<TArg0>::Result Analog0;
+			typedef typename LuaAnalog<TArg1>::Result Analog1;
+			typedef typename LuaAnalog<TArg2>::Result Analog2;
+			typedef typename LuaAnalog<TArg3>::Result Analog3;
+			typedef typename LuaAnalog<TArg4>::Result Analog4;
 			if( lua_gettop(L) == 5 ) {
 				bool bValidArgs = true;
 				Analog0 arg0 = Get<Analog0>(L, 1); ArgValidator<TArg0>::Validate(arg0, bValidArgs);

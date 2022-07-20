@@ -133,7 +133,7 @@ bool TContainer<T>::RemoveAt(int iIndex)
 {
 	if (iIndex>=0 && iIndex < (int)m_order.size())
 	{
-		std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( m_order[iIndex]->GetID() );
+		typename std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( m_order[iIndex]->GetID() );
 		delete m_items[ it->first ];
 		m_items.erase( it->first );
 

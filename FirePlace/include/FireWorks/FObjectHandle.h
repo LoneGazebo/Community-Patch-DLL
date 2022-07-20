@@ -35,7 +35,7 @@ struct DestructionNotification
 {
 	~DestructionNotification()
 	{
-		std::set<const NotificationTarget *>::const_iterator i;
+		typename std::set<const NotificationTarget *>::const_iterator i;
 		for(i = m_targets.begin(); i != m_targets.end(); ++i)
 		{
 			const NotificationTarget * t = *i;

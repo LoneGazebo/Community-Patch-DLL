@@ -310,7 +310,7 @@ namespace FLua
 		void SetField( _In_z_ const char *szField, T val) {
 			if( Push() ) {
 				lua_State *L = m_kLuaVal.GetLuaState();
-				typedef Details::PushAnalog<T>::Result Analog;
+				typedef typename Details::PushAnalog<T>::Result Analog;
 				Analog analog = Details::ToLuaAnalog<Analog>::Convert(val);
 				lua_checkstack(L, 1);
 				Details::Push(L, analog);
@@ -323,7 +323,7 @@ namespace FLua
 		void SetField(int iIndex, T val) {
 			if( Push() ) {
 				lua_State *L = m_kLuaVal.GetLuaState();
-				typedef Details::PushAnalog<T>::Result Analog;
+				typedef typename Details::PushAnalog<T>::Result Analog;
 				Analog analog = Details::ToLuaAnalog<Analog>::Convert(val);
 				lua_checkstack(L, 1);
 				Details::Push(L, analog);
@@ -488,7 +488,7 @@ namespace FLua
 			Value kRetVal;
 			Details::LockAccess();
 			if( Push() ) {
-				typedef Details::PushAnalog<TArg0>::Result Analog0;
+				typedef typename Details::PushAnalog<TArg0>::Result Analog0;
 				Analog0 arg0 = Details::ToLuaAnalog<Analog0>::Convert(a0);
 
 				lua_State *L = GetLuaState();
@@ -514,8 +514,8 @@ namespace FLua
 			Value kRetVal;
 			Details::LockAccess();
 			if( Push() ) {
-				typedef Details::PushAnalog<TArg0>::Result Analog0;
-				typedef Details::PushAnalog<TArg1>::Result Analog1;
+				typedef typename Details::PushAnalog<TArg0>::Result Analog0;
+				typedef typename Details::PushAnalog<TArg1>::Result Analog1;
 
 				Analog0 arg0 = Details::ToLuaAnalog<Analog0>::Convert(a0);
 				Analog1 arg1 = Details::ToLuaAnalog<Analog1>::Convert(a1);
@@ -544,9 +544,9 @@ namespace FLua
 			Value kRetVal;
 			Details::LockAccess();
 			if( Push() ) {
-				typedef Details::PushAnalog<TArg0>::Result Analog0;
-				typedef Details::PushAnalog<TArg1>::Result Analog1;
-				typedef Details::PushAnalog<TArg2>::Result Analog2;
+				typedef typename Details::PushAnalog<TArg0>::Result Analog0;
+				typedef typename Details::PushAnalog<TArg1>::Result Analog1;
+				typedef typename Details::PushAnalog<TArg2>::Result Analog2;
 
 				Analog0 arg0 = Details::ToLuaAnalog<Analog0>::Convert(a0);
 				Analog1 arg1 = Details::ToLuaAnalog<Analog1>::Convert(a1);
@@ -577,10 +577,10 @@ namespace FLua
 			Value kRetVal;
 			Details::LockAccess();
 			if( Push() ) {
-				typedef Details::PushAnalog<TArg0>::Result Analog0;
-				typedef Details::PushAnalog<TArg1>::Result Analog1;
-				typedef Details::PushAnalog<TArg2>::Result Analog2;
-				typedef Details::PushAnalog<TArg3>::Result Analog3;
+				typedef typename Details::PushAnalog<TArg0>::Result Analog0;
+				typedef typename Details::PushAnalog<TArg1>::Result Analog1;
+				typedef typename Details::PushAnalog<TArg2>::Result Analog2;
+				typedef typename Details::PushAnalog<TArg3>::Result Analog3;
 
 				Analog0 arg0 = Details::ToLuaAnalog<Analog0>::Convert(a0);
 				Analog1 arg1 = Details::ToLuaAnalog<Analog1>::Convert(a1);
@@ -615,11 +615,11 @@ namespace FLua
 			Value kRetVal;
 			Details::LockAccess();
 			if( Push() ) {
-				typedef Details::PushAnalog<TArg0>::Result Analog0;
-				typedef Details::PushAnalog<TArg1>::Result Analog1;
-				typedef Details::PushAnalog<TArg2>::Result Analog2;
-				typedef Details::PushAnalog<TArg3>::Result Analog3;
-				typedef Details::PushAnalog<TArg4>::Result Analog4;
+				typedef typename Details::PushAnalog<TArg0>::Result Analog0;
+				typedef typename Details::PushAnalog<TArg1>::Result Analog1;
+				typedef typename Details::PushAnalog<TArg2>::Result Analog2;
+				typedef typename Details::PushAnalog<TArg3>::Result Analog3;
+				typedef typename Details::PushAnalog<TArg4>::Result Analog4;
 
 				Analog0 arg0 = Details::ToLuaAnalog<Analog0>::Convert(a0);
 				Analog1 arg1 = Details::ToLuaAnalog<Analog1>::Convert(a1);
