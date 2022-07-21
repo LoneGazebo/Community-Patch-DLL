@@ -617,6 +617,7 @@ public:
 	UnitIdContainer GetLinkedUnits();
 	int GetLinkedMaxMoves() const;
 	void SetLinkedMaxMoves(int iValue);
+	bool CanLinkUnits();
 	void LinkUnits();
 	void UnlinkUnits();
 	void MoveLinkedLeader(CvPlot* pDestPlot);
