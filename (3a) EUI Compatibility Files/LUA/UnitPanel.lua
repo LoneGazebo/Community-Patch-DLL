@@ -369,6 +369,7 @@ end
 local function UpdateCity( instance )
 	local city = instance and g_activePlayer:GetCityByID( instance[1] )
 	if city then
+		local cityOwner = Players[city:GetOwner()]
 		local itemInfo, portraitOffset, portraitAtlas, buildPercent
 		local turnsRemaining = city:GetProductionTurnsLeft()
 		local productionNeeded = city:GetProductionNeeded()
