@@ -42,6 +42,19 @@ namespace FSerialization
 	std::string toString(const double & source);
 	std::string toString(const std::string & source); // for completeness, no a-priori knowlege of what the var type is
 	std::string toString(const FAutoVariableBase &);
+
+	// temporary fall-through do-nothing case
+	// comment this to let the compiler tell you which
+	// types need implementations or which implementations
+	// are not in scope for code that fails after removing
+	// this function
+	template<typename ValueType>
+	std::string toString(const ValueType &)
+	{
+		static const std::string result("UNKNOWN");
+		return result;
+	}
+
 	template<typename ValueType>
 	std::string toString(const std::vector<ValueType> & source)
 	{
@@ -53,18 +66,6 @@ namespace FSerialization
 				result += std::string(",");
 			result += toString(*i);
 		}
-		return result;
-	}
-
-	// temporary fall-through do-nothing case
-	// comment this to let the compiler tell you which
-	// types need implementations or which implementations
-	// are not in scope for code that fails after removing
-	// this function
-	template<typename ValueType>
-	std::string toString(const ValueType &)
-	{
-		static const std::string result("UNKNOWN");
 		return result;
 	}
 }
