@@ -278,20 +278,20 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 	if(!bConstructorCall)
 	{
 		//Collect sizes
-		int numVoteSourceInfos = GC.getNumVoteSourceInfos();
-		int numVictoryInfos = GC.getNumVictoryInfos();
-		int numSmallAwardInfos = GC.getNumSmallAwardInfos();
-		int numRouteInfos = GC.getNumRouteInfos();
-		int numBuildInfos = GC.getNumBuildInfos();
-		int numProjectInfos = GC.getNumProjectInfos();
-		int numUnitClassInfos = GC.getNumUnitClassInfos();
-		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
-		int numBuildingInfos = GC.getNumBuildingInfos();
-		int numFeatureInfos = GC.getNumFeatureInfos();
-		int numDomainInfos = NUM_DOMAIN_TYPES;
-		int numTerrainInfos = GC.getNumTerrainInfos();
-		int numImprovementInfos = GC.getNumImprovementInfos();
-		int numTechInfos = GC.getNumTechInfos();
+		unsigned int numVoteSourceInfos = GC.getNumVoteSourceInfos();
+		unsigned int numVictoryInfos = GC.getNumVictoryInfos();
+		unsigned int numSmallAwardInfos = GC.getNumSmallAwardInfos();
+		unsigned int numRouteInfos = GC.getNumRouteInfos();
+		unsigned int numBuildInfos = GC.getNumBuildInfos();
+		unsigned int numProjectInfos = GC.getNumProjectInfos();
+		unsigned int numUnitClassInfos = GC.getNumUnitClassInfos();
+		unsigned int numBuildingClassInfos = GC.getNumBuildingClassInfos();
+		unsigned int numBuildingInfos = GC.getNumBuildingInfos();
+		unsigned int numFeatureInfos = GC.getNumFeatureInfos();
+		unsigned int numDomainInfos = NUM_DOMAIN_TYPES;
+		unsigned int numTerrainInfos = GC.getNumTerrainInfos();
+		unsigned int numImprovementInfos = GC.getNumImprovementInfos();
+		unsigned int numTechInfos = GC.getNumTechInfos();
 
 		//Perform batch allocation
 		AllocData aData[] =
