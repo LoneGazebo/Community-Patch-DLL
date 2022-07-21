@@ -189,6 +189,15 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(CanMove);
 	Method(HasMoved);
+
+	Method(IsLinked);
+	Method(IsLinkedLeader);
+	Method(IsGrouped);
+	Method(LinkUnits);
+	Method(UnlinkUnits);
+	Method(MoveLinkedLeader);
+	Method(DoGroupMovement);
+
 	Method(Range);
 	Method(NukeDamageLevel);
 
@@ -2402,6 +2411,73 @@ int CvLuaUnit::lHasMoved(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsLinked();
+int CvLuaUnit::lIsLinked(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsLinked();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsLinkedLeader();
+int CvLuaUnit::lIsLinkedLeader(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsLinkedLeader();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsGrouped();
+int CvLuaUnit::lIsGrouped(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsGrouped();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------ 
+//void LinkUnits();
+int CvLuaUnit::lLinkUnits(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	pkUnit->LinkUnits();
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void UnlinkUnits();
+int CvLuaUnit::lUnlinkUnits(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	pkUnit->UnlinkUnits();
+
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lMoveLinkedLeader(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
+
+	pkUnit->MoveLinkedLeader(pkDestPlot);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoGroupMovement();
+int CvLuaUnit::lDoGroupMovement(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
+
+	pkUnit->DoGroupMovement(pkDestPlot);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //int GetRange();

@@ -106,13 +106,20 @@ end
 
 function ShowMovementRangeIndicator()
 	local unit = UI.GetHeadSelectedUnit();
+	local bAlt = UIManager:GetAlt();
+
 	if not unit then
 		return;
 	end
 
 	local iPlayerID = Game.GetActivePlayer();
 
-	Events.ShowMovementRange( iPlayerID, unit:GetID() );
+	if bAlt then 
+--		print ("displaying linked movement range")
+		Events.ShowMovementRange( iPlayerID, unit:GetSlowestUnitIDOnPlot() );
+	else
+		Events.ShowMovementRange( iPlayerID, unit:GetID() );
+	end
 end
 
 -- Add any interface modes that need special processing to this table
@@ -661,6 +668,7 @@ end
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonDown] =
 function()
 	local bShift = UIManager:GetShift();
+	local bAlt = UIManager:GetAlt();
 	ShowMovementRangeIndicator();
 	UI.SendPathfinderUpdate();
 	if bShift then
@@ -795,11 +803,20 @@ function MovementRButtonUp()
 				--print("Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);");
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);
 
-			-- VP: QoL key+click combinations 
-			elseif bShift and not bCtrl then -- VP/bal: holding down shift queues move orders
+			-- VP: QoL key+click combinations (could do these in dll by modifying selectionListMove / or not since that also sends selectionlistgamemessage :P)
+			
+			elseif bAlt and not bCtrl and not bShift then
+			-- alt + rclick moves all units on the tile together / call normal movement thing for the unit, followed by DoLinkedMovement()
+--				print("TRYING LINKED MOVEMENT")
+				pHeadSelectedUnit:DoLinkedMovement(plot)
+			elseif bAlt and bCtrl and not bShift then
+				-- alt + ctrl + rclick moves units adjacent to this tile in formation / call normal movement thing for the unit, followed by DoGroupMovement()
+--				print("TRYING GROUP MOVEMENT")
+				pHeadSelectedUnit:DoGroupMovement(plot)
+			elseif bShift and not bCtrl and not bAlt then -- VP/bal: holding down shift queues move orders
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, true);				
 
-			elseif bCtrl then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues 
+			elseif bCtrl and not bAlt then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues 
 				if pHeadSelectedUnit:IsCanAttack() then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_ALERT, plotX, plotY, 0, false, true);				
@@ -857,6 +874,7 @@ function MovementRButtonUp()
 
 			else--if plot == UI.GetGotoPlot() then
 				--print("Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);");
+--				print("STANDARD MOVEMENT")
 				Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
 				--UI.SetGotoPlot(nil);
 			end

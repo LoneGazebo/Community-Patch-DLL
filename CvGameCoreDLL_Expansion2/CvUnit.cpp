@@ -140,6 +140,12 @@ CvUnit::CvUnit() :
 	, m_iGameTurnCreated()
 	, m_iDamage()
 	, m_iMoves()
+	, m_bIsLinked()
+	, m_bIsLinkedLeader()
+	, m_bIsGrouped()
+	, m_iLinkedMaxMoves()
+	, m_LinkedUnitIDs()
+	, m_iLinkedLeaderID()
 	, m_bImmobile()
 	, m_iExperienceTimes100()
 	, m_iLevel()
@@ -1396,6 +1402,12 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGameTurnCreated = 0;
 	m_iDamage = 0;
 	m_iMoves = 0;
+	m_bIsLinked = false;
+	m_bIsLinkedLeader = false;
+	m_bIsGrouped = false;
+	m_iLinkedMaxMoves = 0;
+	m_LinkedUnitIDs.clear();
+	m_iLinkedLeaderID = -1;
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
 	m_iLevel = 1;
@@ -3317,6 +3329,13 @@ void CvUnit::doTurn()
 			}
 		}
 	}				
+
+	// prevent linked units in movement from asking orders
+	if (IsLinked() && !IsLinkedLeader())
+	{
+		SetTurnProcessed(true);
+	}
+
 #endif
 	doDelayedDeath();
 #if defined(MOD_BALANCE_CORE)
@@ -4690,6 +4709,8 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 
 		case COMMAND_CANCEL_ALL:
 			ClearMissionQueue();
+			if (IsLinked())
+				SetIsLinked(false);
 			break;
 
 		case COMMAND_STOP_AUTOMATION:
@@ -5429,9 +5450,40 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 	}
 
+	if (IsLinkedLeader()) // moving the whole stack, one plot at a time
+	{
+		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
+		bool bCanDoLinkedMove = true;
+		vector<CvUnit*> LinkedUnits;
+		for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
+		{
+			CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
+			if (!pLinkedUnit->canMoveInto(targetPlot)) {
+				bCanDoLinkedMove = false;
+				break;
+			}
+			else {
+				LinkedUnits.push_back(pLinkedUnit);
+			}
+		}
+		if (bCanDoLinkedMove)
+		{
+			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+
+			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
+			{
+				CvUnit* pLinkedUnit = LinkedUnits[iI];
+				pLinkedUnit->move(targetPlot, false);
+			}
+		}
+	}
 	//important, first do the move, then subtract the cost
 	//that way setXY can tell whether it's the initial move this turn
-	setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+	else
+	{
+		setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+	}
+
 	changeMoves(-iMoveCost);
 }
 
@@ -15133,6 +15185,8 @@ int CvUnit::maxMoves() const
 {
 	if (plot() == NULL)
 		return 0;
+	if (IsLinked() || IsGrouped())
+		return GetLinkedMaxMoves();
 	// WARNING: Depends on the current embark state of the unit!
 	if (plot()->getOwner() == getOwner())
 		return (baseMoves(isEmbarked()) + plot()->GetPlotMovesChange()) * GD_INT_GET(MOVE_DENOMINATOR);
@@ -15163,7 +15217,295 @@ bool CvUnit::hasMoved()	const
 	return m_bMovedThisTurn;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsLinked()	const
+{
+	VALIDATE_OBJECT
+		return m_bIsLinked;
+}
 
+//	--------------------------------------------------------------------------------
+void CvUnit::SetIsLinked(bool bValue)
+{
+	VALIDATE_OBJECT
+
+	if (m_bIsLinked != bValue)
+	{
+		int iMovesThisTurn = GetLinkedMaxMoves() - getMoves();
+		m_bIsLinked = bValue;
+
+		if (bValue == false)
+		{
+			int iUnlinkedMaxMoves = maxMoves();
+
+			if (iUnlinkedMaxMoves > iMovesThisTurn) {
+				setMoves(iUnlinkedMaxMoves - iMovesThisTurn); // give back lost movement points
+			}
+			
+			SetLinkedLeaderID(-1);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsLinkedLeader()	const
+{
+	VALIDATE_OBJECT
+		return m_bIsLinkedLeader;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetIsLinkedLeader(bool bValue)
+{
+	VALIDATE_OBJECT
+
+	if (m_bIsLinkedLeader != bValue)
+	{
+		m_bIsLinkedLeader = bValue;
+
+		if (bValue == false)
+		{
+			UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
+			for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
+			{
+				CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
+				pLinkedUnit->SetIsLinked(false);
+			}
+
+			SetIsLinked(false);
+			m_LinkedUnitIDs.clear();
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsGrouped() const
+{
+	VALIDATE_OBJECT
+		return m_bIsGrouped;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetIsGrouped(bool bValue)
+{
+	VALIDATE_OBJECT
+	if (m_bIsGrouped != bValue)
+	{
+		int iMovesThisTurn = GetLinkedMaxMoves() - getMoves();
+		m_bIsGrouped = bValue;
+
+		if (bValue == false)
+		{
+			int iUnlinkedMaxMoves = maxMoves();
+
+			if (iUnlinkedMaxMoves > iMovesThisTurn) {
+				setMoves(iUnlinkedMaxMoves - iMovesThisTurn); // give back lost movement points
+			}
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetLinkedUnits(UnitIdContainer LinkedUnits)
+{
+	VALIDATE_OBJECT
+		m_LinkedUnitIDs = LinkedUnits;
+}
+
+//	--------------------------------------------------------------------------------
+UnitIdContainer CvUnit::GetLinkedUnits()
+{
+	VALIDATE_OBJECT
+		return m_LinkedUnitIDs;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetLinkedMaxMoves()	const
+{
+	VALIDATE_OBJECT
+		return m_iLinkedMaxMoves;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetLinkedMaxMoves(int iValue)
+{
+	VALIDATE_OBJECT
+		if (m_iLinkedMaxMoves != iValue)
+		{
+			m_iLinkedMaxMoves = iValue;
+		}
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetLinkedLeaderID()	const
+{
+	VALIDATE_OBJECT
+		return m_iLinkedLeaderID;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetLinkedLeaderID(int iLinkedLeaderID)
+{
+	VALIDATE_OBJECT
+		if (m_iLinkedLeaderID != iLinkedLeaderID)
+		{
+			m_iLinkedLeaderID = iLinkedLeaderID;
+		}
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::LinkUnits()
+{
+	VALIDATE_OBJECT
+
+	const CvPlot* pCurrentPlot = plot();
+		
+	if (pCurrentPlot == NULL)
+		return;
+
+	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
+	CvUnit* pLoopUnit = NULL;
+	vector<CvUnit*> v_unitvector;
+	UnitIdContainer LinkedUnitIDs;
+	int iLowestCurrentMoves = getMoves();
+	int iLowestMaxMoves = (IsGrouped()) ? GetLinkedMaxMoves() : maxMoves();
+
+	while (pUnitNode != NULL)
+	{
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
+
+		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		{
+			v_unitvector.push_back(pLoopUnit);
+			int iLoopMoves = pLoopUnit->getMoves();
+			int iLoopMaxMoves = pLoopUnit->maxMoves();
+
+			if (iLoopMoves < iLowestCurrentMoves) {
+				iLowestCurrentMoves = iLoopMoves;
+			}
+			if (iLoopMaxMoves < iLowestMaxMoves) {
+				iLowestMaxMoves = iLoopMaxMoves;
+			}
+		}
+	}
+
+	for (int iI = 0; iI < (int)v_unitvector.size(); iI++)
+	{
+		CvUnit* pUnit = v_unitvector[iI];
+
+		pUnit->SetIsLinked(true);
+		pUnit->setMoves(iLowestCurrentMoves);
+		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
+
+		if (this == pUnit) {
+			SetIsLinkedLeader(true);
+		} 
+		else {
+			LinkedUnitIDs.push_back(pUnit->GetID());
+			pUnit->SetLinkedLeaderID(this->GetID());
+		}
+	}
+	SetLinkedUnits(LinkedUnitIDs);
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::UnlinkUnits() //mostly for the lua call
+{
+	VALIDATE_OBJECT
+
+	if (!IsLinked()) {
+		return;
+	}
+	else
+	{
+		if (IsLinkedLeader()) {
+			SetIsLinkedLeader(false); // the actual unlinking happens here
+		}
+		else {
+			CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
+			pLinkedLeader->SetIsLinkedLeader(false);
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::MoveLinkedLeader(CvPlot* pDestPlot)
+{
+	VALIDATE_OBJECT
+
+	CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
+	pLinkedLeader->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY());
+
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
+{
+	VALIDATE_OBJECT
+
+	LinkUnits();
+	const CvPlot* pCurrentPlot = plot();
+
+	if (pCurrentPlot == NULL)
+		return;
+
+	vector<CvUnit*> v_unitvector;
+	int iLowestCurrentMoves = getMoves();
+	int iLowestMaxMoves = maxMoves();
+
+	const bool bIsOnSea = getDomainType() == DOMAIN_SEA || isEmbarked();
+
+	for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++) // first get the units and calculate group base move
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pCurrentPlot, i);
+		if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+		{
+			const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+			CvUnit* pLoopUnit = NULL;
+			while (pUnitNode != NULL)
+			{
+				pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+				if ( pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && 
+					( !pLoopUnit->IsCivilianUnit() || pLoopUnit->IsGreatAdmiral() || pLoopUnit->IsGreatGeneral() ) 
+					&&
+					( ( bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked()) ) || 
+					  (!bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->isEmbarked())) ) )
+				{
+					v_unitvector.push_back(pLoopUnit);
+					int iLoopMoves = pLoopUnit->getMoves();
+					int iLoopMaxMoves = pLoopUnit->maxMoves();
+
+					if (iLoopMoves < iLowestCurrentMoves) {
+						iLowestCurrentMoves = iLoopMoves;
+					}
+					if (iLoopMaxMoves < iLowestMaxMoves) {
+						iLowestMaxMoves = iLoopMaxMoves;
+					}
+				}
+			}
+		}
+	}
+
+	//	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
+	for (int iI = 0; iI < (int)v_unitvector.size(); iI++) // then move the units
+	{
+		CvUnit* pUnit = v_unitvector[iI];
+
+		int iXDiff = getX() - pUnit->getX();
+		int iYDiff = getY() - pUnit->getY();
+
+		pUnit->SetIsGrouped(true);
+		pUnit->setMoves(iLowestCurrentMoves);
+		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
+		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX() - iXDiff, pDestPlot->getY() - iYDiff);
+	}
+
+	SetIsGrouped(true); 
+	setMoves(iLowestCurrentMoves);	
+	SetLinkedMaxMoves(iLowestMaxMoves);
+	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY()); // the iterator doesn't include the current plot, so move the ordering unit & and its stack here
+}
 //	--------------------------------------------------------------------------------
 int CvUnit::GetRange() const
 {
@@ -26956,6 +27298,11 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iID);
 	visitor(unit.m_iDamage);
 	visitor(unit.m_iMoves);
+	visitor(unit.m_bIsLinked);
+	visitor(unit.m_bIsLinkedLeader);
+	visitor(unit.m_bIsGrouped);
+	visitor(unit.m_iLinkedMaxMoves);
+	visitor(unit.m_iLinkedLeaderID);
 	visitor(unit.m_iArmyId);
 	visitor(unit.m_iBaseCombat);
 	visitor(unit.m_iBaseRangedCombat);
@@ -28267,6 +28614,11 @@ bool CvUnit::ReadyToMove() const
 		return false;
 	}
 
+	if (IsLinked() && !IsLinkedLeader()) // do not ask orders for units following another
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -28956,6 +29308,10 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_MOVE_TO_ALL:
+		if (IsCombatUnit() && getDomainType() != DOMAIN_AIR && GetNumOwningPlayerUnitsAdjacent() > 0)
+		{
+			return true;
+		}
 		break;
 
 	case INTERFACEMODE_ROUTE_TO:
