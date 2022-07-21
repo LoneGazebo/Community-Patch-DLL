@@ -27858,7 +27858,7 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 			//check areas, not domain types because we want to prevent subs from shooting into lakes
 			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
 			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
-			if (pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToArea(pSourcePlot->getArea()))
+			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToArea(pSourcePlot->getArea()))
 				bForbidden = false;
 
 			if (bForbidden)
