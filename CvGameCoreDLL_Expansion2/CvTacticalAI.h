@@ -542,7 +542,7 @@ struct STacticalAssignment
 		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnit), iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iScore(iScore_), eAssignmentType(eType_), iDamage(0), iSelfDamage(0) {}
 
 	//sort descending
-	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
+	bool operator<(const STacticalAssignment& rhs) const { return iScore>rhs.iScore; }
 
 	//convenience
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
@@ -583,7 +583,7 @@ struct SUnitStats
 		pUnit(pUnit_), iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
 		eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
 
-	bool operator<(const SUnitStats& rhs) { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
+	bool operator<(const SUnitStats& rhs) const { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
 };
 
 struct SPathFinderStartPos

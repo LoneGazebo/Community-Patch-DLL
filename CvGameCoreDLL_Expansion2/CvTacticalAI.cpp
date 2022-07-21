@@ -3678,21 +3678,21 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		CvPlot* pPlot;
 		int iScore;
 		bool bAttack;
-		bool operator<(const SAssignment& rhs) { return iScore>rhs.iScore; }
+		bool operator<(const SAssignment& rhs) const { return iScore>rhs.iScore; }
 	};
 
 	struct PrPlotMatch
 	{
 		PrPlotMatch(CvPlot* refPlot) : pRefPlot(refPlot) {}
 		CvPlot* pRefPlot;
-		bool operator()(const SAssignment& other) { return pRefPlot==other.pPlot; } 
+		bool operator()(const SAssignment& other) const { return pRefPlot==other.pPlot; } 
 	};
 
 	struct PrUnitMatch
 	{
 		PrUnitMatch(CvUnit* refUnit) : pRefUnit(refUnit) {}
 		CvUnit* pRefUnit;
-		bool operator()(const SAssignment& other) { return pRefUnit==other.pUnit; } 
+		bool operator()(const SAssignment& other) const { return pRefUnit==other.pUnit; } 
 	};
 
 	vector<SAssignment> choices;
