@@ -529,7 +529,7 @@ template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID, c
 void* operator new(size_t uiSize, FFastVector< T, bPODType, AllocPool, nSubID, FAST_VEC_ALLOC >& kVector)
 {
 	// Make sure the type is of the correct size to fit into the vector
-	FAssertMsg(uiSize == sizeof T, "Using placement new on FFastVector with the wrong type!");
+	FAssertMsg(uiSize == sizeof(T), "Using placement new on FFastVector with the wrong type!");
 
 	unsigned int nSize = kVector.size();
 	if( kVector.m_uiCurrSize == kVector.m_uiCurrMaxSize )
@@ -1064,7 +1064,7 @@ template< class T, unsigned int L, bool bPODType, unsigned int AllocPool, unsign
 void* operator new(size_t uiSize, FStaticVector< T, L, bPODType, AllocPool, nSubID >& kVector)
 {
 	// Make sure the type is of the correct size to fit into the vector
-	FAssertMsg(uiSize == sizeof T, "Using placement new on FFastVector with the wrong type!");
+	FAssertMsg(uiSize == sizeof(T), "Using placement new on FFastVector with the wrong type!");
 
 	unsigned int nSize = kVector.size();
 	if( kVector.m_uiCurrSize == kVector.m_uiCurrMaxSize )
