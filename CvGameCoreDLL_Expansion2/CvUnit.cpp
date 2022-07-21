@@ -5456,13 +5456,13 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 		if (bCanDoLinkedMove)
 		{
+			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
+
 			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
 			{
 				CvUnit* pLinkedUnit = LinkedUnits[iI];
-				pLinkedUnit->move(targetPlot, true);
+				pLinkedUnit->move(targetPlot, false);
 			}
-
-			setXY(targetPlot.getX(), targetPlot.getY(), true, true, bShow && targetPlot.isVisibleToWatchingHuman(), bShow);
 		}
 	}
 	//important, first do the move, then subtract the cost
@@ -29325,7 +29325,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_MOVE_TO_ALL:
-		if (GetNumOwningPlayerUnitsAdjacent() > 0)
+		if (IsCombatUnit() && getDomainType() != DOMAIN_AIR && GetNumOwningPlayerUnitsAdjacent() > 0)
 		{
 			return true;
 		}
