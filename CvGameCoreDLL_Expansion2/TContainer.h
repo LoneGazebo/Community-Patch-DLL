@@ -225,7 +225,7 @@ template < class T >
 inline void TContainer< T >::Read( FDataStream* pStream )
 {
 	int nItems;
-	pStream->Read(nItems);
+	*pStream >> nItems;
 	for ( int i=0; i<nItems; i++ )
 	{
 		T* pNewItem = new(T);
