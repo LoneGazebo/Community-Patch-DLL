@@ -95,9 +95,12 @@
 // Comment out this line to switch off all unified yield logging
 // #define UNIFIEDLOGDEBUG "UnifiedYields.log"
 
+#ifdef _WIN32
 // Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
+// Minidumps only work on Windows for now.
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
 #define MOD_DEBUG_MINIDUMP
+#endif
 
 // Comment these lines out to remove the associated code from the DLL,
 // Alternatively, set the associated entries in the CustomModOptions table to disable(0) or enable(1) at load-time
