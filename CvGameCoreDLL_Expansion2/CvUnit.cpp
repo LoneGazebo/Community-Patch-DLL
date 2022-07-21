@@ -2724,6 +2724,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		setTransportUnit(NULL);
 	}
 
+	// remove linked status
+	if (IsLinkedLeader()) {
+		SetIsLinkedLeader(false);
+	}
+	else if (IsLinked()) {
+		CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
+		pLinkedLeader->SetIsLinkedLeader(false);
+	}
+
 	setReconPlot(NULL);
 
 	CvAssertMsg(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
@@ -4709,8 +4718,6 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 
 		case COMMAND_CANCEL_ALL:
 			ClearMissionQueue();
-			if (IsLinked())
-				SetIsLinked(false);
 			break;
 
 		case COMMAND_STOP_AUTOMATION:
