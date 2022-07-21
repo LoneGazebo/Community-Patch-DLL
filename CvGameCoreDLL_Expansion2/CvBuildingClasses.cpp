@@ -5357,7 +5357,7 @@ int CvCityBuildings::GetBuildingGreatWork(BuildingClassTypes eBuildingClass, int
 void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, int iSlot, int iGreatWorkIndex)
 {
 	m_pCity->ResetGreatWorkYieldCache();
-	
+
 	for(std::vector<BuildingGreatWork>::iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
 	{
 		if((*it).eBuildingClass == eBuildingClass && (*it).iSlot == iSlot)
@@ -5373,6 +5373,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 				{
 					(*it).iGreatWorkIndex = iGreatWorkIndex;
 				}
+
+				if (eBuildingClass != NO_BUILDINGCLASS)
+				{
+					m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+				}
 			}
 
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -5387,6 +5392,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iSlot = iSlot;
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
+
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+			m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+		}
 	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
