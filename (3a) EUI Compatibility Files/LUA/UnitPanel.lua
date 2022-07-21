@@ -328,7 +328,39 @@ if (IsModActive("1f0a153b-26ae-4496-a2c0-a106d9b43c95", 3)) then
 	Controls.PromotionText:RegisterCallback(Mouse.eLClick, OnPromotionTreeButton)
 else
 	Controls.PromotionText:SetToolTipString(nil)
+end 
+
+local LinkIcon = "Link51.dds";
+local UnlinkIcon = "Unlink51.dds";
+local LinkTooltipIcon = "Link64.dds"
+local UnlinkTooltipIcon = "Unlink64.dds"
+if OptionsManager.GetSmallUIAssets() and not UI.IsTouchScreenEnabled() then
+	LinkIcon = "Link36.dds";
+	UnlinkIcon = "Unlink36.dds";
+	LinkTooltipIcon = "Link45.dds"
+	UnlinkTooltipIcon = "Unlink45.dds"
 end
+function OnLinkUnitsClicked()
+	unit = UI.GetHeadSelectedUnit()
+
+	if unit:IsLinked() then
+		unit:UnlinkUnits()
+	else
+		unit:LinkUnits()
+	end
+	UpdateLinkIcon(unit)
+end
+
+function UpdateLinkIcon(unit)
+	if unit then
+		if unit:IsLinked() then
+			Controls.LinkUnitsButton:SetTexture(UnlinkIcon)
+		else 
+			Controls.LinkUnitsButton:SetTexture(LinkIcon)
+		end
+	end
+end
+
 
 -------------------------------------------------
 -- Item Functions
@@ -1044,6 +1076,7 @@ local function UpdateUnitActions( unit )
 	Controls.BackgroundCivFrame:SetHide( false )
 
 	local hideCityButton = true
+	local hideLinkButton = true
 --	local currentBuildID = unit:GetBuildType()
 
 	-- loop over all the game actions
@@ -1077,7 +1110,6 @@ local function UpdateUnitActions( unit )
 	-- loop over all the unit actions
 	for i = 1, #actions do
 		local action = actions[i]
-
 		local button
 		if action.Type == "MISSION_FOUND" then
 			button = Controls.BuildCityButton
@@ -1132,7 +1164,17 @@ local function UpdateUnitActions( unit )
 		button:SetToolTipCallback( ActionToolTipHandler )
 
 	end
+
+	if plot:GetNumUnits() > 1 and hasMovesLeft then
+		hideLinkButton = false
+		UpdateLinkIcon(unit)
+	end
+	Controls.LinkUnitsButton:SetHide( hideLinkButton )
+	Controls.LinkUnitsButton:RegisterCallback( Mouse.eLClick, OnLinkUnitsClicked )
+	Controls.LinkUnitsButton:SetToolTipCallback( LinkUnitsToolTipHandler )
+
 	Controls.BuildCityButton:SetHide( hideCityButton )
+
 	g_ActionIM:Commit()
 	g_BuildIM:Commit()
 
@@ -2054,8 +2096,42 @@ function ActionToolTipHandler( control )
 	if mouseoverSizeX < 350 then
 		tipControlTable.UnitActionMouseover:SetSizeX( 350 )
 	end
-
 end
+function LinkUnitsToolTipHandler()
+
+	local unit = UI.GetHeadSelectedUnit()
+	local toolTip = table()
+		
+	if not unit then
+		tipControlTable.UnitActionMouseover:SetHide( true )
+		return
+	end
+
+	if unit:IsLinked() then
+		tipControlTable.UnitActionIcon:SetTexture( UnlinkTooltipIcon )
+		toolTip:insertLocalized( "TXT_KEY_ACTION_UNLINK_UNITS" )
+		tipControlTable.UnitActionHotKey:SetText("(L)")
+		-- Tooltip
+		tipControlTable.UnitActionHelp:SetText( toolTip:concat("[NEWLINE]") )
+		-- Title
+		tipControlTable.UnitActionText:SetText( "[COLOR_POSITIVE_TEXT]" .. "Unlink Units" .. "[ENDCOLOR]")
+	else
+		tipControlTable.UnitActionIcon:SetTexture( LinkTooltipIcon )
+		toolTip:insertLocalized( "TXT_KEY_ACTION_LINK_UNITS" )
+		tipControlTable.UnitActionHotKey:SetText("(L)")
+		-- Tooltip
+		tipControlTable.UnitActionHelp:SetText( toolTip:concat("[NEWLINE]") )
+		-- Title
+		tipControlTable.UnitActionText:SetText( "[COLOR_POSITIVE_TEXT]" .. "Link Units" .. "[ENDCOLOR]")
+	end
+
+	tipControlTable.UnitActionMouseover:DoAutoSize()
+	local mouseoverSizeX = tipControlTable.UnitActionMouseover:GetSizeX()
+	if mouseoverSizeX < 350 then
+		tipControlTable.UnitActionMouseover:SetSizeX( 350 )
+	end
+end
+
 g_existingBuild.UnitActionButton:SetToolTipCallback(
 function()-- control )
 	local unit = UI_GetHeadSelectedUnit()
@@ -2236,6 +2312,13 @@ local function UpdateDisplay()
 		return ContextPtr:SetUpdate( UpdateDisplayNow )
 	end
 end
+
+local function CustomHotkeyUp( wParam )
+	if wParam == Keys.L then
+		OnLinkUnitsClicked()
+	end
+end
+Events.KeyUpEvent.Add( CustomHotkeyUp );
 
 local function UpdateUnits()
 	g_unitUpdateRequired = true

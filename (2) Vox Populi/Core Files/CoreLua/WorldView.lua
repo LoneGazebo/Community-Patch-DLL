@@ -79,7 +79,7 @@ function UpdatePathFromSelectedUnitToMouse()
 		--end
 	--end
 
-	if rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	if rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		Events.DisplayMovementIndicator( true );
 	else
 		Events.DisplayMovementIndicator( false );
@@ -114,12 +114,7 @@ function ShowMovementRangeIndicator()
 
 	local iPlayerID = Game.GetActivePlayer();
 
-	if bAlt then 
---		print ("displaying linked movement range")
-		Events.ShowMovementRange( iPlayerID, unit:GetSlowestUnitIDOnPlot() );
-	else
-		Events.ShowMovementRange( iPlayerID, unit:GetID() );
-	end
+	Events.ShowMovementRange( iPlayerID, unit:GetID() );
 end
 
 -- Add any interface modes that need special processing to this table
@@ -180,7 +175,6 @@ function( wParam )
 		return true;
 	end
 end
-
 
 DefaultMessageHandler[KeyEvents.KeyUp] =
 function( wParam )
@@ -432,7 +426,10 @@ function missionTypeLButtonUpHandler()
 		local interfaceMode = UI.GetInterfaceMode()
 		if UI.CanDoInterfaceMode(interfaceMode) then
 			local eInterfaceModeMission = GameInfoTypes[(GameInfo.InterfaceModes[interfaceMode] or {}).Mission]
-			if eInterfaceModeMission and eInterfaceModeMission ~= MissionTypes.NO_MISSION then
+			if interfaceMode == 5 then --MOVE_TO_ALL interfacemode
+				local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
+				pHeadSelectedUnit:DoGroupMovement(plot)
+			elseif eInterfaceModeMission and eInterfaceModeMission ~= MissionTypes.NO_MISSION then
 				Game.SelectionListGameNetMessage( GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, eInterfaceModeMission, plot:GetX(), plot:GetY(), 0, false, UIManager:GetShift() )
 			end
 		end
@@ -668,7 +665,6 @@ end
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonDown] =
 function()
 	local bShift = UIManager:GetShift();
-	local bAlt = UIManager:GetAlt();
 	ShowMovementRangeIndicator();
 	UI.SendPathfinderUpdate();
 	if bShift then
@@ -802,17 +798,7 @@ function MovementRButtonUp()
 			if bShift == false and pHeadSelectedUnit:AtPlot(plot) then
 				--print("Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);");
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);
-
-			-- VP: QoL key+click combinations (could do these in dll by modifying selectionListMove / or not since that also sends selectionlistgamemessage :P)
-			
-			elseif bAlt and not bCtrl and not bShift then
-			-- alt + rclick moves all units on the tile together / call normal movement thing for the unit, followed by DoLinkedMovement()
---				print("TRYING LINKED MOVEMENT")
-				pHeadSelectedUnit:DoLinkedMovement(plot)
-			elseif bAlt and bCtrl and not bShift then
-				-- alt + ctrl + rclick moves units adjacent to this tile in formation / call normal movement thing for the unit, followed by DoGroupMovement()
---				print("TRYING GROUP MOVEMENT")
-				pHeadSelectedUnit:DoGroupMovement(plot)
+			-- VP: QoL key+click combinations 
 			elseif bShift and not bCtrl and not bAlt then -- VP/bal: holding down shift queues move orders
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, true);				
 
@@ -870,13 +856,18 @@ function MovementRButtonUp()
 					end
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);				
-				end -- VP end
+				end
 
 			else--if plot == UI.GetGotoPlot() then
 				--print("Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);");
---				print("STANDARD MOVEMENT")
-				Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
+				if pHeadSelectedUnit:IsLinked() and not pHeadSelectedUnit:IsLinkedLeader() then 
+					pHeadSelectedUnit:MoveLinkedLeader(plot)
+				elseif UI.GetInterfaceMode() == 5 then -- Group Movement Interface
+					pHeadSelectedUnit:DoGroupMovement(plot)
+				else
+					Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
 				--UI.SetGotoPlot(nil);
+				end
 			end
 			--Events.ClearHexHighlights();
 			ClearAllHighlights();
@@ -887,6 +878,7 @@ end
 
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonUp] = MovementRButtonUp;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO][MouseEvents.RButtonUp] = MovementRButtonUp;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.RButtonUp] = MovementRButtonUp;
 
 if UI.IsTouchScreenEnabled() then
 	InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO][MouseEvents.PointerUp] = MovementRButtonUp;
@@ -976,9 +968,9 @@ Events.UIPathFinderUpdate.Add( OnUIPathFinderUpdate );
 function OnMouseMoveHex()
 	local interfaceMode = UI.GetInterfaceMode();
 	local bShift = UIManager:GetShift();
-	if not bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	if not bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		UI.SendPathfinderUpdate();
-	elseif bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	elseif bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		UpdatePathFromWaypointToMouse()
 	end
 end
