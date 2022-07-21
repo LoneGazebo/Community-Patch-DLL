@@ -721,10 +721,6 @@ public:
 
 	FCustomList( const TYPE& rhs )
 		: CORE( rhs ) {};
-
-	const TYPE& operator=( const TYPE& rhs ){
-		CORE = rhs;
-	};
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -765,10 +761,6 @@ public:
 	FCustomList() : CORE() {};
 	FCustomList( T_ALLOCATOR* pAlloc ) : CORE( pAlloc ) {};
 	FCustomList( const TYPE& rhs ) : CORE( rhs ) {};
-
-	const TYPE& operator=( const TYPE& rhs ){
-		CORE = rhs;
-	};
 };
 
 
