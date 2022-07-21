@@ -751,6 +751,13 @@ function MovementRButtonUp()
 			return true;
 		end
 
+		-- rebase with RCLICK
+		if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and pHeadSelectedUnit:CanRebaseAt(0, plotX, plotY) then
+			print("AIIRRRR")
+			Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);				
+--			pHeadSelectedUnit:RebaseAt(plotX, plotY)
+		end
+
 		-- Visible enemy... bombardment?
 		if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
 

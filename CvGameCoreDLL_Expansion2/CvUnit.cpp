@@ -15353,6 +15353,36 @@ void CvUnit::SetLinkedLeaderID(int iLinkedLeaderID)
 		}
 }
 
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::CanLinkUnits()
+{
+	VALIDATE_OBJECT
+
+	const CvPlot* pCurrentPlot = plot();
+
+	if (pCurrentPlot == NULL)
+		return false;
+
+	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
+	bool bCanLink = false;
+	CvUnit* pLoopUnit = NULL;
+
+	while (pUnitNode != NULL)
+	{
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
+
+		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		{
+			if (pLoopUnit != this)
+				bCanLink = true;
+				return bCanLink;
+		}
+	}
+
+	return bCanLink;
+}
 //	--------------------------------------------------------------------------------
 void CvUnit::LinkUnits()
 {

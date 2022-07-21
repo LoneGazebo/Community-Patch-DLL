@@ -341,7 +341,7 @@ function UpdateUnitActions( unit )
     g_PromotionsOpen = false;
 
 	local hideLinkButton = true
-	if unit:GetPlot():GetNumUnits() > 1 and bUnitHasMovesLeft then
+	if unit:CanLinkUnits() and bUnitHasMovesLeft then
 		hideLinkButton = false
 		UpdateLinkIcon(unit)
 	end

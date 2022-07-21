@@ -1165,7 +1165,7 @@ local function UpdateUnitActions( unit )
 
 	end
 
-	if plot:GetNumUnits() > 1 and hasMovesLeft then
+	if unit:CanLinkUnits() and hasMovesLeft then
 		hideLinkButton = false
 		UpdateLinkIcon(unit)
 	end
