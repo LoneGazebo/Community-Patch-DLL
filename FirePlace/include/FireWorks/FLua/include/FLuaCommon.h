@@ -92,64 +92,6 @@ namespace FLua
 	//   A FunctionDescription with a NULL szFunction pointer signals the end of the akDescriptions array.
 	bool SetFunctionDescriptions(lua_State *L, FunctionDescription *akDescriptions);
 
-	// StackValue - Represents a generic argument on the lua stack.
-	class StackValue
-	{
-	public:
-		StackValue(lua_State *L, int iStackIndex);
-
-		inline void Push() const { lua_pushvalue(m_pkLuaState, m_iStackIndex); }
-		inline int Reference() const {
-			lua_checkstack(m_pkLuaState, 1);
-			lua_pushvalue(m_pkLuaState, m_iStackIndex); // Push the value
-			return lua_ref(m_pkLuaState, true); // Ref then pop the value
-		}
-
-		inline Type GetType() const { return (Type)lua_type(m_pkLuaState, m_iStackIndex); }
-		inline const char *GetTypeName() const { return lua_typename(m_pkLuaState, lua_type(m_pkLuaState, m_iStackIndex)); }
-
-		inline bool IsNil() const { return lua_isnil(m_pkLuaState, m_iStackIndex); }
-
-		// Basic type conversions
-		inline operator bool() const { return GetAs<bool>(); }
-		inline operator int() const { return GetAs<int>(); }
-		inline operator char() const { return GetAs<char>(); }
-		inline operator unsigned int() const { return GetAs<unsigned int>(); }
-		inline operator float() const { return GetAs<float>(); }
-		inline operator double() const { return GetAs<double>(); }
-		inline operator const char*() const { return GetAs<const char*>(); }
-		template<class T> _Ret_opt_ operator T*() const { return GetAs<T*>(); }
-
-		// GetAs - Interpret this value as a specific C++ type
-		template<class T>
-		T GetAs() const {
-			T ret = T(); // Don't use with reference types!!! ...EVER!!!
-
-			// Get the lua analog for this type off of the lua stack
-			typedef typename Details::LuaAnalog<T>::Result Analog;
-			Analog analog = Details::Get<Analog>(m_pkLuaState, m_iStackIndex);
-
-			// Validate the value from lua
-			bool bValid(true); Details::ArgValidator<T>::Validate(analog, bValid);
-
-			// Convert and return the value if it is valid
-			if( bValid ) ret = Details::FromLuaAnalog<T>::Convert(analog);
-
-			return ret;
-		}
-
-		// IsOfType - Determines if the value may be cast to a pointer of type T
-		template<class T>
-		bool IsOfType() const { return Details::CompatibleType<T>(m_pkLuaState, m_iStackIndex); }
-
-		inline int GetIndex() const { return m_iStackIndex; }
-		inline lua_State *GetLuaState() const { return m_pkLuaState; }
-
-	private:
-		lua_State *m_pkLuaState;
-		int m_iStackIndex;
-	};
-
 	namespace Details
 	{
 		// Error - Call for internal errors in FLua.  Uses ErrorHandler
@@ -402,7 +344,6 @@ namespace FLua
 		template<> inline lua_Number Get(lua_State *L, int idx) { return lua_tonumber(L, idx); }
 		template<> inline float Get(lua_State *L, int idx) { return (float)lua_tonumber(L, idx); }
 		template<> inline const char *Get(lua_State *L, int idx) { return lua_tostring(L, idx); }
-		template<> inline StackValue Get(lua_State *L, int idx) { return StackValue(L, idx); }
 
 		// PushCData - Allows the creation of CData to be overriden for certain types
 		template<class T> static void PushCData(lua_State *L, T *pVal)
@@ -438,7 +379,6 @@ namespace FLua
 		static inline void Push(lua_State *L, const lua_Number fVal) { lua_pushnumber(L, fVal); }
 		static inline void Push(lua_State *L, const float fVal) { lua_pushnumber(L, fVal); }
 		static inline void Push(lua_State *L, _In_z_ const char *szVal) { lua_pushstring(L, szVal); }
-		static inline void Push(lua_State *,  const StackValue kVal) { kVal.Push(); }
 
 		// ArgValidator - Determines if an argument is valid.  Default case does nothing.
 		template<class T>
@@ -607,7 +547,6 @@ namespace FLua
 		template<> const char *DescribeType<const double>() { return "const double"; }
 		template<> const char *DescribeType<char*>() { return "char"; } // Pointer notation added later
 		template<> const char *DescribeType<const char*>() { return "const char"; }
-		template<> const char *DescribeType<StackValue>() { return "variant"; }
 
 		// PtrDescription - Used to add proper pointer or reference (&) notation to a described type.
 		template<class T> struct PtrDescription { static const char *Get() { return ""; } };
@@ -702,6 +641,70 @@ namespace FLua
 		// HandleCPCallError - Used internally by MakeProtectedCall to handle errors
 		void HandleCPCallError(lua_State *L, int iCPCallResults);
 	}
+
+	// StackValue - Represents a generic argument on the lua stack.
+	class StackValue
+	{
+	public:
+		StackValue(lua_State *L, int iStackIndex);
+
+		inline void Push() const { lua_pushvalue(m_pkLuaState, m_iStackIndex); }
+		inline int Reference() const {
+			lua_checkstack(m_pkLuaState, 1);
+			lua_pushvalue(m_pkLuaState, m_iStackIndex); // Push the value
+			return lua_ref(m_pkLuaState, true); // Ref then pop the value
+		}
+
+		inline Type GetType() const { return (Type)lua_type(m_pkLuaState, m_iStackIndex); }
+		inline const char *GetTypeName() const { return lua_typename(m_pkLuaState, lua_type(m_pkLuaState, m_iStackIndex)); }
+
+		inline bool IsNil() const { return lua_isnil(m_pkLuaState, m_iStackIndex); }
+
+		// Basic type conversions
+		inline operator bool() const { return GetAs<bool>(); }
+		inline operator int() const { return GetAs<int>(); }
+		inline operator char() const { return GetAs<char>(); }
+		inline operator unsigned int() const { return GetAs<unsigned int>(); }
+		inline operator float() const { return GetAs<float>(); }
+		inline operator double() const { return GetAs<double>(); }
+		inline operator const char*() const { return GetAs<const char*>(); }
+		template<class T> _Ret_opt_ operator T*() const { return GetAs<T*>(); }
+
+		// GetAs - Interpret this value as a specific C++ type
+		template<class T>
+		T GetAs() const {
+			T ret = T(); // Don't use with reference types!!! ...EVER!!!
+
+			// Get the lua analog for this type off of the lua stack
+			typedef typename Details::LuaAnalog<T>::Result Analog;
+			Analog analog = Details::Get<Analog>(m_pkLuaState, m_iStackIndex);
+
+			// Validate the value from lua
+			bool bValid(true); Details::ArgValidator<T>::Validate(analog, bValid);
+
+			// Convert and return the value if it is valid
+			if( bValid ) ret = Details::FromLuaAnalog<T>::Convert(analog);
+
+			return ret;
+		}
+
+		// IsOfType - Determines if the value may be cast to a pointer of type T
+		template<class T>
+		bool IsOfType() const { return Details::CompatibleType<T>(m_pkLuaState, m_iStackIndex); }
+
+		inline int GetIndex() const { return m_iStackIndex; }
+		inline lua_State *GetLuaState() const { return m_pkLuaState; }
+
+	private:
+		lua_State *m_pkLuaState;
+		int m_iStackIndex;
+	};
+
+        namespace Details {
+		template<> inline StackValue Get(lua_State *L, int idx) { return StackValue(L, idx); }
+		static inline void Push(lua_State *,  const StackValue kVal) { kVal.Push(); }
+		template<> const char *DescribeType<StackValue>() { return "variant"; }
+        }
 
 	// MakeProtectedCall - Use this to call a C Function in lua protected mode.  The functions must return void
 	//   and take a lua_State* as its first argument.  If the lua encounters an error it will jump out of the
