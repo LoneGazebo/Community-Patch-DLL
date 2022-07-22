@@ -15368,7 +15368,7 @@ bool CvUnit::CanLinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 
-	if (pCurrentPlot == NULL)
+	if (pCurrentPlot == NULL || !isHuman())
 		return false;
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
@@ -15399,7 +15399,7 @@ void CvUnit::LinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 		
-	if (pCurrentPlot == NULL)
+	if (pCurrentPlot == NULL || !isHuman())
 		return;
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
