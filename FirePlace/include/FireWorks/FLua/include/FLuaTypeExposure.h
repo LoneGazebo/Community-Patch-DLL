@@ -90,9 +90,9 @@
 #define FLUA_SUPPORT_ENUM(ENUM) \
 	namespace FLua { \
 	namespace Details { \
-	template<> static inline ENUM Get(lua_State *L, int idx) { return (ENUM)lua_tointeger(L, idx); } \
+	template<> inline ENUM Get(lua_State *L, int idx) { return (ENUM)lua_tointeger(L, idx); } \
 	static inline void Push(lua_State *L, const ENUM &eVal) { lua_pushinteger(L, eVal); } \
-	template<> static const char *DescribeType<ENUM>() { return #ENUM; } \
+	template<> const char *DescribeType<ENUM>() { return #ENUM; } \
 		} \
 	}
 
