@@ -15383,8 +15383,10 @@ bool CvUnit::CanLinkUnits()
 		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
 			if (pLoopUnit != this)
+			{
 				bCanLink = true;
 				return bCanLink;
+			}
 		}
 	}
 
