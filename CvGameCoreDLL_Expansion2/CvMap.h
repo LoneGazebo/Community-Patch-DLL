@@ -54,6 +54,17 @@ public:
 	int GetCentroidX();
 	int GetCentroidY();
 
+	bool addArea(int iAreaID);
+
+	//can only change this indirectly via associated areas
+	int getUnitsPerPlayer(PlayerTypes eIndex) const;
+	int getEnemyUnits(PlayerTypes eIndex) const;
+	int getCitiesPerPlayer(PlayerTypes eIndex) const;
+	int getPopulationPerPlayer(PlayerTypes eIndex) const;
+	int getNumUnits() const;
+	int getNumCities() const;
+	int getTotalPopulation() const;
+
 	// for serialization
 	template<typename Landmass, typename Visitor>
 	static void Serialize(Landmass& landmass, Visitor& visitor);
@@ -68,7 +79,7 @@ protected:
 	bool m_bWater;
 	int m_iCentroidX;
 	int m_iCentroidY;
-
+	vector<int> m_vAreas;
 };
 
 FDataStream& operator<<(FDataStream&, const CvLandmass&);

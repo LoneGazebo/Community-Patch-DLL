@@ -760,6 +760,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
+	//don't need to update landmass stats, that is implied by area changes
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
@@ -2218,8 +2219,8 @@ void CvCity::PreKill()
 
 	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
 
+	//don't need to update landmass stats, that is implied by area changes
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
@@ -2227,7 +2228,6 @@ void CvCity::PreKill()
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), -1);
 	}
-#endif
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
 
@@ -18097,6 +18097,36 @@ bool CvCity::HasSharedAreaWith(const CvCity * pOther, bool bAllowLand, bool bAll
 		return true;
 
 	return plot()->hasSharedAdjacentArea(pOther->plot(),bAllowLand,bAllowWater);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvCity::HasAccessToLandmass(int iLandmassID) const
+{
+	CvPlot* pPlot = plot();
+	if (pPlot)
+	{
+		if (pPlot->getLandmass() == iLandmassID)
+			return true;
+		else
+		{
+			std::vector<int> allLandmasses = pPlot->getAllAdjacentLandmasses();
+			return std::find(allLandmasses.begin(), allLandmasses.end(), iLandmassID) != allLandmasses.end();
+		}
+	}
+
+	return false;
+}
+
+bool CvCity::HasSharedLandmassWith(const CvCity * pOther, bool bAllowLand, bool bAllowWater) const
+{
+	if (!pOther)
+		return false;
+
+	//shortcut ...
+	if (plot()->getLandmass() == pOther->plot()->getLandmass())
+		return true;
+
+	return plot()->hasSharedAdjacentLandmass(pOther->plot(),bAllowLand,bAllowWater);
 }
 
 //	--------------------------------------------------------------------------------

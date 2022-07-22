@@ -5512,7 +5512,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
-				if (pLoopPlot->area()->getNumTiles() < /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN) || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
+				if (pLoopPlot->landmass()->getNumTiles() < /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN) || pLoopPlot->landmass()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost

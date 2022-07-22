@@ -395,17 +395,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumCitiesOther = 0;
 
 		//todo: alternatively check whether we can create a sea trade route to another player?
-		std::vector<int> areas = m_pCity->plot()->getAllAdjacentAreas();
-		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		std::vector<int> landmasses = m_pCity->plot()->getAllAdjacentLandmasses();
+		for (std::vector<int>::iterator it=landmasses.begin(); it!=landmasses.end(); ++it)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
-			if (pkArea->isWater())
+			CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
+			if (pkLandmass->isWater())
 			{
-				iWaterTiles += pkArea->getNumTiles();
-				iNumUnitsofMine += pkArea->getUnitsPerPlayer(m_pCity->getOwner());
-				iNumUnitsOther += pkArea->getNumUnits()-iNumUnitsofMine;
-				iNumCitiesofMine += pkArea->getCitiesPerPlayer(m_pCity->getOwner());
-				iNumCitiesOther += pkArea->getNumCities()-iNumCitiesofMine;
+				iWaterTiles += pkLandmass->getNumTiles();
+				iNumUnitsofMine += pkLandmass->getUnitsPerPlayer(m_pCity->getOwner());
+				iNumUnitsOther += pkLandmass->getNumUnits()-iNumUnitsofMine;
+				iNumCitiesofMine += pkLandmass->getCitiesPerPlayer(m_pCity->getOwner());
+				iNumCitiesOther += pkLandmass->getNumCities()-iNumCitiesofMine;
 			}
 		}
 
