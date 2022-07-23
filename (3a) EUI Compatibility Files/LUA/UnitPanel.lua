@@ -345,7 +345,7 @@ function OnLinkUnitsClicked()
 
 	if unit:IsLinked() then
 		unit:UnlinkUnits()
-	else
+	elseif unit:CanLinkUnits() then
 		unit:LinkUnits()
 	end
 	UpdateLinkIcon(unit)
