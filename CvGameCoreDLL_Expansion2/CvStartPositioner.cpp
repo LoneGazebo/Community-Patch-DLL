@@ -683,7 +683,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
 					{
 						{
-							if(!pLoopPlot->isCoastalLand(/*9*/ GD_INT_GET(LAKE_MAX_AREA_SIZE)))
+							if(!pLoopPlot->isCoastalLand(/*9*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 							{
 								uiPlotFoundValue /= 2;
 							}
