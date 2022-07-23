@@ -15371,8 +15371,12 @@ bool CvUnit::CanLinkUnits()
 	if (pCurrentPlot == NULL || !isHuman())
 		return false;
 
+	const CvUnit* pThisUnit = this;
+
+	if (pThisUnit == NULL || pThisUnit->isDelayedDeath() || pThisUnit->isTrade() || pThisUnit->getDomainType() == DOMAIN_AIR)
+		return false;
+
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
-	bool bCanLink = false;
 	CvUnit* pLoopUnit = NULL;
 
 	while (pUnitNode != NULL)
@@ -15384,13 +15388,12 @@ bool CvUnit::CanLinkUnits()
 		{
 			if (pLoopUnit != this)
 			{
-				bCanLink = true;
-				return bCanLink;
+				return true;
 			}
 		}
 	}
 
-	return bCanLink;
+	return false;
 }
 //	--------------------------------------------------------------------------------
 void CvUnit::LinkUnits()
