@@ -12,7 +12,6 @@
 //!		This file includes methods for registering game data w/ Lua.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaSupport.h"

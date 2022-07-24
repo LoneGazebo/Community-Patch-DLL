@@ -13,7 +13,6 @@
 //!		script system arguments passed to the exe.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "CvGameCoreDLLPCH.h"
 #include "../CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaArgsHandle.h"
