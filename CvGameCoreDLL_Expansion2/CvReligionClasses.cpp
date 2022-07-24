@@ -10068,7 +10068,7 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 #endif
 
 	//Don't go if there are enemies around
-	if (pCity->isInDangerOfFalling() || pCity->isUnderSiege())
+	if (pCity->isUnderSiege())
 		return 0;
 
 	//Can only target owned cities
@@ -10119,7 +10119,7 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 #endif
 
 	//Don't go if there are enemies around
-	if (pCity->isInDangerOfFalling() || pCity->isUnderSiege())
+	if (pCity->isUnderSiege())
 		return 0;
 
 	//Can only target owned cities

@@ -1792,7 +1792,7 @@ void CvMilitaryAI::UpdateDefenseState()
 		int iCityLoop;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
+			if (pLoopCity->isUnderSiege())
 			{
 				m_eLandDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
@@ -1822,7 +1822,7 @@ void CvMilitaryAI::UpdateDefenseState()
 		int iCityLoop;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			if (pLoopCity->isCoastal() && pLoopCity->isUnderSiege())
 			{
 				m_eNavalDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
