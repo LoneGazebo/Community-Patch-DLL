@@ -10,7 +10,7 @@
 #include <iterator>
 
 // Interface similar to C++20's std::span
-// Similar to Fraxis' ArrayWrapper but more "correct"
+// Similar to Firaxis' ArrayWrapper but more "correct"
 // Exists mostly to make serialization easier but feel free to use anywhere
 
 enum DynamicExtentType
