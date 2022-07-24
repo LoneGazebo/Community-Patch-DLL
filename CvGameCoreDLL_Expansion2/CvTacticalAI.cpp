@@ -2338,7 +2338,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					ExecuteMoveToPlot(pEscort, pOperation->GetMusterPlot(),true,pEscort->canMoveInto(*pMuster)?0:CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 				}
 
-				if(pOperation->GetOperationState()!=AI_ABORT_LOST_PATH && GC.getLogging() && GC.getAILogging())
+				if(pOperation->GetOperationState()!=AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp;
 					CvString strLogString;
@@ -5184,7 +5184,7 @@ int CvTacticalAI::ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget)
 	{
 		CvCity* pAttackingCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
 		
-		iExpectedDamage += pAttackingCity->rangeCombatDamage(pTarget, NULL, false);
+		iExpectedDamage += pAttackingCity->rangeCombatDamage(pTarget);
 
 		if (pAttackingCity->HasGarrison())
 		{

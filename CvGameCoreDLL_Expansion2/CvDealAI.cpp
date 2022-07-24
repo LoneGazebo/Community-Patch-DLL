@@ -663,7 +663,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	}
 
 	// Possibility exists that the AI will accept
-	if(eResponse == NO_DEAL_RESPONSE_TYPE)
+	if(eResponse == NO_DEMAND_RESPONSE_TYPE)
 	{
 		int iValueDemanded = 0;
 
@@ -774,7 +774,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 		if (iValueDemanded == 0)
 			eResponse = DEMAND_RESPONSE_REFUSE_TOO_SOON;
 		// No illegal items in the demand
-		else if (eResponse == NO_DEAL_RESPONSE_TYPE)
+		else if (eResponse == NO_DEMAND_RESPONSE_TYPE)
 		{
 			if(iValueDemanded <= iValueWillingToGiveUp)
 				eResponse = DEMAND_RESPONSE_ACCEPT;

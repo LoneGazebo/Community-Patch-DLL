@@ -485,7 +485,7 @@ void SetAllPlotsVisible(TeamTypes eTeam)
 				pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
 			}
 
-			pLoopPlot->setRevealed(eTeam, true, false);
+			pLoopPlot->setRevealed(eTeam, true);
 		}
 	}
 }
@@ -2732,7 +2732,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 					gDLL->sendAutoMission(pkSelectedUnit->GetID());
 				}
 			}
-			else if((eMessage == GAMEMESSAGE_SWAP_UNITS))
+			else if(eMessage == GAMEMESSAGE_SWAP_UNITS)
 			{
 				gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
 			}

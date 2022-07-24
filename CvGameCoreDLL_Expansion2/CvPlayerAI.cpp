@@ -1030,7 +1030,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if (eEventChoice != NO_EVENT_CHOICE)
+				if (eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 					if (pkEventChoiceInfo != NULL)
@@ -1075,7 +1075,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			}
 
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
-			if (eBestEventChoice != NO_EVENT_CHOICE)
+			if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 			{
 				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 				return true;

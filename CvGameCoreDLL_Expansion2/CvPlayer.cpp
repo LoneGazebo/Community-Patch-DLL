@@ -12017,7 +12017,7 @@ const CvCity* CvPlayer::getBusyCity() const
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 //	----------------------------------------------------------------------------

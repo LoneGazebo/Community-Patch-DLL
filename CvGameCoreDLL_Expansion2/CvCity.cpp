@@ -3557,7 +3557,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (pkEventInfo == NULL)
@@ -3688,7 +3688,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (!pkEventInfo)
@@ -3721,7 +3721,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 }
 void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 {
-	if (eChosenEvent != NO_EVENT)
+	if (eChosenEvent != NO_EVENT_CITY)
 	{
 		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
 		if (pkEventInfo != NULL)
@@ -4118,7 +4118,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 				return false;
@@ -4244,7 +4244,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 }
 bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive)
 {
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return false;
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -4572,7 +4572,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 				return false;
@@ -4912,7 +4912,7 @@ bool CvCity::IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoi
 }
 void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 {
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return;
 
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -5553,7 +5553,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	CvString DisabledTT = Localization::Lookup("TXT_KEY_EVENT_DISABLED_REASONS_HEADER").toUTF8();
 	Localization::String localizedDurationText;
 
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return "";
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -6276,7 +6276,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 			{
@@ -6406,7 +6406,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent, iEspionageValue, eSpyOwner);
 		return;
 	}
-	if (eEventChoice != NO_EVENT_CHOICE)
+	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -8808,7 +8808,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
 	UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 	UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-	if (&pUnitInfo != NULL && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 	{
 		if (eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrainUnit(eZuluImpi, false, false, true))
 		{
@@ -33059,27 +33059,27 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 			switch (order.eOrderType)
 			{
 			case ORDER_TRAIN:
-				visitor.as<UnitTypes>(order.iData1);
-				visitor.as<UnitAITypes>(order.iData2);
+				visitor.template as<UnitTypes>(order.iData1);
+				visitor.template as<UnitAITypes>(order.iData2);
 				break;
 
 			case ORDER_CONSTRUCT:
-				visitor.as<BuildingTypes>(order.iData1);
+				visitor.template as<BuildingTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_CREATE:
-				visitor.as<ProjectTypes>(order.iData1);
+				visitor.template as<ProjectTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_PREPARE:
-				visitor.as<SpecialistTypes>(order.iData1);
+				visitor.template as<SpecialistTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_MAINTAIN:
-				visitor.as<ProcessTypes>(order.iData1);
+				visitor.template as<ProcessTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
@@ -33751,7 +33751,7 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 			{
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
-				int iDamage = rangeCombatDamage(pTarget, NULL, false);
+				int iDamage = rangeCombatDamage(pTarget, NULL, NULL);
 				if (iDamage > iBestScore)
 				{
 					iBestScore = iDamage;

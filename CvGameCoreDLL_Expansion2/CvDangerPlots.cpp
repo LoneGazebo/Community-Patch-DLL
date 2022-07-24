@@ -297,7 +297,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			int iPlotDamage = 0;
 			if (pPlot->getFeatureType() != NO_FEATURE)
 				iPlotDamage += (GC.getFeatureInfo(pPlot->getFeatureType())->getTurnDamage());
-			if (pPlot->getTerrainType() != NO_FEATURE)
+			if (pPlot->getTerrainType() != NO_TERRAIN)
 				iPlotDamage += (GC.getTerrainInfo(pPlot->getTerrainType())->getTurnDamage());
 
 			if (pPlot->isWater())

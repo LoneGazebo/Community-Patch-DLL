@@ -12317,7 +12317,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 					strBaseString += playerName + ", " + otherPlayerName + ", ";
 
-					char *names[] = {
+					char const*names[] = {
 						"DISPUTE_LEVEL_NONE",
 						"DISPUTE_LEVEL_WEAK",
 						"DISPUTE_LEVEL_STRONG",
@@ -19530,7 +19530,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		iMultiplier += bScientistTraits ? 2 : 0;
 		iMultiplier += IsScientist() || IsSecondaryScientist() ? 2 : 0;
 
-		if (GetTechBlockLevel(ePlayer) > DISPUTE_LEVEL_NONE)
+		if (GetTechBlockLevel(ePlayer) > BLOCK_LEVEL_NONE)
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] -= vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
@@ -21279,7 +21279,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		{
 			iPriority = 7;
 
-			if ((iCompetitorPriority == 0))
+			if (iCompetitorPriority == 0)
 			{
 				eBiggestCompetitor = eLoopPlayer;
 				iCompetitorPriority = 7;
@@ -34980,7 +34980,7 @@ void CvDiplomacyAI::DoFYIDenouncedHumanEnemy(PlayerTypes ePlayer, DiploStatement
 				else if(eOpinion == CIV_OPINION_ALLY)
 					iWeight += 10;
 
-				if(eOpinion == CIV_APPROACH_FRIENDLY)
+				if(eApproach == CIV_APPROACH_FRIENDLY)
 					iWeight += 2;
 
 				// Add weight if they're strong
@@ -35085,7 +35085,7 @@ void CvDiplomacyAI::DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStateme
 				else if (eOpinion == CIV_OPINION_ALLY)
 					iWeight += 10;
 
-				if (eOpinion == CIV_APPROACH_FRIENDLY)
+				if (eApproach == CIV_APPROACH_FRIENDLY)
 					iWeight += 2;
 
 				iWeight += GetChattiness();		// Usually ranges from 3 to 7
@@ -43469,7 +43469,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	{
 		iWeight += 4;
 	}
-	if (GetVictoryBlockLevel(ePlayer) >= DISPUTE_LEVEL_STRONG)
+	if (GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG)
 	{
 		iWeight += 4;
 	}
@@ -54176,9 +54176,9 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 
 	CvAssertMsg(eMasterApproach >= NO_CIV_APPROACH && eMasterApproach < NUM_CIV_APPROACHES, "Something went wrong with the evaluation for approaches.");
 	CvAssertMsg(eMasterOpinion >= NO_CIV_OPINION && eMasterOpinion < NUM_CIV_OPINIONS, "Something went wrong with the evaluation for opinions.");
-	CvAssertMsg(eVassalStrength >= NO_STRENGTH_VALUE && eMasterOpinion < NUM_STRENGTH_VALUES, "Something went wrong with the evaluation for strengths.");
+	CvAssertMsg(eVassalStrength >= NO_STRENGTH_VALUE && eVassalStrength < NUM_STRENGTH_VALUES, "Something went wrong with the evaluation for strengths.");
 	CvAssertMsg(eMasterInfluence >= NO_INFLUENCE_LEVEL && eMasterInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
-	CvAssertMsg(eVassalInfluence >= NO_INFLUENCE_LEVEL && eMasterInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
+	CvAssertMsg(eVassalInfluence >= NO_INFLUENCE_LEVEL && eVassalInfluence < /* hard-coded */ 6, "Something went wrong with the evaluation for opinions.");
 
 	// If team doesn't like them, don't consider it.
 	if (eMasterApproach <= CIV_APPROACH_GUARDED)

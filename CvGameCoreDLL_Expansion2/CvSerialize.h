@@ -309,7 +309,7 @@ template<typename Container>
 class CvSyncArchive : public FAutoArchive
 {
 public:
-	typedef typename Container ContainerType;
+	typedef Container ContainerType;
 	friend Container;
 	class SyncVars;
 
