@@ -1671,7 +1671,7 @@ int CvLuaCity::lGetGeneralProductionTurnsLeft(lua_State* L)
 //bool isFoodProduction();
 int CvLuaCity::lIsFoodProduction(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, bool>(L, &CvCity::isFoodProduction);
+	return BasicLuaMethod<bool>(L, &CvCity::isFoodProduction);
 }
 //------------------------------------------------------------------------------
 //int getFirstUnitOrder(UnitTypes eUnit);
@@ -1981,32 +1981,32 @@ int CvLuaCity::lGetProductionTurnsLeft(lua_State* L)
 //int getUnitProductionTurnsLeft(UnitTypes iUnit, int iNum);
 int CvLuaCity::lGetUnitProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, UnitTypes>(L, &CvCity::getProductionTurnsLeft);
+	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getBuildingProductionTurnsLeft(BuildingTypes iBuilding, int iNum);
 int CvLuaCity::lGetBuildingProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, BuildingTypes>(L, &CvCity::getProductionTurnsLeft);
+	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getProjectProductionTurnsLeft(ProjectTypes eProject, int iNum);
 int CvLuaCity::lGetProjectProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, ProjectTypes>(L, &CvCity::getProductionTurnsLeft);
+	return BasicLuaMethod<int, ProjectTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 //------------------------------------------------------------------------------
 //int getSpecialistProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum);
 int CvLuaCity::lGetSpecialistProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, SpecialistTypes>(L, &CvCity::getProductionTurnsLeft);
+	return BasicLuaMethod<int, SpecialistTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 #if defined(MOD_PROCESS_STOCKPILE)
 //------------------------------------------------------------------------------
 //int getProcessProductionTurnsLeft(ProcessTypes eProcess, int iNum);
 int CvLuaCity::lGetProcessProductionTurnsLeft(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, ProcessTypes>(L, &CvCity::getProductionTurnsLeft);
+	return BasicLuaMethod<int, ProcessTypes>(L, &CvCity::getProductionTurnsLeft);
 }
 #endif
 //------------------------------------------------------------------------------
@@ -2044,31 +2044,31 @@ int CvLuaCity::lPurchase(lua_State* L)
 // int GetPurchaseCost(UnitTypes eUnit);
 int CvLuaCity::lGetUnitPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, UnitTypes>(L, &CvCity::GetPurchaseCost);
+	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 // int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 int CvLuaCity::lGetUnitFaithPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, UnitTypes>(L, &CvCity::GetFaithPurchaseCost);
+	return BasicLuaMethod<int, UnitTypes>(L, &CvCity::GetFaithPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetPurchaseCost(BuildingTypes eBuilding);
 int CvLuaCity::lGetBuildingPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, BuildingTypes>(L, &CvCity::GetPurchaseCost);
+	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetFaithPurchaseCost(BuildingTypes eBuilding);
 int CvLuaCity::lGetBuildingFaithPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, BuildingTypes>(L, &CvCity::GetFaithPurchaseCost);
+	return BasicLuaMethod<int, BuildingTypes>(L, &CvCity::GetFaithPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //int GetPurchaseCost(ProjectTypes eProject);
 int CvLuaCity::lGetProjectPurchaseCost(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, ProjectTypes>(L, &CvCity::GetPurchaseCost);
+	return BasicLuaMethod<int, ProjectTypes>(L, &CvCity::GetPurchaseCost);
 }
 //------------------------------------------------------------------------------
 //void setProduction(int iNewValue);
@@ -2252,7 +2252,7 @@ int CvLuaCity::lConscript(lua_State* L)
 //int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource);
 int CvLuaCity::lGetResourceYieldRateModifier(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, YieldTypes, ResourceTypes>(L, &CvCity::getResourceYieldRateModifier);
+	return BasicLuaMethod<int, YieldTypes, ResourceTypes>(L, &CvCity::getResourceYieldRateModifier);
 }
 //------------------------------------------------------------------------------
 //HandicapTypes getHandicapType();
@@ -4651,7 +4651,7 @@ int CvLuaCity::lGetExtraSpecialistYield(lua_State* L)
 //int getExtraSpecialistYieldOfType(YieldTypes eIndex, SpecialistTypes eSpecialist);
 int CvLuaCity::lGetExtraSpecialistYieldOfType(lua_State* L)
 {
-	return BasicLuaMethod<CvCity, int, YieldTypes, SpecialistTypes>(L, &CvCity::getExtraSpecialistYield);
+	return BasicLuaMethod<int, YieldTypes, SpecialistTypes>(L, &CvCity::getExtraSpecialistYield);
 }
 
 //------------------------------------------------------------------------------
