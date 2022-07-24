@@ -329,7 +329,7 @@ def build_link_config_args(config: Config) -> list[str]:
 
 def prepare_dirs(build_dir: Path, out_dir: Path):
     build_dir.mkdir(parents=True, exist_ok=True)
-    build_dir.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
     for cpp in CPP:
         cpp_dir = build_dir.joinpath(Path(cpp).parent)
         cpp_dir.mkdir(parents=True, exist_ok=True)
