@@ -2724,6 +2724,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		setTransportUnit(NULL);
 	}
 
+	// remove linked status
+	if (IsLinkedLeader()) {
+		SetIsLinkedLeader(false);
+	}
+	else if (IsLinked()) {
+		CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
+		pLinkedLeader->SetIsLinkedLeader(false);
+	}
+
 	setReconPlot(NULL);
 
 	CvAssertMsg(getAttackPlot() == NULL, "The current unit instance's attack plot is expected to be NULL");
@@ -4709,8 +4718,6 @@ void CvUnit::doCommand(CommandTypes eCommand, int iData1, int iData2)
 
 		case COMMAND_CANCEL_ALL:
 			ClearMissionQueue();
-			if (IsLinked())
-				SetIsLinked(false);
 			break;
 
 		case COMMAND_STOP_AUTOMATION:
@@ -5564,7 +5571,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 			//avoid putting ships on lakes etc (only possible in degenerate cases anyway)
 			if (getDomainType() == DOMAIN_SEA)
-				if (pLoopPlot->area()->getNumTiles() < /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN) || pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
+				if (pLoopPlot->landmass()->getNumTiles() < /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN) || pLoopPlot->landmass()->getCitiesPerPlayer(getOwner()) == 0 || !isNativeDomain(pLoopPlot))
 					iValue += 20000;
 
 			//avoid embarkation but not all all cost
@@ -15353,6 +15360,41 @@ void CvUnit::SetLinkedLeaderID(int iLinkedLeaderID)
 		}
 }
 
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::CanLinkUnits()
+{
+	VALIDATE_OBJECT
+
+	const CvPlot* pCurrentPlot = plot();
+
+	if (pCurrentPlot == NULL || !isHuman())
+		return false;
+
+	const CvUnit* pThisUnit = this;
+
+	if (pThisUnit == NULL || pThisUnit->isDelayedDeath() || pThisUnit->isTrade() || pThisUnit->getDomainType() == DOMAIN_AIR)
+		return false;
+
+	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
+	CvUnit* pLoopUnit = NULL;
+
+	while (pUnitNode != NULL)
+	{
+		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = pCurrentPlot->nextUnitNode(pUnitNode);
+
+		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
+		{
+			if (pLoopUnit != this)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 //	--------------------------------------------------------------------------------
 void CvUnit::LinkUnits()
 {
@@ -15360,7 +15402,7 @@ void CvUnit::LinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 		
-	if (pCurrentPlot == NULL)
+	if (pCurrentPlot == NULL || !isHuman())
 		return;
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();

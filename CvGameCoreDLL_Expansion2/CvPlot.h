@@ -32,7 +32,7 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
 class CvArea;
-class CvMap;
+class CvLandmass;
 class CvRoute;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
@@ -128,7 +128,8 @@ public:
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isAdjacentToIce() const;
 #endif
-	int GetSizeLargestAdjacentWater() const;
+	CvLandmass* GetLargestAdjacentWater() const;
+	CvArea* GetLargestAdjacentWaterArea() const;
 
 	bool isVisibleWorked() const;
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
@@ -319,23 +320,17 @@ public:
 	int getLatitude() const;
 
 	CvArea* area() const;
-
-	inline int getArea() const
-	{
-		return m_iArea;
-	}
-
+	inline int getArea() const { return m_iArea; }
 	void setArea(int iNewValue);
-
 	std::vector<int> getAllAdjacentAreas() const;
-
 	bool hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
-	inline int getLandmass() const
-	{
-		return m_iLandmass;
-	}
+	//multiple areas make up a landmass; a landmass can also be a body of water!
+	inline int getLandmass() const { return m_iLandmass; }
 	void setLandmass(int iNewValue);
+	CvLandmass* landmass() const;
+	std::vector<int> getAllAdjacentLandmasses() const;
+	bool hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;

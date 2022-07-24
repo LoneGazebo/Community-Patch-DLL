@@ -10507,15 +10507,11 @@ CvPlot* CvPlayer::GetBestCoastalSpawnPlot (CvUnit *pUnit)
 		if (pUnit && !pUnit->canEndTurnAtPlot(pLoopCity->plot()))
 			continue;
 
-		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
-		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		CvLandmass* pLocalMax = pLoopCity->plot()->GetLargestAdjacentWater();
+		if (pLocalMax && pLocalMax->getNumTiles()>iLargestWaterSize)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
-			if (pkArea->isWater() && pkArea->getNumTiles()>iLargestWaterSize)
-			{
-				iLargestWaterSize = pkArea->getNumTiles();
-				pLargestWaterAreaPlot = pLoopCity->plot();
-			}
+			iLargestWaterSize = pLocalMax->getNumTiles();
+			pLargestWaterAreaPlot = pLoopCity->plot();
 		}
 	}
 

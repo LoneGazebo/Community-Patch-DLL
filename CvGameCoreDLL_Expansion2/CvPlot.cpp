@@ -935,33 +935,57 @@ bool CvPlot::isAdjacentToIce() const
 #endif
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetSizeLargestAdjacentWater() const
+CvLandmass* CvPlot::GetLargestAdjacentWater() const
 {
-	int iRtnValue = 0;
-
 	if(isWater())
-	{
-		return iRtnValue;
-	}
+		return NULL;
+
+	CvLandmass* pResult = NULL;
+	int iMaxSize = 0;
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-		if(pAdjacentPlot != NULL)
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
 		{
-			if(pAdjacentPlot->isWater())
+			CvLandmass* pAdjacentBodyOfWater = pAdjacentPlot->landmass();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iRtnValue)
-				{
-					iRtnValue = pAdjacentBodyOfWater->getNumTiles();
-				}
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
 			}
 		}
 	}
 
-	return iRtnValue;
+	return pResult;
+}
+
+//	--------------------------------------------------------------------------------
+CvArea* CvPlot::GetLargestAdjacentWaterArea() const
+{
+	if(isWater())
+		return NULL;
+
+	CvArea* pResult = NULL;
+	int iMaxSize = 0;
+
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
+		{
+			CvArea* pAdjacentBodyOfWater = pAdjacentPlot->area();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
+			{
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
+			}
+		}
+	}
+
+	return pResult;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1043,19 +1067,10 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
 				continue;
 
-			CvArea* pArea = pAdjacentPlot->area();
-			if (pArea)
-			{
-				if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
-			// fallback to old method if pArea is null
-			else
-			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
+			//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
+			CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+				return true;
 		}
 	}
 
@@ -1995,7 +2010,8 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 
 	if(thisResourceInfo.getMinAreaSize() != -1)
 	{
-		if(area()->getNumTiles() < thisResourceInfo.getMinAreaSize())
+		//better check landmass size, one landmass may have multiple areas
+		if(landmass()->getNumTiles() < thisResourceInfo.getMinAreaSize())
 		{
 			return false;
 		}
@@ -4868,7 +4884,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	std::vector<int> myAreas = getAllAdjacentAreas();
 	std::vector<int> theirAreas = pOther->getAllAdjacentAreas();
 
-	//fancy stl version works only sometimes
+	//fancy stl version works only under conditions
 	if (bAllowLand && bAllowWater)
 	{
 		std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
@@ -4961,6 +4977,68 @@ void CvPlot::setLandmass(int iNewValue)
 		}
 	}
 }
+
+CvLandmass * CvPlot::landmass() const
+{
+	return GC.getMap().getLandmass(m_iLandmass);
+}
+
+//	--------------------------------------------------------------------------------
+std::vector<int> CvPlot::getAllAdjacentLandmasses() const
+{
+	std::vector<int> result;
+
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
+		//exclude our own area! also, simply deduplication, but no guarantee for unique values in result
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getLandmass() != getLandmass())
+			if (result.empty() || result.back()!=pAdjacentPlot->getLandmass())
+				result.push_back(pAdjacentPlot->getLandmass());
+	}
+
+	return result;
+}
+
+bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const
+{
+	if (!pOther)
+		return false;
+
+	std::vector<int> myLandmasses = getAllAdjacentLandmasses();
+	std::vector<int> theirLandmasses = pOther->getAllAdjacentLandmasses();
+
+	//fancy stl version works only under conditions
+	if (bAllowLand && bAllowWater)
+	{
+		std::vector<int> shared(MAX(myLandmasses.size(), theirLandmasses.size()));
+		std::vector<int>::iterator result = std::set_intersection(myLandmasses.begin(), myLandmasses.end(), theirLandmasses.begin(), theirLandmasses.end(), shared.begin());
+		return (result != shared.begin());
+	}
+
+	//manual version
+	for (vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
+	{
+		CvLandmass* a1 = GC.getMap().getLandmass(*i1);
+		if (!bAllowWater && a1->isWater())
+			continue;
+		if (!bAllowLand && !a1->isWater())
+			continue;
+
+		for (vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
+		{
+			CvLandmass* a2 = GC.getMap().getLandmass(*i2);
+
+			//don't need to check for water/land again, id is enough
+			if (a1->GetID() == a2->GetID())
+				return true;
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getOwnershipDuration() const
@@ -13145,7 +13223,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 		else if (thisUnitDomain == DOMAIN_LAND)
 		{
-			if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+			if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 			{
 				return false;
 			}
@@ -13153,7 +13231,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	}
 	else
 	{
-		if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+		if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 		{
 			return false;
 		}

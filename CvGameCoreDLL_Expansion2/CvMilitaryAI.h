@@ -424,6 +424,7 @@ MultiunitFormationTypes GetCurrentBestFormationTypeForLandAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForCombinedAttack();
 MultiunitFormationTypes GetCurrentBestFormationTypeForPureNavalAttack();
 CvPlot* GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam = false);
+bool NeedShipInArea(PlayerTypes ePlayer, CvLandmass* pWaterBody);
 
 bool ArmyPathIsGood(const SPath& path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy);
 int EvaluateTargetApproach(const CvAttackTarget& target, PlayerTypes ePlayer, ArmyType eArmyType);

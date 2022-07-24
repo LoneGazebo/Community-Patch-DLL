@@ -1979,7 +1979,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
-					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL); //this automatically removes the forced status
+					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+					SetForcedWorkingPlot(pPlot, false);
 					ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_GLOBAL);
 					ChangeNumForcedDefaultSpecialists(1);
 				}

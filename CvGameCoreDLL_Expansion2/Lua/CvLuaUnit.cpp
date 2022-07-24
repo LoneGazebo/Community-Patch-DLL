@@ -193,6 +193,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsLinked);
 	Method(IsLinkedLeader);
 	Method(IsGrouped);
+	Method(CanLinkUnits);
 	Method(LinkUnits);
 	Method(UnlinkUnits);
 	Method(MoveLinkedLeader);
@@ -2439,6 +2440,16 @@ int CvLuaUnit::lIsGrouped(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bResult = pkUnit->IsGrouped();
 
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------ 
+//bool CanLinkUnits();
+int CvLuaUnit::lCanLinkUnits(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->CanLinkUnits();
 	lua_pushboolean(L, bResult);
 	return 1;
 }

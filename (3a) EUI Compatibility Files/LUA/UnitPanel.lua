@@ -345,7 +345,7 @@ function OnLinkUnitsClicked()
 
 	if unit:IsLinked() then
 		unit:UnlinkUnits()
-	else
+	elseif unit:CanLinkUnits() then
 		unit:LinkUnits()
 	end
 	UpdateLinkIcon(unit)
@@ -1165,7 +1165,7 @@ local function UpdateUnitActions( unit )
 
 	end
 
-	if plot:GetNumUnits() > 1 and hasMovesLeft then
+	if unit:CanLinkUnits() and hasMovesLeft then
 		hideLinkButton = false
 		UpdateLinkIcon(unit)
 	end
