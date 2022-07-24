@@ -2184,7 +2184,7 @@ int CvLuaPlayer::lCanGetGoody(lua_State* L)
 //bool canFound(int iX, int iY);
 int CvLuaPlayer::lCanFound(lua_State* L)
 {
-	return BasicLuaMethod<bool,int,int>(L, &CvPlayerAI::canFoundCity);
+	return BasicLuaMethod<CvPlayer,bool,int,int>(L, &CvPlayerAI::canFoundCity);
 }
 //------------------------------------------------------------------------------
 //void found(int iX, int iY);

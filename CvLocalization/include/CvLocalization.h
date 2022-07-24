@@ -288,6 +288,9 @@ namespace Localization
 		CvLocalizationAPI String(const char* szString);
 		CvLocalizationAPI String(const char* szString, unsigned int uiLen);
 		CvLocalizationAPI String(const String& other);
+#ifdef __clang__
+		inline explicit String(const CvString& string) : String(string.data(), string.length()) {}
+#endif // __clang__
 
 		CvLocalizationAPI virtual ~String();
 

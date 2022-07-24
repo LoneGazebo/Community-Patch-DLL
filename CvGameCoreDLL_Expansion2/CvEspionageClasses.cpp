@@ -744,7 +744,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 					if(pNotifications)
 					{
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH_S");
+						Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH_S"));
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH");
 						strNotification << GetSpyRankName(pSpy->m_eRank);
 						strNotification << pSpy->GetSpyName(m_pPlayer);
@@ -4695,7 +4695,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			case SPY_RESULT_DETECTED:
 				// notify defending player that a spy of unknown origin stole something
 			{
-				Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S");
+				Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S"));
 				Localization::String strNotification;
 
 				if(pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)

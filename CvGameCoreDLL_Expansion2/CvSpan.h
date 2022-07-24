@@ -15,7 +15,11 @@
 
 enum DynamicExtentType
 {
+#ifdef __clang__
+	DYNAMIC_EXTENT = INT_MAX,
+#else
 	DYNAMIC_EXTENT = std::size_t(-1),
+#endif // __clang__
 };
 
 template<typename T, std::size_t TExtent = DYNAMIC_EXTENT>

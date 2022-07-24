@@ -5956,7 +5956,7 @@ void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUni
 
 	//strength can be buffed
 	int iExtraStrength = kUnitInfo.GetReligiousStrength() * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
-	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength() + unsigned short(iExtraStrength / 100);
+	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength() + (unsigned short)(iExtraStrength / 100);
 
 	m_eReligion = eReligion;
 	m_iSpreadsUsed = 0;

@@ -436,4 +436,4 @@ FDataStream& operator>>(FDataStream& loadFrom, tr1::array<T, N>& writeTo) {
 }
 
 
-#endif CVSERIALIZE_H
+#endif // CVSERIALIZE_H

@@ -104,10 +104,9 @@ __forceinline __int64 GetTicks() { __asm rdtsc }
 //---------------------------------------------------------------------------------------
 //  P5time  --  return TICKS since last call
 //---------------------------------------------------------------------------------------
+static	int tick = 0;
 inline __declspec(naked) uint P5time()
 {
-	static	int tick=0;
-
 	__asm  mov   ecx,tick
     __asm  rdtsc
 	__asm  mov   tick,eax

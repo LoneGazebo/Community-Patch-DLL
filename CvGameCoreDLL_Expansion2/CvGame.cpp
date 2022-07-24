@@ -8094,8 +8094,8 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 #endif
 
 			//Write out time spent playing.
-			long iHours = getMinutesPlayed() / 60;
-			long iMinutes = getMinutesPlayed() % 60;
+			int iHours = getMinutesPlayed() / 60;
+			int iMinutes = getMinutesPlayed() % 60;
 
 			for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 			{
@@ -11948,7 +11948,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 			CvAssertMsg(false, "Saved game database exists, but could not open it!");
 		}
 
-		long nilSize = 0;
+		DWORD nilSize = 0;
 		kStream << nilSize;
 	}
 }

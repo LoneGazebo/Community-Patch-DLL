@@ -744,7 +744,7 @@ int CvLuaPlot::lGetUnitPower(lua_State* L)
 //int defenseModifier(TeamTypes iDefendTeam, bool bIgnoreBuilding, bool bHelp);
 int CvLuaPlot::lDefenseModifier(lua_State* L)
 {
-	return BasicLuaMethod<int,TeamTypes,bool,bool,bool>(L, &CvPlot::defenseModifier);
+	return BasicLuaMethod<CvPlot,int,TeamTypes,bool,bool,bool>(L, &CvPlot::defenseModifier);
 }
 //------------------------------------------------------------------------------
 //int movementCost(CyUnit* pUnit, CyPlot* pFromPlot);

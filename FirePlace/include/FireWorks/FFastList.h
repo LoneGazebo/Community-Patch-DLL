@@ -158,7 +158,7 @@ public:
 	////////////////////////////////////////////////////////////////////////
 	explicit FFastList() : BASE_TYPE() {};
 	explicit FFastList( unsigned int uiCapacity ) : BASE_TYPE(uiCapacity) {};
-	explicit TYPE( const TYPE& rhs ) : BASE_TYPE( rhs ) {};
+	explicit FFastList( const TYPE& rhs ) : BASE_TYPE( rhs ) {};
 
 	//Copy operator
 	const TYPE& operator = ( const TYPE& rhs ){  
@@ -361,7 +361,7 @@ public:
 
 	protected:
 		unsigned int m_uiCurrPos;
-		friend class TYPE;
+		friend TYPE;
 	};
 
 	////////////////////////////////////////////////////////////////////////
@@ -1131,7 +1131,7 @@ protected:
 		unsigned int m_uiCurrList;
 		unsigned int m_uiCurrPos;
 		const TYPE* m_pFastList;
-		friend class TYPE;
+		friend TYPE;
 	};
 
 public:

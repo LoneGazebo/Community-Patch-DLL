@@ -21339,17 +21339,17 @@ bool CvCity::DoRazingTurn()
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
 						if (pNotifications2)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						if (GC.getLogging() && GC.getAILogging())
@@ -21368,17 +21368,17 @@ bool CvCity::DoRazingTurn()
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
 						if (pNotifications2)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						if (GC.getLogging() && GC.getAILogging())

@@ -597,7 +597,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		CvAssert(eFromPlayer != NO_PLAYER);
-		CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), __FUNCTION__ " must not be used by a human player!");
+		CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
 
 		if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
 		{
