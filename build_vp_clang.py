@@ -84,7 +84,10 @@ CL_SUPPRESS = [
     'microsoft-pure-definition',
     'microsoft-template-shadow',
     'microsoft-extra-qualification',
+    'microsoft-template',
+    'switch',
     'missing-declarations',
+    'tautological-constant-out-of-range-compare',
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
 PCH_H = 'CvGameCoreDLLPCH.h'
