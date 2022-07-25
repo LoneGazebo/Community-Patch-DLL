@@ -7290,7 +7290,8 @@ bool CvUnit::canUseForTacticalAI() const
 	if (isBarbarian())
 		return true;
 
-	if (IsCombatUnit())
+	//aircraft are not considered combat units!
+	if (IsCombatUnit() || IsCanAttackRanged())
 		return true;
 
 	if (IsCombatSupportUnit())
