@@ -17232,7 +17232,7 @@ int CvLuaPlayer::lGetEspionageValues(lua_State* L)
 	CvString CoreYieldTip = "";
 	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
 	const int uiSpyIndex = lua_tointeger(L, 3);
-	if (eEvent != NO_EVENT)
+	if (eEvent != NO_EVENT_CITY)
 	{
 		CoreYieldTip = pkPlayer->GetEspionage()->GetEventHelpText(eEvent, uiSpyIndex);
 	}
@@ -17493,7 +17493,7 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT)
+						if (eEvent != NO_EVENT_CITY)
 						{
 							if (pkEventChoiceInfo->isParentEvent(eEvent))
 							{
@@ -17647,7 +17647,7 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT)
+						if (eEvent != NO_EVENT_CITY)
 						{
 							if (pkEventChoiceInfo->isParentEvent(eEvent))
 							{

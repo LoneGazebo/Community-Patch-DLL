@@ -344,7 +344,7 @@ void CvPlot::doTurn()
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK)
 	{
 		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
@@ -5859,7 +5859,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if (pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
 					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
 					{
@@ -6094,8 +6094,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
+						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
 					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
@@ -7372,7 +7372,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
-					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7415,7 +7415,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 			}
 #endif
@@ -7749,7 +7749,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (newImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7831,7 +7831,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}	
 #endif
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
@@ -8157,7 +8157,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_FEATURE && pAdjacentPlot->getOwner() == eBuilder)
 					{	
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
@@ -11014,7 +11014,7 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-inline bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
+bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -12586,10 +12586,10 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlotType);
 	visitor(plot.m_eTerrainType);
 
-	visitor.as<FeatureTypes>(plot.m_eFeatureType);
-	visitor.as<ResourceTypes>(plot.m_eResourceType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
+	visitor.template as<FeatureTypes>(plot.m_eFeatureType);
+	visitor.template as<ResourceTypes>(plot.m_eResourceType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
@@ -12624,8 +12624,8 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
-		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
-		visitor.as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
+		visitor.template as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
+		visitor.template as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
 	}
@@ -13918,7 +13918,7 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14017,7 +14017,7 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14082,7 +14082,7 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14147,7 +14147,7 @@ bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{

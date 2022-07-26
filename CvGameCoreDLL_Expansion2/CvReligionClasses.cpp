@@ -190,7 +190,7 @@ CvString CvReligion::GetName() const
 	CvAssertMsg(pEntry, "pEntry for religion not expected to be NULL. Please send Anton or Ed your save file and version.");
 	if (pEntry)
 	{
-		CvString szReligionName = (m_szCustomName == NULL || strlen(m_szCustomName) == 0) ? pEntry->GetDescriptionKey() : m_szCustomName;
+		CvString szReligionName = strlen(m_szCustomName) == 0 ? pEntry->GetDescriptionKey() : m_szCustomName;
 		return szReligionName;
 	}
 
@@ -5956,7 +5956,7 @@ void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUni
 
 	//strength can be buffed
 	int iExtraStrength = kUnitInfo.GetReligiousStrength() * (GET_PLAYER(eOwner).GetMissionaryExtraStrength() + GET_PLAYER(eOwner).GetPlayerTraits()->GetExtraMissionaryStrength());
-	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength() + unsigned short(iExtraStrength / 100);
+	unsigned short iReligiousStrength = kUnitInfo.GetReligiousStrength() + (unsigned short)(iExtraStrength / 100);
 
 	m_eReligion = eReligion;
 	m_iSpreadsUsed = 0;
@@ -7623,7 +7623,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus) const
 				continue;
 		
 			// Apply multiplier based on whether or not we currently own the plot
-			if (ePlotOwner == m_pPlayer->getTeam())
+			if (ePlotOwner == m_pPlayer->GetID())
 				iScoreAtPlot *= /*8*/ GD_INT_GET(RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER);
 			else
 				iScoreAtPlot *= /*4*/ GD_INT_GET(RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER);

@@ -4421,7 +4421,7 @@ void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
 		CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
 		if(pkMinorCivInfo)
 		{
-			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNIT)
+			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNITCLASS)
 			{
 				m_eBullyUnit = (UnitClassTypes)pkMinorCivInfo->GetBullyUnit();
 			}
@@ -4802,7 +4802,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 			int iUnitGift = 0;
 
 			int iGift = 0;
-			char* szTxtKeySuffix = "UNKNOWN";
+			char const* szTxtKeySuffix = "UNKNOWN";
 
 			int iGoldGift = 0;
 			int iFaithGift = 0;
@@ -9727,19 +9727,19 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 		{
 			iWeight += 15;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_MERCANTILE)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 		{
 			iWeight += 7;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_RELIGIOUS)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
 			iWeight += 1;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_MARITIME)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 		{
 			iWeight += 3;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_CULTURED)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 		{
 			iWeight += 10;
 		}

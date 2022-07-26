@@ -173,7 +173,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	CvString cultureString;
 
 	cultureString = "";
-	char* sPrefix = "";
+	char const* sPrefix = "";
 	int iTourismPerWork = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
 	int iValue;
 	

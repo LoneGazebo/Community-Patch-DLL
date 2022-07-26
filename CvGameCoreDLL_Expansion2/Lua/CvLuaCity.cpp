@@ -5535,7 +5535,7 @@ int CvLuaCity::lSetBuildingGreatWork(lua_State* L)
 	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
 	const int iSlot = lua_tointeger(L, 3);
 	const int iGreatWorkIndex = lua_tointeger(L, 4);
-	if(iIndex != NO_BUILDING)
+	if(iIndex != NO_BUILDINGCLASS)
 	{
 		pkCity->GetCityBuildings()->SetBuildingGreatWork(iIndex, iSlot, iGreatWorkIndex);
 	}
@@ -6352,7 +6352,7 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 						{
 							CityEventTypes eEvent = (CityEventTypes)iLoop;
-							if(eEvent != NO_EVENT)
+							if(eEvent != NO_EVENT_CITY)
 							{
 								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 								if(pkEventInfo != NULL)

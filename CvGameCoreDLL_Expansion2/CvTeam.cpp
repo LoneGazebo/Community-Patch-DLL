@@ -40,7 +40,7 @@
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
 
-inline CvTeam& CvTeam::getTeam(TeamTypes eTeam)
+CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");

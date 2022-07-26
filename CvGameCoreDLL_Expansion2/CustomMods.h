@@ -926,7 +926,7 @@ enum BattleTypeTypes
 
 // LUA API wrappers
 #define LUAAPIEXTN(method, type, ...) static int l##method(lua_State* L)
-#define LUAAPIIMPL(object, method) int CvLua##object::l##method(lua_State* L) { return BasicLuaMethod(L, &Cv##object::##method); }
+#define LUAAPIIMPL(object, method) int CvLua##object::l##method(lua_State* L) { return BasicLuaMethod(L, &Cv##object::method); }
 #define LUAAPIINLINE(method, hasMethod, type) inline bool method() const { return hasMethod(type); }
 
 

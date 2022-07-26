@@ -393,7 +393,7 @@ int CvLuaMap::lPlotDirection(lua_State* L)
 {
 	int iX = lua_tointeger(L, 1);
 	int iY = lua_tointeger(L, 2);
-	DirectionTypes eDirection = (DirectionTypes) abs(lua_tointeger(L, 3) % 6);
+	DirectionTypes eDirection = (DirectionTypes)abs(static_cast<int>(lua_tointeger(L, 3) % 6));
 
 	//safety first
 	int iMapX = coordRange(iX, GC.getMap().getGridWidth(), GC.getMap().isWrapX());

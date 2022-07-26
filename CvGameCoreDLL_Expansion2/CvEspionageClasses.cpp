@@ -744,7 +744,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 					if(pNotifications)
 					{
-						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH_S");
+						Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH_S"));
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH");
 						strNotification << GetSpyRankName(pSpy->m_eRank);
 						strNotification << pSpy->GetSpyName(m_pPlayer);
@@ -1103,7 +1103,7 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (pkEventInfo == NULL)
@@ -1197,7 +1197,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] = 0;
 
 	//no choice = no effect
-	if (eEventChoice == NO_EVENT_CHOICE)
+	if (eEventChoice == NO_EVENT_CHOICE_CITY)
 		return NUM_SPY_RESULTS;
 
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -2747,7 +2747,7 @@ CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
 	CvAssertMsg(uiSpyIndex < m_aSpyList.size(), "uiSpyIndex is out of bounds");
 	if(uiSpyIndex >= m_aSpyList.size())
 	{
-		return false;
+		return NULL;
 	}
 
 	if(m_aSpyList[uiSpyIndex].m_iCityX == -1 && m_aSpyList[uiSpyIndex].m_iCityY == -1)
@@ -2895,7 +2895,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 		{
 			CityEventTypes eEvent = (CityEventTypes)iLoop;
-			if (eEvent != NO_EVENT)
+			if (eEvent != NO_EVENT_CITY)
 			{
 				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 				if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup())
@@ -2907,7 +2907,7 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 				for (int iLoop2 = 0; iLoop2 < GC.getNumCityEventChoiceInfos(); iLoop2++)
 				{
 					CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop2;
-					if (eEventChoice != NO_EVENT_CHOICE)
+					if (eEventChoice != NO_EVENT_CHOICE_CITY)
 					{
 						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 						if (pkEventChoiceInfo != NULL)
@@ -4695,7 +4695,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			case SPY_RESULT_DETECTED:
 				// notify defending player that a spy of unknown origin stole something
 			{
-				Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S");
+				Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S"));
 				Localization::String strNotification;
 
 				if(pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)
@@ -6903,7 +6903,7 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup())
@@ -6915,7 +6915,7 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 			for (int iLoop2 = 0; iLoop2 < GC.getNumCityEventChoiceInfos(); iLoop2++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop2;
-				if (eEventChoice != NO_EVENT_CHOICE)
+				if (eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 					if (pkEventChoiceInfo != NULL)

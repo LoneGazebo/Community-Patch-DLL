@@ -24,12 +24,12 @@ namespace FLua
 		template<> struct LuaAnalog<FStringA&>{ typedef FStringA Result; };
 		template<> struct LuaAnalog<const FStringA&>{ typedef const char *Result; };
 
-		template<> static inline FStringA Get(lua_State *L, int idx) { return lua_tostring(L, idx); }
+		template<> inline FStringA Get(lua_State *L, int idx) { return lua_tostring(L, idx); }
 		static inline void Push(lua_State *L, const FStringA &sVal) { lua_pushstring(L, sVal.c_str()); }
 
-		template<> static const char *DescribeType<FStringA>() { return "FString"; }
-		template<> static const char *DescribeType<FStringA&>() { return "FString"; }
-		template<> static const char *DescribeType<const FStringA&>() { return "const FString"; }
+		template<> const char *DescribeType<FStringA>() { return "FString"; }
+		template<> const char *DescribeType<FStringA&>() { return "FString"; }
+		template<> const char *DescribeType<const FStringA&>() { return "const FString"; }
 
 		// wchar support
 		static inline void Push(lua_State *L, const wchar* szVal)
@@ -40,12 +40,12 @@ namespace FLua
 			lua_pushstring(L, sConverted.c_str());
 		}
 
-		template<> static const char *DescribeType<const wchar*>() { return "const wchar"; }
+		template<> const char *DescribeType<const wchar*>() { return "const wchar"; }
 
 		template<> struct LuaAnalog<FStringW&>{ typedef FStringW Result; };
 		template<> struct LuaAnalog<const FStringW&>{ typedef FStringW Result; };
 
-		template<> static inline FStringW Get(lua_State *L, int idx)
+		template<> inline FStringW Get(lua_State *L, int idx)
 		{ 
 			FStringW sConvert;
 			sConvert.CopyUTF8(lua_tostring(L, idx));
@@ -57,9 +57,9 @@ namespace FLua
 			Push(L, sVal.c_str());
 		}
 
-		template<> static const char *DescribeType<FStringW>() { return "FString"; }
-		template<> static const char *DescribeType<FStringW&>() { return "FString"; }
-		template<> static const char *DescribeType<const FStringW&>() { return "const FString"; }
+		template<> const char *DescribeType<FStringW>() { return "FString"; }
+		template<> const char *DescribeType<FStringW&>() { return "FString"; }
+		template<> const char *DescribeType<const FStringW&>() { return "const FString"; }
 	}
 }
 

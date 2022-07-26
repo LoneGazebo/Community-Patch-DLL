@@ -3821,7 +3821,7 @@ void CvDeal::RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (PlayerTypes)it->m_iData1 == eThirdPartyTeam &&
+		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			m_TradedItems.erase(it);
@@ -3855,7 +3855,7 @@ void CvDeal::ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPart
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (PlayerTypes)it->m_iData1 == eThirdPartyTeam &&
+		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			it->m_iDuration = iNewDuration;

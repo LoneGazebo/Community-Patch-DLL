@@ -5765,9 +5765,9 @@ int CvLuaUnit::lIsFeatureHalfMove(lua_State* L)
 int CvLuaUnit::lGetScriptData(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	const char* szScriptData = pkUnit->getScriptData().c_str();
+	std::string sScriptData = pkUnit->getScriptData();
 
-	lua_pushstring(L, szScriptData);
+	lua_pushstring(L, sScriptData.c_str());
 	return 1;
 }
 //------------------------------------------------------------------------------
