@@ -224,7 +224,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
-	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
+	bool bDesperate = m_pCity->isUnderSiege();
 	if (!bFree && bDesperate && !bCombat)
 	{
 		return 0;

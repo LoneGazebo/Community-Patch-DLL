@@ -10120,14 +10120,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->isUnderSiege())
 					{
 						if (pLoopCity->isInDangerOfFalling(true))
 							iDangerMod += 3;
 						else
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
 							if (pLoopCity->getOriginalOwner() == GetID())
 							{
@@ -10151,7 +10151,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					{
 						iNumOurCitiesInDanger++;
 					}
-					else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					else if (pLoopCity->isUnderSiege())
 					{
 						iNumOurCitiesInDanger++;
 					}
@@ -10189,14 +10189,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege())
 					{
 						if (pLoopCity->isInDangerOfFalling(true))
 							iDangerMod += 3;
 						else
 							iDangerMod++;
 
-						if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+						if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 						{
 							bSeriousDangerThem = true;
 						}
@@ -10212,7 +10212,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					{
 						iNumTheirCitiesInDanger++;
 					}
-					else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+					else if (pLoopCity->isUnderSiege())
 					{
 						iNumTheirCitiesInDanger++;
 					}
@@ -24889,14 +24889,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isUnderSiege())
 				{
 					if (pLoopCity->isInDangerOfFalling(true))
 						iDangerMod += 3;
 					else
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
 						if (pLoopCity->getOriginalOwner() == GetID())
 						{
@@ -24941,14 +24941,14 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					iDangerMod++;
 
-				if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+				if (pLoopCity->isUnderSiege())
 				{
 					if (pLoopCity->isInDangerOfFalling(true))
 						iDangerMod += 3;
 					else
 						iDangerMod++;
 
-					if (pLoopCity->isInDangerOfFalling(true) || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
+					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/2))
 					{
 						bSeriousDangerThem = true;
 					}
@@ -25068,7 +25068,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 								{
 									bReadyForVassalage = false;
 								}
-								else if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege() || (pLoopCity->IsBlockadedWaterAndLand() && pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints()/4)))
+								else if (pLoopCity->isUnderSiege())
 								{
 									bReadyForVassalage = false;
 								}

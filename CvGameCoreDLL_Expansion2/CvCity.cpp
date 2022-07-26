@@ -2402,10 +2402,11 @@ void CvCity::doTurn()
 
 		iHitsHealed += iBuildingDefense / 1000;
 
+		//cities heal much faster if there are no enemies around
 		if (MOD_BALANCE_VP)
 		{
 			iHitsHealed += getPopulation();
-			if (!GetCityCitizens()->AnyPlotBlockaded())
+			if (getDamageTakenLastTurn()==0 && !GetCityCitizens()->AnyPlotBlockaded())
 				iHitsHealed *= 3;
 		}
 
@@ -35370,7 +35371,8 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 
 bool CvCity::isUnderSiege() const
 {
-	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
+	//lots of possible conditions, many overlapping ... let's make sure we cover all angles
+	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0 || (IsBlockadedWaterAndLand() && getDamage() >= GetMaxHitPoints()/4) || isInDangerOfFalling();
 }
 
 int CvCity::getDamageTakenLastTurn() const
