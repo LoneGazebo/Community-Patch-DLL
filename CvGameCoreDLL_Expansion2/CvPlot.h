@@ -533,6 +533,9 @@ public:
 	PlayerTypes GetPlayerThatClearedDigHere() const;
 	void SetPlayerThatClearedDigHere(PlayerTypes eNewValue);
 
+	PlayerTypes GetPlayerThatDestroyedCityHere() const;
+	void SetPlayerThatDestroyedCityHere(PlayerTypes eNewValue);
+
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
 
@@ -971,6 +974,7 @@ protected:
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;
 	char /*PlayerTypes*/ m_ePlayerThatClearedDigHere;
+	char /*PlayerTypes*/ m_ePlayerThatDestroyedCityHere;
 	char /*RouteTypes*/ m_eRouteType;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	short m_eUnitIncrement;

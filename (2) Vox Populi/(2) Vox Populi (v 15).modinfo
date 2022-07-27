@@ -378,7 +378,7 @@
     <File md5="AD4C3A3913B81F2B0CD813679F410BB4" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
     <File md5="68935F2C96862E55F2D394C97AAFEEA5" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
     <File md5="AAD7FCC59467A54933DC76B1616CE77E" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
-    <File md5="EFAA52C4C2A0D22370C538E67EEB08E0" import="0">Balance Changes/Minors/QuestChanges.sql</File>
+    <File md5="3F60CC60782242E23B4BD53D872F6213" import="0">Balance Changes/Minors/QuestChanges.sql</File>
     <File md5="318F7BEB3C2ADBB86F232E8E0C30BD24" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
     <File md5="AC851E7A43B18C52535954EC2DDC37F9" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
     <File md5="0D62910BFF495AF0C0A3A9BFF50AA395" import="0">Balance Changes/Policies/Aesthetics/Aesthetics.sql</File>
@@ -462,7 +462,7 @@
     <File md5="CB83DD58726A3185BA0D52EBDD6F1C29" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="88F79B128053C968D45A2F740C105014" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="F0125F27D955873CE85A527C8685939F" import="1">LUA/CityView.lua</File>
     <File md5="0148E0C18ABBCF79092836538025008D" import="1">LUA/CityView.xml</File>
     <File md5="E611F253AB510B73CF55EF2AD2A2372D" import="1">LUA/CityView_small.xml</File>
@@ -546,7 +546,7 @@
     <File md5="E683E2A0566C83B2B719C59EE3BDBA76" import="1">Modular Elements/Corporations/CorporationsOverview.lua</File>
     <File md5="56582B9EFE6B3561D73566F476E886F5" import="1">Modular Elements/Corporations/CorporationsOverview.xml</File>
     <File md5="0B9F0CBFA2325D055888381B705FB887" import="0">Modular Elements/Corporations/Text/en_US/CorporationOverviewText.xml</File>
-    <File md5="7E955E8B0620477D5115F03F08F0D0A7" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
+    <File md5="D261198955D42862D7FEA3785F76C02E" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
     <File md5="721579C155F1BE83F4D8628CC0B08BE7" import="0">Modular Elements/Corporations/Corporations.sql</File>
     <File md5="1379EAB56666648BD6A378C5C03789FA" import="0">Modular Elements/Events/CBOEvents.sql</File>
     <File md5="C083847CE6A3DE9C2B4C6ED37B3A807E" import="0">Modular Elements/Events/Text/EventText_en_US.xml</File>

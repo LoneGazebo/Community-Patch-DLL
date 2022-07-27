@@ -153,5 +153,9 @@
 			<Type>MINOR_CIV_QUEST_UNIT_GET_CITY</Type>
 			<Influence>60</Influence>
 		</Row>
+		<Row>
+			<Type>MINOR_CIV_QUEST_UNIT_GET_CITY_OCC</Type>
+			<Influence>60</Influence>
+		</Row>
 	</SmallAwards>
 </GameData>

@@ -45,6 +45,7 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY_OCC,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE,
@@ -624,6 +625,8 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. "[ICON_INQUISITOR]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
 				sIconText = sIconText .. "[ICON_VICTORY_DOMINATION]";
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY_OCC) then
+				sIconText = sIconText .. "[ICON_VICTORY_DOMINATION]";
 			end
 		end
 	end
@@ -804,6 +807,8 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL", Players[iQuestData1]:GetNameKey());
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ));
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY_OCC) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL", pMinor:GetTargetCityString(iMajor , eType ));
 			end	
 			if (iTurnsRemaining >= 0) then
 				sToolTipText = sToolTipText .. " " .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", iTurnsRemaining );

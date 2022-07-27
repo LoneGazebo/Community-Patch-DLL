@@ -103,6 +103,9 @@ UPDATE SmallAwards SET Influence = '40', CapitalGPPoints = '150', RandomMod = '1
 -- Conquest
 UPDATE SmallAwards SET Influence = '80', GlobalExperience = '15', RandomMod = '5' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
 
+-- Conquest (OCC)
+UPDATE SmallAwards SET Influence = '80', GlobalExperience = '15', RandomMod = '5' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY_OCC';
+
 -- Quest Weights
 UPDATE Defines SET Value = '150' WHERE Name = 'MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE';
 UPDATE Defines SET Value = '150' WHERE Name = 'MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CITY_STATE';

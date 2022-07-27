@@ -12880,6 +12880,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if (pPlot)
 	{
+		pPlot->SetPlayerThatDestroyedCityHere(GetID());
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
@@ -27291,6 +27292,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							break;
 						case MINOR_CIV_QUEST_UNIT_GET_CITY:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME", MinorName);
+							break;
+						case MINOR_CIV_QUEST_UNIT_GET_CITY_OCC:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_OCC_NAME", MinorName);
 							break;
 						}
 					}

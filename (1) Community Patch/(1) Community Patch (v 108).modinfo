@@ -124,7 +124,7 @@
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
-    <File md5="44E52B48910669CA0F96867FEAFB24C1" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
+    <File md5="1C0D1B29771A54071D782AA565BBC4E2" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
     <File md5="55680AD4774BC1DC4991E321F40A183E" import="0">Core Files/Core Values/New_CIV5AICityStrategies.xml</File>
     <File md5="22C823A2A9A00B2B73B7983130602DDB" import="0">Core Files/Core Values/New_CIV5AIMilitaryStrategies.xml</File>
     <File md5="75EEAD91038B5C127112C8A9F428C19A" import="0">Core Files/Core Values/New_CIV5MultiUnitFormations.xml</File>
@@ -225,7 +225,7 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="D8BB131DBC138CBC97AFF8B22499A667" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="65DFD1BAE35EDC81AC50000D0248A05F" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="A1343F73F0F961FFF8D1ED04CFAC9A83" import="0">Core Files/Text/CoreText_en_US.sql</File>
     <File md5="DD602898B85DC9117B01307C578F6DBB" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
@@ -233,7 +233,7 @@
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
-    <File md5="026B0E8A3FD78E58779D26607DB6ACE8" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="F7439B02996B86F982EE99BE2B8E6C89" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="E2509F6529D74108F9DBD23E14C15F1D" import="1">LUA/CityView.lua</File>
     <File md5="0A5F81CD98BFD26E06897E5B19683469" import="1">LUA/CultureOverview.lua</File>
     <File md5="BF85D174CA9D4F2EC2AD7E3FBB6C0D6D" import="1">LUA/CultureOverview.xml</File>

@@ -1424,6 +1424,14 @@ bool CvMinorCivQuest::IsComplete()
 		// Sent us our requested unit?
 		return pMinor->GetMinorCivAI()->GetHasSentUnitForQuest(m_eAssignedPlayer);
 	}
+	case MINOR_CIV_QUEST_UNIT_GET_CITY_OCC:
+	{
+		int iX = m_iData1, iY = m_iData2;
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+
+		// City destroyed by this player?
+		return !pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer;
+	}
 	case MINOR_CIV_QUEST_FIND_CITY_STATE:
 	{
 		PlayerTypes eTargetMinor = (PlayerTypes)m_iData1;
@@ -1860,6 +1868,10 @@ bool CvMinorCivQuest::IsExpired()
 			{
 				return true;
 			}
+			// The city was destroyed (OCC game)
+			if (pPlot != NULL && (!pPlot->isCity())) {
+				return true;
+			}
 			// We can't liberate this city-state for some reason.
 			if(!pTargetCityState->isAlive() && !GET_PLAYER(m_eAssignedPlayer).CanLiberatePlayerCity(eTargetCityState))
 			{
@@ -1952,6 +1964,29 @@ bool CvMinorCivQuest::IsExpired()
 			if (pPlot->getOwner() == NO_PLAYER)
 			{
 				return true;
+			}
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+		int iX = m_iData1;
+		int iY = m_iData2;
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		//City gone?
+		if (pPlot != NULL)
+		{
+			// the city was destroyed ...
+			if (!pPlot->isCity())
+			{
+				// ... but not by us
+				if (pPlot->GetPlayerThatDestroyedCityHere() != m_eAssignedPlayer)
+				{
+					return true;
+				}
 			}
 		}
 		else
@@ -2568,9 +2603,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	// Liberate a City State
 	else if(m_eType == MINOR_CIV_QUEST_LIBERATION)
 	{
-		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-			return;
-
 		PlayerTypes eTargetCityState = pMinor->GetMinorCivAI()->GetBestCityStateLiberate(m_eAssignedPlayer);
 
 		FAssertMsg(eTargetCityState != NO_PLAYER, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
@@ -2797,8 +2829,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
-		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-			return;
 
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
 
@@ -2823,6 +2853,33 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		iNotificationX = pCity->plot()->getX();
 		iNotificationY = pCity->plot()->getY();
+	}
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+
+	CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
+
+	FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to destroy a city.");
+
+	if (!pCity)
+		return;
+
+	m_iData1 = pCity->plot()->getX();
+	m_iData2 = pCity->plot()->getY();
+	m_iData3 = pCity->getOwner();
+
+	pMinor->GetMinorCivAI()->SetTargetedCityX(m_eAssignedPlayer, pCity->getX());
+	pMinor->GetMinorCivAI()->SetTargetedCityY(m_eAssignedPlayer, pCity->getY());
+
+	const char* strTargetNameKey = pCity->getNameKey();
+
+	strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC");
+	strMessage << strTargetNameKey;
+	strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC");
+	strSummary << strTargetNameKey;
+
+	iNotificationX = pCity->plot()->getX();
+	iNotificationY = pCity->plot()->getY();
 	}
 #endif
 
@@ -3423,6 +3480,11 @@ bool CvMinorCivQuest::DoFinishQuest()
 	{
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE");
+	}
+	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+	strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE");
+	strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE");
 	}
 #endif
 
@@ -6453,6 +6515,10 @@ bool CvMinorCivAI::IsTargetQuest(MinorCivQuestTypes eQuest)
 	{ 
 		return true;
 	}
+	else if (eQuest == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+		return true;
+	}
 	return false;
 }
 // Is this quest enabled at all?
@@ -6651,7 +6717,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		if (!MOD_BALANCE_VP || GD_INT_GET(QUEST_DISABLED_CIRCUMNAVIGATION) == 1)
 			return false;
 	}
-	// Circumnavigation
+	// Liberation
 	else if(eQuest == MINOR_CIV_QUEST_LIBERATION)
 	{
 		if (!MOD_BALANCE_VP || GD_INT_GET(QUEST_DISABLED_LIBERATION) == 1)
@@ -6692,6 +6758,11 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 	else if(eQuest == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
 		if(GD_INT_GET(QUEST_DISABLED_CP_QUESTS) == 1)
+			return false;
+	}
+	else if (eQuest == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+		if (GD_INT_GET(QUEST_DISABLED_CP_QUESTS) == 1)
 			return false;
 	}
 
@@ -7362,11 +7433,31 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if (IsRecentlyBulliedByMajor(ePlayer))
 			return false;
 
+		// No city acquisition possible in One City Challenge
+		if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			return false;
+
 		CvCity* pTargetCity = GetBestCityForQuest(ePlayer);
 		if(pTargetCity == NULL)
 		{
 			return false;
 		}
+	}
+	else if (eQuest == MINOR_CIV_QUEST_UNIT_GET_CITY_OCC)
+	{
+	// This player must not have bullied us recently
+	if (IsRecentlyBulliedByMajor(ePlayer))
+		return false;
+
+	// Quest only possible in OCC, replaces MINOR_CIV_QUEST_UNIT_GET_CITY
+	if (!GET_PLAYER(ePlayer).isHuman() || !GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		return false;
+
+	CvCity* pTargetCity = GetBestCityForQuest(ePlayer);
+	if (pTargetCity == NULL)
+	{
+		return false;
+	}
 	}
 #endif
 
@@ -7911,6 +8002,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 		}
 		break;
 	}
+	case MINOR_CIV_QUEST_UNIT_GET_CITY_OCC:
 	case MINOR_CIV_QUEST_UNIT_GET_CITY: // Capture a city
 	{
 		if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)

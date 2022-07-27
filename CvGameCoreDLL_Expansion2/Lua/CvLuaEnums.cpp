@@ -906,6 +906,7 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_STEAL_FROM);
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_COUP_CITY);
 	RegisterEnum(MINOR_CIV_QUEST_UNIT_GET_CITY);
+	RegisterEnum(MINOR_CIV_QUEST_UNIT_GET_CITY_OCC);
 	RegisterEnum(NUM_MINOR_CIV_QUEST_TYPES);
 	EnumEnd(L);
 
