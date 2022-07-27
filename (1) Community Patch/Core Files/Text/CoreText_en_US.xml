@@ -2415,7 +2415,7 @@
 			<Text>Tactical experts from {@2_CivName} believe {@1_CityName} to be of significant strategic importance. Acquire it by any means, and you will be greatly rewarded!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY">
-			<Text>Tacticians from {@2_CivName} want you to capture {@1_CityName}</Text>
+			<Text>{@2_CivName} wants you to capture {@1_CityName}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE">
@@ -2423,6 +2423,21 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE">
 			<Text>Successful city capture for {@1_CivName}!</Text>
+		</Row>
+		
+		<!-- Capture City (OCC) -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC">
+			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC">
+			<Text>{@2_CivName} wants you to conquer {@1_CityName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE">
+			<Text>The tactical experts from {@1_CivName} thank you for conquering the city they targeted.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE">
+			<Text>Successfully conquered city for {@1_CivName}!</Text>
 		</Row>
 
 		<!-- Coup -->
@@ -2543,6 +2558,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL">
 			<Text>Acquire the city of {1_City}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL">
+			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 		<!-- Plot Helpers -->
 

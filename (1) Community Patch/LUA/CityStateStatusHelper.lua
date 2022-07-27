@@ -693,7 +693,11 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL", Players[iQuestData1]:GetNameKey() );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
+				if (Players[iMajor]:IsHuman() and Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE)) then
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
+				else
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
+				end
 			end				
 			if (iTurnsRemaining >= 0) then
 				sToolTipText = sToolTipText .. " " .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", iTurnsRemaining );
