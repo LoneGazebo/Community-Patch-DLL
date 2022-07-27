@@ -4171,6 +4171,7 @@ bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	if (eIndex < 0) return false;
 	return m_pabHasPolicy[eIndex];
 }
 /// Accessor: was this policy given for free

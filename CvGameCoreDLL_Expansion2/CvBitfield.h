@@ -43,7 +43,10 @@ public:
 	CvBitfield& operator=(const CvBitfield& rhs)
 	{
 		resizeBytes(rhs.m_uiByteSize);
-		memcpy(m_pBits, rhs.m_pBits, m_uiByteSize);
+		if (m_uiByteSize)
+		{
+			memcpy(m_pBits, rhs.m_pBits, m_uiByteSize);
+		}
 		return *this;
 	}
 

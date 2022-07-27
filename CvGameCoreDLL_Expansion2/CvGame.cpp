@@ -115,7 +115,8 @@ CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 
 //------------------------------------------------------------------------------
 CvGame::CvGame() :
-	m_jonRand("GameRng")
+	m_firstActivationOfPlayersAfterLoad(false)
+	, m_jonRand("GameRng")
 	, m_mapRand("PreGameRng")
 	, m_endTurnTimer()
 	, m_endTurnTimerSemaphore(0)
