@@ -314,6 +314,12 @@ void CvHomelandAI::FindHomelandTargets()
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
+	// Does the civ have access to a civilization specific build for artifacts (if so, don't target antiquity sites for archaeologists)?
+	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
+	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
+	CvImprovementEntry* pCivImproveArtifact = m_pPlayer->GetResourceImprovement(eArtifactResourceType, true);
+	CvImprovementEntry* pCivImproveHiddenArtifact = m_pPlayer->GetResourceImprovement(eHiddenArtifactResourceType, true);
+
 	// Look at every tile on map
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
@@ -344,23 +350,23 @@ void CvHomelandAI::FindHomelandTargets()
 					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
 					{
 						// Find proper improvement
-						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+						for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 						{
 							BuildTypes eBuild = ((BuildTypes)iJ);
-							if(eBuild == NO_BUILD)
+							if (eBuild == NO_BUILD)
 								continue;
 
 							CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-							if(!pkBuildInfo)
+							if (!pkBuildInfo)
 								continue;
 
 							ImprovementTypes eNavalImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-							if(eNavalImprovement == NO_IMPROVEMENT)
+							if (eNavalImprovement == NO_IMPROVEMENT)
 								continue;
 
 							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eNavalImprovement);
 							//sometimes we have different improvements for the same resource on land and water
-							if (pImprovement->IsWater() != pLoopPlot->isWater())
+							if (!pImprovement->IsWater())
 								continue;
 
 							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType()))
@@ -377,19 +383,18 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 			// ... antiquity site?
-			if((pLoopPlot->getResourceType(eTeam) == GD_INT_GET(ARTIFACT_RESOURCE) || pLoopPlot->getResourceType(eTeam) == GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE)))
+			bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
+			bool bHiddenArtifact = pLoopPlot->getResourceType(eTeam) == eHiddenArtifactResourceType;
+			if ((bArtifact || bHiddenArtifact) &&
+				!(pLoopPlot->getOwner() == m_pPlayer->GetID() && ((bArtifact && pCivImproveArtifact) || (bHiddenArtifact && pCivImproveHiddenArtifact))) &&
+				!m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot))
 			{
-				if( pLoopPlot->getOwner() == NO_PLAYER ||
-					pLoopPlot->getOwner() == m_pPlayer->GetID() || 
-					!m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot) )
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					m_TargetedAntiquitySites.push_back(newTarget);
-				}
+				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
+				newTarget.SetTargetX(pLoopPlot->getX());
+				newTarget.SetTargetY(pLoopPlot->getY());
+				m_TargetedAntiquitySites.push_back(newTarget);
 			}
-			// ... a border fortification?
+			// ... border fortification?
 			if (!pLoopPlot->isWater() &&
 				pLoopPlot->getOwner() == m_pPlayer->GetID() &&
 				pLoopPlot->isValidMovePlot(m_pPlayer->GetID()) &&
