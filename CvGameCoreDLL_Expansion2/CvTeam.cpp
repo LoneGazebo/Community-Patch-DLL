@@ -4018,7 +4018,7 @@ void CvTeam::UpdateEmbarkGraphics()
 					// At sea so its graphic look needs to change too?
 					if(pLoopUnit->isEmbarked())
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 					}
 				}

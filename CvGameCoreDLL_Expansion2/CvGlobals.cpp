@@ -2279,9 +2279,9 @@ CvCity* CvGlobals::UnwrapCityPointer(ICvCity1* pCity)
 	return (NULL != pCity)? static_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
+CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
 {
-	return auto_ptr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
+	return CvInterfacePtr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
 }
 //------------------------------------------------------------------------------
 CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
@@ -2289,9 +2289,9 @@ CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
 	return (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
+CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
 {
-	return auto_ptr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
+	return CvInterfacePtr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
 }
 //------------------------------------------------------------------------------
 CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
@@ -2299,9 +2299,9 @@ CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
 	return (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
+CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
 {
-	return auto_ptr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
+	return CvInterfacePtr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
 }
 //------------------------------------------------------------------------------
 CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
@@ -2309,14 +2309,14 @@ CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
 	return (NULL != pRandom)? static_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
+CvInterfacePtr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
 {
-	return auto_ptr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
+	return CvInterfacePtr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
+CvInterfacePtr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
 {
-	return auto_ptr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
+	return CvInterfacePtr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
 }
 //------------------------------------------------------------------------------
 CvUnit* CvGlobals::UnwrapUnitPointer(ICvUnit1* pUnit)

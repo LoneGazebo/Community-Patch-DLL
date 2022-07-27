@@ -1953,7 +1953,7 @@ void CvCity::setupGraphical()
 	CvPlayer& player = GET_PLAYER(getOwner());
 	EraTypes eCurrentEra = (EraTypes)player.GetCurrentEra();
 
-	auto_ptr<ICvCity1> pkDllCity(new CvDllCity(this));
+	CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(this));
 	gDLL->GameplayCityCreated(pkDllCity.get(), eCurrentEra);
 	gDLL->GameplayCitySetDamage(pkDllCity.get(), getDamage(), 0);
 
@@ -1991,7 +1991,7 @@ void CvCity::setupWonderGraphics()
 			if (iExists > 0)
 			{
 				// display the wonder
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 				gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 1);
 			}
 			else
@@ -2047,7 +2047,7 @@ void CvCity::setupWonderGraphics()
 
 					if (bShowHalfBuilt)
 					{
-						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 						gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 0);
 					}
 				}
@@ -2070,7 +2070,7 @@ void CvCity::setupBuildingGraphics()
 			int iExists = m_pCityBuildings->GetNumBuilding(eBuilding);
 			if (iExists > 0 && buildingInfo->IsCityWall())
 			{
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 				gDLL->GameplayWallCreated(pDllPlot.get());
 			}
 		}
@@ -2106,7 +2106,7 @@ void CvCity::setupSpaceshipGraphics()
 			eConstructed = 0x0080,
 		};
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 		gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 		gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
 
@@ -2197,7 +2197,7 @@ void CvCity::PreKill()
 		// Only show units that belong to this city's owner - that way we don't show units on EVERY city capture (since the old city is deleted in this case)
 		if (getOwner() == pLoopUnit->getOwner())
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), !pLoopUnit->isInvisible(GC.getGame().getActiveTeam(), true) /*bVisible*/);
 		}
 	}
@@ -2869,7 +2869,7 @@ void CvCity::doTurn()
 bool CvCity::isCitySelected()
 {
 	VALIDATE_OBJECT
-	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 
 	return DLLUI->isCitySelected(pCity.get());
 }
@@ -14095,7 +14095,7 @@ void CvCity::conscript()
 	{
 		if (GC.getGame().getActivePlayer() == getOwner())
 		{
-			auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+			CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 			DLLUI->selectUnit(pDllUnit.get(), true, false, true);
 		}
 	}
@@ -18487,7 +18487,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 
 		setLayoutDirty(true);
 		{
-			auto_ptr<ICvCity1> pkDllCity(new CvDllCity(this));
+			CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(this));
 			gDLL->GameplayCityPopulationChanged(pkDllCity.get(), iNewValue);
 		}
 
@@ -21216,7 +21216,7 @@ void CvCity::ChangeResistanceTurns(int iChange)
 	{
 		m_iResistanceTurns += iChange;
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -21253,7 +21253,7 @@ void CvCity::ChangeRazingTurns(int iChange)
 	{
 		m_iRazingTurns += iChange;
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -27558,7 +27558,7 @@ void CvCity::setName(const char* szNewValue, bool bFound, bool bForceChange)
 			}
 
 
-			auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+			CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 			DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 		}
 		if (bFound)
@@ -27697,7 +27697,7 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -27765,7 +27765,7 @@ void CvCity::setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewVal
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -27862,7 +27862,7 @@ void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -28427,7 +28427,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 	if (iValue != getDamage())
 	{
 		int iOldValue = getDamage();
-		auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+		CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 		gDLL->GameplayCitySetDamage(pDllCity.get(), iValue, iOldValue);
 
 		// send the popup text if the player can see this plot
@@ -29797,7 +29797,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 
-	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 	DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_PRODUCTION);
 }
 
@@ -30832,7 +30832,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		CvCity* theCapital = thisPlayer.getCapitalCity();
 		if (theCapital)
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
 			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 			gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
 		}
@@ -30843,7 +30843,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 
 		if (NO_VICTORY != eVictory && GET_TEAM(getTeam()).canLaunch(eVictory))
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), eConstructed);
 			gDLL->sendLaunch(getOwner(), eVictory);
 		}
@@ -30884,7 +30884,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 				spaceshipState += eBooster3;
 			}
 
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
 		}
 	}
@@ -32277,7 +32277,7 @@ bool CvCity::doCheckProduction()
 						}
 					}
 
-					auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+					CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes)eExpiredBuilding, 0);
 #if defined(MOD_API_ACHIEVEMENTS)
 					//Add "achievement" for sucking it up
@@ -32544,7 +32544,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 				{
 					if (m_pCityBuildings->GetBuildingProduction(eBuilding) == 0)  // otherwise we are probably already showing this
 					{
-						auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+						CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 						DLLUI->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eBuilding, 0);
 					}
 				}
@@ -33689,13 +33689,13 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if (isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				DLLUI->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(pPlot->isActiveVisible());
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.

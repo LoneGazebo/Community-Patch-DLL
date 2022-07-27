@@ -545,12 +545,12 @@ void CvPlot::updateVisibility()
 				if (eInvisibleType != NO_INVISIBLE)
 				{
 					// This unit has visibility rules, send a message that it needs to update itself.
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 				}
 				if (pLoopUnit->IsHiddenByNearbyUnit(this))
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 				}
 			}
@@ -571,13 +571,13 @@ void CvPlot::updateVisibility()
 					if (eInvisibleType != NO_INVISIBLE)
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 					}
 					if (pLoopUnit->IsHiddenByNearbyUnit(this))
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 					}
 				}
@@ -589,7 +589,7 @@ void CvPlot::updateVisibility()
 //	--------------------------------------------------------------------------------
 void CvPlot::updateSymbols()
 {
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayYieldMightHaveChanged(pDllPlot.get());
 }
 
@@ -643,7 +643,7 @@ void CvPlot::updateCenterUnit()
 
 		if(pLoopUnit)
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 
 			if(pCenterUnit == pLoopUnit)
 			{
@@ -6212,11 +6212,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						newPlayer.SetCityDistanceHighwaterMark(bestHighWaterMark);
 						if(GC.GetEngineUserInterface()->isCityScreenUp())
 						{
-							auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
-							if(pHeadSelectedCity.get())
+							CvInterfacePtr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
+							if(pHeadSelectedCity)
 							{
 								CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
-								auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
+								CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
 								GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_CITY_ZOOM_IN);
 							}
 						}
@@ -6283,12 +6283,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(GC.getGame().isDebugMode())
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 				GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 			}
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 		GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
@@ -6695,7 +6695,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			updateSeeFromSight(false,true);
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 		gDLL->GameplayFeatureChanged(pDllPlot.get(), eNewValue);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -11266,7 +11266,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 							}
 						}
 #endif
-						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 						gDLL->GameplayNaturalWonderRevealed(pDllPlot.get());
 					}
 				}
@@ -11949,7 +11949,7 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -12049,7 +12049,7 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->getInvisibleType() == eInvisible)
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -12867,7 +12867,7 @@ void CvPlot::updateLayout(bool bDebug)
 		}
 	}
 
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayPlotStateChange
 	(
 	    pDllPlot.get(),

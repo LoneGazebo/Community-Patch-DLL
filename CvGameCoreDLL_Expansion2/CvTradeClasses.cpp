@@ -2085,7 +2085,7 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 	int iOriginX,iOriginY;
 	PlayerTypes eOriginPlayer;
 
-	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 	CvAssert(pkSelectedUnit != NULL);
 	if (pkSelectedUnit)

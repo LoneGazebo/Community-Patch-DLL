@@ -179,18 +179,18 @@ public:
 
 	//DLL Utility Methods
 	CvCity* UnwrapCityPointer(ICvCity1* pCity);
-	auto_ptr<ICvCity1> WrapCityPointer(CvCity* pCity);
+	CvInterfacePtr<ICvCity1> WrapCityPointer(CvCity* pCity);
 
 	CvDeal* UnwrapDealPointer(ICvDeal1* pDeal);
-	auto_ptr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
+	CvInterfacePtr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
 
 	CvPlot* UnwrapPlotPointer(ICvPlot1* pPlot);
-	auto_ptr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
+	CvInterfacePtr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
 
 	CvRandom* UnwrapRandomPointer(ICvRandom1* pRandom);
-	auto_ptr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
+	CvInterfacePtr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
 
-	auto_ptr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
+	CvInterfacePtr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
 	CvUnit*   UnwrapUnitPointer(ICvUnit1* pUnit);
 
 	void init();
