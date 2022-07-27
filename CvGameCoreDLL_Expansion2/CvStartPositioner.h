@@ -174,8 +174,10 @@ public:
 class IStartPositioner
 {
 public:
+	virtual ~IStartPositioner() = 0;
 	virtual void Run(int iNumRegionsRequired) = 0;
 };
+inline IStartPositioner::~IStartPositioner() {}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvStartPositioner
@@ -190,7 +192,7 @@ class CvStartPositioner : public IStartPositioner
 {
 public:
 	CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator);
-	~CvStartPositioner(void);
+	virtual ~CvStartPositioner(void);
 
 	virtual void Run(int iNumRegions);
 
@@ -228,7 +230,7 @@ class CvStartPositionerMerge : public IStartPositioner
 {
 public:
 	CvStartPositionerMerge(CvCitySiteEvaluator * pSiteEvaluator);
-	~CvStartPositionerMerge(void);
+	virtual ~CvStartPositionerMerge(void);
 
 	virtual void Run(int iNumRegions);
 private:
