@@ -294,6 +294,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
+	m_piYieldFromTechRetroactive(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGrowthGA(false),
@@ -434,6 +435,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
+	SAFE_DELETE_ARRAY(m_piYieldFromTechRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
 	SAFE_DELETE_ARRAY(m_piConquerorYield);
@@ -828,6 +830,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromTechRetroactive, "Policy_YieldFromTechRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
@@ -2966,6 +2969,13 @@ int CvPolicyEntry::GetYieldFromTech(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromTech[i];
+}
+///  Does this Policy grant yields from techs that were already researched?
+int CvPolicyEntry::GetYieldFromTechRetroactive(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromTechRetroactive[i];
 }
 /// Does this Policy negate expansion unhappiness?
 bool CvPolicyEntry::GetNoUnhappinessExpansion() const

@@ -2424,7 +2424,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE">
 			<Text>Successful city capture for {@1_CivName}!</Text>
 		</Row>
-
+		
 		<!-- Coup -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP">
 			<Text>Intelligence reports from {@2_CivName} indicate that {@1_CityName} is ripe for a coup. Complete this coup, and you will be greatly rewarded!</Text>
@@ -6979,6 +6979,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
 			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE">
+			<Text>Total Number of Technologies Researched:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
 			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
 		</Row>
@@ -6989,7 +6992,7 @@
 			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
-			<Text>Instant yield:[NEWLINE]{1_YieldString}</Text>
+			<Text>Instant Yield:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
@@ -7013,16 +7016,16 @@
 			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
-			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_VICTORY_DOMINATION] Winning a Battle:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
 			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
-			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PRODUCTION] Producing a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
-			<Text>[ICON_GOLD] Purchasing a unit or building:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_GOLD] Purchasing a Unit or Building:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
 			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
@@ -7040,7 +7043,7 @@
 			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
-			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
 			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
@@ -7088,7 +7091,7 @@
 			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
-			<Text>Process in destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+			<Text>Process in Destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>

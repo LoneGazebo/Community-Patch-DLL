@@ -1071,8 +1071,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 	int iNumWonders = pPlayer->GetNumWonders() + (pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() /2);
 	
-	//Capital pop estimate forearly game.
+	//Capital pop estimate for early game.
 	int iCapitalPop = max(10, pPlayer->getCapitalCity()->getPopulation());
+
+	//Numbers of Technologies researched for early game
+	int iTechnologiesResearched = max(15, GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - 1);
 	
 	if (PolicyInfo->GetPolicyCostModifier() != 0)
 	{
@@ -4156,6 +4159,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			else
 			{
 				yield[eYield] += PolicyInfo->GetYieldFromBirthCapitalRetroactive(eYield) * iCapitalPop;
+			}
+		}
+		if (PolicyInfo->GetYieldFromTechRetroactive(eYield) != 0)
+		{
+			if (pPlayerTraits->IsSmaller())
+			{
+				yield[eYield] += PolicyInfo->GetYieldFromTechRetroactive(eYield) * 2 * iTechnologiesResearched;
+			}
+			else
+			{
+				yield[eYield] += PolicyInfo->GetYieldFromTechRetroactive(eYield) * iTechnologiesResearched;
 			}
 		}
 		if (PolicyInfo->GetYieldFromConstruction(eYield) != 0)
