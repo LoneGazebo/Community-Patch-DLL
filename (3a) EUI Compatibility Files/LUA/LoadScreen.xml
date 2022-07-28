@@ -41,7 +41,7 @@
 			</Image>
 
 			<Container Size="6,6"/>
-			<Label ID="Tips" Anchor="L,C" WrapWidth="460" BranchAlpha="1.5" LeadingOffset="-4" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT16" FontStyle="Shadow"/>
+			<Label ID="Tips" Anchor="L,C"  Offset="12,0"  WrapWidth="460" BranchAlpha="1.5" LeadingOffset="-4" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT16" FontStyle="Shadow"/>
 		</Stack>
 	</Box>
 
