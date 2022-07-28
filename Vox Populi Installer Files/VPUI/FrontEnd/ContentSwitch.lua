@@ -33,7 +33,6 @@ function getVPTip()
 	math.random(); math.random(); math.random() -- warming up
 
 	value = math.random(26)
-	print(value)
 	return g_VPTipTable[value]
 end
 
@@ -49,7 +48,9 @@ function OnShowHide( isHide, isInit )
 		
 	end	
 	Controls.Tips:SetText("Tip: "..getVPTip())
-
+	local contentsize = Controls.Tips:GetSize().y
+	if contentsize > 64 then
+		Controls.ContentSwitchGrid:SetSizeY( 220 + contentsize )
+	end
 end
 ContextPtr:SetShowHideHandler( OnShowHide );
-
