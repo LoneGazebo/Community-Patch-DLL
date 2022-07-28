@@ -674,7 +674,7 @@ int CvDllGameContext::GetNUM_CITY_PLOTS() const
 	int iNumCityPlots = AVG_CITY_PLOTS;
 	
 	CvInterfacePtr<ICvCity1> pCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
-	if (pCity.get() != NULL) {
+	if (pCity) {
 		CvCity* pkCity = GC.UnwrapCityPointer(pCity.get());
 		iNumCityPlots = pkCity->GetNumWorkablePlots();
 	}

@@ -3157,7 +3157,7 @@ void CvGame::handleAction(int iAction)
 	// Interface Mode
 	if(GC.GetEngineUserInterface()->CanDoInterfaceMode((InterfaceModeTypes)pkActionInfo->getInterfaceModeType()))
 	{
-		if(pHeadSelectedUnit.get() != NULL)
+		if(pHeadSelectedUnit)
 		{
 			if(GC.getInterfaceModeInfo((InterfaceModeTypes)pkActionInfo->getInterfaceModeType())->getSelectAll())
 			{
@@ -3197,7 +3197,7 @@ void CvGame::handleAction(int iAction)
 						CvImprovementEntry *pImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement());
 						if (!pImprovementInfo || !pImprovementInfo->IsRequiresImprovement())
 						{
-							if(pHeadSelectedUnit.get() != NULL)
+							if(pHeadSelectedUnit)
 							{
 								CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 								CvPlot* pPlot = pkHeadSelectedUnit->plot();
@@ -3216,7 +3216,7 @@ void CvGame::handleAction(int iAction)
 			else
 			if(iMissionType == CvTypes::getMISSION_FOUND())
 			{
-				if(pHeadSelectedUnit.get() != NULL)
+				if(pHeadSelectedUnit)
 				{
 					CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 					CvPlot* pPlot = pkHeadSelectedUnit->plot();
@@ -3244,7 +3244,7 @@ void CvGame::handleAction(int iAction)
 		else
 		if (iMissionType == CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3260,7 +3260,7 @@ void CvGame::handleAction(int iAction)
 		else
 		if (iMissionType == CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3274,7 +3274,7 @@ void CvGame::handleAction(int iAction)
 		}
 		if (iMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3377,7 +3377,7 @@ bool CvGame::canDoControl(ControlTypes eControl)
 	case CONTROL_CENTERONSELECTION:
 	{
 		CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
-		if(pSelectionPlot.get() != NULL)
+		if(pSelectionPlot)
 		{
 			return true;
 		}
