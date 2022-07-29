@@ -420,7 +420,7 @@
     <File md5="202C8190DC37424F61A54BF8815E8BA0" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="BA8552FF05B7F8F53C8B7EAEE6B3A620" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
     <File md5="7A84754234E790F3D998F9976EE07723" import="0">Balance Changes/Text/en_US/NewText.xml</File>
-    <File md5="290DC0B01193D9E06EB575B7B4EFA741" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
+    <File md5="4A6A4B9F2E1A46F48D107CBE0D60F8AE" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
     <File md5="70D5848C9B5DB4BE219E2D5281B94FAB" import="0">Balance Changes/Units/AirUnits.sql</File>
     <File md5="28772D2D29092F2FBC96616B98CB798D" import="0">Balance Changes/Units/NewUnits.sql</File>
     <File md5="89C29454E90DEDBE8255713A3E9F9FE0" import="0">Balance Changes/Units/PromotionChanges.xml</File>
