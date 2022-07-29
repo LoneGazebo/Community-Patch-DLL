@@ -11942,28 +11942,30 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits()
+void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
 {
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getLogging() && GC.getAILogging())
+		
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
 				CvString strLogString;
-				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
-#endif
+		}
+		if (bEndLinkedTurns && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		{
+			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 	}
 }
-
 //	--------------------------------------------------------------------------------
 bool CvPlayer::hasAutoUnit() const
 {

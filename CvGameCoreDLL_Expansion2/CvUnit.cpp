@@ -15411,6 +15411,8 @@ void CvUnit::LinkUnits()
 	UnitIdContainer LinkedUnitIDs;
 	int iLowestCurrentMoves = getMoves();
 	int iLowestMaxMoves = (IsGrouped()) ? GetLinkedMaxMoves() : maxMoves();
+	bool bLeaderAssigned = false;
+	CvUnit* pLinkedLeader = this;
 
 	while (pUnitNode != NULL)
 	{
@@ -15428,8 +15430,17 @@ void CvUnit::LinkUnits()
 			}
 			if (iLoopMaxMoves < iLowestMaxMoves) {
 				iLowestMaxMoves = iLoopMaxMoves;
+			}			
+			if (!bLeaderAssigned && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER) { // workers are prioritized, allows them to ask for orders
+				pLoopUnit->SetIsLinkedLeader(true);
+				pLinkedLeader = pLoopUnit;
+				bLeaderAssigned = true;
 			}
 		}
+	}
+
+	if (!bLeaderAssigned)	{ // no workers found, ordering unit gets leadership
+		SetIsLinkedLeader(true);
 	}
 
 	for (int iI = 0; iI < (int)v_unitvector.size(); iI++)
@@ -15440,15 +15451,15 @@ void CvUnit::LinkUnits()
 		pUnit->setMoves(iLowestCurrentMoves);
 		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
 
-		if (this == pUnit) {
-			SetIsLinkedLeader(true);
-		} 
+		if (pUnit->IsLinkedLeader()) {
+			continue;
+		}
 		else {
 			LinkedUnitIDs.push_back(pUnit->GetID());
-			pUnit->SetLinkedLeaderID(this->GetID());
+			pUnit->SetLinkedLeaderID(pLinkedLeader->GetID());
 		}
 	}
-	SetLinkedUnits(LinkedUnitIDs);
+	pLinkedLeader->SetLinkedUnits(LinkedUnitIDs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15529,18 +15540,30 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 		}
 	}
 
-	//	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 	for (int iI = 0; iI < (int)v_unitvector.size(); iI++) // then move the units
 	{
 		CvUnit* pUnit = v_unitvector[iI];
 
-		int iXDiff = getX() - pUnit->getX();
+		int iXDiff = getX() - pUnit->getX(); // to get the relative position to the central unit
 		int iYDiff = getY() - pUnit->getY();
+		CvPlot* pFirstTargetPlot = GC.getMap().plot(pDestPlot->getX() - iXDiff, pDestPlot->getY() - iYDiff); // ideal plot
 
 		pUnit->SetIsGrouped(true);
 		pUnit->setMoves(iLowestCurrentMoves);
 		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX() - iXDiff, pDestPlot->getY() - iYDiff);
+		// first we try to move the unit and keep its relative position, if fails, we try to move the unit to ring1 and then ring2.
+		if (pUnit->canMoveInto(*pFirstTargetPlot, CvUnit::MOVEFLAG_DESTINATION)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pFirstTargetPlot->getX(), pFirstTargetPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+		}
+		else if (pUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_APPROX_TARGET_RING1)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+		}
+		else if (pUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_APPROX_TARGET_RING2)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+		}
+		else {
+			pUnit->SetIsGrouped(false); // cannot move the unit, kick it out of the group
+		}
 	}
 
 	SetIsGrouped(true); 

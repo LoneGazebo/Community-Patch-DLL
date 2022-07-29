@@ -874,6 +874,7 @@ protected:
 
 	static int lGetEndTurnBlockingType(lua_State* L);
 	static int lGetEndTurnBlockingNotificationIndex(lua_State* L);
+	static int lEndTurnsForReadyUnits(lua_State* L);
 
 	static int lIsStrike(lua_State* L);
 
