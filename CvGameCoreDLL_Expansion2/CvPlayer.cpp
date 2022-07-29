@@ -12876,6 +12876,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if (pPlot)
 	{
+		pPlot->SetPlayerThatDestroyedCityHere(GetID());
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
