@@ -172,6 +172,7 @@ function OnEndTurnClicked()
 			Events.GameplayFX(hex.x, hex.y, -1);				
 		else
 			print("pUnit = player:GetFirstReadyUnit() IS NIL")
+	 		player:EndTurnsForReadyUnits(false) -- end turns for all idle units
 		end	
 	--elseif (blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_UNITS) then
 	--	-- Skip active Unit's turn
