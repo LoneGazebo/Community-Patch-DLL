@@ -370,7 +370,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND L
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 9, UB
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 3, secondary: culture
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 4, UA
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_NAPOLEON' ; -- 4, secondary: culture
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 4, secondary: culture
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RANGED' AND LeaderType = 'LEADER_PACAL' ; -- 7, UU
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_PACAL' ; -- 6, secondary: culture
