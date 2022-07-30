@@ -568,6 +568,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		SetNumTimesOwned(eOwner, 1);
 	}
 
+	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
+
 	// Plot Ownership
 	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 

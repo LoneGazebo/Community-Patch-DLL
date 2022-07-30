@@ -462,7 +462,7 @@
     <File md5="CB83DD58726A3185BA0D52EBDD6F1C29" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="C07BB807FBCB25F1707F1BA1B20B08FA" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="4351233718F622DB9FC8241F1ECF2136" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="F0125F27D955873CE85A527C8685939F" import="1">LUA/CityView.lua</File>
     <File md5="0148E0C18ABBCF79092836538025008D" import="1">LUA/CityView.xml</File>
     <File md5="E611F253AB510B73CF55EF2AD2A2372D" import="1">LUA/CityView_small.xml</File>

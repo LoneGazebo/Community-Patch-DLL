@@ -158,6 +158,11 @@ UPDATE Policies
 SET BuildingProductionModifier = '20'
 WHERE Type = 'POLICY_FIVE_YEAR_PLAN';
 
+UPDATE Policy_ImprovementYieldChanges
+SET
+	Yield = 3
+WHERE
+	PolicyType = 'POLICY_FIVE_YEAR_PLAN' AND ImprovementType IN ('IMPROVEMENT_MINE', 'IMPROVEMENT_QUARRY');
 
 -- NEW
 
