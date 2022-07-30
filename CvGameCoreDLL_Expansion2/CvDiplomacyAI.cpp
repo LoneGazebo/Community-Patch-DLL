@@ -11260,7 +11260,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
-							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID()); - 100;
+							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID()) - 100;
 							int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
 							// Only apply the human strength mod in full if their performance is at least average
@@ -39932,27 +39932,33 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 
 	// Military Aggressive Posture
 	if(eMilitaryPosture >= AGGRESSIVE_POSTURE_MEDIUM)
+	{
 		if(bHostile)
 			veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_HOSTILE_AGGRESSIVE_MILITARY);
 		else
 			veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_AGGRESSIVE_MILITARY);
+	}
 
 	// Land Dispute
 	if(eLandDispute >= DISPUTE_LEVEL_STRONG)
 	{
 		// Expansion
 		if(eExpansionPosture >= AGGRESSIVE_POSTURE_MEDIUM)
+		{
 			if(bHostile)
 				veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_HOSTILE_AGGRESSIVE_EXPANSION);
 			else
 				veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_AGGRESSIVE_EXPANSION);
+		}
 
 		// Plot buying
 		if(ePlotBuyingPosture >= AGGRESSIVE_POSTURE_MEDIUM)
+		{
 			if(bHostile)
 				veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_HOSTILE_AGGRESSIVE_PLOT_BUYING);
 			else
 				veValidGreetings.push_back(DIPLO_MESSAGE_GREETING_AGGRESSIVE_PLOT_BUYING);
+		}
 	}
 
 	////////////////////////////////////////////
@@ -43789,9 +43795,6 @@ PlayerTypes CvDiplomacyAI::GetRequestFriendToDenounce(PlayerTypes ePlayer, bool&
 /// Are we upset that our friend ePlayer refused our request to denounce eAgainstPlayer?
 bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer)
 {
-	ePlayer;
-	eAgainstPlayer;
-
 	// Rand roll
 	int iDesire = GetDenounceWeight(eAgainstPlayer, /*bBias*/ false);
 	iDesire += GetNeediness();		// Generally ranges from 3 to 7

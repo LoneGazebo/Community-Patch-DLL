@@ -15,7 +15,7 @@ All rights reserved.
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#include "cvMilitaryAI.h"
+#include "CvMilitaryAI.h"
 #include "CvTypes.h"
 #include "CvEnumMapSerialization.h"
 

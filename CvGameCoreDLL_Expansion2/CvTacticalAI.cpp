@@ -8139,13 +8139,17 @@ bool CvTacticalPlot::checkEdgePlotsForSurprises(const CvTacticalPosition& curren
 				if (pEnemy)
 				{
 					if (pEnemy->getDomainType() == DOMAIN_LAND)
+					{
 						//poor man's deduplication
 						if (landEnemies.empty() || landEnemies.back()!=pNeighbor->GetPlotIndex())
 							landEnemies.push_back(pNeighbor->GetPlotIndex());
+					}
 					else if (pEnemy->getDomainType() == DOMAIN_SEA)
+					{
 						//poor man's deduplication
 						if (seaEnemies.empty() || seaEnemies.back()!=pNeighbor->GetPlotIndex())
 							seaEnemies.push_back(pNeighbor->GetPlotIndex());
+					}
 				}
 			}
 			else

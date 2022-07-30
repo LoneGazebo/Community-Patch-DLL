@@ -357,7 +357,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iSideBenefits += 20000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
-		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * m_pPlayer->IsEmpireUnhappy() ? 200 : 100;
+		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
 		if(bIndustrialRoute)
 		{
@@ -2034,7 +2034,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 		//Improvement grants resource? Let's weight this based on flavors.
 		ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovement->GetResourceFromImprovement();
-		if(eResourceFromImprovement != NO_IMPROVEMENT)
+		if(eResourceFromImprovement != NO_RESOURCE)
 		{
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResourceFromImprovement);
 			int iResourceFlavor = 0;

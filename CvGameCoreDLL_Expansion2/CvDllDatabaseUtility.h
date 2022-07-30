@@ -104,7 +104,7 @@ bool CvDllDatabaseUtility::PrefetchCollection(std::vector<T*>& kCollection, cons
 	cvStopWatch kPerfTest(tableName, "xml-perf.log");
 
 	//First release any previous data in the collection.
-	for(std::vector<T*>::iterator it = kCollection.begin(); it != kCollection.end(); ++it)
+	for(typename std::vector<T*>::iterator it = kCollection.begin(); it != kCollection.end(); ++it)
 	{
 		T* pkItem = (*it);
 		delete pkItem;

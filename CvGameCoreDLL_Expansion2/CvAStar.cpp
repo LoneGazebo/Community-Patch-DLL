@@ -522,7 +522,6 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 
 void LogNodeAction(CvAStarNode* node, int iRound, NodeState state)
 {
-	node; iRound; state;
 //#if defined(MOD_CORE_DEBUGGING)
 //	if (MOD_CORE_DEBUGGING && svPathLog.size()<10000)
 //		svPathLog.push_back(SLogNode(state, iRound, node->m_iX, node->m_iY, node->m_iKnownCost, node->m_iHeuristicCost, node->m_iTurns, node->m_iMoves));

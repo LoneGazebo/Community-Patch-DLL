@@ -15,7 +15,7 @@
 //
 #include "CvGameCoreDLLPCH.h"
 #include <algorithm>
-#include "CvDLLDatabaseUtility.h"
+#include "CvDllDatabaseUtility.h"
 #include "CvDllContext.h"
 #include "CvGlobals.h"
 #include "CvGrandStrategyAI.h"

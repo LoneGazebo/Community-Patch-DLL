@@ -28,8 +28,9 @@ public:
 
 protected:
 	FILogFile() {};
-	virtual ~FILogFile() =0 {};
+	virtual ~FILogFile() =0;
 };
+inline FILogFile::~FILogFile() {}
 
 //
 // log file manager
@@ -37,7 +38,7 @@ protected:
 class FILogFileMgr 
 {
 public:
-	virtual ~FILogFileMgr() = 0 {};
+	virtual ~FILogFileMgr() = 0;
 	static FILogFileMgr& GetInstance();
 	static FILogFileMgr* PeekInstance();
 
@@ -56,6 +57,7 @@ protected:
 
 	FILogFileMgr() {};
 };
+inline FILogFileMgr::~FILogFileMgr() {}
 
 #ifdef FXS_IS_DLL
 #define LOGFILEMGR FILogFileMgr::GetInstance()

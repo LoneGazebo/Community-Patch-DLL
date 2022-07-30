@@ -1738,7 +1738,7 @@ void CvAIOperationCivilian::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 
 	//don't wait for the escort in the wild
 	CvPlot* pMusterPlot = pOurCivilian->plot();
-	if (IsEscorted() && !pMusterPlot->getOwner()==m_eOwner)
+	if (IsEscorted() && pMusterPlot->getOwner() != m_eOwner)
 	{
 		CvCity* pClosestCity = NULL;
 		if (IsNavalOperation())

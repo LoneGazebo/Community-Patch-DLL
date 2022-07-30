@@ -1766,12 +1766,12 @@ public:
 
 private:
 	/// Helper function to return this player's ID more conveniently
-	inline PlayerTypes CvDiplomacyAI::GetID() const
+	inline PlayerTypes GetID() const
 	{
 		return m_pPlayer->GetID();
 	}
 	/// Helper function to return the Team ID this AI's player is associated with more conveniently
-	inline TeamTypes CvDiplomacyAI::GetTeam() const
+	inline TeamTypes GetTeam() const
 	{
 		return m_pPlayer->getTeam();
 	}

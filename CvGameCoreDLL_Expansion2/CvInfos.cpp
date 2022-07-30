@@ -22,7 +22,7 @@
 #include "CvImprovementClasses.h"
 #include "FireWorks/FRemark.h"
 #include "CvInfosSerializationHelper.h"
-#include <Fireworks/Win32/FKBInputDevice.h>
+#include <FireWorks/Win32/FKBInputDevice.h>
 
 // must be included after all other headers
 #include "LintFree.h"

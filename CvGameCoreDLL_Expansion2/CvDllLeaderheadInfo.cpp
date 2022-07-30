@@ -6,7 +6,7 @@
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
-#include "CvDllLeaderHeadInfo.h"
+#include "CvDllLeaderheadInfo.h"
 #include "CvDllContext.h"
 
 CvDllLeaderHeadInfo::CvDllLeaderHeadInfo(CvLeaderHeadInfo* pLeaderHeadInfo)

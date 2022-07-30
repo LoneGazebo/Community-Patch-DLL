@@ -911,7 +911,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	ResetDigCompletePlots();
 
 	m_iLastTurnLifetimeCulture = 0;
-	m_iLastTurnCPT;
+	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iRawWarWeariness = 0;

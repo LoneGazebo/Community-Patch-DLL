@@ -5721,7 +5721,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 							CvCityReligions* pCityReligions = pCapital->GetCityReligions();
 							if(pCityReligions != NULL)
 							{
-								if(pCityReligions->GetReligiousMajority() != pNewReligion->m_eFounder)
+								if(pCityReligions->GetReligiousMajority() != pNewReligion->m_eReligion)
 								{
 									bSpreadToAllCapitals = false;
 									break;
@@ -7340,7 +7340,7 @@ bool CvReligionAI::DoFaithPurchases()
 		}
 
 		// Have civs nearby to target who didn't start a religion?
-		else if ( (iFlavorReligion >= (7 - bHaveEasyTargets ? 2 : 0) ) && HaveNearbyConversionTarget(eReligionWeFounded, false, false))
+		else if ( (iFlavorReligion >= (7 - (bHaveEasyTargets ? 2 : 0)) ) && HaveNearbyConversionTarget(eReligionWeFounded, false, false))
 		{
 			//they will pick their own target!
 			if (BuyMissionary(eReligionWeFounded))
@@ -8960,7 +8960,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 	if (pEntry->GetFullyConvertedHappiness() > 0)
 	{
-		int iTemp = (pEntry->GetFullyConvertedHappiness() * iIdealEmpireSize * m_pPlayer->GetPlayerTraits()->IsReligious() ? 4 : 2);
+		int iTemp = (pEntry->GetFullyConvertedHappiness() * iIdealEmpireSize * (m_pPlayer->GetPlayerTraits()->IsReligious() ? 4 : 2));
 		iHappinessTemp += max(0, iTemp);
 	}
 

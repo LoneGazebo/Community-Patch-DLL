@@ -77,17 +77,11 @@ PREDEFS = {
     Config.Debug: DEBUG_PREDEFS,
 }
 CL_SUPPRESS = [
-    'nonportable-include-path',
-    'typename-missing',
-    'undefined-inline',
     'invalid-offsetof',
-    'microsoft-pure-definition',
     'microsoft-template-shadow',
-    'microsoft-extra-qualification',
-    'microsoft-template',
     'switch',
-    'missing-declarations',
     'tautological-constant-out-of-range-compare',
+    'comment',
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
 PCH_H = 'CvGameCoreDLLPCH.h'

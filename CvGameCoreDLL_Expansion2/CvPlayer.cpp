@@ -45696,7 +45696,7 @@ CvTreasury* CvPlayer::GetTreasury() const
 int CvPlayer::GetPseudoRandomSeed() const
 {
 	//this should return a different number for each turn (each call would be even better ...)
-	return GetID() + m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : 0 + getGlobalAverage(YIELD_CULTURE);
+	return static_cast<int>(GetID()) + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : getGlobalAverage(YIELD_CULTURE));
 }
 
 //	--------------------------------------------------------------------------------

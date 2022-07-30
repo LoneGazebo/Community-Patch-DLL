@@ -31,8 +31,11 @@
 #  endif
 #endif
 
-//Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
-#define DEBUG_VARIABLE(x) (x)
+// Silences warnings about an unused variable.
+#define UNUSED_VARIABLE(x) ((void)x)
+
+// Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
+#define DEBUG_VARIABLE(x) UNUSED_VARIABLE(x)
 
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
@@ -77,8 +80,8 @@ typedef wchar_t          wchar;
 #include <FireWorks/FDefNew.h>
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>
-#include <Fireworks/FILogFile.h>
-#include <Fireworks/FDataStream.h>
+#include <FireWorks/FILogFile.h>
+#include <FireWorks/FDataStream.h>
 
 #include "TContainer.h"
 #include "CustomMods.h"
@@ -90,7 +93,7 @@ typedef wchar_t          wchar;
 #include "CvGameCoreEnums.h"
 #include "CvGameCoreStructs.h"
 #include "ICvDLLUtility.h"
-#include "ICvDllUserInterface.h"
+#include "ICvDLLUserInterface.h"
 #include "ICvDLLScriptSystem.h"
 #include "Lua/CvLuaSupport.h"
 

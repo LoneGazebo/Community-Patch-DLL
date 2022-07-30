@@ -278,7 +278,7 @@ public:
     typedef const TYPE* const_iterator;
     typedef TYPE& reference;
     typedef const TYPE& const_reference;
-    typedef BASE_TYPE::size_type size_type;
+    typedef typename BASE_TYPE::size_type size_type;
     typedef size_type difference_type;
     typedef TYPE value_type;
     typedef T* pointer;
@@ -307,10 +307,10 @@ public:
 #ifdef BREAK_ON_REPEATED_RESIZE
 		m_nResizeTimes = 0;
 #endif
-		m_pData = Alloc(uiStartingMaxSize);
+		this->m_pData = Alloc(uiStartingMaxSize);
 	};
 	~FFastVector(){
-		Free(m_pData, m_uiCurrSize);
+		Free(this->m_pData, this->m_uiCurrSize);
 	};
 	void operator = (const THIS_TYPE& RHS){
 		if( m_uiCurrMaxSize <= RHS.m_uiCurrSize){
@@ -370,17 +370,17 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	unsigned int push_back(const T& element)
 	{
-		if( m_uiCurrSize == m_uiCurrMaxSize )
-			GrowSize(m_uiCurrMaxSize);
-		new( (void*)&m_pData[m_uiCurrSize] )T(element);
-		return m_uiCurrSize++;
+		if( this->m_uiCurrSize == this->m_uiCurrMaxSize )
+			GrowSize(this->m_uiCurrMaxSize);
+		new( (void*)&this->m_pData[this->m_uiCurrSize] )T(element);
+		return this->m_uiCurrSize++;
 	};
 
 	//Add n elements to the end of the vector
 	void push_back( const T* pElements,  unsigned int uiNum)
 	{
-		unsigned int uNewSize = uiNum + m_uiCurrSize;
-		if( uNewSize > m_uiCurrMaxSize )
+		unsigned int uNewSize = uiNum + this->m_uiCurrSize;
+		if( uNewSize > this->m_uiCurrMaxSize )
 		{
 #ifdef BREAK_ON_REPEATED_RESIZE
 			FAssert( ++m_nResizeTimes < BREAK_ON_REPEATED_RESIZE );
@@ -389,26 +389,26 @@ public:
 		}
 
 		if(bPODType){
-			memcpy( (void*) &m_pData[m_uiCurrSize], pElements, sizeof(T) * uiNum );
+			memcpy( (void*) &this->m_pData[this->m_uiCurrSize], pElements, sizeof(T) * uiNum );
 		}else{
-			for(unsigned int i = m_uiCurrSize; i < uNewSize; ++i){
-				new( (void*)&m_pData[i] )T(*(pElements++));
+			for(unsigned int i = this->m_uiCurrSize; i < uNewSize; ++i){
+				new( (void*)&this->m_pData[i] )T(*(pElements++));
 			}
 		}
 
-		m_uiCurrSize = uNewSize;
+		this->m_uiCurrSize = uNewSize;
 	}
 
 	//Add uiNum copies of element to the end of the vector.
 	void push_back_copy( const T& element, unsigned int uiNum  )
 	{
-		uiNum += m_uiCurrSize;
-		if( uiNum > m_uiCurrMaxSize )
+		uiNum += this->m_uiCurrSize;
+		if( uiNum > this->m_uiCurrMaxSize )
 			GrowSize(uiNum);
-		for(unsigned int i = m_uiCurrSize; i < uiNum; ++i){
-			new( (void*)&m_pData[i] )T(element);
+		for(unsigned int i = this->m_uiCurrSize; i < uiNum; ++i){
+			new( (void*)&this->m_pData[i] )T(element);
 		}
-		m_uiCurrSize = uiNum;
+		this->m_uiCurrSize = uiNum;
 	};
 
 protected:
@@ -416,46 +416,46 @@ protected:
 	//Grow the size of the internal data store by a factor of two
 	void GrowSize(unsigned int uiFit)
 	{
-		unsigned int nOld = m_uiCurrMaxSize;
-		if( m_uiCurrMaxSize == 0 ) m_uiCurrMaxSize = 1;
-		while( uiFit >= m_uiCurrMaxSize ){
+		unsigned int nOld = this->m_uiCurrMaxSize;
+		if( this->m_uiCurrMaxSize == 0 ) this->m_uiCurrMaxSize = 1;
+		while( uiFit >= this->m_uiCurrMaxSize ){
 
 			//Try to double size...
-			UINT uiNewSize = m_uiCurrMaxSize<<1;
+			UINT uiNewSize = this->m_uiCurrMaxSize<<1;
 
 			//...on overflow bail and set to exact size
-			if( uiNewSize < m_uiCurrMaxSize ){
-				m_uiCurrMaxSize = uiFit;
+			if( uiNewSize < this->m_uiCurrMaxSize ){
+				this->m_uiCurrMaxSize = uiFit;
 				break;
 			}
 
 			//...otherwise use the doubled size
-			m_uiCurrMaxSize = uiNewSize;
+			this->m_uiCurrMaxSize = uiNewSize;
 		}
 
-		T* pTemp = Alloc(m_uiCurrMaxSize);
+		T* pTemp = Alloc(this->m_uiCurrMaxSize);
 		if (pTemp)
 		{
 			if( bPODType ){
-				memcpy( (void*)pTemp, (void*)m_pData, sizeof(T)*m_uiCurrSize);
+				memcpy( (void*)pTemp, (void*)this->m_pData, sizeof(T)*this->m_uiCurrSize);
 			}else{
-				for(unsigned int i = 0; i < m_uiCurrSize; ++i)
-					new( (void*)&(pTemp[i]) )T( m_pData[i]);
+				for(unsigned int i = 0; i < this->m_uiCurrSize; ++i)
+					new( (void*)&(pTemp[i]) )T(this->m_pData[i]);
 			}
-			Free(m_pData, m_uiCurrSize);
-			m_pData = pTemp;
+			Free(this->m_pData, this->m_uiCurrSize);
+			this->m_pData = pTemp;
 		}
 		else
 		{
-			FAssertMsg2(0, "Failed to grow array size from %u to %u", nOld, m_uiCurrMaxSize);
-			m_uiCurrMaxSize = nOld;
+			FAssertMsg2(0, "Failed to grow array size from %u to %u", nOld, this->m_uiCurrMaxSize);
+			this->m_uiCurrMaxSize = nOld;
 		}
 	};
 
 	//Grow the internal data store to fit N elements compactly
 	void GrowSizeToFit(unsigned int uiFit)
 	{
-		if( uiFit <= m_uiCurrMaxSize )
+		if( uiFit <= this->m_uiCurrMaxSize )
 			return;
 
 		SetSize(uiFit);
@@ -463,9 +463,9 @@ protected:
 
 	void SetSize(unsigned int uiFit){
 
-		unsigned int nOld = m_uiCurrSize;
+		unsigned int nOld = this->m_uiCurrSize;
 
-		m_uiCurrSize = MIN( m_uiCurrSize, uiFit );
+		this->m_uiCurrSize = MIN( this->m_uiCurrSize, uiFit );
 
 		T* pTemp = NULL;
 		if( uiFit > 0 ){
@@ -473,26 +473,26 @@ protected:
 			if (pTemp)
 			{
 				if( bPODType ){
-					memcpy( (void*)pTemp, (void*)m_pData, sizeof(T)*m_uiCurrSize);
+					memcpy( (void*)pTemp, (void*)this->m_pData, sizeof(T)*this->m_uiCurrSize);
 				}else{
-					for(unsigned int i = 0; i < m_uiCurrSize; ++i)
-						new( (void*)&(pTemp[i]) )T( m_pData[i]);
+					for(unsigned int i = 0; i < this->m_uiCurrSize; ++i)
+						new( (void*)&(pTemp[i]) )T(this->m_pData[i]);
 				}
-				m_uiCurrMaxSize = uiFit;
+				this->m_uiCurrMaxSize = uiFit;
 			}
 			else
 			{
 				FAssertMsg2(0, "Failed to set array size from %u to %u", nOld, uiFit);
-				m_uiCurrSize = nOld;
+				this->m_uiCurrSize = nOld;
 				return;
 			}
 		}
 		else
 		{
-			m_uiCurrMaxSize = 0;
+			this->m_uiCurrMaxSize = 0;
 		}
-		Free(m_pData, nOld);
-		m_pData = pTemp;
+		Free(this->m_pData, nOld);
+		this->m_pData = pTemp;
 	};
 
 	//Allocate memory as bytes
@@ -500,7 +500,7 @@ protected:
 		if( uiSize > 0 ){
             
             T* pRet = (T*)FAST_VEC_ALLOC::AllocAligned( uiSize*sizeof(T), __alignof(T), AllocPool, nSubID );
-			m_uiCurrMaxSize = uiSize;
+			this->m_uiCurrMaxSize = uiSize;
 			return pRet;
 		}
 		return NULL;
@@ -510,7 +510,7 @@ protected:
 	void Free(T* pVal, unsigned int uiNumElements)
 	{
 		if( !bPODType) 
-            Destroy(pVal, uiNumElements);
+            this->Destroy(pVal, uiNumElements);
 
 		FAST_VEC_ALLOC::FreeAligned( (void*)pVal );
 	};
@@ -596,8 +596,8 @@ public:
 	};
 	FStaticVector()
     {
-		m_uiCurrMaxSize = L;
-		m_pData = Alloc(m_uiCurrMaxSize);
+		this->m_uiCurrMaxSize = L;
+		this->m_pData = Alloc(this->m_uiCurrMaxSize);
 #ifdef BREAK_ON_STATIC_RESIZE
 		m_iNumResized = 0;
 #endif
@@ -611,7 +611,7 @@ public:
 #endif
 	};
 	~FStaticVector(){
-		Free(m_pData, m_uiCurrSize);
+		Free(this->m_pData, this->m_uiCurrSize);
 	};
 	void operator = (const THIS_TYPE& RHS){
 		if( m_uiCurrMaxSize <= RHS.m_uiCurrSize){
@@ -660,10 +660,10 @@ Cleanup:
 	/////////////////////////////////////////////////////////////////////////////////////
 	void resize(unsigned int uiNewSize )
 	{
-		if( m_uiCurrMaxSize < uiNewSize ){
+		if( this->m_uiCurrMaxSize < uiNewSize ){
 			GrowSize(uiNewSize);
 		}
-		m_uiCurrSize = uiNewSize;
+		this->m_uiCurrSize = uiNewSize;
 	};
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -671,10 +671,10 @@ Cleanup:
 	/////////////////////////////////////////////////////////////////////////////////////
 	unsigned int push_back(const T& element){
 		m_bIsResized = false;
-		if( m_uiCurrSize == m_uiCurrMaxSize )
-			GrowSize(m_uiCurrMaxSize);
-		new( (void*)&m_pData[m_uiCurrSize] )T(element);
-		return m_uiCurrSize++;
+		if( this->m_uiCurrSize == this->m_uiCurrMaxSize )
+			GrowSize(this->m_uiCurrMaxSize);
+		new( (void*)&this->m_pData[this->m_uiCurrSize] )T(element);
+		return this->m_uiCurrSize++;
 	};
 
 	//Add n elements to the end of the vector
@@ -738,31 +738,31 @@ protected:
 	//Grow the size of the internal data store by a factor of two
 	void GrowSize(unsigned int uiFit)
 	{
-		if( m_uiCurrMaxSize == 0 ) m_uiCurrMaxSize = 1;
-		while( uiFit >= m_uiCurrMaxSize ){
+		if( this->m_uiCurrMaxSize == 0 ) this->m_uiCurrMaxSize = 1;
+		while( uiFit >= this->m_uiCurrMaxSize ){
 
 			//Try to double size...
-			UINT uiNewSize = m_uiCurrMaxSize<<1;
+			UINT uiNewSize = this->m_uiCurrMaxSize<<1;
 
 			//...on overflow bail and set to exact size
-			if( uiNewSize < m_uiCurrMaxSize ){
-				m_uiCurrMaxSize = uiFit;
+			if( uiNewSize < this->m_uiCurrMaxSize ){
+				this->m_uiCurrMaxSize = uiFit;
 				break;
 			}
 
 			//...otherwise use the doubled size
-			m_uiCurrMaxSize = uiNewSize;
+			this->m_uiCurrMaxSize = uiNewSize;
 		}
 
-		T* pTemp = Alloc(m_uiCurrMaxSize);
+		T* pTemp = Alloc(this->m_uiCurrMaxSize);
 		if( bPODType ){
-			memcpy( (void*)pTemp, (void*)m_pData, sizeof(T)*m_uiCurrSize);
+			memcpy( (void*)pTemp, (void*)this->m_pData, sizeof(T)*this->m_uiCurrSize);
 		}else{
-			for(unsigned int i = 0; i < m_uiCurrSize; ++i)
-				new( (void*)&(pTemp[i]) )T( m_pData[i]);
+			for(unsigned int i = 0; i < this->m_uiCurrSize; ++i)
+				new( (void*)&(pTemp[i]) )T(this->m_pData[i]);
 		}
-		Free(m_pData, m_uiCurrSize);
-		m_pData = pTemp;
+		Free(this->m_pData, this->m_uiCurrSize);
+		this->m_pData = pTemp;
 
 		m_bIsResized = true;
 	};
@@ -792,10 +792,10 @@ protected:
 		T* pRet;
 		if( uiSize > L ){
 			pRet = (T*)FMALLOCALIGNED( uiSize*sizeof(T), __alignof(T), AllocPool, nSubID );
-			m_uiCurrMaxSize = uiSize;
+			this->m_uiCurrMaxSize = uiSize;
 		}else{
 			pRet = (T*)m_aData;
-			m_uiCurrMaxSize = L;
+			this->m_uiCurrMaxSize = L;
 		}
 		return pRet;
 	};
@@ -803,7 +803,7 @@ protected:
 	//Free the memory store.
 	void Free(T* pVal, unsigned int uiNumElements)
 	{
-		if( !bPODType) Destroy(pVal, uiNumElements);
+		if( !bPODType) this->Destroy(pVal, uiNumElements);
 		if( pVal != (T*)m_aData )
 			FFREEALIGNED( (unsigned char*)pVal );
 	};

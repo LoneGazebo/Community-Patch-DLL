@@ -19,7 +19,7 @@ class CvPlayer;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct BuilderDirective
 {
-	typedef enum BuilderDirectiveType
+	enum BuilderDirectiveType
 	{
 	    BUILD_IMPROVEMENT_ON_RESOURCE, // enabling a special resource
 	    BUILD_IMPROVEMENT,			   // improving a tile

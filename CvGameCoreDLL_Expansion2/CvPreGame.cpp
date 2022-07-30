@@ -9,7 +9,7 @@
 #include "CvGameCoreUtils.h"
 #include "CvPreGame.h"
 #include "FIGameIniParser.h"
-#include "FLua/Include/FLua.h"
+#include "Flua/include/FLua.h"
 #include "FStlContainerSerialization.h"
 #include "FFileStream.h"
 #include "ICvDLLDatabaseUtility.h"

@@ -114,7 +114,7 @@ namespace FSerialization
 template <typename T>
 bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int value, bool modifyExisting)
 {
-	for (vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
 	{
 		if (it->first == key)
 		{
@@ -151,7 +151,7 @@ bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int valu
 template <typename T>
 int ModifierLookup(const vector<pair<T, int>>& container, T key)
 {
-	for (vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
 		if (it->first == key)
 			return it->second;
 
@@ -22171,25 +22171,33 @@ CvString CvCity::getPotentialUnhappinessWithGrowth()
 	CvString strPotential = GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH");
 
 	if (potDefUnhappy != 0)
+	{
 		if (potDefUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", potDefUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS", potDefUnhappy);
+	}
 	if (potGoldUnhappy != 0)
+	{
 		if (potGoldUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", potGoldUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS", potGoldUnhappy);
+	}
 	if (potSciUnhappy != 0)
+	{
 		if (potSciUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", potSciUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS", potSciUnhappy);
+	}
 	if (potCulUnhappy != 0)
+	{
 		if (potCulUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", potCulUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS", potCulUnhappy);
+	}
 
 	return strPotential;
 }
@@ -22790,10 +22798,12 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappy);
 
 	if (iMinorityUnhappy != 0)
+	{
 		if (strReligionIcon != "")
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, strReligionIcon, iReductionFaith);
 		else
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, "[ICON_RELIGION]", iReductionFaith);
+	}
 
 	/*Illiteracy*/
 	if (iYieldSci >= iNeedSci)
@@ -22821,10 +22831,12 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTech);
 
 		if (iPopMod != 0)
+		{
 			if (iPopMod > 0)
 				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iPopMod);
 			else
 				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+		}
 
 		if (iEmpireMod != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
@@ -29259,7 +29271,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 								}
 								if (pAdjacentPlot->getOwner() == getOwner())
 								{
-									iUsOwned;
+									iUsOwned++;
 								}
 							}
 						}

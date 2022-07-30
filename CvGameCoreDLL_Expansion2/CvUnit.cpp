@@ -13699,7 +13699,7 @@ bool CvUnit::build(BuildTypes eBuild)
 								}
 								if(bWater)
 								{
-									if(!pUnitEntry->GetDomainType() == DOMAIN_SEA)
+									if(pUnitEntry->GetDomainType() != DOMAIN_SEA)
 									{
 										continue;
 									}
@@ -29993,7 +29993,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 			{
 				*piPathTurns = m_kLastPath.back().m_iTurns;
 				if ((iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && m_kLastPath.back().m_iMoves == 0)
-					*piPathTurns++;
+					(*piPathTurns)++;
 			}
 
 			return true;

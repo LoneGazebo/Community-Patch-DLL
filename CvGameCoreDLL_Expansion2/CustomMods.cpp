@@ -22,7 +22,7 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(static_cast<bool>(va_arg(vl, int)));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -48,7 +48,7 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(static_cast<bool>(va_arg(vl, int)));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -74,7 +74,7 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(static_cast<bool>(va_arg(vl, int)));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -100,7 +100,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(static_cast<bool>(va_arg(vl, int)));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));

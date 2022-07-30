@@ -25,8 +25,8 @@ extern "C" {
 };
 
 // Fireworks Lua utilities
-#include <Fireworks/FLua/Include/FLua.h>
-#include <Fireworks/FLua/Include/FLuaFStringSupport.h>
+#include <FireWorks/Flua/include/FLua.h>
+#include <FireWorks/Flua/include/FLuaFStringSupport.h>
 
 // Utilities
 #include "CvLuaArgsHandle.h"

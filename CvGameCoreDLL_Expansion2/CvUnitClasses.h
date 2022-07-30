@@ -121,7 +121,7 @@ public:
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
-	inline DomainTypes CvUnitEntry::GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
+	inline DomainTypes GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
 	UnitAITypes GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;

@@ -2738,7 +2738,7 @@ inline const Database::Connection* CvGlobals::GetGameDatabase() const
 PlayerTypes GetCurrentPlayer();
 
 #ifdef STACKWALKER
-#include "Stackwalker/Stackwalker.h"
+#include "stackwalker/StackWalker.h"
 
 class MyStackWalker : public StackWalker
 {
