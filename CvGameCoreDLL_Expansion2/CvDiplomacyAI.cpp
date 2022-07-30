@@ -43795,6 +43795,8 @@ PlayerTypes CvDiplomacyAI::GetRequestFriendToDenounce(PlayerTypes ePlayer, bool&
 /// Are we upset that our friend ePlayer refused our request to denounce eAgainstPlayer?
 bool CvDiplomacyAI::IsFriendDenounceRefusalUnacceptable(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer)
 {
+	UNUSED_VARIABLE(ePlayer);
+
 	// Rand roll
 	int iDesire = GetDenounceWeight(eAgainstPlayer, /*bBias*/ false);
 	iDesire += GetNeediness();		// Generally ranges from 3 to 7
