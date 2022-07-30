@@ -214,6 +214,7 @@ void CvPlot::reset()
 	m_iPlotChangeMoves = 0;
 #endif
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
+	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
 	m_eRouteType = NO_ROUTE;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_eUnitIncrement = 0;
@@ -8809,6 +8810,18 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+PlayerTypes CvPlot::GetPlayerThatDestroyedCityHere() const
+{
+	return (PlayerTypes)m_ePlayerThatDestroyedCityHere;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetPlayerThatDestroyedCityHere(PlayerTypes eNewValue)
+{
+	m_ePlayerThatDestroyedCityHere = eNewValue;
+}
+
+//	--------------------------------------------------------------------------------
 /// Link the resource on this plot to pCity. Note that this does NOT set the link to be active - this must be done manually
 /*
 void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
@@ -12596,6 +12609,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlayerResponsibleForRoute);
 	visitor(plot.m_ePlayerThatClearedBarbCampHere);
 	visitor(plot.m_ePlayerThatClearedDigHere);
+	visitor(plot.m_ePlayerThatDestroyedCityHere);
 	visitor(plot.m_eRouteType);
 	visitor(plot.m_eUnitIncrement);
 	visitor(plot.m_eWorldAnchor);
