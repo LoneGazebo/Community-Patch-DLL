@@ -5465,7 +5465,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
 		{
 			CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
-			if (!pLinkedUnit->canMoveInto(targetPlot)) {
+			if (!pLinkedUnit->canMoveInto(targetPlot, CvUnit::MOVEFLAG_DESTINATION)) {
 				bCanDoLinkedMove = false;
 				break;
 			}
