@@ -4370,7 +4370,16 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 		case YIELD_GOLDEN_AGE_POINTS:
 			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
 			break;
-		default:
+		case NO_YIELD:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
 			break; // Yield unchanged
 	}
 	if (iResult > 0)
@@ -5453,8 +5462,17 @@ static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 	case YIELD_GOLDEN_AGE_POINTS:
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-	default:
-		CvAssertMsg(false, "eYield not in case statement");
+	case NO_YIELD:
+	case YIELD_GREAT_GENERAL_POINTS:
+	case YIELD_GREAT_ADMIRAL_POINTS:
+	case YIELD_POPULATION:
+	case YIELD_CULTURE_LOCAL:
+	case YIELD_JFD_HEALTH:
+	case YIELD_JFD_DISEASE:
+	case YIELD_JFD_CRIME:
+	case YIELD_JFD_LOYALTY:
+	case YIELD_JFD_SOVEREIGNTY:
+		CvAssertMsg(false, "Unhandled eYield in LocalizeTradeTTYield");
 		return "";
 	}
 }
@@ -12832,7 +12850,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case CIV_APPROACH_FRIENDLY:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
-				default:
+				case NO_CIV_APPROACH:
+				case CIV_APPROACH_NEUTRAL:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL").toUTF8();
 					break;
 				}
@@ -13195,7 +13214,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case THREAT_MAJOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 					break;
-				default:
+				case NO_THREAT_VALUE:
+				case THREAT_NONE:
+				case THREAT_MINOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 					break;
 				}
@@ -13949,7 +13970,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case THREAT_MAJOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 				break;
-			default:
+			case NO_THREAT_VALUE:
+			case THREAT_NONE:
+			case THREAT_MINOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 				break;
 			}
@@ -15251,7 +15274,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case CIV_APPROACH_FRIENDLY:
 				str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
 				break;
-			default:
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_WAR:
+			case CIV_APPROACH_DECEPTIVE:
+			case CIV_APPROACH_NEUTRAL:
 				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
@@ -15758,9 +15784,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_RANK_SPECIAL_AGENT:
 			lua_pushstring(L, "TXT_KEY_SPY_RANK_2");
 			break;
-		default:
-			CvAssertMsg(false, "pSpy->m_eRank not in case statement");
-			break;
 		}
 		lua_setfield(L, t, "Rank");
 
@@ -15798,9 +15821,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 			break;
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
-			break;
-		default:
-			CvAssertMsg(false, "pSpy->m_eSpyState not in case statement");
 			break;
 		}
 		lua_setfield(L, t, "State");
