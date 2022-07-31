@@ -792,6 +792,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEndTurnBlockingType);
 	Method(GetEndTurnBlockingNotificationIndex);
+	Method(EndTurnsForReadyUnits);
 	Method(HasReceivedNetTurnComplete);
 	Method(IsStrike);
 
@@ -9341,6 +9342,15 @@ int CvLuaPlayer::lGetEndTurnBlockingType(lua_State* L)
 int CvLuaPlayer::lGetEndTurnBlockingNotificationIndex(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetEndTurnBlockingNotificationIndex);
+}
+// CvPlayer:: EndTurnsForReadyUnits(bool bEndLinkedTurns)
+int CvLuaPlayer::lEndTurnsForReadyUnits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bEndLinkedTurns = lua_toboolean(L, 2);
+	
+	pkPlayer->EndTurnsForReadyUnits(bEndLinkedTurns);
+	return 1;
 }
 
 //------------------------------------------------------------------------------
