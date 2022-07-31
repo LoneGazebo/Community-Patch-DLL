@@ -792,6 +792,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEndTurnBlockingType);
 	Method(GetEndTurnBlockingNotificationIndex);
+	Method(EndTurnsForReadyUnits);
 	Method(HasReceivedNetTurnComplete);
 	Method(IsStrike);
 
@@ -9293,6 +9294,15 @@ int CvLuaPlayer::lGetEndTurnBlockingNotificationIndex(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetEndTurnBlockingNotificationIndex);
 }
+// CvPlayer:: EndTurnsForReadyUnits(bool bEndLinkedTurns)
+int CvLuaPlayer::lEndTurnsForReadyUnits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bEndLinkedTurns = lua_toboolean(L, 2);
+	
+	pkPlayer->EndTurnsForReadyUnits(bEndLinkedTurns);
+	return 1;
+}
 
 //------------------------------------------------------------------------------
 //bool isStrike();
@@ -11430,8 +11440,8 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
-		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-		if(pUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
 			if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
@@ -11491,8 +11501,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
-		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-		if(pUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit)
 		{
 			CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit.get());
 			if(pkUnit != NULL && pkUnit->isFound())

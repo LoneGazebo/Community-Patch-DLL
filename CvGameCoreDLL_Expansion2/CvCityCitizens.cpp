@@ -2607,7 +2607,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		pkIFace->setDirty(ColoredPlots_DIRTY_BIT, true);
 
 		CvCity* pkCity = GetCity();
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
 
 		pkIFace->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2666,7 +2666,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2706,7 +2706,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
 

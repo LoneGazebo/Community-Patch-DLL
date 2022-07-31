@@ -3915,7 +3915,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Prepare the city to be destroyed
 	pCity->PreKill();
-	auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
+	CvInterfacePtr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
 	gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 
 	// Get rid of the old city!
@@ -11937,28 +11937,30 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits()
+void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
 {
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getLogging() && GC.getAILogging())
+		
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
 				CvString strLogString;
-				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
-#endif
+		}
+		if (bEndLinkedTurns && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		{
+			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 	}
 }
-
 //	--------------------------------------------------------------------------------
 bool CvPlayer::hasAutoUnit() const
 {
@@ -12627,7 +12629,7 @@ void CvPlayer::findNewCapital()
 			if (thisTeam.getProjectCount((ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT)) == 1) {
 				if (isAlive()) {
 					CUSTOMLOG("Rebuilding launch pad at (%i, %i)", pBestCity->getX(), pBestCity->getY());
-					auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
+					CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
 					gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0001); // Display just the launch pad
 				}
 			}
@@ -12842,7 +12844,7 @@ void CvPlayer::disband(CvCity* pCity)
 			int iPreferredPosition = buildingInfo->GetPreferredDisplayPosition();
 			if (iPreferredPosition > 0)
 			{
-				auto_ptr<ICvCity1> pDllCity(new CvDllCity(pCity));
+				CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(pCity));
 
 				if (iExists > 0)
 				{
@@ -12866,7 +12868,7 @@ void CvPlayer::disband(CvCity* pCity)
 	}
 
 	{
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pCity));
 		gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pCity->getDamage());
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
@@ -33262,7 +33264,7 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 
 			if (pPlot) {
 				CUSTOMLOG("Removing launch pad at (%i, %i)", pPlot->getX(), pPlot->getY());
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 				gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0000); // Remove the launch pad
 			}
 		}
@@ -41257,7 +41259,7 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	//no AI operations for human players
 	if (isHuman())
 	{
-		CUSTOMLOG("warning: trying to create an AI operation for a human player!")
+		CUSTOMLOG("warning: trying to create an AI operation for a human player!");
 		return NULL;
 	}
 

@@ -4018,7 +4018,7 @@ void CvTeam::UpdateEmbarkGraphics()
 					// At sea so its graphic look needs to change too?
 					if(pLoopUnit->isEmbarked())
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 					}
 				}
@@ -6265,7 +6265,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									}
 								}
 #endif
-								if (pPlayer->HasPolicy(ePolicyReveal) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+								if ((ePolicyReveal == NO_POLICY || (ePolicyReveal != NO_POLICY && pPlayer->HasPolicy(ePolicyReveal))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 								{
 									bRevealed = true;
 									break;
@@ -6451,7 +6451,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 #endif
-						if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+						if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 						{
 							bArtifactRevealed = true;
 							break;
@@ -6491,7 +6491,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 #endif
-						if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+						if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 						{
 							bHiddenArtifactRevealed = true;
 							break;
@@ -7034,7 +7034,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											}
 										}
 #endif
-										if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+										if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 										{
 											bRevealed = true;
 											break;
@@ -7115,7 +7115,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											}
 										}
 #endif
-										if (pPlayer->HasPolicy(eRevealPolicy) || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal)))
+										if ((eRevealPolicy == NO_POLICY || (eRevealPolicy != NO_POLICY && pPlayer->HasPolicy(eRevealPolicy))) && (eTechReveal == NO_TECH || (eTechReveal != eIndex && GetTeamTechs()->HasTech(eTechReveal))))
 										{
 											bRevealed = true;
 											break;

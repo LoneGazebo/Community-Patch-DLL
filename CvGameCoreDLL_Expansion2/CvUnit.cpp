@@ -521,7 +521,7 @@ CvUnit::~CvUnit()
 
 	if(gDLL && !gDLL->GetDone() && GC.IsGraphicsInitialized())  // don't need to remove entity when the app is shutting down, or crash can occur
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitDestroyed(pDllUnit.get());
 	}
 
@@ -1873,7 +1873,7 @@ void CvUnit::setupGraphical()
 	}
 
 	ICvEngineUtility1* pDLL = GC.getDLLIFace();
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 
 	if(isEmbarked())
 	{
@@ -2295,7 +2295,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	}
 	*/
 
-	auto_ptr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
+	CvInterfacePtr<ICvUnit1> pDllThisUnit = GC.WrapUnitPointer(this);
 
 	if(IsSelected() && !bDelay)
 	{
@@ -2873,7 +2873,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 			if (pLoopUnit->getInvisibleType() == NO_INVISIBLE && pLoopUnit->getTeam() != activeTeam)
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), true /*bVisible*/, true);
 			}
 		}
@@ -3016,7 +3016,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 
 	if(kCaptureDef.bEmbarked)
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pkCapturedUnit));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pkCapturedUnit));
 		gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 		pkCapturedUnit->setEmbarked(true);
 		if (!pkCapturedUnit->jumpToNearestValidPlot())
@@ -3310,7 +3310,7 @@ void CvUnit::doTurn()
 	// If we're not busy doing anything with the turn cycle, make the Unit's Flag bright again
 	if(GetActivityType() == ACTIVITY_AWAKE)
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ false);
 	}
 
@@ -5465,7 +5465,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
 		{
 			CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
-			if (!pLinkedUnit->canMoveInto(targetPlot)) {
+			if (!pLinkedUnit->canMoveInto(targetPlot, CvUnit::MOVEFLAG_DESTINATION)) {
 				bCanDoLinkedMove = false;
 				break;
 			}
@@ -7011,7 +7011,7 @@ void CvUnit::embark(CvPlot* pPlot)
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
 
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -7034,7 +7034,7 @@ void CvUnit::disembark(CvPlot* pPlot)
 	if (canChangeVisibility())
 		pPlot->changeAdjacentSight(getTeam(), visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this);
 
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), false);
 }
 
@@ -8786,7 +8786,7 @@ bool CvUnit::paradrop(int iX, int iY)
 	//play paradrop animation
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitParadrop(pDllUnit.get());
 	}
 
@@ -9150,7 +9150,7 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 	{
 		//when moving out, another unit might be present to take over garrison duty
 		pkPrevGarrisonedCity->SetGarrison(pkPrevGarrisonedCity->plot()->getBestGarrison(pkPrevGarrisonedCity->getOwner()));
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 		pkPrevGarrisonedCity->updateYield();
 	}
@@ -9164,7 +9164,7 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 	{
 		//when moving out, another unit might be present to take over garrison duty
 		pkNewGarrisonedCity->SetGarrison(pkNewGarrisonedCity->plot()->getBestGarrison(pkNewGarrisonedCity->getOwner()));
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 		pkNewGarrisonedCity->updateYield();
 	}
@@ -9459,7 +9459,7 @@ bool CvUnit::createGreatWork()
 
 		if(pPlot->isActiveVisible())
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 #if defined(MOD_BALANCE_CORE)
@@ -10111,10 +10111,10 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
 		if(getSpecialUnitType() == eSpecialUnitPlane)
 		{
-			auto_ptr<ICvPlot1> pDllOldPlot(new CvDllPlot(oldPlot));
-			auto_ptr<ICvPlot1> pDllTargetPlot(new CvDllPlot(pTargetPlot));
+			CvInterfacePtr<ICvPlot1> pDllOldPlot(new CvDllPlot(oldPlot));
+			CvInterfacePtr<ICvPlot1> pDllTargetPlot(new CvDllPlot(pTargetPlot));
 
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitRebased(pDllUnit.get(), pDllOldPlot.get(), pDllTargetPlot.get());
 			bShow = false;		// Tell the setXY to not bother showing the move
 		}
@@ -10702,7 +10702,7 @@ bool CvUnit::foundCity()
 
 	if(eActivePlayer == getOwner())
 	{
-		auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 		DLLUI->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 	}
 
@@ -10743,7 +10743,7 @@ bool CvUnit::foundCity()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -10785,7 +10785,7 @@ bool CvUnit::foundCity()
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCityFounded, getOwner(), GetID(), getUnitType(), getX(), getY());
 	}
 #endif
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitVisibility(pDllUnit.get(), false);
 	kill(true);
 
@@ -10875,7 +10875,7 @@ bool CvUnit::construct(BuildingTypes eBuilding)
 
 	if(plot()->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -11368,7 +11368,7 @@ bool CvUnit::DoSpreadReligion()
 			bool bShow = plot()->isActiveVisible();
 			if(bShow)
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitActivate(pDllUnit.get());
 			}
 
@@ -11391,7 +11391,7 @@ bool CvUnit::DoSpreadReligion()
 				if(bShow)
 				{
 					// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
 				}
 
@@ -11474,7 +11474,7 @@ bool CvUnit::DoRemoveHeresy()
 			bool bShow = plot()->isActiveVisible();
 			if(bShow)
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitActivate(pDllUnit.get());
 			}
 
@@ -11786,7 +11786,7 @@ bool CvUnit::greatperson()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -11856,7 +11856,7 @@ bool CvUnit::discover()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -11931,7 +11931,7 @@ bool CvUnit::DoRushBuilding()
 
 	if(plot()->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -12315,7 +12315,7 @@ bool CvUnit::trade()
 	//there was a strange crash here where the unit suddenly was at an invalid plot
 	if (pPlot->isActiveVisible() && plot()==pPlot)
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -12392,7 +12392,7 @@ bool CvUnit::buyCityState()
 
 	if (pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -12475,7 +12475,7 @@ bool CvUnit::repairFleet()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -12645,7 +12645,7 @@ bool CvUnit::DoCultureBomb()
 
 		if(pThisPlot->isActiveVisible())
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitActivate(pDllUnit.get());
 		}
 
@@ -13052,7 +13052,7 @@ bool CvUnit::goldenAge()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -13211,7 +13211,7 @@ bool CvUnit::givePolicies()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -13415,7 +13415,7 @@ bool CvUnit::blastTourism()
 
 	if(pPlot->isActiveVisible())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 	}
 
@@ -13875,7 +13875,7 @@ bool CvUnit::build(BuildTypes eBuild)
 			{
 				if (pPlot->isActiveVisible())
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 					gDLL->GameplayUnitActivate(pDllUnit.get());
 				}
 
@@ -14773,7 +14773,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 	{
 		if(GC.getGame().getActivePlayer() == getOwner())
 		{
-			auto_ptr<ICvUnit1> pDllNewUnit = GC.WrapUnitPointer(pNewUnit);
+			CvInterfacePtr<ICvUnit1> pDllNewUnit = GC.WrapUnitPointer(pNewUnit);
 			DLLUI->selectUnit(pDllNewUnit.get(), true, false, false);
 		}
 
@@ -15412,6 +15412,8 @@ void CvUnit::LinkUnits()
 	UnitIdContainer LinkedUnitIDs;
 	int iLowestCurrentMoves = getMoves();
 	int iLowestMaxMoves = (IsGrouped()) ? GetLinkedMaxMoves() : maxMoves();
+	bool bLeaderAssigned = false;
+	CvUnit* pLinkedLeader = this;
 
 	while (pUnitNode != NULL)
 	{
@@ -15429,8 +15431,17 @@ void CvUnit::LinkUnits()
 			}
 			if (iLoopMaxMoves < iLowestMaxMoves) {
 				iLowestMaxMoves = iLoopMaxMoves;
+			}			
+			if (!bLeaderAssigned && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER) { // workers are prioritized, allows them to ask for orders
+				pLoopUnit->SetIsLinkedLeader(true);
+				pLinkedLeader = pLoopUnit;
+				bLeaderAssigned = true;
 			}
 		}
+	}
+
+	if (!bLeaderAssigned)	{ // no workers found, ordering unit gets leadership
+		SetIsLinkedLeader(true);
 	}
 
 	for (int iI = 0; iI < (int)v_unitvector.size(); iI++)
@@ -15441,15 +15452,15 @@ void CvUnit::LinkUnits()
 		pUnit->setMoves(iLowestCurrentMoves);
 		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
 
-		if (this == pUnit) {
-			SetIsLinkedLeader(true);
-		} 
+		if (pUnit->IsLinkedLeader()) {
+			continue;
+		}
 		else {
 			LinkedUnitIDs.push_back(pUnit->GetID());
-			pUnit->SetLinkedLeaderID(this->GetID());
+			pUnit->SetLinkedLeaderID(pLinkedLeader->GetID());
 		}
 	}
-	SetLinkedUnits(LinkedUnitIDs);
+	pLinkedLeader->SetLinkedUnits(LinkedUnitIDs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15530,18 +15541,30 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 		}
 	}
 
-	//	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 	for (int iI = 0; iI < (int)v_unitvector.size(); iI++) // then move the units
 	{
 		CvUnit* pUnit = v_unitvector[iI];
 
-		int iXDiff = getX() - pUnit->getX();
+		int iXDiff = getX() - pUnit->getX(); // to get the relative position to the central unit
 		int iYDiff = getY() - pUnit->getY();
+		CvPlot* pFirstTargetPlot = GC.getMap().plot(pDestPlot->getX() - iXDiff, pDestPlot->getY() - iYDiff); // ideal plot
 
 		pUnit->SetIsGrouped(true);
 		pUnit->setMoves(iLowestCurrentMoves);
 		pUnit->SetLinkedMaxMoves(iLowestMaxMoves);
-		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX() - iXDiff, pDestPlot->getY() - iYDiff);
+		// first we try to move the unit and keep its relative position, if fails, we try to move the unit to ring1 and then ring2.
+		if (pUnit->canMoveInto(*pFirstTargetPlot, CvUnit::MOVEFLAG_DESTINATION)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pFirstTargetPlot->getX(), pFirstTargetPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
+		}
+		else if (pUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_APPROX_TARGET_RING1)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+		}
+		else if (pUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_APPROX_TARGET_RING2)) {
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_APPROX_TARGET_RING2);
+		}
+		else {
+			pUnit->SetIsGrouped(false); // cannot move the unit, kick it out of the group
+		}
 	}
 
 	SetIsGrouped(true); 
@@ -19856,7 +19879,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		{
 			// if pNewPlot is a valid pointer, we are leaving the city and need to visible
 			// if pNewPlot is NULL than we are "dead" (e.g. a settler) and need to blend out
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
 		}
 
@@ -19912,7 +19935,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		// if entering a city, hide the unit
 		if(pNewPlot->isCity())
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
 		}
 
@@ -19962,7 +19985,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					if (pLoopUnit->getInvisibleType() == NO_INVISIBLE && eOurTeam != activeTeam)
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), true, true);
 					}
 				}
@@ -20216,7 +20239,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			bool bNewInvisibleVisible = pNewPlot->isInvisibleVisible(activeTeam, eInvisoType);
 			if(bOldInvisibleVisible != bNewInvisibleVisible)
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 			}
 		}
@@ -20228,7 +20251,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			bool bNewInvisibleVisibleUnit = pNewPlot->isInvisibleVisibleUnit(activeTeam);
 			if (bOldInvisibleVisibleUnit != bNewInvisibleVisibleUnit)
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisibleUnit, true);
 			}
 		}
@@ -20236,7 +20259,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		{
 			if (!IsHiddenByNearbyUnit(pNewPlot))
 			{
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 				gDLL->GameplayUnitVisibility(pDllUnit.get(), true, true);
 			}
 		}
@@ -20600,7 +20623,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					if (!MOD_EVENTS_CITY_BOMBARD || plotXYWithRangeCheck(getX(), getY(), iDX, iDY, pkPlotCity->getBombardRange()))
 					{
 #endif
-						auto_ptr<ICvCity1> pPlotCity = GC.WrapCityPointer(pkPlotCity);
+						CvInterfacePtr<ICvCity1> pPlotCity = GC.WrapCityPointer(pkPlotCity);
 						DLLUI->SetSpecificCityInfoDirty(pPlotCity.get(), CITY_UPDATE_TYPE_ENEMY_IN_RANGE);
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 					}
@@ -20618,7 +20641,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	{
 		//when moving out, another unit might be present to take over garrison duty
 		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ) );
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 #if defined(MOD_BALANCE_CORE)
 		pkPrevGarrisonedCity->updateYield();
@@ -20634,7 +20657,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			{
 				CvCity* pkNewGarrisonedCity = pNewPlot->getPlotCity();
 				pkNewGarrisonedCity->SetGarrison(this);
-				auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
+				CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
 				DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
 #if defined(MOD_BALANCE_CORE)
 				pkNewGarrisonedCity->updateYield();
@@ -20918,7 +20941,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		const int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 
 		if(plot()->GetPlotIndex() == iSelectionPlotIndex)
@@ -20926,7 +20949,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			DLLUI->setDirty(PlotListButtons_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitSetDamage(pDllUnit.get(), m_iDamage, iOldValue);
 
 
@@ -21058,7 +21081,7 @@ void CvUnit::setMoves(int iNewValue)
 	{
 		m_iMoves = iNewValue;
 
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ getMoves() <= 0);
 
 		if(IsSelected())
@@ -21066,7 +21089,7 @@ void CvUnit::setMoves(int iNewValue)
 			DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 
 		CvPlot* pPlot = plot();
@@ -21562,7 +21585,7 @@ CvCity* CvUnit::GetGarrisonedCity() const
 //	--------------------------------------------------------------------------------
 void CvUnit::triggerFortifyAnimation(bool bState)
 {
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitFortify(pDllUnit.get(), bState);
 
 	setInfoBarDirty(true);
@@ -25160,7 +25183,7 @@ void CvUnit::clearCombat()
 			DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 		if(plot()->GetPlotIndex() == iSelectionPlotIndex)
 		{
@@ -28454,7 +28477,7 @@ void CvUnit::PublishQueuedVisualizationMoves()
 	VALIDATE_OBJECT
 	if(HasQueuedVisualizationMoves())
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		CvPlotIndexVector kPlotArray;
 
 		kPlotArray.reserve(m_unitMoveLocs.size());
@@ -28473,8 +28496,8 @@ void CvUnit::SetPosition(CvPlot* pkPlot)
 {
 	VALIDATE_OBJECT
 
-	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pkPlot));
+	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pkPlot));
 	gDLL->GameplayUnitTeleported(pDllUnit.get(), pDllPlot.get());
 
 	m_unitMoveLocs.clear();
@@ -28545,7 +28568,7 @@ void CvUnit::SetActivityType(ActivityTypes eNewValue)
 
 		m_eActivityType = eNewValue;
 
-		auto_ptr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pDllSelectionPlot(DLLUI->getSelectionPlot());
 		int iSelectionPlotIndex = (pDllSelectionPlot.get() != NULL)? pDllSelectionPlot->GetPlotIndex() : -1;
 		if(pPlot->GetPlotIndex() == iSelectionPlotIndex)
 		{
@@ -29691,7 +29714,7 @@ void CvUnit::SetMissionTimer(int iNewValue)
 
 		if(iNewTimer == 0)
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitMissionEnd(pDllUnit.get());
 		}
 	}

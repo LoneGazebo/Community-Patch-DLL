@@ -5103,7 +5103,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						{
 							if(pLoopCity->plot()->isRevealed(eTeam))
 							{
-								auto_ptr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
+								CvInterfacePtr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
 								GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
 							}
 						}
@@ -16796,7 +16796,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	}
 #endif
 	// VFX
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 	gDLL->GameplayDoFX(pDllPlot.get());
 
 	const int iCost = GetGiftTileImprovementCost(eMajor);
