@@ -4341,31 +4341,37 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	CvAssertMsg(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
 
 	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
 	switch (eYield)
 	{
-		case(YIELD_FOOD) :
+		case YIELD_FOOD:
 			iResult += /*0*/ GD_INT_GET(PUPPET_GROWTH_MODIFIER);
 			break;
-		case(YIELD_PRODUCTION) :
+		case YIELD_PRODUCTION:
 			iResult += /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			break;
-		case(YIELD_SCIENCE) :
-			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+		case YIELD_SCIENCE:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			break;
-		case(YIELD_GOLD) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+		case YIELD_GOLD:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			break;
-		case(YIELD_FAITH) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
+		case YIELD_FAITH:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			break;
-		case(YIELD_TOURISM) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+		case YIELD_TOURISM:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			break;
-		case(YIELD_CULTURE) :
-			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+		case YIELD_CULTURE:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
 			break;
+		case YIELD_GOLDEN_AGE_POINTS:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			break;
+		default:
+			break; // Yield unchanged
 	}
 	if (iResult > 0)
 		iResult = 0;
@@ -5427,6 +5433,33 @@ int CvLuaPlayer::lGetTradeUnitType(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
+{
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_PRODUCTION:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_GOLD:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_SCIENCE:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_CULTURE:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_FAITH:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_TOURISM:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_GOLDEN_AGE_POINTS:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+	default:
+		CvAssertMsg(false, "eYield not in case statement");
+		return "";
+	}
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -5461,7 +5494,6 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				continue;
 			}
 
-
 			CvString strOriginYieldsStr = "";
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
@@ -5473,34 +5505,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					{
 						strOriginYieldsStr += ", ";
 					}
-
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strOriginYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -5511,33 +5516,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
 				if (iYieldQuantity != 0)
 				{
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strDestYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -5662,27 +5641,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			//	int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
 			//	if (iYieldQuantity != 0)
 			//	{
-			//		switch (eYield)
-			//		{
-			//		case YIELD_FOOD:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_PRODUCTION:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_GOLD:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_SCIENCE:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_CULTURE:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_FAITH:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		}
+			//		strOriginYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 			//	}
 			//}
 
@@ -5697,33 +5656,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					{
 						strDestYieldsStr += ", ";
 					}
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strDestYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -14309,6 +14242,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					break;
 				case VASSAL_TREATMENT_ENSLAVED:
 					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED").toUTF8();
+					break;
+				case NO_VASSAL_TREATMENT:
+					CvAssertMsg(false, "eTreatmentLevel is not expected to be NO_VASSAL_TREATMENT");
 					break;
 				}
 

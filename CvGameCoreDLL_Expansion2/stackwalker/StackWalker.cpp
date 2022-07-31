@@ -796,6 +796,10 @@ private:
           case 8: //SymVirtual:
             szSymType = "Virtual";
             break;
+          case NumSymTypes: // 9
+              // This branch shouldn't ever be followed.
+              // It is here to suppress warnings though.
+              break;
         }
       }
       LPCSTR pdbName = Module.LoadedImageName;
