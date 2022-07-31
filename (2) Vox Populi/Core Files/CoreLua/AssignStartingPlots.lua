@@ -668,7 +668,6 @@ function AssignStartingPlots:__Init()
 			self.maize_ID = resourceID;
 		elseif resourceType == "RESOURCE_RICE" then	-- new farm resources for VP
 			self.rice_ID = resourceID;
-		end
 		-- Set up Strategic IDs
 		elseif resourceType == "RESOURCE_IRON" then
 			self.iron_ID = resourceID;
