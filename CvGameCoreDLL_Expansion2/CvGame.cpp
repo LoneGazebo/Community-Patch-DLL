@@ -1036,7 +1036,6 @@ void CvGame::uninit()
 	m_paiUnitClassCreatedCount.uninit();
 	m_paiBuildingClassCreatedCount.uninit();
 	m_paiProjectCreatedCount.uninit();
-	m_paiVoteOutcome.uninit();
 	m_aiVotesCast.uninit();
 	m_aiPreviousVotesCast.uninit();
 	m_aiNumVotesForTeam.uninit();
@@ -1241,7 +1240,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 		//antonjs: todo: remove unused UN and voting variables and allocations
 		CvAssertMsg(0 < GC.getNumVoteInfos(), "GC.getNumVoteInfos() is not greater than zero in CvGame::reset");
-		m_paiVoteOutcome.init(NO_PLAYER_VOTE);
 
 		CvAssertMsg(0 < GC.getNumVoteSourceInfos(), "GC.getNumVoteSourceInfos() is not greater than zero in CvGame::reset");
 		m_aiVotesCast.init(NO_TEAM);
@@ -11700,7 +11698,6 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_paiBuildingClassCreatedCount);
 
 	visitor(game.m_paiProjectCreatedCount);
-	visitor(game.m_paiVoteOutcome);
 
 	visitor(game.m_aiVotesCast);
 	visitor(game.m_aiPreviousVotesCast);

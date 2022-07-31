@@ -3608,7 +3608,6 @@ protected:
 	TContainer<CvArmyAI> m_armyAIs;
 
 	std::vector< std::pair<int, CvAIOperation*> > m_AIOperations;
-	std::vector< std::pair<int, PlayerVoteTypes> > m_aVote;
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
 
 	std::map<CvString,TurnData> m_ReplayData;

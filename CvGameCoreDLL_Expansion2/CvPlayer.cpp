@@ -2296,7 +2296,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_ppaaiImprovementYieldChange[i] = yield;
 		}
 
-		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
 
 		AI_reset();
@@ -46447,7 +46446,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_ppiInstantYieldHistoryValues);
 	visitor(player.m_ppiInstantTourismPerPlayerHistoryValues);
 
-	visitor(player.m_aVote);
 	visitor(player.m_aUnitExtraCosts);
 
 	visitor(player.m_aiPlots);
