@@ -23,7 +23,7 @@ FDataStream& operator<<(FDataStream&, const ArmyType&);
 FDataStream& operator>>(FDataStream&, ArmyType&);
 
 // it is important to add a new entry whenever a new (subclassed) operation is added to the list
-enum AIOperationTypes
+enum CLOSED_ENUM AIOperationTypes
 {
 	AI_OPERATION_TYPE_UNKNOWN = -1,
 
@@ -45,13 +45,13 @@ enum AIOperationTypes
     AI_OPERATION_MERCHANT_DELEGATION,
 	AI_OPERATION_DIPLOMAT_DELEGATION,
 
-	NUM_AI_OPERATIONS,
+	NUM_AI_OPERATIONS MAYBE_UNUSED_ENUM,
 };
 
 FDataStream& operator<<(FDataStream&, const AIOperationTypes&);
 FDataStream& operator>>(FDataStream&, AIOperationTypes&);
 
-enum AIOperationState
+enum CLOSED_ENUM AIOperationState
 {
     AI_OPERATION_STATE_INVALID = -1,
     AI_OPERATION_STATE_ABORTED,
@@ -65,7 +65,7 @@ enum AIOperationState
 FDataStream& operator<<(FDataStream&, const AIOperationState&);
 FDataStream& operator>>(FDataStream&, AIOperationState&);
 
-enum AIOperationAbortReason
+enum CLOSED_ENUM AIOperationAbortReason
 {
     NO_ABORT_REASON = -1,
     AI_ABORT_SUCCESS,

@@ -16,6 +16,18 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
+#ifdef __clang__
+#define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
+#define OPEN_ENUM __attribute__((enum_extensibility(open)))
+#define FLAG_ENUM __attribute__((flag_enum))
+#define MAYBE_UNUSED_ENUM [[maybe_unused]]
+#else
+#define CLOSED_ENUM
+#define OPEN_ENUM
+#define FLAG_ENUM
+#define MAYBE_UNUSED_ENUM
+#endif // __clang__
+
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
 #  if !defined(_SECURE_SCL)

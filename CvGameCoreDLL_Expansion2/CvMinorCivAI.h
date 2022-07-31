@@ -16,7 +16,7 @@
 #define ENABLE_PERMANENT_WAR false
 #define MINOR_POWER_COMPARISON_RADIUS (5)
 
-enum MinorCivStatusTypes
+enum CLOSED_ENUM MinorCivStatusTypes
 {
     NO_MINOR_CIV_STATUS_TYPE = -1,
 
@@ -24,12 +24,12 @@ enum MinorCivStatusTypes
     MINOR_CIV_STATUS_ELEVATED,
     MINOR_CIV_STATUS_CRITICAL,
 
-    NUM_MINOR_CIV_STATUS_TYPES,
+    NUM_MINOR_CIV_STATUS_TYPES MAYBE_UNUSED_ENUM,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivStatusTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivStatusTypes&);
 
-enum MinorCivPersonalityTypes
+enum CLOSED_ENUM MinorCivPersonalityTypes
 {
     NO_MINOR_CIV_PERSONALITY_TYPE = -1,
 
@@ -38,12 +38,12 @@ enum MinorCivPersonalityTypes
     MINOR_CIV_PERSONALITY_HOSTILE,
     MINOR_CIV_PERSONALITY_IRRATIONAL,
 
-    NUM_MINOR_CIV_PERSONALITY_TYPES,
+    NUM_MINOR_CIV_PERSONALITY_TYPES MAYBE_UNUSED_ENUM,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivPersonalityTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivPersonalityTypes&);
 
-enum MinorCivQuestTypes
+enum CLOSED_ENUM MinorCivQuestTypes
 {
     NO_MINOR_CIV_QUEST_TYPE = -1,
 
@@ -82,7 +82,7 @@ enum MinorCivQuestTypes
 	MINOR_CIV_QUEST_UNIT_COUP_CITY,
 	MINOR_CIV_QUEST_UNIT_GET_CITY,
 
-    NUM_MINOR_CIV_QUEST_TYPES,
+    NUM_MINOR_CIV_QUEST_TYPES MAYBE_UNUSED_ENUM,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);

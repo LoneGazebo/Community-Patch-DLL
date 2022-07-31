@@ -16,24 +16,24 @@
 //
 //!  Key Attributes:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-enum CvSpyRank
+enum CLOSED_ENUM CvSpyRank
 {
     SPY_RANK_RECRUIT,
     SPY_RANK_AGENT,
     SPY_RANK_SPECIAL_AGENT,
-    NUM_SPY_RANKS
+    NUM_SPY_RANKS MAYBE_UNUSED_ENUM
 };
 
-enum CvEspionageType
+enum CLOSED_ENUM CvEspionageType
 {
 	NO_ESPIONAGE_TYPE,
 	ESPIONAGE_TYPE_KILL,
 	ESPIONAGE_TYPE_IDENTIFY,
 	ESPIONAGE_TYPE_DETECT,
-	NUM_ESPIONAGE_TYPES
+	NUM_ESPIONAGE_TYPES MAYBE_UNUSED_ENUM
 };
 
-enum CvSpyState
+enum CLOSED_ENUM CvSpyState
 {
     SPY_STATE_UNASSIGNED,
     SPY_STATE_TRAVELLING,
@@ -46,20 +46,20 @@ enum CvSpyState
     SPY_STATE_DEAD,
     SPY_STATE_TERMINATED,
 	SPY_STATE_BUILDING_NETWORK,
-    NUM_SPY_STATES
+    NUM_SPY_STATES MAYBE_UNUSED_ENUM
 };
 
-enum CvSpyResult // what was the result of the last spy action
+enum CLOSED_ENUM CvSpyResult // what was the result of the last spy action
 {
     SPY_RESULT_UNDETECTED, // spy was not detected
     SPY_RESULT_DETECTED,   // a spy was detected in the city, but the defensive player can't tell which player
     SPY_RESULT_IDENTIFIED, // a spy was detected and identified in the city
     SPY_RESULT_KILLED,     // a spy was detected, identified, and killed in the city
     SPY_RESULT_ELIMINATED, // a spy was detected, identified, and killed in the city, in such an embarrassing way that another spy won't be recruited!
-    NUM_SPY_RESULTS
+    NUM_SPY_RESULTS MAYBE_UNUSED_ENUM
 };
 
-enum CvIntrigueType // What intrigue was uncovered?
+enum CLOSED_ENUM CvIntrigueType // What intrigue was uncovered?
 {
     INTRIGUE_TYPE_DECEPTION,			    // A civ is lying to another civ
     INTRIGUE_TYPE_BUILDING_ARMY,		    // A civ is amassing an army
@@ -67,7 +67,7 @@ enum CvIntrigueType // What intrigue was uncovered?
     INTRIGUE_TYPE_ARMY_SNEAK_ATTACK,	    // A civ is sending an army toward another civ
     INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK,  // a civ is sending a land invasion across the water toward another civ
 	INTRIGUE_TYPE_CONSTRUCTING_WONDER,		// A civ is constructing a wonder
-    NUM_INTRIGUE_TYPES
+    NUM_INTRIGUE_TYPES MAYBE_UNUSED_ENUM
 };
 
 class CvEspionageSpy
@@ -377,7 +377,7 @@ class CvEspionageAI
 {
 public:
 	// check to see if the countdown clock is started
-	enum {
+	enum CLOSED_ENUM {
 		PLAN_DEFEND_CS_FOR_WIN,
 		PLAN_ATTACK_CS_TO_PREVENT_DEFEAT,
 		PLAN_COLLECT_VOTES,
