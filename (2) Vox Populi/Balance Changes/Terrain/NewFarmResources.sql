@@ -8,7 +8,8 @@ INSERT INTO Resource_FeatureBooleans (ResourceType, FeatureType) VALUES
 ( 'RESOURCE_RICE',  'FEATURE_FLOOD_PLAINS');
 
 INSERT INTO Resource_FeatureTerrainBooleans (ResourceType, TerrainType) VALUES
-( 'RESOURCE_RICE', 'TERRAIN_DESERT');
+( 'RESOURCE_RICE', 'TERRAIN_PLAINS'),
+( 'RESOURCE_RICE', 'TERRAIN_GRASS');
 
 INSERT INTO Resource_Flavors (ResourceType, FlavorType, Flavor) VALUES
 ('RESOURCE_MAIZE', 'FLAVOR_GROWTH', 10),
@@ -16,7 +17,6 @@ INSERT INTO Resource_Flavors (ResourceType, FlavorType, Flavor) VALUES
 
 INSERT INTO Resource_TerrainBooleans (ResourceType, TerrainType) VALUES
 ( 'RESOURCE_MAIZE',  'TERRAIN_GRASS'),
-( 'RESOURCE_RICE',  'TERRAIN_PLAINS'),
 ( 'RESOURCE_RICE',  'TERRAIN_GRASS');
 
 INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES 
@@ -24,8 +24,8 @@ INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES
 ('RESOURCE_RICE', 'YIELD_FOOD', 1);
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges (ImprovementType, ResourceType, YieldType, Yield) VALUES
-( 'IMPROVEMENT_FARM', 'RESOURCE_MAIZE', 'YIELD_FOOD', 2),
-( 'IMPROVEMENT_FARM', 'RESOURCE_RICE', 'YIELD_FOOD', 2);
+( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_MAIZE', 'YIELD_FOOD', 2),
+( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_RICE', 'YIELD_FOOD', 2);
 
 INSERT INTO Improvement_ResourceTypes (ImprovementType, ResourceType) VALUES
 ( 'IMPROVEMENT_FARM', 'RESOURCE_MAIZE'),
