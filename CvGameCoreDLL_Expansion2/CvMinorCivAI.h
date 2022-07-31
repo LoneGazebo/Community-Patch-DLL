@@ -24,7 +24,7 @@ enum CLOSED_ENUM MinorCivStatusTypes
     MINOR_CIV_STATUS_ELEVATED,
     MINOR_CIV_STATUS_CRITICAL,
 
-    NUM_MINOR_CIV_STATUS_TYPES MAYBE_UNUSED_ENUM,
+    NUM_MINOR_CIV_STATUS_TYPES ENUM_META_VALUE,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivStatusTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivStatusTypes&);
@@ -38,7 +38,7 @@ enum CLOSED_ENUM MinorCivPersonalityTypes
     MINOR_CIV_PERSONALITY_HOSTILE,
     MINOR_CIV_PERSONALITY_IRRATIONAL,
 
-    NUM_MINOR_CIV_PERSONALITY_TYPES MAYBE_UNUSED_ENUM,
+    NUM_MINOR_CIV_PERSONALITY_TYPES ENUM_META_VALUE,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivPersonalityTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivPersonalityTypes&);
@@ -82,7 +82,7 @@ enum CLOSED_ENUM MinorCivQuestTypes
 	MINOR_CIV_QUEST_UNIT_COUP_CITY,
 	MINOR_CIV_QUEST_UNIT_GET_CITY,
 
-    NUM_MINOR_CIV_QUEST_TYPES MAYBE_UNUSED_ENUM,
+    NUM_MINOR_CIV_QUEST_TYPES ENUM_META_VALUE,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);

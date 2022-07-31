@@ -869,7 +869,7 @@ public:
 		KNOWLEDGE_PARTIAL,
 		KNOWLEDGE_INTIMATE,
 
-		NUM_KNOWLEDGE_LEVELS MAYBE_UNUSED_ENUM,
+		NUM_KNOWLEDGE_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we want a certain outcome
@@ -884,7 +884,7 @@ public:
 		DESIRE_STRONG_LIKE,
 		DESIRE_ALWAYS,
 		
-		NUM_DESIRE_LEVELS MAYBE_UNUSED_ENUM,
+		NUM_DESIRE_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we want a diplomat in a civ's capital (for trades, etc.)
@@ -894,7 +894,7 @@ public:
 		DIPLOMAT_USEFULNESS_MEDIUM,
 		DIPLOMAT_USEFULNESS_HIGH,
 
-		NUM_DIPLOMAT_USEFULNESS_LEVELS MAYBE_UNUSED_ENUM,
+		NUM_DIPLOMAT_USEFULNESS_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we think our interests are aligned with another player's
@@ -916,7 +916,7 @@ public:
 		ALIGNMENT_SELF,
 
 
-		NUM_ALIGNMENT_LEVELS MAYBE_UNUSED_ENUM,
+		NUM_ALIGNMENT_LEVELS ENUM_META_VALUE,
 	};
 
 	struct VoteCommitment {

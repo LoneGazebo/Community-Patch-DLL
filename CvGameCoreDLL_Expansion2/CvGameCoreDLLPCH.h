@@ -20,12 +20,12 @@
 #define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
 #define OPEN_ENUM __attribute__((enum_extensibility(open)))
 #define FLAG_ENUM __attribute__((flag_enum))
-#define MAYBE_UNUSED_ENUM [[maybe_unused]]
+#define ENUM_META_VALUE [[maybe_unused]]
 #else
 #define CLOSED_ENUM
 #define OPEN_ENUM
 #define FLAG_ENUM
-#define MAYBE_UNUSED_ENUM
+#define ENUM_META_VALUE
 #endif // __clang__
 
 // Take off iterator security checks

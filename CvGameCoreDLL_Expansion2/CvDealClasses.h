@@ -35,7 +35,7 @@ enum CLOSED_ENUM TradeableItems
 	TRADE_ITEM_VASSALAGE,
 	TRADE_ITEM_VASSALAGE_REVOKE,
 
-    NUM_TRADEABLE_ITEMS MAYBE_UNUSED_ENUM,
+    NUM_TRADEABLE_ITEMS ENUM_META_VALUE,
 };
 FDataStream& operator>>(FDataStream&, TradeableItems&);
 FDataStream& operator<<(FDataStream&, const TradeableItems&);

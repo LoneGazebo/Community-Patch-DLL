@@ -21,7 +21,7 @@ enum CLOSED_ENUM CvSpyRank
     SPY_RANK_RECRUIT,
     SPY_RANK_AGENT,
     SPY_RANK_SPECIAL_AGENT,
-    NUM_SPY_RANKS MAYBE_UNUSED_ENUM
+    NUM_SPY_RANKS ENUM_META_VALUE
 };
 
 enum CLOSED_ENUM CvEspionageType
@@ -30,7 +30,7 @@ enum CLOSED_ENUM CvEspionageType
 	ESPIONAGE_TYPE_KILL,
 	ESPIONAGE_TYPE_IDENTIFY,
 	ESPIONAGE_TYPE_DETECT,
-	NUM_ESPIONAGE_TYPES MAYBE_UNUSED_ENUM
+	NUM_ESPIONAGE_TYPES ENUM_META_VALUE
 };
 
 enum CLOSED_ENUM CvSpyState
@@ -46,7 +46,7 @@ enum CLOSED_ENUM CvSpyState
     SPY_STATE_DEAD,
     SPY_STATE_TERMINATED,
 	SPY_STATE_BUILDING_NETWORK,
-    NUM_SPY_STATES MAYBE_UNUSED_ENUM
+    NUM_SPY_STATES ENUM_META_VALUE
 };
 
 enum CLOSED_ENUM CvSpyResult // what was the result of the last spy action
@@ -56,7 +56,7 @@ enum CLOSED_ENUM CvSpyResult // what was the result of the last spy action
     SPY_RESULT_IDENTIFIED, // a spy was detected and identified in the city
     SPY_RESULT_KILLED,     // a spy was detected, identified, and killed in the city
     SPY_RESULT_ELIMINATED, // a spy was detected, identified, and killed in the city, in such an embarrassing way that another spy won't be recruited!
-    NUM_SPY_RESULTS MAYBE_UNUSED_ENUM
+    NUM_SPY_RESULTS ENUM_META_VALUE
 };
 
 enum CLOSED_ENUM CvIntrigueType // What intrigue was uncovered?
@@ -67,7 +67,7 @@ enum CLOSED_ENUM CvIntrigueType // What intrigue was uncovered?
     INTRIGUE_TYPE_ARMY_SNEAK_ATTACK,	    // A civ is sending an army toward another civ
     INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK,  // a civ is sending a land invasion across the water toward another civ
 	INTRIGUE_TYPE_CONSTRUCTING_WONDER,		// A civ is constructing a wonder
-    NUM_INTRIGUE_TYPES MAYBE_UNUSED_ENUM
+    NUM_INTRIGUE_TYPES ENUM_META_VALUE
 };
 
 class CvEspionageSpy

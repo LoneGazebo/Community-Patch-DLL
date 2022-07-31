@@ -34,7 +34,7 @@ enum CLOSED_ENUM YieldTypes
 	YIELD_JFD_SOVEREIGNTY,
 #endif
 
-    NUM_YIELD_TYPES MAYBE_UNUSED_ENUM
+    NUM_YIELD_TYPES ENUM_META_VALUE
 };
 
 // Carries the value of an enum represented by type T.

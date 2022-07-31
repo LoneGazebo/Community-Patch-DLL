@@ -27,7 +27,7 @@ struct BuilderDirective
 	    REPAIR,						   // repairing a pillaged route or improvement
 	    CHOP,						   // remove a feature to improve production
 	    REMOVE_ROAD,				   // remove a road from a plot
-	    NUM_DIRECTIVES MAYBE_UNUSED_ENUM
+	    NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
 	BuilderDirective() :
