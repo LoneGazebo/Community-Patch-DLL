@@ -243,7 +243,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		if(GET_PLAYER(eFromPlayer).isHuman())
 		{
 			GC.GetEngineUserInterface()->SetDealInTransit(true);
-			auto_ptr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
+			CvInterfacePtr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
 			bool bFromMe = (kDeal.GetFromPlayer() == GetPlayer()->GetID());
 			int iValueImOffering = bFromMe ? kDeal.GetFromPlayerValue() : kDeal.GetToPlayerValue();
 			int iValueTheyreOffering = bFromMe ? kDeal.GetToPlayerValue() : kDeal.GetFromPlayerValue();
@@ -800,7 +800,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 		//gDLL->sendNetDealAccepted(eFromPlayer, GetPlayer()->GetID(), kDeal, -1, -1, -1);
 		GC.GetEngineUserInterface()->SetDealInTransit(true);
 
-		auto_ptr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
+		CvInterfacePtr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
 		gDLL->sendNetDemandAccepted(eFromPlayer, GetPlayer()->GetID(), pDllDeal.get());
 	}
 
@@ -6169,7 +6169,7 @@ void CvDealAI::DoTradeScreenOpened()
 		if(ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE && ePeaceTreatyImWillingToAccept >= PEACE_TREATY_WHITE_PEACE)
 		{
 			// Clear out UI deal first, we're going to add a couple things to it
-			auto_ptr<ICvDeal1> pUIDeal(GC.GetEngineUserInterface()->GetScratchDeal());
+			CvInterfacePtr<ICvDeal1> pUIDeal(GC.GetEngineUserInterface()->GetScratchDeal());
 			CvDeal* pkUIDeal = GC.UnwrapDealPointer(pUIDeal.get());
 			pkUIDeal->ClearItems();
 

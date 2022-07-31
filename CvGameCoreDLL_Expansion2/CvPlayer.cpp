@@ -3916,7 +3916,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Prepare the city to be destroyed
 	pCity->PreKill();
-	auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
+	CvInterfacePtr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
 	gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 
 	// Get rid of the old city!
@@ -12630,7 +12630,7 @@ void CvPlayer::findNewCapital()
 			if (thisTeam.getProjectCount((ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT)) == 1) {
 				if (isAlive()) {
 					CUSTOMLOG("Rebuilding launch pad at (%i, %i)", pBestCity->getX(), pBestCity->getY());
-					auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
+					CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
 					gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0001); // Display just the launch pad
 				}
 			}
@@ -12845,7 +12845,7 @@ void CvPlayer::disband(CvCity* pCity)
 			int iPreferredPosition = buildingInfo->GetPreferredDisplayPosition();
 			if (iPreferredPosition > 0)
 			{
-				auto_ptr<ICvCity1> pDllCity(new CvDllCity(pCity));
+				CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(pCity));
 
 				if (iExists > 0)
 				{
@@ -12869,7 +12869,7 @@ void CvPlayer::disband(CvCity* pCity)
 	}
 
 	{
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pCity));
 		gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pCity->getDamage());
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
@@ -33265,7 +33265,7 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 
 			if (pPlot) {
 				CUSTOMLOG("Removing launch pad at (%i, %i)", pPlot->getX(), pPlot->getY());
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 				gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0000); // Remove the launch pad
 			}
 		}

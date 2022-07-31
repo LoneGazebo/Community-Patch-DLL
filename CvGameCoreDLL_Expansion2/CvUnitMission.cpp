@@ -275,7 +275,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 			}
 		}
 
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 		gDLL->GameplayUnitWork(pDllUnit.get(), -1);
 	}
 
@@ -814,7 +814,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			{
 				if(hUnit->IsWork())
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), -1);
 				}
 
@@ -1490,7 +1490,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 					gDLL->GameplayUnitWork(pDllUnit.get(), 0);
 				}
 			}
@@ -1527,7 +1527,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 					// The Paradrop needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
 					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
 					}
 				}
@@ -1549,7 +1549,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 					// The Rebase needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
 					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
 					}
 				}
@@ -1805,7 +1805,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 					}
 				}
 
-				auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
+				CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit));
 				gDLL->GameplayUnitWork(pDllUnit.get(),currentBuild);
 			}
 
