@@ -1379,7 +1379,7 @@ public:
 		return iterator(index, this, uiList);
 	};
     const_iterator get_iterator_const(unsigned int index, unsigned int uiList) const{ 
-		assert( m_pVec->is_element_valid( index ) )
+		assert( m_pVec->is_element_valid( index ) );
 		return const_iterator(index, this, uiList);
 	};
     

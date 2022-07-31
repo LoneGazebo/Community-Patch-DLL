@@ -411,7 +411,7 @@ void CvMap::InitPlots()
 		pResourceForceReveal	+= iNumTeams;
 #if defined(MOD_BALANCE_CORE)
 		pIsImpassable			+= iNumTeams;
-		m_pIsStrategic			+= iNumTeams;
+		pIsStrategic			+= iNumTeams;
 #endif
 
 	}
