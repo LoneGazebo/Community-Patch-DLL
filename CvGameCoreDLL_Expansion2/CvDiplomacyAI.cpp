@@ -339,9 +339,9 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aeProtectedMinorKilled[iI] = NO_PLAYER;
 
 		// Guesses about other players' feelings towards us
-		m_aeOpinionTowardsUsGuess[iI] = CIV_OPINION_NEUTRAL;
-		m_aeApproachTowardsUsGuess[iI] = CIV_APPROACH_NEUTRAL;
-		m_aeApproachTowardsUsGuessCounter[iI] = 0;
+		//m_aeOpinionTowardsUsGuess[iI] = CIV_OPINION_NEUTRAL;
+		//m_aeApproachTowardsUsGuess[iI] = CIV_APPROACH_NEUTRAL;
+		//m_aeApproachTowardsUsGuessCounter[iI] = 0;
 
 		// C4DF Values
 		m_aeShareOpinionResponse[iI] = NO_SHARE_OPINION_RESPONSE;
@@ -661,9 +661,9 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 
 	// GUESSES
 	// Guesses about other players' feelings towards us
-	visitor(diplomacyAI.m_aeOpinionTowardsUsGuess);
-	visitor(diplomacyAI.m_aeApproachTowardsUsGuess);
-	visitor(diplomacyAI.m_aeApproachTowardsUsGuessCounter);
+	//visitor(diplomacyAI.m_aeOpinionTowardsUsGuess);
+	//visitor(diplomacyAI.m_aeApproachTowardsUsGuess);
+	//visitor(diplomacyAI.m_aeApproachTowardsUsGuessCounter);
 
 	// C4DF Values
 	visitor(diplomacyAI.m_aeShareOpinionResponse);
@@ -8273,6 +8273,7 @@ void CvDiplomacyAI::SetOtherPlayerProtectedMinorKilled(PlayerTypes ePlayer, Play
 // ////////////////////////////////////
 // Guesses about other players' feelings towards us
 // ////////////////////////////////////
+/*
 
 /// Returns our guess as to another player's Diplomatic Opinion towards us
 CivOpinionTypes CvDiplomacyAI::GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const
@@ -8320,6 +8321,7 @@ void CvDiplomacyAI::ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int
 	SetApproachTowardsUsGuessCounter(ePlayer, GetApproachTowardsUsGuessCounter(ePlayer) + iChange);
 }
 
+*/
 //	-----------------------------------------------------------------------------------------------
 
 // ------------------------------------
@@ -30385,8 +30387,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_INSULT)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_HOSTILE);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_HOSTILE);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
 
 		if(bHuman)
 		{
@@ -30399,8 +30401,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_COMPLIMENT)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_FRIENDLY);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_FRIENDLY);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
 
 		if(bHuman)
 		{
@@ -30413,8 +30415,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	else if(eStatement == DIPLO_STATEMENT_BOOT_KISSING)
 	{
 		// Change other players' guess as to our Approach (right now it falls in line exactly with the Approach...)
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_AFRAID);
-		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetID(), CIV_APPROACH_AFRAID);
+		//GET_PLAYER(ePlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetID(), 0);
 
 		if(bHuman)
 		{
