@@ -97,7 +97,7 @@ class CvBuildingProductionAI;
 class CvUnitProductionAI;
 class CvProcessProductionAI;
 
-enum CityBuildableType
+enum CLOSED_ENUM CityBuildableType
 {
     NOT_A_CITY_BUILDABLE = 0,
     CITY_BUILDABLE_BUILDING,

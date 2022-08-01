@@ -943,7 +943,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
 			switch(selection.m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
+				break;
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
@@ -963,7 +966,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
+			case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
@@ -976,7 +979,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_UNIT: //any unit
+			case CITY_BUILDABLE_UNIT: //any unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
@@ -989,7 +992,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
@@ -1002,7 +1005,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_PROCESS:
+			case CITY_BUILDABLE_PROCESS:
 				{
 					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
 					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
@@ -1015,7 +1018,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
 					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));

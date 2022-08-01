@@ -22,21 +22,32 @@
 #define FLAG_ENUM __attribute__((flag_enum))
 #define ENUM_META_VALUE [[maybe_unused]]
 #define BUILTIN_UNREACHABLE() __builtin_unreachable()
+#define BUILTIN_TRAP() __builtin_trap()
 #else
 #define CLOSED_ENUM
 #define OPEN_ENUM
 #define FLAG_ENUM
 #define ENUM_META_VALUE
 #define BUILTIN_UNREACHABLE() __assume(0)
+#define BUILTIN_TRAP() __debugbreak()
 #endif // __clang__
 
-/// Macro for unreachable code.
+/// Informs that a location is unreachable.
 ///
 /// In release builds the compiler may take advantage of this being unreachable to perform additional
 /// optimizations. Because of this when you write code using this macro you are signing a contract
 /// with the compiler that this line is truly unreachable. Programs where this line is reachable are
 /// thusly ill-formed.
-#define UNREACHABLE() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE()
+#define UNREACHABLE_UNCHECKED() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE()
+
+/// Weaker variant of UNREACHABLE_UNCHECKED.
+///
+/// This should still be used for branches that aren't expected to be reachable, but it's far preferable
+/// that this be used in the majority of scenarios thanks to the compilers ability to often catch unreachable
+/// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
+/// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
+/// well-formed.
+#define UNREACHABLE() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP()
 
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))

@@ -3365,6 +3365,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	switch (eChoice)
 	{
+	case NO_ARCHAEOLOGY_CHOICE:
 	case ARCHAEOLOGY_DO_NOTHING:
 		break;
 	case ARCHAEOLOGY_LANDMARK:
@@ -4620,11 +4621,14 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 
 	int iRtnValue = 0;
 
-	if (ePlayer < MAX_MAJOR_CIVS)
+	if (ePlayer > NO_PLAYER && ePlayer < MAX_MAJOR_CIVS)
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break;
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*200*/ GD_INT_GET(BALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC);
 			break;

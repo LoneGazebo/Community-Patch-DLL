@@ -2021,6 +2021,7 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 6);
 	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 7);
 
+	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	const bool bResult = pkCity->IsCanPurchase(bTestPurchaseCost, bTestTrainable, eUnitType, eBuildingType, eProjectType, ePurchaseYield);
 
 	lua_pushboolean(L, bResult);
@@ -2036,6 +2037,7 @@ int CvLuaCity::lPurchase(lua_State* L)
 	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
 	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
 
+	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
 
 	return 0;

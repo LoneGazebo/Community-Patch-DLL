@@ -3527,6 +3527,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 {
 	YieldTypes eTargetYield = NO_YIELD;
+	
 	switch (eFocus)
 	{
 	case CITY_AI_FOCUS_TYPE_PRODUCTION:

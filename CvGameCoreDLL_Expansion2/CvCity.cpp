@@ -31021,6 +31021,9 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 	bool bAccept = false;
 	switch (pkUnitInfo->GetDomainType())
 	{
+	case NO_DOMAIN:
+	case DOMAIN_IMMOBILE:
+		break;
 	case DOMAIN_AIR:
 		bAccept = pPlot->isCity();
 		break;
@@ -31618,6 +31621,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		}
 	}
 	break;
+	default:
+		// This function is accessible from Lua scripts so it's incorrect to assume this is unreachable unless we make the Lua function
+		// throw errors for non-gold/faith inputs.
+		CvAssertMsg(false, "CvCity::IsCanPurchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		return false;
 	}
 
 	return true;
@@ -32172,6 +32180,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		}
 	}
 	break;
+	default:
+		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
+		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield")
 	}
 }
 
@@ -33151,32 +33162,31 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 				bool bIsValid = false;
 				switch (order.eOrderType)
 				{
+				case NO_ORDER:
+					break;
+
 				case ORDER_TRAIN:
 					bIsValid = GC.getUnitInfo(UnitTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Unit in build queue is invalid");
 					break;
 
 				case ORDER_CONSTRUCT:
 					bIsValid = GC.getBuildingInfo(BuildingTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Building in build queue is invalid");
 					break;
 
 				case ORDER_CREATE:
 					bIsValid = GC.getProjectInfo(ProjectTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Project in build queue is invalid");
 					break;
 
 				case ORDER_PREPARE:
 					bIsValid = GC.getSpecialistInfo(SpecialistTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Specialize in build queue is invalid");
 					break;
 
 				case ORDER_MAINTAIN:
 					bIsValid = GC.getProcessInfo(ProcessTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Process in build queue is invalid");
 					break;
 				}
 
+				CvAssertMsg(bIsValid, "Unit in build queue is invalid");
 				if (bIsValid)
 					city.m_orderQueue.insertAtEnd(&order);
 			}

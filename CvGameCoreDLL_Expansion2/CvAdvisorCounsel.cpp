@@ -1990,6 +1990,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			AdvisorTypes eAdvisorTypes = (AdvisorTypes)ui;
 			switch(eAdvisorTypes)
 			{
+			case NO_ADVISOR_TYPE:
+				UNREACHABLE();
+				break;
 			case ADVISOR_SCIENCE:
 				strLoc = Localization::Lookup("TXT_KEY_BASESTRATEGY_NOTHING_TO_SAY_SCIENCE");
 				break;
@@ -2001,9 +2004,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				break;
 			case ADVISOR_FOREIGN:
 				strLoc = Localization::Lookup("TXT_KEY_BASESTRATEGY_NOTHING_TO_SAY_FOREIGN");
-				break;
-			case NO_ADVISOR_TYPE:
-				UNREACHABLE();
 				break;
 			}
 

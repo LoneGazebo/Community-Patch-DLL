@@ -107,7 +107,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvGameCulture&);
 FDataStream& operator<<(FDataStream&, const CvGameCulture&);
 
-enum InfluenceLevelTypes		
+enum CLOSED_ENUM InfluenceLevelTypes		
 {
 	NO_INFLUENCE_LEVEL = -1,
 	INFLUENCE_LEVEL_UNKNOWN,
@@ -118,14 +118,14 @@ enum InfluenceLevelTypes
 	INFLUENCE_LEVEL_DOMINANT,
 };
 
-enum InfluenceLevelTrend		
+enum CLOSED_ENUM InfluenceLevelTrend
 {
 	INFLUENCE_TREND_FALLING = -1,
 	INFLUENCE_TREND_STATIC,
 	INFLUENCE_TREND_RISING,
 };
 
-enum PublicOpinionTypes		
+enum CLOSED_ENUM PublicOpinionTypes
 {
 	NO_PUBLIC_OPINION = -1,
 	PUBLIC_OPINION_CONTENT,
