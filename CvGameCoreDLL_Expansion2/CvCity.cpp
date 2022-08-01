@@ -29631,6 +29631,9 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 									iRtnValue *= 2;
 
 								break;
+							case DISPUTE_LEVEL_NONE:
+								UNREACHABLE();
+								break;
 							}
 						}
 					}

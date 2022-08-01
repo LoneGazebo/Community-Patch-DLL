@@ -2163,7 +2163,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			switch (eYield)
 			{
 			case NO_YIELD:
-				CvAssert(false); // Expected to be unreachable.
+				UNREACHABLE();
 				break;
 			case YIELD_FOOD:
 				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);

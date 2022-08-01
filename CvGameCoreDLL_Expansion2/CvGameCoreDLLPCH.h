@@ -21,12 +21,22 @@
 #define OPEN_ENUM __attribute__((enum_extensibility(open)))
 #define FLAG_ENUM __attribute__((flag_enum))
 #define ENUM_META_VALUE [[maybe_unused]]
+#define BUILTIN_UNREACHABLE() __builtin_unreachable()
 #else
 #define CLOSED_ENUM
 #define OPEN_ENUM
 #define FLAG_ENUM
 #define ENUM_META_VALUE
+#define BUILTIN_UNREACHABLE() __assume(0)
 #endif // __clang__
+
+/// Macro for unreachable code.
+///
+/// In release builds the compiler may take advantage of this being unreachable to perform additional
+/// optimizations. Because of this when you write code using this macro you are signing a contract
+/// with the compiler that this line is truly unreachable. Programs where this line is reachable are
+/// thusly ill-formed.
+#define UNREACHABLE() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE()
 
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
