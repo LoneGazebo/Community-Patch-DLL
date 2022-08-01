@@ -79,7 +79,6 @@ PREDEFS = {
 CL_SUPPRESS = [
     'invalid-offsetof',
     'microsoft-template-shadow',
-    'switch',
     'tautological-constant-out-of-range-compare',
     'comment',
 ]

@@ -2162,84 +2162,87 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			switch (eYield)
 			{
-				case YIELD_FOOD:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
+			case NO_YIELD:
+				CvAssert(false); // Expected to be unreachable.
+				break;
+			case YIELD_FOOD:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 					}
+				}
 
-					break;
-				case YIELD_PRODUCTION:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
+				break;
+			case YIELD_PRODUCTION:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
 					}
+				}
 
-					break;
-				case YIELD_GOLD:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
+				break;
+			case YIELD_GOLD:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
 					}
+				}
 
-					break;
-				case YIELD_SCIENCE:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
+				break;
+			case YIELD_SCIENCE:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
 					}
+				}
 
-					break;
-				case YIELD_CULTURE:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
+				break;
+			case YIELD_CULTURE:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 					}
+				}
 
-					break;
-				case YIELD_FAITH:
-					iTempWeight = pImprovement->GetYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+				break;
+			case YIELD_FAITH:
+				iTempWeight = pImprovement->GetYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 
-					if (MOD_IMPROVEMENTS_EXTENSIONS)
+				if (MOD_IMPROVEMENTS_EXTENSIONS)
+				{
+					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
+					if (pFeature)
 					{
-						CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
-						if (pFeature)
-						{
-							iTempWeight += pFeature->getYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
-						}
+						iTempWeight += pFeature->getYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 					}
+				}
 
-					break;
+				break;
 			}
 
 			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
@@ -2750,6 +2753,8 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, CvUnit* pUnit,
 		break;
 	case BuilderDirective::CHOP:
 		strLog += "CHOP";
+	case BuilderDirective::REMOVE_ROAD:
+		strLog += "REMOVE_ROAD";
 	}
 
 	strLog += GC.getBuildInfo(directive.m_eBuild)->GetType();

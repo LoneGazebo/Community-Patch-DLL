@@ -692,6 +692,11 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
 			}
+			case NOT_A_CITY_BUILDABLE:
+			case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROCESS:
+				break;
 		}
 	}
 

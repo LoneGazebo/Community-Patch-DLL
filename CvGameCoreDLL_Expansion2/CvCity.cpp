@@ -19437,10 +19437,11 @@ int CvCity::GetFaithPerTurn() const
 	// City modifier
 	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
 
-	// Puppet?
+	// FIXME: EUI doesn't expect `CvCity::getBaseYieldRateModifier` to populate the puppet modifier for faith.
+	// EUI should be fixed and this behavior moved to `CvCity::getBaseYieldRateModifier`.
 	if (IsPuppet())
 	{
-		int iTempMod = /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER) + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+		int iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 		if (iTempMod > 0)
 			iTempMod = 0;
 		iModifier += iTempMod;
@@ -24898,7 +24899,41 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
-			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			// FIXME: Disabled because EUI doesn't interact well with this.
+			// EUI should be fixed and this re-enabled.
+			/*
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			*/
+			break;
+
+		case YIELD_FAITH:
+			// FIXME: EUI doesn't expect this information to be populated for faith.
+			// Because of this, the calculation is handled in `CvCity::GetFaithPerTurn`.
+			// EUI should be fixed and this re-enabled.
+			/*
+			iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			if (iTempMod > 0)
+				iTempMod = 0;
+			iModifier += iTempMod;
+
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			*/
+			break;
+
+		case NO_YIELD:
+		case YIELD_FOOD:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // Yield unaffected by being a puppet.
 		}
 	}
 
@@ -29560,7 +29595,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 			{
 				DisputeLevelTypes eLandDisputeLevel = owningPlayerDiploAI->GetLandDisputeLevel((PlayerTypes)iI);
 
-				if (eLandDisputeLevel != NO_DISPUTE_LEVEL && eLandDisputeLevel != DISPUTE_LEVEL_NONE)
+				if (eLandDisputeLevel != DISPUTE_LEVEL_NONE)
 				{
 					CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), (PlayerTypes)iI, NO_TEAM, true /*bSameArea */);
 

@@ -10741,10 +10741,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Competing for City-States?
-	if (pDiplo->GetMinorCivDisputeLevel(ePlayer) != NO_DISPUTE_LEVEL)
-	{
-		iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);
-	}
+	iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);
 
 
 	switch (pDiplo->GetCivApproach(ePlayer))
@@ -12119,10 +12116,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iExtra += (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) - TARGET_VALUE_AVERAGE) * 100;
 					}
-					if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) != NO_THREAT_VALUE)
-					{
-						iExtra += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) * 150;
-					}
+					iExtra += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) * 150;
 				}
 
 				if (GetPlayer()->IsAtWarWith(eTargetPlayer))
@@ -12202,10 +12196,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GetPlayer()->getTeam() != GET_PLAYER(eLoopPlayer).getTeam())
 					{
-						if (pDiploAI->GetWarmongerThreat(eLoopPlayer) != NO_THREAT_VALUE)
-						{
-							iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-						}
+						iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 						// At war
 						if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 						{
@@ -12272,10 +12263,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				if (pDiploAI->GetWarmongerThreat(eLoopPlayer) != NO_THREAT_VALUE)
-				{
-					iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-				}
+				iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 				// At war
 				if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 				{

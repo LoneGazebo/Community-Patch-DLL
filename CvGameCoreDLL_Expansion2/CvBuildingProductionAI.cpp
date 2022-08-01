@@ -923,6 +923,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			switch (eYield)
 			{
+			case NO_YIELD:
+				CvAssert(false); // Expected to be unreachable.
+				break;
 			case YIELD_GOLD:
 				if (iAvgGPT < 0)
 				{

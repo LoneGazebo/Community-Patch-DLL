@@ -211,21 +211,21 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiWarmongerAmountTimes100[iI] = 0;
 
 		// Aggressive Postures
-		m_aePlotBuyingAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
+		m_aePlotBuyingAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 
 		// Dispute Levels
 		m_abEndgameAggressiveTo[iI] = false;
 		m_abRecklessExpander[iI] = false;
 		m_abWonderSpammer[iI] = false;
-		m_aeVictoryDisputeLevel[iI] = NO_DISPUTE_LEVEL;
-		m_aeVictoryBlockLevel[iI] = NO_BLOCK_LEVEL;
-		m_aeWonderDisputeLevel[iI] = NO_DISPUTE_LEVEL;
-		m_aeMinorCivDisputeLevel[iI] = NO_DISPUTE_LEVEL;
-		m_aeTechBlockLevel[iI] = NO_BLOCK_LEVEL;
-		m_aePolicyBlockLevel[iI] = NO_BLOCK_LEVEL;
+		m_aeVictoryDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+		m_aeVictoryBlockLevel[iI] = BLOCK_LEVEL_NONE;
+		m_aeWonderDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+		m_aeMinorCivDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
+		m_aeTechBlockLevel[iI] = BLOCK_LEVEL_NONE;
+		m_aePolicyBlockLevel[iI] = BLOCK_LEVEL_NONE;
 
 		// Threat Levels
-		m_aeWarmongerThreat[iI] = NO_THREAT_VALUE;
+		m_aeWarmongerThreat[iI] = THREAT_NONE;
 
 		// PROMISES
 		// Military Promise
@@ -240,7 +240,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 		// Border Promise
 		m_aeBorderPromiseState[iI] = NO_PROMISE_STATE;
-		m_aeBorderPromisePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
+		m_aeBorderPromisePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 		m_aiBorderPromiseTurn[iI] = -1;
 		m_abEverMadeBorderPromise[iI] = false;
 
@@ -382,11 +382,11 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiWarProgressScore[iI] = 0;
 
 		// Aggressive Postures
-		m_aeMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
-		m_aeLastTurnMilitaryAggressivePosture[iI] = NO_AGGRESSIVE_POSTURE_TYPE;
+		m_aeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
+		m_aeLastTurnMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 
 		// Dispute Levels
-		m_aeLandDisputeLevel[iI] = NO_DISPUTE_LEVEL;
+		m_aeLandDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
 
 		// Strength Assessments
 		m_aeMilitaryStrengthComparedToUs[iI] = NO_STRENGTH_VALUE;
@@ -5244,7 +5244,7 @@ void CvDiplomacyAI::ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer
 /// How aggressively are this player's military Units positioned in relation to us?
 AggressivePostureTypes CvDiplomacyAI::GetMilitaryAggressivePosture(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_AGGRESSIVE_POSTURE_TYPE;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return AGGRESSIVE_POSTURE_NONE;
 	return (AggressivePostureTypes) m_aeMilitaryAggressivePosture[ePlayer];
 }
 
@@ -5258,7 +5258,7 @@ void CvDiplomacyAI::SetMilitaryAggressivePosture(PlayerTypes ePlayer, Aggressive
 /// How aggressively were this player's military Units positioned in relation to us last turn?
 AggressivePostureTypes CvDiplomacyAI::GetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_AGGRESSIVE_POSTURE_TYPE;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return AGGRESSIVE_POSTURE_NONE;
 	return (AggressivePostureTypes) m_aeLastTurnMilitaryAggressivePosture[ePlayer];
 }
 
@@ -5274,7 +5274,7 @@ void CvDiplomacyAI::SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, Ag
 AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes ePlayer) const
 {
 	if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv() || GetPlayer()->getNumCities() <= 0)
-		return NO_AGGRESSIVE_POSTURE_TYPE;
+		return AGGRESSIVE_POSTURE_NONE;
 
 	int iCityLoop;
 	int iCityLoop2;
@@ -5282,7 +5282,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 
 	CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
 	if (!pTheirCapital || !pTheirCapital->plot())
-		return NO_AGGRESSIVE_POSTURE_TYPE;
+		return AGGRESSIVE_POSTURE_NONE;
 
 	for (CvCity* pOtherCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pOtherCity != NULL; pOtherCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
@@ -5343,7 +5343,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 /// How aggressively is ePlayer buying land near us?
 AggressivePostureTypes CvDiplomacyAI::GetPlotBuyingAggressivePosture(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_AGGRESSIVE_POSTURE_TYPE;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return AGGRESSIVE_POSTURE_NONE;
 	return (AggressivePostureTypes) m_aePlotBuyingAggressivePosture[ePlayer];
 }
 
@@ -5363,7 +5363,7 @@ void CvDiplomacyAI::SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, Aggressi
 /// What is our level of Dispute with a player over Land?
 DisputeLevelTypes CvDiplomacyAI::GetLandDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return NO_DISPUTE_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return DISPUTE_LEVEL_NONE;
 	return (DisputeLevelTypes) m_aeLandDisputeLevel[ePlayer];
 }
 
@@ -5377,7 +5377,7 @@ void CvDiplomacyAI::SetLandDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes e
 /// What is our level of Dispute with a player over Victory?
 DisputeLevelTypes CvDiplomacyAI::GetVictoryDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_DISPUTE_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return DISPUTE_LEVEL_NONE;
 	return (DisputeLevelTypes) m_aeVictoryDisputeLevel[ePlayer];
 }
 
@@ -5391,7 +5391,7 @@ void CvDiplomacyAI::SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelType
 /// What is our level of Desire to block this player over Victory?
 BlockLevelTypes CvDiplomacyAI::GetVictoryBlockLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_BLOCK_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return BLOCK_LEVEL_NONE;
 	return (BlockLevelTypes) m_aeVictoryBlockLevel[ePlayer];
 }
 
@@ -5405,7 +5405,7 @@ void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eB
 /// What is our level of Dispute with a player over World Wonders?
 DisputeLevelTypes CvDiplomacyAI::GetWonderDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_DISPUTE_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return DISPUTE_LEVEL_NONE;
 	return (DisputeLevelTypes) m_aeWonderDisputeLevel[ePlayer];
 }
 
@@ -5419,7 +5419,7 @@ void CvDiplomacyAI::SetWonderDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes
 /// What is our level of Dispute with a player over Minor Civ Friendship?
 DisputeLevelTypes CvDiplomacyAI::GetMinorCivDisputeLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_DISPUTE_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return DISPUTE_LEVEL_NONE;
 	return (DisputeLevelTypes) m_aeMinorCivDisputeLevel[ePlayer];
 }
 
@@ -5433,7 +5433,7 @@ void CvDiplomacyAI::SetMinorCivDisputeLevel(PlayerTypes ePlayer, DisputeLevelTyp
 /// What is our level of Desire to block this player over Technology?
 BlockLevelTypes CvDiplomacyAI::GetTechBlockLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_BLOCK_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return BLOCK_LEVEL_NONE;
 	return (BlockLevelTypes) m_aeTechBlockLevel[ePlayer];
 }
 
@@ -5447,7 +5447,7 @@ void CvDiplomacyAI::SetTechBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBloc
 /// What is our level of Desire to block this player over Social Policies?
 BlockLevelTypes CvDiplomacyAI::GetPolicyBlockLevel(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_BLOCK_LEVEL;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return BLOCK_LEVEL_NONE;
 	return (BlockLevelTypes) m_aePolicyBlockLevel[ePlayer];
 }
 
@@ -5467,7 +5467,7 @@ void CvDiplomacyAI::SetPolicyBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBl
 /// How much of a threat are these guys to run amok and break everything?
 ThreatTypes CvDiplomacyAI::GetWarmongerThreat(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_THREAT_VALUE;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return THREAT_NONE;
 	return (ThreatTypes) m_aeWarmongerThreat[ePlayer];
 }
 
@@ -5817,7 +5817,7 @@ void CvDiplomacyAI::SetPlayerBorderPromiseState(PlayerTypes ePlayer, PromiseStat
 			}
 			else
 			{
-				SetPlayerBorderPromisePosture(ePlayer, NO_AGGRESSIVE_POSTURE_TYPE);
+				SetPlayerBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 
 				// They ignored or broke a border promise! Cancel any commitment not to buy land near them!
 				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPlayerMadeBorderPromise(GetID()) && !GetPlayer()->isHuman())
@@ -5829,7 +5829,7 @@ void CvDiplomacyAI::SetPlayerBorderPromiseState(PlayerTypes ePlayer, PromiseStat
 		else
 		{
 			SetPlayerBorderPromiseTurn(ePlayer, -1);
-			SetPlayerBorderPromisePosture(ePlayer, NO_AGGRESSIVE_POSTURE_TYPE);
+			SetPlayerBorderPromisePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
 }
@@ -5882,14 +5882,14 @@ int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer) const
 /// What was the plot buying aggressive posture of ePlayer when they made a border promise to us?
 AggressivePostureTypes CvDiplomacyAI::GetPlayerBorderPromisePosture(PlayerTypes ePlayer) const
 {
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return NO_AGGRESSIVE_POSTURE_TYPE;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return AGGRESSIVE_POSTURE_NONE;
 	return (AggressivePostureTypes) m_aeBorderPromisePosture[ePlayer];
 }
 
 void CvDiplomacyAI::SetPlayerBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	if (ePosture < NO_AGGRESSIVE_POSTURE_TYPE || ePosture >= NUM_AGGRESSIVE_POSTURE_TYPES) return;
+	if (ePosture < AGGRESSIVE_POSTURE_NONE || ePosture >= NUM_AGGRESSIVE_POSTURE_TYPES) return;
 	m_aeBorderPromisePosture[ePlayer] = ePosture;
 }
 
@@ -12746,7 +12746,7 @@ void CvDiplomacyAI::DoTestPromises()
 				AggressivePostureTypes eOldPosture = GetPlayerBorderPromisePosture(eLoopPlayer);
 
 				// Player has been up to no good since we last warned him
-				if ((eOldPosture != NO_AGGRESSIVE_POSTURE_TYPE) && (GetPlotBuyingAggressivePosture(eLoopPlayer) > eOldPosture))
+				if (GetPlotBuyingAggressivePosture(eLoopPlayer) > eOldPosture)
 				{
 					SetPlayerBorderPromiseState(eLoopPlayer, PROMISE_STATE_BROKEN);
 				}

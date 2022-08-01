@@ -706,7 +706,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	// ThreatTypes
 	EnumStart(L, "ThreatTypes");
-	RegisterEnum(NO_THREAT_VALUE);
 	RegisterEnum(THREAT_NONE);
 	RegisterEnum(THREAT_MINOR);
 	RegisterEnum(THREAT_MAJOR);
@@ -717,7 +716,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	// DisputeLevelTypes
 	EnumStart(L, "DisputeLevelTypes");
-	RegisterEnum(NO_DISPUTE_LEVEL);
 	RegisterEnum(DISPUTE_LEVEL_NONE);
 	RegisterEnum(DISPUTE_LEVEL_WEAK);
 	RegisterEnum(DISPUTE_LEVEL_STRONG);
@@ -839,7 +837,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 
 	EnumStart(L, "AggressivePostureTypes");
-	RegisterEnum(NO_AGGRESSIVE_POSTURE_TYPE);
 	RegisterEnum(AGGRESSIVE_POSTURE_NONE);
 	RegisterEnum(AGGRESSIVE_POSTURE_LOW);
 	RegisterEnum(AGGRESSIVE_POSTURE_MEDIUM);

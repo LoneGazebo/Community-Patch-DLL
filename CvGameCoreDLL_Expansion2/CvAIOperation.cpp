@@ -99,6 +99,8 @@ const char * CvAIOperation::GetOperationName() const
 {
 	switch (m_eType)
 	{
+	case AI_OPERATION_TYPE_UNKNOWN:
+		return "OP_TYPE_UNKNOWN";
 	case AI_OPERATION_FOUND_CITY:
 		return "OP_FOUND_CITY";
 	case AI_OPERATION_PILLAGE_ENEMY:
@@ -136,7 +138,7 @@ const char * CvAIOperation::GetOperationName() const
 		return "OP_DIPLOMAT";
 	}
 
-	return "UNKNOWN_OP_TYPE";
+	return "<INVALID OP TYPE>";
 }
 
 CvArmyAI * CvAIOperation::GetArmy(size_t iIndex) const
@@ -271,6 +273,8 @@ CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, Pla
 {
 	switch(eAIOperationType)
 	{
+	case AI_OPERATION_TYPE_UNKNOWN:
+		break;
 	case AI_OPERATION_CITY_ATTACK_LAND:
 		return new CvAIOperationCityAttackLand(iID, eOwner, eEnemy);
 	case AI_OPERATION_CITY_ATTACK_NAVAL:
@@ -300,7 +304,7 @@ CvAIOperation* CreateAIOperation(AIOperationTypes eAIOperationType, int iID, Pla
 		return new CvAIOperationCivilianConcertTour(iID, eOwner, eEnemy);
 	}
 
-	return 0;
+	return NULL;
 }
 
 /// Find out the next item to build for this operation
@@ -589,6 +593,8 @@ int CvAIOperation::PercentFromMusterPointToTarget() const
 
 	switch(m_eCurrentState)
 	{
+	case AI_OPERATION_STATE_INVALID:
+		break;
 	case AI_OPERATION_STATE_GATHERING_FORCES:
 	case AI_OPERATION_STATE_ABORTED:
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
@@ -812,6 +818,7 @@ void CvAIOperation::UnitWasRemoved(int iArmyID, int iSlotID)
 	// For now, response is based on phase of operation
 	switch(m_eCurrentState)
 	{
+		case AI_OPERATION_STATE_INVALID:
 		case AI_OPERATION_STATE_ABORTED:
 		case AI_OPERATION_STATE_SUCCESSFUL_FINISH:
 			break;
@@ -864,6 +871,7 @@ CvPlot* CvAIOperation::ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const
 
 	switch(m_eCurrentState)
 	{
+	case AI_OPERATION_STATE_INVALID:
 	case AI_OPERATION_STATE_ABORTED:
 	case AI_OPERATION_STATE_AT_TARGET:
 	case AI_OPERATION_STATE_SUCCESSFUL_FINISH:
@@ -1509,7 +1517,10 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 	bool bStateChanged = false;
 	switch( pThisArmy->GetArmyAIState() )
 	{
-		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
+	case NO_ARMYAISTATE:
+	case ARMYAISTATE_AT_DESTINATION:
+		break;
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
 			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0))
 			{
@@ -1536,7 +1547,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 			break;
 		}
-		case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
 			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 			float fX = 0, fY = 0;
@@ -1557,7 +1568,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			}
 			break;
 		}
-		case ARMYAISTATE_MOVING_TO_DESTINATION:
+	case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
 			//some ops are not intended to ever reach their target
 			if (IsNeverEnding())
@@ -1776,7 +1787,9 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 	CvUnit* pCivilian = pThisArmy->GetFirstUnit();
 	switch( pThisArmy->GetArmyAIState() )
 	{
-		case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
+	case NO_ARMYAISTATE:
+		break;
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 		{
 			if(OperationalAIHelpers::HaveEnoughUnits(pThisArmy->GetSlotStatus(),0) || (pCivilian && pCivilian->TurnsToReachTarget(GetTargetPlot(),0,1)<1))
 			{
@@ -1787,7 +1800,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			}
 			break;
 		}
-		case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
+	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
 			if (pCivilian && pThisArmy->GetFurthestUnitDistance(pCivilian->plot())<GetGatherTolerance(pThisArmy,pCivilian->plot()))
 			{
@@ -1798,7 +1811,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			}
 			break;
 		}
-		case ARMYAISTATE_MOVING_TO_DESTINATION:
+	case ARMYAISTATE_MOVING_TO_DESTINATION:
 		{
 			if(pCivilian && pCivilian->plot() == GetTargetPlot())
 			{
@@ -1816,7 +1829,7 @@ bool CvAIOperationCivilian::CheckTransitionToNextStage()
 			}
 			break;
 		}
-		case ARMYAISTATE_AT_DESTINATION:
+	case ARMYAISTATE_AT_DESTINATION:
 		{
 			if (pCivilian && PerformMission(pCivilian))
 			{
