@@ -50975,9 +50975,6 @@ void CvDiplomacyAI::LogStatus()
 						case GUESS_CONFIDENCE_UNSURE:
 							strTemp.Format("Unsure");
 							break;
-						default:
-							strTemp.Format("XXX");
-							break;
 						}
 					}
 					else
