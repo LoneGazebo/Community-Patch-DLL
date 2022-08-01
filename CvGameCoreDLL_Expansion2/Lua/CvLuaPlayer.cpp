@@ -5447,6 +5447,8 @@ static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
 {
 	switch (eYield)
 	{
+	case NO_YIELD:
+		break;
 	case YIELD_FOOD:
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
 	case YIELD_PRODUCTION:
@@ -5463,19 +5465,8 @@ static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 	case YIELD_GOLDEN_AGE_POINTS:
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-	case NO_YIELD:
-	case YIELD_GREAT_GENERAL_POINTS:
-	case YIELD_GREAT_ADMIRAL_POINTS:
-	case YIELD_POPULATION:
-	case YIELD_CULTURE_LOCAL:
-	case YIELD_JFD_HEALTH:
-	case YIELD_JFD_DISEASE:
-	case YIELD_JFD_CRIME:
-	case YIELD_JFD_LOYALTY:
-	case YIELD_JFD_SOVEREIGNTY:
-		CvAssertMsg(false, "Unhandled eYield in LocalizeTradeTTYield");
-		return "";
 	}
+	return "";
 }
 
 //------------------------------------------------------------------------------
@@ -13224,7 +13215,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case THREAT_MAJOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 					break;
-				case NO_THREAT_VALUE:
 				case THREAT_NONE:
 				case THREAT_MINOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
@@ -13980,7 +13970,6 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case THREAT_MAJOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 				break;
-			case NO_THREAT_VALUE:
 			case THREAT_NONE:
 			case THREAT_MINOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
