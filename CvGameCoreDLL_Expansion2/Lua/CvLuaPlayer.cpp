@@ -792,6 +792,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEndTurnBlockingType);
 	Method(GetEndTurnBlockingNotificationIndex);
+	Method(EndTurnsForReadyUnits);
 	Method(HasReceivedNetTurnComplete);
 	Method(IsStrike);
 
@@ -9342,6 +9343,15 @@ int CvLuaPlayer::lGetEndTurnBlockingNotificationIndex(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetEndTurnBlockingNotificationIndex);
 }
+// CvPlayer:: EndTurnsForReadyUnits(bool bEndLinkedTurns)
+int CvLuaPlayer::lEndTurnsForReadyUnits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bEndLinkedTurns = lua_toboolean(L, 2);
+	
+	pkPlayer->EndTurnsForReadyUnits(bEndLinkedTurns);
+	return 1;
+}
 
 //------------------------------------------------------------------------------
 //bool isStrike();
@@ -11479,8 +11489,8 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
-		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-		if(pUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(pUnit->GetUnitType());
 			if(pUnitEntry && pUnitEntry->GetWorkRate() > 0)
@@ -11540,8 +11550,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
-		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
-		if(pUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
+		if(pUnit)
 		{
 			CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit.get());
 			if(pkUnit != NULL && pkUnit->isFound())
@@ -17232,7 +17242,7 @@ int CvLuaPlayer::lGetEspionageValues(lua_State* L)
 	CvString CoreYieldTip = "";
 	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
 	const int uiSpyIndex = lua_tointeger(L, 3);
-	if (eEvent != NO_EVENT)
+	if (eEvent != NO_EVENT_CITY)
 	{
 		CoreYieldTip = pkPlayer->GetEspionage()->GetEventHelpText(eEvent, uiSpyIndex);
 	}
@@ -17493,7 +17503,7 @@ int CvLuaPlayer::lGetActiveCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT)
+						if (eEvent != NO_EVENT_CITY)
 						{
 							if (pkEventChoiceInfo->isParentEvent(eEvent))
 							{
@@ -17647,7 +17657,7 @@ int CvLuaPlayer::lGetRecentCityEventChoices(lua_State* L)
 					for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 					{
 						CityEventTypes eEvent = (CityEventTypes)iLoop;
-						if (eEvent != NO_EVENT)
+						if (eEvent != NO_EVENT_CITY)
 						{
 							if (pkEventChoiceInfo->isParentEvent(eEvent))
 							{

@@ -79,7 +79,7 @@ function UpdatePathFromSelectedUnitToMouse()
 		--end
 	--end
 
-	if rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	if rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		Events.DisplayMovementIndicator( true );
 	else
 		Events.DisplayMovementIndicator( false );
@@ -106,6 +106,8 @@ end
 
 function ShowMovementRangeIndicator()
 	local unit = UI.GetHeadSelectedUnit();
+	local bAlt = UIManager:GetAlt();
+
 	if not unit then
 		return;
 	end
@@ -173,7 +175,6 @@ function( wParam )
 		return true;
 	end
 end
-
 
 DefaultMessageHandler[KeyEvents.KeyUp] =
 function( wParam )
@@ -425,7 +426,10 @@ function missionTypeLButtonUpHandler()
 		local interfaceMode = UI.GetInterfaceMode()
 		if UI.CanDoInterfaceMode(interfaceMode) then
 			local eInterfaceModeMission = GameInfoTypes[(GameInfo.InterfaceModes[interfaceMode] or {}).Mission]
-			if eInterfaceModeMission and eInterfaceModeMission ~= MissionTypes.NO_MISSION then
+			if interfaceMode == 5 then --MOVE_TO_ALL interfacemode
+				local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
+				pHeadSelectedUnit:DoGroupMovement(plot)
+			elseif eInterfaceModeMission and eInterfaceModeMission ~= MissionTypes.NO_MISSION then
 				Game.SelectionListGameNetMessage( GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, eInterfaceModeMission, plot:GetX(), plot:GetY(), 0, false, UIManager:GetShift() )
 			end
 		end
@@ -747,6 +751,11 @@ function MovementRButtonUp()
 			return true;
 		end
 
+		-- rebase with RCLICK
+		if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and pHeadSelectedUnit:CanRebaseAt(0, plotX, plotY) then
+			Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);				
+		end
+
 		-- Visible enemy... bombardment?
 		if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
 
@@ -794,12 +803,11 @@ function MovementRButtonUp()
 			if bShift == false and pHeadSelectedUnit:AtPlot(plot) then
 				--print("Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);");
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);
-
 			-- VP: QoL key+click combinations 
-			elseif bShift and not bCtrl then -- VP/bal: holding down shift queues move orders
+			elseif bShift and not bCtrl and not bAlt then -- VP/bal: holding down shift queues move orders
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, true);				
 
-			elseif bCtrl then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues 
+			elseif bCtrl and not bAlt then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues 
 				if pHeadSelectedUnit:IsCanAttack() then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_ALERT, plotX, plotY, 0, false, true);				
@@ -853,12 +861,18 @@ function MovementRButtonUp()
 					end
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);				
-				end -- VP end
+				end
 
 			else--if plot == UI.GetGotoPlot() then
 				--print("Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);");
-				Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
+				if pHeadSelectedUnit:IsLinked() and not pHeadSelectedUnit:IsLinkedLeader() then 
+					pHeadSelectedUnit:MoveLinkedLeader(plot)
+				elseif UI.GetInterfaceMode() == 5 then -- Group Movement Interface
+					pHeadSelectedUnit:DoGroupMovement(plot)
+				else
+					Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
 				--UI.SetGotoPlot(nil);
+				end
 			end
 			--Events.ClearHexHighlights();
 			ClearAllHighlights();
@@ -869,6 +883,7 @@ end
 
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonUp] = MovementRButtonUp;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO][MouseEvents.RButtonUp] = MovementRButtonUp;
+InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL][MouseEvents.RButtonUp] = MovementRButtonUp;
 
 if UI.IsTouchScreenEnabled() then
 	InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO][MouseEvents.PointerUp] = MovementRButtonUp;
@@ -958,9 +973,9 @@ Events.UIPathFinderUpdate.Add( OnUIPathFinderUpdate );
 function OnMouseMoveHex()
 	local interfaceMode = UI.GetInterfaceMode();
 	local bShift = UIManager:GetShift();
-	if not bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	if not bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		UI.SendPathfinderUpdate();
-	elseif bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
+	elseif bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL then
 		UpdatePathFromWaypointToMouse()
 	end
 end

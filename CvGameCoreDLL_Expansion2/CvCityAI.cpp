@@ -239,7 +239,7 @@ void CvCityAI::AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int i
 #if defined(MOD_BALANCE_CORE_EVENTS)
 void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 {
-	if(eChosenEvent != NO_EVENT)
+	if(eChosenEvent != NO_EVENT_CITY)
 	{
 		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
 		if(pkEventInfo != NULL)
@@ -318,7 +318,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				}
 
 				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
-				if(eBestEventChoice != NO_EVENT_CHOICE)
+				if(eBestEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					DoEventChoice(eBestEventChoice);
 					return;
@@ -372,7 +372,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			}
 
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
-			if(eBestEventChoice != NO_EVENT_CHOICE)
+			if(eBestEventChoice != NO_EVENT_CHOICE_CITY)
 			{
 				DoEventChoice(eBestEventChoice);
 				return;

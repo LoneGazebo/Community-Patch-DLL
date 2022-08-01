@@ -30,6 +30,7 @@ version 1.3
 #include "FAssert.h"
 #include "new"
 #include "iterator"
+#include "FMemHooks.h"
 
 //#define BREAK_ON_REPEATED_RESIZE 4
 //#define BREAK_ON_STATIC_RESIZE 1

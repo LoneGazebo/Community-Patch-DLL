@@ -4640,7 +4640,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
+	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge() || kBuilding.GetPopulationChange() != 0)
 		return false;
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
@@ -4814,7 +4814,7 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 			GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
@@ -4996,7 +4996,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		if(buildingEntry->GetPreferredDisplayPosition() > 0)
 		{
-			auto_ptr<ICvCity1> pDllCity(new CvDllCity(m_pCity));
+			CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(m_pCity));
 
 			if(iNewValue > 0)
 			{
@@ -5057,7 +5057,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		if(buildingEntry->IsCityWall())
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
 		}
 
@@ -5170,7 +5170,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		m_pCity->updateStrengthValue();
 
 		// Building might affect City Banner stats
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -5220,14 +5220,14 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
 		if(buildingEntry->IsCityWall())
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
 		}
 
 		m_pCity->updateStrengthValue();
 
 		// Building might affect City Banner stats
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -5357,7 +5357,7 @@ int CvCityBuildings::GetBuildingGreatWork(BuildingClassTypes eBuildingClass, int
 void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, int iSlot, int iGreatWorkIndex)
 {
 	m_pCity->ResetGreatWorkYieldCache();
-	
+
 	for(std::vector<BuildingGreatWork>::iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
 	{
 		if((*it).eBuildingClass == eBuildingClass && (*it).iSlot == iSlot)
@@ -5373,6 +5373,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 				{
 					(*it).iGreatWorkIndex = iGreatWorkIndex;
 				}
+
+				if (eBuildingClass != NO_BUILDINGCLASS)
+				{
+					m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+				}
 			}
 
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -5387,6 +5392,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iSlot = iSlot;
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
+
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+			m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+		}
 	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);

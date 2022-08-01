@@ -120,7 +120,7 @@ bool CvLandmass::isWater() const
 //	--------------------------------------------------------------------------------
 bool CvLandmass::isLake() const
 {
-	return (m_bWater && (m_iNumTiles <= /*9*/ GD_INT_GET(LAKE_MAX_AREA_SIZE)));
+	return (m_bWater && m_iNumTiles < GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN));
 }
 
 
@@ -158,6 +158,77 @@ int CvLandmass::GetCentroidY()
 	return -1;
 }
 
+bool CvLandmass::addArea(int iAreaID)
+{
+	if (iAreaID >= 0)
+	{
+		if (std::find(m_vAreas.begin(), m_vAreas.end(), iAreaID) == m_vAreas.end())
+		{
+			m_vAreas.push_back(iAreaID);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int CvLandmass::getUnitsPerPlayer(PlayerTypes eIndex) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getUnitsPerPlayer(eIndex);
+
+	return iResult;
+}
+int CvLandmass::getEnemyUnits(PlayerTypes eIndex) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getEnemyUnits(eIndex);
+
+	return iResult;
+}
+int CvLandmass::getCitiesPerPlayer(PlayerTypes eIndex) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getCitiesPerPlayer(eIndex);
+
+	return iResult;
+}
+int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getPopulationPerPlayer(eIndex);
+
+	return iResult;
+}
+int CvLandmass::getNumUnits() const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumUnits();
+
+	return iResult;
+}
+int CvLandmass::getNumCities() const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumCities();
+
+	return iResult;
+}
+int CvLandmass::getTotalPopulation() const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getTotalPopulation();
+
+	return iResult;
+}
+
 //	--------------------------------------------------------------------------------
 template<typename Landmass, typename Visitor>
 void CvLandmass::Serialize(Landmass& landmass, Visitor& visitor)
@@ -171,6 +242,7 @@ void CvLandmass::Serialize(Landmass& landmass, Visitor& visitor)
 	visitor(landmass.m_bWater);
 
 	visitor(landmass.m_cContinentType);
+	visitor(landmass.m_vAreas);
 }
 
 //	--------------------------------------------------------------------------------
@@ -339,7 +411,7 @@ void CvMap::InitPlots()
 		pResourceForceReveal	+= iNumTeams;
 #if defined(MOD_BALANCE_CORE)
 		pIsImpassable			+= iNumTeams;
-		m_pIsStrategic			+= iNumTeams;
+		pIsStrategic			+= iNumTeams;
 #endif
 
 	}
@@ -2246,6 +2318,14 @@ void CvMap::recalculateLandmasses()
 	m_landmasses.RemoveAll();
 
 	calculateLandmasses();
+
+	//associate landmasses and areas
+	for(int iI = 0; iI < iNumPlots; iI++)
+	{
+		CvPlot* pPlot = plotByIndexUnchecked(iI);
+		if (pPlot->getArea() >= 0 && pPlot->getLandmass() >= 0)
+			pPlot->landmass()->addArea(pPlot->getArea());
+	}
 }
 
 //	--------------------------------------------------------------------------------

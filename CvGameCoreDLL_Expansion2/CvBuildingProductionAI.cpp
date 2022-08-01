@@ -655,7 +655,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else if (kPlayer.IsAtWarAnyMajor())
 		iDefenseMod += 150;
 
-	bool bDesperate = !bIgnoreSituational && (m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege());
+	bool bDesperate = !bIgnoreSituational && m_pCity->isUnderSiege();
 	if (bDesperate)
 		iDefenseMod += 1000;
 
@@ -1080,7 +1080,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			int iCityLoop;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
-				if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
+				if (pLoopCity->isUnderSiege())
 				{
 					WarPenalty += 25;
 				}

@@ -1502,8 +1502,8 @@ bool CvMinorCivQuest::IsComplete()
 		int iX = m_iData1, iY = m_iData2;
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
-		// Conquered this city? NOTE: If the player liberated the city, it should still have the "previous owner" flag set
-		return pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer);
+		// Conquered or destroyed this city? NOTE: If the player liberated the city, it should still have the "previous owner" flag set
+		return (pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer)) || (!pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer);
 	}
 	}
 
@@ -1860,6 +1860,10 @@ bool CvMinorCivQuest::IsExpired()
 			{
 				return true;
 			}
+			// The city was destroyed (OCC game)
+			if (pPlot != NULL && (!pPlot->isCity())) {
+				return true;
+			}
 			// We can't liberate this city-state for some reason.
 			if(!pTargetCityState->isAlive() && !GET_PLAYER(m_eAssignedPlayer).CanLiberatePlayerCity(eTargetCityState))
 			{
@@ -1945,13 +1949,13 @@ bool CvMinorCivQuest::IsExpired()
 		//City gone?
 		if (pPlot != NULL)
 		{
+			// City destroyed not by us
 			if (!pPlot->isCity())
 			{
-				return true;
-			}
-			if (pPlot->getOwner() == NO_PLAYER)
-			{
-				return true;
+				if (pPlot->GetPlayerThatDestroyedCityHere() != m_eAssignedPlayer)
+				{
+					return true;
+				}
 			}
 		}
 		else
@@ -2568,9 +2572,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	// Liberate a City State
 	else if(m_eType == MINOR_CIV_QUEST_LIBERATION)
 	{
-		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-			return;
-
 		PlayerTypes eTargetCityState = pMinor->GetMinorCivAI()->GetBestCityStateLiberate(m_eAssignedPlayer);
 
 		FAssertMsg(eTargetCityState != NO_PLAYER, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to liberate a City State.");
@@ -2797,9 +2798,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
-		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-			return;
-
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestCityForQuest(m_eAssignedPlayer);
 
 		FAssertMsg(pCity != NULL, "MINOR CIV AI: For some reason we got NO_PLAYER when starting a quest for a major to capture a city.");
@@ -2816,10 +2814,20 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		const char* strTargetNameKey = pCity->getNameKey();
 
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_CAPTURE_CITY");
-		strMessage << strTargetNameKey;
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY");
-		strSummary << strTargetNameKey;
+		if (pAssignedPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC");
+			strMessage << strTargetNameKey;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC");
+			strSummary << strTargetNameKey;
+		}
+		else
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_CAPTURE_CITY");
+			strMessage << strTargetNameKey;
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY");
+			strSummary << strTargetNameKey;
+		}
 
 		iNotificationX = pCity->plot()->getX();
 		iNotificationY = pCity->plot()->getY();
@@ -3421,8 +3429,16 @@ bool CvMinorCivQuest::DoFinishQuest()
 	}
 	else if(m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
 	{
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE");
+		if(GET_PLAYER(m_eAssignedPlayer).isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE");
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE");
+		}
+		else
+		{
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE");
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE");
+		}
 	}
 #endif
 
@@ -4421,7 +4437,7 @@ void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
 		CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
 		if(pkMinorCivInfo)
 		{
-			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNIT)
+			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNITCLASS)
 			{
 				m_eBullyUnit = (UnitClassTypes)pkMinorCivInfo->GetBullyUnit();
 			}
@@ -4802,7 +4818,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 			int iUnitGift = 0;
 
 			int iGift = 0;
-			char* szTxtKeySuffix = "UNKNOWN";
+			char const* szTxtKeySuffix = "UNKNOWN";
 
 			int iGoldGift = 0;
 			int iFaithGift = 0;
@@ -5087,7 +5103,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						{
 							if(pLoopCity->plot()->isRevealed(eTeam))
 							{
-								auto_ptr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
+								CvInterfacePtr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
 								GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
 							}
 						}
@@ -6651,7 +6667,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		if (!MOD_BALANCE_VP || GD_INT_GET(QUEST_DISABLED_CIRCUMNAVIGATION) == 1)
 			return false;
 	}
-	// Circumnavigation
+	// Liberation
 	else if(eQuest == MINOR_CIV_QUEST_LIBERATION)
 	{
 		if (!MOD_BALANCE_VP || GD_INT_GET(QUEST_DISABLED_LIBERATION) == 1)
@@ -9727,19 +9743,19 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 		{
 			iWeight += 15;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_MERCANTILE)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 		{
 			iWeight += 7;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_RELIGIOUS)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 		{
 			iWeight += 1;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_MARITIME)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 		{
 			iWeight += 3;
 		}
-		else if(GetPlayer()->GetMinorCivAI()->GetPersonality() == MINOR_CIV_TRAIT_CULTURED)
+		else if(GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 		{
 			iWeight += 10;
 		}
@@ -16780,7 +16796,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	}
 #endif
 	// VFX
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 	gDLL->GameplayDoFX(pDllPlot.get());
 
 	const int iCost = GetGiftTileImprovementCost(eMajor);

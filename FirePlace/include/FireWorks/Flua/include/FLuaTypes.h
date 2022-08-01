@@ -667,9 +667,9 @@ namespace FLua
 		template<> struct PushAnalog<Value&>{ typedef Value Result; };
 		template<> struct PushAnalog<const Value&>{ typedef Value Result; };
 
-		template<> static const char *DescribeType<Value>() { return "variant"; }
+		template<> const char *DescribeType<Value>() { return "variant"; }
 
-		template<> static inline Value Get(lua_State *L, int idx) { return Value(L, idx); }
+		template<> inline Value Get(lua_State *L, int idx) { return Value(L, idx); }
 		static inline void Push(lua_State *L, const Value &kVal) {
 			lua_State *pkValState = kVal.GetLuaState();
 			if( pkValState == NULL )
@@ -711,9 +711,9 @@ namespace FLua
 		template<> struct PushAnalog<String&>{ typedef String Result; };
 		template<> struct PushAnalog<const String&>{ typedef String Result; };
 
-		template<> static const char *DescribeType<String>() { return "string"; }
+		template<> const char *DescribeType<String>() { return "string"; }
 
-		template<> static inline String Get(lua_State *L, int idx) { return String(L, idx); }
+		template<> inline String Get(lua_State *L, int idx) { return String(L, idx); }
 		static inline void Push(lua_State *L, const String &sVal) {
 			lua_State *pkValState = sVal.GetLuaState();
 			if( pkValState != L )
@@ -738,9 +738,9 @@ namespace FLua
 		template<> struct PushAnalog<Function&>{ typedef Function Result; };
 		template<> struct PushAnalog<const Function&>{ typedef Function Result; };
 
-		template<> static const char *DescribeType<Function>() { return "function"; }
+		template<> const char *DescribeType<Function>() { return "function"; }
 
-		template<> static inline Function Get(lua_State *L, int idx) { return Function(L, idx); }
+		template<> inline Function Get(lua_State *L, int idx) { return Function(L, idx); }
 		static inline void Push(lua_State *L, const Function &kVal) {
 			if( kVal.GetLuaState() != L )
 			{
@@ -801,7 +801,7 @@ namespace FLua
 		template<> struct PushAnalog<Table&>{ typedef Table Result; };
 		template<> struct PushAnalog<const Table&>{ typedef Table Result; };
 
-		template<> static const char *DescribeType<Table>() { return "table"; }
+		template<> const char *DescribeType<Table>() { return "table"; }
 
 		static inline void Push(lua_State *L, const Table &kVal) {
 			lua_State *pkValState = kVal.GetLuaState();

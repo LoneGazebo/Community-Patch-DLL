@@ -3984,13 +3984,13 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 	{
 		if(!pPlayer->CanEmbark())
 		{
-			int iStartArea = pPlayer->getStartingPlot()->getArea();
+			int iStartLandmass = pPlayer->getStartingPlot()->getLandmass();
 
 			// Have we revealed a high enough percentage of the coast of our landmass?
 			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-				if(pLoopPlot->getArea() == iStartArea)
+				if(pLoopPlot->getLandmass() == iStartLandmass)
 				{
 					if(pLoopPlot->isCoastalLand())
 					{
@@ -4004,7 +4004,7 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 			}
 
 			if((iRevealedCoastalTiles * 100 / (iCoastalTiles + 1)) > /*80*/ GD_INT_GET(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT) &&
-			        GC.getMap().getArea(iStartArea)->getNumTiles() < pStrategy->GetWeightThreshold())
+			        GC.getMap().getLandmass(iStartLandmass)->getNumTiles() < pStrategy->GetWeightThreshold())
 			{
 				return true;
 			}

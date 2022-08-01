@@ -4986,7 +4986,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			FreeTraitUnit traitUnit;
 			traitUnit.m_iFreeUnit = (UnitTypes)trait->GetFreeUnitClassType();
-			if(traitUnit.m_iFreeUnit != NO_UNITCLASS)
+			if(traitUnit.m_iFreeUnit != NO_UNIT)
 			{
 				traitUnit.m_ePrereqTech = trait->GetFreeUnitPrereqTech();
 				m_aFreeTraitUnits.push_back(traitUnit);

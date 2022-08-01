@@ -29,7 +29,7 @@
 			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities for {4_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3">
-			<Text>Our priests will conduct a diviniation to see if this is a positive sign.</Text>
+			<Text>Our priests will conduct a divination to see if this is a positive sign.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3_HELP">
 			<Text>50% chance to gain {2_InstantYield}.</Text>
@@ -39,7 +39,7 @@
 			<Text>Your priests believe that the divination was successful, and your [ICON_PEACE] Faith has increased greatly as a result.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL_S">
-			<Text>Diviniation successful!</Text>
+			<Text>Divination successful!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4">
 			<Text>Our observatories are going to learn a lot from this.</Text>

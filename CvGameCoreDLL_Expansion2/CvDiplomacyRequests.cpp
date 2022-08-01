@@ -413,7 +413,7 @@ foundRequest:
 		}
 	}
 
-	auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
+	CvInterfacePtr<ICvDeal1> pDeal = GC.WrapDealPointer(&kDeal);
 	DLLUI->SetScratchDeal(pDeal.get());
 
 	// Send the request
@@ -597,7 +597,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		CvAssert(eFromPlayer != NO_PLAYER);
-		CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), __FUNCTION__ " must not be used by a human player!");
+		CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
 
 		if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
 		{
@@ -619,7 +619,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 		// Deals must currently happen on the active player's turn...
 		if(GC.getGame().getActivePlayer() == eToPlayer)
 		{
-			auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
+			CvInterfacePtr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 			GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
 			SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
 		}
@@ -640,7 +640,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	// Deals must currently happen on the active player's turn...
 	if(GC.getGame().getActivePlayer() == eToPlayer && pkDeal->GetNumItems() > 0)
 	{
-		auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
+		CvInterfacePtr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
 		GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
 		SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
 	}

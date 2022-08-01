@@ -1979,7 +1979,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
-					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL); //this automatically removes the forced status
+					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+					SetForcedWorkingPlot(pPlot, false);
 					ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_GLOBAL);
 					ChangeNumForcedDefaultSpecialists(1);
 				}
@@ -2217,6 +2218,11 @@ void CvCityCitizens::ClearBlockades()
 	m_vBlockadedPlots.clear();
 }
 
+bool CvCityCitizens::AnyPlotBlockaded() const
+{
+	return !m_vBlockadedPlots.empty();
+}
+
 /// Check all Plots by this City to see if we can actually be working them (if we are)
 bool CvCityCitizens::DoVerifyWorkingPlots()
 {
@@ -2226,7 +2232,7 @@ bool CvCityCitizens::DoVerifyWorkingPlots()
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
-		if (!pPlot)
+		if (!pPlot || !pPlot->isEffectiveOwner(m_pCity))
 			continue;
 
 		//cache which plots are blockaded, the check can be expensive
@@ -2601,7 +2607,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		pkIFace->setDirty(ColoredPlots_DIRTY_BIT, true);
 
 		CvCity* pkCity = GetCity();
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
 
 		pkIFace->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2660,7 +2666,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2700,7 +2706,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
 

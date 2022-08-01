@@ -173,7 +173,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	CvString cultureString;
 
 	cultureString = "";
-	char* sPrefix = "";
+	char const* sPrefix = "";
 	int iTourismPerWork = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
 	int iValue;
 	
@@ -750,7 +750,10 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
 
 	pCity1->UpdateAllNonPlotYields(true);
-	pCity2->UpdateAllNonPlotYields(true);
+	if (pCity1 != pCity2)
+	{
+		pCity2->UpdateAllNonPlotYields(true);
+	}
 
 	return true;
 }
@@ -775,19 +778,11 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
 
 #if defined(MOD_BALANCE_CORE)
-	if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
-	{
-		pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
-	}
-	pCity1->ResetGreatWorkYieldCache();
 	pCity1->UpdateAllNonPlotYields(true);
-
-	if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
+	if (pCity1 != pCity2)
 	{
-		pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
+		pCity2->UpdateAllNonPlotYields(true);
 	}
-	pCity2->ResetGreatWorkYieldCache();
-	pCity2->UpdateAllNonPlotYields(true);
 #endif
 }
 
@@ -1637,18 +1632,6 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	if(bSecondUpdate || bUpdate)
 	{
 		std::vector<CvCity*> CityList;
-		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
-		{
-			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
-			if (pCity != NULL)
-			{
-				CvBuildingEntry *pkEntry = GC.getBuildingInfo(itBuilding->m_eBuilding);
-				if (pkEntry)
-				{
-					pCity->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)pkEntry->GetBuildingClassType());
-				}
-			}
-		}
 		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 		{
 			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);

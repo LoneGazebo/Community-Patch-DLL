@@ -179,18 +179,18 @@ public:
 
 	//DLL Utility Methods
 	CvCity* UnwrapCityPointer(ICvCity1* pCity);
-	auto_ptr<ICvCity1> WrapCityPointer(CvCity* pCity);
+	CvInterfacePtr<ICvCity1> WrapCityPointer(CvCity* pCity);
 
 	CvDeal* UnwrapDealPointer(ICvDeal1* pDeal);
-	auto_ptr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
+	CvInterfacePtr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
 
 	CvPlot* UnwrapPlotPointer(ICvPlot1* pPlot);
-	auto_ptr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
+	CvInterfacePtr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
 
 	CvRandom* UnwrapRandomPointer(ICvRandom1* pRandom);
-	auto_ptr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
+	CvInterfacePtr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
 
-	auto_ptr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
+	CvInterfacePtr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
 	CvUnit*   UnwrapUnitPointer(ICvUnit1* pUnit);
 
 	void init();
@@ -1745,7 +1745,6 @@ public:
 	GD_INT_MEMBER(COMBAT_DAMAGE);
 	GD_INT_MEMBER(NONCOMBAT_UNIT_RANGED_DAMAGE);
 	GD_INT_MEMBER(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER);
-	GD_INT_MEMBER(LAKE_MAX_AREA_SIZE);
 	GD_INT_MEMBER(INITIAL_GOLD_PER_UNIT_TIMES_100);
 	GD_INT_MEMBER(INITIAL_FREE_OUTSIDE_UNITS);
 	GD_INT_MEMBER(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);

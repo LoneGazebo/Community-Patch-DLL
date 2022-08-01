@@ -48,8 +48,7 @@
 
 static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;;
 
-// inlined for performance reasons
-inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
@@ -972,7 +971,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 									if (pkEventChoiceInfo->getDamageCity() != 0 || pkEventChoiceInfo->getDamageGarrison() != 0)
 									{
 										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
-										if (pCity && (pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
+										if (pCity && pCity->isUnderSiege())
 											iOurFlavor *= 10;
 									}
 
@@ -1031,7 +1030,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if (eEventChoice != NO_EVENT_CHOICE)
+				if (eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 					if (pkEventChoiceInfo != NULL)
@@ -1076,7 +1075,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			}
 
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
-			if (eBestEventChoice != NO_EVENT_CHOICE)
+			if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 			{
 				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 				return true;

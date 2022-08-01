@@ -568,6 +568,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		SetNumTimesOwned(eOwner, 1);
 	}
 
+	pPlot->SetPlayerThatDestroyedCityHere(NO_PLAYER);
+
 	// Plot Ownership
 	pPlot->setOwner(getOwner(), m_iID, bBumpUnits);
 
@@ -760,6 +762,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
+	//don't need to update landmass stats, that is implied by area changes
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
@@ -1952,7 +1955,7 @@ void CvCity::setupGraphical()
 	CvPlayer& player = GET_PLAYER(getOwner());
 	EraTypes eCurrentEra = (EraTypes)player.GetCurrentEra();
 
-	auto_ptr<ICvCity1> pkDllCity(new CvDllCity(this));
+	CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(this));
 	gDLL->GameplayCityCreated(pkDllCity.get(), eCurrentEra);
 	gDLL->GameplayCitySetDamage(pkDllCity.get(), getDamage(), 0);
 
@@ -1990,7 +1993,7 @@ void CvCity::setupWonderGraphics()
 			if (iExists > 0)
 			{
 				// display the wonder
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 				gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 1);
 			}
 			else
@@ -2046,7 +2049,7 @@ void CvCity::setupWonderGraphics()
 
 					if (bShowHalfBuilt)
 					{
-						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 						gDLL->GameplayWonderCreated(ePlayerID, pDllPlot.get(), eBuilding, 0);
 					}
 				}
@@ -2069,7 +2072,7 @@ void CvCity::setupBuildingGraphics()
 			int iExists = m_pCityBuildings->GetNumBuilding(eBuilding);
 			if (iExists > 0 && buildingInfo->IsCityWall())
 			{
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 				gDLL->GameplayWallCreated(pDllPlot.get());
 			}
 		}
@@ -2105,7 +2108,7 @@ void CvCity::setupSpaceshipGraphics()
 			eConstructed = 0x0080,
 		};
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 		gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 		gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
 
@@ -2196,7 +2199,7 @@ void CvCity::PreKill()
 		// Only show units that belong to this city's owner - that way we don't show units on EVERY city capture (since the old city is deleted in this case)
 		if (getOwner() == pLoopUnit->getOwner())
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), !pLoopUnit->isInvisible(GC.getGame().getActiveTeam(), true) /*bVisible*/);
 		}
 	}
@@ -2218,8 +2221,8 @@ void CvCity::PreKill()
 
 	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
 
+	//don't need to update landmass stats, that is implied by area changes
 	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
@@ -2227,7 +2230,6 @@ void CvCity::PreKill()
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), -1);
 	}
-#endif
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
 
@@ -2402,24 +2404,12 @@ void CvCity::doTurn()
 
 		iHitsHealed += iBuildingDefense / 1000;
 
+		//cities heal much faster if there are no enemies around
 		if (MOD_BALANCE_VP)
 		{
 			iHitsHealed += getPopulation();
-
-			bool bAnyPlotBlockaded = false;
-			for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
-			{
-				CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iLoop));
-
-				if (pAdjacentPlot && pAdjacentPlot->isBlockaded(getOwner()))
-				{
-					bAnyPlotBlockaded = true;
-					break;
-				}
-			}
-
-			if (!bAnyPlotBlockaded)
-				iHitsHealed *= 5;
+			if (getDamageTakenLastTurn()==0 && !GetCityCitizens()->AnyPlotBlockaded())
+				iHitsHealed *= 3;
 		}
 
 		if (getProductionProcess() != NO_PROCESS)
@@ -2881,7 +2871,7 @@ void CvCity::doTurn()
 bool CvCity::isCitySelected()
 {
 	VALIDATE_OBJECT
-	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 
 	return DLLUI->isCitySelected(pCity.get());
 }
@@ -3570,7 +3560,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (pkEventInfo == NULL)
@@ -3701,7 +3691,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
-		if (eEvent != NO_EVENT)
+		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 			if (!pkEventInfo)
@@ -3734,7 +3724,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 }
 void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 {
-	if (eChosenEvent != NO_EVENT)
+	if (eChosenEvent != NO_EVENT_CITY)
 	{
 		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
 		if (pkEventInfo != NULL)
@@ -4131,7 +4121,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 				return false;
@@ -4257,7 +4247,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 }
 bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive)
 {
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return false;
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -4585,7 +4575,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 				return false;
@@ -4925,7 +4915,7 @@ bool CvCity::IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoi
 }
 void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 {
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return;
 
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -5566,7 +5556,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	CvString DisabledTT = Localization::Lookup("TXT_KEY_EVENT_DISABLED_REASONS_HEADER").toUTF8();
 	Localization::String localizedDurationText;
 
-	if (eChosenEventChoice == NO_EVENT_CHOICE)
+	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return "";
 
 	CvModEventCityChoiceInfo* pkEventInfo = GC.getCityEventChoiceInfo(eChosenEventChoice);
@@ -6289,7 +6279,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (pkEventInfo->getLocalResourceRequired() != -1)
 	{
 		ResourceTypes eResource = (ResourceTypes)pkEventInfo->getLocalResourceRequired();
-		if (eResource != NO_IMPROVEMENT)
+		if (eResource != NO_RESOURCE)
 		{
 			if (!HasResource(eResource))
 			{
@@ -6419,7 +6409,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent, iEspionageValue, eSpyOwner);
 		return;
 	}
-	if (eEventChoice != NO_EVENT_CHOICE)
+	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != NULL)
@@ -8821,7 +8811,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
 	UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
 	UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-	if (&pUnitInfo != NULL && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 	{
 		if (eUnitClass != NO_UNITCLASS && (eUnitClass == ePikemanClass) && GET_PLAYER(getOwner()).canTrainUnit(eZuluImpi, false, false, true))
 		{
@@ -14107,7 +14097,7 @@ void CvCity::conscript()
 	{
 		if (GC.getGame().getActivePlayer() == getOwner())
 		{
-			auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+			CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 			DLLUI->selectUnit(pDllUnit.get(), true, false, true);
 		}
 	}
@@ -18113,6 +18103,36 @@ bool CvCity::HasSharedAreaWith(const CvCity * pOther, bool bAllowLand, bool bAll
 }
 
 //	--------------------------------------------------------------------------------
+bool CvCity::HasAccessToLandmass(int iLandmassID) const
+{
+	CvPlot* pPlot = plot();
+	if (pPlot)
+	{
+		if (pPlot->getLandmass() == iLandmassID)
+			return true;
+		else
+		{
+			std::vector<int> allLandmasses = pPlot->getAllAdjacentLandmasses();
+			return std::find(allLandmasses.begin(), allLandmasses.end(), iLandmassID) != allLandmasses.end();
+		}
+	}
+
+	return false;
+}
+
+bool CvCity::HasSharedLandmassWith(const CvCity * pOther, bool bAllowLand, bool bAllowWater) const
+{
+	if (!pOther)
+		return false;
+
+	//shortcut ...
+	if (plot()->getLandmass() == pOther->plot()->getLandmass())
+		return true;
+
+	return plot()->hasSharedAdjacentLandmass(pOther->plot(),bAllowLand,bAllowWater);
+}
+
+//	--------------------------------------------------------------------------------
 // if called with an invalid unit as argument, the current garrison is removed but no new garrison created!
 void CvCity::SetGarrison(CvUnit* pUnit)
 {
@@ -18469,7 +18489,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 
 		setLayoutDirty(true);
 		{
-			auto_ptr<ICvCity1> pkDllCity(new CvDllCity(this));
+			CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(this));
 			gDLL->GameplayCityPopulationChanged(pkDllCity.get(), iNewValue);
 		}
 
@@ -21198,7 +21218,7 @@ void CvCity::ChangeResistanceTurns(int iChange)
 	{
 		m_iResistanceTurns += iChange;
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -21235,7 +21255,7 @@ void CvCity::ChangeRazingTurns(int iChange)
 	{
 		m_iRazingTurns += iChange;
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -21352,17 +21372,17 @@ bool CvCity::DoRazingTurn()
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
 						if (pNotifications2)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						if (GC.getLogging() && GC.getAILogging())
@@ -21381,17 +21401,17 @@ bool CvCity::DoRazingTurn()
 						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 						if (pNotifications)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
 						if (pNotifications2)
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName());
+							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName()));
 							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 						}
 						if (GC.getLogging() && GC.getAILogging())
@@ -27540,7 +27560,7 @@ void CvCity::setName(const char* szNewValue, bool bFound, bool bForceChange)
 			}
 
 
-			auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+			CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 			DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 		}
 		if (bFound)
@@ -27679,7 +27699,7 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -27747,7 +27767,7 @@ void CvCity::setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewVal
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -27844,7 +27864,7 @@ void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 			DLLUI->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 		DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -28409,7 +28429,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 	if (iValue != getDamage())
 	{
 		int iOldValue = getDamage();
-		auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+		CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 		gDLL->GameplayCitySetDamage(pDllCity.get(), iValue, iOldValue);
 
 		// send the popup text if the player can see this plot
@@ -29779,7 +29799,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 
-	auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(this);
+	CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(this);
 	DLLUI->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_PRODUCTION);
 }
 
@@ -30814,7 +30834,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		CvCity* theCapital = thisPlayer.getCapitalCity();
 		if (theCapital)
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
 			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
 			gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
 		}
@@ -30825,7 +30845,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 
 		if (NO_VICTORY != eVictory && GET_TEAM(getTeam()).canLaunch(eVictory))
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), eConstructed);
 			gDLL->sendLaunch(getOwner(), eVictory);
 		}
@@ -30866,7 +30886,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 				spaceshipState += eBooster3;
 			}
 
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
 		}
 	}
@@ -32259,7 +32279,7 @@ bool CvCity::doCheckProduction()
 						}
 					}
 
-					auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+					CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes)eExpiredBuilding, 0);
 #if defined(MOD_API_ACHIEVEMENTS)
 					//Add "achievement" for sucking it up
@@ -32526,7 +32546,7 @@ void CvCity::doProduction(bool bAllowNoProduction)
 				{
 					if (m_pCityBuildings->GetBuildingProduction(eBuilding) == 0)  // otherwise we are probably already showing this
 					{
-						auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+						CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 						DLLUI->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eBuilding, 0);
 					}
 				}
@@ -33042,27 +33062,27 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 			switch (order.eOrderType)
 			{
 			case ORDER_TRAIN:
-				visitor.as<UnitTypes>(order.iData1);
-				visitor.as<UnitAITypes>(order.iData2);
+				visitor.template as<UnitTypes>(order.iData1);
+				visitor.template as<UnitAITypes>(order.iData2);
 				break;
 
 			case ORDER_CONSTRUCT:
-				visitor.as<BuildingTypes>(order.iData1);
+				visitor.template as<BuildingTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_CREATE:
-				visitor.as<ProjectTypes>(order.iData1);
+				visitor.template as<ProjectTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_PREPARE:
-				visitor.as<SpecialistTypes>(order.iData1);
+				visitor.template as<SpecialistTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
 			case ORDER_MAINTAIN:
-				visitor.as<ProcessTypes>(order.iData1);
+				visitor.template as<ProcessTypes>(order.iData1);
 				visitor(order.iData2);
 				break;
 
@@ -33671,13 +33691,13 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if (isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				DLLUI->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(pPlot->isActiveVisible());
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -33734,7 +33754,7 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 			{
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
-				int iDamage = rangeCombatDamage(pTarget, NULL, false);
+				int iDamage = rangeCombatDamage(pTarget, NULL, NULL);
 				if (iDamage > iBestScore)
 				{
 					iBestScore = iDamage;
@@ -35353,7 +35373,8 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 
 bool CvCity::isUnderSiege() const
 {
-	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0;
+	//lots of possible conditions, many overlapping ... let's make sure we cover all angles
+	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0 || (IsBlockadedWaterAndLand() && getDamage() >= GetMaxHitPoints()/4) || isInDangerOfFalling();
 }
 
 int CvCity::getDamageTakenLastTurn() const

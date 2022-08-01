@@ -667,25 +667,17 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 			}
 
-			// Can't trade a city if sapped, or if not at full HP and enemies are nearby (except in a peace deal)
+			// Can't trade a city if sapped, blockaded, or took damage last turn (except in a peace deal)
 			if (!bPeaceDeal)
 			{
 				if (pCity->GetSappedTurns() > 0)
 					return false;
 
-				if (pCity->getDamage() > 0)
-				{
-					if (pCity->getDamageTakenLastTurn() > 0)
-						return false;
+				if (pCity->getDamageTakenLastTurn() > 0)
+					return false;
 
-					for (int iLoop = 0; iLoop < NUM_DIRECTION_TYPES; ++iLoop)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iLoop));
-
-						if (pAdjacentPlot && pAdjacentPlot->isBlockaded(ePlayer))
-							return false;
-					}
-				}
+				if (pCity->GetCityCitizens()->AnyPlotBlockaded())
+					return false;
 			}
 
 			break;
@@ -3829,7 +3821,7 @@ void CvDeal::RemoveThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (PlayerTypes)it->m_iData1 == eThirdPartyTeam &&
+		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			m_TradedItems.erase(it);
@@ -3863,7 +3855,7 @@ void CvDeal::ChangeThirdPartyWarDuration(PlayerTypes eFrom, TeamTypes eThirdPart
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR &&
-		        (PlayerTypes)it->m_iData1 == eThirdPartyTeam &&
+		        (TeamTypes)it->m_iData1 == eThirdPartyTeam &&
 		        (PlayerTypes)it->m_eFromPlayer == eFrom)
 		{
 			it->m_iDuration = iNewDuration;

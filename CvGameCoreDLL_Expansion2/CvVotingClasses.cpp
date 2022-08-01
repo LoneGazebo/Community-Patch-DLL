@@ -2216,7 +2216,7 @@ LeagueTypes CvLeague::GetID() const
 Localization::String CvLeague::GetName()
 {
 	Localization::String sName = Localization::Lookup("TXT_KEY_LEAGUE_WORLD_CONGRESS_GENERIC");
-	if (m_szCustomName == NULL || strlen(m_szCustomName) == 0)
+	if (strlen(m_szCustomName) == 0)
 	{
 		if (IsUnitedNations())
 		{

@@ -10,13 +10,10 @@
 #include <iterator>
 
 // Interface similar to C++20's std::span
-// Similar to Fraxis' ArrayWrapper but more "correct"
+// Similar to Firaxis' ArrayWrapper but more "correct"
 // Exists mostly to make serialization easier but feel free to use anywhere
 
-enum DynamicExtentType
-{
-	DYNAMIC_EXTENT = std::size_t(-1),
-};
+const std::size_t DYNAMIC_EXTENT = -1;
 
 template<typename T, std::size_t TExtent = DYNAMIC_EXTENT>
 class CvSpan
@@ -40,7 +37,7 @@ public:
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
 	typedef std::reverse_iterator<ConstIterator> ConstReverseIterator;
 
-	enum { Extent = TExtent };
+	static const std::size_t Extent = TExtent;
 
 	template<typename It>
 	inline explicit CvSpan(It first, typename CvMeta::EnableIf<CvMeta::IsSame<typename std::iterator_traits<It>::iterator_category, std::random_access_iterator_tag>::Value, SizeType>::Type count)
@@ -133,7 +130,7 @@ public:
 	typedef T* Iterator;
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
 
-	enum { Extent = DYNAMIC_EXTENT };
+	static const std::size_t Extent = DYNAMIC_EXTENT;
 
 	inline CvSpan()
 		: m_begin(NULL)
@@ -241,7 +238,7 @@ public:
 	typedef std::reverse_iterator<Iterator> ReverseIterator;
 	typedef std::reverse_iterator<ConstIterator> ConstReverseIterator;
 
-	enum { Extent = 0 };
+	static const std::size_t Extent = 0;
 
 	inline CvSpan()
 	{

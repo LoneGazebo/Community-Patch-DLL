@@ -1792,7 +1792,7 @@ void CvMilitaryAI::UpdateDefenseState()
 		int iCityLoop;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling())
+			if (pLoopCity->isUnderSiege())
 			{
 				m_eLandDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
@@ -1822,7 +1822,7 @@ void CvMilitaryAI::UpdateDefenseState()
 		int iCityLoop;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
-			if (pLoopCity->isCoastal() && (pLoopCity->isUnderSiege() || pLoopCity->isInDangerOfFalling()))
+			if (pLoopCity->isCoastal() && pLoopCity->isUnderSiege())
 			{
 				m_eNavalDefenseState = DEFENSE_STATE_CRITICAL;
 				break;
@@ -2514,24 +2514,6 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	}
 }
 
-bool NeedShipInArea(PlayerTypes ePlayer, CvArea* pWaterBody)
-{
-	if (pWaterBody)
-	{
-		int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(ePlayer);
-		int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(ePlayer);
-		bool bTooManyUnits = (pWaterBody->getNumTiles() < pWaterBody->getUnitsPerPlayer(ePlayer) * /*6*/ GD_INT_GET(AI_CONFIG_MILITARY_TILES_PER_SHIP));
-
-		if (!bTooManyUnits)
-			if (iForeignCities > 0 || iForeignUnits > 0)
-				return true;
-	}
-
-	return false;
-}
-
-
-
 CvUnit* CvMilitaryAI::FindUselessShip()
 {
 	vector<CvUnit*> candidates;
@@ -2549,7 +2531,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			//check the current area first
-			if (NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->area()))
+			if (MilitaryAIHelpers::NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->landmass()))
 				continue;
 
 			candidates.push_back(pLoopUnit);
@@ -2574,18 +2556,18 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 		//two turns is a good compromise between reliability and performance 
 		SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE, 2);
 		ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->getX(), pLoopUnit->getY(), data);
-		set<int> areas;
+		set<int> landmasses;
 
 		for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 			if (pPlot && pPlot->isWater())
-				areas.insert(pPlot->getArea());
+				landmasses.insert(pPlot->getLandmass());
 		}
-		for (set<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		for (set<int>::iterator it = landmasses.begin(); it != landmasses.end(); ++it)
 		{
-			CvArea* pWaterBody = GC.getMap().getArea(*it);
-			if (NeedShipInArea(m_pPlayer->GetID(), pWaterBody))
+			CvLandmass* pWaterBody = GC.getMap().getLandmass(*it);
+			if (MilitaryAIHelpers::NeedShipInArea(m_pPlayer->GetID(), pWaterBody))
 			{
 				bIsUseless = false;
 				break;
@@ -4203,6 +4185,22 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(CvPlayer* pPlayer, int i
 
 
 // MORE NON-MEMBER FUNCTIONS
+
+bool MilitaryAIHelpers::NeedShipInArea(PlayerTypes ePlayer, CvLandmass* pWaterBody)
+{
+	if (!pWaterBody)
+		return false;
+
+	int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(ePlayer);
+	int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(ePlayer);
+	bool bTooManyUnits = (pWaterBody->getNumTiles() < pWaterBody->getUnitsPerPlayer(ePlayer) * /*6*/ GD_INT_GET(AI_CONFIG_MILITARY_TILES_PER_SHIP));
+
+	if (!bTooManyUnits)
+		if (iForeignCities > 0 || iForeignUnits > 0)
+			return true;
+
+	return false;
+}
 
 //todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
 CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam)

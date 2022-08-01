@@ -3730,7 +3730,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				continue;
 
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
-			Localization::String strSummary = bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S");
+			Localization::String strSummary(bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S"));
 
 			// City acquirer gets a different notification
 			if (eLoopPlayer == GetID())
@@ -3916,7 +3916,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Prepare the city to be destroyed
 	pCity->PreKill();
-	auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
+	CvInterfacePtr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
 	gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 
 	// Get rid of the old city!
@@ -10507,15 +10507,11 @@ CvPlot* CvPlayer::GetBestCoastalSpawnPlot (CvUnit *pUnit)
 		if (pUnit && !pUnit->canEndTurnAtPlot(pLoopCity->plot()))
 			continue;
 
-		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
-		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		CvLandmass* pLocalMax = pLoopCity->plot()->GetLargestAdjacentWater();
+		if (pLocalMax && pLocalMax->getNumTiles()>iLargestWaterSize)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
-			if (pkArea->isWater() && pkArea->getNumTiles()>iLargestWaterSize)
-			{
-				iLargestWaterSize = pkArea->getNumTiles();
-				pLargestWaterAreaPlot = pLoopCity->plot();
-			}
+			iLargestWaterSize = pLocalMax->getNumTiles();
+			pLargestWaterAreaPlot = pLoopCity->plot();
 		}
 	}
 
@@ -11942,28 +11938,30 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits()
+void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
 {
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getLogging() && GC.getAILogging())
+		
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
 				CvString strLogString;
-				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
-#endif
+		}
+		if (bEndLinkedTurns && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		{
+			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 	}
 }
-
 //	--------------------------------------------------------------------------------
 bool CvPlayer::hasAutoUnit() const
 {
@@ -12021,7 +12019,7 @@ const CvCity* CvPlayer::getBusyCity() const
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 //	----------------------------------------------------------------------------
@@ -12632,7 +12630,7 @@ void CvPlayer::findNewCapital()
 			if (thisTeam.getProjectCount((ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT)) == 1) {
 				if (isAlive()) {
 					CUSTOMLOG("Rebuilding launch pad at (%i, %i)", pBestCity->getX(), pBestCity->getY());
-					auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
+					CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
 					gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0001); // Display just the launch pad
 				}
 			}
@@ -12847,7 +12845,7 @@ void CvPlayer::disband(CvCity* pCity)
 			int iPreferredPosition = buildingInfo->GetPreferredDisplayPosition();
 			if (iPreferredPosition > 0)
 			{
-				auto_ptr<ICvCity1> pDllCity(new CvDllCity(pCity));
+				CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(pCity));
 
 				if (iExists > 0)
 				{
@@ -12871,7 +12869,7 @@ void CvPlayer::disband(CvCity* pCity)
 	}
 
 	{
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pCity));
 		gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pCity->getDamage());
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
@@ -12880,6 +12878,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if (pPlot)
 	{
+		pPlot->SetPlayerThatDestroyedCityHere(GetID());
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
@@ -21015,7 +21014,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21025,7 +21024,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21035,7 +21034,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", GetCityRevoltCounter(), pMostUnhappyCity->getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", GetCityRevoltCounter(), pMostUnhappyCity->getName()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21140,7 +21139,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -21176,7 +21175,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -21212,7 +21211,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", iTurns, pMostUnhappyCity->getName());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", iTurns, pMostUnhappyCity->getName()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -33285,7 +33284,7 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 
 			if (pPlot) {
 				CUSTOMLOG("Removing launch pad at (%i, %i)", pPlot->getX(), pPlot->getY());
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 				gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0000); // Remove the launch pad
 			}
 		}
@@ -41280,7 +41279,7 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	//no AI operations for human players
 	if (isHuman())
 	{
-		CUSTOMLOG("warning: trying to create an AI operation for a human player!")
+		CUSTOMLOG("warning: trying to create an AI operation for a human player!");
 		return NULL;
 	}
 

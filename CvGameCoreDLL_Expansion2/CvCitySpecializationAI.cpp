@@ -340,7 +340,7 @@ void CvCitySpecializationAI::DoTurn()
 	int iCityLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity->isInDangerOfFalling() || pLoopCity->isUnderSiege())
+		if (pLoopCity->isUnderSiege())
 		{
 			SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
 			break;

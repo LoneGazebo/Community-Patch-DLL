@@ -553,7 +553,7 @@
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
-			<AIUnhappinessPercent>-5</AIUnhappinessPercent>
+			<AIUnhappinessPercent>0</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>80</AIUnitCostPercent>
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
@@ -636,7 +636,7 @@
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
-			<AIUnhappinessPercent>-10</AIUnhappinessPercent>
+			<AIUnhappinessPercent>0</AIUnhappinessPercent>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIUnitCostPercent>70</AIUnitCostPercent>
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
@@ -676,8 +676,8 @@
 			<!-- Player Bonuses -->
 			<!-- These bonuses are applied in addition to any bonuses the AI gets above. -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>10</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>7</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>

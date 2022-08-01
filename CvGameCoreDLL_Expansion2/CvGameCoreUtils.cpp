@@ -1048,9 +1048,9 @@ bool isPickableName(const char* szName)
 {
 	if(szName)
 	{
-		int iLen = _tcslen(szName);
+		int iLen = strlen(szName);
 
-		if(!_tcsicmp(&szName[iLen-6], "NOPICK"))
+		if(!_stricmp(&szName[iLen-6], "NOPICK"))
 		{
 			return false;
 		}

@@ -97,6 +97,7 @@ end
 function OnEndTurnClicked()
 
 	local player = Players[Game.GetActivePlayer()];
+	local bShift = UIManager:GetShift();
 	if not player:IsTurnActive() then
 		print("Player's turn not active");
 		return;
@@ -114,6 +115,12 @@ function OnEndTurnClicked()
 		return;
 	end
 
+	-- VP START
+	player:EndTurnsForReadyUnits(true) -- end turns for linked units by issuing a skip mission order
+	if bShift then
+		player:EndTurnsForReadyUnits(false) -- end turns for all idle units
+	end
+	-- VP END
 	local blockingType = player:GetEndTurnBlockingType();
 	local blockingNotificationIndex = player:GetEndTurnBlockingNotificationIndex();
 	
@@ -163,6 +170,9 @@ function OnEndTurnClicked()
 			UI.SelectUnit(pUnit);
 			local hex = ToHexFromGrid( Vector2(pPlot:GetX(), pPlot:GetY() ) );
 			Events.GameplayFX(hex.x, hex.y, -1);				
+		else
+			print("pUnit = player:GetFirstReadyUnit() IS NIL")
+	 		player:EndTurnsForReadyUnits(false) -- end turns for all idle units
 		end	
 	--elseif (blockingType == EndTurnBlockingTypes.ENDTURN_BLOCKING_UNITS) then
 	--	-- Skip active Unit's turn

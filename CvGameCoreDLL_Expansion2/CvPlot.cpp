@@ -214,6 +214,7 @@ void CvPlot::reset()
 	m_iPlotChangeMoves = 0;
 #endif
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
+	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
 	m_eRouteType = NO_ROUTE;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_eUnitIncrement = 0;
@@ -344,7 +345,7 @@ void CvPlot::doTurn()
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK)
 	{
 		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
@@ -545,12 +546,12 @@ void CvPlot::updateVisibility()
 				if (eInvisibleType != NO_INVISIBLE)
 				{
 					// This unit has visibility rules, send a message that it needs to update itself.
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 				}
 				if (pLoopUnit->IsHiddenByNearbyUnit(this))
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 				}
 			}
@@ -571,13 +572,13 @@ void CvPlot::updateVisibility()
 					if (eInvisibleType != NO_INVISIBLE)
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 					}
 					if (pLoopUnit->IsHiddenByNearbyUnit(this))
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 					}
 				}
@@ -589,7 +590,7 @@ void CvPlot::updateVisibility()
 //	--------------------------------------------------------------------------------
 void CvPlot::updateSymbols()
 {
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayYieldMightHaveChanged(pDllPlot.get());
 }
 
@@ -643,7 +644,7 @@ void CvPlot::updateCenterUnit()
 
 		if(pLoopUnit)
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 
 			if(pCenterUnit == pLoopUnit)
 			{
@@ -935,33 +936,57 @@ bool CvPlot::isAdjacentToIce() const
 #endif
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetSizeLargestAdjacentWater() const
+CvLandmass* CvPlot::GetLargestAdjacentWater() const
 {
-	int iRtnValue = 0;
-
 	if(isWater())
-	{
-		return iRtnValue;
-	}
+		return NULL;
+
+	CvLandmass* pResult = NULL;
+	int iMaxSize = 0;
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-		if(pAdjacentPlot != NULL)
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
 		{
-			if(pAdjacentPlot->isWater())
+			CvLandmass* pAdjacentBodyOfWater = pAdjacentPlot->landmass();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iRtnValue)
-				{
-					iRtnValue = pAdjacentBodyOfWater->getNumTiles();
-				}
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
 			}
 		}
 	}
 
-	return iRtnValue;
+	return pResult;
+}
+
+//	--------------------------------------------------------------------------------
+CvArea* CvPlot::GetLargestAdjacentWaterArea() const
+{
+	if(isWater())
+		return NULL;
+
+	CvArea* pResult = NULL;
+	int iMaxSize = 0;
+
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
+		{
+			CvArea* pAdjacentBodyOfWater = pAdjacentPlot->area();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
+			{
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
+			}
+		}
+	}
+
+	return pResult;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1043,19 +1068,10 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
 				continue;
 
-			CvArea* pArea = pAdjacentPlot->area();
-			if (pArea)
-			{
-				if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
-			// fallback to old method if pArea is null
-			else
-			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
+			//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
+			CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+				return true;
 		}
 	}
 
@@ -1995,7 +2011,8 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 
 	if(thisResourceInfo.getMinAreaSize() != -1)
 	{
-		if(area()->getNumTiles() < thisResourceInfo.getMinAreaSize())
+		//better check landmass size, one landmass may have multiple areas
+		if(landmass()->getNumTiles() < thisResourceInfo.getMinAreaSize())
 		{
 			return false;
 		}
@@ -4868,7 +4885,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	std::vector<int> myAreas = getAllAdjacentAreas();
 	std::vector<int> theirAreas = pOther->getAllAdjacentAreas();
 
-	//fancy stl version works only sometimes
+	//fancy stl version works only under conditions
 	if (bAllowLand && bAllowWater)
 	{
 		std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
@@ -4961,6 +4978,68 @@ void CvPlot::setLandmass(int iNewValue)
 		}
 	}
 }
+
+CvLandmass * CvPlot::landmass() const
+{
+	return GC.getMap().getLandmass(m_iLandmass);
+}
+
+//	--------------------------------------------------------------------------------
+std::vector<int> CvPlot::getAllAdjacentLandmasses() const
+{
+	std::vector<int> result;
+
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
+		//exclude our own area! also, simply deduplication, but no guarantee for unique values in result
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getLandmass() != getLandmass())
+			if (result.empty() || result.back()!=pAdjacentPlot->getLandmass())
+				result.push_back(pAdjacentPlot->getLandmass());
+	}
+
+	return result;
+}
+
+bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const
+{
+	if (!pOther)
+		return false;
+
+	std::vector<int> myLandmasses = getAllAdjacentLandmasses();
+	std::vector<int> theirLandmasses = pOther->getAllAdjacentLandmasses();
+
+	//fancy stl version works only under conditions
+	if (bAllowLand && bAllowWater)
+	{
+		std::vector<int> shared(MAX(myLandmasses.size(), theirLandmasses.size()));
+		std::vector<int>::iterator result = std::set_intersection(myLandmasses.begin(), myLandmasses.end(), theirLandmasses.begin(), theirLandmasses.end(), shared.begin());
+		return (result != shared.begin());
+	}
+
+	//manual version
+	for (vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
+	{
+		CvLandmass* a1 = GC.getMap().getLandmass(*i1);
+		if (!bAllowWater && a1->isWater())
+			continue;
+		if (!bAllowLand && !a1->isWater())
+			continue;
+
+		for (vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
+		{
+			CvLandmass* a2 = GC.getMap().getLandmass(*i2);
+
+			//don't need to check for water/land again, id is enough
+			if (a1->GetID() == a2->GetID())
+				return true;
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getOwnershipDuration() const
@@ -5781,7 +5860,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if (pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
 					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
 					{
@@ -6016,8 +6095,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
+						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
 					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
@@ -6134,11 +6213,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						newPlayer.SetCityDistanceHighwaterMark(bestHighWaterMark);
 						if(GC.GetEngineUserInterface()->isCityScreenUp())
 						{
-							auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
-							if(pHeadSelectedCity.get())
+							CvInterfacePtr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
+							if(pHeadSelectedCity)
 							{
 								CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
-								auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
+								CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
 								GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_CITY_ZOOM_IN);
 							}
 						}
@@ -6205,12 +6284,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(GC.getGame().isDebugMode())
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 				GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 			}
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 		GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
@@ -6246,7 +6325,7 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isEnemyUnit(eForPlayer, true, true))
 		return true;
 
-	if (isFriendlyUnit(eForPlayer, true, false))
+	if (isFriendlyUnit(eForPlayer, true, false) || isNeutralUnit(eForPlayer, true, true))
 		return false;
 
 	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;
@@ -6617,7 +6696,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			updateSeeFromSight(false,true);
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 		gDLL->GameplayFeatureChanged(pDllPlot.get(), eNewValue);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -7164,6 +7243,25 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
 
+	// new farm resources: generic farm textures for asia and american are replaced with rice and maize farm texs. 
+	// when a farm is built on those continents, check for plot's resource. if it's a generic, non-resource farm, change the art to another continent to get diverse generic graphics.
+	// if it's built on rice or maize, change the continent art if needed. america 1, asia 2, africa 3, europe 4 (ocean 0, don't use that)
+	if (eNewValue == 3) // id for farm 
+	{
+		int iContinentType = GetContinentType();
+		ResourceTypes eResourceType = getResourceType();
+
+		if (eResourceType == NO_RESOURCE && iContinentType < 3) { // only change it when current type is asia or america
+			SetContinentType(iContinentType + 2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_RICE", true) && iContinentType != 2) {
+			SetContinentType(2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_MAIZE", true) && iContinentType != 1) {
+			SetContinentType(1);
+		}
+	}
+
 	if (eBuilder != NO_PLAYER)
 	{
 		if (eNewValue != NO_IMPROVEMENT && getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
@@ -7294,7 +7392,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
-					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7337,7 +7435,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 			}
 #endif
@@ -7671,7 +7769,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (newImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7753,7 +7851,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}	
 #endif
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
@@ -8079,7 +8177,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_FEATURE && pAdjacentPlot->getOwner() == eBuilder)
 					{	
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
@@ -8728,6 +8826,18 @@ PlayerTypes CvPlot::GetPlayerThatClearedDigHere() const
 void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 {
 	m_ePlayerThatClearedDigHere = eNewValue;
+}
+
+//	--------------------------------------------------------------------------------
+PlayerTypes CvPlot::GetPlayerThatDestroyedCityHere() const
+{
+	return (PlayerTypes)m_ePlayerThatDestroyedCityHere;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetPlayerThatDestroyedCityHere(PlayerTypes eNewValue)
+{
+	m_ePlayerThatDestroyedCityHere = eNewValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10936,7 +11046,7 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-inline bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
+bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -11188,7 +11298,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 							}
 						}
 #endif
-						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 						gDLL->GameplayNaturalWonderRevealed(pDllPlot.get());
 					}
 				}
@@ -11871,7 +11981,7 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -11971,7 +12081,7 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->getInvisibleType() == eInvisible)
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -12508,16 +12618,17 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlotType);
 	visitor(plot.m_eTerrainType);
 
-	visitor.as<FeatureTypes>(plot.m_eFeatureType);
-	visitor.as<ResourceTypes>(plot.m_eResourceType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
+	visitor.template as<FeatureTypes>(plot.m_eFeatureType);
+	visitor.template as<ResourceTypes>(plot.m_eResourceType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
 	visitor(plot.m_ePlayerResponsibleForRoute);
 	visitor(plot.m_ePlayerThatClearedBarbCampHere);
 	visitor(plot.m_ePlayerThatClearedDigHere);
+	visitor(plot.m_ePlayerThatDestroyedCityHere);
 	visitor(plot.m_eRouteType);
 	visitor(plot.m_eUnitIncrement);
 	visitor(plot.m_eWorldAnchor);
@@ -12546,8 +12657,8 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
-		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
-		visitor.as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
+		visitor.template as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
+		visitor.template as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
 	}
@@ -12789,7 +12900,7 @@ void CvPlot::updateLayout(bool bDebug)
 		}
 	}
 
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayPlotStateChange
 	(
 	    pDllPlot.get(),
@@ -13145,7 +13256,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 		else if (thisUnitDomain == DOMAIN_LAND)
 		{
-			if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+			if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 			{
 				return false;
 			}
@@ -13153,7 +13264,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	}
 	else
 	{
-		if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+		if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 		{
 			return false;
 		}
@@ -13840,7 +13951,7 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -13939,7 +14050,7 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14004,7 +14115,7 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14069,7 +14180,7 @@ bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{

@@ -226,6 +226,20 @@
 			<IconsPerRow>1</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
+		<Row>
+			<Atlas>GROUP_MOVE_ATLAS</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>GroupMove64.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>GROUP_MOVE_ATLAS</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>GroupMove45.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
 	</IconTextureAtlases>
 	<IconFontTextures>
 		<Row>

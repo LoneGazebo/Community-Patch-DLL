@@ -1169,7 +1169,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(COMBAT_DAMAGE, 20),
 	GD_INT_INIT(NONCOMBAT_UNIT_RANGED_DAMAGE, 40),
 	GD_INT_INIT(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER, 100),
-	GD_INT_INIT(LAKE_MAX_AREA_SIZE, 9),
 	GD_INT_INIT(INITIAL_GOLD_PER_UNIT_TIMES_100, 50),
 	GD_INT_INIT(INITIAL_FREE_OUTSIDE_UNITS, 3),
 	GD_INT_INIT(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT, 0),
@@ -1990,7 +1989,7 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 	/* Open a file to store the minidump. */
 	HANDLE hFile = CreateFile(_T("CvMiniDump.dmp"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
-		_tprintf(_T("CreateFile failed. Error: %u \n"), GetLastError());
+		_tprintf(_T("CreateFile failed. Error: %lu \n"), GetLastError());
 		return;
 	}
 
@@ -2280,9 +2279,9 @@ CvCity* CvGlobals::UnwrapCityPointer(ICvCity1* pCity)
 	return (NULL != pCity)? static_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
+CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
 {
-	return auto_ptr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
+	return CvInterfacePtr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
 }
 //------------------------------------------------------------------------------
 CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
@@ -2290,9 +2289,9 @@ CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
 	return (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
+CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
 {
-	return auto_ptr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
+	return CvInterfacePtr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
 }
 //------------------------------------------------------------------------------
 CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
@@ -2300,9 +2299,9 @@ CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
 	return (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
+CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
 {
-	return auto_ptr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
+	return CvInterfacePtr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
 }
 //------------------------------------------------------------------------------
 CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
@@ -2310,14 +2309,14 @@ CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
 	return (NULL != pRandom)? static_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
+CvInterfacePtr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
 {
-	return auto_ptr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
+	return CvInterfacePtr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
+CvInterfacePtr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
 {
-	return auto_ptr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
+	return CvInterfacePtr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
 }
 //------------------------------------------------------------------------------
 CvUnit* CvGlobals::UnwrapUnitPointer(ICvUnit1* pUnit)
@@ -5488,7 +5487,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(COMBAT_DAMAGE);
 	GD_INT_CACHE(NONCOMBAT_UNIT_RANGED_DAMAGE);
 	GD_INT_CACHE(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER);
-	GD_INT_CACHE(LAKE_MAX_AREA_SIZE);
 	GD_INT_CACHE(INITIAL_GOLD_PER_UNIT_TIMES_100);
 	GD_INT_CACHE(INITIAL_FREE_OUTSIDE_UNITS);
 	GD_INT_CACHE(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
