@@ -115,6 +115,11 @@ INSERT INTO Policy_YieldFromBirthCapitalRetroactive
 VALUES
 	('POLICY_LIBERTY', 'YIELD_SCIENCE', 15);
 
+INSERT INTO Policy_YieldFromTechRetroactive
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_LIBERTY', 'YIELD_CULTURE', 15);
+
 INSERT INTO Policy_YieldFromBirthCapital
 	(PolicyType, YieldType, Yield)
 VALUES

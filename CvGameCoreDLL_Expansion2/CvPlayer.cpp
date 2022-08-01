@@ -26062,6 +26062,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = iPassYield;
 					break;
 				}
+				case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue = iPassYield;
+					break;
+				}
 
 				case INSTANT_YIELD_TYPE_REFUND:
 				{
@@ -27345,17 +27353,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE");
+					localizedText << totalyieldString;
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+				}
+				break;
 			}
 
 			case INSTANT_YIELD_TYPE_REFUND:
@@ -41975,6 +41994,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Birth Retro";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+		{
+			instantYieldName = "Tech Retro";
+			break;
+		}
 	case INSTANT_YIELD_TYPE_SPY_ATTACK:
 			{
 				instantYieldName = "Spy Attack";
@@ -44010,12 +44034,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeYieldFromWorldWonderConstruction(eYield, (pPolicy->GetYieldFromWorldWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
-		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
+		if (pPolicy->GetYieldFromTechRetroactive(eYield) != 0)
 		{
-			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTech(iI);
+			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTechRetroactive(iI);
 
 			if (iTechValue > 0)
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_TECH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
 		}
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
