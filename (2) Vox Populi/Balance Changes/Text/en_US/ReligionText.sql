@@ -82,7 +82,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on [ICON_RES_WHEAT] Wheat'
+SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on [ICON_RES_WHEAT] Wheat, [ICON_RES_MAIZE] Maize or [ICON_RES_RICE] Rice.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 
