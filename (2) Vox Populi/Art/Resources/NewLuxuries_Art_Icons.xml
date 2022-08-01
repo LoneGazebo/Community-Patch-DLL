@@ -115,6 +115,16 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
 			<IconMapping>12</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_RES_MAIZE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>13</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_RES_RICE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_NEWLUXURIES</IconFontTexture>
+			<IconMapping>14</IconMapping>
+		</Row>
 	</IconFontMapping>
 	
 </GameData>

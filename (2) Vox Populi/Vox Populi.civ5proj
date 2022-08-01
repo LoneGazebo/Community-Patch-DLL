@@ -870,6 +870,15 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <Filename>Balance Changes/Terrain/NewFarmResources.sql</Filename>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <Filename>Balance Changes/Terrain/NewFarmResources_Text.xml</Filename>
+      </Action>      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <Filename>Compatibility/CSD/CSDCompatibility.sql</Filename>
       </Action>
       <Action>
@@ -1063,8 +1072,10 @@
     <Folder Include="Art\Resources\Coral" />
     <Folder Include="Art\Resources\Jade" />
     <Folder Include="Art\Resources\Lapis Lazuli" />
+    <Folder Include="Art\Resources\Maize" />
     <Folder Include="Art\Resources\Olives" />
     <Folder Include="Art\Resources\Perfume" />
+    <Folder Include="Art\Resources\Rice" />
     <Folder Include="Art\Resources\Tea" />
     <Folder Include="Art\Resources\Tobacco" />
     <Folder Include="Art\Resources\Sugar" />
@@ -2892,6 +2903,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Core Changes\farm_types.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Core Changes\LinkUnits.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -4152,6 +4167,26 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Art\Resources\Maize\resource_maize.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Maize\resource_maize.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Maize\sv_maize.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Maize\crops_maize_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Maize\resource_maize_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Art\Resources\Olives\olive.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -4289,6 +4324,26 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Resources\Perfume\sv_perfume.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Rice\resource_rice.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Rice\resource_rice.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Rice\sv_rice.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Rice\crops_rice_d.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Resources\Rice\resource_rice_diff.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
