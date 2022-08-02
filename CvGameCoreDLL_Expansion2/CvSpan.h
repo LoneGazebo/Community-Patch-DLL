@@ -279,18 +279,18 @@ public:
 
 	inline Reference front() const
 	{
-		CvAssertMsg(false, "front() of empty extent is undefined behavior");
-		return *static_cast<Pointer>(NULL);
+		CvAssertMsg(false, "front() of empty extent is always invalid");
+		BUILTIN_TRAP();
 	}
 	inline Reference back() const
 	{
-		CvAssertMsg(false, "back() of empty extent is undefined behavior");
-		return *static_cast<Pointer>(NULL);
+		CvAssertMsg(false, "back() of empty extent is always invalid");
+		BUILTIN_TRAP();
 	}
 	inline Reference operator[](SizeType idx) const
 	{
-		CvAssertMsg(false, "operator[] of empty extent is undefined behavior");
-		return *static_cast<Pointer>(NULL);
+		CvAssertMsg(false, "operator[] of empty extent is always invalid");
+		BUILTIN_TRAP();
 	}
 	inline Pointer data() const
 	{
