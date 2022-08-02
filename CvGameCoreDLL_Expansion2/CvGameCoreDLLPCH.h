@@ -29,7 +29,7 @@
 #define FLAG_ENUM
 #define ENUM_META_VALUE
 #define BUILTIN_UNREACHABLE() __assume(0)
-#define BUILTIN_TRAP() __debugbreak()
+#define BUILTIN_TRAP() __asm { ud2 }; __assume(0)
 #endif // __clang__
 
 /// Informs that a location is unreachable.
