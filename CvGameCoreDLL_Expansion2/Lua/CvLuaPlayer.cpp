@@ -8070,9 +8070,12 @@ int CvLuaPlayer::lGetPersonality(lua_State* L)
 int CvLuaPlayer::lSetPersonality(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (!pkPlayer->isMinorCiv())
+		luaL_error(L, "Player is not a minor civilization");
 	const int iPersonality = lua_tointeger(L, 2);
-
-	pkPlayer->GetMinorCivAI()->SetPersonality((MinorCivPersonalityTypes) iPersonality);
+	if (iPersonality <= NO_MINOR_CIV_PERSONALITY_TYPE || iPersonality >= NUM_MINOR_CIV_PERSONALITY_TYPES)
+		luaL_error(L, "Invalid minor personality index %d", iPersonality);
+	pkPlayer->GetMinorCivAI()->SetPersonality(static_cast<MinorCivPersonalityTypes>(iPersonality));
 	return 0;
 }
 //------------------------------------------------------------------------------
