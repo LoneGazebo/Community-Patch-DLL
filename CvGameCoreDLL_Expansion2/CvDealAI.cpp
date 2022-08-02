@@ -529,6 +529,11 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 					iOddsOfGivingIn += 10;
 					break;
 				}
+				case THREAT_SEVERE:
+				{
+					iOddsOfGivingIn += 15;
+					break;
+				}
 				case THREAT_CRITICAL:
 				{
 					iOddsOfGivingIn += 25;
@@ -1535,6 +1540,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			iItemValue *= 90;
 			iItemValue /= 100;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 100;
 			iItemValue /= 100;
@@ -1618,6 +1624,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 100;
 			iItemValue /= 100;
@@ -1798,6 +1805,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue *= 90;
 			iItemValue /= 100;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 100;
 			iItemValue /= 100;
@@ -1896,6 +1904,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue *= 110;
 			iItemValue /= 100;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 100;
 			iItemValue /= 100;
@@ -2089,6 +2098,9 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 		//don't sell to warmongers
 		switch (GET_PLAYER(pCity->getOwner()).GetDiplomacyAI()->GetWarmongerThreat(eAssumedOwner))
 		{
+		case THREAT_NONE:
+		case THREAT_MINOR:
+			break; // No change in value.
 		case THREAT_MAJOR:
 			iItemValue *= 2;
 			break;
@@ -2674,6 +2686,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_NEUTRAL:
 			iItemValue *= 125;
@@ -2757,6 +2770,7 @@ int CvDealAI::GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, Te
 		case CIV_APPROACH_DECEPTIVE:
 			iItemValue *= 150;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_GUARDED:
 		case CIV_APPROACH_AFRAID:
 		case CIV_APPROACH_NEUTRAL:
@@ -2960,11 +2974,17 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	// Modify for our feelings towards the asking player
 	switch (eApproachTowardsAskingPlayer)
 	{
+	case CIV_APPROACH_WAR:
+	case CIV_APPROACH_HOSTILE:
+	case CIV_APPROACH_DECEPTIVE:
+	case CIV_APPROACH_GUARDED:
+		break; // No change.
 	case CIV_APPROACH_FRIENDLY:
 	case CIV_APPROACH_AFRAID:
 		iItemValue *= 90;
 		iItemValue /= 100;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_NEUTRAL:
 		iItemValue *= 150;
 		iItemValue /= 100;
@@ -6365,6 +6385,12 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		case CIV_OPINION_FAVORABLE:
 			iOddsOfGivingIn += 25;
 			break;
+		case CIV_OPINION_NEUTRAL:
+		case CIV_OPINION_COMPETITOR:
+		case CIV_OPINION_ENEMY:
+		case CIV_OPINION_UNFORGIVABLE:
+		case NO_CIV_OPINION:
+			break; // No change.
 		}
 
 		// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
@@ -6518,6 +6544,7 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer)
 			case TERRAIN_TUNDRA:
 				iPlotValue = 2;
 				break;
+			case NO_TERRAIN:
 			case TERRAIN_MOUNTAIN:
 			case TERRAIN_SNOW:
 			case TERRAIN_OCEAN:
@@ -7293,6 +7320,12 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 										bWorthIt = true;
 									}
 									break;
+								case NO_CIV_OPINION:
+								case CIV_OPINION_NEUTRAL:
+								case CIV_OPINION_COMPETITOR:
+								case CIV_OPINION_ENEMY:
+								case CIV_OPINION_UNFORGIVABLE:
+									break; // meh.
 							}
 						}
 					}

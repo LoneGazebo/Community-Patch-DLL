@@ -2024,6 +2024,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// Note: If default primary pursuit is NO_VICTORY_PURSUIT, there will also be no default secondary pursuit
 	switch (eSecondaryVictory)
 	{
+	case NO_VICTORY_PURSUIT:
+		break;
 	case VICTORY_PURSUIT_DOMINATION:
 		VictoryScores[VICTORY_PURSUIT_DOMINATION] += 3;
 		break;
@@ -10877,6 +10879,9 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				// Decay slower if he's stronger than us, decay faster if he's not.
 				switch (GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer))
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
+					break;
 				case STRENGTH_IMMENSE:
 					iDecayModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_IMMENSE);
 					break;
@@ -10999,6 +11004,10 @@ void CvDiplomacyAI::DoUpdatePlayerTargetValues()
 			// Factor in distance
 			switch (GetPlayer()->GetProximityToPlayer(ePlayer))
 			{
+			case NO_PLAYER_PROXIMITY:
+				// TODO: This would imply the target has not settled any cities yet.
+				// This fact should influence this value in some way.
+				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				iMilitaryRatio += /*-10*/ GD_INT_GET(TARGET_NEIGHBORS);
 				break;
@@ -11207,6 +11216,9 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How strong is this friend compared to the other guy?
 				switch (eThirdPartyStrength)
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
 					break;
@@ -11233,6 +11245,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How close is this friend to the other guy?
 				switch (eThirdPartyProximity)
 				{
+				case NO_PLAYER_PROXIMITY:
 				case PLAYER_PROXIMITY_DISTANT:
 					iThirdPartyValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_DISTANT);
 					break;
@@ -11323,6 +11336,9 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How strong is this City-State ally compared to the other guy?
 				switch (eThirdPartyStrength)
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
 					break;
@@ -11349,6 +11365,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How close is this City-State ally to the other guy?
 				switch (eThirdPartyProximity)
 				{
+				case NO_PLAYER_PROXIMITY:
 				case PLAYER_PROXIMITY_DISTANT:
 					iThirdPartyValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_DISTANT);
 					break;
@@ -11399,6 +11416,9 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How strong is this friend compared to the other guy?
 				switch (eThirdPartyStrength)
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GC.getTARGET_MAJOR_BACKUP_PATHETIC();
 					break;
@@ -11425,6 +11445,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				// How close is this friend to the other guy?
 				switch (eThirdPartyProximity)
 				{
+				case NO_PLAYER_PROXIMITY:
 				case PLAYER_PROXIMITY_DISTANT:
 					iThirdPartyValue *= /*0*/ GC.getTARGET_MAJOR_BACKUP_DISTANT();
 					break;
@@ -14741,6 +14762,9 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 		{
 			switch (eTreatmentLevel)
 			{
+			case NO_VASSAL_TREATMENT:
+				UNREACHABLE();
+				break;
 			case VASSAL_TREATMENT_CONTENT:
 			case VASSAL_TREATMENT_DISAGREE:
 				eApproach = CIV_APPROACH_FRIENDLY;
@@ -14760,6 +14784,9 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 		{
 			switch (eTreatmentLevel)
 			{
+			case NO_VASSAL_TREATMENT:
+				UNREACHABLE();
+				break;
 			case VASSAL_TREATMENT_CONTENT:
 				eApproach = CIV_APPROACH_FRIENDLY;
 				break;
@@ -14806,6 +14833,9 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			// Factor in military strength
 			switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 			{
+			case NO_STRENGTH_VALUE:
+				UNREACHABLE(); // Strengths are supposed to be evaluated by this point.
+				break;
 			case STRENGTH_IMMENSE:
 				iAfraidScore += 30;
 				break;
@@ -14835,6 +14865,7 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			case PLAYER_PROXIMITY_FAR:
 				iAfraidScore -= 10;
 				break;
+			case NO_PLAYER_PROXIMITY:
 			case PLAYER_PROXIMITY_DISTANT:
 				iAfraidScore -= 20;
 				break;
@@ -16401,6 +16432,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	switch (eMilitaryStrength)
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_PATHETIC:
 		vApproachScores[CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 6 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 3;
 		vApproachScores[CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
@@ -16559,6 +16593,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Enemies made later in the game are more likely to remain enemies
 	switch (GetDoFType(ePlayer))
 	{
+	case NO_DOF_TYPE:
+		break; // Not friends so do nothing.
 	case DOF_TYPE_UNTRUSTWORTHY:
 		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iMyEra, 1) * iDiploMultiplier;
 		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iMyEra, 1) * iDiploMultiplier;
@@ -17209,6 +17245,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	switch (GetWarState(ePlayer))
 	{
+	case NO_WAR_STATE_TYPE:
+		break; // Not at war, do nothing.
 	case WAR_STATE_NEARLY_DEFEATED:
 		vApproachScores[CIV_APPROACH_AFRAID] += vApproachBias[CIV_APPROACH_AFRAID] * 5 * iTheirAttackMultiplier;
 		vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * 5 * iTheirAttackMultiplier;
@@ -17303,6 +17341,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				switch (eTreatmentLevel)
 				{
+				case NO_VASSAL_TREATMENT:
+					UNREACHABLE();
+					break;
 				case VASSAL_TREATMENT_CONTENT:
 					iMasterOpinionValue = 10;
 					bCare = true;
@@ -17329,6 +17370,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			{
 				switch (eTreatmentLevel)
 				{
+				case NO_VASSAL_TREATMENT:
+					UNREACHABLE();
+					break;
 				case VASSAL_TREATMENT_CONTENT:
 					iMasterOpinionValue = 5;
 					bCare = true;
@@ -18109,6 +18153,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				// Not winning? Let's be even nicer.
 				switch (eLoopWarState)
 				{
+				case NO_WAR_STATE_TYPE:
+					UNREACHABLE(); // If we're at war we're supposed to have a war state.
+					break;
 				case WAR_STATE_NEARLY_WON:
 				case WAR_STATE_OFFENSIVE:
 					break;
@@ -18476,6 +18523,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 2;
 				vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE] * 2;
 				break;
+			case NO_PLAYER_PROXIMITY:
 			case PLAYER_PROXIMITY_DISTANT:
 				vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR] * 4;
@@ -18823,6 +18871,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					// If we need influence over them, we should be more friendly, but they're also a greater competitor
 					switch (GetPlayer()->GetCulture()->GetInfluenceLevel(ePlayer))
 					{
+					case NO_INFLUENCE_LEVEL:
 					case INFLUENCE_LEVEL_UNKNOWN:
 						vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * 4;
 						vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
@@ -19795,6 +19844,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					case CIV_APPROACH_FRIENDLY:
 						iFlavorMod = iFriendlyMod - 10;
 						break;
+					case NO_CIV_APPROACH:
 					case CIV_APPROACH_NEUTRAL:
 						iFlavorMod = iNeutralMod - 10;
 						break;
@@ -19866,6 +19916,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	switch (GetPlayerTargetValue(ePlayer))
 	{
+	case NO_TARGET_VALUE:
+		UNREACHABLE(); // Target values are supposed to have been evaluated by this point.
+		break;
 	case TARGET_VALUE_IMPOSSIBLE:
 		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
 		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
@@ -19925,6 +19978,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_GUARDED] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
 			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
 			vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
 			vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*75*/ GD_INT_GET(APPROACH_WAR_PROXIMITY_DISTANT) : /*50*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_DISTANT);
@@ -19963,6 +20017,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_GUARDED] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
 			vApproachScores[CIV_APPROACH_DECEPTIVE] *= /*75*/ GD_INT_GET(APPROACH_MULTIPLIER_PROXIMITY_FAR);
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
 			vApproachScores[CIV_APPROACH_WAR] = 0;
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
@@ -22616,6 +22671,9 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 
 	switch (GetPlayerMilitaryStrengthComparedToUs(eChoice))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths need to have been evaluated by this point for a meaningful score.
+		break;
 	case STRENGTH_PATHETIC:
 		iDPValue += -60;
 		break;
@@ -22650,6 +22708,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	case PLAYER_PROXIMITY_FAR:
 		iDPValue -= 20;
 		break;
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		iDPValue -= 50;
 		break;
@@ -22666,6 +22725,7 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	case CIV_OPINION_COMPETITOR:
 		iDPValue -= 20;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iDPValue -= 10;
 		break;
@@ -23965,6 +24025,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	case PLAYER_PROXIMITY_FAR:
 		vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 4;
 		break;
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		vApproachScores[CIV_APPROACH_NEUTRAL] += vApproachBias[CIV_APPROACH_NEUTRAL] * 8;
 		break;
@@ -23976,6 +24037,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	switch (GET_PLAYER(ePlayer).GetMinorCivAI()->GetPersonality())
 	{
+	case NO_MINOR_CIV_PERSONALITY_TYPE:
+		CvAssertMsg(!GET_PLAYER(ePlayer).isMinorCiv(), "Minor missing personality");
+		break; // Not a minor civ.
 	case MINOR_CIV_PERSONALITY_FRIENDLY:
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 		break;
@@ -24495,6 +24559,43 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 //	-----------------------------------------------------------------------------------------------
 
+static void FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPlayer, PlayerTypes eAtWarPlayer, PeaceBlockReasons eReason)
+{
+	switch (eReason)
+	{
+	case NO_PEACE_BLOCK_REASON:
+		UNREACHABLE(); // Peace is expected to be blocked.
+		break;
+	case PEACE_BLOCK_REASON_ALWAYS_WAR:
+		str.Format("We are always at war with this player!");
+		break;
+	case PEACE_BLOCK_REASON_VASSALAGE:
+		str.Format("One of us is a vassal!");
+		break;
+	case PEACE_BLOCK_REASON_TOO_SOON:
+		str.Format("Too early to make peace!");
+		break;
+	case PEACE_BLOCK_REASON_CITY_JUST_CAPTURED:
+		str.Format("Our city was just captured and we have units near the enemy's cities!");
+		break;
+	case PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY:
+		str.Format("They're at war with our ally!");
+		break;
+	case PEACE_BLOCK_REASON_WAR_DEAL:
+		str.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GET_PLAYER(eThisPlayer).getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eAtWarPlayer).getTeam()));
+		break;
+	case PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL:
+		str.Format("Other player has no cities so we lose nothing from maintaining the war!");
+		break;
+	case PEACE_BLOCK_REASON_COOP_WAR_AGAINST_DEFENSIVE_PACT:
+		str.Format("We're planning a coop war against someone they have a Defensive Pact with! Making peace would cancel the coop war!");
+		break;
+	case PEACE_BLOCK_REASON_SCENARIO:
+		str.Format("Cannot change war/peace status due to special scenario rule!");
+		break;
+	}
+}
+
 // ////////////////////////////////////
 // PEACE TREATY WILLINGNESS
 // ////////////////////////////////////
@@ -24577,33 +24678,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						CvString strLogName;
 						CvString strPeaceBlockReason;
 
-						switch (GetPeaceBlockReason(eLoopPlayer))
-						{
-						case PEACE_BLOCK_REASON_ALWAYS_WAR:
-							strPeaceBlockReason.Format("We are always at war with this player!");
-							break;
-						case PEACE_BLOCK_REASON_VASSALAGE:
-							strPeaceBlockReason.Format("One of us is a vassal!");
-							break;
-						case PEACE_BLOCK_REASON_TOO_SOON:
-							strPeaceBlockReason.Format("Too early to make peace!");
-							break;
-						case PEACE_BLOCK_REASON_CITY_JUST_CAPTURED:
-							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
-							break;
-						case PEACE_BLOCK_REASON_WAR_DEAL:
-							strPeaceBlockReason.Format("Locked into coop/3rd party war for %d more turns!", GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()));
-							break;
-						case PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL:
-							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
-							break;
-						case PEACE_BLOCK_REASON_COOP_WAR_AGAINST_DEFENSIVE_PACT:
-							strPeaceBlockReason.Format("We're planning a coop war against someone they have a Defensive Pact with! Making peace would cancel the coop war!");
-							break;
-						case PEACE_BLOCK_REASON_SCENARIO:
-							strPeaceBlockReason.Format("Cannot change war/peace status due to special scenario rule!");
-							break;
-						}
+						FmtPeaceBlockReasonLogStr(strPeaceBlockReason, GetID(), eLoopPlayer, GetPeaceBlockReason(eLoopPlayer));
 
 						// Find the name of this civ and city
 						playerName = m_pPlayer->getCivilizationShortDescription();
@@ -24680,30 +24755,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						CvString strLogName;
 						CvString strPeaceBlockReason;
 
-						switch (GetPeaceBlockReason(eMinor))
-						{
-						case PEACE_BLOCK_REASON_ALWAYS_WAR:
-							strPeaceBlockReason.Format("We are always at war with this player!");
-							break;
-						case PEACE_BLOCK_REASON_VASSALAGE:
-							strPeaceBlockReason.Format("We're a vassal!");
-							break;
-						case PEACE_BLOCK_REASON_TOO_SOON:
-							strPeaceBlockReason.Format("Too early to make peace!");
-							break;
-						case PEACE_BLOCK_REASON_CITY_JUST_CAPTURED:
-							strPeaceBlockReason.Format("Our city was just captured and we have units near the enemy's cities!");
-							break;
-						case PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY:
-							strPeaceBlockReason.Format("We're at war with this City-State's ally!");
-							break;
-						case PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL:
-							strPeaceBlockReason.Format("Other player has no cities so we lose nothing from maintaining the war!");
-							break;
-						case PEACE_BLOCK_REASON_SCENARIO:
-							strPeaceBlockReason.Format("Cannot change war/peace status!");
-							break;
-						}
+						FmtPeaceBlockReasonLogStr(strPeaceBlockReason, GetID(), eMinor, GetPeaceBlockReason(eMinor));
 
 						// Find the name of this civ and city
 						playerName = m_pPlayer->getCivilizationShortDescription();

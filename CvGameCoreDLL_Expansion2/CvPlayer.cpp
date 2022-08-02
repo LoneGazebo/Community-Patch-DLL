@@ -27008,18 +27008,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									CvString strInfluenceText;
 									InfluenceLevelTypes eLevel = GetCulture()->GetInfluenceLevel(pPlot->getOwner());
 
-									if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-									else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-									else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-									else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-									else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-									else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+									switch (eLevel)
+									{
+									case NO_INFLUENCE_LEVEL:
+									case INFLUENCE_LEVEL_UNKNOWN:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_UNKNOWN");
+										break;
+									case INFLUENCE_LEVEL_EXOTIC:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_EXOTIC");
+										break;
+									case INFLUENCE_LEVEL_FAMILIAR:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_FAMILIAR");
+										break;
+									case INFLUENCE_LEVEL_POPULAR:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_POPULAR");
+										break;
+									case INFLUENCE_LEVEL_INFLUENTIAL:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_INFLUENTIAL");
+										break;
+									case INFLUENCE_LEVEL_DOMINANT:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_DOMINANT");
+										break;
+									}
 
 									char text[256] = {0};
 									sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iValue, strInfluenceText.c_str());
