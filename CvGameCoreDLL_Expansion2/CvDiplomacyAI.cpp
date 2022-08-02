@@ -16187,6 +16187,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				case PLAYER_PROXIMITY_FAR:
 					vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * iStrengthFactor;
 					break;
+				case NO_PLAYER_PROXIMITY:
+				case PLAYER_PROXIMITY_DISTANT:
+					break;
 				}
 			}
 		}
@@ -16227,6 +16230,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					vApproachScores[CIV_APPROACH_DECEPTIVE] -= bOffensivePower ? vApproachBias[CIV_APPROACH_DECEPTIVE] * iStrengthFactor : 0;
 					vApproachScores[CIV_APPROACH_AFRAID] -= vApproachBias[CIV_APPROACH_AFRAID] * iStrengthFactor / 2;
 					vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * iStrengthFactor / 2;
+					break;
+				case NO_PLAYER_PROXIMITY:
+				case PLAYER_PROXIMITY_DISTANT:
 					break;
 				}
 			}
@@ -16656,10 +16662,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		switch (eAlignment)
 		{
+		case CvLeagueAI::ALIGNMENT_SELF:
+			UNREACHABLE();
+			break;
 		case CvLeagueAI::ALIGNMENT_ENEMY:
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetDiploBalance() * iDiploMultiplier;
 			break;
+		case CvLeagueAI::ALIGNMENT_WAR:
 		case CvLeagueAI::ALIGNMENT_HATRED:
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier / 2;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetDiploBalance() * iDiploMultiplier / 2;
@@ -16685,6 +16695,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier;
 			break;
+		case CvLeagueAI::ALIGNMENT_TEAMMATE:
+		case CvLeagueAI::ALIGNMENT_LEADER:
 		case CvLeagueAI::ALIGNMENT_LIBERATOR:
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * GetDiploBalance() * iDiploMultiplier * 2;
 			vApproachScores[CIV_APPROACH_DECEPTIVE] -= vApproachBias[CIV_APPROACH_DECEPTIVE] * GetDiploBalance() * iDiploMultiplier * 2;
@@ -18514,6 +18526,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// More friendliness if not neighbors
 			switch (eProximity)
 			{
+			case PLAYER_PROXIMITY_NEIGHBORS:
 			case PLAYER_PROXIMITY_CLOSE:
 				vApproachScores[CIV_APPROACH_WAR] -= vApproachBias[CIV_APPROACH_WAR];
 				vApproachScores[CIV_APPROACH_HOSTILE] -= vApproachBias[CIV_APPROACH_HOSTILE];
@@ -25567,6 +25580,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			case PLAYER_PROXIMITY_FAR:
 				iPeaceScore += iDurationPenalty * 2;
 				break;
+			case NO_PLAYER_PROXIMITY:
 			case PLAYER_PROXIMITY_DISTANT:
 				iPeaceScore += iDurationPenalty * 3;
 				break;
@@ -25668,6 +25682,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 		switch (GetWarState(*it))
 		{
+		case NO_WAR_STATE_TYPE:
+			UNREACHABLE(); // Being here would indicate we aren't at a war with this player.
+			break;
 		case WAR_STATE_NEARLY_WON:
 			iPeaceScore -= bReadyForVassalage ? 0 : 10 * iOurMultiplier;
 			break;
@@ -25682,6 +25699,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iPeaceScore += bLosingOverall ? 5 * iTheirMultiplier : 2 * iTheirMultiplier;
 			break;
 		case WAR_STATE_DEFENSIVE:
+		case WAR_STATE_NEARLY_DEFEATED:
 			iPeaceScore += bLosingOverall ? 10 * iTheirMultiplier : 5 * iTheirMultiplier;
 			break;
 		}
@@ -25708,6 +25726,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 				switch (GET_PLAYER(*iter).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(*it))
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+					break;
 				case STRENGTH_IMMENSE:
 				case STRENGTH_POWERFUL:
 				case STRENGTH_STRONG:
@@ -26194,7 +26215,7 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 			continue;
 		}
 		// Hate him? Tax the maximum!
-		else if (eTeamOpinion <= CIV_OPINION_ENEMY)
+		else if (eTeamOpinion != NO_CIV_OPINION && eTeamOpinion <= CIV_OPINION_ENEMY)
 		{
 			if (iTaxRate < iMaxTaxRate)
 				GET_TEAM(GetTeam()).DoApplyVassalTax(ePlayer, iMaxTaxRate);
@@ -26208,6 +26229,11 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		// Opinion matters
 		switch (eTeamOpinion)
 		{
+		case CIV_OPINION_UNFORGIVABLE:
+		case CIV_OPINION_ENEMY:
+		case CIV_OPINION_ALLY:
+			UNREACHABLE();
+			break;
 		case CIV_OPINION_COMPETITOR:
 			iScoreForRaise += 100;
 			break;
@@ -26217,11 +26243,17 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		case CIV_OPINION_FRIEND:
 			iScoreForLower += 100;
 			break;
+		case NO_CIV_OPINION:
+		case CIV_OPINION_NEUTRAL:
+			break;
 		}
 
 		// Strength compared to us matters
 		switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+			break;
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -26245,6 +26277,9 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 
 		switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+			break;
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -27342,6 +27377,7 @@ bool CvDiplomacyAI::IsEmbassyExchangeAcceptable(PlayerTypes ePlayer)
 	case CIV_APPROACH_GUARDED:
 		return false;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_DECEPTIVE:
 	case CIV_APPROACH_AFRAID:
 	case CIV_APPROACH_FRIENDLY:
@@ -28531,6 +28567,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 								// If we're doing badly in the war, we appreciate the assistance.
 								switch (GetWarState(eAttackedPlayer))
 								{
+								case NO_WAR_STATE_TYPE:
+									UNREACHABLE();
+									break;
 								case WAR_STATE_NEARLY_WON:
 								case WAR_STATE_OFFENSIVE:
 									break;
@@ -38916,6 +38955,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		switch (eResponse)
 		{
+		case NO_COOP_WAR_STATE:
+			UNREACHABLE(); // Response is never expected to be `NO_COOP_WAR_STATE`.
+			break;
 		case COOP_WAR_STATE_ONGOING:
 			if (bActivePlayer)
 			{
@@ -39406,6 +39448,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						case CIV_APPROACH_FRIENDLY:
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_FRIENDLY, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
+						case NO_CIV_APPROACH:
 						case CIV_APPROACH_NEUTRAL:
 							strText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_OPINION_NEUTRAL, NO_PLAYER, GET_PLAYER(eTargetPlayer).getNameKey());
 							break;
@@ -41046,6 +41089,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	case CIV_APPROACH_DECEPTIVE:
 		iScore -= 5;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_NEUTRAL:
 		iScore -= 2;
 		break;
@@ -41066,6 +41110,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	case CIV_OPINION_COMPETITOR:
 		iScore -= 5;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iScore -= 2;
 		break;
@@ -41082,6 +41127,10 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 
 	switch (GetDoFType(eAllyPlayer))
 	{
+	case NO_DOF_TYPE:
+	case DOF_TYPE_UNTRUSTWORTHY:
+	case DOF_TYPE_NEW:
+		break; // No change.
 	case DOF_TYPE_FRIENDS:
 		iScore += 2;
 		break;
@@ -41124,6 +41173,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	case CIV_APPROACH_AFRAID:
 		iScore += 2;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_NEUTRAL:
 		iScore -= 5;
 		break;
@@ -41143,6 +41193,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	case CIV_OPINION_COMPETITOR:
 		iScore += 5;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iScore -= 2;
 		break;
@@ -41159,6 +41210,8 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 
 	switch (GetDoFType(eTargetPlayer))
 	{
+	case NO_DOF_TYPE:
+		break;
 	case DOF_TYPE_UNTRUSTWORTHY:
 		iScore += 5;
 		break;
@@ -41207,6 +41260,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		case PLAYER_PROXIMITY_FAR:
 			iScore -= 25;
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
 			iScore -= 50;
 			break;
@@ -41222,6 +41276,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		case PLAYER_PROXIMITY_CLOSE:
 			iScore += 5;
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_FAR:
 		case PLAYER_PROXIMITY_DISTANT:
 			iScore -= 500;
@@ -41243,6 +41298,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		case PLAYER_PROXIMITY_FAR:
 			iScore -= 25;
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
 			iScore -= 50;
 			break;
@@ -41258,6 +41314,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		case PLAYER_PROXIMITY_CLOSE:
 			iScore += 5;
 			break;
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_FAR:
 		case PLAYER_PROXIMITY_DISTANT:
 			iScore -= 500;
@@ -41418,6 +41475,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (eLowestStrength)
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
+			break;
 		case STRENGTH_PATHETIC:
 			iScore -= 30;
 			break;
@@ -41426,6 +41486,11 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 			break;
 		case STRENGTH_POOR:
 			iScore -= 10;
+			break;
+		case STRENGTH_AVERAGE:
+		case STRENGTH_STRONG:
+		case STRENGTH_POWERFUL:
+		case STRENGTH_IMMENSE:
 			break;
 		}
 
@@ -41438,6 +41503,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (eLowestStrength)
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
+			break;
 		case STRENGTH_PATHETIC:
 			iScore += 20;
 			break;
@@ -41530,6 +41598,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (GetPlayerTargetValue(eTargetPlayer))
 		{
+		case NO_TARGET_VALUE:
+			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
+			break;
 		case TARGET_VALUE_IMPOSSIBLE:
 			iScore *= 40;
 			break;
@@ -41551,6 +41622,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	{
 		switch (GetPlayerTargetValue(eTargetPlayer))
 		{
+		case NO_TARGET_VALUE:
+			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
+			break;
 		case TARGET_VALUE_IMPOSSIBLE:
 		case TARGET_VALUE_BAD:
 			bBadness = true;
@@ -41885,7 +41959,9 @@ void CvDiplomacyAI::DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes e
 					case PLAYER_PROXIMITY_CLOSE:
 						iAssistBonus = -100;
 						break;
+					case NO_PLAYER_PROXIMITY:
 					case PLAYER_PROXIMITY_FAR:
+					case PLAYER_PROXIMITY_DISTANT:
 						iAssistBonus = -50;
 						break;
 					}
@@ -42170,6 +42246,9 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	// Military Strength compared to us
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_PATHETIC:
 		iMilitaryMod += /*-30*/ GD_INT_GET(DONT_SETTLE_STRENGTH_PATHETIC);
 		break;
@@ -42553,6 +42632,10 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 	// Less likely to break things off if we've been friends for a while.
 	switch (GetDoFType(ePlayer))
 	{
+	case NO_DOF_TYPE:
+	case DOF_TYPE_UNTRUSTWORTHY:
+	case DOF_TYPE_NEW:
+		break;
 	case DOF_TYPE_FRIENDS:
 		iChance += 2;
 		break;
@@ -43410,6 +43493,9 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		// Vassal treatment view
 		switch (GetVassalTreatmentLevel(ePlayer))
 		{
+		case NO_VASSAL_TREATMENT:
+			UNREACHABLE();
+			break;
 		// Content vassals have a huge weight against denouncing
 		case VASSAL_TREATMENT_CONTENT:
 			iWeight -= 50;
@@ -43453,6 +43539,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight -= 10;
 		break;
 	// Let's not upset things
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_NEUTRAL:
 		iWeight -= 8;
 		break;
@@ -43475,7 +43562,11 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		{
 			switch (GetSurfaceApproach(ePlayer))
 			{
-			// Higher bump than true HOSTILE
+			case CIV_APPROACH_DECEPTIVE:
+			case CIV_APPROACH_WAR:
+				UNREACHABLE();
+				break;
+			// Higher bump than true 
 			case CIV_APPROACH_HOSTILE:
 				iWeight += 8;
 				break;
@@ -43484,7 +43575,9 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 				iWeight += 2;
 				break;
 			// Avoid upsetting things, but lower weight than true NEUTRAL
+			case NO_CIV_APPROACH:
 			case CIV_APPROACH_NEUTRAL:
+			case CIV_APPROACH_AFRAID:
 				iWeight -= 4;
 				break;
 			// Do NOT reveal if pretending to be FRIENDLY
@@ -43512,6 +43605,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		iWeight += 2;
 		break;
 	// Let's not upset things
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iWeight -= 5;
 		break;
@@ -45192,6 +45286,8 @@ int CvDiplomacyAI::GetMilitaryAggressivePostureScore(PlayerTypes ePlayer)
 
 	switch (GetMilitaryAggressivePosture(ePlayer))
 	{
+	case AGGRESSIVE_POSTURE_NONE:
+		break;
 	case AGGRESSIVE_POSTURE_LOW:
 		iOpinionWeight = /*10*/ GD_INT_GET(OPINION_WEIGHT_MILITARY_AGGRESSIVE_POSTURE_LOW);
 		break;
@@ -46762,6 +46858,10 @@ int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
 		// Were we previously friends?
 		switch (GetDoFType(ePlayer))
 		{
+		case NO_DOF_TYPE:
+		case DOF_TYPE_UNTRUSTWORTHY:
+		case DOF_TYPE_NEW:
+			break;
 		case DOF_TYPE_FRIENDS:
 			iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_DOF_TYPE_FRIENDS);
 			break;
@@ -48311,6 +48411,11 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 			{
 				return true;
 			}
+			break;
+		case THEFT_TYPE_CONVERSION:
+		case THEFT_TYPE_ARTIFACT:
+		case THEFT_TYPE_SPY:
+		case THEFT_TYPE_TRADE_ROUTE:
 			break;
 		}
 
@@ -50524,6 +50629,9 @@ void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 
 			switch (eMajorCivApproach)
 			{
+			case NO_CIV_APPROACH:
+				UNREACHABLE();
+				break;
 			case CIV_APPROACH_WAR:
 				strTemp.Format("War");
 				break;
@@ -50625,6 +50733,11 @@ void CvDiplomacyAI::LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 
 			switch (eMinorCivApproach)
 			{
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_DECEPTIVE:
+			case CIV_APPROACH_GUARDED:
+			case CIV_APPROACH_AFRAID:
+				break; // Not applicable to minors.
 			case CIV_APPROACH_WAR:
 				strTemp.Format("Conquest");
 				break;
@@ -50696,6 +50809,9 @@ void CvDiplomacyAI::LogPersonality()
 
 			switch (eMajorCivApproach)
 			{
+			case NO_CIV_APPROACH:
+				UNREACHABLE();
+				break;
 			case CIV_APPROACH_WAR:
 				strTemp.Format("War");
 				break;
@@ -50733,6 +50849,11 @@ void CvDiplomacyAI::LogPersonality()
 			// Convert approach names back to the XML table's names to avoid confusion
 			switch (eMinorCivApproach)
 			{
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_DECEPTIVE:
+			case CIV_APPROACH_GUARDED:
+			case CIV_APPROACH_AFRAID:
+				break; // Not applicable to minors.
 			case CIV_APPROACH_WAR:
 				strTemp.Format("Conquest");
 				break;
@@ -52772,6 +52893,9 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 	// INCREASE if he's big and nasty, DECREASE if he's not.
 	switch (GET_PLAYER(eObserver).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eWarmonger))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -52827,6 +52951,9 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			// DECREASE if opponent is big and nasty.
 			switch (eHighestStrength)
 			{
+			case NO_STRENGTH_VALUE:
+				UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+				break;
 			case STRENGTH_IMMENSE:
 				iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 				break;
@@ -52839,6 +52966,10 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			case STRENGTH_AVERAGE:
 				iWarmongerStrengthModifier += /*0*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE);
 				break;
+			case STRENGTH_POOR:
+			case STRENGTH_WEAK:
+			case STRENGTH_PATHETIC:
+				break; // Not applicable.
 			}
 		}
 	}
@@ -53043,6 +53174,9 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	// INCREASE if he's big and nasty, DECREASE if he's not.
 	switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eConqueror))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -53075,6 +53209,9 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		// DECREASE if opponent is big and nasty.
 		switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eCityOwner))
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+			break;
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -53087,6 +53224,10 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		case STRENGTH_AVERAGE:
 			iWarmongerStrengthModifier += /*0*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE);
 			break;
+		case STRENGTH_POOR:
+		case STRENGTH_WEAK:
+		case STRENGTH_PATHETIC:
+			break; // Not applicable.
 		}
 	}
 
@@ -53140,6 +53281,10 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 			{
 				switch (pDiplo->GetDoFType(eCityOwner))
 				{
+				case NO_DOF_TYPE:
+				case DOF_TYPE_UNTRUSTWORTHY:
+				case DOF_TYPE_NEW:
+					break;
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
 					break;
@@ -53175,6 +53320,10 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 			{
 				switch (pDiplo->GetDoFType(eConqueror))
 				{
+				case NO_DOF_TYPE:
+				case DOF_TYPE_UNTRUSTWORTHY:
+				case DOF_TYPE_NEW:
+					break;
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 					break;
@@ -53256,6 +53405,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 			// Proximity should matter.
 			switch (GET_PLAYER(eConqueror).GetProximityToPlayer(eObserver))
 			{
+			case NO_PLAYER_PROXIMITY:
 			case PLAYER_PROXIMITY_DISTANT:
 				iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 				break;
@@ -53441,6 +53591,9 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	// DECREASE if he's big and nasty, INCREASE if he's not.
 	switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eLiberator))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -53476,6 +53629,9 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		// DECREASE if opponent is big and nasty.
 		switch (pDiplo->GetPlayerMilitaryStrengthComparedToUs(eNewOwner))
 		{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+			break;
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -53488,6 +53644,10 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		case STRENGTH_AVERAGE:
 			iWarmongerStrengthModifier += /*0*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE);
 			break;
+		case STRENGTH_POOR:
+		case STRENGTH_WEAK:
+		case STRENGTH_PATHETIC:
+			break; // Not applicable.
 		}
 	}
 
@@ -53541,6 +53701,10 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 			{
 				switch (pDiplo->GetDoFType(eNewOwner))
 				{
+				case NO_DOF_TYPE:
+				case DOF_TYPE_UNTRUSTWORTHY:
+				case DOF_TYPE_NEW:
+					break;
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
 					break;
@@ -53576,6 +53740,10 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 			{
 				switch (pDiplo->GetDoFType(eLiberator))
 				{
+				case NO_DOF_TYPE:
+				case DOF_TYPE_UNTRUSTWORTHY:
+				case DOF_TYPE_NEW:
+					break;
 				case DOF_TYPE_FRIENDS:
 					iWarmongerPoliticalModifier += /*25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_SMALL);
 					break;
@@ -53653,6 +53821,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 			// Proximity should matter.
 			switch (GET_PLAYER(eLiberator).GetProximityToPlayer(eObserver))
 			{
+			case NO_PLAYER_PROXIMITY:
 			case PLAYER_PROXIMITY_DISTANT:
 				iWarmongerPoliticalModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_MODIFIER_NEGATIVE_SMALL);
 				break;
@@ -54304,6 +54473,9 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 
 	switch(eVassalStrength)
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -54320,10 +54492,17 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		iScoreForLiberate *= 90;
 		iScoreForLiberate /= 100;
 		break;
+	case STRENGTH_STRONG:
+	case STRENGTH_POWERFUL:
+	case STRENGTH_IMMENSE:
+		break; // Not applicable.
 	}
 
 	switch(eVassalEcoStrength)
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+		break;
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -54340,11 +54519,16 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 		iScoreForLiberate *= 90;
 		iScoreForLiberate /= 100;
 		break;
+	case STRENGTH_STRONG:
+	case STRENGTH_POWERFUL:
+	case STRENGTH_IMMENSE:
+		break; // Not applicable.
 	}
 
 	// Mod based on proximity
 	switch(m_pPlayer->GetProximityToPlayer(ePlayer))
 	{
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -54637,6 +54821,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	case PLAYER_PROXIMITY_FAR:
 		iCapitulationScore -= 10;
 		break;
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		iCapitulationScore -= 20;
 		break;
@@ -54925,11 +55110,15 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	case CIV_OPINION_FAVORABLE:
 		iWantVassalageScore -= 5;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iWantVassalageScore -= 25;
 		break;
 	case CIV_OPINION_COMPETITOR:
 		iWantVassalageScore -= 50;
+		break;
+	case CIV_OPINION_UNFORGIVABLE:
+	case CIV_OPINION_ENEMY:
 		break;
 	}
 
@@ -54938,32 +55127,56 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	case CIV_APPROACH_FRIENDLY:
 		iWantVassalageScore += 5;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_NEUTRAL:
 		iWantVassalageScore -= 10;
 		break;
 	case CIV_APPROACH_AFRAID:
 		iWantVassalageScore += 20;
 		break;
+	case CIV_APPROACH_WAR:
+	case CIV_APPROACH_HOSTILE:
+	case CIV_APPROACH_DECEPTIVE:
+	case CIV_APPROACH_GUARDED:
+		break;
 	}
 
 	// How strong are they compared to us?
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths should have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
 		iWantVassalageScore += 20;
+		break;
+	case STRENGTH_STRONG:
+	case STRENGTH_AVERAGE:
+	case STRENGTH_POOR:
+	case STRENGTH_WEAK:
+	case STRENGTH_PATHETIC:
 		break;
 	}
 
 	switch (GetPlayerEconomicStrengthComparedToUs(ePlayer))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths should have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
 	case STRENGTH_POWERFUL:
 		iWantVassalageScore += 20;
+		break;
+	case STRENGTH_STRONG:
+	case STRENGTH_AVERAGE:
+	case STRENGTH_POOR:
+	case STRENGTH_WEAK:
+	case STRENGTH_PATHETIC:
 		break;
 	}
 
@@ -55051,6 +55264,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 
 				switch (GetWarState(eLoopPlayer))
 				{
+				case NO_WAR_STATE_TYPE:
+					UNREACHABLE();
+					break;
 				case WAR_STATE_NEARLY_WON:
 					iWantVassalageScore -= 80;
 					break;
@@ -55089,6 +55305,9 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 					// How's the war going?
 					switch (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer))
 					{
+					case NO_WAR_STATE_TYPE:
+						UNREACHABLE();
+						break;
 					case WAR_STATE_NEARLY_DEFEATED:
 						iWantVassalageScore -= 100 * iStrengthFactor * iOpinionFactor; // eep! No thanks!
 						break;
@@ -55165,6 +55384,10 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	case PLAYER_PROXIMITY_CLOSE:
 		iWantVassalageScore *= 100;
 		iWantVassalageScore /= 100;
+		break;
+	case NO_PLAYER_PROXIMITY:
+	case PLAYER_PROXIMITY_FAR:
+	case PLAYER_PROXIMITY_DISTANT:
 		break;
 	}
 
@@ -55429,6 +55652,9 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	// How are we being treated? This is a major factor!
 	switch (GetVassalTreatmentLevel(ePlayer))
 	{
+	case NO_VASSAL_TREATMENT:
+		UNREACHABLE(); // This shouldn't have been called if they aren't a vassal.
+		break;
 	case VASSAL_TREATMENT_CONTENT:
 		iIndependenceScore -= 20;
 		break;
@@ -55453,6 +55679,9 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	// How strong are they compared to us? Military strength is a huge factor.
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths should have been evaluated by this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iIndependenceScore -= 200;
 		break;
@@ -55488,6 +55717,7 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	case PLAYER_PROXIMITY_FAR:
 		iIndependenceScore += 15;
 		break;
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		iIndependenceScore += 30;
 		break;
@@ -55505,6 +55735,7 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	case CIV_OPINION_COMPETITOR:
 		iIndependenceScore += 15;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		iIndependenceScore -= 10;
 		break;
@@ -55604,6 +55835,8 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	// Master is threatening us with military near our borders
 	switch (GetMilitaryAggressivePosture(ePlayer))
 	{
+	case AGGRESSIVE_POSTURE_NONE:
+		break;
 	case AGGRESSIVE_POSTURE_INCREDIBLE:
 		iIndependenceScore *= 40;
 		iIndependenceScore /= 100;
@@ -55631,15 +55864,18 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	if (!IsMaster(ePlayer))
 		return false;
 
+	CivOpinionTypes const eOpinion = GetCivOpinion(ePlayer);
+	CivApproachTypes const eApproach = GetCivApproach(ePlayer);
+
 	// We hate him - war!
-	if (GetCivOpinion(ePlayer) <= CIV_OPINION_ENEMY)
+	if (eOpinion != NO_CIV_OPINION && eOpinion <= CIV_OPINION_ENEMY)
 		return false;
 
-	if (GetCivApproach(ePlayer) <= CIV_APPROACH_GUARDED)
+	if (eApproach != NO_CIV_APPROACH && eApproach <= CIV_APPROACH_GUARDED)
 		return false;
-
+		
 	// We're afraid - give in
-	if (GetCivApproach(ePlayer) == CIV_APPROACH_AFRAID)
+	if (eApproach == CIV_APPROACH_AFRAID)
 		return true;
 
 	// We're a backstabber - too bad!
@@ -55661,8 +55897,12 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	int iChanceToGiveIn = 0;
 
 	// Do we like him?
-	switch (GetCivOpinion(ePlayer))
+	switch (eOpinion)
 	{
+	case CIV_OPINION_ENEMY:
+	case CIV_OPINION_UNFORGIVABLE:
+		UNREACHABLE();
+		break;
 	case CIV_OPINION_ALLY:
 		iChanceToGiveIn += 60;
 		break;
@@ -55675,10 +55915,16 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	case CIV_OPINION_COMPETITOR:
 		iChanceToGiveIn -= 20;
 		break;
+	case NO_CIV_OPINION:
+	case CIV_OPINION_NEUTRAL:
+		break;
 	}
 
 	switch (GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
+	case NO_STRENGTH_VALUE:
+		UNREACHABLE(); // Strengths should have been evaluated at this point.
+		break;
 	case STRENGTH_IMMENSE:
 		iChanceToGiveIn += 90;
 		break;
@@ -55749,6 +55995,7 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	case PLAYER_PROXIMITY_FAR:
 		iChanceToGiveIn *= 110;
 		break;
+	case NO_PLAYER_PROXIMITY:
 	case PLAYER_PROXIMITY_DISTANT:
 		iChanceToGiveIn *= 120;
 		break;
@@ -56776,6 +57023,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 0;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 2;
 		break;
+	case NO_CIV_OPINION:
 	case CIV_OPINION_NEUTRAL:
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 0;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 2;	// Slight weight for neutral as to not piss off neighbors
@@ -56800,6 +57048,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	// Add weight based on approach
 	switch(eTrueApproach)
 	{
+		case CIV_APPROACH_WAR:
 		case CIV_APPROACH_HOSTILE:
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += -2;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -1;
@@ -56810,6 +57059,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -1;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 3;
 			break;
+		case NO_CIV_APPROACH:
 		case CIV_APPROACH_NEUTRAL:
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 0;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 0;
@@ -56825,11 +57075,19 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 5;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += 0;
 			break;
+		case CIV_APPROACH_AFRAID:
+			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 8;
+			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 0;
+			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] += -2;
+			break;
 	}
 
 	// The REAL meat of the strategy: military strength
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
+		case NO_STRENGTH_VALUE:
+			UNREACHABLE(); // Strengths should have been evaulated by this point.
+			break;
 		case STRENGTH_IMMENSE:		// if he's really strong let's pull out!
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 10;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 3;
@@ -56888,6 +57146,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	// Modifier for proximity
 	switch(GetPlayer()->GetProximityToPlayer(ePlayer))
 	{
+		case NO_PLAYER_PROXIMITY:
 		case PLAYER_PROXIMITY_DISTANT:
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] *= 120;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] /= 100;
