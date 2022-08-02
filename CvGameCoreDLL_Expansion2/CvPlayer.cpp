@@ -11938,12 +11938,12 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
+void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 {
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (!bLinkedUnitsOnly && pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
@@ -11956,7 +11956,7 @@ void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
-		if (bEndLinkedTurns && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		if (bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
