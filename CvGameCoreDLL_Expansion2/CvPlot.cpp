@@ -344,19 +344,6 @@ void CvPlot::doTurn()
 		changeImprovementDuration(1);
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK)
-	{
-		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-
-		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
-		{
-			setResourceType(NO_RESOURCE, 0);
-		}
-	}
-#endif
-
 	verifyUnitValidPlot();
 
 	// Clear world anchor
