@@ -1232,6 +1232,8 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 {
 	switch(getSubType())
 	{
+	case NO_ACTIONSUBTYPE:
+		break;
 	case ACTIONSUBTYPE_INTERFACEMODE:
 	{
 		CvInterfaceModeInfo* pkInterfaceModInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)getOriginalIndex());

@@ -454,7 +454,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 	case TRADE_ITEM_NONE:
 		UNREACHABLE();
-		break;
 
 	// Peace Treaty
 	case TRADE_ITEM_PEACE_TREATY:
@@ -1362,7 +1361,6 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	case TRADE_ITEM_PEACE_TREATY:
 	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
 		UNREACHABLE();
-		break;
 	case TRADE_ITEM_GOLD_PER_TURN:
 	case TRADE_ITEM_RESOURCES:
 	case TRADE_ITEM_OPEN_BORDERS:
@@ -3701,7 +3699,6 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	{
 	case TRADE_ITEM_NONE:
 		UNREACHABLE();
-		break;
 
 		// not renewable
 	case TRADE_ITEM_ALLOW_EMBASSY:
@@ -4498,7 +4495,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 		case TRADE_ITEM_NONE:
 			UNREACHABLE();
-			break;
 
 		case TRADE_ITEM_GOLD:
 		{

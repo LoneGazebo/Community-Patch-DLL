@@ -7338,7 +7338,6 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			{
 			case NO_PLAYER_PROXIMITY:
 				UNREACHABLE(); // Since they have a city there should always be a proximity.
-				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				iValue += 30;
 				break;

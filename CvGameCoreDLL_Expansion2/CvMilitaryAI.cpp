@@ -4262,9 +4262,9 @@ MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForLandAtt
 	case 6: //atomic
 	case 7: //information
 		return MUFORMATION_BIGGER_CITY_ATTACK_FORCE;
+	default:
+		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 	}
-
-	return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 }
 
 const char * ArmyTypeToString(ArmyType eType)

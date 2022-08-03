@@ -1992,7 +1992,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 			case NO_ADVISOR_TYPE:
 				UNREACHABLE();
-				break;
 			case ADVISOR_SCIENCE:
 				strLoc = Localization::Lookup("TXT_KEY_BASESTRATEGY_NOTHING_TO_SAY_SCIENCE");
 				break;

@@ -945,7 +945,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			{
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
-				break;
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
@@ -1056,7 +1055,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			{
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // m_Buildables is never supposed to have these items.
-				break;
 			case CITY_BUILDABLE_UNIT:
 			case CITY_BUILDABLE_UNIT_FOR_ARMY:
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
@@ -1124,7 +1122,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		{
 		case NOT_A_CITY_BUILDABLE:
 			UNREACHABLE(); // selection is never supposed to have these items.
-			break;
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
@@ -1369,7 +1366,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			case CITY_BUILDABLE_PROJECT:
 			case CITY_BUILDABLE_PROCESS:
 				UNREACHABLE(); // These items are not expected to be purchasable.
-				break;
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
@@ -1963,7 +1959,6 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 			{
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // builds is never supposed to have these items.
-				break;
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2086,7 +2081,6 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 			{
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // builds is never supposed to have these items.
-				break;
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2184,7 +2178,6 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		{
 		case NOT_A_CITY_BUILDABLE:
 			UNREACHABLE(); // buildable is never supposed to be this.
-			break;
 		case CITY_BUILDABLE_BUILDING:
 		{
 			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2269,7 +2262,6 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		{
 		case NOT_A_CITY_BUILDABLE:
 			UNREACHABLE(); // buildable is never supposed to be this item.
-			break;
 		case CITY_BUILDABLE_BUILDING:
 			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
 			break;
@@ -4487,7 +4479,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		{
 		case NO_YIELD:
 			UNREACHABLE(); // Never supposed to be passed to this function.
-			break;
 		case YIELD_CULTURE:
 			if (eNeedCulture != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedCulture))
 			{
@@ -4562,6 +4553,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				}
 				break;
 			}
+		case YIELD_FOOD:
+		case YIELD_GOLD:
+		case YIELD_GOLDEN_AGE_POINTS:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // TODO: These yields have no special scoring behavior.
 		}
 
 		CvDiplomacyAI* pDiplo = kPlayer.GetDiplomacyAI();

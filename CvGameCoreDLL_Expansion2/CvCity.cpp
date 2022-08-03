@@ -27417,6 +27417,8 @@ int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) cons
 				*toolTipSink += "[NEWLINE][BULLET]";
 				*toolTipSink += GetLocalizedText("TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
 				break;
+			default:
+				UNREACHABLE(); // All other yields cannot be acquired from trade.
 			}
 		}
 	}
@@ -29633,7 +29635,6 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 								break;
 							case DISPUTE_LEVEL_NONE:
 								UNREACHABLE();
-								break;
 							}
 						}
 					}

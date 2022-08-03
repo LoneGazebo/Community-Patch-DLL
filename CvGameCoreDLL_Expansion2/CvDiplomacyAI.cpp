@@ -10881,7 +10881,6 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats(bool bUpdateOnly)
 				{
 				case NO_STRENGTH_VALUE:
 					UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
-					break;
 				case STRENGTH_IMMENSE:
 					iDecayModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_STRENGTH_DECAY_IMMENSE);
 					break;
@@ -11218,7 +11217,6 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				{
 				case NO_STRENGTH_VALUE:
 					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
 					break;
@@ -11338,7 +11336,6 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				{
 				case NO_STRENGTH_VALUE:
 					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
 					break;
@@ -11418,7 +11415,6 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				{
 				case NO_STRENGTH_VALUE:
 					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-					break;
 				case STRENGTH_PATHETIC:
 					iThirdPartyValue = /*0*/ GC.getTARGET_MAJOR_BACKUP_PATHETIC();
 					break;
@@ -14764,7 +14760,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			{
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
-				break;
 			case VASSAL_TREATMENT_CONTENT:
 			case VASSAL_TREATMENT_DISAGREE:
 				eApproach = CIV_APPROACH_FRIENDLY;
@@ -14786,7 +14781,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			{
 			case NO_VASSAL_TREATMENT:
 				UNREACHABLE();
-				break;
 			case VASSAL_TREATMENT_CONTENT:
 				eApproach = CIV_APPROACH_FRIENDLY;
 				break;
@@ -14835,7 +14829,6 @@ void CvDiplomacyAI::SelectApproachTowardsMaster(PlayerTypes ePlayer)
 			{
 			case NO_STRENGTH_VALUE:
 				UNREACHABLE(); // Strengths are supposed to be evaluated by this point.
-				break;
 			case STRENGTH_IMMENSE:
 				iAfraidScore += 30;
 				break;
@@ -16440,7 +16433,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_PATHETIC:
 		vApproachScores[CIV_APPROACH_WAR] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_WAR] * 6 * iAttackMultiplier : vApproachBias[CIV_APPROACH_WAR] * 3;
 		vApproachScores[CIV_APPROACH_HOSTILE] += bWantsOpportunityAttack ? vApproachBias[CIV_APPROACH_HOSTILE] * 6 * iAttackMultiplier : vApproachBias[CIV_APPROACH_HOSTILE] * 3;
@@ -16664,7 +16656,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		{
 		case CvLeagueAI::ALIGNMENT_SELF:
 			UNREACHABLE();
-			break;
 		case CvLeagueAI::ALIGNMENT_ENEMY:
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * GetDiploBalance() * iDiploMultiplier;
 			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * GetDiploBalance() * iDiploMultiplier;
@@ -17355,7 +17346,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 				case NO_VASSAL_TREATMENT:
 					UNREACHABLE();
-					break;
 				case VASSAL_TREATMENT_CONTENT:
 					iMasterOpinionValue = 10;
 					bCare = true;
@@ -17384,7 +17374,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 				case NO_VASSAL_TREATMENT:
 					UNREACHABLE();
-					break;
 				case VASSAL_TREATMENT_CONTENT:
 					iMasterOpinionValue = 5;
 					bCare = true;
@@ -18167,7 +18156,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 				case NO_WAR_STATE_TYPE:
 					UNREACHABLE(); // If we're at war we're supposed to have a war state.
-					break;
 				case WAR_STATE_NEARLY_WON:
 				case WAR_STATE_OFFENSIVE:
 					break;
@@ -19931,7 +19919,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 	case NO_TARGET_VALUE:
 		UNREACHABLE(); // Target values are supposed to have been evaluated by this point.
-		break;
 	case TARGET_VALUE_IMPOSSIBLE:
 		vApproachScores[CIV_APPROACH_WAR] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
 		vApproachScores[CIV_APPROACH_HOSTILE] *= bWantsConquest ? /*75*/ GD_INT_GET(CONQUEST_WAR_MULTIPLIER_TARGET_IMPOSSIBLE) : /*25*/ GD_INT_GET(MAJOR_WAR_MULTIPLIER_TARGET_IMPOSSIBLE);
@@ -22686,7 +22673,6 @@ int CvDiplomacyAI::ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths need to have been evaluated by this point for a meaningful score.
-		break;
 	case STRENGTH_PATHETIC:
 		iDPValue += -60;
 		break;
@@ -24578,7 +24564,6 @@ static void FmtPeaceBlockReasonLogStr(CvString& str, PlayerTypes eThisPlayer, Pl
 	{
 	case NO_PEACE_BLOCK_REASON:
 		UNREACHABLE(); // Peace is expected to be blocked.
-		break;
 	case PEACE_BLOCK_REASON_ALWAYS_WAR:
 		str.Format("We are always at war with this player!");
 		break;
@@ -25684,7 +25669,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		{
 		case NO_WAR_STATE_TYPE:
 			UNREACHABLE(); // Being here would indicate we aren't at a war with this player.
-			break;
 		case WAR_STATE_NEARLY_WON:
 			iPeaceScore -= bReadyForVassalage ? 0 : 10 * iOurMultiplier;
 			break;
@@ -25728,7 +25712,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 				case NO_STRENGTH_VALUE:
 					UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-					break;
 				case STRENGTH_IMMENSE:
 				case STRENGTH_POWERFUL:
 				case STRENGTH_STRONG:
@@ -26253,7 +26236,6 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-			break;
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -26279,7 +26261,6 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-			break;
 		case STRENGTH_IMMENSE:
 			iScoreForRaise += 300;
 			break;
@@ -28569,7 +28550,6 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 								{
 								case NO_WAR_STATE_TYPE:
 									UNREACHABLE();
-									break;
 								case WAR_STATE_NEARLY_WON:
 								case WAR_STATE_OFFENSIVE:
 									break;
@@ -38957,7 +38937,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 		case NO_COOP_WAR_STATE:
 			UNREACHABLE(); // Response is never expected to be `NO_COOP_WAR_STATE`.
-			break;
 		case COOP_WAR_STATE_ONGOING:
 			if (bActivePlayer)
 			{
@@ -41477,7 +41456,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
-			break;
 		case STRENGTH_PATHETIC:
 			iScore -= 30;
 			break;
@@ -41505,7 +41483,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strength is supposed to have been evaluated at this point.
-			break;
 		case STRENGTH_PATHETIC:
 			iScore += 20;
 			break;
@@ -41600,7 +41577,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 		case NO_TARGET_VALUE:
 			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
-			break;
 		case TARGET_VALUE_IMPOSSIBLE:
 			iScore *= 40;
 			break;
@@ -41624,7 +41600,6 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		{
 		case NO_TARGET_VALUE:
 			UNREACHABLE(); // Targets are supposed to have been evaluated at this point.
-			break;
 		case TARGET_VALUE_IMPOSSIBLE:
 		case TARGET_VALUE_BAD:
 			bBadness = true;
@@ -42248,7 +42223,6 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_PATHETIC:
 		iMilitaryMod += /*-30*/ GD_INT_GET(DONT_SETTLE_STRENGTH_PATHETIC);
 		break;
@@ -43495,7 +43469,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 		{
 		case NO_VASSAL_TREATMENT:
 			UNREACHABLE();
-			break;
 		// Content vassals have a huge weight against denouncing
 		case VASSAL_TREATMENT_CONTENT:
 			iWeight -= 50;
@@ -43565,7 +43538,6 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 			case CIV_APPROACH_DECEPTIVE:
 			case CIV_APPROACH_WAR:
 				UNREACHABLE();
-				break;
 			// Higher bump than true 
 			case CIV_APPROACH_HOSTILE:
 				iWeight += 8;
@@ -50631,7 +50603,6 @@ void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 			{
 			case NO_CIV_APPROACH:
 				UNREACHABLE();
-				break;
 			case CIV_APPROACH_WAR:
 				strTemp.Format("War");
 				break;
@@ -50811,7 +50782,6 @@ void CvDiplomacyAI::LogPersonality()
 			{
 			case NO_CIV_APPROACH:
 				UNREACHABLE();
-				break;
 			case CIV_APPROACH_WAR:
 				strTemp.Format("War");
 				break;
@@ -52895,7 +52865,6 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -52953,7 +52922,6 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			{
 			case NO_STRENGTH_VALUE:
 				UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-				break;
 			case STRENGTH_IMMENSE:
 				iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 				break;
@@ -53176,7 +53144,6 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -53211,7 +53178,6 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-			break;
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -53593,7 +53559,6 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
@@ -53631,7 +53596,6 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-			break;
 		case STRENGTH_IMMENSE:
 			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
 			break;
@@ -54475,7 +54439,6 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -54502,7 +54465,6 @@ bool CvDiplomacyAI::IsWantToLiberateVassal(PlayerTypes ePlayer) const
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		break;
 	case STRENGTH_PATHETIC:
 		iScoreForLiberate *= 125;
 		iScoreForLiberate /= 100;
@@ -55146,7 +55108,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths should have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
@@ -55165,7 +55126,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths should have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iWantVassalageScore += 40;
 		break;
@@ -55654,7 +55614,6 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_VASSAL_TREATMENT:
 		UNREACHABLE(); // This shouldn't have been called if they aren't a vassal.
-		break;
 	case VASSAL_TREATMENT_CONTENT:
 		iIndependenceScore -= 20;
 		break;
@@ -55681,7 +55640,6 @@ bool CvDiplomacyAI::IsEndVassalageWithPlayerAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths should have been evaluated by this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iIndependenceScore -= 200;
 		break;
@@ -55924,7 +55882,6 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths should have been evaluated at this point.
-		break;
 	case STRENGTH_IMMENSE:
 		iChanceToGiveIn += 90;
 		break;
@@ -57087,7 +57044,6 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths should have been evaulated by this point.
-			break;
 		case STRENGTH_IMMENSE:		// if he's really strong let's pull out!
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += 10;
 			viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += 3;

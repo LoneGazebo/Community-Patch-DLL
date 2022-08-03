@@ -3511,6 +3511,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 				switch (eTrait)
 				{
+				case NO_MINOR_CIV_TRAIT_TYPE:
+					UNREACHABLE();
+					break;
 				case MINOR_CIV_TRAIT_CULTURED:
 					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
 					iYield /= 100;
@@ -19797,6 +19800,9 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		{
 			switch (eHistoricEvent)
 			{
+				case NO_HISTORIC_EVENT_TYPE:
+					UNREACHABLE();
+					break;
 				case HISTORIC_EVENT_ERA:
 				{
 					iYieldHandicap *= 3;
@@ -25995,6 +26001,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			int iValue = 0;
 			switch(iType)
 			{
+				case NO_INSTANT_YIELD_TYPE:
+				UNREACHABLE(); // This should never be passed into this function.
 				case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
 				{
 					if (eYield != ePassYield)
@@ -26416,6 +26424,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								{
 									return;
 								}
+								break;
+
+							default:
+								// If we're in this spot then the input parameters are bad or we need to add support for this yield type.
+								UNREACHABLE();
 								break;
 							}
 
@@ -27098,6 +27111,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 					}
 					break;
+					default:
+					// Need to add support for this yield.
+					UNREACHABLE();
+					break;
 				}
 
 				//keep track of what we're doing
@@ -27198,6 +27215,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						const char* MinorName = GET_PLAYER(pQuestData->GetMinor()).getNameKey();
 						switch (pQuestData->GetType())
 						{
+						case NO_MINOR_CIV_QUEST_TYPE:
+							UNREACHABLE();
+							break;
 						case MINOR_CIV_QUEST_ROUTE:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME", MinorName);
 							break;

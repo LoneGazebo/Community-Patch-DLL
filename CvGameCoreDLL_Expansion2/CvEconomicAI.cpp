@@ -1627,7 +1627,6 @@ void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> const& m
 			{
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // m_Buildables is not supposed to contain these items.
-				break;
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -1780,7 +1779,6 @@ void CvEconomicAI::DoHurry()
 		case CITY_BUILDABLE_PROJECT:
 		case CITY_BUILDABLE_PROCESS:
 			UNREACHABLE(); // selection is not supposed to be one of these items.
-			break;
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
@@ -3797,7 +3795,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		break;
 	default:
 		UNREACHABLE(); // Only YIELD_FOOD & YIELD_PRODUCTION supported.
-		break;
 	}
 
 	FAssertMsg(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");

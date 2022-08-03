@@ -2164,7 +2164,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 			case NO_YIELD:
 				UNREACHABLE();
-				break;
 			case YIELD_FOOD:
 				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 
@@ -2243,6 +2242,18 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				}
 
 				break;
+			case YIELD_TOURISM:
+			case YIELD_GOLDEN_AGE_POINTS:
+			case YIELD_GREAT_GENERAL_POINTS:
+			case YIELD_GREAT_ADMIRAL_POINTS:
+			case YIELD_POPULATION:
+			case YIELD_CULTURE_LOCAL:
+			case YIELD_JFD_HEALTH:
+			case YIELD_JFD_DISEASE:
+			case YIELD_JFD_CRIME:
+			case YIELD_JFD_LOYALTY:
+			case YIELD_JFD_SOVEREIGNTY:
+				break; // TODO: These yields have no baseline.
 			}
 
 			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);

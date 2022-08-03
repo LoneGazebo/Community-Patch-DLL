@@ -5447,8 +5447,6 @@ static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
 {
 	switch (eYield)
 	{
-	case NO_YIELD:
-		break;
 	case YIELD_FOOD:
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
 	case YIELD_PRODUCTION:
@@ -5465,8 +5463,9 @@ static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
 	case YIELD_GOLDEN_AGE_POINTS:
 		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+	default:
+		UNREACHABLE(); // All other yields cannot be acquired from trade.
 	}
-	return "";
 }
 
 //------------------------------------------------------------------------------
