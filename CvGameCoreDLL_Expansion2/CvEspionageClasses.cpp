@@ -22,7 +22,6 @@
 
 // consts to put in enums
 const int iSpyTurnsToTravel = 1;
-const int iSpyTurnsToRevive = /*5 in CP, 10 in VP*/ GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
 const int iSpyRankPower = 50;
@@ -838,7 +837,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		break;
 	case SPY_STATE_DEAD:
 		pSpy->m_iReviveCounter++;
-		if(pSpy->m_iReviveCounter >= iSpyTurnsToRevive)
+		if(pSpy->m_iReviveCounter >= GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER))
 		{
 			GetNextSpyName(pSpy);
 			pSpy->m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
@@ -876,6 +875,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 		}
 		break;
+	case SPY_STATE_TERMINATED:
+		break; // Do nothing; A terminated spy doesn't come back.
 	}
 
 	// if we just established surveillance in the city, turn the lights on
@@ -4286,13 +4287,18 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 	switch(m_aSpyList[uiSpyIndex].m_eSpyState)
 	{
 	case SPY_STATE_UNASSIGNED:
+	case SPY_STATE_COUNTER_INTEL:
+	case SPY_STATE_SCHMOOZE:
+	case SPY_STATE_DEAD:
+	case SPY_STATE_TERMINATED:
 		// no end time
 		return -1;
-		break;
 	case SPY_STATE_TRAVELLING:
 	case SPY_STATE_SURVEILLANCE:
 	case SPY_STATE_GATHERING_INTEL:
 	case SPY_STATE_MAKING_INTRODUCTIONS:
+	case SPY_STATE_BUILDING_NETWORK:
+	{
 		pCity = GetCityWithSpy(uiSpyIndex);
 		if (pCity)
 		{
@@ -4303,7 +4309,11 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 				return (pCityEspionage->m_aiAmount[ePlayer] * 100) / pCityEspionage->m_aiGoal[ePlayer];
 			}
 		}
-		return -1;
+		else
+		{
+			return -1;
+		}
+	}
 	case SPY_STATE_RIG_ELECTION:
 		if(GC.getGame().GetTurnsBetweenMinorCivElections() != 0)
 		{
@@ -4313,20 +4323,6 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		{
 			return -1;
 		}
-		break;
-	case SPY_STATE_COUNTER_INTEL:
-	case SPY_STATE_SCHMOOZE:
-		// no end time
-		return -1;
-		break;
-	case SPY_STATE_DEAD:
-		// no end time
-		return -1;
-		break;
-	case SPY_STATE_TERMINATED:
-		// no end time
-		return -1;
-		break;
 	}
 
 	return -1;
@@ -7340,6 +7336,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
+			case NO_PLAYER_PROXIMITY:
+				UNREACHABLE(); // Since they have a city there should always be a proximity.
+				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				iValue += 30;
 				break;

@@ -7432,6 +7432,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DEITY);
 							break;
+						default:
+							break;
 						}
 					}
 
@@ -7460,6 +7462,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 							break;
 						case 7: // Deity
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_DEITY);
+							break;
+						default:
 							break;
 						}
 
@@ -7504,6 +7508,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 							break;
 						case 7:	// Deity
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_DEITY);
+							break;
+						default:
 							break;
 						}
 
