@@ -16,21 +16,24 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
-#ifdef __clang__
+#if defined(__clang__)
 #define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
 #define OPEN_ENUM __attribute__((enum_extensibility(open)))
 #define FLAG_ENUM __attribute__((flag_enum))
 #define ENUM_META_VALUE [[maybe_unused]]
 #define BUILTIN_UNREACHABLE() __builtin_unreachable()
 #define BUILTIN_TRAP() __builtin_trap()
-#else
+#elif defined(_MSC_VER)
+#include <intrin.h>
 #define CLOSED_ENUM
 #define OPEN_ENUM
 #define FLAG_ENUM
 #define ENUM_META_VALUE
 #define BUILTIN_UNREACHABLE() __assume(0)
-#define BUILTIN_TRAP() __asm { ud2 }; __assume(0)
-#endif // __clang__
+#define BUILTIN_TRAP() __ud2(); __assume(0)
+#else
+#error Unrecognized compiler
+#endif // defined(__clang__)
 
 /// Informs that a location is unreachable.
 ///
