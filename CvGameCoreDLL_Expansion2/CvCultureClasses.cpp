@@ -3305,8 +3305,8 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 	}
 
-	// Otherwise go for Landmark if from Ancient Era, or if have enough other Archaeologists and Antiquity sites to fill all slots
-	else if (pPlot->GetArchaeologicalRecord().m_eEra == 0)
+	// Otherwise go for Landmark if from Medieval Era or earlier, or if have enough other Archaeologists and Antiquity sites to fill all slots
+	else if (pPlot->GetArchaeologicalRecord().m_eEra <= 2)
 	{
 		eRtnValue = ARCHAEOLOGY_LANDMARK;
 	}
@@ -3335,12 +3335,12 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		}
 	}
 
-	// If chose an artifact, would player 2's be better?
+	// If artifact is chosen, would player 2's be better?
 	if (eRtnValue == ARCHAEOLOGY_ARTIFACT_PLAYER1)
 	{
+		// For now have AI player try to collect their own artifacts
 		if (pPlot->GetArchaeologicalRecord().m_ePlayer2 == m_pPlayer->GetID())
 		{
-			// For now have AI player try to collect their own artifacts
 			eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER2;
 		}
 	}
