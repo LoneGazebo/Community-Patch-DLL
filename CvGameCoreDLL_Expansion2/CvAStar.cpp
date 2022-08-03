@@ -1287,12 +1287,12 @@ bool NeedToCheckStacking(const CvAStarNode* node, int iTurnsOverride = -1)
 	if (iTurns > 0)
 		return false;
 
-	//always check stacking for neutral units
-	if (node->m_kCostCacheData.bIsVisibleNeutralCombatUnit)
+	//check stacking for neutral units?
+	if ((node->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_NEUTRAL)==0 && node->m_kCostCacheData.bIsVisibleNeutralCombatUnit)
 		return true;
 
 	//now look at the flag
-	return (node->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) == 0;
+	return (node->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) == 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2437,7 +2437,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	// - we would suffer attrition
 
 	bool bBlockAhead = 
-		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING) && //obvious
+		!HaveFlag(CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) && //obvious
 		pUnitDataCache->isAIControl() &&	//only for AI units, for humans it's confusing and they can handle it anyway
 		current->m_iTurns < 1 &&			//only in the first turn, otherwise the block will likely have moved
 		next->m_iMoves == 0 &&				//only if we would need to end the turn on the next plot

@@ -186,7 +186,7 @@ public:
 	    MOVEFLAG_UNUSED1						= 0x0002, // 
 	    MOVEFLAG_DESTINATION					= 0x0004, // we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
 	    MOVEFLAG_UNUSED2						= 0x0008, // 
-	    MOVEFLAG_IGNORE_STACKING				= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
+	    MOVEFLAG_IGNORE_STACKING_SELF			= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
 	    MOVEFLAG_UNUSED3						= 0x0020, //
 	    MOVEFLAG_UNUSED4						= 0x0040, // 
 	    MOVEFLAG_UNUSED5						= 0x0080, // 
@@ -212,6 +212,7 @@ public:
 		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
 		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
 		MOVEFLAG_PRETEND_CANALS					= 0x10000000, //pretend ships can move one tile inland to see if a canal would make sense
+	    MOVEFLAG_IGNORE_STACKING_NEUTRAL		= 0x20000000, // stacking rules (with neutral units) don't apply (on turn end plots)
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
@@ -937,6 +938,7 @@ public:
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
 	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
+	bool IsCoveringFriendlyCivilian() const;
 
 	int GetAdjacentModifier() const;
 	void ChangeAdjacentModifier(int iValue);

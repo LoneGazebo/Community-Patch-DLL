@@ -1048,7 +1048,7 @@ void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING,1);
+	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,1);
 
 	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);

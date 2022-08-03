@@ -5102,7 +5102,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		}
 
 		// Check to see if any units are present at this full-turn move plot
-		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
+		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
 			if (!CanStackUnitAtPlot(&plot))
 			{
@@ -5496,7 +5496,7 @@ bool CvUnit::jumpToNearestValidPlot()
 		return true;
 
 	//ignore all sorts of restrictions
-	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
+	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
 
 	CvPlot* pBestPlot = NULL;
 	vector<SPlotWithScore> candidates;
@@ -5534,7 +5534,7 @@ bool CvUnit::jumpToNearestValidPlot()
 
 		// check to make sure this is not a dead end
 		// alternatively we could verify against all plots reachable from owner's capital?
-		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING, 4);
+		SPathFinderUserData data2(this, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 4);
 		ReachablePlots plots2 = GC.GetPathFinder().GetPlotsInReach(pTestPlot->getX(), pTestPlot->getY(), data2);
 
 		//if we have lots of room here, use the plot immediately
@@ -18602,6 +18602,26 @@ bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 	return false;
 }
 
+bool CvUnit::IsCoveringFriendlyCivilian() const
+{
+	CvPlot* myPlot = plot();
+	if (!myPlot)
+		return false;
+
+	IDInfo* pUnitNode = myPlot->headUnitNode();
+	while(pUnitNode != NULL)
+	{
+		CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+		pUnitNode = myPlot->nextUnitNode(pUnitNode);
+
+		if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
+			if(!pLoopUnit->IsCanDefend())
+				return true;
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetAdjacentModifier() const
 {
@@ -26816,7 +26836,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 						bMayUse = true;
 
 					//swap needed
-					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING))
+					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
 						bMayUse = true;
 
 					if (bMayUse)
@@ -26885,7 +26905,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 		if (IsCombatUnit() && canEnterTerrain(swapPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
 			// Can I get there this turn?
-			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
+			SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 1);
 
 			//need to be careful here, this method may be called from GUI and gamecore, this can lead to a deadlock
 			SPath path = GC.GetPathFinder().GetPath(plot(), &swapPlot, data);
@@ -26920,7 +26940,7 @@ CvUnit* CvUnit::GetPotentialUnitToSwapWith(const CvPlot & swapPlot) const
 									if (pLoopUnit->canEnterTerrain(*plot(), CvUnit::MOVEFLAG_DESTINATION) && pLoopUnit->canEnterTerritory(plot()->getTeam(),true) && pLoopUnit->ReadyToSwap())
 									{
 										// Can the unit I am swapping with get to me this turn?
-										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING, 1);
+										SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 1);
 										SPath path = GC.GetPathFinder().GetPath(pLoopUnit->plot(), plot(), data);
 										if (!!path)
 										{
@@ -29508,7 +29528,7 @@ bool CvUnit::IsCombatUnit() const
 //	--------------------------------------------------------------------------------
 ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCheckZOC, bool bAllowEmbark, int iMinMovesLeft) const
 {
-	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER;
+	int iFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_DANGER;
 
 	if (!bCheckTerritory)
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
@@ -31821,13 +31841,13 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits, bool bI
 
 	if(bIgnoreUnits)
 	{
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING_SELF;
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_ZOC;
 		iFlags |= CvUnit::MOVEFLAG_IGNORE_DANGER;
 	}
 
 	if(bIgnoreStacking) //ignore our own units
-		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING;
+		iFlags |= CvUnit::MOVEFLAG_IGNORE_STACKING_SELF;
 
 	return TurnsToReachTarget(pTarget,iFlags,iTargetTurns);
 }

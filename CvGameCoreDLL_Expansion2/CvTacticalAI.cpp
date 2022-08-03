@@ -3621,8 +3621,12 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pUnit->TurnProcessed() || (bSuccess && plotDistance(*pLongRangeTarget,*pUnit->plot())<=TACTICAL_COMBAT_MAX_TARGET_DISTANCE))
 			continue;
 
-		//since we know the unit was far out originally, this is guaranteed to be actual movement
+		//lots of flags ...
 		int	iFlags = CvUnit::MOVEFLAG_NO_STOPNODES | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+		if (pUnit->IsCivilianUnit())
+			iFlags |= (CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
+
+		//since we know the unit was far out originally, this is guaranteed to be actual movement
 		if (!pUnit->GeneratePath(pLongRangeTarget, iFlags, GetRecruitRange()))
 			continue;
 
@@ -4055,10 +4059,13 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		//no safe plot to heal ...
 		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > /*10*/ GD_INT_GET(NEUTRAL_HEAL_RATE))
 		{
-			//at least try to flee
-			pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-			if (pBetterPlot && pBetterPlot != pUnit->plot())
-				ExecuteMoveToPlot(pUnit, pBetterPlot);
+			//at least try to flee if we're not needed
+			if (!pUnit->IsCoveringFriendlyCivilian())
+			{
+				pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+				if (pBetterPlot && pBetterPlot != pUnit->plot())
+					ExecuteMoveToPlot(pUnit, pBetterPlot);
+			}
 
 			//why not pillage more tiles?
 			if (pUnit->shouldPillage(pUnit->plot()))
@@ -4217,7 +4224,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 				UnitProcessed(pUnit->GetID());
 		}
 		//maybe units are blocking our way? 
-		else if (pUnit->GeneratePath(pTarget,iFlags|CvUnit::MOVEFLAG_IGNORE_STACKING,INT_MAX,&iTurns))
+		else if (pUnit->GeneratePath(pTarget,iFlags|CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,INT_MAX,&iTurns))
 		{
 			//already close? try to push the other unit out
 			if (iTurns == 0)
@@ -4855,7 +4862,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 			{
 				//note that we also take units which can reach an attack plot but can only attack next turn. that's ok.
 				ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pLoopUnit, pLoopUnit->plot(),
-					CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_NO_EMBARK, 0);
+					CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_NO_EMBARK, 0);
 
 				//start from the outside
 				for (int i=pLoopUnit->GetRange(); i>0 && !bCanReach; i--)
@@ -4870,7 +4877,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 		}
 		else //melee. enough if we can get adjacent to the target
 		{
-			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING;
+			int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF;
 			bCanReach = (pLoopUnit->TurnsToReachTarget(pTarget, iFlags, 0) <= 0);
 		}
 
@@ -5590,7 +5597,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffen
 	for (size_t i=0; i<candidates.size(); i++)
 	{
 		CvPlot* pPlot = candidates[i].option;
-		if ( pUnit->TurnsToReachTarget(pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_IGNORE_STACKING|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,iMaxTurns) < INT_MAX )
+		if ( pUnit->TurnsToReachTarget(pPlot,CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_IGNORE_STACKING_SELF|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER,iMaxTurns) < INT_MAX )
 			return pPlot;
 	}
 
@@ -6134,7 +6141,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iFlags |= CvUnit::MOVEFLAG_ATTACK;
 
 		//if we cannot move in because one of our own units is blocking us
-		if (!pUnit->canMoveInto(*pPlot, iFlags) && pUnit->canMoveInto(*pPlot, iFlags | CvUnit::MOVEFLAG_IGNORE_STACKING))
+		if (!pUnit->canMoveInto(*pPlot, iFlags) && pUnit->canMoveInto(*pPlot, iFlags | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
 		{
 			if (!bConsiderPush || !pUnit->CanPushOutUnitHere(*pPlot))
 				continue;
@@ -6347,7 +6354,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		}
 
 		//can we stay there?
-		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION) && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING))
+		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION) && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
 		{
 			if (!pUnit->CanPushOutUnitHere(*pPlot))
 				continue;
@@ -7564,24 +7571,6 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	if (testPlot.isEnemy())
 		return result;
 
-	//check distance to enemy in any case
-	switch (testPlot.getEnemyDistance())
-	{
-	case 0:
-		return result; //don't ever go there, wouldn't work anyway
-		break;
-	case 1:
-		iScore = 2; //dangerous, only in emergencies
-		break;
-	case 2:
-	case 3:
-		iScore = 23; //nice. different to first line is worth more than two adjacent units (check below)
-		break;
-	default:
-		iScore = 2; //usual case for gathering moves, otherwise not really interesting
-		break;
-	}
-
 	//check distance to target if gathering (not attacking)
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
 	if (targetPlot.isValid() && !targetPlot.isEnemy())
@@ -7594,6 +7583,26 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	//generals and admirals
 	if (unit.eStrategy == MS_SUPPORT)
 	{
+		//check distance to enemy in any case
+		switch (testPlot.getEnemyDistance())
+		{
+		case 0:
+			return result; //don't ever go there, wouldn't work anyway
+			break;
+		case 1:
+			iScore = 2; //dangerous to end the turn, avoid
+			break;
+		case 2:
+			iScore = 23; //good for defense support, good for attack support, but risky
+			break;
+		case 3:
+			iScore = 17; //good for defense support, not so good for attack support
+			break;
+		default:
+			iScore = 5; //usual case for gathering moves, otherwise not really interesting
+			break;
+		}
+
 		if (evalMode != EM_INTERMEDIATE)
 		{
 			//we want one of our own combat units covering us
@@ -7651,6 +7660,20 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	//plain embarked units
 	else if (unit.eStrategy == MS_EMBARKED)
 	{
+		//check distance to enemy in any case
+		switch (testPlot.getEnemyDistance())
+		{
+		case 0:
+			return result; //don't ever go there, wouldn't work anyway
+			break;
+		case 1:
+			iScore = 2; //dangerous, only in emergencies
+			break;
+		default:
+			iScore = 23; //embarked units don't care about getting close to enemies
+			break;
+		}
+
 		//can we put a combat unit here?
 		if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
 			return result;
@@ -9056,7 +9079,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 		gMovePlotsCacheMiss++;
 
 		//note: we allow (intermediate) embarkation here but filter out the non-native plots later (useful for denmark and lategame)
-		int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_DANGER;
+		int iMoveFlags = CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_DANGER;
 		ReachablePlots reachablePlots = TacticalAIHelpers::GetAllPlotsInReachThisTurn(pUnit, pStartPlot, iMoveFlags, 0, unit.iMovesLeft, freedPlots);
 
 		//need to know this if we're doing defensive positioning
@@ -9840,10 +9863,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 	{
 		CvUnit* pUnit = vUnits[i];
 
-		//ignore units on other islands, we can find better moves for them
-		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
-			continue;
-
 		//units outside of their native domain are a problem because they violate 1UPT
 		//we treat embarked units non-combat units (see addAvailableUnit)
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && !pUnit->TurnProcessed())
@@ -10073,10 +10092,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
-
-		//ignore units on other islands, we can find better moves for them
-		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
-			continue;
 
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
