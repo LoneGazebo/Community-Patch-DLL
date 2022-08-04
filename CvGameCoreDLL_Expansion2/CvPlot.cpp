@@ -1496,6 +1496,8 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					// try to look at the two plot inwards
 					switch(eDirectionOfNextTileToCheck)
 					{
+					case NO_DIRECTION:
+						UNREACHABLE();
 					case DIRECTION_NORTHEAST:
 						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(),pPlotToCheck->getY(),DIRECTION_EAST);
 						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(),pPlotToCheck->getY(),DIRECTION_SOUTHEAST);
@@ -12795,6 +12797,9 @@ void CvPlot::updateLayout(bool bDebug)
 	{
 		switch(eRoute)
 		{
+		case NO_ROUTE:
+		case ROUTE_ANY:
+			UNREACHABLE();
 		case ROUTE_ROAD:
 			if(IsRoutePillaged())
 			{
@@ -12858,6 +12863,9 @@ void CvPlot::updateLayout(bool bDebug)
 		{
 			switch(eRoute)
 			{
+			case NO_ROUTE:
+			case ROUTE_ANY:
+				UNREACHABLE();
 			case ROUTE_ROAD:
 				eRoadTypeValue = ROAD_UNDER_CONSTRUCTION;
 				break;

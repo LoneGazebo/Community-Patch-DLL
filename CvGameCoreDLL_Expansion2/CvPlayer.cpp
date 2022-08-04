@@ -16754,14 +16754,6 @@ int CvPlayer::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSi
 		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY_PLAYER", iTempMod);
 	}
 
-	// Religion
-	if(pkBuildingInfo->IsReligious())
-	{
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_RELIGION_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_PLAYER", iTempMod);
-	}
-
 	return iMultiplier;
 }
 
@@ -31418,6 +31410,9 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 			iTourism = pCity->GetSeaTourismBonus();
 		}
 		break;
+	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
+	case HISTORIC_EVENT_CITY_FOUND:
+		break; // These events offer no tourism bonus.
 	}
 
 	if (iTourism <= 0)
@@ -31475,6 +31470,9 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	case HISTORIC_EVENT_TRADE_SEA:
 		iTotalBonus /= 15;
 		break;
+	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
+	case HISTORIC_EVENT_CITY_FOUND:
+		UNREACHABLE();
 	}
 
 	if (GC.getLogging() && GC.getAILogging())
@@ -41569,13 +41567,9 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) 
 		CvAIOperation* pOperation = m_AIOperations[i].second;
 		if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 		{
-			switch (pOperation->GetOperationType())
+			if (pOperation->GetOperationType() == AI_OPERATION_FOUND_CITY && plotDistance(*pPlot, *pOperation->GetTargetPlot()) <= 3)
 			{
-			case AI_OPERATION_FOUND_CITY:
-				if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -41676,6 +41670,8 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
 			}
 			break;
 		}
+		default:
+		UNREACHABLE(); // Other yield types are untracked.
 	}
 	return iYield;
 }
@@ -49911,14 +49907,23 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 /// Special bonus for having a vassal
 int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 {
-	if (eYield == YIELD_SCIENCE && GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
-		return 0;
-
-	if (eYield == YIELD_CULTURE && GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
-		return 0;
-
-	if (eYield == YIELD_FAITH && GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
-		return 0;
+	switch (eYield)
+	{
+	case YIELD_SCIENCE:
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return 0;
+		break;
+	case YIELD_CULTURE:
+		if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+			return 0;
+		break;
+	case YIELD_FAITH:
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return 0;
+		break;
+	default:
+		return 0; // Other yields cannot be recieved from vassals.
+	}
 
 	int iYield = 0;
 
@@ -49948,6 +49953,8 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
+			default:
+				UNREACHABLE();
 			}
 
 			iYield += iFreeYield;
