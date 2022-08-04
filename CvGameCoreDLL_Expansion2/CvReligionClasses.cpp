@@ -649,7 +649,9 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 		case NO_AUTOMATIC_FAITH_PURCHASE:
 		case FAITH_PURCHASE_SAVE_PROPHET:
 			CheckSpawnGreatProphet(kPlayer);
-				break;
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -682,6 +684,8 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 
 	switch (kPlayer.GetFaithPurchaseType())
 	{
+	case NO_AUTOMATIC_FAITH_PURCHASE:
+		break; // Valid option; Just do nothing.
 	case FAITH_PURCHASE_SAVE_PROPHET:
 	{
 		if (eReligion <= RELIGION_PANTHEON && GetNumReligionsStillToFound() <= 0 && !kPlayer.GetPlayerTraits()->IsAlwaysReligion())
@@ -3245,6 +3249,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			{
 				switch (kPlayer.GetFaithPurchaseType())
 				{
+					case FAITH_PURCHASE_BUILDING:
+					case FAITH_PURCHASE_UNIT:
+						break; // Player is saving for something else so just do nothing.
 					case FAITH_PURCHASE_SAVE_PROPHET:
 						pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
 						prophetboughtwithfaith = true;
@@ -3358,6 +3365,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 				{
 					switch (kPlayer.GetFaithPurchaseType())
 					{
+						case FAITH_PURCHASE_BUILDING:
+						case FAITH_PURCHASE_UNIT:
+							break; // Player is saving for something else so just do nothing.
 						case FAITH_PURCHASE_SAVE_PROPHET:
 							pSpawnCity->GetCityCitizens()->DoSpawnGreatPerson(eUnit, true /*bIncrementCount*/, true, false);
 							prophetboughtwithfaith = true;
@@ -3482,6 +3492,7 @@ void CvGameReligions::NotifyPlayer(PlayerTypes ePlayer, CvGameReligions::FOUNDIN
 		strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NOT_ENOUGH_FAITH_FOR_PANTHEON");
 		break;
 	case FOUNDING_NO_RELIGIONS_AVAILABLE:
+	case FOUNDING_NO_BELIEFS_AVAILABLE: // <- No localization key exists for this result.
 		strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_NO_RELIGIONS_AVAILABLE");
 		strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NO_RELIGIONS_AVAILABLE");
 		break;

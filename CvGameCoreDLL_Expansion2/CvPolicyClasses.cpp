@@ -5862,6 +5862,8 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 			{
 				switch(eBranchType)
 				{
+				case NO_POLICY_BRANCH_TYPE:
+					UNREACHABLE(); // It would be a logic error to complete `NO_POLICY_BRANCH_TYPE`.
 				case 0:
 					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_TRADITION);
 					break;

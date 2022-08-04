@@ -225,6 +225,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 			switch(eYield)
 			{
+				case NO_YIELD:
+				UNREACHABLE();
 				case YIELD_GOLD:
 				{
 					if(MOD_BALANCE_CORE_HAPPINESS)
@@ -297,6 +299,13 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					}
 				}
 				break;
+				default:
+				// No default processes exist for other yield types.
+				// Not unreachable though because a mod could add more.
+				// 
+				// TODO: AI should probably still have some behavior for
+				// other processes even if they aren't available by default
+				break; 
 			}
 		}
 	}
