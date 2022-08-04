@@ -11297,7 +11297,7 @@ void CvPlayer::doTurn()
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
-		if(eInstantYield != NO_INSTANT_YIELD_TYPE && getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
+		if(getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
 		{
 			// Instant yield
 			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
@@ -25999,8 +25999,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			int iValue = 0;
 			switch(iType)
 			{
-				case NO_INSTANT_YIELD_TYPE:
-				UNREACHABLE(); // This should never be passed into this function.
 				case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
 				{
 					if (eYield != ePassYield)
