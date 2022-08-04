@@ -13315,7 +13315,6 @@ void CvGame::LogGameState(bool bLogHeaders)
 							case CIV_APPROACH_GUARDED:
 							case CIV_APPROACH_AFRAID:
 								UNREACHABLE();
-								break;
 							}
 						}
 					}

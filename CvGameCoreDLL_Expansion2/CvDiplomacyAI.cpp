@@ -26216,7 +26216,6 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		case CIV_OPINION_ENEMY:
 		case CIV_OPINION_ALLY:
 			UNREACHABLE();
-			break;
 		case CIV_OPINION_COMPETITOR:
 			iScoreForRaise += 100;
 			break;
@@ -55226,7 +55225,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 				{
 				case NO_WAR_STATE_TYPE:
 					UNREACHABLE();
-					break;
 				case WAR_STATE_NEARLY_WON:
 					iWantVassalageScore -= 80;
 					break;
@@ -55267,7 +55265,6 @@ bool CvDiplomacyAI::IsVoluntaryVassalageAcceptable(PlayerTypes ePlayer)
 					{
 					case NO_WAR_STATE_TYPE:
 						UNREACHABLE();
-						break;
 					case WAR_STATE_NEARLY_DEFEATED:
 						iWantVassalageScore -= 100 * iStrengthFactor * iOpinionFactor; // eep! No thanks!
 						break;
@@ -55860,7 +55857,6 @@ bool CvDiplomacyAI::IsEndVassalageRequestAcceptable(PlayerTypes ePlayer)
 	case CIV_OPINION_ENEMY:
 	case CIV_OPINION_UNFORGIVABLE:
 		UNREACHABLE();
-		break;
 	case CIV_OPINION_ALLY:
 		iChanceToGiveIn += 60;
 		break;

@@ -1290,7 +1290,6 @@ bool CvMinorCivQuest::IsComplete()
 	{
 	case NO_MINOR_CIV_QUEST_TYPE:
 		UNREACHABLE();
-		break;
 	case MINOR_CIV_QUEST_ROUTE:
 	{
 		// Road connection established?
@@ -7621,7 +7620,6 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	{
 	case NO_MINOR_CIV_QUEST_TYPE:
 		UNREACHABLE();
-		break;
 	case MINOR_CIV_QUEST_ROUTE:
 	{
 		if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
@@ -15890,7 +15888,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					{
 					case NO_MINOR_CIV_TRAIT_TYPE:
 						UNREACHABLE();
-						break;
 					case MINOR_CIV_TRAIT_CULTURED:
 					{
 						int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE, true);

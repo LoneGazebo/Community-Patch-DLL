@@ -3094,7 +3094,6 @@ void CvHomelandAI::ExecuteWriterMoves()
 
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
@@ -3213,7 +3212,6 @@ void CvHomelandAI::ExecuteArtistMoves()
 
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
@@ -3332,7 +3330,6 @@ void CvHomelandAI::ExecuteMusicianMoves()
 
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
@@ -3379,7 +3376,6 @@ void CvHomelandAI::ExecuteScientistMoves()
 
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
@@ -3590,7 +3586,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
@@ -3648,7 +3643,6 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 			break;
 		default:
 			UNREACHABLE();
-			break;
 		}
 
 		UnitProcessed(pUnit->GetID());
@@ -3798,7 +3792,6 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			break;
 		default:
 			UNREACHABLE();
-			break;
 		}
 
 	}
@@ -3938,7 +3931,6 @@ void CvHomelandAI::ExecuteProphetMoves()
 			break;
 		default:
 			UNREACHABLE();
-			break;
 		}
 	}
 }
