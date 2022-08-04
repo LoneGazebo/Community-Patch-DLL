@@ -3115,7 +3115,7 @@ int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& 
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
 				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, kTradeConnection.m_eOriginOwner))) // check that the our religion does not have our belief, to prevent double counting
 				{
-					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * MAX(1, (int)m_pPlayer->GetCurrentEra());
+					iValue += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetTradeRouteYieldChange(kTradeConnection.m_eDomain, eYield) * 100 * std::max(1, (int)m_pPlayer->GetCurrentEra());
 				}
 			}
 		}
@@ -6091,8 +6091,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	int iPlayerEra = MAX((int)m_pPlayer->GetCurrentEra(), 1);
-	int iOtherPlayerEra = MAX((int)GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra(), 1);
+	int iPlayerEra = std::max((int)m_pPlayer->GetCurrentEra(), 1);
+	int iOtherPlayerEra = std::max((int)GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra(), 1);
 
 	if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	{
@@ -6416,8 +6416,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 					iToPressure = 0;
 				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
-				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
-				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
+				double dExistingPressureModFrom = sqrt(log((double)std::max(1, iExistingToPressureAtFrom + iFromPressure) / (double)std::max(1, iExistingToPressureAtFrom)) / log(2.));
+				double dExistingPressureModTo = sqrt(log((double)std::max(1, iExistingGoodPressureAtTo + iToPressure) / (double)std::max(1, iExistingGoodPressureAtTo)) / log(2.));
 
 				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
 				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
@@ -6872,7 +6872,7 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	//internal traderoutes should be preferred when at war
 	if(m_pPlayer->IsAtWar())
 	{
-		iScore *= MAX(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
+		iScore *= std::max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(true));
 	}
 #if defined(MOD_BALANCE_CORE)
 	// turn it up some for Conquest of the World player during golden ages
@@ -7052,8 +7052,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 					iToPressure = 0;
 				if (eFromReligion == eOwnerStateReligion)
 					iFromPressure = 0;
-				double dExistingPressureModFrom = sqrt(log((double)MAX(1, iExistingToPressureAtFrom + iFromPressure) / (double)MAX(1, iExistingToPressureAtFrom)) / log(2.));
-				double dExistingPressureModTo = sqrt(log((double)MAX(1, iExistingGoodPressureAtTo + iToPressure) / (double)MAX(1, iExistingGoodPressureAtTo)) / log(2.));
+				double dExistingPressureModFrom = sqrt(log((double)std::max(1, iExistingToPressureAtFrom + iFromPressure) / (double)std::max(1, iExistingToPressureAtFrom)) / log(2.));
+				double dExistingPressureModTo = sqrt(log((double)std::max(1, iExistingGoodPressureAtTo + iToPressure) / (double)std::max(1, iExistingGoodPressureAtTo)) / log(2.));
 
 				iReligionDelta += int(iToPressure * dExistingPressureModTo / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);
 				iReligionDelta -= int(iFromPressure * dExistingPressureModFrom / /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER) + 0.5);

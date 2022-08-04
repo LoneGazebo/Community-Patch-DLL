@@ -16891,7 +16891,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			if (IsFriends(ePlayer) && GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 			{
 				int iBaseSpawnTurns = GetSpawnBaseTurns(ePlayer); // May be significantly less now with common enemy due to social policy
-				iBaseSpawnTurns = MAX(iBaseSpawnTurns, 1);
+				iBaseSpawnTurns = std::max(iBaseSpawnTurns, 1);
 				if (iBaseSpawnTurns < GetUnitSpawnCounter(ePlayer))
 				{
 					SetUnitSpawnCounter(ePlayer, iBaseSpawnTurns);

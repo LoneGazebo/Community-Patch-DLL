@@ -3684,7 +3684,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		}
 	}
 
-	iValue = MAX(iValue, 0);
+	iValue = std::max(iValue, 0);
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if (bUseEvenValue)

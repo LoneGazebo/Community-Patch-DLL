@@ -4806,7 +4806,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 
 	//for the N best trade routes, find a suitable unit
 	//check at least the 8 best routes, at max 3 times the number of free trade units
-	uint nRoutesToCheck = MIN(aTradeConnections.size(),MAX(m_CurrentMoveUnits.size()*3,8u));
+	uint nRoutesToCheck = std::min(aTradeConnections.size(),std::max(m_CurrentMoveUnits.size()*3,8u));
 	for (uint ui = 0; ui < nRoutesToCheck; ui++)
 	{
 		CvPlot* pOriginPlot = GC.getMap().plot(aTradeConnections[ui].m_iOriginX, aTradeConnections[ui].m_iOriginY);
@@ -4835,7 +4835,7 @@ void CvHomelandAI::ExecuteTradeUnitMoves()
 				if (iDistance < iBestDistance)
 				{
 					pBestUnit = pUnit;
-					iDistance = MIN(iDistance,iBestDistance);
+					iDistance = std::min(iDistance,iBestDistance);
 
 					//can't get any better
 					if (iDistance==0)
@@ -5985,7 +5985,7 @@ std::vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlay
 	std::sort( vTargets.begin(), vTargets.end() );
 
 	std::vector<SPatrolTarget> vResult;
-	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
+	for (size_t i=0; i<std::min(vTargets.size(),(size_t)nMaxTargets); i++)
 		//copy the top N results, take care not to have duplicate cities in there
 		if (std::find(vResult.begin(),vResult.end(),vTargets[i])==vResult.end())
 			vResult.push_back( vTargets[i] );

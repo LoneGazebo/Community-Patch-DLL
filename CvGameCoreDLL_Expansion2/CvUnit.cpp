@@ -9743,7 +9743,7 @@ int CvUnit::getExoticGoodsGoldAmount()
 
 		int iExtraGold = /*400*/ GD_INT_GET(EXOTIC_GOODS_GOLD_MAX) - /*100*/ GD_INT_GET(EXOTIC_GOODS_GOLD_MIN);
 		iValue = GD_INT_GET(EXOTIC_GOODS_GOLD_MIN) + (int)(iExtraGold * fDistanceFactor);
-		iValue = MIN(iValue, GD_INT_GET(EXOTIC_GOODS_GOLD_MAX));
+		iValue = std::min(iValue, GD_INT_GET(EXOTIC_GOODS_GOLD_MAX));
 	}
 	return iValue;
 }
@@ -9758,7 +9758,7 @@ int CvUnit::getExoticGoodsXPAmount()
 
 		int iExtraXP = /*30*/ GD_INT_GET(EXOTIC_GOODS_XP_MAX) - /*10*/ GD_INT_GET(EXOTIC_GOODS_XP_MIN);
 		iValue = GD_INT_GET(EXOTIC_GOODS_XP_MIN) + (int)(iExtraXP * fDistanceFactor);
-		iValue = MIN(iValue, GD_INT_GET(EXOTIC_GOODS_XP_MAX));
+		iValue = std::min(iValue, GD_INT_GET(EXOTIC_GOODS_XP_MAX));
 	}
 	return iValue;
 }
@@ -11779,7 +11779,7 @@ int CvUnit::getDiscoverAmount()
 			if (pPlayer->GetGreatScientistBeakerMod() != 0)
 			{
 				iValue += (iValue * pPlayer->GetGreatScientistBeakerMod()) / 100;
-				iValue = MAX(iValue, 0); // Cannot be negative
+				iValue = std::max(iValue, 0); // Cannot be negative
 			}
 
 			// Modify based on game speed
@@ -11972,7 +11972,7 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 		if (iCurrentEra >= 3) // starts from renaissance
 		{
 			int EraModifiers[5] = { 200, 250, 400, 475, 575 }; 
-			int iIndex = MAX(0, iCurrentEra - 3);
+			int iIndex = std::max(0, iCurrentEra - 3);
 			iProduction = ((m_pUnitInfo->GetBaseHurry() * EraModifiers[iIndex] / 100) + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
 		}
 	}
@@ -12007,7 +12007,7 @@ int CvUnit::getHurryProduction(const CvPlot* pPlot) const
 	if (GET_PLAYER(getOwner()).GetGreatEngineerHurryMod() != 0)
 	{
 		iProduction += (iProduction * GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
-		iProduction = MAX(iProduction, 0); // Cannot be negative
+		iProduction = std::max(iProduction, 0); // Cannot be negative
 	}
 
 	return std::max(0, iProduction);
@@ -12160,7 +12160,7 @@ int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
 		if (iCurrentEra >= 3) // starts from renaissance
 		{
 			int EraModifiers[5] = { 200, 250, 400, 475, 575 };
-			int iIndex = MAX(0, iCurrentEra - 3);
+			int iIndex = std::max(0, iCurrentEra - 3);
 			iGold *= EraModifiers[iIndex];
 			iGold /= 100;
 		}
@@ -21025,7 +21025,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 			if(!IsDead())
 			{
 				CvString text;
-				iNewValue = MIN(GetMaxHitPoints(),iNewValue);
+				iNewValue = std::min(GetMaxHitPoints(),iNewValue);
 				int iDiff = iOldValue - iNewValue;
 				if(iNewValue < iOldValue)
 				{

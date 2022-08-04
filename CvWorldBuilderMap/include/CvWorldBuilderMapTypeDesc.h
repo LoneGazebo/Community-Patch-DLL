@@ -100,7 +100,7 @@ public:
 	static bool BuildLookupTable(const TypeMap &kFrom, const TypeMap &kTo, LookupTable& auiLookupTable)
 	{
 		// Initialize the lookup table
-		uint uiMaxSize = MAX(kFrom.Size(), kTo.Size());
+		uint uiMaxSize = std::max(kFrom.Size(), kTo.Size());
 		auiLookupTable.resize(uiMaxSize);
 		for( uint i = 0; i < uiMaxSize; ++i )
 			auiLookupTable[i] = uint(-1);

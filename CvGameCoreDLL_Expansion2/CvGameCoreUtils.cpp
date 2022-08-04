@@ -1538,7 +1538,7 @@ bool IsGUIDEmpty(const GUID& kGUID)
 int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
 {
 	if (iHundredAt!=iZeroAt)
-		return MIN( 100, MAX( 0, (iValue-iZeroAt)*100/(iHundredAt-iZeroAt) ) );
+		return std::min( 100, std::max( 0, (iValue-iZeroAt)*100/(iHundredAt-iZeroAt) ) );
 	else if (iValue>iHundredAt)
 		return 100;
 	else if (iValue<iZeroAt)

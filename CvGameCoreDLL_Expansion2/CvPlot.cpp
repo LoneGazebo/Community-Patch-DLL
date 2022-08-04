@@ -4877,7 +4877,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	//fancy stl version works only under conditions
 	if (bAllowLand && bAllowWater)
 	{
-		std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
+		std::vector<int> shared(std::max(myAreas.size(), theirAreas.size()));
 		std::vector<int>::iterator result = std::set_intersection(myAreas.begin(), myAreas.end(), theirAreas.begin(), theirAreas.end(), shared.begin());
 		return (result != shared.begin());
 	}
@@ -5002,7 +5002,7 @@ bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bo
 	//fancy stl version works only under conditions
 	if (bAllowLand && bAllowWater)
 	{
-		std::vector<int> shared(MAX(myLandmasses.size(), theirLandmasses.size()));
+		std::vector<int> shared(std::max(myLandmasses.size(), theirLandmasses.size()));
 		std::vector<int>::iterator result = std::set_intersection(myLandmasses.begin(), myLandmasses.end(), theirLandmasses.begin(), theirLandmasses.end(), shared.begin());
 		return (result != shared.begin());
 	}
@@ -10562,7 +10562,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvUnit* pUnit)
 			//do not use the founding values here, they are expensive to compute
 			int iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(this, true);
 			int iRefFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlayer->getCapitalCity()->plot(), true);
-			iBonus = range((iFertility * 100) / MAX(1, iRefFertility), 0, 100);
+			iBonus = range((iFertility * 100) / std::max(1, iRefFertility), 0, 100);
 		}
 
 		if (getOwner() == NO_PLAYER)

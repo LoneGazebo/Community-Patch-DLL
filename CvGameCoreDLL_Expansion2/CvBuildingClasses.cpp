@@ -4520,7 +4520,7 @@ int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if(pkInfo && pkInfo->GetBuildingClassType() == eIndex)
 		{
-			int iCount = MAX(GetNumBuilding(*iI), 0);
+			int iCount = std::max(GetNumBuilding(*iI), 0);
 			iValue += iCount;
 		}
 	}

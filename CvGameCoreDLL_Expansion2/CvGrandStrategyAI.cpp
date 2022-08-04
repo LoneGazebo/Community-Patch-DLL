@@ -1325,7 +1325,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	// We have the most votes
 	if (iVotesControlledDelta > 0)
 	{
-		iPriority += MAX(100, iVotesControlledDelta * 20);
+		iPriority += std::max(100, iVotesControlledDelta * 20);
 	}
 	// We are equal or behind in votes
 	else
@@ -1335,11 +1335,11 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		int iPotentialVotesDelta = iPotentialCityStateVotes + iVotesControlledDelta;
 		if (iPotentialVotesDelta > 0)
 		{
-			iPriority += MAX(20, iPotentialVotesDelta * 5);
+			iPriority += std::max(20, iPotentialVotesDelta * 5);
 		}
 		else if (iPotentialVotesDelta < 0)
 		{
-			iPriority += MIN(-100, iPotentialVotesDelta * -50);
+			iPriority += std::min(-100, iPotentialVotesDelta * -50);
 		}
 	}
 
@@ -2083,7 +2083,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 			}
 		}
 	}
-	iCityStatesAlive = MAX(iCityStatesAlive, 1);
+	iCityStatesAlive = std::max(iCityStatesAlive, 1);
 
 	int iPriority = (iTheirCityStateAllies + (iTheirCityStateFriends / 3)) * /*300*/ GD_INT_GET(AI_GS_UN_SECURED_VOTE_MOD) / iCityStatesAlive;
 

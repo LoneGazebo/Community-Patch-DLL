@@ -985,7 +985,7 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	}
 
 	std::stable_sort(vVoteText.begin(), vVoteText.end(), LeagueHelpers::VoteTextSorter());
-	int iNumToShow = MIN(16, (int)vVoteText.size());
+	int iNumToShow = std::min(16, (int)vVoteText.size());
 	for (int i = 0; i < iNumToShow; i++)
 	{
 		s += vVoteText[i].sText;
@@ -3737,7 +3737,7 @@ int CvLeague::GetNumResolutionsEverEnacted() const
 
 int CvLeague::GetNumProposersPerSession() const
 {
-	return MIN(/*2 in CP, 3 in CSD*/ GD_INT_GET(LEAGUE_PROPOSERS_PER_SESSION), GetNumMembers());
+	return std::min(/*2 in CP, 3 in CSD*/ GD_INT_GET(LEAGUE_PROPOSERS_PER_SESSION), GetNumMembers());
 }
 
 void CvLeague::AddMember(PlayerTypes ePlayer)
@@ -4952,7 +4952,7 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 					iBestContribution = iContribution;
 				}
 			}
-			fThreshold = MAX((float)iBestContribution, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD() * GetProjectCostPerPlayer(eLeagueProject));
+			fThreshold = std::max((float)iBestContribution, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD() * GetProjectCostPerPlayer(eLeagueProject));
 			break;
 		}
 	default:
@@ -6350,7 +6350,7 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 	if (eObserver != NO_PLAYER && IsProjectActive(eProject) && GetProjectCost(eProject)>0)
 	{
 		int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
-		iPercentCompleted = MIN(100, iPercentCompleted);
+		iPercentCompleted = std::min(100, iPercentCompleted);
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_PROGRESS_COST");
 		sTemp << iPercentCompleted;
 		sTemp << GetMemberContribution(eObserver, eProject) / 100;
@@ -8537,7 +8537,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					if (pNotifications)
 					{
 						int iPercentCompleted = (int) ((float)GetProjectProgress(eProject) / std::max(1,GetProjectCost(eProject)) * 100);
-						iPercentCompleted = MIN(100, iPercentCompleted);
+						iPercentCompleted = std::min(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
 						sSummary << pInfo->GetDescriptionKey();
@@ -8627,7 +8627,7 @@ void CvLeague::CheckProjectsProgress()
 				else
 				{
 					int iPercentCompleted = (int) (((float)iTotal / std::max(1,iNeeded)) * 100);
-					iPercentCompleted = MIN(100, iPercentCompleted);
+					iPercentCompleted = std::min(100, iPercentCompleted);
 
 					if (!it->bProgressWarningSent && iPercentCompleted >= /*33 in CP, 25 in CSD*/ GD_INT_GET(LEAGUE_PROJECT_PROGRESS_PERCENT_WARNING))
 					{
@@ -9342,8 +9342,8 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 				}
 			}
 			// In case the game era is actually before or after the triggers in the database
-			EraTypes eGoverningEraTrigger = (EraTypes) MAX((int)LeagueHelpers::GetGameEraForTrigger(), (int)eEarliestEraTrigger);
-			eGoverningEraTrigger = (EraTypes) MIN((int)eGoverningEraTrigger, (int)eLatestEraTrigger);
+			EraTypes eGoverningEraTrigger = (EraTypes) std::max((int)LeagueHelpers::GetGameEraForTrigger(), (int)eEarliestEraTrigger);
+			eGoverningEraTrigger = (EraTypes) std::min((int)eGoverningEraTrigger, (int)eLatestEraTrigger);
 
 			// Find which special session info this league begins at
 			LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
@@ -11568,7 +11568,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 		VoteConsideration consideration(/*bEnact*/ true, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i], /*bConsiderGlobal*/ true);
 
-		iScore = MAX(iScore, 0); // No negative weights
+		iScore = std::max(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
 	}
 
@@ -11615,7 +11615,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 		VoteConsideration consideration(/*bEnact*/ false, pProposal->GetID(), vChoices[i], 0);
 		int iScore = ScoreVoteChoice(pProposal, vChoices[i],/*bConsiderGlobal*/ true);
 
-		iScore = MAX(iScore, 0); // No negative weights
+		iScore = std::max(iScore, 0); // No negative weights
 		vScoredChoices.push_back(consideration, iScore);
 	}
 

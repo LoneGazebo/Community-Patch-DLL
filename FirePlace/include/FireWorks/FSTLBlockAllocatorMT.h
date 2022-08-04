@@ -251,7 +251,7 @@ class FSTLBlockAllocatorMT
 		//---------------------------------------------------------------------
 		size_t GetBlockSize() const
 		{
-			return MAX(sizeof(T), sizeof(void *));
+			return std::max(sizeof(T), sizeof(void *));
 		}
 
 		//---------------------------------------------------------------------

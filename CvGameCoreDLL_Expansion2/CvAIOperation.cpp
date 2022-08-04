@@ -622,7 +622,7 @@ int CvAIOperation::PercentFromMusterPointToTarget() const
 				}
 				else
 				{
-					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / MAX(1,m_iDistanceMusterToTarget));
+					int iTempValue = 100 - (100 * iDistanceCurrentToTarget / std::max(1,m_iDistanceMusterToTarget));
 					if(iTempValue > iRtnValue)
 					{
 						iRtnValue = iTempValue;

@@ -92,7 +92,7 @@
 #include <limits>
 #include <unordered_set>
 
-#define DllExport   __declspec( dllexport )
+typedef unsigned int uint;
 
 typedef unsigned char    byte;
 typedef unsigned int     uint;
@@ -205,12 +205,10 @@ typedef wchar_t          wchar;
 
 using namespace fastdelegate;
 
-#ifdef FINAL_RELEASE
+#if defined(FINAL_RELEASE) && !defined(MOD_BALANCE_CORE)
 // Undefine OutputDebugString in final release builds
-#if !defined(MOD_BALANCE_CORE)
 #undef OutputDebugString
 #define OutputDebugString(x)
 #endif
-#endif //FINAL_RELEASE
 
 #endif	// CVGAMECOREDLLPCH_H

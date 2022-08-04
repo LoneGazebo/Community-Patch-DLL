@@ -3325,7 +3325,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
 	//avoid overflows later ...
-	fStrengthRatio = MIN(1e3, (fStrengthRatio + 1) / 2);
+	fStrengthRatio = std::min(1e3, (fStrengthRatio + 1) / 2);
 
 	//undo the inversion if needed
 	if(iDefenderStrength100 > iAttackerStrength100)

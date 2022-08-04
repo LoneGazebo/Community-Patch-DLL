@@ -337,7 +337,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	void setsize( unsigned int uiNewSize ){
 		SetSize(uiNewSize);
-		this->m_uiCurrSize = MIN(uiNewSize, this->m_uiCurrMaxSize);
+		this->m_uiCurrSize = std::min(uiNewSize, this->m_uiCurrMaxSize);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ public:
 		if( this->m_uiCurrMaxSize < uiNewSize ){
 			GrowSize(uiNewSize);
 		}
-		this->m_uiCurrSize = MIN(uiNewSize, this->m_uiCurrMaxSize);
+		this->m_uiCurrSize = std::min(uiNewSize, this->m_uiCurrMaxSize);
 	};
 
 
@@ -465,7 +465,7 @@ protected:
 
 		unsigned int nOld = this->m_uiCurrSize;
 
-		this->m_uiCurrSize = MIN( this->m_uiCurrSize, uiFit );
+		this->m_uiCurrSize = std::min( this->m_uiCurrSize, uiFit );
 
 		T* pTemp = NULL;
 		if( uiFit > 0 ){
@@ -1121,7 +1121,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	FFixedVector(const THIS_TYPE& RHS)
 	{
-		this->m_uiCurrSize = MIN(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
+		this->m_uiCurrSize = std::min(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
 		CopyMin(RHS);
 	};
 
@@ -1253,7 +1253,7 @@ protected:
 
 	//Copy list of elements, calling copy constructor for each element
 	void CopyMin(const THIS_TYPE& RHS){
-		this->m_uiCurrSize = MIN(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
+		this->m_uiCurrSize = std::min(RHS->m_uiCurrSize, this->m_uiCurrMaxSize);
 		if( bPODType ){
 			memcpy( (void*)this->m_pData, (void*)RHS->m_pData, sizeof(T)*this->m_uiCurrSize);
 		}else{

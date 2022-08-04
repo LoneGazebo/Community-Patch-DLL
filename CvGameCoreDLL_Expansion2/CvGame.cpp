@@ -5506,8 +5506,8 @@ void CvGame::DoUpdateDiploVictory()
 	}
 
 	int iVotesToWin = (int)floor(fCivVotesPortion + fCityStateVotesPortion);
-	iVotesToWin = MAX(iVotesForHost + iVotesPerCiv + 1, iVotesToWin);
-	iVotesToWin = MIN(iVotesForHost + (iVotesPerCiv * (int)fCivsToCount) + (iVotesPerCityState * (int)fCityStatesToCount), iVotesToWin);
+	iVotesToWin = std::max(iVotesForHost + iVotesPerCiv + 1, iVotesToWin);
+	iVotesToWin = std::min(iVotesForHost + (iVotesPerCiv * (int)fCivsToCount) + (iVotesPerCityState * (int)fCityStatesToCount), iVotesToWin);
 
 	SetVotesNeededForDiploVictory(iVotesToWin);
 	GC.GetEngineUserInterface()->setDirty(LeagueScreen_DIRTY_BIT, true);

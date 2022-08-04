@@ -24477,7 +24477,7 @@ void CvPlayer::DoChangeGreatGeneralRate()
 					{
 						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 						{
-							iGreatGeneralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity));
+							iGreatGeneralPoints += std::max(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS, GetID(), pLoopCity));
 
 							if (eGreatPerson != NO_GREATPERSON)
 							{
@@ -24567,7 +24567,7 @@ void CvPlayer::DoChangeGreatAdmiralRate()
 					{
 						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheon, pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 						{
-							iGreatAdmiralPoints += MAX(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity));
+							iGreatAdmiralPoints += std::max(0, pPantheon->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS, GetID(), pLoopCity));
 
 							if (eGreatPerson != NO_GREATPERSON)
 							{
@@ -26707,7 +26707,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					if (iPassYield <= 0)
 					{
-						iValue += MAX(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
+						iValue += std::max(GetPlayerTraits()->GetYieldFromBarbarianCampClear(eYield, bEraScale), 0);
 					}
 
 					iValue += iPassYield;
@@ -26756,7 +26756,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						if (pReligion)
 						{
-							iValue += MAX(pReligion->m_Beliefs.GetYieldFromImprovementBuild(eYield, bEraScale, GetID(), pLoopCity), 0);
+							iValue += std::max(pReligion->m_Beliefs.GetYieldFromImprovementBuild(eYield, bEraScale, GetID(), pLoopCity), 0);
 						}
 					}
 

@@ -4899,7 +4899,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 		{
 			// Will we do a significant amount of damage
 			int iTargetHitpoints = pDefender ? pDefender->GetCurrHitPoints() : 0;
-			if(IsExpectedToDamageWithRangedAttack(pLoopUnit, pTarget, MIN(iTargetHitpoints/20, 3)))
+			if(IsExpectedToDamageWithRangedAttack(pLoopUnit, pTarget, std::min(iTargetHitpoints/20, 3)))
 			{
 				//first-line ranged and air
 				CvTacticalUnit unit(pLoopUnit->GetID());
