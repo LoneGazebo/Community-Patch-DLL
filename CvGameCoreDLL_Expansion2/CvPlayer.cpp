@@ -33200,19 +33200,20 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 												{
 													CvCity* pNearestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(pFromUnit->getOwner(), pFromUnit->plot());
 
-													CUSTOMLOG("Create Great General at (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
-#else
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY());
-#endif												
-												
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
+													if (pNearestCity != NULL)
+													{
+														CUSTOMLOG("Create Great Admiral at the city (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
+													}
+													else
+													{
+														CUSTOMLOG("Create Great Admiral at plot (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
+													}
 													if (MOD_PROMOTIONS_FLAGSHIP)
 													{
 														pFromUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_FLAGSHIP), true);
 													}
-#endif
 												}
 												else
 												{
