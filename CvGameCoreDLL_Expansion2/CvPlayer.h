@@ -548,7 +548,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
-	void DoDifficultyBonus(HistoricEventTypes eHistoricEvent = NO_HISTORIC_EVENT_TYPE);
+	void DoDifficultyBonus(HistoricEventTypes eHistoricEvent);
 #endif
 
 	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;

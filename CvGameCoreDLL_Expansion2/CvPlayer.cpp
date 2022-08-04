@@ -19799,8 +19799,6 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 		{
 			switch (eHistoricEvent)
 			{
-				case NO_HISTORIC_EVENT_TYPE:
-					UNREACHABLE();
 				case HISTORIC_EVENT_ERA:
 				{
 					iYieldHandicap *= 3;
@@ -28204,6 +28202,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 						iValue += iPassValue;
 					}
 				}
+				default:
+				UNREACHABLE(); // Other types should never be passed into this function.
 			}
 
 			// 2nd step: Apply the desired amount of GP points to the loop city
@@ -28314,7 +28314,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				bImmediate = true;
 				break;
 			}
-
+			default:
+			UNREACHABLE(); // Other types should never be passed into this function.
 		}
 		if (bImmediate)
 		{
