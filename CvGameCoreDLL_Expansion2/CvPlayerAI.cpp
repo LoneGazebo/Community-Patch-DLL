@@ -1645,6 +1645,10 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		}
 	}
 
+	//units in armies are always field commanders
+	if (pGreatGeneral->getArmyID() != -1)
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+
 	//this one is sticky
 	if (pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;

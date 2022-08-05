@@ -837,10 +837,6 @@ public:
 
 	void updateImpassable(TeamTypes eTeam = NO_TEAM);
 
-	bool isSameOrAdjacentArea(CvPlot* pOtherPlot) const;
-#endif
-
-#if defined(MOD_BALANCE_CORE)
 	int GetNumSpecificFriendlyUnitCombatsAdjacent(TeamTypes eMyTeam, UnitCombatTypes eUnitCombat, const CvUnit* pUnitToExclude = NULL) const;
 #endif
 
