@@ -1641,7 +1641,7 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 	}
 
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
-		strSpyAtCity;
+		return strSpyAtCity;
 
 	CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
