@@ -33442,7 +33442,7 @@ bool CvPlayer::HasMetValidMinorCiv() const
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWarWith(eLoopPlayer))
 			return true;
 	}
 	
@@ -33561,7 +33561,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 					GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
 					GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
 
-					// put both teams at peace
+					// put both teams at peace	
 					GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
 					GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
 
@@ -33586,6 +33586,24 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(GetID()))
+				{
+					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+					if (pLeague)
+					{
+						ActiveResolutionList vActiveResolutions = pLeague->GetActiveResolutions();
+						for (ActiveResolutionList::iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); it++)
+						{
+							if (it->GetEffects()->bSphereOfInfluence && it->GetProposerDecision()->GetProposer() == GetID())
+							{
+								PlayerTypes eMinor = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+								if(eMinor != NO_PLAYER)
+									it->RemoveEffects(eMinor);
+							}
+						}
+
+					}
+				}
 			}
 
 			// Update Diplomacy AI

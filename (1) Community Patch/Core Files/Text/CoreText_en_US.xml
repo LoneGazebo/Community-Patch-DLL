@@ -5645,6 +5645,18 @@
 			<Text>Building Network</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_SPY_STATE_UNASSIGNED_TT">
+			<Text>{1_RankName} {2_SpyName} is unassigned.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK_TT">
+			<Text>{1_RankName} {2_SpyName} is building a Spy Network in {3_CityName}. Soon you will be able to assign this spy to a mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_TERMINATED_TT">
+			<Text>{1_RankName} {2_SpyName} was terminated!</Text>
+		</Row>
+
+		
+
 		<!-- Trade Route for Land Modifiers -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
 			<Text>Land route: {1_Num}x</Text>
@@ -7469,14 +7481,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will slowly [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] to 1. If positive, it will slowly [COLOR_POSITIVE_TEXT]increase[ENDCOLOR] to 10.</Text>
+			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] towards 0 (0 [ICON_CAPITAL]) and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 1000 (5 [ICON_CAPITAL]) and enemy Spies will operate more slowly.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num})</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num})</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num}%)</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
