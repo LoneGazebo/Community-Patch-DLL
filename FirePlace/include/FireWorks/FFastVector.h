@@ -237,11 +237,11 @@ protected:
 	unsigned int m_uiCurrSize;		//The current number of elements in the vector
 	unsigned int m_uiCurrMaxSize;	//The maximum number of elements which can be stored in the current memory store.
 
-	template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID, class FAST_VEC_ALLOC >
-	friend void* operator new( size_t uiSize, FFastVector< T, bPODType, AllocPool, nSubID, FAST_VEC_ALLOC >& kVector );
+	template< class OtherT, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID, class OTHER_FAST_VEC_ALLOC >
+	friend void* operator new( size_t uiSize, FFastVector< OtherT, bOtherPODType, OtherAllocPool, nOtherSubID, OTHER_FAST_VEC_ALLOC >& kVector );
 
-	template< class T, unsigned int L, bool bPODType, unsigned int AllocPool, unsigned int nSubID >
-	friend void* operator new( size_t uiSize, FStaticVector< T, L, bPODType, AllocPool, nSubID >& kVector );
+	template< class OtherT, unsigned int OtherL, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID >
+	friend void* operator new( size_t uiSize, FStaticVector< OtherT, OtherL, bOtherPODType, OtherAllocPool, nOtherSubID >& kVector );
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -519,7 +519,7 @@ protected:
 	unsigned int m_nResizeTimes;
 #endif
 
-	template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID, class FAST_VEC_ALLOC >
+	template< class OtherT, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID, class OTHER_FAST_VEC_ALLOC >
 	friend void* operator new( size_t uiSize, THIS_TYPE& kVector );
 };
 
@@ -815,8 +815,8 @@ protected:
 	unsigned char m_iNumResized;
 #endif
 
-	template< class T, unsigned int L, bool bPODType, unsigned int AllocPool, unsigned int nSubID >
-	friend void* operator new( size_t uiSize, FStaticVector< T, L, bPODType, AllocPool, nSubID >& kVector );
+	template< class OtherT, unsigned int OtherL, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID >
+	friend void* operator new( size_t uiSize, FStaticVector< OtherT, OtherL, bOtherPODType, OtherAllocPool, nOtherSubID >& kVector );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1281,8 +1281,8 @@ protected:
 		FFREEALIGNED( (unsigned char*)pVal );
 	};
 
-	template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID >
-	friend void* operator new( size_t uiSize, FFixedVector< T, bPODType, AllocPool, nSubID >& kVector );
+	template< class OtherT, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID >
+	friend void* operator new( size_t uiSize, FFixedVector< OtherT, bOtherPODType, OtherAllocPool, nOtherSubID >& kVector );
 };
 
 #if defined(_WIN32) || defined(_WIN64)
