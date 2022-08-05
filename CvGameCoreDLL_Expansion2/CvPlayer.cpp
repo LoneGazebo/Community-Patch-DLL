@@ -33207,7 +33207,7 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 													}
 													else
 													{
-														CUSTOMLOG("Create Great Admiral at plot (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
+														CUSTOMLOG("Create Great Admiral at plot (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
 														createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
 													}
 													if (MOD_PROMOTIONS_FLAGSHIP)
