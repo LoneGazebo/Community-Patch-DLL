@@ -11493,7 +11493,6 @@ void CvGame::SetHighestSpyPotential()
 
 					//are we better than 'average?'
 					int iDelta = iResistance - /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
-					iDelta /= /*30*/ GD_INT_GET(BALANCE_SPY_SABOTAGE_RATE);
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iDelta != 0)
 						pLoopCity->ChangeEspionageRanking(iDelta, iNumSpies > 0);

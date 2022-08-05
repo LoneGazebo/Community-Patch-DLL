@@ -7232,6 +7232,25 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
 
+	// new farm resources: generic farm textures for asia and american are replaced with rice and maize farm texs. 
+	// when a farm is built on those continents, check for plot's resource. if it's a generic, non-resource farm, change the art to another continent to get diverse generic graphics.
+	// if it's built on rice or maize, change the continent art if needed. america 1, asia 2, africa 3, europe 4 (ocean 0, don't use that)
+	if (eNewValue == 3) // id for farm 
+	{
+		int iContinentType = GetContinentType();
+		ResourceTypes eResourceType = getResourceType();
+
+		if (eResourceType == NO_RESOURCE && iContinentType < 3) { // only change it when current type is asia or america
+			SetContinentType(iContinentType + 2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_RICE", true) && iContinentType != 2) {
+			SetContinentType(2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_MAIZE", true) && iContinentType != 1) {
+			SetContinentType(1);
+		}
+	}
+
 	if (eBuilder != NO_PLAYER)
 	{
 		if (eNewValue != NO_IMPROVEMENT && getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())

@@ -88,10 +88,6 @@ UPDATE Defines SET Value = '9' WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITION_EFFECTIVENESS', '100'; -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITOR_CONVERSION_REDUCTION_FACTOR', '2'; -- only relevant if MOD_BALANCE_CORE_INQUISITOR_TWEAKS is active. divides missionary and prophet conversion strength by this number if an Inquisitor is defending the target city.
 
--- Spy Stuff
-UPDATE Defines SET Value = '1000' WHERE Name = 'ESPIONAGE_GATHERING_INTEL_COST_PERCENT';
-UPDATE Defines SET Value = '3' WHERE Name = 'ESPIONAGE_COUP_MULTIPLY_CONSTANT';
-
 -- Trade Stuff
 INSERT INTO Defines (Name, Value) SELECT 'OPEN_BORDERS_MODIFIER_TRADE_GOLD', '20'; -- Open Borders Trade Gold Value (halved if not mutual)
 UPDATE Defines SET Value = '5' WHERE Name = 'EACH_GOLD_PER_TURN_VALUE_PERCENT'; -- Gold Per Turn Interest Rate for Trade Valuation
@@ -612,6 +608,7 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', '5'; --
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_MINOR_RATIO', '10';
 
 -- Spies
+INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_RESISTANCE_MAXIMUM', '1000';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_SABOTAGE_RATE', '30';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_RESPAWN_TIMER', '5';
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_GATHERING_INTEL_COST_DIVISOR', '250';

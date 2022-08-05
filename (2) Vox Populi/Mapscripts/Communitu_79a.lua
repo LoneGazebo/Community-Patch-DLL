@@ -1768,6 +1768,14 @@ function MapGlobals:New()
 				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
 				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 				-- 25
+				-- new farm resources for VP
+				resources_to_place = {
+				{self.rice_ID, 1, 100, 0, 2} };
+				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
+
+				resources_to_place = {
+				{self.maize_ID, 1, 100, 1, 2} };
+				self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 			end
 		end
 		------------------------------------------------------------------------------

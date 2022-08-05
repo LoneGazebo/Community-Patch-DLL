@@ -11939,12 +11939,12 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
+void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 {
 	int iLoop;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (!bLinkedUnitsOnly && pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
@@ -11957,7 +11957,7 @@ void CvPlayer::EndTurnsForReadyUnits(bool bEndLinkedTurns)
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
-		if (bEndLinkedTurns && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		if (bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
@@ -26055,6 +26055,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = iPassYield;
 					break;
 				}
+				case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue = iPassYield;
+					break;
+				}
 
 				case INSTANT_YIELD_TYPE_REFUND:
 				{
@@ -27357,17 +27365,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE");
+					localizedText << totalyieldString;
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+				}
+				break;
 			}
 
 			case INSTANT_YIELD_TYPE_REFUND:
@@ -33202,19 +33221,20 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 												{
 													CvCity* pNearestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(pFromUnit->getOwner(), pFromUnit->plot());
 
-													CUSTOMLOG("Create Great General at (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
-#else
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY());
-#endif												
-												
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
+													if (pNearestCity != NULL)
+													{
+														CUSTOMLOG("Create Great Admiral at the city (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
+													}
+													else
+													{
+														CUSTOMLOG("Create Great Admiral at plot (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
+													}
 													if (MOD_PROMOTIONS_FLAGSHIP)
 													{
 														pFromUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_FLAGSHIP), true);
 													}
-#endif
 												}
 												else
 												{
@@ -33443,7 +33463,7 @@ bool CvPlayer::HasMetValidMinorCiv() const
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		
-		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
+		if (GET_TEAM(getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && !IsAtWarWith(eLoopPlayer))
 			return true;
 	}
 	
@@ -33562,7 +33582,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 					GET_TEAM(getTeam()).DoEndVassal(eTheirTeam, true, true);
 					GET_TEAM(eTheirTeam).DoEndVassal(getTeam(), true, true);
 
-					// put both teams at peace
+					// put both teams at peace	
 					GET_TEAM(getTeam()).setAtWar(eTheirTeam, false, false);
 					GET_TEAM(eTheirTeam).setAtWar(getTeam(), false, false);
 
@@ -33587,6 +33607,24 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(GetID()))
+				{
+					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+					if (pLeague)
+					{
+						ActiveResolutionList vActiveResolutions = pLeague->GetActiveResolutions();
+						for (ActiveResolutionList::iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); it++)
+						{
+							if (it->GetEffects()->bSphereOfInfluence && it->GetProposerDecision()->GetProposer() == GetID())
+							{
+								PlayerTypes eMinor = (PlayerTypes)it->GetProposerDecision()->GetDecision();
+								if(eMinor != NO_PLAYER)
+									it->RemoveEffects(eMinor);
+							}
+						}
+
+					}
+				}
 			}
 
 			// Update Diplomacy AI
@@ -41994,6 +42032,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Birth Retro";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+		{
+			instantYieldName = "Tech Retro";
+			break;
+		}
 	case INSTANT_YIELD_TYPE_SPY_ATTACK:
 			{
 				instantYieldName = "Spy Attack";
@@ -44029,12 +44072,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeYieldFromWorldWonderConstruction(eYield, (pPolicy->GetYieldFromWorldWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
-		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
+		if (pPolicy->GetYieldFromTechRetroactive(eYield) != 0)
 		{
-			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTech(iI);
+			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTechRetroactive(iI);
 
 			if (iTechValue > 0)
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_TECH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
 		}
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));

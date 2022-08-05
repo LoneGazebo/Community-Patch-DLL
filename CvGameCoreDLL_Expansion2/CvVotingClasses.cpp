@@ -1891,21 +1891,12 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 	if (GetEffects()->bOpenDoor || GetEffects()->bSphereOfInfluence)
 	{
 		//the player is the City State with the open door/sphere on it or the player is the major civ with the open door/sphere on eTargetCityState
-		if (ePlayer == eTargetCityState || GetProposerDecision()->GetProposer() == ePlayer)
+		if (ePlayer == eTargetCityState)
 		{
-			PlayerTypes eAlly = NO_PLAYER;
-
 			if (GetEffects()->bOpenDoor)
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(false);
-			else
-				GET_PLAYER(ePlayer).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
-
-			GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetMostFriendshipWithAnyMajor(/*Passed by address*/ eAlly);
-
-			if (eAlly != NO_PLAYER && GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlly) > GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlliesThreshold(eAlly))
-			{
-				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetAlly(eAlly);
-			}
+			else if (GetEffects()->bSphereOfInfluence)
+				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
 		}
 	}
 

@@ -1308,6 +1308,13 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	
+	<!-- POLICY: Allows you to define a yield granted from researching a technology. Retroactive, one-shot bonus -->
+	<Table name="Policy_YieldFromTechRetroactive">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- POLICY: Allows you to define a yield granted from citizen birth in the capital Retroactive, one-shot bonus -->
 	<Table name="Policy_YieldFromBirthCapitalRetroactive">

@@ -2424,7 +2424,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE">
 			<Text>Successful city capture for {@1_CivName}!</Text>
 		</Row>
-		
+
 		<!-- Capture City (OCC) -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC">
 			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
@@ -2439,7 +2439,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE">
 			<Text>Successfully conquered city for {@1_CivName}!</Text>
 		</Row>
-
+    
 		<!-- Coup -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP">
 			<Text>Intelligence reports from {@2_CivName} indicate that {@1_CityName} is ripe for a coup. Complete this coup, and you will be greatly rewarded!</Text>
@@ -5645,6 +5645,18 @@
 			<Text>Building Network</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_SPY_STATE_UNASSIGNED_TT">
+			<Text>{1_RankName} {2_SpyName} is unassigned.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK_TT">
+			<Text>{1_RankName} {2_SpyName} is building a Spy Network in {3_CityName}. Soon you will be able to assign this spy to a mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_TERMINATED_TT">
+			<Text>{1_RankName} {2_SpyName} was terminated!</Text>
+		</Row>
+
+		
+
 		<!-- Trade Route for Land Modifiers -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
 			<Text>Land route: {1_Num}x</Text>
@@ -6997,6 +7009,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
 			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE">
+			<Text>Total Number of Technologies Researched:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
 			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
 		</Row>
@@ -7007,7 +7022,7 @@
 			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
-			<Text>Instant yield:[NEWLINE]{1_YieldString}</Text>
+			<Text>Instant Yield:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
@@ -7031,16 +7046,16 @@
 			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
-			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_VICTORY_DOMINATION] Winning a Battle:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
 			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
-			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PRODUCTION] Producing a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
-			<Text>[ICON_GOLD] Purchasing a unit or building:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_GOLD] Purchasing a Unit or Building:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
 			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
@@ -7058,7 +7073,7 @@
 			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
-			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
 			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
@@ -7106,7 +7121,7 @@
 			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
-			<Text>Process in destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+			<Text>Process in Destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>
@@ -7466,14 +7481,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will slowly [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] to 1. If positive, it will slowly [COLOR_POSITIVE_TEXT]increase[ENDCOLOR] to 10.</Text>
+			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] towards 0 (0 [ICON_CAPITAL]) and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 1000 (5 [ICON_CAPITAL]) and enemy Spies will operate more slowly.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num})</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num})[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num})[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num})[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num})</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num}%)</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">

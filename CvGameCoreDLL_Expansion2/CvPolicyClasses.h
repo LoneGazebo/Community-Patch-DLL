@@ -309,6 +309,7 @@ public:
 	int GetYieldFromConstruction(int i) const;
 	int GetYieldFromWorldWonderConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
+	int GetYieldFromTechRetroactive(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGrowthGA() const;
@@ -740,6 +741,7 @@ private:
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromWorldWonderConstruction;
 	int* m_piYieldFromTech;
+	int* m_piYieldFromTechRetroactive;
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGrowthGA;

@@ -959,6 +959,7 @@ public:
 	// ------------------------------------
 
 	// Guesses about other players' feelings towards us
+	/*
 	CivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, CivOpinionTypes eOpinion);
 	CivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
@@ -966,6 +967,7 @@ public:
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
+	*/
 
 	// ------------------------------------
 	// C4DF Values
@@ -2105,9 +2107,9 @@ private:
 	
 	// GUESSES
 	// Guesses about other players' feelings towards us
-	char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
-	char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
-	char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
+	//char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
+	//char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
+	//char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
 	// C4DF Values
 	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];

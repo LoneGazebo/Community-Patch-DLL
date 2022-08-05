@@ -243,7 +243,7 @@ public:
 	bool hasReadyUnit() const;
 	int GetCountReadyUnits() const;
 	const CvUnit* GetFirstReadyUnit() const;
-	void EndTurnsForReadyUnits(bool bEndLinkedTurns = false);
+	void EndTurnsForReadyUnits(bool bLinkedUnitsOnly = false);
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
 	const CvUnit* getBusyUnit() const;
