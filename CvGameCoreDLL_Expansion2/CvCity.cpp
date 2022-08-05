@@ -8030,8 +8030,8 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		return m_iCitySpyRank;
 
-	int iRankingMod = max(100, (int)m_iCitySpyRank);
-
+	int iRank = m_iCitySpyRank;
+	int iRankingMod = 0;
 	if (ePlayer != NO_PLAYER)
 	{
 		int iPolicyDifference = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwned(false, true) - GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
@@ -8047,8 +8047,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		iRankingMod += iPolicyDifference + iTechDifference + iNumTimesStolenModifier;
 	}
 
-	//default to 100.
-	int iRank = 100;
+	
 	CvModEventCityChoiceInfo* pkEventInfo = NULL;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
@@ -8068,8 +8067,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 					{
 						if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 						{
-							iRank *= max(1, (100 + pkEventInfo->getWonderUnderConstructionSpeedMod()));
-							iRank /= 100;
+							iRankingMod += pkEventInfo->getWonderUnderConstructionSpeedMod();
 						}
 					}
 				}
@@ -8080,8 +8078,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 					CvAssertMsg(pProjectInfo, "pProjectInfo is null");
 					if (pProjectInfo && !pProjectInfo->IsRepeatable())
 					{
-						iRank *= max(1, (100 + pkEventInfo->getWonderUnderConstructionSpeedMod()));
-						iRank /= 100;
+						iRankingMod += pkEventInfo->getWonderUnderConstructionSpeedMod();
 					}
 				}
 			}
@@ -8089,7 +8086,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 	}
 
 	iRank *= max(1, iRankingMod);
-	iRank /= max(1, /*250*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_DIVISOR));
+	iRank /= 100;
 
 	return iRank;
 }
@@ -8141,12 +8138,12 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	//limiters
 	if (m_iCitySpyRank <= 100)
 		m_iCitySpyRank = 100;
-	if (m_iCitySpyRank >= /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT))
-		m_iCitySpyRank = GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+	if (m_iCitySpyRank >= /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))
+		m_iCitySpyRank = GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
 }
 void CvCity::ResetEspionageRanking()
 {
-	m_iCitySpyRank = /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+	m_iCitySpyRank = /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
 	if (GC.getLogging())
 	{
 		CvString strMsg;

@@ -1029,7 +1029,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT';
 -- Sovereignty
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]Improves [ICON_SPY] Security Level in all cities by 34%. Specialists consume 1 less [ICON_FOOD] Food than normal (minimum 1).'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]Improves [ICON_SPY] Spy Resistance in all cities by 34%. Specialists consume 1 less [ICON_FOOD] Food than normal (minimum 1).'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP';
 
 UPDATE Language_en_US
