@@ -1463,6 +1463,18 @@ const char* CvLuaPlayer::GetTypeName()
 	return "Player";
 }
 //------------------------------------------------------------------------------
+static DomainTypes LuaToTradeDomain(lua_State* L, int index)
+{
+	const int iDomain = lua_tointeger(L, index);
+	const DomainTypes eDomain = static_cast<DomainTypes>(iDomain);
+	switch (eDomain) {
+	case DOMAIN_SEA:
+	case DOMAIN_LAND:
+		return eDomain;
+	default:
+		luaL_error(L, "Invalid trade domain index %d", iDomain);
+	}
+}
 
 
 //------------------------------------------------------------------------------
@@ -4798,7 +4810,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteYourBuildingBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4824,7 +4836,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTheirBuildingBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4850,7 +4862,7 @@ int CvLuaPlayer::lGetInternationalTradeRoutePolicyBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
@@ -4876,7 +4888,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4903,7 +4915,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4922,7 +4934,7 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
@@ -4945,7 +4957,7 @@ int CvLuaPlayer::lGetTradeRouteTurns(lua_State* L)
 {
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	int iTurns = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, NULL)-1;
 	lua_pushinteger(L, iTurns);
@@ -4956,7 +4968,7 @@ int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
 {
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
@@ -5118,7 +5130,7 @@ int CvLuaPlayer::lCanCreateFranchiseInCity(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 {
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	int iResult = GC.getGame().GetGameTrade()->GetDomainModifierTimes100(eDomain);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5163,7 +5175,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5194,7 +5206,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5225,7 +5237,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5256,7 +5268,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteProduction(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5282,7 +5294,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteFood(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5309,7 +5321,7 @@ int CvLuaPlayer::lGetMinorCivGoldBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5415,7 +5427,7 @@ int CvLuaPlayer::lGetPotentialAdmiralNewPort(lua_State* L)
 int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
 	int iCount = 0;
@@ -5437,7 +5449,7 @@ int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 int CvLuaPlayer::lGetTradeUnitType(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeUnit(eDomain, pkPlayer));
 	return 1;
 }
@@ -16150,7 +16162,7 @@ int CvLuaPlayer::lIsOtherDiplomatVisitingMe(lua_State* L)
 int CvLuaPlayer::lGetTradeRouteRange(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
-	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
 
 	CvPlayerTrade* pkPlayerTrade = pkThisPlayer->GetTrade();
