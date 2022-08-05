@@ -656,6 +656,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		case DOMAIN_SEA:
 			strDomain = "sea";
 			break;
+		default:
+			UNREACHABLE(); // Non-applicable domain.
 		}
 
 		CvString strTRType;
@@ -3423,6 +3425,31 @@ int CvPlayerTrade::GetTradeConnectionPolicyModifierTimes100(const TradeConnectio
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
+	// TODO: This switch should probably go in a function.
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+	case YIELD_PRODUCTION:
+	case YIELD_GOLD:
+	case YIELD_SCIENCE:
+	case YIELD_CULTURE:
+	case YIELD_FAITH:
+	case YIELD_TOURISM:
+	case YIELD_GOLDEN_AGE_POINTS:
+		break; // Yields applicable to trade.
+	case NO_YIELD:
+	case YIELD_GREAT_GENERAL_POINTS:
+	case YIELD_GREAT_ADMIRAL_POINTS:
+	case YIELD_POPULATION:
+	case YIELD_CULTURE_LOCAL:
+	case YIELD_JFD_HEALTH:
+	case YIELD_JFD_DISEASE:
+	case YIELD_JFD_CRIME:
+	case YIELD_JFD_LOYALTY:
+	case YIELD_JFD_SOVEREIGNTY:
+		return 0; // Yields not applicable to trade.
+	}
+
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iValue = 0;
 
@@ -3689,6 +3716,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					}
 				}
 				break;
+			default:
+				UNREACHABLE();
 			}
 		}
 		// Gold internal trade routes, note that only the origin city gets any yields
@@ -3801,11 +3830,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 				}
 				break;
 
+			case YIELD_FOOD:
 			case YIELD_PRODUCTION:
 				break;
-
-			case YIELD_FOOD:
-				break;
+			default:
+				UNREACHABLE();
 			}
 		}
 	}
@@ -3813,6 +3842,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 	{
 		if (pTrade->IsConnectionInternational(kTradeConnection))
 		{
+			CvAssert(kTradeConnection.m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL);
 			if (kTradeConnection.m_eDestOwner == m_pPlayer->GetID())
 			{
 				switch (eYield)
@@ -3881,11 +3911,16 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue /= 100;						
 					}
 					break;
+				case YIELD_PRODUCTION:
+					break;
+				default:
+					UNREACHABLE();
 				}
 			}
 		}
 		else
 		{
+			CvAssert(kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL);
 			switch (kTradeConnection.m_eConnectionType)
 			{
 			case TRADE_CONNECTION_FOOD:
@@ -4015,11 +4050,16 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue /= 100;
 				}
 				break;
+			case TRADE_CONNECTION_WONDER_RESOURCE:
+			case TRADE_CONNECTION_GOLD_INTERNAL:
+				break;
+			case TRADE_CONNECTION_INTERNATIONAL:
+				UNREACHABLE(); // International trade route types should not be available along this branch.
 			}
 		}
 	}
 
-	return iValue;	
+	return iValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -5142,9 +5182,7 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 		iBaseRange = /*10*/ GD_INT_GET(TRADE_ROUTE_BASE_LAND_DISTANCE);
 		break;
 	default:
-		CvAssertMsg(false, "Undefined domain for trade route range");
-		return -1;
-		break;
+		UNREACHABLE(); // Not a trade domain.
 	}
 
 	int iTraitRange = 0;
@@ -5161,6 +5199,8 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 	case DOMAIN_LAND:
 		iTraitRange = m_pPlayer->GetPlayerTraits()->GetLandTradeRouteRangeBonus();
 		break;
+	default:
+		UNREACHABLE(); // Not a trade domain.
 	}
 
 	int iExtendedRange = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).getTradeRouteDomainExtraRange(eDomain);
@@ -5182,6 +5222,8 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 			iRangeModifier += m_pPlayer->getTradeRouteLandDistanceModifier();
 #endif
 			break;
+		default:
+			UNREACHABLE(); // Not a trade domain.
 		}
 	}
 
@@ -6670,6 +6712,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 /// Score Food TR
 int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList)
 {
+	CvAssert(kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL);
+
 	// if we're not going to a target from our list, ignore
 	bool bValidTarget = false;
 	for (uint ui = 0; ui < aTargetCityList.size(); ui++)
@@ -6739,6 +6783,10 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 			}
 			break;
 		}
+		case TRADE_CONNECTION_GOLD_INTERNAL:
+			break;
+		case TRADE_CONNECTION_INTERNATIONAL:
+			UNREACHABLE(); // Not supposed to be scoring an international route.
 	}
 
 	//direct connection to capital via TR
@@ -7425,6 +7473,8 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 				case DOMAIN_SEA:
 					strDomain = "sea";
 					break;
+				default:
+					UNREACHABLE(); // Not a trade domain.
 				}
 
 				CvString strTRType;

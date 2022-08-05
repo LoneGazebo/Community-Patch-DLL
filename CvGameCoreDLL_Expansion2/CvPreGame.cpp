@@ -37,7 +37,7 @@ const char* ConvertGameOptionTypeToString(GameOptionTypes eOption)
 	switch(eOption)
 	{
 	case NO_GAMEOPTION:
-		break; // Fallthrough, see comment beneath.
+		break; // Use return at end, see comment beneath.
 	case GAMEOPTION_NO_CITY_RAZING:
 		return "GAMEOPTION_NO_CITY_RAZING";
 	case GAMEOPTION_NO_BARBARIANS:

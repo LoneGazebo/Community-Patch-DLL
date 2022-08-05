@@ -113,10 +113,11 @@ bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes eAttackingPlayer)
 /// This target make sense for this domain of unit/zone?
 bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 {
-	bool bRtnValue = false;
-
 	switch(GetTargetType())
 	{
+	case AI_TACTICAL_TARGET_NONE:
+		return false;
+
 	case AI_TACTICAL_TARGET_DEFENSIVE_BASTION:
 	case AI_TACTICAL_TARGET_BARBARIAN_CAMP:
 	case AI_TACTICAL_TARGET_IMPROVEMENT:
@@ -124,15 +125,14 @@ bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 	case AI_TACTICAL_TARGET_TRADE_UNIT_LAND:
 	case AI_TACTICAL_TARGET_CITADEL:
 	case AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE:
-		bRtnValue = (eDomain == DOMAIN_LAND);
-		break;
+	case AI_TACTICAL_TARGET_GOODY:
+		return eDomain == DOMAIN_LAND;
 
 	case AI_TACTICAL_TARGET_BLOCKADE_POINT:
 	case AI_TACTICAL_TARGET_BOMBARDMENT_ZONE:
 	case AI_TACTICAL_TARGET_EMBARKED_CIVILIAN:
 	case AI_TACTICAL_TARGET_TRADE_UNIT_SEA:
-		bRtnValue = (eDomain == DOMAIN_SEA);
-		break;
+		return eDomain == DOMAIN_SEA;
 
 	case AI_TACTICAL_TARGET_CITY:
 	case AI_TACTICAL_TARGET_CITY_TO_DEFEND:
@@ -143,11 +143,10 @@ bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 	case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
 	case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
 	case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-		bRtnValue = true;
-		break;
+		return true;
 	}
 
-	return bRtnValue;
+	return false;
 }
 
 template<typename FocusArea, typename Visitor>
@@ -697,6 +696,8 @@ void CvTacticalAI::ProcessDominanceZones()
 
 			switch (pZone->GetPosture())
 			{
+			case TACTICAL_POSTURE_NONE:
+				break; //no posture assigned so do nothing; TODO: Maybe this should be unreachable?
 			case TACTICAL_POSTURE_WITHDRAW: //give up
 				PlotWithdrawMoves(pZone);
 				break;
@@ -1103,6 +1104,8 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 					strLogString.Format("Looking at damaging low priority %s, X: %d, Y: %d,", strTemp.GetCString(),
 							            pDefender->getX(), pDefender->getY());
 					break;
+				default:
+					UNREACHABLE(); // Unsupported `targetType`.
 				}
 				strLogString += strPlayerName;
 				LogTacticalMessage(strLogString);
@@ -1142,6 +1145,8 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 						strLogString.Format("Looking at killing low priority %s, X: %d, Y: %d,", strTemp.GetCString(),
 								            pDefender->getX(), pDefender->getY());
 						break;
+					default:
+						UNREACHABLE(); // Unsupported `targetType`.
 					}
 					strLogString += strPlayerName;
 					LogTacticalMessage(strLogString);
@@ -1468,6 +1473,8 @@ void CvTacticalAI::ExecuteCivilianAttackMoves(AITacticalTargetType eTargetType)
 							strLogString.Format("Attacking low priority civilian, X: %d, Y: %d", pTarget->GetTargetX(),
 								pTarget->GetTargetY());
 							break;
+						default:
+							UNREACHABLE(); // Unsupported `eTargetType`.
 						}
 						LogTacticalMessage(strLogString);
 					}
@@ -3474,6 +3481,8 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 		case UNITAI_COUNTER:
 			vCandidates.push_back(pUnit);
 			break;
+		default:
+			break; // Not a candidate.
 		}
 	}
 
@@ -5165,6 +5174,8 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 			}
 		}
 		break;
+		default:
+		UNREACHABLE(); // Other target types cannot be damaged.
 		}
 	}
 
@@ -5497,6 +5508,8 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 				}
 			}
 			break;
+		default:
+			UNREACHABLE(); // Unit type cannot rebase.
 		}
 
 	}
@@ -8794,6 +8807,8 @@ bool CvTacticalPosition::isImprovedPosition() const
 
 			switch (unit->eStrategy)
 			{
+			case MS_NONE:
+				UNREACHABLE(); // Units are always supposed to be assigned a strategy.
 			case MS_FIRSTLINE:
 				if (iInitialDistance != 1 && iFinalDistance == 1)
 					iPositive++;
@@ -9431,6 +9446,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		itUnit->iMovesLeft = 0;
 		//todo: mark end turn plot? as opposed to transient blocks
 		break;
+	case A_RESTART:
+		UNREACHABLE();
 	}
 
 	//we don't update the moves plots lazily because it takes a while and we don't know yet if we will ever follow up on this position
