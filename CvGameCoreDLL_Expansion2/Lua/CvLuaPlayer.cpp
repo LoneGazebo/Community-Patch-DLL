@@ -1473,6 +1473,7 @@ static DomainTypes LuaToTradeDomain(lua_State* L, int index)
 		return eDomain;
 	default:
 		luaL_error(L, "Invalid trade domain index %d", iDomain);
+		UNREACHABLE();
 	}
 }
 
