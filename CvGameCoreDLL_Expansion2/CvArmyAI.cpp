@@ -411,7 +411,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 			else
 			{
 				//be generous with the flags here, for some ops the muster point may be far away and intermittendly occupied by foreign units ...
-				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+				int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ZOC;
 				int iTurnsToReachCheckpoint = pUnit->TurnsToReachTarget(pCurrentArmyPlot, iFlags, pOperation->GetMaximumRecruitTurns());
 				m_FormationEntries[iI].SetCurrentTurnsToCheckpoint(iTurnsToReachCheckpoint);
 
@@ -595,7 +595,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 	CvPlot* pMusterPlot = GetCurrentPlot();
 	if(pMusterPlot)
 	{
-		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING | CvUnit::MOVEFLAG_IGNORE_ZOC;
+		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ZOC;
 		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, /*10*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY));
 		m_FormationEntries[iSlotNum].SetCurrentTurnsToCheckpoint(iTurnsToReachCheckpoint);
 

@@ -786,7 +786,7 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 	int iCount = 1;
 
 	//no caching!
-	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING, iMaxTurns);
+	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, iMaxTurns);
 	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)

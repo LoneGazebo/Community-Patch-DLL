@@ -387,7 +387,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 		//tutorial hints
 		const MissionData* pkMissionData = (HeadMissionData(hUnit->m_missionQueue));
-		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING))
+		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
 		{
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
 			{
@@ -590,12 +590,12 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							// Start the swap
 							hUnit->ClearPathCache(); //make sure there's no stale path
 							pUnit2->ClearPathCache(); //make sure there's no stale path
-							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING, 0))
+							if (hUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 0) && pUnit2->GeneratePath(pOriginationPlot, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, 0))
 							{
 								//move the new unit in
 								int iResult = 0;
 								while (iResult >= 0)
-									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING);
+									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING_SELF);
 
 								//make sure to delete any previous missions, there's a check later for conflicts
 								pUnit2->ClearMissionQueue(true);
@@ -603,7 +603,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 								//move the old unit out
 								int iResult2 = 0;
 								while (iResult2 >= 0)
-									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING);
+									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING_SELF);
 
 								bAction = true;
 								bDone = true;
