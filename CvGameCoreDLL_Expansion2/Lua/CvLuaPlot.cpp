@@ -104,9 +104,8 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsBarbarian);
 	Method(IsRevealedBarbarian);
 	Method(HasBarbarianCamp);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	Method(HasDig);
-#endif
+
 	Method(IsVisible);
 	Method(IsActiveVisible);
 	Method(IsVisibleToWatchingHuman);
@@ -283,9 +282,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(GetActiveFogOfWarMode);
 
 	Method(IsImprovementPillaged);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	Method(IsImprovementEmbassy);
-#endif
 
 	Method(CanSeePlot);
 
@@ -681,7 +678,7 @@ int CvLuaPlot::lGetBuildTurnsTotal(lua_State* L)
 int CvLuaPlot::lGetBuildTypeNeededToImproveResource(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-	ImprovementTypes eImprovement = pkPlot->getImprovementTypeNeededToImproveResource(pkPlot->getOwner());
+	ImprovementTypes eImprovement = pkPlot->getImprovementTypeNeededToImproveResource(pkPlot->getOwner(),true,true);
 
 	for (int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
@@ -828,13 +825,11 @@ int CvLuaPlot::lHasBarbarianCamp(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::HasBarbarianCamp);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lHasDig(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::HasDig);
 }
-#endif
 
 //------------------------------------------------------------------------------
 //bool isVisible(TeamTypes eTeam, bool bDebug);
@@ -1157,21 +1152,7 @@ int CvLuaPlot::lArea(lua_State* L)
 int CvLuaPlot::lWaterArea(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
-
-	int iMaxSize = 0;
-	CvArea* pMaxArea = NULL;
-	std::vector<int> areas = pkPlot->getAllAdjacentAreas();
-	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
-	{
-		CvArea* pkArea = GC.getMap().getArea(*it);
-		if (pkArea->isWater() && pkArea->getNumTiles()>iMaxSize)
-		{
-			iMaxSize = pkArea->getNumTiles();
-			pMaxArea = pkArea;
-		}
-	}
-
-	CvLuaArea::Push(L, pMaxArea);
+	CvLuaArea::Push(L, pkPlot->GetLargestAdjacentWaterArea());
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -2018,13 +1999,11 @@ int CvLuaPlot::lIsImprovementPillaged(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::IsImprovementPillaged);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //------------------------------------------------------------------------------
 int CvLuaPlot::lIsImprovementEmbassy(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::IsImprovementEmbassy);
 }
-#endif
 
 //------------------------------------------------------------------------------
 //bool CvPlot::canSeePlot(CvPlot *pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection)
@@ -2085,7 +2064,7 @@ int CvLuaPlot::lIsResourceConnectedByImprovement(lua_State* L)
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	if(pkImprovementInfo)
 	{
-		bResult = pkImprovementInfo->IsExpandedImprovementResourceTrade(kPlot->getResourceType(GC.getGame().getActiveTeam()));
+		bResult = pkImprovementInfo->IsConnectsResource(kPlot->getResourceType(GC.getGame().getActiveTeam()));
 	}
 
 	lua_pushboolean(L, bResult);

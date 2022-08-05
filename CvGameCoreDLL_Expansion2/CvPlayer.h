@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -243,7 +243,7 @@ public:
 	bool hasReadyUnit() const;
 	int GetCountReadyUnits() const;
 	const CvUnit* GetFirstReadyUnit() const;
-	void EndTurnsForReadyUnits();
+	void EndTurnsForReadyUnits(bool bLinkedUnitsOnly = false);
 	bool hasAutoUnit() const;
 	bool hasBusyUnit() const;
 	const CvUnit* getBusyUnit() const;
@@ -325,9 +325,7 @@ public:
 #else
 	void foundCity(int iX, int iY);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
-#endif
 
 	bool canTrainUnit(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
@@ -486,10 +484,8 @@ public:
 
 	int GetJONSCultureCityModifier() const;
 	void ChangeJONSCultureCityModifier(int iChange);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetLeagueCultureCityModifier() const;
 	void ChangeLeagueCultureCityModifier(int iChange);
-#endif
 
 	int getJONSCulture() const;
 	void setJONSCulture(int iNewValue);
@@ -750,14 +746,14 @@ public:
 	void SetHappinessPerXPopulation(int iValue);
 	void ChangeHappinessPerXPopulation(int iChange);
 
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	void ChangeIsVassalsNoRebel(int iValue);
 	bool IsVassalsNoRebel() const;
 
-	void ChangeVassalCSBonusModifier(int iValue);
-	int GetVassalCSBonusModifier() const;
-#endif
+	void ChangeVassalYieldBonusModifier(int iValue);
+	int GetVassalYieldBonusModifier() const;
+
+	void ChangeCSYieldBonusModifier(int iValue);
+	int GetCSYieldBonusModifier() const;
 
 	void UpdateHappinessFromMinorCivs();
 	int GetHappinessFromMinorCivs() const;
@@ -782,7 +778,6 @@ public:
 #endif
 
 	int GetExtraLeagueVotes() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
 	int GetFaithToVotes() const;
@@ -801,6 +796,10 @@ public:
 	int GetDefensePactsToVotes() const;
 	void ChangeDefensePactsToVotes(int iChange);
 	int TestDefensePactsToVotes(int iChange);
+
+	int GetReligionVotes() const;
+	int CalculateReligionExtraVotes(const CvReligion *pReligion) const;
+	int CalculateReligionVotesFromImprovements(const CvReligion *pReligion) const;
 
 	int GetGPExpendInfluence() const;
 	void ChangeGPExpendInfluence(int iChange);
@@ -830,7 +829,6 @@ public:
 	int GetScienceRateFromLeagueAid() const;
 	void ChangeScienceRateFromLeagueAid(int iChange);
 	void SetScienceRateFromLeagueAid(int iValue);
-#endif
 
 	void ChangeExtraLeagueVotes(int iChange);
 
@@ -906,9 +904,7 @@ public:
 
 	// Golden Age Stuff
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void DoProcessVotes();
-#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	void DoChangeGreatGeneralRate();
 	void DoChangeGreatAdmiralRate();
@@ -935,12 +931,8 @@ public:
 
 	int getGoldenAgeTurns() const;
 	bool isGoldenAge() const;
-#if defined(MOD_BALANCE_CORE)
-	void changeGoldenAgeTurns(int iChange, int iValue = 0, bool bFree = false);
-#else
-	void changeGoldenAgeTurns(int iChange);
-#endif
-	int getGoldenAgeLength() const;
+	void changeGoldenAgeTurns(int iChange, bool bFree = false);
+	int getGoldenAgeLength(int iManualLength = -1) const;
 
 	int getNumUnitGoldenAges() const;
 	void changeNumUnitGoldenAges(int iChange);
@@ -982,10 +974,8 @@ public:
 	void incrementGreatArtistsCreated(bool bIsFree);
 	int getGreatMusiciansCreated(bool bExcludeFree) const;
 	void incrementGreatMusiciansCreated(bool bIsFree);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatsCreated(bool bExcludeFree) const;
 	void incrementGreatDiplomatsCreated(bool bIsFree);
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1Created(bool bExcludeFree) const;
 	void incrementGPExtra1Created(bool bIsFree);
@@ -1024,10 +1014,8 @@ public:
 	void incrementGreatArtistsCreated();
 	int getGreatMusiciansCreated() const;
 	void incrementGreatMusiciansCreated();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatsCreated() const;
 	void incrementGreatDiplomatsCreated();
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1Created() const;
 	void incrementGPExtra1Created();
@@ -1062,10 +1050,8 @@ public:
 	void incrementAdmiralsFromFaith();
 	int getEngineersFromFaith() const;
 	void incrementEngineersFromFaith();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getDiplomatsFromFaith() const;
 	void incrementDiplomatsFromFaith();
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int getGPExtra1FromFaith() const;
 	void incrementGPExtra1FromFaith();
@@ -1104,9 +1090,7 @@ public:
 	int getGreatMerchantRateModifier() const;
 	int getGreatScientistRateModifier() const;
 	int getGreatEngineerRateModifier() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatRateModifier() const;
-#endif
 	int getDomesticGreatGeneralRateModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int getArtsyGreatPersonRateModifier();
@@ -1921,9 +1905,13 @@ public:
 	int GetNoUnhappyIsolation() const;
 	void ChangeNoUnhappyIsolation(int iChange);
 
-	bool IsDoubleBorderGA() const;
-	int GetDoubleBorderGA() const;
-	void ChangeDoubleBorderGA(int iChange);
+	bool IsDoubleBorderGrowthGA() const;
+	int GetDoubleBorderGrowthGA() const;
+	void ChangeDoubleBorderGrowthGA(int iChange);
+
+	bool IsDoubleBorderGrowthWLTKD() const;
+	int GetDoubleBorderGrowthWLTKD() const;
+	void ChangeDoubleBorderGrowthWLTKD(int iChange);
 
 	bool IsIncreasedQuestInfluence() const;
 	int GetIncreasedQuestInfluence() const;
@@ -2111,7 +2099,6 @@ public:
 	void DoTradeInfluenceAP();
 #endif
 	void DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit);
-	bool CanGiftUnit(PlayerTypes eToPlayer);
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
 
@@ -2143,6 +2130,7 @@ public:
 	int GetCombatAttackBonusFromMonopolies() const;
 	int GetCombatDefenseBonusFromMonopolies() const;
 	void UpdateMonopolyCache();
+	void UpdatePlotBlockades();
 
 	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
 	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
@@ -2191,8 +2179,8 @@ public:
 
 	int getTotalImprovementsBuilt() const;
 	void changeTotalImprovementsBuilt(int iChange);
-	int getImprovementCount(ImprovementTypes eIndex) const;
-	void changeImprovementCount(ImprovementTypes eIndex, int iChange);
+	int getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly = false) const;
+	void changeImprovementCount(ImprovementTypes eIndex, int iChange, bool bBuilt = false);
 
 #if defined(MOD_BALANCE_CORE)
 	int getTotalImprovementsBuilt(ImprovementTypes eIndex) const;
@@ -2859,7 +2847,7 @@ public:
 	int GetScoreFromMinorAllies() const;
 	int GetScoreFromMilitarySize() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	CvString GetVassalIndependenceTooltipAsMaster(PlayerTypes ePlayer) const;
 	CvString GetVassalIndependenceTooltipAsVassal() const;
 
@@ -2877,7 +2865,6 @@ public:
 
 	void DoVassalLevy();
 	void SetVassalLevy(bool bValue);
-#endif
 
 	int GetCityDistancePathLength( const CvPlot* pPlot ) const;
 	CvCity* GetClosestCityByPathLength( const CvPlot* pPlot) const;
@@ -3020,10 +3007,9 @@ protected:
 	int m_iCanBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;	
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iIsVassalsNoRebel;
-	int m_iVassalCSBonusModifier;		
-#endif
+	int m_iVassalYieldBonusModifier;
+	int m_iCSYieldBonusModifier;
 	int m_iHappinessFromLeagues;
 	int m_iWoundedUnitDamageMod;
 	int m_iUnitUpgradeCostMod;
@@ -3039,7 +3025,6 @@ protected:
 	int m_iConversionModifier;
 #endif
 	int m_iExtraLeagueVotes;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iImprovementLeagueVotes;
 	int m_iFaithToVotes;
 	int m_iCapitalsToVotes;
@@ -3053,7 +3038,6 @@ protected:
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
 	int m_iLeagueCultureCityModifier;
-#endif
 	int m_iAdvancedStartPoints;
 	int m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
@@ -3079,9 +3063,7 @@ protected:
 	int m_iFreeGreatWritersCreated;
 	int m_iFreeGreatArtistsCreated;
 	int m_iFreeGreatMusiciansCreated;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iFreeGreatDiplomatsCreated;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGPExtra1Created;
 	int m_iGPExtra2Created;
@@ -3106,10 +3088,8 @@ protected:
 	int m_iGreatWritersCreated;
 	int m_iGreatArtistsCreated;
 	int m_iGreatMusiciansCreated;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iGreatDiplomatsCreated;
 	int m_iDiplomatsFromFaith;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGPExtra1FromFaith;
 	int m_iGPExtra2FromFaith;
@@ -3141,9 +3121,7 @@ protected:
 	int m_iGreatArtistRateModifier;
 	int m_iGreatMusicianRateModifier;
 	int m_iGreatMerchantRateModifier;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iGreatDiplomatRateModifier;
-#endif
 	int m_iGreatScientistRateModifier;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryMod;
@@ -3177,7 +3155,8 @@ protected:
 	int m_iExtraMoves;
 	int m_iNoUnhappinessExpansion;
 	int m_iNoUnhappyIsolation;
-	int m_iDoubleBorderGA;
+	int m_iDoubleBorderGrowthGA;
+	int m_iDoubleBorderGrowthWLTKD;
 	int m_iIncreasedQuestInfluence;
 	int m_iCultureBombBoost;
 	int m_iPuppetProdMod;
@@ -3537,6 +3516,7 @@ protected:
 	std::vector<int> m_paiResourcesSiphoned;
 	std::vector<byte> m_aiNumResourceFromGP;
 	std::vector<int> m_paiImprovementCount;
+	std::vector<int> m_paiImprovementBuiltCount;
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiTotalImprovementsBuilt;
 #endif
@@ -3558,10 +3538,9 @@ protected:
 	std::vector<int> m_paiHurryCount;
 	std::vector<int> m_paiHurryModifier;
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalLevy;
 	int m_iVassalGoldMaintenanceMod;
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	std::vector<int> m_paiNumCitiesFreeChosenBuilding;
 	std::vector<bool> m_pabFreeChosenBuildingNewCity;
@@ -3858,7 +3837,8 @@ SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
 SYNC_ARCHIVE_VAR(int, m_iCanBullyFriendlyCS)
 SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)
 SYNC_ARCHIVE_VAR(int, m_iIsVassalsNoRebel)
-SYNC_ARCHIVE_VAR(int, m_iVassalCSBonusModifier)
+SYNC_ARCHIVE_VAR(int, m_iVassalYieldBonusModifier)
+SYNC_ARCHIVE_VAR(int, m_iCSYieldBonusModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromLeagues)
 SYNC_ARCHIVE_VAR(int, m_iWoundedUnitDamageMod)
 SYNC_ARCHIVE_VAR(int, m_iUnitUpgradeCostMod)
@@ -3988,7 +3968,8 @@ SYNC_ARCHIVE_VAR(int, m_iXPopulationConscription)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappinessExpansion)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappyIsolation)
-SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGA)
+SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthGA)
+SYNC_ARCHIVE_VAR(int, m_iDoubleBorderGrowthWLTKD)
 SYNC_ARCHIVE_VAR(int, m_iIncreasedQuestInfluence)
 SYNC_ARCHIVE_VAR(int, m_iCultureBombBoost)
 SYNC_ARCHIVE_VAR(int, m_iPuppetProdMod)
@@ -4297,6 +4278,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourcesSiphoned)
 SYNC_ARCHIVE_VAR(std::vector<byte>, m_aiNumResourceFromGP)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementBuiltCount)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiTotalImprovementsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiBuildingChainSteps)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiFreeBuildingCount)

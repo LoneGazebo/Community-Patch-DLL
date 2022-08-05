@@ -65,10 +65,8 @@ public:
 	int GetScaleFromNumGWs() const;
 	int GetScaleFromNumThemes() const;
 	int GetNumGoldPerEra() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetNumInfPerEra() const;
 	int GetProductionCostPerEra() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
 	int GetBeliefUnlock() const;
@@ -299,10 +297,8 @@ private:
 	int m_iScaleFromNumGWs;
 	int m_iScaleFromNumThemes;
 	int m_iNumGoldPerEra;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iNumInfPerEra;
 	int m_iProductionCostPerEra;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeLux;
 	bool m_bFreeUpgrade;

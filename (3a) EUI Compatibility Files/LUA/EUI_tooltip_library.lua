@@ -579,7 +579,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local activeCivilizationType
 
 	if g_isReligionEnabled and activePlayer then
-		local religionID = activePlayer:GetReligionCreatedByPlayer()
+		local religionID = activePlayer:GetOwnedReligion()
 		if religionID > 0 then
 			activePlayerBeliefs = Game.GetBeliefsInReligion( religionID )
 		elseif activePlayer:HasCreatedPantheon() then
@@ -1044,14 +1044,6 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		if enhancedYieldTechName and (building.TechEnhancedTourism or 0) ~= 0 then
 			tip = S("%s %s %+i[ICON_TOURISM]", tip, enhancedYieldTechName, building.TechEnhancedTourism )
 		end
-	-- CBP
-		if city then
-			local iTourism = activePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_TOURISM);
-			if(iTourism ~= 0) then
-				tip = S("%s %+i[ICON_TOURISM]", tip, iTourism)
-			end
-		end
-	-- END
 		tips:insertIf( #tip > 0 and L"TXT_KEY_CITYVIEW_TOURISM_TEXT" .. ":" .. tip )
 	end
 -- TODO GetInternationalTradeRouteYourBuildingBonus
@@ -2377,7 +2369,12 @@ local function GetCultureTooltip( city )
 	-- Tile growth
 	tips:insert( "" )
 	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
-	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+
+	if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+		borderGrowthRate = borderGrowthRate * 2
+	end
+
 	if borderGrowthRate > 0 then
 		local tipText = ""
 		local turnsRemaining =  math_max(math_ceil((cultureNeeded - cultureStored ) / borderGrowthRate), 1)
@@ -2682,7 +2679,7 @@ local function GetMoodInfo( playerID )
 	end
 	-- Religion Founded
 	if g_isReligionEnabled then
-		local religionID = player:GetReligionCreatedByPlayer()
+		local religionID = player:GetOwnedReligion()
 		tips:insertIf( religionID > 0 and tostring( (GameInfo.Religions[ religionID ] or {}).IconString )..BeliefColor( L("TXT_KEY_RO_STATUS_FOUNDER", Game.GetReligionName( religionID ) ) ) )
 	end
 	tips = table( strInfo, tips:concat(", ") )

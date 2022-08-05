@@ -3633,14 +3633,12 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iPietyMin(0),
 #endif
 	m_iMilitaryRatingDecayPercent(0),
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iTechCostPerTurnMultiplier(0),
 	m_iMinimumVoluntaryVassalTurns(15),
 	m_iMinimumVassalTurns(75),
 	m_iMinimumVassalTaxTurns(0),
 	m_iNumTurnsBetweenVassals(0),
 	m_iMinimumVassalLiberateTurns(0),
-#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3901,16 +3899,12 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
-		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
-		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
-		m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
-		m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
-		m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
-	}
-#endif
+	m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
+	m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
+	m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
+	m_iMinimumVassalTaxTurns		= kResults.GetInt("MinimumVassalTaxTurns");
+	m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
+	m_iMinimumVassalLiberateTurns		= kResults.GetInt("MinimumVassalLiberateTurns");
 
 	//GameTurnInfos
 	{
@@ -4488,6 +4482,9 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iGoldenAge(0)
 	, m_iFreeTiles(0)
 	, m_iScience(0)
+// New Goodies modmod
+	, m_iFood(0)
+	, m_iBorderGrowth(0)
 #endif
 	, m_iCulture(0)
 	, m_iFaith(0)
@@ -4591,7 +4588,17 @@ int CvGoodyInfo::getScience() const
 {
 	return m_iScience;
 }
+// New Goodies modmod
+int CvGoodyInfo::getFood() const
+{
+	return m_iFood;
+}
+int CvGoodyInfo::getBorderGrowth() const
+{
+	return m_iBorderGrowth;
+}
 #endif
+//
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
 	return m_iBarbarianUnitProb;
@@ -4687,6 +4694,8 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iGoldenAge = results.GetInt("GoldenAge");
 	m_iFreeTiles = results.GetInt("FreeTiles");
 	m_iScience = results.GetInt("Science");
+	m_iFood = results.GetInt("Food");
+	m_iBorderGrowth = results.GetInt("BorderGrowth");
 #endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
@@ -7959,9 +7968,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
 	m_iWarmongerPercent(0),
-	#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalageEnabled(false),
-	#endif
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),
@@ -8240,11 +8247,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
 	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
-	}
-#endif
+	m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
 	m_uiCityBombardEffectTagHash = FString::Hash(m_strCityBombardEffectTag);
@@ -11632,7 +11635,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	return true;
 }
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //------------------------------------------------------------------------------
 bool CvEraInfo::getVassalageEnabled() const
 {
@@ -11668,7 +11670,6 @@ int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
 {
 	return m_iNumTurnsBetweenVassals;
 }
-#endif
 
 /// Helper function to read in an integer array of data sized according to number of building types
 void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)

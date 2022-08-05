@@ -77,10 +77,15 @@ WHERE Type = 'POLICY_THEOCRACY';
 
 -- Reformation (Now Monasticism)
 UPDATE Policies
-SET AddReformationBelief = '0', DoubleBorderGA = '1', NoUnhappfromXSpecialists = '1', PortraitIndex = '47'
+SET AddReformationBelief = '0', DoubleBorderGrowthGA = '1', DoubleBorderGrowthWLTKD = '1', NoUnhappfromXSpecialists = '1', PortraitIndex = '47'
 WHERE Type = 'POLICY_REFORMATION';
 
 INSERT INTO Policy_WLTKDYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
+
+INSERT INTO Policy_GoldenAgeYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
@@ -98,6 +103,10 @@ WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_CULTURE';
 UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_FAITH';
+
+UPDATE Buildings
+SET Description = 'TXT_KEY_BUILDING_MONASTERY'
+WHERE Type = 'BUILDING_MONASTERY';
 
 -- Free Religion (Now Iconography)
 UPDATE Policies

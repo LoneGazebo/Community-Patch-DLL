@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -122,7 +122,7 @@ public:
 	int countTotalNukeUnits();
 	int countKnownTechNumTeams(TechTypes eTech);
 
-	int goldenAgeLength() const;
+	int goldenAgeLength(int iManualLength = -1) const;
 	int victoryDelay(VictoryTypes eVictory) const;
 
 	int getImprovementUpgradeTimeMod(ImprovementTypes eImprovement, const CvPlot* pPlot = NULL) const;
@@ -693,10 +693,8 @@ public:
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	TeamTypes GetTeamThatCircumnavigated() const;
 	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
-#endif
 
 	bool AnyoneHasBelief(BeliefTypes iBeliefType) const;
 	bool AnyoneHasBuilding(BuildingTypes iBuildingType) const;
@@ -846,9 +844,8 @@ protected:
 	EraTypes m_eGameEra;
 	bool m_bArchaeologyTriggered;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	bool m_bVictoryRandomization;
 	int m_iCultureAverage;

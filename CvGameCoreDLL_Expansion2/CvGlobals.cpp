@@ -463,6 +463,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(NEED_DIPLOMAT_DESIRE_MODIFIER, 2),
 	GD_INT_INIT(NEED_DIPLOMAT_DISTASTE_MODIFIER, 6),
 	GD_INT_INIT(INFLUENCE_MINOR_QUEST_BOOST, 20),
+	GD_INT_INIT(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER, 300),
 	GD_INT_INIT(LEAGUE_AID_MAX, 30),
 	GD_INT_INIT(CSD_GOLD_GIFT_DISABLED, 0),
 	GD_INT_INIT(RELIGION_BELIEF_SCORE_CITY_MULTIPLIER, 6),
@@ -1168,7 +1169,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(COMBAT_DAMAGE, 20),
 	GD_INT_INIT(NONCOMBAT_UNIT_RANGED_DAMAGE, 40),
 	GD_INT_INIT(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER, 100),
-	GD_INT_INIT(LAKE_MAX_AREA_SIZE, 9),
 	GD_INT_INIT(INITIAL_GOLD_PER_UNIT_TIMES_100, 50),
 	GD_INT_INIT(INITIAL_FREE_OUTSIDE_UNITS, 3),
 	GD_INT_INIT(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT, 0),
@@ -1758,6 +1758,7 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(PERCENT_SITES_HIDDEN, 30),
 	GD_INT_INIT(PERCENT_HIDDEN_SITES_WRITING, 30),
 	GD_INT_INIT(SAPPED_CITY_ATTACK_MODIFIER, 50),
+	GD_INT_INIT(BLOCKADED_CITY_ATTACK_MODIFIER, 0),
 	GD_INT_INIT(EXOTIC_GOODS_GOLD_MIN, 100),
 	GD_INT_INIT(EXOTIC_GOODS_GOLD_MAX, 400),
 	GD_INT_INIT(EXOTIC_GOODS_XP_MIN, 10),
@@ -1843,6 +1844,7 @@ CvGlobals::CvGlobals() :
 	GD_FLOAT_INIT(OPINION_WEIGHT_VASSAL_TAX_EXPONENT, 1.5f),
 	GD_FLOAT_INIT(TECH_COST_ERA_EXPONENT, 0.7f),
 	GD_FLOAT_INIT(VASSALAGE_VASSAL_CITY_POP_EXPONENT, 0.8f),
+	GD_FLOAT_INIT(MINOR_INFLUENCE_SCALING_DECAY_EXPONENT, 1.5f),
 
 	// -- post defines -- //
 	GD_INT_INIT(LAND_TERRAIN, 0),
@@ -1988,7 +1990,7 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 	/* Open a file to store the minidump. */
 	HANDLE hFile = CreateFile(_T("CvMiniDump.dmp"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if((hFile == NULL) || (hFile == INVALID_HANDLE_VALUE)) {
-		_tprintf(_T("CreateFile failed. Error: %u \n"), GetLastError());
+		_tprintf(_T("CreateFile failed. Error: %lu \n"), GetLastError());
 		return;
 	}
 
@@ -2109,7 +2111,7 @@ void CvGlobals::init()
 	};
 
 
-	int aiCityPlotPriority[MAX_CITY_PLOTS] =
+	int aiRingFromLinearOffset[MAX_CITY_PLOTS] =
 	{
 		0,
 		1,  1,  1,  1,  1,  1,
@@ -2204,7 +2206,7 @@ void CvGlobals::init()
 	memcpy(m_aiPlotDirectionY, aiPlotDirectionY, sizeof(m_aiPlotDirectionY));
 	memcpy(m_aiRingPlotXOffset, aiRingPlotXOffset, sizeof(m_aiRingPlotXOffset));
 	memcpy(m_aiRingPlotYOffset, aiRingPlotYOffset, sizeof(m_aiRingPlotYOffset));
-	memcpy(m_aiCityPlotPriority, aiCityPlotPriority, sizeof(m_aiCityPlotPriority));
+	memcpy(m_aiRingFromLinearOffset, aiRingFromLinearOffset, sizeof(m_aiRingFromLinearOffset));
 	memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
 	memcpy(m_aaiRingPlotIndex, aaiRingPlotIndex, sizeof(m_aaiRingPlotIndex));
@@ -2278,9 +2280,9 @@ CvCity* CvGlobals::UnwrapCityPointer(ICvCity1* pCity)
 	return (NULL != pCity)? static_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
+CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
 {
-	return auto_ptr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
+	return CvInterfacePtr<ICvCity1>((NULL != pCity)? new CvDllCity(pCity) : NULL);
 }
 //------------------------------------------------------------------------------
 CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
@@ -2288,9 +2290,9 @@ CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
 	return (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
+CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
 {
-	return auto_ptr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
+	return CvInterfacePtr<ICvDeal1>((NULL != pDeal)? new CvDllDeal(pDeal) : NULL);
 }
 //------------------------------------------------------------------------------
 CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
@@ -2298,9 +2300,9 @@ CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
 	return (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
+CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
 {
-	return auto_ptr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
+	return CvInterfacePtr<ICvPlot1>((NULL != pPlot)? new CvDllPlot(pPlot) : NULL);
 }
 //------------------------------------------------------------------------------
 CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
@@ -2308,14 +2310,14 @@ CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
 	return (NULL != pRandom)? static_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
+CvInterfacePtr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
 {
-	return auto_ptr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
+	return CvInterfacePtr<ICvRandom1>((NULL != pRandom)? new CvDllRandom(pRandom) : NULL);
 }
 //------------------------------------------------------------------------------
-auto_ptr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
+CvInterfacePtr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
 {
-	return auto_ptr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
+	return CvInterfacePtr<ICvUnit1>((NULL != pUnit)? new CvDllUnit(pUnit) : NULL);
 }
 //------------------------------------------------------------------------------
 CvUnit* CvGlobals::UnwrapUnitPointer(ICvUnit1* pUnit)
@@ -2489,9 +2491,9 @@ void CvGlobals::SetPostTurnAutosaves(bool bEnable)
 }
 
 
-int* CvGlobals::getCityPlotPriority()
+int* CvGlobals::getRingFromLinearOffset()
 {
-	return m_aiCityPlotPriority;
+	return m_aiRingFromLinearOffset;
 }
 
 int CvGlobals::getRingIterationIndexHex(int i, int j)
@@ -4780,6 +4782,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(NEED_DIPLOMAT_DESIRE_MODIFIER);
 	GD_INT_CACHE(NEED_DIPLOMAT_DISTASTE_MODIFIER);
 	GD_INT_CACHE(INFLUENCE_MINOR_QUEST_BOOST);
+	GD_INT_CACHE(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER);
 	GD_INT_CACHE(LEAGUE_AID_MAX);
 	GD_INT_CACHE(CSD_GOLD_GIFT_DISABLED);
 	GD_INT_CACHE(RELIGION_BELIEF_SCORE_CITY_MULTIPLIER);
@@ -5485,7 +5488,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(COMBAT_DAMAGE);
 	GD_INT_CACHE(NONCOMBAT_UNIT_RANGED_DAMAGE);
 	GD_INT_CACHE(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER);
-	GD_INT_CACHE(LAKE_MAX_AREA_SIZE);
 	GD_INT_CACHE(INITIAL_GOLD_PER_UNIT_TIMES_100);
 	GD_INT_CACHE(INITIAL_FREE_OUTSIDE_UNITS);
 	GD_INT_CACHE(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
@@ -6075,6 +6077,7 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(PERCENT_SITES_HIDDEN);
 	GD_INT_CACHE(PERCENT_HIDDEN_SITES_WRITING);
 	GD_INT_CACHE(SAPPED_CITY_ATTACK_MODIFIER);
+	GD_INT_CACHE(BLOCKADED_CITY_ATTACK_MODIFIER);
 	GD_INT_CACHE(EXOTIC_GOODS_GOLD_MIN);
 	GD_INT_CACHE(EXOTIC_GOODS_GOLD_MAX);
 	GD_INT_CACHE(EXOTIC_GOODS_XP_MIN);
@@ -6160,6 +6163,7 @@ void CvGlobals::cacheGlobals()
 	GD_FLOAT_CACHE(OPINION_WEIGHT_VASSAL_TAX_EXPONENT);
 	GD_FLOAT_CACHE(TECH_COST_ERA_EXPONENT);
 	GD_FLOAT_CACHE(VASSALAGE_VASSAL_CITY_POP_EXPONENT);
+	GD_FLOAT_CACHE(MINOR_INFLUENCE_SCALING_DECAY_EXPONENT);
 
 	// -- post defines -- //
 	GD_INT_CACHE(LAND_TERRAIN);

@@ -292,7 +292,7 @@ function RefreshReligions()
 	for iPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do	
 		local pPlayer = Players[iPlayer];
 		if (pPlayer:IsEverAlive() and pPlayer:HasCreatedReligion()) then
-			local eReligion = pPlayer:GetReligionCreatedByPlayer();
+			local eReligion = pPlayer:GetOwnedReligion();
 			local iOtherTeam = pPlayer:GetTeam();
 			
 			if (pActiveTeam:IsHasMet(iOtherTeam)) then
@@ -392,7 +392,7 @@ function RefreshExistingBeliefs()
 	Controls.EnhancerBeliefName:LocalizeAndSetText("TXT_KEY_CHOOSE_RELIGION_SPREAD_BELIEF");
 	
 	if (pPlayer:HasCreatedReligion()) then
-		local eReligion = pPlayer:GetReligionCreatedByPlayer();
+		local eReligion = pPlayer:GetOwnedReligion();
 		for i,v in ipairs(Game.GetBeliefsInReligion(eReligion)) do
 			local belief = GameInfo.Beliefs[v];
 			if(belief ~= nil) then

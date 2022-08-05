@@ -1048,9 +1048,9 @@ bool isPickableName(const char* szName)
 {
 	if(szName)
 	{
-		int iLen = _tcslen(szName);
+		int iLen = strlen(szName);
 
-		if(!_tcsicmp(&szName[iLen-6], "NOPICK"))
+		if(!_stricmp(&szName[iLen-6], "NOPICK"))
 		{
 			return false;
 		}
@@ -1324,14 +1324,12 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 	case UNITAI_GENERAL:
 		strString = "general";
 		break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	case UNITAI_DIPLOMAT:
 		strString = "diplomat";
 		break;
 	case UNITAI_MESSENGER:
 		strString = "messenger";
 		break;
-#endif
 	case UNITAI_MERCHANT:
 		strString = "merchant";
 		break;
@@ -1665,5 +1663,53 @@ int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
 		return 0;
 	else
 		return 50;
+}
+
+// add a fraction to a referenced fraction without losing information; the referenced fraction is assumed to have the larger dividend & divisor
+void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B)
+{
+	// protect from integer overflow (safe, simple max that will probably never be hit)
+	if (A.first >= (INT_MAX / B.first / B.second) - A.second)
+	{
+		// Divisor or Dividend is too large! Start fresh
+		if (A.first > A.second)
+		{
+			A.first /= A.second;
+			A.second = 1;
+		}
+		else
+		{
+			A.second /= A.first;
+			A.first = 1;
+		}
+	}
+
+	// N / D = nA / dA + nB / dB
+	//       = (nA*dB + nB*dA) / (dB*dA)
+	A.first *= B.second;
+	A.first += B.first * A.second;
+
+	A.second *= B.second;
+}
+
+// add two fractions together without losing information; A is assumed to have the larger dividend & divisor
+pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B)
+{
+	AddFractionToReference(A, B);
+	return A;
+}
+
+// add a list of fractions together (separated numerators and denominators)
+pair<int,int> AddFractions(vector<int>& aDividendList, vector<int>& aDivisorList)
+{
+	CvAssert(aDividendList.size() == aDivisorList.size());
+
+	pair<int,int> result = make_pair(0, 1);
+
+	for (size_t jJ = 0, jlen = aDividendList.size(); jJ < jlen; ++jJ)
+	{
+		AddFractionToReference(result, make_pair(aDividendList[jJ], aDivisorList[jJ]));
+	}
+	return result;
 }
 #endif

@@ -639,26 +639,19 @@ local function ToggleSpecialist( buildingID, slotID )
 		local specialistTable = g_citySpecialists[buildingID]
 		local lockedspecialistTable = g_lockedcitySpecialists[buildingID]
 
--- Lock an AI assigned specialist
-
-		if specialistTable[slotID] then
-			if city:GetNumSpecialistsInBuilding(buildingID) - city:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
+		if specialistTable[slotID] then -- new behavior, removes AI assigned specialists and assigns them to the best plot
+			if city:GetNumSpecialistsInBuilding(buildingID) > 0 then
 				specialistTable[slotID] = false
 				specialistTable.n = specialistTable.n - 1
-				lockedspecialistTable[slotID] = true
-				lockedspecialistTable.n = lockedspecialistTable.n + 1
-				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_LOCK_SPECIALIST, specialistID, buildingID )
+				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_UNSLOT_SPECIALIST, specialistID, buildingID, false )
 			end
-		end
-
--- All add/remove when manual control is handled in lockedspecialistTable
-		if lockedspecialistTable[slotID] then
+		elseif lockedspecialistTable[slotID] then -- old REMOVE_SPECIALIST behavior with a new task, remove player assigned specialist, assigns them to the best plot
 			if city:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
 				lockedspecialistTable[slotID] = false
 				lockedspecialistTable.n = lockedspecialistTable.n - 1
-				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, specialistID, buildingID )
+				return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_UNSLOT_SPECIALIST, specialistID, buildingID, true )
 			end
-		elseif city:IsCanAddSpecialistToBuilding(buildingID) then
+		elseif city:IsCanAddSpecialistToBuilding(buildingID) then -- player added (forced) specialists are always locked
 			lockedspecialistTable[slotID] = true
 			lockedspecialistTable.n = lockedspecialistTable.n + 1
 			return Game.SelectedCitiesGameNetMessage( GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, specialistID, buildingID )
@@ -1632,8 +1625,8 @@ local function UpdateWorkingHexesNow()
 						iconID = 9
 						tipKey = "TXT_KEY_CITYVIEW_UNWORKED_CITY_TILE"
 
-					-- Blockaded water plot
-					elseif plot:IsWater() and city:IsPlotBlockaded( plot ) then
+					-- Blockaded plot
+					elseif city:IsPlotBlockaded( plot ) then
 						iconID = 13
 						tipKey = "TXT_KEY_CITYVIEW_BLOCKADED_CITY_TILE"
 						cityPlotIndex = nil
@@ -1767,6 +1760,7 @@ local function UpdateCityViewNow()
 			local isNoAutoAssignSpecialists = city:IsNoAutoAssignSpecialists()
 			Controls.NoAutoSpecialistCheckbox:SetCheck( isNoAutoAssignSpecialists )
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
+			Controls.ResetSpecialistsButton:SetDisabled( g_isViewingMode )
 			if bnw_mode then
 				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
 				-- CBP
@@ -2111,7 +2105,8 @@ local function UpdateCityViewNow()
 		local corps = table()
 		local otherBuildings = table()
 		local noWondersWithSpecialistInThisCity = true
-
+		local HasForcedSpecialists = false
+		
 		for building in GameInfo.Buildings() do
 			local buildingID = building.ID
 			if city:IsHasBuilding(buildingID) then
@@ -2120,7 +2115,7 @@ local function UpdateCityViewNow()
 				local greatWorkCount = civ5bnw_mode and building.GreatWorkCount or 0
 				local corporation = building.IsCorporation > 0
 				local areSpecialistsAllowedByBuilding = city:GetNumSpecialistsAllowedByBuilding(buildingID) > 0
-
+				
 				if (corporation) then
 					buildings = corps
 				elseif buildingClass.MaxGlobalInstances > 0
@@ -2140,6 +2135,9 @@ local function UpdateCityViewNow()
 				end
 				if buildings then
 					buildings:insert{ building, L(building.Description), greatWorkCount, areSpecialistsAllowedByBuilding and GameInfoTypes[building.SpecialistType] or 999 }
+				end
+				if not HasForcedSpecialists and city:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
+					HasForcedSpecialists = true
 				end
 			end
 		end
@@ -2163,6 +2161,8 @@ local function UpdateCityViewNow()
 		Controls.GreatWorkHeader:SetToolTipString(strMaintenanceTT)
 		Controls.SpecialistControlBox:SetHide( #specialistBuildings < 1 )
 		Controls.SpecialistControlBox2:SetHide( noWondersWithSpecialistInThisCity )
+		Controls.ResetSpecialistsButton:SetHide( not HasForcedSpecialists )
+		Controls.ResetSpecialistsFooter:SetHide( not HasForcedSpecialists )
 
 		SetupBuildingList( city, specialistBuildings, g_SpecialBuildingsIM )
 		SetupBuildingList( city, wonders, g_WondersIM )
@@ -2309,7 +2309,12 @@ local function UpdateCityViewNow()
 		end
 		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
 		local cultureDiff = cultureNext - cultureStored
-		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YIELD_CULTURE_LOCAL)
+		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
+
+		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2
+		end
+
 		if borderGrowthRate > 0 then
 			local cultureTurns = math_max(math_ceil(cultureDiff / borderGrowthRate), 1)
 			Controls.CultureTimeTillGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", cultureTurns )
@@ -2544,6 +2549,11 @@ local g_callBacks = {
 	NoAutoSpecialistCheckbox = {
 		[Mouse.eLClick] = function()
 			return Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_NO_AUTO_ASSIGN_SPECIALISTS, -1, -1, not UI_GetHeadSelectedCity():IsNoAutoAssignSpecialists() )
+		end,
+	},
+	ResetSpecialistsButton = {
+		[Mouse.eLClick] = function()
+			return Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_RESET_SPECIALISTS, -1, -1)
 		end,
 	},
 	EditButton = {

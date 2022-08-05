@@ -219,6 +219,15 @@ UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_OFFENSE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_AUGUSTUS' ; -- 4, UB boosts GP
 
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, DOM
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_GROWTH' AND LeaderType = 'LEADER_BISMARCK' ; -- 9, should be focusing Gold/Production
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, should be focusing Gold/Production
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_SCIENCE' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, should be focusing Gold/Production
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_SPACESHIP' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, DOM
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_ESPIONAGE' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, DOM
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, DOM
+UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_RELIGION' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, should be focusing Gold/Production
+UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_BISMARCK' ; -- 3, Unit Gifter
+UPDATE Leader_Flavors SET Flavor = 3 WHERE FlavorType = 'FLAVOR_RECON' AND LeaderType = 'LEADER_BISMARCK' ; -- 8, Can't gift recon units
 
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR' ; -- 4, UB & UU focus on mobile
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_MOBILE' AND LeaderType = 'LEADER_CASIMIR' ; -- 4, UB & UU focus on mobile
@@ -361,7 +370,7 @@ UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_DIPLOMACY' AND L
 UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_MILITARY_TRAINING' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 9, UB
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 3, secondary: culture
 UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_GREAT_PEOPLE' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 4, UA
-UPDATE Leader_Flavors SET Flavor = 6 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_NAPOLEON' ; -- 4, secondary: culture
+UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_ODA_NOBUNAGA' ; -- 4, secondary: culture
 
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_RANGED' AND LeaderType = 'LEADER_PACAL' ; -- 7, UU
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_PACAL' ; -- 6, secondary: culture

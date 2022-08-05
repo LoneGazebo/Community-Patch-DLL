@@ -62,9 +62,6 @@
 
 				<!-- Selection or War Highlight -->
 				<Image ID="FlagHighlight" Size="64,64" TextureOffset="0,64" Texture="UnitFlagBase.dds" Hidden="1" />
-
-				<!-- VP Automated Icon -->
-				<Image ID="Automated" Offset="30,30" Texture="Automated32.dds" Size="32.32" BranchAlpha= "0.8" Hidden="1"/>	
 				
 				<!-- Health Bar -->
 				<Bar ID="HealthBar" Offset="52,16" Size="2,32" Direction="Up" FGColor="0,255,255,255" BGColor="0,0,0,255" Hidden="1" />

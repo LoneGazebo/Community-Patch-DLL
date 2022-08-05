@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(2.2.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(2.5) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -36,6 +36,21 @@
         <Type>UpdateDatabase</Type>
         <FileName>StackedPromotionIcons/StackedPromotionIcons.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>ImprovedTopPanel/Text.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>ImprovedTopPanel/Text.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>ImprovedTopPanel/FontIconsITP.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -46,7 +61,7 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>105</MinVersion>
+        <MinVersion>108</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
@@ -169,6 +184,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\LoadScreen.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\LoadScreen.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\MonopoliesInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -198,14 +221,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\TechButtonInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\TopPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\TopPanel.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -245,8 +260,37 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="ImprovedTopPanel/FontIconsITP.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/FontIconsITP.ggxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/FontIconsITP.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/Text.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/Text.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/TopPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTopPanel/TopPanel.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ImprovedTopPanel\" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />
     <Folder Include="StackedPromotionIcons" />

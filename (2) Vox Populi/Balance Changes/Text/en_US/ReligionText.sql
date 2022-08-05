@@ -82,7 +82,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on [ICON_RES_WHEAT] Wheat'
+SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on [ICON_RES_WHEAT] Wheat, [ICON_RES_MAIZE] Maize or [ICON_RES_RICE] Rice.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 
@@ -490,7 +490,7 @@ SET Text = 'Abode of Peace'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities. Minimum [ICON_INFLUENCE] Influence with City-States following your Religion is [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 20%.'
+SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 20%.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR';
 
 
@@ -635,7 +635,7 @@ SET Text = 'Holy Land'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 additional [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [ICON_RELIGION] Holy Sites or 2 [ICON_TOURISM] Landmarks you own. +50% Yields from Friendly/Allied [ICON_CITY_STATE] City-States following this Religion.'
+SET Text = 'Receive 1 additional [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [ICON_RELIGION] Holy Sites and [ICON_TOURISM] Landmarks you own. +50% Yields from Friendly/Allied [ICON_CITY_STATE] City-States following this Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR';
 
 

@@ -54,9 +54,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatMusicianRateModifier(0),
 	m_iGreatMerchantRateModifier(0),
 	m_iGreatScientistRateModifier(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier(0),
-#endif
 	m_iDomesticGreatGeneralRateModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
@@ -187,10 +185,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoCSDecayAtWar (false),
 	m_bBullyFriendlyCS(false),
 	m_iBullyGlobalCSReduction(0),
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalsNoRebel(false),
-	m_iVassalCSBonusModifier(0),
-#endif
+	m_iVassalYieldBonusModifier(0),
+	m_iCSYieldBonusModifier(0),
 	m_iSharedReligionTourismModifier(0),
 	m_iTradeRouteTourismModifier(0),
 	m_iOpenBordersTourismModifier(0),
@@ -297,9 +294,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromWorldWonderConstruction(NULL),
 	m_piYieldFromTech(NULL),
+	m_piYieldFromTechRetroactive(NULL),
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
-	m_bDoubleBorderGA(false),
+	m_bDoubleBorderGrowthGA(false),
+	m_bDoubleBorderGrowthWLTKD(false),
 	m_iIncreasedQuestInfluence(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iGreatEngineerHurryModifier(0),
@@ -436,6 +435,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromWorldWonderConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
+	SAFE_DELETE_ARRAY(m_piYieldFromTechRetroactive);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
 	SAFE_DELETE_ARRAY(m_piConquerorYield);
@@ -523,9 +523,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatArtistRateModifier = kResults.GetInt("GreatArtistRateModifier");
 	m_iGreatMusicianRateModifier = kResults.GetInt("GreatMusicianRateModifier");
 	m_iGreatMerchantRateModifier = kResults.GetInt("GreatMerchantRateModifier");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
-#endif
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
@@ -688,10 +686,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
 	m_iBullyGlobalCSReduction = kResults.GetInt("BullyGlobalCSInfluenceShift");
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalsNoRebel = kResults.GetBool("VassalsNoRebel");
-	m_iVassalCSBonusModifier = kResults.GetInt("VassalCSBonusModifier");
-#endif
+	m_iVassalYieldBonusModifier = kResults.GetInt("VassalYieldBonusModifier");
+	m_iCSYieldBonusModifier = kResults.GetInt("CSYieldBonusModifier");
 	m_iSharedReligionTourismModifier = kResults.GetInt("SharedReligionTourismModifier");
 	m_iTradeRouteTourismModifier = kResults.GetInt("TradeRouteTourismModifier");
 	m_iOpenBordersTourismModifier = kResults.GetInt("OpenBordersTourismModifier");
@@ -745,7 +742,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
-	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
+	m_bDoubleBorderGrowthGA = kResults.GetBool("DoubleBorderGrowthGA");
+	m_bDoubleBorderGrowthWLTKD = kResults.GetBool("DoubleBorderGrowthWLTKD");
 	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iGreatEngineerHurryModifier = kResults.GetInt("GreatEngineerHurryModifier");
@@ -832,6 +830,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromWorldWonderConstruction, "Policy_YieldFromWorldWonderConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromTechRetroactive, "Policy_YieldFromTechRetroactive", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
@@ -1576,13 +1575,11 @@ int CvPolicyEntry::GetGreatMerchantRateModifier() const
 	return m_iGreatMerchantRateModifier;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 ///  Change in spawn rate for great diplomats
 int CvPolicyEntry::GetGreatDiplomatRateModifier() const
 {
 	return m_iGreatDiplomatRateModifier;
 }
-#endif
 
 ///  Change in spawn rate for great scientists
 int CvPolicyEntry::GetGreatScientistRateModifier() const
@@ -2262,16 +2259,18 @@ int CvPolicyEntry::GetBullyGlobalCSReduction() const
 {
 	return m_iBullyGlobalCSReduction;
 }
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 bool CvPolicyEntry::IsVassalsNoRebel() const
 {
 	return m_bVassalsNoRebel;
 }
-int CvPolicyEntry::GetVassalCSBonusModifier() const
+int CvPolicyEntry::GetVassalYieldBonusModifier() const
 {
-	return m_iVassalCSBonusModifier;
+	return m_iVassalYieldBonusModifier;
 }
-#endif
+int CvPolicyEntry::GetCSYieldBonusModifier() const
+{
+	return m_iCSYieldBonusModifier;
+}
 
 /// Boost to tourism bonus for shared religion
 int CvPolicyEntry::GetSharedReligionTourismModifier() const
@@ -2971,6 +2970,13 @@ int CvPolicyEntry::GetYieldFromTech(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromTech[i];
 }
+///  Does this Policy grant yields from techs that were already researched?
+int CvPolicyEntry::GetYieldFromTechRetroactive(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromTechRetroactive[i];
+}
 /// Does this Policy negate expansion unhappiness?
 bool CvPolicyEntry::GetNoUnhappinessExpansion() const
 {
@@ -2982,9 +2988,14 @@ bool CvPolicyEntry::GetNoUnhappyIsolation() const
 	return m_bNoUnhappyIsolation;
 }
 /// Does this Policy generate double border growth during GAs?
-bool CvPolicyEntry::GetDoubleBorderGA() const
+bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
 {
-	return m_bDoubleBorderGA;
+	return m_bDoubleBorderGrowthGA;
+}
+/// Does this Policy generate double border growth during WLTKD?
+bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
+{
+	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Increased influence from quests?
 int CvPolicyEntry::GetIncreasedQuestInfluence() const
@@ -4492,11 +4503,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();
 				break;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 			case POLICYMOD_GREAT_DIPLOMAT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
 				break;
-#endif
 			case POLICYMOD_GREAT_SCIENTIST_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatScientistRateModifier();
 				break;

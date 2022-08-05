@@ -12,6 +12,10 @@
 			<Text>Ruling with an iron fist generally means to require absolute control when managing other people, often in the workplace. The saying can also refer to situations such as child-rearing or styles of government. This idiom is often used to describe the actions and practices of managers, parents, or leaders who give their subordinates little if any freedom of choice or input regarding decisions. Reasons for ruling with an iron fist can often depend on individual circumstances, such as inexperienced workers or unruly children. The effectiveness of using total control can also vary, depending on the scope of the management style and the situation.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_MONASTERY"> <!-- For some reason EUI bugs out with the default description TXT_KEY -->
+			<Text>Monastery</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR]: Receive a free Hospital in every City. +50 [ICON_CULTURE] when a Citizen is born in any City, scaling with Era.</Text>
 		</Row>
@@ -147,6 +151,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH">
 			<Text>Splash Damage</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT">
+			<Text>Enemy Defection</Text>
 		</Row>
 		
 		<!-- America UA Tweak -->

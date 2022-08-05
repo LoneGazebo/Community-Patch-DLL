@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -488,11 +488,7 @@ public:
 	int GetNumFollowersAfterSpread() const;
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;
-#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionStrength(const CvCity* pCity) const;
-#else
-	int GetConversionStrength() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool greatperson();
 #endif
@@ -607,6 +603,25 @@ public:
 	int movesLeft() const;
 	bool canMove() const;
 	bool hasMoved() const;
+
+	// VP - Linked & Group Movement 
+	bool IsLinked() const;
+	void SetIsLinked(bool bValue);
+	bool IsLinkedLeader() const;
+	void SetIsLinkedLeader(bool bValue);
+	int GetLinkedLeaderID() const;
+	void SetLinkedLeaderID(int iLinkedLeaderID);
+	bool IsGrouped() const;
+	void SetIsGrouped(bool bValue);
+	void SetLinkedUnits(UnitIdContainer LinkedUnits);
+	UnitIdContainer GetLinkedUnits();
+	int GetLinkedMaxMoves() const;
+	void SetLinkedMaxMoves(int iValue);
+	bool CanLinkUnits();
+	void LinkUnits();
+	void UnlinkUnits();
+	void MoveLinkedLeader(CvPlot* pDestPlot);
+	void DoGroupMovement(CvPlot* pDestPlot);
 
 	int GetRange() const;
 	int GetNukeDamageLevel() const;
@@ -1371,6 +1386,8 @@ public:
 	int GetNearbyImprovementModifier(ImprovementTypes eBonusImprovement, int iImprovementRange, int iImprovementModifier, const CvPlot* pAtPlot = NULL) const;
 #endif
 
+	bool IsCombatSupportUnit() const;
+
 	bool IsGreatGeneral() const;
 	int GetGreatGeneralCount() const;
 	void ChangeGreatGeneralCount(int iChange);
@@ -1484,13 +1501,15 @@ public:
 	void rotateFacingDirectionClockwise();
 	void rotateFacingDirectionCounterClockwise();
 
+	int GetBlockadeRange() const;
+
 	bool isSuicide() const;
 	bool isTrade() const;
 
 	int getDropRange() const;
 	void changeDropRange(int iChange);
 
-	bool isOutOfAttacks() const;
+	bool isOutOfAttacks(bool bIgnoreMoves = false) const;
 	void setMadeAttack(bool bNewValue);
 
 	int GetNumInterceptions() const;
@@ -1534,6 +1553,9 @@ public:
 
 	PlayerTypes GetOriginalOwner() const;
 	void SetOriginalOwner(PlayerTypes ePlayer);
+
+	PlayerTypes GetGiftedByPlayer() const;
+	void SetGiftedByPlayer(PlayerTypes ePlayer);
 
 	PlayerTypes getCapturingPlayer() const;
 	void setCapturingPlayer(PlayerTypes eNewValue);
@@ -1972,6 +1994,7 @@ protected:
 
 	PlayerTypes m_eOwner;
 	PlayerTypes m_eOriginalOwner;
+	PlayerTypes m_eGiftedByPlayer;
 	UnitTypes m_eUnitType;
 	int m_iX;
 	int m_iY;
@@ -1979,6 +2002,12 @@ protected:
 
 	int m_iDamage;
 	int m_iMoves;
+	bool m_bIsLinked;
+	bool m_bIsLinkedLeader;
+	bool m_bIsGrouped;
+	int m_iLinkedMaxMoves;
+	UnitIdContainer m_LinkedUnitIDs;
+	int m_iLinkedLeaderID;
 	int m_iArmyId;
 	int m_iBaseCombat;
 	int m_iBaseRangedCombat;
@@ -2412,12 +2441,19 @@ void ClearUnitDeltas();
 SYNC_ARCHIVE_BEGIN(CvUnit)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eOwner)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eOriginalOwner)
+SYNC_ARCHIVE_VAR(PlayerTypes, m_eGiftedByPlayer)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eUnitType)
 SYNC_ARCHIVE_VAR(int, m_iX)
 SYNC_ARCHIVE_VAR(int, m_iY)
 SYNC_ARCHIVE_VAR(int, m_iID)
 SYNC_ARCHIVE_VAR(int, m_iDamage)
 SYNC_ARCHIVE_VAR(int, m_iMoves)
+SYNC_ARCHIVE_VAR(bool, m_bIsLinked)
+SYNC_ARCHIVE_VAR(bool, m_bIsLinkedLeader)
+SYNC_ARCHIVE_VAR(bool, m_bIsGrouped)
+SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
+SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
+SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)
 SYNC_ARCHIVE_VAR(int, m_iBaseCombat)
 SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)

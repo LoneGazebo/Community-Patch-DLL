@@ -485,7 +485,7 @@ void SetAllPlotsVisible(TeamTypes eTeam)
 				pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
 			}
 
-			pLoopPlot->setRevealed(eTeam, true, false);
+			pLoopPlot->setRevealed(eTeam, true);
 		}
 	}
 }
@@ -1164,9 +1164,7 @@ void CvGame::uninit()
 	m_eReligionTech = NO_TECH;
 	m_eIndustrialRoute = NO_ROUTE;
 	m_eGameEra = NO_ERA;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_eTeamThatCircumnavigated = NO_TEAM;
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_bVictoryRandomization = false;
 	m_iCultureAverage = 0;
@@ -1894,7 +1892,7 @@ void CvGame::updateSelectionList()
 		return;
 	}
 
-	auto_ptr<ICvUnit1> pDllHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pDllHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pDllHeadSelectedUnit.get());
 
 	if((pkHeadSelectedUnit == NULL) || !(pkHeadSelectedUnit->ReadyToSelect()))
@@ -1915,7 +1913,7 @@ void CvGame::updateSelectionList()
 
 		if((pkOriginalPlot == NULL) || !(cyclePlotUnits(pkOriginalPlot, true, true, GC.GetEngineUserInterface()->getOriginalPlotCount())))
 		{
-			auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
+			CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 			CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 			if((pkSelectionPlot == NULL) || !(cyclePlotUnits(pkSelectionPlot, true, true)))
 			{
@@ -2092,8 +2090,8 @@ void CvGame::updateTestEndTurn()
 		{
 			bool hasSelection = false;
 
-			auto_ptr<ICvUnit1> pDllHeadSelectedUnit(pkIface->GetHeadSelectedUnit());
-			if(pDllHeadSelectedUnit.get() != NULL)
+			CvInterfacePtr<ICvUnit1> pDllHeadSelectedUnit(pkIface->GetHeadSelectedUnit());
+			if(pDllHeadSelectedUnit)
 			{
 				hasSelection = pDllHeadSelectedUnit->IsSelected();
 			}
@@ -2415,7 +2413,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 {
 	CvCity* pSelectCity = NULL;
 
-	auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
+	CvInterfacePtr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
 
 	CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
 
@@ -2451,7 +2449,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 	if(pSelectCity != NULL)
 	{
-		auto_ptr<ICvCity1> pDllSelectedCity = GC.WrapCityPointer(pSelectCity);
+		CvInterfacePtr<ICvCity1> pDllSelectedCity = GC.WrapCityPointer(pSelectCity);
 		if(bAdd)
 		{
 			GC.GetEngineUserInterface()->clearSelectedCities();
@@ -2475,7 +2473,7 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 	ICvUserInterface2* pUI = GC.GetEngineUserInterface();
 	CvPlayerAI& theActivePlayer = GET_PLAYER(eActivePlayer);
 
-	auto_ptr<ICvUnit1> pDllSelectedUnit(pUI->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pDllSelectedUnit(pUI->GetHeadSelectedUnit());
 	CvUnit* pCycleUnit = GC.UnwrapUnitPointer(pDllSelectedUnit.get());
 
 	if(pCycleUnit != NULL)
@@ -2630,7 +2628,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 				}
 				else
 				{
-					auto_ptr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
+					CvInterfacePtr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
 					GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false);
 					return true;
 				}
@@ -2655,7 +2653,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 		return;
 	}
 
-	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if((pkSelectedUnit == NULL) || (pkSelectedUnit->getOwner() != getActivePlayer()))
@@ -2681,7 +2679,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 //	--------------------------------------------------------------------------------
 void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift)
 {
-	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if(pkSelectedUnit != NULL)
@@ -2734,7 +2732,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 					gDLL->sendAutoMission(pkSelectedUnit->GetID());
 				}
 			}
-			else if((eMessage == GAMEMESSAGE_SWAP_UNITS))
+			else if(eMessage == GAMEMESSAGE_SWAP_UNITS)
 			{
 				gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
 			}
@@ -2829,7 +2827,7 @@ void CvGame::CityPurchase(CvCity* pCity, UnitTypes eUnitType, BuildingTypes eBui
 //	--------------------------------------------------------------------------------
 void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 {
-	auto_ptr<ICvUnit1> pOldSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pOldSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkOldSelectedUnit = GC.UnwrapUnitPointer(pOldSelectedUnit.get());
 
 	GC.GetEngineUserInterface()->clearSelectedCities();
@@ -2843,7 +2841,7 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 
 	pUnit->IncrementFirstTimeSelected();
 
-	auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+	CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 	GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllUnit.get(), true, bToggle, bGroup, bSound);
 
 	gDLL->GameplayMinimapUnitSelect(pUnit->getX(), pUnit->getY());
@@ -2903,7 +2901,7 @@ void CvGame::mouseoverUnit(CvUnit *pUnit, bool bEnter)
 				gDLL->TradeVisuals_DeactivatePopupRoute();
 
 				//reactivate selected unit's popup route
-				auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+				CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 				pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 				IfTradeUnit_DisplayPopupTradeRoute(pkSelectedUnit);
 			}
@@ -2954,7 +2952,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 					{
 						if(bAlt || (pLoopUnit->getUnitType() == pUnit->getUnitType()))
 						{
-							auto_ptr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
+							CvInterfacePtr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
 							GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false, bGroup, false, true);
 						}
 					}
@@ -2964,7 +2962,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 	}
 	else
 	{
-		auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+		CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 		GC.GetEngineUserInterface()->selectUnit(pDllUnit.get(), !bShift, bShift, true);
 	}
 }
@@ -2987,7 +2985,7 @@ void CvGame::selectAll(CvPlot* pPlot)
 
 	if(pSelectUnit != NULL)
 	{
-		auto_ptr<ICvUnit1> pDllSelectUnit = GC.WrapUnitPointer(pSelectUnit);
+		CvInterfacePtr<ICvUnit1> pDllSelectUnit = GC.WrapUnitPointer(pSelectUnit);
 		GC.GetEngineUserInterface()->selectGroup(pDllSelectUnit.get(), false, false, true);
 	}
 }
@@ -3021,7 +3019,7 @@ bool CvGame::selectionListIgnoreBuildingDefense()
 {
 	bool bIgnoreBuilding = false;
 	bool bAttackLandUnit = false;
-	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if(pkSelectedUnit != NULL)
@@ -3077,7 +3075,7 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 		return false; // XXX hack!
 	}
 
-	auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 
 	if(pkHeadSelectedUnit != NULL)
@@ -3142,7 +3140,7 @@ void CvGame::handleAction(int iAction)
 	bAlt = gDLL->altKey();
 	bShift = false;//gDLL->shiftKey();
 
-	auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+	CvInterfacePtr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 
 	if(!(canHandleAction(iAction)))
 	{
@@ -3159,7 +3157,7 @@ void CvGame::handleAction(int iAction)
 	// Interface Mode
 	if(GC.GetEngineUserInterface()->CanDoInterfaceMode((InterfaceModeTypes)pkActionInfo->getInterfaceModeType()))
 	{
-		if(pHeadSelectedUnit.get() != NULL)
+		if(pHeadSelectedUnit)
 		{
 			if(GC.getInterfaceModeInfo((InterfaceModeTypes)pkActionInfo->getInterfaceModeType())->getSelectAll())
 			{
@@ -3199,7 +3197,7 @@ void CvGame::handleAction(int iAction)
 						CvImprovementEntry *pImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement());
 						if (!pImprovementInfo || !pImprovementInfo->IsRequiresImprovement())
 						{
-							if(pHeadSelectedUnit.get() != NULL)
+							if(pHeadSelectedUnit)
 							{
 								CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 								CvPlot* pPlot = pkHeadSelectedUnit->plot();
@@ -3218,7 +3216,7 @@ void CvGame::handleAction(int iAction)
 			else
 			if(iMissionType == CvTypes::getMISSION_FOUND())
 			{
-				if(pHeadSelectedUnit.get() != NULL)
+				if(pHeadSelectedUnit)
 				{
 					CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 					CvPlot* pPlot = pkHeadSelectedUnit->plot();
@@ -3246,7 +3244,7 @@ void CvGame::handleAction(int iAction)
 		else
 		if (iMissionType == CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3262,7 +3260,7 @@ void CvGame::handleAction(int iAction)
 		else
 		if (iMissionType == CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3276,7 +3274,7 @@ void CvGame::handleAction(int iAction)
 		}
 		if (iMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
 		{
-			if(pHeadSelectedUnit.get() != NULL)
+			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 				if (pkHeadSelectedUnit)
@@ -3378,8 +3376,8 @@ bool CvGame::canDoControl(ControlTypes eControl)
 
 	case CONTROL_CENTERONSELECTION:
 	{
-		auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
-		if(pSelectionPlot.get() != NULL)
+		CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
+		if(pSelectionPlot)
 		{
 			return true;
 		}
@@ -3459,8 +3457,8 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_SELECTYUNITTYPE:
 	{
-		auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
-		if(pHeadSelectedUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+		if(pHeadSelectedUnit)
 		{
 			GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, true, false);
 		}
@@ -3469,8 +3467,8 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_SELECTYUNITALL:
 	{
-		auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
-		if(pHeadSelectedUnit.get() != NULL)
+		CvInterfacePtr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+		if(pHeadSelectedUnit)
 		{
 			GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, false, true);
 		}
@@ -3479,7 +3477,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_SELECT_HEALTHY:
 	{
-		auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
+		CvInterfacePtr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 		CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 		GC.GetEngineUserInterface()->ClearSelectionList();
 		if(pkHeadSelectedUnit != NULL)
@@ -3497,7 +3495,7 @@ void CvGame::doControl(ControlTypes eControl)
 					{
 						if(pUnit->IsHurt())
 						{
-							auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+							CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 							GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllUnit.get(), true, false, true, true, true);
 						}
 					}
@@ -3524,7 +3522,7 @@ void CvGame::doControl(ControlTypes eControl)
 		CvCity* pCapitalCity = GET_PLAYER(getActivePlayer()).getCapitalCity();
 		if(pCapitalCity != NULL)
 		{
-			auto_ptr<ICvCity1> pDllCapitalCity = GC.WrapCityPointer(pCapitalCity);
+			CvInterfacePtr<ICvCity1> pDllCapitalCity = GC.WrapCityPointer(pCapitalCity);
 			GC.GetEngineUserInterface()->selectCity(pDllCapitalCity.get());
 		}
 		GC.GetEngineUserInterface()->lookAtSelectionPlot();
@@ -3557,7 +3555,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_NEXTUNIT:
 	{
-		auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 		CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 		if(pkSelectionPlot != NULL)
 		{
@@ -3568,7 +3566,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_PREVUNIT:
 	{
-		auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
+		CvInterfacePtr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 		CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 		if(pkSelectionPlot != NULL)
 		{
@@ -3589,9 +3587,9 @@ void CvGame::doControl(ControlTypes eControl)
 	case CONTROL_LASTUNIT:
 	{
 		ICvUserInterface2* UI = GC.GetEngineUserInterface();
-		auto_ptr<ICvUnit1> pUnit(UI->getLastSelectedUnit());
+		CvInterfacePtr<ICvUnit1> pUnit(UI->getLastSelectedUnit());
 
-		if(pUnit.get() != NULL)
+		if(pUnit)
 		{
 			UI->selectUnit(pUnit.get(), true);
 			UI->lookAtSelectionPlot();
@@ -4248,11 +4246,19 @@ int CvGame::countKnownTechNumTeams(TechTypes eTech)
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::goldenAgeLength() const
+int CvGame::goldenAgeLength(int iManualLength) const
 {
 	int iLength;
-
-	iLength = /*10*/ GD_INT_GET(GOLDEN_AGE_LENGTH);
+	
+	// Sometimes we need to alter a manual number of golden age turns by the game speed
+	if (iManualLength >= 0)
+	{
+		iLength = iManualLength;
+	}
+	else
+	{
+		iLength = /*10*/ GD_INT_GET(GOLDEN_AGE_LENGTH);
+	}
 
 	iLength *= getGameSpeedInfo().getGoldenAgePercent();
 	iLength /= 100;
@@ -6408,7 +6414,7 @@ bool CvGame::IsShowHiddenOpinionModifiers() const
 		return true;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
@@ -6430,7 +6436,7 @@ bool CvGame::IsShowAllOpinionValues() const
 		return true;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_ADVANCED_DIPLOMACY))
 	{
 		return true;
 	}
@@ -6688,17 +6694,16 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					/*
+					if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
 					{
-						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
-						{
-							return false;
-						}
-						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
-						{
-							return false;
-						}
+						return false;
 					}
+					if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+					{
+						return false;
+					}
+					*/
 				}
 			}
 		}
@@ -6744,17 +6749,16 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 					{
 						return false;
 					}
-					if (MOD_DIPLOMACY_CIV4_FEATURES)
+					/*
+					if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
 					{
-						if (GET_TEAM(GET_PLAYER(eCapitalOwner).getTeam()).IsVassal(GET_PLAYER(eMakePeacePlayer).getTeam()))
-						{
-							return false;
-						}
-						if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
-						{
-							return false;
-						}
+						return false;
 					}
+					if (GET_TEAM(GET_PLAYER(eMakePeacePlayer).getTeam()).IsVassal(GET_PLAYER(eCapitalOwner).getTeam()))
+					{
+						return false;
+					}
+					*/
 				}
 			}
 		}
@@ -8090,8 +8094,8 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 #endif
 
 			//Write out time spent playing.
-			long iHours = getMinutesPlayed() / 60;
-			long iMinutes = getMinutesPlayed() % 60;
+			int iHours = getMinutesPlayed() / 60;
+			int iMinutes = getMinutesPlayed() % 60;
 
 			for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 			{
@@ -9577,9 +9581,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 			int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
 
-			//Weight minor civ gift units higher, so they're more likely to spawn each game.
+			//Weight minor civ gift units higher, so they're more likely to spawn each game (Careful, +50 caused Minor Civs Gifts to take up more than 50% of Military UU slots).
 			if (pkUnitInfo->IsMinorCivGift())
-				iRandom += 50;
+				iRandom += 5;
 
 			veUnitRankings.push_back( OptionWithScore<UnitTypes>(eLoopUnit, iRandom));
 		}
@@ -10862,7 +10866,8 @@ static unsigned long giLastState = 0;
 
 int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 {
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getTurnSlice()*3;
+	//do not use turnslice here, it changes after reload!
+	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*37 + getActivePlayer()*73;
 
 	/*
 	//safety check
@@ -10882,7 +10887,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	if (pLog)
 	{
 		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "turn %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), iNum, iResult, input.getX(), input.getY());
+		sprintf_s(szOut, "turn %d, turnslice %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), getTurnSlice(), iNum, iResult, input.getX(), input.getY());
 		pLog->Msg(szOut);
 	}
 	*/
@@ -10892,7 +10897,8 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 
 int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 {
-	unsigned long iState = getTurnSlice() + abs(iExtraSeed);
+	//do not use turnslice here, it changes after reload!
+	unsigned long iState = getGameTurn()*11 + getActivePlayer()*19 + abs(iExtraSeed);
 
 	/*
 	//safety check
@@ -10912,7 +10918,7 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 	if (pLog)
 	{
 		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "turn %d, max %d, res %d, seed %d\n", getGameTurn(), iNum, iResult, iExtraSeed);
+		sprintf_s(szOut, "turn %d, turnslice %d, max %d, res %d, seed %d\n", getGameTurn(), getTurnSlice(), iNum, iResult, iExtraSeed);
 		pLog->Msg(szOut);
 	}
 	*/
@@ -11544,7 +11550,7 @@ void CvGame::SetHighestSpyPotential()
 
 void CvGame::DoBarbCountdown()
 {
-	if (!MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (!MOD_BALANCE_VP)
 		return;
 
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -11941,7 +11947,7 @@ void CvGame::writeSaveGameDB(FDataStream& kStream) const
 			CvAssertMsg(false, "Saved game database exists, but could not open it!");
 		}
 
-		long nilSize = 0;
+		DWORD nilSize = 0;
 		kStream << nilSize;
 	}
 }
@@ -12308,7 +12314,6 @@ void CvGame::DoUpdateIndustrialRoute()
 	m_eIndustrialRoute = eIndustrialRoute;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 TeamTypes CvGame::GetTeamThatCircumnavigated() const
 {
@@ -12320,7 +12325,6 @@ void CvGame::SetTeamThatCircumnavigated(TeamTypes eNewValue)
 {
 	m_eTeamThatCircumnavigated = eNewValue;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 CvSiteEvaluatorForSettler* CvGame::GetSettlerSiteEvaluator()
@@ -12772,12 +12776,9 @@ void CvGame::DoTestConquestVictory()
 		int iNumCapitalsControlled = 0;
 		if(GET_TEAM((TeamTypes)iTeamLoop).isAlive())
 		{
-			//C4DF: We skip vassals for count!
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
-			{
-				if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
-					continue;
-			}
+			if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
+				continue;
+
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -12795,32 +12796,29 @@ void CvGame::DoTestConquestVictory()
 					}
 				}
 			}
-			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
 			{
-				if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
+				for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
 				{
-					for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
+					if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
 					{
-						if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
+						//C4DF: We include vassals for count!
+						if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
+							continue;
+
+						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 						{
-							//C4DF: We include vassals for count!
-							if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
-								continue;
+							eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-							for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
 							{
-								eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-								if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
+								int iCityLoop;
+								CvCity* pLoopCity = NULL;
+								for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 								{
-									int iCityLoop;
-									CvCity* pLoopCity = NULL;
-									for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+									if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
 									{
-										if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
-										{
-											iNumCapitalsControlled += 1;
-										}
+										iNumCapitalsControlled += 1;
 									}
 								}
 							}

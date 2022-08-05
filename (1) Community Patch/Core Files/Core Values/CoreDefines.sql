@@ -18,7 +18,7 @@ INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', '10';
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', '1';
 
 
--- Defensive Pact limits (note that the first two values are updated in (2) Vox Populi)
+-- Defensive Pact limits (note that these values are updated in (2) Vox Populi)
 INSERT INTO Defines (Name, Value) SELECT 'DEFENSIVE_PACT_LIMIT_BASE', '99'; -- The base number of Defensive Pacts that a civilization can form. If set to -1 or lower, Defensive Pacts cannot be formed. Each player on a team counts as 1 Defensive Pact.
 INSERT INTO Defines (Name, Value) SELECT 'DEFENSIVE_PACT_LIMIT_SCALER', '0'; -- Additional number of Defensive Pacts permitted for each X other major civilizations ingame. 0 disables the scaler.
 INSERT INTO Defines (Name, Value) SELECT 'AI_DEFENSIVE_PACT_LIMIT_BASE', '2'; -- Limit for AI players. Only does anything if lower than the base limit.
@@ -46,7 +46,7 @@ INSERT INTO Defines (Name, Value) SELECT 'PUPPET_TOURISM_MODIFIER', '0';
 UPDATE Defines SET Value = '5' WHERE Name = 'AI_TACTICAL_MAP_TEMP_ZONE_TURNS'; -- Number of turns AI waits while recruiting before disbanding an operation
 UPDATE Defines SET Value = '10' WHERE Name = 'AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY'; -- ...in enemy territory
 UPDATE Defines SET Value = '70' WHERE Name = 'AI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION';
-UPDATE Defines SET Value = '40' WHERE Name = 'AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE';
+UPDATE Defines SET Value = '70' WHERE Name = 'AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE';
 UPDATE Defines SET Value = '5' WHERE Name = 'AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT';
 
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BASIC_ATTACK_ARMY_SIZE', '6';
@@ -55,6 +55,7 @@ INSERT INTO Defines(Name, Value) SELECT 'AI_CONFIG_MILITARY_MELEE_PER_AA', '2'; 
 INSERT INTO Defines(Name, Value) SELECT 'AI_CONFIG_MILITARY_TILES_PER_SHIP', '6'; -- Number of water tiles per ship for (small?) bodies of water
 
 UPDATE Defines SET Value = '-40' WHERE Name = 'CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER';
+INSERT INTO Defines(Name, Value) SELECT 'BLOCKADED_CITY_ATTACK_MODIFIER', '0';
 
 -- Combat mechanic changes that are considered "core"
 UPDATE Defines SET Value = '-50' WHERE Name = 'AIR_SWEEP_INTERCEPTION_DAMAGE_MOD';
@@ -651,6 +652,9 @@ INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_REBELLION', '0';
 
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_TIMER', '20';
 INSERT INTO Defines (Name, Value) SELECT 'INFLUENCE_MINOR_QUEST_BOOST', '20';
+
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER', '300';
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_INFLUENCE_SCALING_DECAY_EXPONENT', '1.5';
 
 -- Quest proclivity values
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_RELIGIOUS_KILL_CITY_STATE', '100';

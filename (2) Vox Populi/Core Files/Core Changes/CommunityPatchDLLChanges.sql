@@ -1,5 +1,9 @@
 UPDATE CustomModOptions
 SET Value = '1'
+WHERE Name = 'BALANCE_VP';
+
+UPDATE CustomModOptions
+SET Value = '1'
 WHERE Name = 'BALANCE_CORE_MINORS';
 
 UPDATE CustomModOptions
@@ -113,6 +117,14 @@ WHERE Name = 'BALANCE_CORE_SETTLER_ADVANCED';
 UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_MILITARY_PROMOTION_ADVANCED';
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_UNIT_CREATION_DAMAGED';
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'ADJACENT_BLOCKADE';
 
 UPDATE CustomModOptions
 SET Value = '1'
@@ -249,6 +261,10 @@ WHERE Name = 'BALANCE_CORE_BOMBARD_RANGE_BUILDINGS';
 UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_TOURISM_HUNDREDS';
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS';
 
 UPDATE CustomModOptions
 SET Value = '1'

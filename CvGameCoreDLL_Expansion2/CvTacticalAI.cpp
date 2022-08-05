@@ -1780,6 +1780,11 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 	if (pCity->isInDangerOfFalling())
 		return;
 
+	// Sometimes buying a unit is useless
+	bool bWantUnits = true;
+	if (pCity->getDamage() * 2 > pCity->GetMaxHitPoints() && MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED)
+		bWantUnits = false;
+
 	// If we need additional units - ignore the supply limit here, we're probably losing units anyway
 	if(pZone->GetOverallDominanceFlag()>TACTICAL_DOMINANCE_FRIENDLY)
 	{
@@ -1792,16 +1797,18 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 			//otherwise it will be placed outside of the city and most probably die instantly
 			if (!pCity->HasGarrison())
 				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_RANGED, pCity);
-
-			//in water zones buy naval melee
-			if (pZone->IsWater() && pCity->isCoastal())
-				m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
-			else
-				//otherwise buy defensive land units
-				if (!MOD_AI_UNIT_PRODUCTION)
-					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
-				else //AI Unit Production : Counter is AA only now
-					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
+			else if (bWantUnits)
+			{
+				//in water zones buy naval melee
+				if (pZone->IsWater() && pCity->isCoastal())
+					m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
+				else
+					//otherwise buy defensive land units
+					if (!MOD_AI_UNIT_PRODUCTION)
+						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
+					else //AI Unit Production : Counter is AA only now
+						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
+			}
 		}
 	}
 }
@@ -2028,10 +2035,6 @@ void CvTacticalAI::PlotWithdrawMoves(CvTacticalDominanceZone* pZone)
 			if (pUnit->IsRecentlyDeployedFromOperation() && (pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints()/2))
 				continue;
 
-			// Special moves for support units
-			if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-				continue;
-
 			// Am I in the current dominance zone?
 			// Units in other dominance zones need to fend for themselves, depending on their own posture
 			CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
@@ -2067,9 +2070,17 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (!pTargetZone || pTargetZone->GetPosture() == TACTICAL_POSTURE_WITHDRAW)
 		return;
 
-	//don't try to reinforce wilderness zones or other players' cities
+	//don't try to reinforce wilderness zones
 	CvCity* pZoneCity = pTargetZone->GetZoneCity();
-	if (!pZoneCity || pZoneCity->getTeam() != m_pPlayer->getTeam())
+	if (!pZoneCity)
+		return;
+	
+	//don't try to reinforce neutral zones
+	if (pZoneCity->getTeam() != m_pPlayer->getTeam() && !m_pPlayer->IsAtWarWith(pZoneCity->getOwner()))
+		return;
+
+	//sometimes we do not need further reinforcement
+	if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY && pTargetZone->GetRangedDominanceFlag(100) == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
@@ -2092,10 +2103,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				CvTacticalDominanceZone* pUnitZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 				if (pUnitZone && pUnitZone != pTargetZone)
 				{
-					//we do not need it further reinforcement
-					if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
-						continue;
-
 					//we should not pull units from zones which need them
 					if (pUnitZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pUnitZone->GetPosture() != TACTICAL_POSTURE_WITHDRAW)
 						if (!pPlot->isCity() || pPlot->getPlotCity()->isInDangerOfFalling())
@@ -2126,7 +2133,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 						continue;
 
 					//don't use multiple generals
-					if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 					{
 						if (bHaveSupportUnit)
 							continue;
@@ -2331,7 +2338,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					ExecuteMoveToPlot(pEscort, pOperation->GetMusterPlot(),true,pEscort->canMoveInto(*pMuster)?0:CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 				}
 
-				if(pOperation->GetOperationState()!=AI_ABORT_LOST_PATH && GC.getLogging() && GC.getAILogging())
+				if(pOperation->GetOperationState()!=AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
 				{
 					CvString strTemp;
 					CvString strLogString;
@@ -5177,7 +5184,7 @@ int CvTacticalAI::ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget)
 	{
 		CvCity* pAttackingCity = m_pPlayer->getCity(m_CurrentMoveCities[iI].GetID());
 		
-		iExpectedDamage += pAttackingCity->rangeCombatDamage(pTarget, NULL, false);
+		iExpectedDamage += pAttackingCity->rangeCombatDamage(pTarget);
 
 		if (pAttackingCity->HasGarrison())
 		{
@@ -5425,7 +5432,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 	// Is this unit in a base in danger?
 	if (pUnitPlot->isCity())
 	{
-		if (pUnitPlot->getPlotCity()->isInDangerOfFalling())
+		if (pUnitPlot->getPlotCity()->isInDangerOfFalling(true))
 			return true;
 
 		if (pUnit->shouldHeal() && m_pPlayer->GetPlotDanger(pUnitPlot->getPlotCity())>0)
@@ -5615,14 +5622,8 @@ void CvTacticalAI::UnitProcessed(int iID)
 /// Is this civilian target of the highest priority?
 bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 {
-	bool bRtnValue = false;
 	CvUnit* pUnit = pTarget->GetUnitPtr();
-	if(pUnit)
-	{
-		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral() || pUnit->IsCityAttackSupport())
-			bRtnValue = true;
-	}
-	return bRtnValue;
+	return pUnit->IsCombatSupportUnit();
 }
 
 /// Is this civilian target of high priority?
@@ -6910,9 +6911,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 		//city blockaded? not 100% accurate, but anyway
 		if (tactPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_BOTH, -1) == pTestPlot->countPassableNeighbors(NO_DOMAIN))
-			iDamageDealt += iDamageDealt / 5;
+		{
+			iDamageDealt *= max(100 + /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER), 0);
+			iDamageDealt /= 100;
+		}
 
-		//prefer ranged attacks over melee attacks (except if it's a kill, see below) 
+		//prefer ranged attacks over melee attacks (except if it's a kill, see below)
 		if (iDamageReceived > 0)
 			bScoreReduction = true;
 
@@ -8364,6 +8368,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	int iPlotTypeScore[] = { 0,30,20,10,0 };
 
 	//try to find out who is most relevant
+	bool bHaveSupport = false;
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
@@ -8373,6 +8378,17 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 
 		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
 			itUnit->iImportanceScore += 11; //we need siege units for attacking cities
+
+		if (itUnit->eStrategy == MS_SUPPORT)
+		{
+			if (bHaveSupport)
+				itUnit->iImportanceScore = 0;
+			else
+			{
+				itUnit->iImportanceScore += 13;
+				bHaveSupport = true;
+			}
+		}
 	}
 
 	std::sort(availableUnits.begin(), availableUnits.end());
@@ -9820,7 +9836,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 
 	//first pass: make sure there are no duplicates and other invalid inputs
 	set<CvUnit*> ourUnits;
-	bool bHaveSupportUnit = false;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
@@ -9828,15 +9843,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		//ignore units on other islands, we can find better moves for them
 		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
-
-		//don't use multiple generals
-		if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-		{
-			if (bHaveSupportUnit)
-				continue;
-			else
-				bHaveSupportUnit = true;
-		}
 
 		//units outside of their native domain are a problem because they violate 1UPT
 		//we treat embarked units non-combat units (see addAvailableUnit)
@@ -10064,7 +10070,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 
 	//first pass: make sure there are no duplicates and other invalid inputs
 	set<CvUnit*> ourUnits;
-	bool bHaveSupportUnit = false;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
@@ -10072,15 +10077,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		//ignore units on other islands, we can find better moves for them
 		if (!pTarget->isSameOrAdjacentArea(pUnit->plot()) && pUnit->GetRange()<2)
 			continue;
-
-		//don't use multiple generals
-		if (pUnit->IsCityAttackSupport() || pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-		{
-			if (bHaveSupportUnit)
-				continue;
-			else
-				bHaveSupportUnit = true;
-		}
 
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.

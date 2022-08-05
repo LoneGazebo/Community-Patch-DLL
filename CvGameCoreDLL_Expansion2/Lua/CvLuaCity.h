@@ -465,9 +465,8 @@ protected:
 
 	static int lGetBaseYieldRateFromProcess(lua_State* L);
 	static int lGetBaseYieldRateFromTradeRoutes(lua_State* L);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetBaseYieldRateFromLeague, int, iYield);
-#endif
+
 	static int lGetYieldFromCityYield(lua_State* L);
 	static int lGetBaseYieldRateFromReligion(lua_State* L);
 	static int lChangeBaseYieldRateFromReligion(lua_State* L);

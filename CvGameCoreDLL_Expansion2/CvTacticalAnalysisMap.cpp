@@ -334,13 +334,21 @@ eTacticalDominanceFlags CvTacticalDominanceZone::SetOverallDominance(int iDomina
 		}
 		else
 		{
+			//default value is 70
+			int iDominancePercentageFriendly = max(10,iDominancePercentage); //cannot go below 10
+			int iDominancePercentageEnemy = min(90,iDominancePercentage); //cannot go above 100
+
+			//adjust the threshold if we're away from home
+			if (m_eTerritoryType == TACTICAL_TERRITORY_ENEMY)
+				iDominancePercentageFriendly += 30;
+
 			//a bit complex to make sure there is no overflow
 			int iRatio = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
-			if (iRatio > 100 + iDominancePercentage)
+			if (iRatio > 100 + iDominancePercentageFriendly)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_FRIENDLY;
 			}
-			else if (iRatio < 100 - iDominancePercentage)
+			else if (iRatio < 100 - iDominancePercentageEnemy)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_ENEMY;
 			}
@@ -750,7 +758,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 	//weigh units close to the center of the zone higher - assume unit mobility increases over time
 	int iMaxDistance = (GC.getGame().getCurrentEra() + /*8*/ GD_INT_GET(AI_TACTICAL_RECRUIT_RANGE)) / 2;	
-	int iBias = 2; // some bias because action may still be spread out over the zone
+	int iCenterRadius = 3; // close units are more important
 	int iUnitStrengthMultiplier = 1; //relative to cities
 
 	//performance optimization, create a visibility lookup table
@@ -830,9 +838,6 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				if (!bZoneTypeMatch && !pLoopUnit->IsCanAttackRanged())
 					continue;
 
-				//a little cheating for AI - invisible units still count with reduced strength
-				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
-
 				int iPlotDistance = 0;
 				//if there is a city, units in adjacent zones can also count
 				if (pZoneCity)
@@ -848,23 +853,30 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 						continue;
 				}
 
-				int iEffectiveDistance = MAX(0,iPlotDistance - iBias);
-				int iDistanceMultiplier = MAX(1,iMaxDistance - iEffectiveDistance); 
-				int iMobilityMultiplier = max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) / 2;
+				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iUnitStrengthMultiplier;
+				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iUnitStrengthMultiplier;
 
-				int iTotalMultiplier = iDistanceMultiplier * iMobilityMultiplier * iUnitStrengthMultiplier;
-				int iUnitStrength = pLoopUnit->GetMaxAttackStrength(NULL,NULL,NULL,true,true) * iTotalMultiplier;
-				int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, NULL, NULL, true, true) * iTotalMultiplier;
-
+				//a little cheating for AI - invisible units still count with reduced strength
+				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
+				//some units are extra interesting
+				bool bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
+				bool bDistanceBonus = (iPlotDistance <= iCenterRadius);
 				//consider citadels ... they actually boost defensive strength but whatever
-				if (TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner()))
-					iUnitStrength *= 2;
+				bool bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner());
 
-				if(bReducedStrength)
-				{
-					iUnitStrength /= 2;
-					iRangedStrength /= 2;
-				}
+				int iModifier = 0;
+				if (bReducedStrength)
+					iModifier -= 50;
+				if (bRangeBonus)
+					iModifier += 50;
+				if (bDistanceBonus)
+					iModifier += 50;
+				if (bIsInCitadel)
+					iModifier += 100;
+
+				//apply the modifier
+				iUnitStrength += (iUnitStrength*iModifier)/100;
+				iRangedStrength += (iRangedStrength*iModifier)/100;
 
 				if (bEnemy)
 				{
@@ -1066,7 +1078,7 @@ void CvTacticalAnalysisMap::UpdatePostures()
 
 		//todo: should we include the previous posture in the logic?
 		//but we've thrown it away at this point ...
-		pZone->SelectPostureSingleZone(/*40*/ GD_INT_GET(AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE));
+		pZone->SelectPostureSingleZone(/*70*/ GD_INT_GET(AI_TACTICAL_MAP_DOMINANCE_PERCENTAGE));
 	}
 
 	// second pass, look at neighbors as well

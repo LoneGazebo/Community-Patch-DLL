@@ -44,6 +44,8 @@ FDataStream& operator>>(FDataStream&, DeclarationLogData&);
 
 #define MAX_DIPLO_LOG_STATEMENTS 60
 #define MAX_TURNS_SAFE_ESTIMATE 9999
+#define WARSCORE_THRESHOLD_POSITIVE (+25)
+#define WARSCORE_THRESHOLD_NEGATIVE (-25)
 
 //=====================================
 // CvDiplomacyAI
@@ -124,6 +126,8 @@ public:
 	int GetForgiveness() const;
 	int GetChattiness() const;
 	int GetMeanness() const;
+	int GetWarscoreThresholdPositive() const;
+	int GetWarscoreThresholdNegative() const;
 
 	int GetMajorCivApproachBias(CivApproachTypes eApproach) const;
 	int GetMinorCivApproachBias(CivApproachTypes eApproach) const;
@@ -955,6 +959,7 @@ public:
 	// ------------------------------------
 
 	// Guesses about other players' feelings towards us
+	/*
 	CivOpinionTypes GetOpinionTowardsUsGuess(PlayerTypes ePlayer) const;
 	void SetOpinionTowardsUsGuess(PlayerTypes ePlayer, CivOpinionTypes eOpinion);
 	CivApproachTypes GetApproachTowardsUsGuess(PlayerTypes ePlayer) const;
@@ -962,6 +967,7 @@ public:
 	int GetApproachTowardsUsGuessCounter(PlayerTypes ePlayer) const;
 	void SetApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iValue);
 	void ChangeApproachTowardsUsGuessCounter(PlayerTypes ePlayer, int iChange);
+	*/
 
 	// ------------------------------------
 	// C4DF Values
@@ -2101,9 +2107,9 @@ private:
 	
 	// GUESSES
 	// Guesses about other players' feelings towards us
-	char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
-	char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
-	char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
+	//char m_aeOpinionTowardsUsGuess[MAX_MAJOR_CIVS];
+	//char m_aeApproachTowardsUsGuess[MAX_MAJOR_CIVS];
+	//char m_aeApproachTowardsUsGuessCounter[MAX_MAJOR_CIVS];
 
 	// C4DF Values
 	char m_aeShareOpinionResponse[MAX_MAJOR_CIVS];

@@ -568,6 +568,9 @@ public:
 	//cities can be part of multiple areas
 	bool HasAccessToArea(int iAreaID) const;
 	bool HasSharedAreaWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
+	//landmasses can also be water bodies
+	bool HasAccessToLandmass(int iLandmassID) const;
+	bool HasSharedLandmassWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
@@ -722,9 +725,7 @@ public:
 	int GetCityAutomatonWorkersChange() const;
 	void changeCityAutomatonWorkersChange(int iChange);
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
-#endif
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 
@@ -1057,9 +1058,7 @@ public:
 	void UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield);
 #endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseScienceFromArt() const;
-#endif
 
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
 
@@ -1078,7 +1077,6 @@ public:
 
 	int GetBaseYieldRateFromProcess(YieldTypes eIndex) const;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);
 
@@ -1093,11 +1091,10 @@ public:
 	void ChangeTotalGreatWorkAid(int iChange);
 	int GetTotalGreatWorkAid() const;
 	void SetTotalGreatWorkAid(int iValue);
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
@@ -1651,7 +1648,7 @@ public:
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
 	int addDamageReceivedThisTurn(int iDamage);
 	void flipDamageReceivedPerTurn();
-	bool isInDangerOfFalling() const;
+	bool isInDangerOfFalling(bool bExtraCareful=false) const;
 	bool isUnderSiege() const;
 	int getDamageTakenLastTurn() const;
 #endif
@@ -1860,15 +1857,11 @@ protected:
 	std::vector<int> m_aiBaseYieldRateFromBuildings;
 	std::vector<int> m_aiBaseYieldRateFromSpecialists;
 	std::vector<int> m_aiBaseYieldRateFromMisc;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	std::vector<int> m_aiBaseYieldRateFromLeague;
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	std::vector<int> m_aiChangeGrowthExtraYield;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
 	int m_iHappinessFromLuxuries;

@@ -181,41 +181,34 @@ function GiftUnit( wParam, lParam )
 		return;	
 	end
 	
-	
-	local pUnit = nil;
     local unitCount = plot:GetNumUnits();
-    
     for i = 0, unitCount - 1, 1
     do
-    	local pFoundUnit = plot:GetUnit(i);
-		if (pFoundUnit:GetOwner() == iPlayerID) then
-			pUnit = pFoundUnit;
+    	local pUnit = plot:GetUnit(i);
+		if (pUnit:GetOwner() == iPlayerID) then
+			if (pUnit:CanDistanceGift(iToPlayer)) then
+				
+				--print("Picked unit");
+				returnValue = true;
+				
+				--print("iPlayerID " .. iPlayerID);
+				--print("Other player id (interfacemodevalue) " .. UI.GetInterfaceModeValue());
+				--print("UnitID " .. pUnit:GetID());
+				
+				local popupInfo = {
+					Type = ButtonPopupTypes.BUTTONPOPUP_GIFT_CONFIRM,
+					Data1 = iPlayerID;
+					Data2 = iToPlayer;
+					Data3 = pUnit:GetID();
+				}
+
+				Events.SerialEventGameMessagePopup(popupInfo);
+				break
+			end
 		end
     end
-		
-	if (pUnit) then
-		
-		if (pUnit:CanDistanceGift(iToPlayer)) then
-			
-			--print("Picked unit");
-			returnValue = true;
-			
-			--print("iPlayerID " .. iPlayerID);
-			--print("Other player id (interfacemodevalue) " .. UI.GetInterfaceModeValue());
-			--print("UnitID " .. pUnit:GetID());
-			
-			local popupInfo = {
-				Type = ButtonPopupTypes.BUTTONPOPUP_GIFT_CONFIRM,
-				Data1 = iPlayerID;
-				Data2 = iToPlayer;
-				Data3 = pUnit:GetID();
-			}
-			Events.SerialEventGameMessagePopup(popupInfo);
-		end
-	end
 	
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-	
 	return returnValue;
 end
 
@@ -775,7 +768,7 @@ local OldInterfaceModeChangeHandler =
 	--[InterfaceModeTypes.INTERFACEMODE_PING] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO] = HideMovementRangeIndicator,
 	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE] = nil,
-	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = nil,
+	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = HideMovementRangeIndicator,
 	--[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_AIRLIFT] = HideAirliftRangeIndicator,
 	[InterfaceModeTypes.INTERFACEMODE_NUKE] = EndNukeAttack,
@@ -802,7 +795,7 @@ local NewInterfaceModeChangeHandler =
 	--[InterfaceModeTypes.INTERFACEMODE_PING] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO] = ShowMovementRangeIndicator,
 	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_TYPE] = nil,
-	--[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = nil,
+	[InterfaceModeTypes.INTERFACEMODE_MOVE_TO_ALL] = ShowMovementRangeIndicator,
 	--[InterfaceModeTypes.INTERFACEMODE_ROUTE_TO] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_AIRLIFT] = ShowAirliftRangeIndicator,
 	[InterfaceModeTypes.INTERFACEMODE_NUKE] = BeginNukeAttack,

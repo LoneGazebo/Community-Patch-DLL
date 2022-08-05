@@ -1,0 +1,10 @@
+<Asset>
+  <Mesh file="resource_maize.gr2" source="Max" />
+	<Texture file="Wine_Grnd_Decal_DIFF.dds" source="Max" />
+	<Texture file="CityBase_SREF.dds" source="Max" />
+	<Texture file="Generic_Grey_8.dds" source="Max" />
+	<Texture file="PlantRes_Grnd_Decal_H.dds" source="Max" />
+	<Texture file="Plant_Resource_Shadows.dds" source="Max" />
+	<Texture file="maize_diff.dds" source="Max" />
+	<Texture file="Resource_Bananas_02_SREF.dds" source="Max" />
+</Asset>

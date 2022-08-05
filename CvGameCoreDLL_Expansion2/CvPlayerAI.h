@@ -62,15 +62,12 @@ public:
 	GreatPeopleDirectiveTypes GetDirectiveGeneral(CvUnit* pGreatGeneral);
 	GreatPeopleDirectiveTypes GetDirectiveProphet(CvUnit* pGreatProphet);
 	GreatPeopleDirectiveTypes GetDirectiveAdmiral(CvUnit* pGreatAdmiral);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	GreatPeopleDirectiveTypes GetDirectiveDiplomat(CvUnit* pGreatDiplomat);
-#endif
 
 	bool GreatMerchantWantsCash();
 	CvPlot* FindBestMerchantTargetPlotForCash(CvUnit* pGreatMerchant);
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pGreatMerchant);
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	//For Great Diplomats
 	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
 	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
@@ -78,7 +75,6 @@ public:
 	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
 	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
-#endif
 
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant);

@@ -85,10 +85,8 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	Method(GetSpaceShipProductionMod);
 	Method(GetSpaceShipPurchaseMod);
-#endif
 	Method(GetPotentialVotesForMember);
 	Method(IsPlayerEmbargoed);
 	Method(GetResolutionName);
@@ -707,7 +705,6 @@ int CvLuaLeague::lGetScienceyGreatPersonRateModifier(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 //------------------------------------------------------------------------------
 //int GetSpaceShipProductionMod();
 int CvLuaLeague::lGetSpaceShipProductionMod(lua_State* L)
@@ -728,7 +725,6 @@ int CvLuaLeague::lGetSpaceShipPurchaseMod(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-#endif
 //------------------------------------------------------------------------------
 //int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer)
 int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Civ5Package>
+	<GUID>{570f793e-fc33-417f-ae18-7cecccdd5f85}</GUID>
+	<Version>1</Version>
+	<Priority>050</Priority>
+	<PTags>
+		<Tag>Version</Tag>
+	</PTags>
+	<Name>
+		<Value language="en_US">Vox Populi UI Additions</Value>
+	</Name>
+	<Description>
+		<Value language="en_US">Vox Populi UI Additions</Value>
+	</Description>
+
+	<UISkin name="BaseGame" set="BaseGame" platform="Common">
+		<Skin>
+			<Directory>FrontEnd</Directory>
+			<Directory>GameSetup</Directory>
+		</Skin>
+	</UISkin>
+
+</Civ5Package>

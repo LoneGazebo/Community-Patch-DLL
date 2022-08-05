@@ -21,6 +21,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	end
 
 	local iPreviousOwner = newCity:GetPreviousOwner();
+	local strToolTip;
 	
 	-- Initialize popup text.	
 	local cityNameKey = newCity:GetNameKey();
@@ -46,7 +47,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		end
 		
 		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_LIBERATE_CITY");
-		local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
+		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
 		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 		strToolTip = strToolTip .. activePlayer:GetLiberationPreviewString(iLiberatedPlayer, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 		AddButton(buttonText, OnLiberateClicked, strToolTip);
@@ -61,7 +62,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		
 		if (not activePlayer:MayNotAnnex()) then
 			local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_ANNEX_CITY");
-			local strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX");
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX");
 			if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
 				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 				strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
@@ -98,7 +99,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE");
 		else
 			buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_DESTROY_CAPTURED_CITY");
-			strTooltip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY");
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY");
 		end
 
 		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then

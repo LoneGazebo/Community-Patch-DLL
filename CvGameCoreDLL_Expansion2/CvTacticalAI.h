@@ -932,8 +932,8 @@ protected:
 
 private:
 	//hide copy constructor and assignment operator
-	CvTactPosStorage(const CvTactPosStorage& other) {}
-	const CvTactPosStorage& operator=(const CvTactPosStorage& rhs) {}
+	CvTactPosStorage(const CvTactPosStorage& other);
+	const CvTactPosStorage& operator=(const CvTactPosStorage& rhs);
 };
 
 

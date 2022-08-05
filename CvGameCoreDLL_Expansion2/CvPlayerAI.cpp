@@ -48,8 +48,7 @@
 
 static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;;
 
-// inlined for performance reasons
-inline CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
@@ -496,7 +495,7 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			}
 			else if (GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
-				if (MOD_DIPLOMACY_CITYSTATES)
+				if (MOD_BALANCE_VP)
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 				else
 					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_MERCHANT");
@@ -972,7 +971,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 									if (pkEventChoiceInfo->getDamageCity() != 0 || pkEventChoiceInfo->getDamageGarrison() != 0)
 									{
 										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
-										if (pCity && (pCity->isUnderSiege() || pCity->isInDangerOfFalling()))
+										if (pCity && pCity->isUnderSiege())
 											iOurFlavor *= 10;
 									}
 
@@ -1031,7 +1030,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			for (int iLoop = 0; iLoop < GC.getNumCityEventChoiceInfos(); iLoop++)
 			{
 				CityEventChoiceTypes eEventChoice = (CityEventChoiceTypes)iLoop;
-				if (eEventChoice != NO_EVENT_CHOICE)
+				if (eEventChoice != NO_EVENT_CHOICE_CITY)
 				{
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 					if (pkEventChoiceInfo != NULL)
@@ -1076,7 +1075,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			}
 
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
-			if (eBestEventChoice != NO_EVENT_CHOICE)
+			if (eBestEventChoice != NO_EVENT_CHOICE_CITY)
 			{
 				pCity->DoEventChoice(eBestEventChoice, NO_EVENT_CITY, true, uiSpyIndex, GetID());
 				return true;
@@ -1297,11 +1296,9 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		case UNITAI_ADMIRAL:
 			eDirective = GetDirectiveAdmiral(pLoopUnit);
 			break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 		case UNITAI_DIPLOMAT:
 			eDirective = GetDirectiveDiplomat(pLoopUnit);
 			break;
-#endif
 		}
 
 		pLoopUnit->SetGreatPeopleDirective(eDirective);
@@ -1699,7 +1696,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
-	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 	// sometimes we have no choice
@@ -1937,7 +1934,6 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	return NULL;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -2539,7 +2535,6 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 
 	return pCity->plot();
 }
-#endif
 
 CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 {

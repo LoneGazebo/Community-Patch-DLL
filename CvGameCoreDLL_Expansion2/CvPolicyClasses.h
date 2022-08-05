@@ -64,9 +64,7 @@ public:
 	int GetGreatMusicianRateModifier() const;
 	int GetGreatMerchantRateModifier() const;
 	int GetGreatScientistRateModifier() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetGreatDiplomatRateModifier() const;
-#endif
 	int GetDomesticGreatGeneralRateModifier() const;
 	int GetExtraHappiness() const;
 	int GetExtraHappinessPerCity() const;
@@ -201,10 +199,9 @@ public:
 	bool CanBullyFriendlyCS() const;
 	int GetBullyGlobalCSReduction() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalsNoRebel() const;
-	int GetVassalCSBonusModifier() const;
-#endif
+	int GetVassalYieldBonusModifier() const;
+	int GetCSYieldBonusModifier() const;
 	int GetSharedReligionTourismModifier() const;
 	int GetTradeRouteTourismModifier() const;
 	int GetOpenBordersTourismModifier() const;
@@ -312,9 +309,11 @@ public:
 	int GetYieldFromConstruction(int i) const;
 	int GetYieldFromWorldWonderConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
+	int GetYieldFromTechRetroactive(int i) const;
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
-	bool GetDoubleBorderGA() const;
+	bool GetDoubleBorderGrowthGA() const;
+	bool GetDoubleBorderGrowthWLTKD() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetGreatEngineerHurryModifier() const;
@@ -505,9 +504,7 @@ private:
 	int m_iGreatMusicianRateModifier;
 	int m_iGreatMerchantRateModifier;
 	int m_iGreatScientistRateModifier;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iGreatDiplomatRateModifier;
-#endif
 	int m_iDomesticGreatGeneralRateModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
@@ -618,10 +615,9 @@ private:
 	bool m_bNoCSDecayAtWar;
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalsNoRebel;
-	int m_iVassalCSBonusModifier;
-#endif
+	int m_iVassalYieldBonusModifier;
+	int m_iCSYieldBonusModifier;
 
 	int m_iSharedReligionTourismModifier;
 	int m_iTradeRouteTourismModifier;
@@ -745,9 +741,11 @@ private:
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromWorldWonderConstruction;
 	int* m_piYieldFromTech;
+	int* m_piYieldFromTechRetroactive;
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
-	bool m_bDoubleBorderGA;
+	bool m_bDoubleBorderGrowthGA;
+	bool m_bDoubleBorderGrowthWLTKD;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryModifier;
 	int m_iTechCostXCitiesMod;
@@ -996,9 +994,7 @@ enum PolicyModifierType
 	POLICYMOD_GREAT_ENGINEER_RATE,
 	POLICYMOD_CITY_DEFENSE_BOOST,
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	POLICYMOD_GREAT_DIPLOMAT_RATE,
-#endif
 	POLICYMOD_GREAT_SCIENTIST_RATE,
 	POLICYMOD_TOURISM_MOD_COMMON_FOE,
 	POLICYMOD_TOURISM_MOD_LESS_HAPPY,

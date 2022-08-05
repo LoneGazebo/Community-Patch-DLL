@@ -173,7 +173,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	CvString cultureString;
 
 	cultureString = "";
-	char* sPrefix = "";
+	char const* sPrefix = "";
 	int iTourismPerWork = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
 	int iValue;
 	
@@ -750,7 +750,10 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true);
 
 	pCity1->UpdateAllNonPlotYields(true);
-	pCity2->UpdateAllNonPlotYields(true);
+	if (pCity1 != pCity2)
+	{
+		pCity2->UpdateAllNonPlotYields(true);
+	}
 
 	return true;
 }
@@ -775,19 +778,11 @@ void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildin
 	pCity2->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2, workType1);
 
 #if defined(MOD_BALANCE_CORE)
-	if ((BuildingClassTypes)iBuildingClass1 != NO_BUILDINGCLASS)
-	{
-		pCity1->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass1);
-	}
-	pCity1->ResetGreatWorkYieldCache();
 	pCity1->UpdateAllNonPlotYields(true);
-
-	if ((BuildingClassTypes)iBuildingClass2 != NO_BUILDINGCLASS)
+	if (pCity1 != pCity2)
 	{
-		pCity2->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)iBuildingClass2);
+		pCity2->UpdateAllNonPlotYields(true);
 	}
-	pCity2->ResetGreatWorkYieldCache();
-	pCity2->UpdateAllNonPlotYields(true);
 #endif
 }
 
@@ -1184,28 +1179,33 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						CvGreatWorkBuildingInMyEmpire building;
-						building.m_eBuilding = eBuilding;
-						building.m_iCityID = pLoopCity->GetID();
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > 0);
+						//do not put great works in cities which might be lost soon
+						if (!pLoopCity->isInDangerOfFalling(true))
+						{
+							CvGreatWorkBuildingInMyEmpire building;
+							building.m_eBuilding = eBuilding;
+							building.m_iCityID = pLoopCity->GetID();
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > 0);
 
-						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
-						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
-						{
-							aGreatWorkBuildingsWriting.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
-						{
-							aGreatWorkBuildingsArt.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
-						{
-							aGreatWorkBuildingsMusic.push_back(building);
+							GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
+							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+							{
+								aGreatWorkBuildingsWriting.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+							{
+								aGreatWorkBuildingsArt.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
+							{
+								aGreatWorkBuildingsMusic.push_back(building);
+							}
 						}
 
+						//but do consider great works in all cities to be moved!
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
@@ -1300,38 +1300,43 @@ void CvPlayerCulture::DoSwapGreatWorks()
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
-						CvGreatWorkBuildingInMyEmpire building;
-						building.m_eBuilding = eBuilding;
-						building.m_iCityID = pLoopCity->GetID();
+						//do not put great works in cities which might be lost soon
+						if (!pLoopCity->isInDangerOfFalling(true))
+						{
+							CvGreatWorkBuildingInMyEmpire building;
+							building.m_eBuilding = eBuilding;
+							building.m_iCityID = pLoopCity->GetID();
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
 
-						building.m_bPuppet = pLoopCity->IsPuppet();
-						building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
+							building.m_bPuppet = pLoopCity->IsPuppet();
+							building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
 #else
-						if (pLoopCity->isCapital())
-							building.m_bEndangered = false;
-						else
-							building.m_bEndangered = (pLoopCity->getDamage() > 0);
+							if (pLoopCity->isCapital())
+								building.m_bEndangered = false;
+							else
+								building.m_bEndangered = (pLoopCity->getDamage() > 0);
 #endif
 
-						GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
-						if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
-						{
-							aGreatWorkBuildingsWriting.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
-						{
-							aGreatWorkBuildingsArt.push_back(building);
-						}
-						else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
-						{
-							aGreatWorkBuildingsMusic.push_back(building);
+							GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
+							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
+							{
+								aGreatWorkBuildingsWriting.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+							{
+								aGreatWorkBuildingsArt.push_back(building);
+							}
+							else if (eSlotType == CvTypes::getGREAT_WORK_SLOT_MUSIC())
+							{
+								aGreatWorkBuildingsMusic.push_back(building);
+							}
 						}
 
+						//but do consider great works in all cities to be moved
 						int iNumSlots = pkBuilding->GetGreatWorkCount();
 						for (int iI = 0; iI < iNumSlots; iI++)
 						{
@@ -1627,18 +1632,6 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	if(bSecondUpdate || bUpdate)
 	{
 		std::vector<CvCity*> CityList;
-		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
-		{
-			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
-			if (pCity != NULL)
-			{
-				CvBuildingEntry *pkEntry = GC.getBuildingInfo(itBuilding->m_eBuilding);
-				if (pkEntry)
-				{
-					pCity->GetCityCulture()->UpdateThemingBonusIndex((BuildingClassTypes)pkEntry->GetBuildingClassType());
-				}
-			}
-		}
 		for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 		{
 			CvCity* pCity = m_pPlayer->getCity(itBuilding->m_iCityID);
@@ -3387,9 +3380,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #else
 			pPlot->SetImprovementPillaged(false);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 			if (pUnit)
 				pUnit->kill(true);
 
@@ -3473,9 +3465,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
 
 		pHousingCity->UpdateAllNonPlotYields(true);
 		if (pUnit)
@@ -3500,9 +3491,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
@@ -3559,9 +3550,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetPlayerTraits()->IsGreatWorkWLTKD())
 		{
@@ -3631,9 +3622,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
-#endif
+
 		if (pUnit)
 			pUnit->kill(true);
 	}
@@ -4596,11 +4587,8 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 		CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kTeam.isAtWar(m_pPlayer->getTeam()))
 		{
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-			if (!bCheckOpenBorders || GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-			if (!bCheckOpenBorders || kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+			if (!bCheckOpenBorders || (MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
+			|| (!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 			{
 				int iInfluenceOn = GetInfluenceOn((PlayerTypes)iLoopPlayer);
 				int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
@@ -4624,7 +4612,6 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 }
 
 // NON-CULTURE TOURISM BONUSES
-#if defined(MOD_BALANCE_CORE)
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
@@ -4692,7 +4679,7 @@ int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) cons
 
 	return iRtnValue;
 }
-#endif
+
 /// Get extra science from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const
 {
@@ -4960,21 +4947,17 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	// POSITIVE MODIFIERS
 
 	// Open borders with this player
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-	if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GetTourismModifierOpenBorders()) + "[ENDCOLOR]";
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	// Trade route to one of this player's cities from here
 	if (m_pPlayer->getTeam() == GET_PLAYER(ePlayer).getTeam())
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_SAME_TEAM", 200) + "[ENDCOLOR]";
 	}
-#endif
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
@@ -4993,7 +4976,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_PROPAGANDA", /*25 in CP, 10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT)) + "[ENDCOLOR]";
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
@@ -5109,11 +5092,8 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	// NEUTRAL MODIFIERS
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-	if (!GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-	if (!kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
-#endif
+	if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !GET_TEAM(m_pPlayer->getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+		(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && !kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
 	{
 		szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", 0) + "[ENDCOLOR]";		
 	}
@@ -5147,7 +5127,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		}
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
 	{
 		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
@@ -6744,11 +6724,8 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 	if (!bIgnoreOpenBorders)
 	{
 		// Open borders with this player
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-		if (GET_TEAM(kCityPlayer.getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-		if (kTeam.IsAllowsOpenBordersToTeam(kCityPlayer.getTeam()))
-#endif
+		if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(kCityPlayer.getTeam()).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+			(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(kCityPlayer.getTeam())))
 		{
 			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierOpenBorders();
 		}
@@ -6761,7 +6738,6 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		{
 			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierTradeRoute();
 		}
-#if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoOpenTrade())
 		{
 			if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, m_pCity->getOwner(), true))
@@ -6769,7 +6745,6 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 				iMultiplier += /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES);
 			}
 		}
-#endif
 	}
 
 	if (!bIgnoreIdeologies)
@@ -6870,7 +6845,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		}		
 	}
 	// My vassal
-	if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == kCityPlayer.getTeam())
 	{
 		iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierVassal();
 	}
@@ -7108,11 +7083,8 @@ CvString CvCityCulture::GetTourismTooltip()
 
 				// Open borders with this player
 				CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
-#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
-				if (GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID()))
-#else
-				if (kTeam.IsAllowsOpenBordersToTeam(eTeam))
-#endif
+				if ((MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(kTeam.GetID())) ||
+					(!MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS && kTeam.IsAllowsOpenBordersToTeam(eTeam)))
 				{
 					if (openBordersCivs.length() > 0)
 					{

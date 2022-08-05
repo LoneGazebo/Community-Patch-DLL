@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -32,7 +32,7 @@
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
 class CvArea;
-class CvMap;
+class CvLandmass;
 class CvRoute;
 
 typedef bool (*ConstPlotUnitFunc)(const CvUnit* pUnit, int iData1, int iData2);
@@ -128,7 +128,8 @@ public:
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	bool isAdjacentToIce() const;
 #endif
-	int GetSizeLargestAdjacentWater() const;
+	CvLandmass* GetLargestAdjacentWater() const;
+	CvArea* GetLargestAdjacentWaterArea() const;
 
 	bool isVisibleWorked() const;
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
@@ -227,11 +228,9 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
-	bool isFortification(TeamTypes eDefenderTeam) const;
+	bool isFortification(TeamTypes eOccupyingTeam) const;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool HasDig();
-#endif	
 
 	bool isVisible(TeamTypes eTeam, bool bDebug) const;
 	bool isVisible(TeamTypes eTeam) const;
@@ -321,23 +320,17 @@ public:
 	int getLatitude() const;
 
 	CvArea* area() const;
-
-	inline int getArea() const
-	{
-		return m_iArea;
-	}
-
+	inline int getArea() const { return m_iArea; }
 	void setArea(int iNewValue);
-
 	std::vector<int> getAllAdjacentAreas() const;
-
 	bool hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
-	inline int getLandmass() const
-	{
-		return m_iLandmass;
-	}
+	//multiple areas make up a landmass; a landmass can also be a body of water!
+	inline int getLandmass() const { return m_iLandmass; }
 	void setLandmass(int iNewValue);
+	CvLandmass* landmass() const;
+	std::vector<int> getAllAdjacentLandmasses() const;
+	bool hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const;
 
 	int getOwnershipDuration() const;
 	bool isOwnershipScore() const;
@@ -482,12 +475,10 @@ public:
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);
 	ImprovementTypes getImprovementType() const;
-	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bNonSpecialOnly = false);
+	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true, bool bIgnoreSpecialImprovements = false);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsImprovementEmbassy() const;
 	void SetImprovementEmbassy(bool bEmbassy);
-#endif
 	bool IsImprovementPassable() const;
 	void SetImprovementPassable(bool bPassable);
 	bool IsImprovementPillaged() const;
@@ -534,10 +525,11 @@ public:
 	PlayerTypes GetPlayerThatClearedBarbCampHere() const;
 	void SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue);
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	PlayerTypes GetPlayerThatClearedDigHere() const;
 	void SetPlayerThatClearedDigHere(PlayerTypes eNewValue);
-#endif
+
+	PlayerTypes GetPlayerThatDestroyedCityHere() const;
+	void SetPlayerThatDestroyedCityHere(PlayerTypes eNewValue);
 
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
@@ -976,9 +968,8 @@ protected:
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	char /*PlayerTypes*/ m_ePlayerThatClearedDigHere;
-#endif
+	char /*PlayerTypes*/ m_ePlayerThatDestroyedCityHere;
 	char /*RouteTypes*/ m_eRouteType;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	short m_eUnitIncrement;
@@ -996,9 +987,7 @@ protected:
 	char m_cContinentType;
 	char m_cRiverCrossing;	// bit field
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool m_bImprovementEmbassy:1;
-#endif
 	bool m_bImprovementPassable:1;
 	bool m_bImprovementPillaged:1;
 	bool m_bRoutePillaged:1;

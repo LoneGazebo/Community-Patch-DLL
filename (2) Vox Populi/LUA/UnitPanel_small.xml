@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" >
+
+
+  <Image Anchor="L,B" Offset="234,18" Size="64,64" Color="White.0" Texture="IconFrame64.dds"  Hidden="1" ID="BackgroundCivFrame">
+    <Image Anchor="C,C" Offset="0,0" Size="128,128" Color="White.128" Texture="CivSymbolsColor.dds"  ID="BackgroundCivSymbol"/>
+  </Image>
+
+  <Image Anchor="L,B"  Offset="350,0"  Texture="assets/UI/Art/UnitPanel/BottomLeft128x224.dds" Size="128,224"/>
+
+  <!-- Unit Actions Secondary 522Back -->
+
+  <Grid Anchor="L,B" Offset="50,-106" Size="74,446" Padding="0,0" Style="Grid9Detail48Black" Hidden="0" ID="SecondaryStretchy" ConsumeMouse="1" >
+
+  </Grid>
+
+  <Grid Anchor="L,B" Offset="-70,-90" Size="140,462" Padding="0,0" Style="Grid9DetailSix140" Hidden="0" ID="PrimaryStretchy" ConsumeMouse="1" >
+
+  </Grid>
+
+  <!-- Worker Action Panel  -->
+
+  <Grid Anchor="L,B" Offset="106,123" Size="280,210" Padding="0,0" Style="Grid9DetailFive140" Hidden="0" ID="WorkerActionPanel" ConsumeMouse="1">
+    <TextButton Offset="30,25" Anchor="R,T" AnchorSide="I.I" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_EDIT_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="EditButton" />
+
+    <Label  Anchor="C,T" Offset="0,18" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_WORKERACTION_TEXT" ID="WorkerText"/>
+    <Label Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED"  FontStyle="Shadow" ID="PromotionText" />
+
+    <FlipAnim Size="64,64" Offset="12,-12" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="assets\UI\Art\Notification\PromotionAnimation.dds" ID="PromotionAnimation" />
+
+    <GridButton Anchor="R,T" Size="36,36" Offset="25,58"  Style="BaseButton"  Hidden="1" ID="RecommendedActionButton" ToolTipType="TypeUnitAction">
+      <Box Anchor="L,C" AnchorSide="O,I" Offset="5,0" Size="191,40" Color="0,0,0,0">
+        <Label  Anchor="L,C" WrapWidth="191" Font="TwCenMT16" FontStyle="Shadow" String="TXT_KEY_UPANEL_REPAIR_TILE" ID="RecommendedActionLabel"/>
+      </Box>
+      <Image Anchor="C,C" Offset="0,0" Size="45,45" TextureOffset="256.256" Texture="UnitActions360.dds" ID="RecommendedActionImage" />
+    </GridButton>
+
+    <Image Anchor="C,T" Offset="0,105" TextureOffset="30.0" Texture="bar300x2.dds" Size="240.1" ID="RecommendedActionDivider"/>
+
+  </Grid>
+
+
+
+  <Grid Anchor="L,B" Offset="200,116" Size="280,210" Padding="0,0" Style="Grid9DetailFive140" Hidden="1" ID="" ConsumeMouse="1">
+    <Label Anchor="C,T" Offset="0,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED"  FontStyle="Shadow"  />
+    <FlipAnim Size="64,64" Offset="28,-14" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="assets\UI\Art\Notification\PromotionAnimation.dds" />
+  </Grid>
+
+  <!-- UNIT PROMOTED needs to be DELETED after the top is implemented -->
+
+  <GridButton ID="PromotionButton" Size="266,32" Anchor="L,B" Offset="220,160"  ToolTip="TXT_KEY_UPANEL_UNIT_PROMOTED_TT"  Hidden="1">
+    <GridData Style="Grid9DarkBlue8Button" />
+    <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED"  FontStyle="Shadow"  />
+    <FlipAnim Size="64,64" Offset="6,-4" Anchor="L,C" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="assets\UI\Art\Notification\PromotionAnimation.dds" />
+    <Stack Offset="0,-58"  Anchor="L,T" StackGrowth="Left" Padding="7" ID="PromotionStack" Hidden="0" />
+
+  </GridButton>
+
+
+  <!-- Secondary Actions  -->
+
+  <GridButton ID="SecondaryButton" Size="36,32" Style="SmallButton2" Anchor="L,B" Offset="10,170"  ToolTip="TXT_KEY_SECONDARY_O_TEXT"  Hidden="0">
+
+    <Image Anchor="C,C"  Offset="0,1"  Texture="OpenSecondary.dds" Size="64,32" Hidden="0" ID="SecondaryImageOpen"/>
+    <Image Anchor="C,C"  Offset="-1,1"  Texture="CloseSecondary.dds" Size="64,32" Hidden="1" ID="SecondaryImageClosed"/>
+
+  </GridButton>
+
+
+  <!-- Background -->
+
+  <Grid Anchor="L,B" Offset="-37,-39" Size="400,208" Padding="0,0" Style="Grid9DetailFive140" Hidden="0"  ConsumeMouse="1">
+
+    <Box Anchor="R,T" Size="400,128" Offset="17,45" Color="White,0" HideBox="0" >
+
+      <!-- Next/Prev Unit -->
+      <Box Anchor="R,T" Size="346,22" Offset="0,-28" Color="White.0" >
+        <Button ID="UnitNameButton" Anchor="C,C" Size="280,22">
+          <Label ID="UnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+        </Button>
+        <Button Anchor="R,C" Size="32,32" Texture="UnitPanelArrows.dds" ID="CycleLeft" ToolTip="TXT_KEY_UPANEL_CYCLELEFT" />
+        <Button Anchor="L,C" Size="32,32" TextureOffset="30,0" Texture="UnitPanelArrows.dds" ID="CycleRight" ToolTip="TXT_KEY_UPANEL_CYCLERIGHT" />"
+      </Box>
+
+      <Stack Anchor="R,T" Offset="0,0"  Padding="0" Size="0,0" StackGrowth="Bottom">
+
+        <!-- Promotions -->
+        <Box Anchor="R,T" Size="260,26" Offset="0,0" Color="White,0" HideBox="0">
+          <Stack Anchor="R,T" Offset="-2,-4" Padding="-7" StackGrowth="Left" ID="EarnedPromotionStack" />
+        </Box>
+
+        <!-- XP METER -->
+        <Grid Anchor="R,C" Offset="0,0" Size="275,12" Padding="0,0" Style="Grid9FrameTurns"  ID="XPFrame">
+          <TextureBar Anchor="L,T"  Offset="3,2"  Texture="assets/UI/Art/UnitPanel/XPmeter.dds" Size="269,7" ID="XPMeter"/>
+        </Grid>
+
+        <Grid Anchor="R,C" Offset="0,0" Size="260,27" Padding="0,0" Style="Grid9FrameTurns" ID="UnitMovementBox">
+          <TextButton Anchor="R,C" String="000" ID="UnitStatMovement"  Offset="10,-2" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
+          <TextButton Anchor="R,C" Offset="90,-2"  String="TXT_KEY_UPANEL_MOVEMENT" ID="UnitStatNameMovement" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT" />
+
+          <!-- UNIT IS OUT OF MOVES -->
+          <Grid Anchor="R,C" Offset="2,0" Size="260,27" Padding="0,0" Style="Grid9Frame27SquareBlack" Hidden="1" ID="UnitStatusInfo">
+            <Label Anchor="C,C" Offset="0,-1"  String="TXT_KEY_UPANEL_UNIT_NO_MOVES" Font="TwCenMT18" ColorSet="Red_Black" FontStyle="Shadow" />
+          </Grid>
+
+        </Grid>
+
+
+        <Grid Anchor="R,C" Offset="0,0" Size="260,27" Padding="0,0" Style="Grid9FrameTurns" ID="UnitStrengthBox" >
+          <TextButton Anchor="R,C" String="000" ID="UnitStatStrength" Offset="10,-2"  ToolTip="TXT_KEY_UPANEL_STRENGTH_TT" />
+          <TextButton Anchor="R,C" Offset="90,-2" String="TXT_KEY_UPANEL_STRENGTH" ID="UnitStatNameStrength" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT" />
+        </Grid>
+
+
+        <Grid Anchor="R,C" Offset="0,0" Size="260,27" Padding="0,0" Style="Grid9FrameTurns" ID="UnitRangedAttackBox" >
+          <TextButton Anchor="R,C" String="000" ID="UnitStatRangedAttack"  Offset="10,-2" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT" />
+          <TextButton Anchor="R,C" Offset="90,-2"  String="TXT_KEY_UPANEL_RANGED_ATTACK" ID="UnitStatNameRangedAttack" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT" />
+        </Grid>
+
+      </Stack>
+
+      <!-- Work in Progress Image -->
+      <Grid Anchor="L,B" Size="50,50" Offset="165,12"  Style="Grid9BlueFrame"  Hidden="0" ID="WorkerProgressIconFrame">
+        <!-- Work in Progress Bar WorkerMeter -->
+        <Box Anchor="C,C" Size="46,45" Offset="0,0" Color="White,0" ID="WorkerProgressFrame" >
+          <Label  Anchor="R,B"  AnchorSide="O.I"  Offset="8,8" TruncateWidth="180" Font="TwCenMT16" FontStyle="Shadow" String="TXT_KEY_UPANEL_REPAIR_TILE_3" ID="WorkerProgressLabel"/>
+          <TextureBar Anchor="C,C" Offset="0,0"  Size="46.45"  Texture="assets/UI/Art/UnitPanel/WorkerMeter.dds" Direction="Up" ID="WorkerProgressBar" Hidden="0" />
+        </Box>
+        <Image Anchor="C,C" Offset="0,0" Size="45,45" ID="WorkerProgressIcon"/>
+      </Grid>
+
+    </Box>
+
+
+
+  </Grid>
+
+
+  <Instance Name="UnitAction" >
+    <GridButton Anchor="R,T" ID="UnitActionButton" Size="36,36" Offset="0,0"  Style="SmallButton2"  Hidden="0" ToolTipType="TypeUnitAction">
+      <Image Anchor="C,C" Offset="0,0" Size="45,45" Texture="UnitActions360.dds" ID="UnitActionIcon" />
+    </GridButton>
+  </Instance>
+
+  <!-- Unit Upgrade definition -->
+  <Instance Name="Upgrade" >
+  </Instance>
+
+  <Box Anchor="L,B" Size="166,128" Offset="0,0" Color="PlayerColor2,200" Hidden="1" />
+
+
+  <!-- Unit Portrait  -->
+
+  <Image Anchor="L,B" Offset="-6.6" Size="128,128" Texture="CitizenFrame128.dds" />
+
+
+  <Image Anchor="L,B" Offset="0,0" Texture="assets\UI\Art\UnitPanel\UnitPanel.dds" Size="550.256" Hidden="1"/>
+  <Image Anchor="L,B" Offset="-6,7" Size="128,128" Texture="UnitPortraitsAncientMedieval1024.dds" ID="UnitPortrait" Hidden="0" Disabled="1" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+  <Button Anchor="L,B" Offset="-6,7" Size="128,128" ID="UnitPortraitButton" Hidden="0" Disabled="0"/>
+  <Image Size="54,54" Offset="0,0" Anchor="L,B"  Texture="Assets/UI/Art/UnitPanel/UnitTypeFrame.dds" ID="UnitTypeFrame">
+    <Image Size="38,38" Offset="0,0" Anchor="C,C" Color="PlayerColor2,255"  Texture="Assets/UI/Art/UnitPanel/unitbackteamcolor.dds" ID="UnitIconBackground" />
+    <Image Size="38,38" TextureOffset="0,39" Anchor="C,C"  Texture="Assets/UI/Art/UnitPanel/unitbackteamcolor.dds" />
+    <Image Size="32,32" Anchor="C,C"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds" Color="Black,128" ID="UnitIconShadow" />
+    <Image Size="32,32" Offset="0,0" Anchor="C,C" Color="PlayerColor1"  Texture="Assets/UI/Art/Icons/Units/UnitFlagAtlasWhite.dds"  ID="UnitIcon" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+  </Image>
+
+  <!-- Action Button Stacks 72 -->
+
+  <Stack Offset="225,176" Anchor="L,B" StackGrowth="Left" ID="BuildStack" Padding="2"/>
+  <Stack Offset="70,172"  Anchor="L,B" StackGrowth="Bottom" ID="SecondaryStack" Padding="2" Hidden="1" />
+  <Stack Offset="9,206"   Anchor="L,B" StackGrowth="Bottom" ID="PrimaryStack" Padding="2">
+
+    <!-- Special magical Build City button -->
+    <Button Anchor="R,T" Size="36,36" StateOffsetIncrement="0,0" AnchorSide="I.O" Offset="0,0" Hidden="1" Texture="Assets/UI/Art/Icons/BuildCity36.dds" ID="BuildCityButton" ToolTipType="TypeUnitAction">
+
+      <AlphaAnim  Anchor="C,C" Offset="0,0" Texture="Assets/UI/Art/Icons/BuildCityGlow36.dds"  Size="36,36"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0"/>
+
+      <ShowOnMouseOver>
+        <Image Size="36,36" Anchor="C,C"  Texture="Assets/UI/Art/Icons/BuildCityGold36.dds" />
+      </ShowOnMouseOver>
+
+    </Button>
+	
+	<Button ID="LinkUnitsButton" Size="36,36" Texture="Link36.dds" ToolTipType="TypeUnitAction" Hidden="1"/>
+
+  </Stack>
+
+
+  <!-- Promotion Instance -->
+  <Instance Name="EarnedPromotionInstance">
+    <Image Size="32,32" Texture="Promotions256.dds" ID="UnitPromotionImage" />
+  </Instance>
+
+  <!-- Help Text Box -->
+  <!--<Box Anchor="L,T" ID="HelpTextBox" Color="Black,230" Hidden="1" >
+		<Label Offset="5,5" Anchor="L,T" String="Help text!" Font="TwCenMT14" ID="HelpText" />
+	</Box>-->
+
+
+  <ToolTipType Name="TypeUnitAction" >
+    <Grid Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8"  ID="UnitActionMouseover" NoClip="1" >
+      <Label   Anchor="R,T"  Offset="8,8" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="(M)" ID="UnitActionHotKey" />
+      <Label   Offset="12,10" Font="TwCenMT20" FontStyle="Shadow" String="Button Name" ID="UnitActionText" />
+      <Label   Offset="12,28" Font="TwCenMT16" ID="UnitActionHelp" String="description" LeadingOffset="-5" WrapWidth="450" />
+    </Grid>
+  </ToolTipType>
+
+  <!-- Health Bar  -->
+
+
+  <Image Anchor="L,B"  Offset="344,1"  Texture="assets/UI/Art/UnitPanel/HealthBarBlack.dds" Size="17,127" ToolTip="TXT_KEY_UPANEL_HEALTH"  Hidden="1" ID="HealthBar">
+    <Image Anchor="C,B"  Offset="-1,2"  Texture="assets/UI/Art/UnitPanel/HealthBarGreen.dds" Size="9,122" Hidden="1" ID="GreenBar"/>
+    <Image Anchor="C,B"  Offset="-1,2"  Texture="assets/UI/Art/UnitPanel/HealthBarYellow.dds" Size="9,122" Hidden="1" ID="YellowBar"/>
+    <Image Anchor="C,B"  Offset="-1,2" Color="255.255.255.100" Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="14,30" Hidden="1" ID="RedBar">
+      <AlphaAnim Anchor="R,B"  Offset="0,0"  Texture="assets/UI/Art/UnitPanel/HealthBarRed.dds" Size="9,122"  Pause="0" Cycle="Bounce" Speed="2" AlphaStart=".5" AlphaEnd="1" ID="RedAnim"/>
+    </Image>
+  </Image>
+
+
+
+
+</Context>

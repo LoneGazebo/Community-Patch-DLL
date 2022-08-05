@@ -22,10 +22,13 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v105 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 105)
+#define MOD_DLL_NAME "Community Patch v108 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 108)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
+
+//// TEMPORARY
+#define MOD_BALANCE_VP	gCustomMods.isBALANCE_VP()
 
 //////////////////////////
 //MULTIPLAYER INSTRUCTIONS:
@@ -198,13 +201,6 @@
 #define MOD_PILLAGE_PERMANENT_IMPROVEMENTS			gCustomMods.isPILLAGE_PERMANENT_IMPROVEMENTS()
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
-// Changes for the City State Diplomacy mod by Gazebo - AFFECTS SAVE GAME DATA FORMAT (v35)
-#define MOD_DIPLOMACY_CITYSTATES                    gCustomMods.isDIPLOMACY_CITYSTATES()
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-#define MOD_DIPLOMACY_CITYSTATES_QUESTS             (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_QUESTS())
-#define MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS        (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_RESOLUTIONS())
-#define MOD_DIPLOMACY_CITYSTATES_HURRY              (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_HURRY())
-#endif
 
 // To turn off or on ships firing while in Cities
 #define MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS		 gCustomMods.isSHIPS_FIRE_IN_CITIES_IMPROVEMENTS()
@@ -218,8 +214,11 @@
 // Ability to add new natural wonder features with graphics
 #define MOD_PSEUDO_NATURAL_WONDER					gCustomMods.isPSEUDO_NATURAL_WONDER()
 
-// Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
-#define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
+// Flips open borders to apply in opposite ways - you have to give open borders to gain the tourism bonus
+#define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS		gCustomMods.isBALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS()
+
+// Purchased units do not have full health when the city is damaged
+#define MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED		 gCustomMods.isBALANCE_CORE_UNIT_CREATION_DAMAGED()
 
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
@@ -319,8 +318,6 @@
 #define MOD_ANY_PANTHEON							gCustomMods.isANY_PANTHEON()
 // Changes melee ship units to be cargo carrying units with added promotions for ship and cargo
 #define MOD_CARGO_SHIPS								gCustomMods.isCARGO_SHIPS()
-// Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
-#define MOD_DIPLOMACY_CIV4_FEATURES                 gCustomMods.isDIPLOMACY_CIV4_FEATURES()
 // Adds an option to Advanced Setup to allow gaining Great General and Great Admiral Points from fighting with Barbarians
 #define MOD_BARBARIAN_GG_GA_POINTS					gCustomMods.isBARBARIAN_GG_GA_POINTS()
 // Grants Celts maximum up to 3 unimproved adjacent forests for faith
@@ -359,7 +356,10 @@
 #define MOD_ERA_RESTRICTION							gCustomMods.isERA_RESTRICTION()
 
 // Era Restricted General Bonuses
-#define MOD_ERA_RESTRICTED_GENERALS                  gCustomMods.isERA_RESTRICTED_GENERALS()
+#define MOD_ERA_RESTRICTED_GENERALS                 gCustomMods.isERA_RESTRICTED_GENERALS()
+
+// New GoodyHut colums
+#define MOD_NEW_GOODIES								gCustomMods.isNEW_GOODIES()
 
 // turn on or off yields for terrains that have a feature with GetPlayerTraits()->IsTradeRouteOnly
 #define MOD_USE_TRADE_FEATURES						gCustomMods.isUSE_TRADE_FEATURES()
@@ -460,7 +460,10 @@
 
 // Land units blockade undefended adjacent tiles
 #define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
-
+// Units take damage in enemy lands
+#define MOD_ATTRITION								gCustomMods.isATTRITION()
+// When a military unit retreats, civilians units on the same tile also retreat
+#define MOD_CIVILIANS_RETREAT_WITH_MILITARY			gCustomMods.isCIVILIANS_RETREAT_WITH_MILITARY()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -923,7 +926,7 @@ enum BattleTypeTypes
 
 // LUA API wrappers
 #define LUAAPIEXTN(method, type, ...) static int l##method(lua_State* L)
-#define LUAAPIIMPL(object, method) int CvLua##object::l##method(lua_State* L) { return BasicLuaMethod(L, &Cv##object::##method); }
+#define LUAAPIIMPL(object, method) int CvLua##object::l##method(lua_State* L) { return BasicLuaMethod(L, &Cv##object::method); }
 #define LUAAPIINLINE(method, hasMethod, type) inline bool method() const { return hasMethod(type); }
 
 
@@ -1244,6 +1247,7 @@ public:
 	int getOption(std::string sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
+	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(ABC_TRIGGER_CHANGE);
@@ -1296,10 +1300,6 @@ public:
 	MOD_OPT_DECL(PILLAGE_PERMANENT_IMPROVEMENTS);
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_NO_LEADERHEADS);
-	MOD_OPT_DECL(DIPLOMACY_CITYSTATES); 
-	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
-	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
-	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
 	MOD_OPT_DECL(SHIPS_FIRE_IN_CITIES_IMPROVEMENTS);
 	MOD_OPT_DECL(PSEUDO_NATURAL_WONDER);
 	MOD_OPT_DECL(COMMUNITY_PATCH);
@@ -1337,6 +1337,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_LUXURIES_TRAIT);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_PROMOTION_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_LOGGING);
+	MOD_OPT_DECL(BALANCE_CORE_UNIT_CREATION_DAMAGED);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC);
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_INVESTMENTS);
@@ -1373,6 +1374,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES);
 	MOD_OPT_DECL(BALANCE_CORE_BOMBARD_RANGE_BUILDINGS);
 	MOD_OPT_DECL(BALANCE_CORE_TOURISM_HUNDREDS);
+	MOD_OPT_DECL(BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS);
 	MOD_OPT_DECL(BALANCE_CORE_RANGED_ATTACK_PENALTY); //this controls whether defense against ranged attacks is weaker when the defender is damaged
 	MOD_OPT_DECL(BALANCE_CORE_INQUISITOR_TWEAKS);
 	MOD_OPT_DECL(CORE_DISABLE_LUA_HOOKS);
@@ -1385,7 +1387,6 @@ public:
 	MOD_OPT_DECL(CITY_STATE_SCALE);
 	MOD_OPT_DECL(ANY_PANTHEON);
 
-	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES);
 	MOD_OPT_DECL(CARGO_SHIPS);
 	MOD_OPT_DECL(BARBARIAN_GG_GA_POINTS);
 	MOD_OPT_DECL(ALTERNATE_CELTS);
@@ -1404,6 +1405,7 @@ public:
 	MOD_OPT_DECL(POLICIES_UNIT_CLASS_REPLACEMENTS);
 	MOD_OPT_DECL(ERA_RESTRICTION);
 	MOD_OPT_DECL(ERA_RESTRICTED_GENERALS);
+	MOD_OPT_DECL(NEW_GOODIES);
 	MOD_OPT_DECL(USE_TRADE_FEATURES);
 	MOD_OPT_DECL(TECHS_CITY_WORKING);
 	MOD_OPT_DECL(TECHS_CITY_AUTOMATON_WORKERS);
@@ -1531,7 +1533,9 @@ public:
 
 	MOD_OPT_DECL(AI_UNIT_PRODUCTION);
 	MOD_OPT_DECL(ADJACENT_BLOCKADE);
-	
+	MOD_OPT_DECL(ATTRITION);
+	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
+
 protected:
 	bool m_bInit;
 	std::map<std::string, int> m_options;

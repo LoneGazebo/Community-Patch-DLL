@@ -293,9 +293,7 @@ public:
 	int GetPublicOpinionUnhappiness() const;
 	int GetWarWeariness() const;
 	void SetWarWeariness(int iValue);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetTourismModifierVassal() const;
-#endif
 	CvString GetPublicOpinionUnhappinessTooltip() const;
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
 	int GetTurnIdeologySwitch() const;

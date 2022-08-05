@@ -227,6 +227,10 @@ protected:
 	static int lGetGAPFromReligion(lua_State* L);
 	static int lGetGAPFromCities(lua_State* L);
 	static int lGetGAPFromTraits(lua_State* L);
+
+	static int lIsDoubleBorderGrowthGA(lua_State* L);
+	static int lIsDoubleBorderGrowthWLTKD(lua_State* L);
+
 	static int lGetTotalJONSCulturePerTurn(lua_State* L);
 
 	static int lGetJONSCulturePerTurnFromCities(lua_State* L);
@@ -315,6 +319,7 @@ protected:
 	LUAAPIEXTN(GetBeliefsInPantheon, table);
 	static int lCanCreatePantheon(lua_State* L);
 	static int lHasCreatedReligion(lua_State* L);
+	static int lGetOwnedReligion(lua_State* L);
 	static int lGetReligionCreatedByPlayer(lua_State* L);
 	static int lGetOriginalReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
@@ -599,9 +604,7 @@ protected:
 	LUAAPIEXTN(GetGoldenAgeGreatEngineerRateModifier, int);
 	LUAAPIEXTN(GetGoldenAgeGreatMerchantRateModifier, int);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetGoldenAgeGreatDiplomatRateModifier, int);
-#endif
 
 	static int lGetHurryModifier(lua_State* L);
 
@@ -620,12 +623,10 @@ protected:
 	static int lGetGreatScientistRateModifier(lua_State* L);
 	static int lGetGreatMerchantRateModifier(lua_State* L);
 	static int lGetGreatEngineerRateModifier(lua_State* L);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetGreatDiplomatRateModifier, int);
 	LUAAPIEXTN(GetScienceRateFromMinorAllies, int);
 	LUAAPIEXTN(GetScienceRateFromLeagueAid, int);
 	LUAAPIEXTN(GetLeagueCultureCityModifier, int);
-#endif
 	LUAAPIEXTN(GetArtsyGreatPersonRateModifier, int);
 	LUAAPIEXTN(GetScienceyGreatPersonRateModifier, int);
 	static int lGetPolicyGreatPeopleRateModifier(lua_State* L);
@@ -635,9 +636,7 @@ protected:
 	static int lGetPolicyGreatScientistRateModifier(lua_State* L);
 	static int lGetPolicyGreatMerchantRateModifier(lua_State* L);
 	static int lGetPolicyGreatEngineerRateModifier(lua_State* L);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	LUAAPIEXTN(GetPolicyGreatDiplomatRateModifier, int);
-#endif
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetMonopolyGreatPersonRateModifier, int);
@@ -753,7 +752,7 @@ protected:
 	static int lChangeMinorCivFriendshipWithMajor(lua_State* L);
 	static int lGetMinorCivFriendshipAnchorWithMajor(lua_State* L);
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+#if defined(MOD_BALANCE_CORE_MINORS)
 	LUAAPIEXTN(GetJerk, int);
 	LUAAPIEXTN(GetCoupCooldown, int);
 #endif
@@ -875,6 +874,7 @@ protected:
 
 	static int lGetEndTurnBlockingType(lua_State* L);
 	static int lGetEndTurnBlockingNotificationIndex(lua_State* L);
+	static int lEndTurnsForReadyUnits(lua_State* L);
 
 	static int lIsStrike(lua_State* L);
 

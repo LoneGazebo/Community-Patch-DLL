@@ -315,7 +315,7 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 				CvPlot* pPlot = GC.getMap().plot(iX, iY);
 				if(pPlot != NULL)
 				{
-					auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+					CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 					gDLL->GameplayDoFX(pDllPlot.get());
 				}
 				else
@@ -740,7 +740,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCapitalCity();
 		if(pCity)
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pCity->plot());
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pCity->plot());
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 		}
 	}
@@ -782,7 +782,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
 		if(pPlot)
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			gDLL->GameplayDoFX(pDllPlot.get());
 		}
@@ -850,7 +850,7 @@ void CvNotifications::Activate(Notification& notification)
 			// Default behavior is to move the camera to the X,Y passed in
 			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
 			if (pPlot) {
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 				gDLL->GameplayDoFX(pDllPlot.get());
@@ -867,8 +867,8 @@ void CvNotifications::Activate(Notification& notification)
 			CvPlot* pPlot = pUnit->plot();
 			if(pPlot)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
 
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 				GC.GetEngineUserInterface()->selectUnit(pDllUnit.get(), false);
@@ -1143,7 +1143,7 @@ void CvNotifications::Activate(Notification& notification)
 		CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
 		if(pPlot)
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			gDLL->GameplayDoFX(pDllPlot.get());
@@ -1824,11 +1824,8 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
-#if defined(MOD_BALANCE_CORE)
+
 		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(m_ePlayer).GetPlayerTraits()->IsAlwaysReligion())
-#else
-		if (pkReligions->GetNumReligionsStillToFound() <= 0)
-#endif
 			return true;	// None left, dismiss the notification
 
 		return pkReligions->HasCreatedReligion(m_ePlayer);
@@ -1839,20 +1836,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
-#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
+
+		ReligionTypes eReligion = GET_PLAYER(m_ePlayer).GetReligions()->GetOwnedReligion();
 		if (pkReligions->GetAvailableEnhancerBeliefs(m_ePlayer, eReligion).size() == 0)
 			return true;	// None left, dismiss the notification.
 		if (pkReligions->GetAvailableFollowerBeliefs(m_ePlayer, eReligion).size() == 0)
 			return true;	// None left, dismiss the notification.		
-#else
-		if (pkReligions->GetAvailableEnhancerBeliefs().size() == 0)
-			return true;	// None left, dismiss the notification.
-		if (pkReligions->GetAvailableFollowerBeliefs().size() == 0)
-			return true;	// None left, dismiss the notification.		
 
-		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
-#endif
 		const CvReligion* pReligion = pkReligions->GetReligion(eReligion, m_ePlayer);
 		return (NULL != pReligion && pReligion->m_bEnhanced);
 	}

@@ -390,7 +390,6 @@
 			<Help>TXT_KEY_PROMOTION_FORMATION_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BARRAGE_2</PromotionPrereqOr2>
 			<OpenDefense>15</OpenDefense>
 			<OrderPriority>5</OrderPriority>
 			<PortraitIndex>24</PortraitIndex>
@@ -759,9 +758,8 @@
 		<Replace>
 			<Type>PROMOTION_AIR_AMBUSH_2</Type>
 			<Description>TXT_KEY_PROMOTION_AIR_AMBUSH_2</Description>
-			<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_2_HELP</Help>
+			<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<NumInterceptionChange>1</NumInterceptionChange>
 			<PromotionPrereqOr1>PROMOTION_AIR_AMBUSH_1</PromotionPrereqOr1>
 			<OrderPriority>4</OrderPriority>
 			<PortraitIndex>4</PortraitIndex>
@@ -945,7 +943,7 @@
 			<PromotionPrereqOr1>PROMOTION_HOVERING_UNIT</PromotionPrereqOr1>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>3</PortraitIndex>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_RANGED</PediaType>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_1</PediaEntry>
 		</Replace>
@@ -958,7 +956,7 @@
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HELI_AMBUSH_2</PediaEntry>
 		</Replace>
 		<Replace>
@@ -1414,6 +1412,7 @@
 			<Help>TXT_KEY_PROMOTION_SIGHT_PENALTY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<VisibilityChange>-1</VisibilityChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SCOUTING</PediaType>
@@ -1457,27 +1456,36 @@
 			<Description>TXT_KEY_PROMOTION_CITY_SIEGE</Description>
 			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>200</CityAttack>
+			<CityAttack>100</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_SIEGE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_CITY_SIEGE</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_CITY_SIEGE_II</Type>
+			<Description>TXT_KEY_PROMOTION_CITY_SIEGE_II</Description>
+			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CityAttack>100</CityAttack>
+			<PortraitIndex>59</PortraitIndex>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SIEGE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_CITY_SIEGE_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CITY_ASSAULT</Type>
 			<Description>TXT_KEY_PROMOTION_CITY_ASSUALT</Description>
-			<!-- Typo here! -->
 			<Help>TXT_KEY_PROMOTION_CITY_ASSUALT_HELP</Help>
-			<!-- Typo here! -->
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>300</CityAttack>
+			<CityAttack>150</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CITY_ASSUALT</PediaEntry>
-			<!-- Typo here! -->
+			<PediaEntry>TXT_KEY_PROMOTION_CITY_ASSUALT</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_DEFENSE_PENALTY</Type>
@@ -1549,7 +1557,7 @@
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_INTERCEPTION_I</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INTERCEPTION_I</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_INTERCEPTION_II</Type>
@@ -1561,7 +1569,7 @@
 			<PortraitIndex>45</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_INTERCEPTION_II</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INTERCEPTION_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_INTERCEPTION_III</Type>
@@ -1573,7 +1581,7 @@
 			<PortraitIndex>46</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_INTERCEPTION_III</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INTERCEPTION_III</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_INTERCEPTION_IV</Type>
@@ -1585,7 +1593,7 @@
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_INTERCEPTION_IV</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_INTERCEPTION_IV</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_AIR_SWEEP</Type>
@@ -1633,12 +1641,12 @@
 		<Replace>
 			<Type>PROMOTION_ANTI_HELICOPTER</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_HELICOPTER</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_HELICOPTER</Help>
+			<Help>TXT_KEY_PROMOTION_ANTI_HELICOPTER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_HELICOPTER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_HELICOPTER</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_FIGHTER</Type>
@@ -1649,30 +1657,30 @@
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_FIGHTER</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_FIGHTER</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_SUBMARINE_I</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</Help>
+			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>59</PortraitIndex>
 			<PromotionPrereqOr1>PROMOTION_NAVAL_SENTRY</PromotionPrereqOr1>
 			<TechPrereq>TECH_NUCLEAR_FISSION</TechPrereq>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_SUBMARINE_I</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_SUBMARINE_II</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</Help>
+			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ANTI_SUBMARINE_I</PromotionPrereqOr1>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_SUBMARINE_II</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_ANTI_TANK</Type>
@@ -1682,7 +1690,7 @@
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_ANTI_TANK</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_TANK</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_EVASION_I</Type>
@@ -1694,7 +1702,7 @@
 			<PortraitIndex>16</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_EVASION_I</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_EVASION_I</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_EVASION_II</Type>
@@ -1706,7 +1714,7 @@
 			<PortraitIndex>17</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_EVASION_II</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_EVASION_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_NAVAL_PENALTY</Type>
@@ -1721,7 +1729,7 @@
 		<Replace>
 			<Type>PROMOTION_HEAVY_PAYLOAD</Type>
 			<Description>TXT_KEY_PROMOTION_HEAVY_PAYLOAD</Description>
-			<Help>TXT_KEY_PROMOTION_HEAVY_PAYLOAD</Help>
+			<Help>TXT_KEY_PROMOTION_HEAVY_PAYLOAD_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CityAttack>50</CityAttack>
 			<PortraitIndex>59</PortraitIndex>
@@ -2165,7 +2173,7 @@
 		<Replace>
 			<Type>PROMOTION_FASTER_HEAL</Type>
 			<Description>TXT_KEY_PROMOTION_FASTER_HEAL</Description>
-			<Help>TXT_KEY_PROMOTION_FASTER_HEAL</Help>
+			<Help>TXT_KEY_PROMOTION_FASTER_HEAL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<EnemyHealChange>10</EnemyHealChange>
@@ -2174,7 +2182,7 @@
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_FASTER_HEAL</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FASTER_HEAL</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_STRONGER_VS_DAMAGED</Type>
@@ -2185,7 +2193,7 @@
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_STRONGER_VS_DAMAGED</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_STRONGER_VS_DAMAGED</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_STATUE_ZEUS</Type>
@@ -2351,18 +2359,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_HEAVY_CHARGE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<HeavyCharge>true</HeavyCharge>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_CITY_SIEGE_II</Type>
-			<Description>TXT_KEY_PROMOTION_CITY_SIEGE_II</Description>
-			<Help>TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SIEGE</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_CITY_SIEGE_II</PediaEntry>
-			<LostWithUpgrade>true</LostWithUpgrade>
-			<CityAttack>250</CityAttack>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_SAPPER</Type>
@@ -3442,7 +3438,7 @@
 		</Row>
 		<Row>
 			<Type>PROMOTION_MORALE_EVENT</Type>
-			<Description>TXT_KEY_PROMOTION_MORALE</Description>
+			<Description>TXT_KEY_PROMOTION_MORALE_EVENT</Description>
 			<Help>TXT_KEY_PROMOTION_MORALE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
@@ -3450,7 +3446,7 @@
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_MORALE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_MORALE_EVENT</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_AOE_STRIKE_ON_KILL</Type>
@@ -3963,7 +3959,7 @@
 			<Help>TXT_KEY_PROMOTION_SUPPLY_BOOST_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<MilitaryCapChange>2</MilitaryCapChange>
+			<MilitaryCapChange>1</MilitaryCapChange>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CIVILIAN</PediaType>

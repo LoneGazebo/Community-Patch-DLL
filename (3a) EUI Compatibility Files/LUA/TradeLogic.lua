@@ -80,6 +80,15 @@ local g_ThemTableTechs 		= {};
 local g_bMessageFromDiploAI = false;
 local g_bAIMakingOffer = false;
 
+local g_bAnyLuxuryUs = false;
+local g_bAnyStrategicUs = false;
+local g_bAnyTechUs = false;
+local g_bAnyVoteUs = false;
+local g_bAnyLuxuryThem = false;
+local g_bAnyStrategicThem = false;
+local g_bAnyTechThem = false;
+local g_bAnyVoteThem = false;
+
 local g_UsOtherPlayerMode = -1;
 local g_ThemOtherPlayerMode = -1;
 
@@ -625,7 +634,41 @@ function OnShowHide( isHide, bIsInit )
         	end
             
             ResetDisplay();
-            
+
+			-- Unhide some of the stacks by default if anything was found
+			if g_bAnyLuxuryUs then
+				Controls.UsPocketLuxuryStack:SetHide(false);
+				Controls.UsPocketLuxury:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES"));
+			end
+			if g_bAnyStrategicUs then
+				Controls.UsPocketStrategicStack:SetHide(false);
+				Controls.UsPocketStrategic:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES"));
+			end
+			if g_bAnyTechUs then
+				Controls.UsPocketTechnologyStack:SetHide(false);
+				Controls.UsPocketTechnology:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES"));
+			end
+			if g_bAnyVoteUs then
+				Controls.UsPocketVoteStack:SetHide(false);
+				Controls.UsPocketVote:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_VOTES"));
+			end
+			if g_bAnyLuxuryThem then
+				Controls.ThemPocketLuxuryStack:SetHide(false);
+				Controls.ThemPocketLuxury:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES"));
+			end
+			if g_bAnyStrategicThem then
+				Controls.ThemPocketStrategicStack:SetHide(false);
+				Controls.ThemPocketStrategic:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES"));
+			end
+			if g_bAnyTechThem then
+				Controls.ThemPocketTechnologyStack:SetHide(false);
+				Controls.ThemPocketTechnology:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES"));
+			end
+			if g_bAnyVoteThem then
+				Controls.ThemPocketVoteStack:SetHide(false);
+				Controls.ThemPocketVote:SetText("[ICON_MINUS]" .. Locale.ConvertTextKey("TXT_KEY_TRADE_ITEM_VOTES"));
+			end
+
             -- Deal can already have items in it if, say, we're at war.  In this case every time we open the trade screen there's already Peace Treaty on both sides of the table
             if (g_Deal:GetNumItems() > 0) then
     			DisplayDeal();
@@ -637,7 +680,6 @@ function OnShowHide( isHide, bIsInit )
         else
     		UIManager:SetUICursor(oldCursor); -- make sure we retrun the cursor to the previous state
     		LuaEvents.TryDismissTutorial("DIPLO_TRADE_SCREEN");
-
         end
     end
 end
@@ -1158,6 +1200,13 @@ function ResetDisplay()
 			end
 		end
 	end
+
+	g_bAnyLuxuryUs = false;
+	g_bAnyStrategicUs = false;
+	g_bAnyTechUs = false;
+	g_bAnyLuxuryThem = false;
+	g_bAnyStrategicThem = false;
+	g_bAnyTechThem = false;
 
 	local bTeammates = g_iUsTeam == g_iThemTeam;
 	local bShowEmbassy = not bTeammates;
@@ -1828,6 +1877,7 @@ function ResetDisplay()
 	end
 
     if (bFoundLux) then
+		g_bAnyLuxuryUs = true;
 		Controls.UsPocketLuxury:SetDisabled(false);
 		Controls.UsPocketLuxury:GetTextControl():SetColorByName("Beige_Black");
 		Controls.UsPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES"));
@@ -1853,6 +1903,7 @@ function ResetDisplay()
     end
 
     if (bFoundStrat) then
+		g_bAnyStrategicUs = true;
 		Controls.UsPocketStrategic:SetDisabled(false);
 		Controls.UsPocketStrategic:GetTextControl():SetColorByName("Beige_Black");
 		Controls.UsPocketStrategic:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES"));
@@ -1909,6 +1960,7 @@ function ResetDisplay()
 	end
 
     if (bFoundLux) then
+		g_bAnyLuxuryThem = true;
 		Controls.ThemPocketLuxury:SetDisabled(false);
 		Controls.ThemPocketLuxury:GetTextControl():SetColorByName("Beige_Black");
 		Controls.ThemPocketLuxury:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES_THEM"));
@@ -1934,6 +1986,7 @@ function ResetDisplay()
     end
 
     if (bFoundStrat) then
+		g_bAnyStrategicThem = true;
 		Controls.ThemPocketStrategic:SetDisabled(false);
 		Controls.ThemPocketStrategic:GetTextControl():SetColorByName("Beige_Black");
 		Controls.ThemPocketStrategic:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES_THEM"));
@@ -2229,6 +2282,7 @@ function ResetDisplay()
 		
 		-- Found an eligible tech? Cool!
 		if bFoundTech then
+			g_bAnyTechUs = true;
 			Controls.UsPocketTechnology:SetDisabled(false);
 			Controls.UsPocketTechnology:GetTextControl():SetColorByName("Beige_Black");
 			Controls.UsPocketTechnology:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES"));
@@ -2291,6 +2345,7 @@ function ResetDisplay()
 		end
 
 		if (bFoundTech) then
+			g_bAnyTechThem = true;
 			Controls.ThemPocketTechnology:SetDisabled(false);
 			Controls.ThemPocketTechnology:GetTextControl():SetColorByName("Beige_Black");
 			Controls.ThemPocketTechnology:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM"));
@@ -3681,10 +3736,12 @@ function RefreshPocketVotes(iIsUs)
 	UpdateLeagueVotes();
 	if (iIsUs == 1) then
 		g_UsPocketVoteIM:ResetInstances();
+		g_bAnyVoteUs = false;
 	else
 		g_ThemPocketVoteIM:ResetInstances();
+		g_bAnyVoteThem = false;
 	end
-	
+
 	local pLeague = nil;
 	if (Game.GetNumActiveLeagues() > 0) then
 		pLeague = Game.GetActiveLeague();
@@ -3699,6 +3756,7 @@ function RefreshPocketVotes(iIsUs)
 				local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumUsVotes);
 				if (g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumUsVotes, tVote.Repeal)) then
+					g_bAnyVoteUs = true;
 					local cInstance = g_UsPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
 					cInstance.VoteLabel:SetText(sChoiceText);
@@ -3713,6 +3771,7 @@ function RefreshPocketVotes(iIsUs)
 				local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumThemVotes);
 				if (g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumThemVotes, tVote.Repeal)) then
+					g_bAnyVoteThem = true;
 					local cInstance = g_ThemPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
 					cInstance.VoteLabel:SetText(sChoiceText);

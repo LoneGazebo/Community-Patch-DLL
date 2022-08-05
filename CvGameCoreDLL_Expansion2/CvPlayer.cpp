@@ -408,6 +408,7 @@ CvPlayer::CvPlayer() :
 	, m_paiResourcesSiphoned()
 	, m_aiNumResourceFromGP()
 	, m_paiImprovementCount()
+	, m_paiImprovementBuiltCount()
 #if defined(MOD_BALANCE_CORE)
 	, m_paiTotalImprovementsBuilt()
 #endif
@@ -498,14 +499,12 @@ CvPlayer::CvPlayer() :
 	, m_iCanBullyFriendlyCS()
 	, m_iBullyGlobalCSReduction()
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_iIsVassalsNoRebel()
-	, m_iVassalCSBonusModifier()
-#endif
+	, m_iVassalYieldBonusModifier()
+	, m_iCSYieldBonusModifier()
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	, m_iConversionModifier()
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_iImprovementLeagueVotes()
 	, m_iFaithToVotes()
 	, m_iCapitalsToVotes()
@@ -519,7 +518,6 @@ CvPlayer::CvPlayer() :
 	, m_iScienceRateFromLeague()
 	, m_iScienceRateFromLeagueAid()
 	, m_iLeagueCultureCityModifier()
-#endif
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	, m_iProductionBonusTurnsConquest()
 	, m_iCultureBonusTurnsConquest()
@@ -534,9 +532,7 @@ CvPlayer::CvPlayer() :
 	, m_iFreeGreatWritersCreated()
 	, m_iFreeGreatArtistsCreated()
 	, m_iFreeGreatMusiciansCreated()
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_iFreeGreatDiplomatsCreated()
-#endif
 #endif
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 	, m_iGPExtra1Created()
@@ -558,10 +554,8 @@ CvPlayer::CvPlayer() :
 	, m_iGreatScientistsCreated()
 	, m_iGreatEngineersCreated()
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_iGreatDiplomatsCreated()
 	, m_iDiplomatsFromFaith()
-#endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iHalfSpecialistFoodCapitalCount()
 	, m_iTradeRouteLandDistanceModifier()
@@ -697,7 +691,8 @@ CvPlayer::CvPlayer() :
 	, m_iExtraMoves()
 	, m_iNoUnhappinessExpansion()
 	, m_iNoUnhappyIsolation()
-	, m_iDoubleBorderGA()
+	, m_iDoubleBorderGrowthGA()
+	, m_iDoubleBorderGrowthWLTKD()
 	, m_iIncreasedQuestInfluence()
 	, m_iCultureBombBoost()
 	, m_iPuppetProdMod()
@@ -757,10 +752,8 @@ CvPlayer::CvPlayer() :
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
 	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	, m_bVassalLevy()
 	, m_iVassalGoldMaintenanceMod()
-#endif
 	, m_iPreviousBestSettlePlot()
 	, m_iFoundValueOfCapital()
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -1109,6 +1102,7 @@ void CvPlayer::uninit()
 	m_paiResourcesSiphoned.clear();
 	m_aiNumResourceFromGP.clear();
 	m_paiImprovementCount.clear();
+	m_paiImprovementBuiltCount.clear();
 #if defined(MOD_BALANCE_CORE)
 	m_paiTotalImprovementsBuilt.clear();
 #endif
@@ -1294,10 +1288,9 @@ void CvPlayer::uninit()
 	m_iCanBullyFriendlyCS = 0;
 	m_iBullyGlobalCSReduction = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iIsVassalsNoRebel = 0;
-	m_iVassalCSBonusModifier = 0;
-#endif
+	m_iVassalYieldBonusModifier = 0;
+	m_iCSYieldBonusModifier = 0;
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
 	m_iSpyStartingRank = 0;
@@ -1305,7 +1298,6 @@ void CvPlayer::uninit()
 	m_iConversionModifier = 0;
 #endif
 	m_iExtraLeagueVotes = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iImprovementLeagueVotes = 0;
 	m_iFaithToVotes = 0;
 	m_iCapitalsToVotes = 0;
@@ -1319,7 +1311,6 @@ void CvPlayer::uninit()
 	m_iScienceRateFromLeague = 0;
 	m_iScienceRateFromLeagueAid = 0;
 	m_iLeagueCultureCityModifier = 0;
-#endif
 	m_iWoundedUnitDamageMod = 0;
 	m_iUnitUpgradeCostMod = 0;
 	m_iBarbarianCombatBonus = 0;
@@ -1353,9 +1344,7 @@ void CvPlayer::uninit()
 	m_iFreeGreatWritersCreated = 0;
 	m_iFreeGreatArtistsCreated = 0;
 	m_iFreeGreatMusiciansCreated = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iFreeGreatDiplomatsCreated = 0;
-#endif
 #endif
 	m_iGreatPeopleCreated = 0;
 	m_iGreatGeneralsCreated = 0;
@@ -1383,10 +1372,8 @@ void CvPlayer::uninit()
 	m_iGreatWritersCreated = 0;
 	m_iGreatArtistsCreated = 0;
 	m_iGreatMusiciansCreated = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatsCreated = 0;
 	m_iDiplomatsFromFaith = 0;
-#endif
 	m_iMerchantsFromFaith = 0;
 	m_iScientistsFromFaith = 0;
 	m_iWritersFromFaith = 0;
@@ -1411,9 +1398,7 @@ void CvPlayer::uninit()
 	m_iGreatArtistRateModifier = 0;
 	m_iGreatMusicianRateModifier = 0;
 	m_iGreatMerchantRateModifier = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier = 0;
-#endif
 	m_iGreatScientistRateModifier = 0;
 	m_iGreatScientistBeakerModifier = 0;
 	m_iGreatEngineerHurryMod = 0;
@@ -1567,7 +1552,8 @@ void CvPlayer::uninit()
 	m_iExtraMoves = 0;
 	m_iNoUnhappinessExpansion = 0;
 	m_iNoUnhappyIsolation = 0;
-	m_iDoubleBorderGA = 0;
+	m_iDoubleBorderGrowthGA = 0;
+	m_iDoubleBorderGrowthWLTKD = 0;
 	m_iIncreasedQuestInfluence = 0;
 	m_iCultureBombBoost = 0;
 	m_iPuppetProdMod = 0;
@@ -1708,11 +1694,8 @@ void CvPlayer::uninit()
 	m_eHolyCityConqueror = NO_PLAYER;
 	m_bHasAdoptedStateReligion = false;
 	m_lastGameTurnInitialAIProcessed = -1;
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevy = false;
 	m_iVassalGoldMaintenanceMod = 0;
-#endif
 #if defined(MOD_BATTLE_ROYALE)
 	m_iNumMilitarySeaUnits = 0;
 	m_iNumMilitaryAirUnits = 0; 
@@ -2012,9 +1995,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiImprovementCount.clear();
 		m_paiImprovementCount.resize(GC.getNumImprovementInfos(), 0);
-
+		m_paiImprovementBuiltCount.clear();
+		m_paiImprovementBuiltCount.resize(GC.getNumImprovementInfos(), 0);
 #if defined(MOD_BALANCE_CORE)
-		CvAssertMsg(0 < GC.getNumImprovementInfos(), "GC.getNumImprovementInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
 		m_paiTotalImprovementsBuilt.clear();
 		m_paiTotalImprovementsBuilt.resize(GC.getNumImprovementInfos(), 0);
 #endif
@@ -2842,9 +2825,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 		if(pNewUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = getGoldenAgeLength();
-			int iValue = GetGoldenAgeProgressMeter();
-			changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			changeGoldenAgeTurns(getGoldenAgeLength());
 		}
 		if(pNewUnit->isCultureBoost())
 		{
@@ -3207,7 +3188,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GetDiplomacyAI()->ChangeWarProgressScore(eOldOwner, iWinnerProgressValue);
 
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
-				if (MOD_DIPLOMACY_CIV4_FEATURES && GetNumVassals() > 0)
+				if (GetNumVassals() > 0)
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -3225,7 +3206,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
-				if (MOD_DIPLOMACY_CIV4_FEATURES && GET_PLAYER(eOldOwner).IsVassalOfSomeone())
+				if (GET_PLAYER(eOldOwner).IsVassalOfSomeone())
 				{
 					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 					{
@@ -3396,9 +3377,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (GetPlayerTraits()->IsConquestOfTheWorld())
 			{
 				if (isGoldenAge())
-					changeGoldenAgeTurns(3, GetGoldenAgeProgressMeter());
+					changeGoldenAgeTurns(getGoldenAgeLength(3));
 				else
-					changeGoldenAgeTurns(5, GetGoldenAgeProgressMeter());
+					changeGoldenAgeTurns(getGoldenAgeLength(5));
 			}
 
 			// Culture bonus turns from conquering a city?
@@ -3749,7 +3730,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				continue;
 
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(iAssignedSpy);
-			Localization::String strSummary = bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S");
+			Localization::String strSummary(bConquest ? GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S") : GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S"));
 
 			// City acquirer gets a different notification
 			if (eLoopPlayer == GetID())
@@ -3786,7 +3767,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).GetCorporations()->ClearAllCorporationsFromCity(pCity);
 
 	// If city was Barbarian-owned, turn off the spawn counter
-	if (MOD_DIPLOMACY_CITYSTATES_QUESTS && pCity->isBarbarian())
+	if (MOD_BALANCE_VP && pCity->isBarbarian())
 		CvBarbarians::DoBarbCityCleared(pCityPlot);
 
 	// If city was City-State-owned, update resource bonuses for allies
@@ -3935,7 +3916,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Prepare the city to be destroyed
 	pCity->PreKill();
-	auto_ptr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
+	CvInterfacePtr<ICvCity1> pkDllOldCity(new CvDllCity(pCity));
 	gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 
 	// Get rid of the old city!
@@ -4507,7 +4488,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (!GET_PLAYER(eOldOwner).isAlive())
 		{
 			// Let's give the Embassy votes of the defeated player to the new player
-			if (MOD_DIPLOMACY_CITYSTATES && isMajorCiv() && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
+			if (isMajorCiv() && GET_PLAYER(eOldOwner).GetImprovementLeagueVotes() > 0)
 			{
 				ChangeImprovementLeagueVotes(GET_PLAYER(eOldOwner).GetImprovementLeagueVotes());
 			}
@@ -4710,7 +4691,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (pNewCity)
 	{
 		// City acquired by Barbarians? Start the spawn counter.
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS && isBarbarian())
+		if (MOD_BALANCE_VP && isBarbarian())
 		{
 			CvBarbarians::DoCityActivationNotice(pCityPlot);
 		}
@@ -5946,7 +5927,7 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 		return false;
 
 	if (pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
@@ -6040,13 +6021,13 @@ bool CvPlayer::IsEventValid(EventTypes eEvent)
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
-	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
+	if (pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
 		return false;
 
 
@@ -6438,7 +6419,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->hasStateReligion() && GetReligions()->GetStateReligion(false) == NO_RELIGION)
 		return false;
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 		return false;
 
 	if(pkEventInfo->isUnhappy() && !IsEmpireUnhappy())
@@ -6532,10 +6513,10 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 			return false;
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 		return false;
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 		return false;
 
 	if(pkEventInfo->isTradeCapped() && GetTrade()->GetNumTradeUnitsRemaining(true) <= 0)
@@ -7701,7 +7682,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(pkEventInfo->hasPantheon() && GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON)
+	if(pkEventInfo->hasPantheon() && (GetReligions()->GetOwnedReligion() != NO_RELIGION || GetReligions()->GetReligionCreatedByPlayer(true) != RELIGION_PANTHEON))
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ANY_PANTHEON");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -7933,13 +7914,13 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		}
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isMaster() && GetNumVassals() <= 0)
+	if (pkEventInfo->isMaster() && GetNumVassals() <= 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
-	if(MOD_DIPLOMACY_CIV4_FEATURES && pkEventInfo->isVassal() && !IsVassalOfSomeone())
+	if (pkEventInfo->isVassal() && !IsVassalOfSomeone())
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_VASSAL");
 		DisabledTT += localizedDurationText.toUTF8();
@@ -9203,9 +9184,8 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			if(pkEventChoiceInfo->getGoldenAgeTurns() > 0)
 			{
 				int iTurns = pkEventChoiceInfo->getGoldenAgeTurns();
-				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iTurns /= 100;
-				changeGoldenAgeTurns(max(1, iTurns), true);
+				iTurns = iTurns * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
+				changeGoldenAgeTurns(getGoldenAgeLength(max(1, iTurns)), true);
 			}
 			if(pkEventChoiceInfo->getNumFreeGreatPeople() > 0)
 			{
@@ -9795,7 +9775,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			}
 
 			// Resurrected civ becomes a vassal of the resurrector, if possible
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) == 0)
+			if (GET_TEAM(eLiberatedTeam).GetLiberatedByTeam() != eConquerorTeam && !IsVassalOfSomeone() && GD_INT_GET(DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE) == 0)
 			{
 				if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(getTeam()))
 				{
@@ -9808,7 +9788,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Add resurrection notification
 			Localization::String strMessage;
 
-			if (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
+			if (GET_TEAM(eLiberatedTeam).GetMaster() == getTeam())
 			{
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL");
 			}
@@ -10039,7 +10019,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 
 	//Let's give the Embassies of the defeated player back to the liberated player
-	if (MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
+	if (GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
@@ -10326,10 +10306,8 @@ void CvPlayer::disbandUnit(bool)
 						case UNITAI_SCIENTIST:
 						case UNITAI_GENERAL:
 						case UNITAI_MERCHANT:
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 						case UNITAI_DIPLOMAT:
 						case UNITAI_MESSENGER:
-#endif
 						case UNITAI_ENGINEER:
 						case UNITAI_SPACESHIP_PART:
 						case UNITAI_TREASURE:
@@ -10529,15 +10507,11 @@ CvPlot* CvPlayer::GetBestCoastalSpawnPlot (CvUnit *pUnit)
 		if (pUnit && !pUnit->canEndTurnAtPlot(pLoopCity->plot()))
 			continue;
 
-		PlotIndexContainer areas = pLoopCity->plot()->getAllAdjacentAreas();
-		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
+		CvLandmass* pLocalMax = pLoopCity->plot()->GetLargestAdjacentWater();
+		if (pLocalMax && pLocalMax->getNumTiles()>iLargestWaterSize)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
-			if (pkArea->isWater() && pkArea->getNumTiles()>iLargestWaterSize)
-			{
-				iLargestWaterSize = pkArea->getNumTiles();
-				pLargestWaterAreaPlot = pLoopCity->plot();
-			}
+			iLargestWaterSize = pLocalMax->getNumTiles();
+			pLargestWaterAreaPlot = pLoopCity->plot();
 		}
 	}
 
@@ -11079,8 +11053,7 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-		DoVassalLevy();
+	DoVassalLevy();
 
 	SetHasUUPeriod();
 
@@ -11375,7 +11348,7 @@ void CvPlayer::doTurnPostDiplomacy()
 {
 	CvGame& kGame = GC.getGame();
 
-	if(isAlive())
+	if (isAlive())
 	{
 		UpdatePlots();
 		UpdateAreaEffectUnits();
@@ -11386,21 +11359,18 @@ void CvPlayer::doTurnPostDiplomacy()
 		GET_TEAM(getTeam()).ClearWarDeclarationCache();
 		UpdateCurrentAndFutureWars();
 
-		if(!isBarbarian())
+		if (!isBarbarian())
 		{
 			GetEconomicAI()->DoTurn();
 			GetMilitaryAI()->DoTurn();
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && !isMinorCiv())
+
+			if (isMajorCiv())
 			{
-#endif
-			GetReligionAI()->DoTurn();
-			GetTradeAI()->DoTurn();
-			GetCitySpecializationAI()->DoTurn();
-			GetLeagueAI()->DoTurn();
-#if defined(MOD_BALANCE_CORE)
+				GetReligionAI()->DoTurn();
+				GetTradeAI()->DoTurn();
+				GetCitySpecializationAI()->DoTurn();
+				GetLeagueAI()->DoTurn();
 			}
-#endif
 		}
 		else
 		{
@@ -11417,15 +11387,15 @@ void CvPlayer::doTurnPostDiplomacy()
 	}
 
 	// Temporary boosts
-	if(GetAttackBonusTurns() > 0)
+	if (GetAttackBonusTurns() > 0)
 	{
 		ChangeAttackBonusTurns(-1);
 	}
-	if(GetCultureBonusTurns() > 0)
+	if (GetCultureBonusTurns() > 0)
 	{
 		ChangeCultureBonusTurns(-1);
 	}
-	if(GetTourismBonusTurns() > 0)
+	if (GetTourismBonusTurns() > 0)
 	{
 		ChangeTourismBonusTurns(-1);
 	}
@@ -11436,8 +11406,8 @@ void CvPlayer::doTurnPostDiplomacy()
 		if (getTourismBonusTurnsPlayer(eLoopPlayer) > 0)
 			changeTourismBonusTurnsPlayer(eLoopPlayer, -1);
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(GetCultureBonusTurnsConquest() > 0)
+
+	if (GetCultureBonusTurnsConquest() > 0)
 	{
 		ChangeCultureBonusTurnsConquest(-1);
 	}
@@ -11445,22 +11415,18 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 		ChangeProductionBonusTurnsConquest(-1);
 	}
-#endif
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES && (!isMinorCiv() && !isBarbarian()))
+	if (isMajorCiv())
 	{
 		DoProcessVotes();
 		ProcessLeagueResolutions();
 	}
-#endif
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
+
+	if (MOD_BALANCE_CORE_YIELDS)
 	{
 		DoChangeGreatGeneralRate();
 		DoChangeGreatAdmiralRate();
 	}
-#endif
 
 	// Golden Age
 	DoProcessGoldenAge();
@@ -11469,32 +11435,29 @@ void CvPlayer::doTurnPostDiplomacy()
 	DoGreatPeopleSpawnTurn();
 
 	// Do turn for all Cities
+	if (getNumCities() > 0)
 	{
-		if(getNumCities() > 0)
+		int iLoop = 0;
+		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			int iLoop = 0;
-			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-				pLoopCity->doTurn();
-			}
+			pLoopCity->doTurn();
 		}
 	}
 
 	// Gold
 	GetTreasury()->DoGold();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// Tax out from after we've calculated our gold for this turn
 	GetTreasury()->CalculateExpensePerTurnFromVassalTaxes();
-#endif
+
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
 	GetCulture()->SetLastTurnCPT(GetJONSCultureEverGenerated() - GetCulture()->GetLastTurnLifetimeCulture());
 	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
-	if(kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
+	if (kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 	{
-		if(getJONSCulture() < getNextPolicyCost())
+		if (getJONSCulture() < getNextPolicyCost())
 			changeJONSCulture(GetTotalJONSCulturePerTurn());
 	}
 	else
@@ -11530,13 +11493,12 @@ void CvPlayer::doTurnPostDiplomacy()
 
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(GetPlayerTraits()->IsAdoptionFreeTech())
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_IDEOLOGY_UA_CHOOSE_TECH");
 				chooseTech(1, strBuffer.GetCString());
 			}
-#endif
+
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
 			{
@@ -11559,12 +11521,11 @@ void CvPlayer::doTurnPostDiplomacy()
 	{
 		if (GetPlayerPolicies()->IsTimeToChooseIdeology() && GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(GetPlayerTraits()->IsAdoptionFreeTech())
 			{
 				AI_chooseFreeTech();
 			}
-#endif
+
 			GetPlayerPolicies()->DoChooseIdeology();
 		}
 	}
@@ -11578,24 +11539,21 @@ void CvPlayer::doTurnPostDiplomacy()
 	doResearch();
 
 	GetEspionage()->DoTurn();
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && !isMinorCiv())
+
+	if (isMajorCiv())
 	{
-#endif
-	// Faith
-	CvGameReligions* pGameReligions = kGame.GetGameReligions();
-	pGameReligions->DoPlayerTurn(*this);
+		// Faith
+		CvGameReligions* pGameReligions = kGame.GetGameReligions();
+		pGameReligions->DoPlayerTurn(*this);
 
-	// Leagues
-	CvGameLeagues* pGameLeagues = kGame.GetGameLeagues();
-	pGameLeagues->DoPlayerTurn(*this);
+		// Leagues
+		CvGameLeagues* pGameLeagues = kGame.GetGameLeagues();
+		pGameLeagues->DoPlayerTurn(*this);
 
-	// Anarchy counter
-	if(GetAnarchyNumTurns() > 0)
-		ChangeAnarchyNumTurns(-1);
-#if defined(MOD_BALANCE_CORE)
+		// Anarchy counter
+		if(GetAnarchyNumTurns() > 0)
+			ChangeAnarchyNumTurns(-1);
 	}
-#endif
 
 	const int iGameTurn = kGame.getGameTurn();
 
@@ -11980,28 +11938,30 @@ const CvUnit* CvPlayer::GetFirstReadyUnit() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::EndTurnsForReadyUnits()
+void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 {
 	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
+		if (!bLinkedUnitsOnly && pLoopUnit->ReadyToMove() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->TurnProcessed())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
-#if defined(MOD_BALANCE_CORE)
-			if(GC.getLogging() && GC.getAILogging())
+		
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
 				CvString strLogString;
-				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY() );
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
-#endif
+		}
+		if (bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		{
+			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 	}
 }
-
 //	--------------------------------------------------------------------------------
 bool CvPlayer::hasAutoUnit() const
 {
@@ -12059,7 +12019,7 @@ const CvCity* CvPlayer::getBusyCity() const
 		}
 	}
 
-	return false;
+	return NULL;
 }
 
 //	----------------------------------------------------------------------------
@@ -12143,7 +12103,7 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 
 	int iScore = 0;
 
-	//iScore += GetScoreFromCities(); //ignore this, it's covered by pop and land
+	iScore += GetScoreFromCities();
 	iScore += GetScoreFromPopulation();
 	iScore += GetScoreFromLand();
 	iScore += GetScoreFromWonders();
@@ -12151,11 +12111,8 @@ int CvPlayer::GetScore(bool bFinal, bool bWinner) const
 	iScore += GetScoreFromGreatWorks();
 	iScore += GetScoreFromReligion();
 	iScore += GetScoreFromTechs();
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		iScore += GetScoreFromVassals();
-	}
-#endif
+	iScore += GetScoreFromVassals();
+
 #if defined(MOD_BALANCE_CORE)
 	iScore += GetScoreFromMinorAllies();
 	iScore += GetScoreFromMilitarySize();
@@ -12253,7 +12210,7 @@ int CvPlayer::GetScoreFromReligion() const
 
 	int iScore = 0;
 	CvGameReligions *pGameReligions = GC.getGame().GetGameReligions();
-	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	if (eReligion > RELIGION_PANTHEON)
 	{
 		const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, GetID());
@@ -12673,7 +12630,7 @@ void CvPlayer::findNewCapital()
 			if (thisTeam.getProjectCount((ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT)) == 1) {
 				if (isAlive()) {
 					CUSTOMLOG("Rebuilding launch pad at (%i, %i)", pBestCity->getX(), pBestCity->getY());
-					auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
+					CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pBestCity->plot()));
 					gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0001); // Display just the launch pad
 				}
 			}
@@ -12685,19 +12642,25 @@ void CvPlayer::findNewCapital()
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_CITY_RAZING))
+	if (GC.getGame().isOption(GAMEOPTION_NO_CITY_RAZING))
 	{
 		return false;
 	}
 
 	// If we don't own this city right now then we can't raze it!
-	if(pCity->getOwner() != GetID())
+	if (pCity->getOwner() != GetID())
+	{
+		return false;
+	}
+
+	// Humans cannot raze in a OCC game - it's destroyed instead
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && GET_PLAYER(pCity->getOwner()).isHuman())
 	{
 		return false;
 	}
 
 	// Can't raze a city that originally belonged to us
-	if(pCity->getOriginalOwner() == GetID())
+	if (pCity->getOriginalOwner() == GetID())
 	{
 		return false;
 	}
@@ -12720,14 +12683,12 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		}
 	}
 
-#if defined(MOD_EVENTS_CITY_RAZING)
-	if (MOD_EVENTS_CITY_RAZING) {
+	if (MOD_EVENTS_CITY_RAZING)
+	{
 		// Note the subtle difference between CanRazeOverride and PlayerCanRaze, the former needs everyone to agree, the latter anyone
-		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanRaze, pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_TRUE) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_PlayerCanRaze, pCity->getOwner(), pCity->GetID()) == GAMEEVENTRETURN_TRUE)
 			return true;
-		}
 	}
-#endif
 
 	// No razing of capitals
 	CvPlayer* pOriginalOwner = &GET_PLAYER(pCity->getOriginalOwner());
@@ -12884,7 +12845,7 @@ void CvPlayer::disband(CvCity* pCity)
 			int iPreferredPosition = buildingInfo->GetPreferredDisplayPosition();
 			if (iPreferredPosition > 0)
 			{
-				auto_ptr<ICvCity1> pDllCity(new CvDllCity(pCity));
+				CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(pCity));
 
 				if (iExists > 0)
 				{
@@ -12908,7 +12869,7 @@ void CvPlayer::disband(CvCity* pCity)
 	}
 
 	{
-		auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pCity));
+		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pCity));
 		gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pCity->getDamage());
 		gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 	}
@@ -12917,6 +12878,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if (pPlot)
 	{
+		pPlot->SetPlayerThatDestroyedCityHere(GetID());
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
 		{
@@ -12968,7 +12930,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// No XP in first 10 turns
 	if (kGoodyInfo.getExperience() > 0)
 	{
-		if((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
+		if ((pUnit == NULL) || !(pUnit->canAcquirePromotionAny()) || (GC.getGame().getElapsedGameTurns() < 10))
 		{
 			return false;
 		}
@@ -12982,7 +12944,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	// Unit Healing
 	if (kGoodyInfo.getDamagePrereq() > 0)
 	{
-		if((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
+		if ((pUnit == NULL) || (pUnit->getDamage() < ((pUnit->GetMaxHitPoints() * kGoodyInfo.getDamagePrereq()) / 100)))
 		{
 			return false;
 		}
@@ -13063,6 +13025,13 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 
 		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+	}
+
+	// New Goodies modmod
+	if (MOD_NEW_GOODIES && (kGoodyInfo.getFood() > 0 || kGoodyInfo.getBorderGrowth() > 0))
+	{
+		if (getNumCities() == 0)
 			return false;
 	}
 
@@ -13635,6 +13604,45 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		}
 
 		changeInstantYieldValue(YIELD_SCIENCE, iScience);
+	}
+
+	// New Goodies modmod 
+	if (MOD_NEW_GOODIES)
+	{
+		int iFood = kGoodyInfo.getFood();
+		if (iFood > 0)
+		{
+			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+			if (pBestCity != NULL)
+			{
+				goodyValueModifier(iFood, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
+				pBestCity->changeFood(iFood);
+				changeInstantYieldValue(YIELD_FOOD, iFood);
+			}
+			else
+			{
+				// Remember that no production was yielded just in case something cares
+				iFood = 0;
+			}
+		}
+
+		int iBorderGrowth = kGoodyInfo.getBorderGrowth();
+		if (iBorderGrowth > 0)
+		{
+
+			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+			if (pBestCity != NULL)
+			{
+				goodyValueModifier(iBorderGrowth, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
+				pBestCity->ChangeJONSCultureStored(iBorderGrowth);
+				changeInstantYieldValue(YIELD_CULTURE_LOCAL, iBorderGrowth);
+			}
+			else
+			{
+				// Remember that no production was yielded just in case something cares
+				iBorderGrowth = 0;
+			}
+		}
 	}
 
 	// Culture
@@ -16908,13 +16916,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		// Golden Age
 		if(pBuildingInfo->IsGoldenAge())
 		{
-			int iGoldenAgeTurns = getGoldenAgeLength();
-#if defined(MOD_BALANCE_CORE)
-			int iValue = GetGoldenAgeProgressMeter();
-			changeGoldenAgeTurns(iGoldenAgeTurns, iValue, true);
-#else
-			changeGoldenAgeTurns(iGoldenAgeTurns);
-#endif
+			changeGoldenAgeTurns(getGoldenAgeLength(), true);
 		}
 
 		// Global Pop change
@@ -16971,7 +16973,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			{
 				int iNumSpies = pBuildingInfo->GetExtraSpies();
 #if defined(MOD_BALANCE_CORE_SPIES)
-				if (MOD_BALANCE_CORE_SPIES) {
+				if (MOD_BALANCE_CORE_SPIES) 
+				{
 					//Optional: Spies scaled for the number of City-States in the game.
 					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
 					if(iNumMinor > 1)
@@ -17199,9 +17202,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	changeGreatGeneralRateModFromBldgs(pBuildingInfo->GetGreatGeneralRateModifier() * iChange);
 	ChangeGreatScientistBeakerMod(pBuildingInfo->GetGreatScientistBeakerModifier() * iChange);
 	ChangeGreatPersonExpendGold(pBuildingInfo->GetGreatPersonExpendGold() * iChange);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) ChangeGPExpendInfluence(pBuildingInfo->GetGPExpendInfluence() * iChange);
-#endif
+	ChangeGPExpendInfluence(pBuildingInfo->GetGPExpendInfluence() * iChange);
+
 	recomputeGreatPeopleModifiers();
 
 	changeGoldenAgeModifier(pBuildingInfo->GetGoldenAgeModifier() * iChange);
@@ -18165,7 +18167,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 	int iLeaguesMod = GC.getGame().GetGameLeagues()->GetResearchMod(GetID(), eTech);
 	if (iLeaguesMod != 0)
 	{
-		if (isMajorCiv() && MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+		if (isMajorCiv() && MOD_BALANCE_VP)
 		{
 			//Research bonus for city-state alliances
 			int iMinorAllies = GetNumCSAllies();
@@ -18681,17 +18683,13 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Temporary boost from bonus turns
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his science
-		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
-	}
+	// We have vassals, we get x% of their culture
+	iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
 	}
-#endif
 
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
@@ -18938,17 +18936,13 @@ int CvPlayer::GetCulturePerTurnFromBonusTurns() const
 		// Culture from Religion
 		iCulturePerTurn += GetCulturePerTurnFromReligion();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES) {
-			// We're a vassal of someone, we get x% of his science
-			iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
-		}
+		// We have vassals, we get x% of their culture
+		iCulturePerTurn += (GetYieldPerTurnFromVassals(YIELD_CULTURE));
 
 		if (MOD_BALANCE_CORE_JFD)
 		{
 			iCulturePerTurn += GetYieldPerTurnFromMinors(YIELD_CULTURE);
 		}
-#endif
 
 		// Golden Age bonus
 		if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
@@ -18993,7 +18987,6 @@ void CvPlayer::ChangeJONSCultureCityModifier(int iChange)
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 /// Modifier for all Cities' culture
 int CvPlayer::GetLeagueCultureCityModifier() const
@@ -19015,7 +19008,6 @@ void CvPlayer::ChangeLeagueCultureCityModifier(int iChange)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getJONSCulture() const
@@ -19712,19 +19704,7 @@ void CvPlayer::DoWarVictoryBonuses()
 	int iTurns = GetPlayerTraits()->GetGoldenAgeFromVictory();
 	if(iTurns > 0)
 	{
-		if(iTurns < GC.getGame().goldenAgeLength())
-		{
-			iTurns = GC.getGame().goldenAgeLength();
-		}
-		// Player modifier
-		int iLengthModifier = getGoldenAgeModifier();
-
-		if(iLengthModifier != 0)
-		{
-			iTurns = iTurns * (100 + iLengthModifier) / 100;
-		}
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iTurns, iValue, true);
+		changeGoldenAgeTurns(getGoldenAgeLength(iTurns), true);
 	}
 
 	int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_WAR);
@@ -20058,8 +20038,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES)
-		iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
+	iFaithPerTurn += GetYieldPerTurnFromVassals(YIELD_FAITH);
 
 	if (MOD_BALANCE_CORE_JFD)
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
@@ -20287,12 +20266,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 	// Increase from Leagues
 	m_iHappiness += GetHappinessFromLeagues();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// Increase from Vassals
-		m_iHappiness += GetHappinessFromVassals();
-	}
-#endif
+	// Increase from Vassals
+	m_iHappiness += GetHappinessFromVassals();
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	int iLoop;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -20655,7 +20631,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 		{
 			WarStateTypes eWarState = GetDiplomacyAI()->GetWarState(eLoopPlayer);
 
-			if (eWarState == WAR_STATE_DEFENSIVE)
+			if (eWarState <= WAR_STATE_TROUBLED)
 			{
 				if (GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_POWERFUL && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_eID) >= PLAYER_PROXIMITY_CLOSE)
 				{
@@ -20671,7 +20647,7 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 				if (GetDiplomacyAI()->IsPhonyWar(eLoopPlayer))
 					continue;
 
-				if (eWarState == WAR_STATE_STALEMATE || eWarState == WAR_STATE_CALM)
+				if (eWarState == WAR_STATE_STALEMATE)
 				{
 					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
@@ -21038,7 +21014,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21048,7 +21024,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", GetCityRevoltCounter(), pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21058,7 +21034,7 @@ void CvPlayer::DoUpdateCityRevolts()
 						CvNotifications* pNotifications = GetNotifications();
 						if (pNotifications && isHuman())
 						{
-							Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", GetCityRevoltCounter(), pMostUnhappyCity->getName());
+							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", GetCityRevoltCounter(), pMostUnhappyCity->getName()));
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 						}
@@ -21163,7 +21139,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLT_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -21199,7 +21175,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eRecipient).getCivilizationShortDescription()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -21235,7 +21211,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 			CvNotifications* pNotifications = GetNotifications();
 			if (pNotifications && isHuman())
 			{
-				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", iTurns, pMostUnhappyCity->getName());
+				Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY", iTurns, pMostUnhappyCity->getName()));
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
 				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 			}
@@ -22121,30 +22097,22 @@ int CvPlayer::GetUnhappinessFromWarWeariness() const
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport) const
 {
+	// No Happiness if banned by World Congress
 	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 		return 0;
 
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if(pkResourceInfo)
+	if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
-		// Only look at Luxuries
-		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
-		{
-			return 0;
-		}
-
 		// Any extras?
-		else if (getNumResourceAvailable(eResource, /*bIncludeImport*/ bIncludeImport) > 0)
+		if (getNumResourceAvailable(eResource, /*bIncludeImport*/ bIncludeImport) > 0)
 		{
 			return pkResourceInfo->getHappiness();
 		}
-
-		else if(GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
+		// Vanilla Netherlands UA? (retain 50% of the Happiness if you trade away your last copy)
+		else if (GetPlayerTraits()->GetLuxuryHappinessRetention() > 0 && getResourceExport(eResource) > 0)
 		{
-			if(getResourceExport(eResource) > 0)
-			{
-				return ((pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100);
-			}
+			return (pkResourceInfo->getHappiness() * GetPlayerTraits()->GetLuxuryHappinessRetention()) / 100;
 		}
 	}
 
@@ -23166,7 +23134,7 @@ void CvPlayer::ChangeHappinessPerXPopulation(int iChange)
 {
 	SetHappinessPerXPopulation(m_iHappinessPerXPopulation + iChange);
 }
-#if defined(MOD_BALANCE_CORE_POLICIES)
+
 //	--------------------------------------------------------------------------------
 /// How much Happiness are we getting from large empires?
 int CvPlayer::GetHappinessPerXPopulationGlobal() const
@@ -23237,10 +23205,7 @@ int CvPlayer::GetCSAlliesLowersPolicyNeedWonders() const
 
 void CvPlayer::ChangePositiveWarScoreTourismMod(int iChange)
 {
-	if (iChange != 0)
-	{
-		m_iPositiveWarScoreTourismMod += iChange;
-	}
+	m_iPositiveWarScoreTourismMod += iChange;
 }
 int CvPlayer::GetPositiveWarScoreTourismMod() const
 {
@@ -23249,72 +23214,61 @@ int CvPlayer::GetPositiveWarScoreTourismMod() const
 
 void CvPlayer::ChangeIsNoCSDecayAtWar(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iIsNoCSDecayAtWar += iValue;
-	}
+	m_iIsNoCSDecayAtWar += iValue;
 }
 bool CvPlayer::IsNoCSDecayAtWar() const
 {
-	return (m_iIsNoCSDecayAtWar > 0);
+	return m_iIsNoCSDecayAtWar > 0;
 }
 void CvPlayer::ChangeCanBullyFriendlyCS(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iCanBullyFriendlyCS += iValue;
-	}
+	m_iCanBullyFriendlyCS += iValue;
 }
 bool CvPlayer::IsCanBullyFriendlyCS() const
 {
-	return (m_iCanBullyFriendlyCS > 0);
+	return m_iCanBullyFriendlyCS > 0;
 }
 void CvPlayer::ChangeBullyGlobalCSReduction(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iBullyGlobalCSReduction += iValue;
-	}
+	m_iBullyGlobalCSReduction += iValue;
 }
 int CvPlayer::GetBullyGlobalCSReduction() const
 {
 	return m_iBullyGlobalCSReduction;
 }
-#endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 void CvPlayer::ChangeIsVassalsNoRebel(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iIsVassalsNoRebel += iValue;
-	}
+	m_iIsVassalsNoRebel += iValue;
 }
 bool CvPlayer::IsVassalsNoRebel() const
 {
-	return (m_iIsVassalsNoRebel > 0);
+	return m_iIsVassalsNoRebel > 0;
 }
 
-void CvPlayer::ChangeVassalCSBonusModifier(int iValue)
+void CvPlayer::ChangeVassalYieldBonusModifier(int iValue)
 {
-	if (iValue != 0)
-	{
-		m_iVassalCSBonusModifier += iValue;
-	}
+	m_iVassalYieldBonusModifier += iValue;
 }
-int CvPlayer::GetVassalCSBonusModifier() const
+int CvPlayer::GetVassalYieldBonusModifier() const
 {
-	return m_iVassalCSBonusModifier;
+	return m_iVassalYieldBonusModifier;
 }
-#endif
+
+void CvPlayer::ChangeCSYieldBonusModifier(int iValue)
+{
+	m_iCSYieldBonusModifier += iValue;
+}
+int CvPlayer::GetCSYieldBonusModifier() const
+{
+	return m_iCSYieldBonusModifier;
+}
+
 //	--------------------------------------------------------------------------------
 /// Change the amount of Happiness we're getting from large empires
 void CvPlayer::ChangeCSAlliesLowersPolicyNeedWonders(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iXCSAlliesLowersPolicyNeedWonders += iChange;
-	}
+	m_iXCSAlliesLowersPolicyNeedWonders += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23427,7 +23381,6 @@ int CvPlayer::GetExtraLeagueVotes() const
 	return m_iExtraLeagueVotes;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 /// Extra league votes from faith
 int CvPlayer::GetFaithToVotes() const
@@ -23495,14 +23448,14 @@ int CvPlayer::TestCapitalsToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 int CvPlayer::GetDoFToVotes() const
 {
 	return m_iDoFToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 void CvPlayer::ChangeDoFToVotes(int iChange)
 {
 	m_iDoFToVotes = iChange;
@@ -23514,7 +23467,7 @@ void CvPlayer::ChangeDoFToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from DoF
+/// Extra league votes from Declarations of Friendship
 int CvPlayer::TestDoFToVotes(int iChange)
 {
 	int iDoFToVotes = 0;
@@ -23529,14 +23482,14 @@ int CvPlayer::TestDoFToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 int CvPlayer::GetRAToVotes() const
 {
 	return m_iRAToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 void CvPlayer::ChangeRAToVotes(int iChange)
 {
 	m_iRAToVotes = iChange;
@@ -23548,7 +23501,7 @@ void CvPlayer::ChangeRAToVotes(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Research Agreements
 int CvPlayer::TestRAToVotes(int iChange)
 {
 	int iRAToVotes = 0;
@@ -23561,14 +23514,14 @@ int CvPlayer::TestRAToVotes(int iChange)
 	return iRAToVotes;
 }
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Defense Pacts
 int CvPlayer::GetDefensePactsToVotes() const
 {
 	return m_iDefensePactsToVotes;
 }
 
 //	--------------------------------------------------------------------------------
-/// Extra league votes from RA
+/// Extra league votes from Defense Pacts
 void CvPlayer::ChangeDefensePactsToVotes(int iChange)
 {
 	m_iDefensePactsToVotes = iChange;
@@ -23587,15 +23540,65 @@ int CvPlayer::TestDefensePactsToVotes(int iChange)
 	if(iChange > 0)
 	{
 		iDefensePactsToVotes = (GetDiplomacyAI()->GetNumDefensePacts() * iChange);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		if (MOD_DIPLOMACY_CIV4_FEATURES)
+
+		if (MOD_BALANCE_VP)
 		{
 			iDefensePactsToVotes += GetNumVassals();
 		}
-#endif
 	}
 	
 	return iDefensePactsToVotes;
+}
+
+/// Extra league votes from Religion
+int CvPlayer::GetReligionVotes() const
+{
+	int iVotes = 0;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligions()->GetStateReligion(false), m_eID);
+	if (pReligion)
+	{
+		iVotes += CalculateReligionExtraVotes(pReligion);
+
+		iVotes += CalculateReligionVotesFromImprovements(pReligion);
+	}
+	return iVotes;
+}
+// Religion gives extra votes based on the number of Minor Civs
+int CvPlayer::CalculateReligionExtraVotes(const CvReligion *pReligion) const
+{
+	int iExtraVotes = pReligion->m_Beliefs.GetExtraVotes(m_eID);
+	if (iExtraVotes > 0)
+	{
+		int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
+		if (iNumMinor > 0)
+		{
+			return (iExtraVotes * iNumMinor);
+		}
+	}
+	return 0;
+}
+
+// Religion gives extra votes based on the number of certain improvements
+int CvPlayer::CalculateReligionVotesFromImprovements(const CvReligion *pReligion) const
+{
+	int iNumImprovementInfos = GC.getNumImprovementInfos();
+	
+	std::pair<int, int> fTotalVotes = std::make_pair(0, 1);
+	
+	for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
+	{
+		int iNumImprovements = getImprovementCount((ImprovementTypes)jJ); // less expensive function call
+		if (iNumImprovements > 0)
+		{
+			// number of votes per improvement (a fraction less than one)
+			std::pair<int, int> fPotentialVotes = pReligion->m_Beliefs.GetVoteFromOwnedImprovement((ImprovementTypes)jJ, m_eID); // more likely to be zero
+			if (fPotentialVotes.first > 0)
+			{
+				AddFractionToReference(fTotalVotes, std::make_pair(iNumImprovements * fPotentialVotes.first, fPotentialVotes.second));
+			}
+		}
+	}
+	return fTotalVotes.first / fTotalVotes.second;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23687,25 +23690,15 @@ void CvPlayer::ProcessLeagueResolutions()
 		if ( pLeague->GetArtsyGreatPersonRateModifier() > 0)
 		{
 			//Production and Culture
-#if defined(MOD_BALANCE_CORE)
 			if(AidRankGeneric(1) == GetID()) // calculate only Culture related score
-#else
-			if(AidRank() == GetID())
-#endif
 			{
-#if defined(MOD_BALANCE_CORE)
 				// calculate modifier that is actually related to Resolution's ArtsyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetArtsyGreatPersonRateModifier() * ScoreDifferencePercent(1) / 100;
-#endif
 				int iLoop;
 				int iAid = 0;
 				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
 				{
-#if defined(MOD_BALANCE_CORE)
 					int iAid = (iScoreMod - pLoopCity->GetTotalArtsyAid());
-#else
-					int iAid = (ScoreDifference() - pLoopCity->GetTotalArtsyAid());
-#endif
 					if(iAid != 0)
 					{
 						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_PRODUCTION, iAid);
@@ -23714,22 +23707,14 @@ void CvPlayer::ProcessLeagueResolutions()
 					}
 
 				}
-#if defined(MOD_BALANCE_CORE)
 				iAid = iScoreMod - GetLeagueCultureCityModifier();
-#else
-				iAid = ScoreDifference() - GetLeagueCultureCityModifier();
-#endif
 				if(iAid != 0)
 				{
 					ChangeLeagueCultureCityModifier(iAid);
 				}
 			}
 			//Remove bonuses from filty first-worlders.
-#if defined(MOD_BALANCE_CORE)
 			if(AidRankGeneric(1) != GetID()) // calculate only Culture related score
-#else
-			if(AidRank() != GetID())
-#endif
 			{
 				int iLoop;
 				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
@@ -23751,25 +23736,15 @@ void CvPlayer::ProcessLeagueResolutions()
 		else if (pLeague && pLeague->GetScienceyGreatPersonRateModifier() > 0)
 		{
 			//Food and Research
-#if defined(MOD_BALANCE_CORE)
 			if(AidRankGeneric(2) == GetID()) // calculate only Research related score
-#else
-			if(AidRank() == GetID())
-#endif
 			{
-#if defined(MOD_BALANCE_CORE)
 				// calculate modifier that is actually related to Resolution's ScienceyGreatPersonRateMod parameter
 				int iScoreMod = pLeague->GetScienceyGreatPersonRateModifier() * ScoreDifferencePercent(2) / 100;
-#endif
 				int iLoop;
 				int iAid = 0;
 				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
 				{
-#if defined(MOD_BALANCE_CORE)
 					iAid = (iScoreMod - pLoopCity->GetTotalScienceyAid());
-#else
-					iAid = (ScoreDifference() - pLoopCity->GetTotalScienceyAid());
-#endif
 					if(iAid != 0)
 					{
 						pLoopCity->ChangeBaseYieldRateFromLeague(YIELD_FOOD, iAid);
@@ -23778,22 +23753,14 @@ void CvPlayer::ProcessLeagueResolutions()
 					}
 				}
 				//Global
-#if defined(MOD_BALANCE_CORE)
 				iAid = (iScoreMod - GetScienceRateFromLeagueAid());
-#else
-				iAid = (ScoreDifference() - GetScienceRateFromLeagueAid());
-#endif
 				if(iAid != 0)
 				{
 					ChangeScienceRateFromLeagueAid(iAid);
 				}
 			}
 			//Remove bonuses from filty first-worlders.
-#if defined(MOD_BALANCE_CORE)
 			if(AidRankGeneric(2) != GetID()) // calculate only Research related score
-#else
-			if(AidRank() != GetID())
-#endif
 			{
 				int iLoop;
 				for(CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
@@ -23871,7 +23838,7 @@ void CvPlayer::ProcessLeagueResolutions()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 //	League Bonuses for Poor Players - modified version of CvPlayer::AidRank()
 //	Calculates if the player is below median score depending on type of score
 //	eType 0 total score, 1 art, 2 science
@@ -23931,60 +23898,13 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 	}
 	return NO_PLAYER;
 }
-#endif
+
 /// League Bonuses for Poor Players
 PlayerTypes CvPlayer::AidRank()
 {
-#if defined(MOD_BALANCE_CORE)
 	return AidRankGeneric();
-#else
-	int iRank = 0;
-	int iMajorCivs = 0;
-	CvWeightedVector<PlayerTypes> veMajorRankings;
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer* pMajorLoop = &GET_PLAYER(eLoopPlayer);
-	
-		if(pMajorLoop->isAlive() && !pMajorLoop->isMinorCiv())
-		{
-			iRank = pMajorLoop->GetScore();
-
-			if(iRank > 0)
-			{
-				veMajorRankings.push_back(eLoopPlayer, iRank);
-				iMajorCivs++;
-			}
-		}
-	}
-
-	//Find the median of the Civs.
-	int iTopTier = (iMajorCivs / 2);
-	if(iTopTier <= 0)
-	{
-		iTopTier = 1;
-	}
-
-	veMajorRankings.SortItems();
-	if(veMajorRankings.size() != 0)
-	{
-		for(int iRanking = 0; iRanking < veMajorRankings.size(); iRanking++)
-		{
-			if(veMajorRankings.GetElement(iRanking) == GetID())
-			{
-				//Are we in the bottom 50% of Civs? If so, we need aid!
-				if(iRanking >= iTopTier)
-				{
-					return GetID();
-				}
-			}
-		}
-	}
-	return NO_PLAYER;
-#endif
 }
-#if defined(MOD_BALANCE_CORE)
+
 //	League Bonuses for Poor Players - modified version of CvPlayer::ScoreDifference()
 //	Calculates difference between player's score and best score using percentage scale
 //	0% - best score, 100% - worst score
@@ -24021,7 +23941,7 @@ int CvPlayer::ScoreDifferencePercent(int eType)
 	// rescale to 0..100
 	return MapToPercent(iPlayerScore, iBestScore, iWorstScore);
 }
-#endif
+
 /// League Bonuses for Poor Players
 int CvPlayer::ScoreDifference()
 {
@@ -24111,7 +24031,6 @@ void CvPlayer::SetScienceRateFromLeagueAid(int iValue)
 	if(GetScienceRateFromLeagueAid() != iValue)
 		m_iScienceRateFromLeagueAid = iValue;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Extra league votes
@@ -24580,7 +24499,6 @@ void CvPlayer::changeTourismBonusTurnsPlayer(PlayerTypes eWithPlayer, int iChang
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 void CvPlayer::DoProcessVotes()
 {
@@ -24639,7 +24557,7 @@ void CvPlayer::DoProcessVotes()
 		}
 	}
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_YIELDS)
 void CvPlayer::DoChangeGreatGeneralRate()
 {
@@ -24859,16 +24777,10 @@ void CvPlayer::DoProcessGoldenAge()
 			{
 				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
 #if defined(MOD_BALANCE_CORE)
-				int iValue = GetGoldenAgeProgressMeter();
 #endif
 				SetGoldenAgeProgressMeter(iOverflow);
 				
-				int iLength = getGoldenAgeLength();
-#if defined(MOD_BALANCE_CORE)
-				changeGoldenAgeTurns(iLength, iValue);
-#else
-				changeGoldenAgeTurns(iLength);
-#endif
+				changeGoldenAgeTurns(getGoldenAgeLength());
 
 				// If it's the active player then show the popup
 				if(GetID() == GC.getGame().getActivePlayer())
@@ -25098,20 +25010,15 @@ bool CvPlayer::isGoldenAge() const
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
-void CvPlayer::changeGoldenAgeTurns(int iChange, int iValue, bool bFree)
-#else
-void CvPlayer::changeGoldenAgeTurns(int iChange)
-#endif
+void CvPlayer::changeGoldenAgeTurns(int iChange, bool bFree)
 {
 	Localization::String locString;
 	Localization::String locSummaryString;
 
-	bool bOldGoldenAge;
-
 	if(iChange != 0)
 	{
-		bOldGoldenAge = isGoldenAge();
+		bool bOldGoldenAge = isGoldenAge();
+		int iThreshold = GetGoldenAgeProgressThreshold();
 
 		m_iGoldenAgeTurns = (m_iGoldenAgeTurns + iChange);
 		CvAssert(getGoldenAgeTurns() >= 0);
@@ -25120,22 +25027,13 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 		{
 			GC.getMap().updateYield();	// Do the entire map, so that any potential golden age bonus is reflected in the yield icons.
 
-			if(isGoldenAge())
-			{
-				if (!bFree)
-				{
-					ChangeNumGoldenAges(1);
-				}
-			}
-			else
+			if(!isGoldenAge())
 			{
 				gDLL->GameplayGoldenAgeEnded();
 
-#if defined(MOD_EVENTS_GOLDEN_AGE)
 				if (MOD_EVENTS_GOLDEN_AGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), false, 0);
 				}
-#endif
 #if defined(MOD_BALANCE_CORE)
 				int iLoop;
 				for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -25171,16 +25069,18 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 		if (iChange > 0)
 		{
+			if (!(bFree && MOD_BALANCE_CORE))
+			{
+				ChangeNumGoldenAges(1);
+			}
 #if defined(MOD_BALANCE_CORE)
 			//Instant Boost
 			CvCity* pCapitalCity = getCapitalCity();
 			if (pCapitalCity != NULL)
 			{
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iValue, false, NO_PLAYER, NULL, false, pCapitalCity);
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iThreshold, false, NO_PLAYER, NULL, false, pCapitalCity);
 			}
-#endif
-
-#if defined(MOD_BALANCE_CORE)
+			
 			if (GetGoldenAgeTourism() > 0)
 			{
 				int iTourism = GetHistoricEventTourism(HISTORIC_EVENT_GA);
@@ -25219,15 +25119,15 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 			if (GetPlayerTraits()->GetWLTKDGATimer() > 0)
 			{
-				int iValue2 = GetPlayerTraits()->GetWLTKDGATimer();
-				iValue2 *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iValue2 /= 100;
+				int iValue = GetPlayerTraits()->GetWLTKDGATimer();
+				iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iValue /= 100;
 				int iLoop;
 				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
 					{
-						pLoopCity->ChangeWeLoveTheKingDayCounter(iValue2);
+						pLoopCity->ChangeWeLoveTheKingDayCounter(iValue);
 					}
 				}
 				CvNotifications* pNotification = GetNotifications();
@@ -25235,7 +25135,7 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				{
 					CvString strMessage;
 					CvString strSummary;
-					strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue2);
+					strMessage = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD", iValue);
 					strSummary = GetLocalizedText("TXT_KEY_CARNAVAL_WLTKD_S");
 					pNotification->Add(NOTIFICATION_GENERIC, strMessage, strSummary, -1, -1, GetID());
 				}
@@ -25252,11 +25152,9 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 			gDLL->GameplayGoldenAgeStarted();
 
-#if defined(MOD_EVENTS_GOLDEN_AGE)
 			if (MOD_EVENTS_GOLDEN_AGE) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
 			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			int iLoop;
 			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -25275,18 +25173,16 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getGoldenAgeLength() const
+// get the number of turns this Golden Age will occur over
+// (optional input allows manually sets the length with included length modifiers)
+int CvPlayer::getGoldenAgeLength(int iManualLength) const
 {
-	int iTurns = GC.getGame().goldenAgeLength();
+	int iTurns = GC.getGame().goldenAgeLength(iManualLength);
 
 	// Player modifier
 	int iLengthModifier = getGoldenAgeModifier();
 
-#if defined(MOD_BALANCE_CORE)
 	if(iLengthModifier != 0)
-#else
-	if(iLengthModifier > 0)
-#endif
 	{
 		iTurns = iTurns * (100 + iLengthModifier) / 100;
 	}
@@ -25504,7 +25400,6 @@ void CvPlayer::incrementGreatMusiciansCreated(bool bIsFree)
 	if (bIsFree) m_iFreeGreatMusiciansCreated++;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatDiplomatsCreated(bool bExcludeFree) const
 {
@@ -25519,7 +25414,7 @@ void CvPlayer::incrementGreatDiplomatsCreated(bool bIsFree)
 	m_iGreatDiplomatsCreated++;
 	if (bIsFree) m_iFreeGreatDiplomatsCreated++;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGPExtra1Created(bool bExcludeFree) const
@@ -25703,7 +25598,6 @@ void CvPlayer::incrementGreatMusiciansCreated()
 	m_iGreatMusiciansCreated++;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatDiplomatsCreated() const
 {
@@ -25715,7 +25609,6 @@ void CvPlayer::incrementGreatDiplomatsCreated()
 {
 	m_iGreatDiplomatsCreated++;
 }
-#endif
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -25802,7 +25695,6 @@ void CvPlayer::incrementAdmiralsFromFaith()
 	m_iAdmiralsFromFaith++;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getDiplomatsFromFaith() const
 {
@@ -25814,7 +25706,7 @@ void CvPlayer::incrementDiplomatsFromFaith()
 {
 	m_iDiplomatsFromFaith++;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGPExtra1FromFaith() const
@@ -25996,13 +25888,11 @@ int CvPlayer::getGreatEngineerRateModifier() const
 	return m_iGreatEngineerRateModifier;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatDiplomatRateModifier() const
 {
 	return m_iGreatDiplomatRateModifier;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getDomesticGreatGeneralRateModifier() const
@@ -26165,6 +26055,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					break;
 				}
 				case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:
+				{
+					if (eYield != ePassYield)
+						continue;
+
+					iValue = iPassYield;
+					break;
+				}
+				case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
 				{
 					if (eYield != ePassYield)
 						continue;
@@ -27455,17 +27353,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
+			}
+
+			case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE");
+					localizedText << totalyieldString;
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+				}
+				break;
 			}
 
 			case INSTANT_YIELD_TYPE_REFUND:
@@ -28678,9 +28587,7 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 	m_iGreatArtistRateModifier = 0;
 	m_iGreatMusicianRateModifier = 0;
 	m_iGreatMerchantRateModifier = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iGreatDiplomatRateModifier = 0;
-#endif
 	m_iGreatScientistRateModifier = 0;
 	m_iGreatEngineerRateModifier = 0;
 	m_iDomesticGreatGeneralRateModifier = 0;
@@ -28705,11 +28612,7 @@ void CvPlayer::recomputeGreatPeopleModifiers()
 #if defined(MOD_BALANCE_CORE)
 	m_iGreatEngineerRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_ENGINEER_RATE);
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		m_iGreatDiplomatRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE);
-	}
-#endif
+	m_iGreatDiplomatRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_DIPLOMAT_RATE);
 	m_iGreatScientistRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_GREAT_SCIENTIST_RATE);
 	m_iDomesticGreatGeneralRateModifier += m_pPlayerPolicies->GetNumericModifier(POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE);
 
@@ -29090,9 +28993,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			}
 			if(pNewGreatPeople->isGoldenAgeOnBirth())
 			{
-				int iGoldenAgeTurns = getGoldenAgeLength();
-				int iValue = GetGoldenAgeProgressMeter();
-				changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+				changeGoldenAgeTurns(getGoldenAgeLength());
 			}
 			if(pNewGreatPeople->isCultureBoost())
 			{
@@ -29154,8 +29055,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 				incrementGreatMusiciansCreated();
 #endif
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-			else if (MOD_DIPLOMACY_CITYSTATES && pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+			else if (MOD_BALANCE_VP && pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 			{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				incrementGreatDiplomatsCreated(bIsFree);
@@ -29163,7 +29063,6 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 				incrementGreatDiplomatsCreated();
 #endif
 			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			else if (pNewGreatPeople->getUnitInfo().IsGPExtra() == 1)
 			{
@@ -31408,12 +31307,11 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_ENGINEER", iGPThreshold);
 						}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-						else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+						else if (MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 						{
 							strMessage = GetLocalizedText("TXT_KEY_TOURISM_EVENT_GP_BONUS_DIPLOMAT", iGPThreshold);
 						}
-#endif
+
 						strSummary = GetLocalizedText("TXT_KEY_TOURISM_EVENT_SUMMARY_GP_BONUS");
 						pNotification->Add(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER, strMessage, strSummary, -1, -1, -1);
 					}
@@ -33302,19 +33200,20 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 												{
 													CvCity* pNearestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(pFromUnit->getOwner(), pFromUnit->plot());
 
-													CUSTOMLOG("Create Great General at (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
-#else
-													createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY());
-#endif												
-												
-#if defined(MOD_PROMOTIONS_FLAGSHIP)
+													if (pNearestCity != NULL)
+													{
+														CUSTOMLOG("Create Great Admiral at the city (%d, %d) from unit %s", pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pNearestCity->plot()->getX(), pNearestCity->plot()->getY(), false);
+													}
+													else
+													{
+														CUSTOMLOG("Create Great Admiral at plot (%d, %d) from unit %s", pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), pFromUnit->getName().GetCString());
+														createGreatAdmiral(eUnit, pFromUnit->plot()->getX(), pFromUnit->plot()->getY(), false);
+													}
 													if (MOD_PROMOTIONS_FLAGSHIP)
 													{
 														pFromUnit->setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_FLAGSHIP), true);
 													}
-#endif
 												}
 												else
 												{
@@ -33386,7 +33285,7 @@ void CvPlayer::disassembleSpaceship(CvPlot* pPlot) {
 
 			if (pPlot) {
 				CUSTOMLOG("Removing launch pad at (%i, %i)", pPlot->getX(), pPlot->getY());
-				auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
+				CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 				gDLL->GameplaySpaceshipEdited(pDllPlot.get(), 0x0000); // Remove the launch pad
 			}
 		}
@@ -34393,19 +34292,38 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	// This should be fixed, but might have unforeseen ramifications so...
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
 
+	// Trigger war victory bonuses for all majors at war if a major was killed
+	vector<PlayerTypes> vAtWarWithPossibleVictim;
+	if (kPossibleVictimPlayer.isMajorCiv())
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(ePossibleVictimPlayer).getTeam())
+				continue;
+
+			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).IsAtWarWith(ePossibleVictimPlayer))
+				vAtWarWithPossibleVictim.push_back(eLoopPlayer);
+		}
+	}
+
 	// This may 'kill' the player if it is deemed that he does not have the proper cities/units to stay alive
 	kPossibleVictimPlayer.verifyAlive(GetID());
 
 	// You... you killed him!
-	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv() && isMajorCiv())
+	if (!kPossibleVictimPlayer.isAlive() && kPossibleVictimPlayer.isMajorCiv())
 	{
 		// Leader pops up and whines
-		if (!CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
+		if (isMajorCiv() && !CvPreGame::isNetworkMultiplayerGame() && !kPossibleVictimPlayer.isHuman()) // Not humans or in MP
 		{
 			kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 		}
 
-		DoWarVictoryBonuses();
+		for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
+		{
+			GET_PLAYER(*it).DoWarVictoryBonuses();
+		}
 	}
 }
 
@@ -35623,24 +35541,38 @@ void CvPlayer::ChangeNoUnhappyIsolation(int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsDoubleBorderGA() const
+bool CvPlayer::IsDoubleBorderGrowthGA() const
 {
-	return GetDoubleBorderGA() > 0;
+	return GetDoubleBorderGrowthGA() > 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetDoubleBorderGA() const
+int CvPlayer::GetDoubleBorderGrowthGA() const
 {
-	return m_iDoubleBorderGA;
+	return m_iDoubleBorderGrowthGA;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeDoubleBorderGA(int iChange)
+void CvPlayer::ChangeDoubleBorderGrowthGA(int iChange)
 {
-	if(iChange != 0)
-	{
-		m_iDoubleBorderGA += iChange;
-	}
+	m_iDoubleBorderGrowthGA += iChange;
+}
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsDoubleBorderGrowthWLTKD() const
+{
+	return GetDoubleBorderGrowthWLTKD() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetDoubleBorderGrowthWLTKD() const
+{
+	return m_iDoubleBorderGrowthWLTKD;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeDoubleBorderGrowthWLTKD(int iChange)
+{
+	m_iDoubleBorderGrowthWLTKD += iChange;
 }
 //Increased influence from CS quests
 //	--------------------------------------------------------------------------------
@@ -36167,13 +36099,8 @@ int CvPlayer::GetScienceTimes100() const
 	iValue += GetYieldPerTurnFromTraits(YIELD_SCIENCE) * 100;
 
 	// Science from other players!
-#if defined(MOD_BALANCE_CORE)
-	if (!isMinorCiv())
-		//avoid pointless recursion
+	if (isMajorCiv())
 		iValue += GetScienceFromOtherPlayersTimes100();
-#else
-	iValue += GetScienceFromOtherPlayersTimes100();
-#endif
 
 	// Happiness converted to Science? (Policies, etc.)
 	iValue += GetScienceFromHappinessTimes100();
@@ -36184,35 +36111,27 @@ int CvPlayer::GetScienceTimes100() const
 	// If we have a negative Treasury + GPT then it gets removed from Science
 	iValue += GetScienceFromBudgetDeficitTimes100();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his science
-		iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
-	}
+	// We have vassals, we get x% of their science
+	iValue += (GetYieldPerTurnFromVassals(YIELD_SCIENCE) * 100);
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iValue += GetYieldPerTurnFromMinors(YIELD_FAITH) * 100;
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
+
+	if (MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	{
 		iValue += GetSciencePerTurnFromMinorCivs() * 100;
 	}
-#endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		//Science Funding Rate Boost
-		if(IsLeagueAid())
-		{
-			int iFreeScience = GetScienceFromCitiesTimes100(false) * GetScienceRateFromLeagueAid();
-			iFreeScience /= 100;
 
-			iValue += iFreeScience;
-		}
+	//Science Funding Rate Boost
+	if (MOD_BALANCE_VP && IsLeagueAid())
+	{
+		int iFreeScience = GetScienceFromCitiesTimes100(false) * GetScienceRateFromLeagueAid();
+		iFreeScience /= 100;
+		iValue += iFreeScience;
 	}
-#endif
+
 	return max(iValue, 0);
 }
 
@@ -36345,11 +36264,11 @@ void CvPlayer::DoBankruptcy()
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDisband, GetID()) == GAMEEVENTRETURN_FALSE)
 		return;
 
-	if(isBarbarian())
+	if (!isMajorCiv())
 		return;
 
 	// If the player has more units than cities, start disbanding things
-	if( getNumMilitaryUnits() > 3 + GetCurrentEra() + getNumCities() )
+	if (getNumMilitaryUnits() > 3 + GetCurrentEra() + getNumCities())
 	{
 		int iLandScore = MAX_INT;
 		int iNavalScore = MAX_INT;
@@ -36366,7 +36285,7 @@ void CvPlayer::DoBankruptcy()
 			pScrapUnit = pNavalUnit;
 
 		//AI players try to gift their units away
-		if (pScrapUnit && !isMinorCiv() && !isHuman())
+		if (pScrapUnit && !isHuman())
 		{
 			PlayerTypes eMinor = GetBestGiftTarget(pScrapUnit->getDomainType());
 			if (eMinor != NO_PLAYER)
@@ -36378,7 +36297,7 @@ void CvPlayer::DoBankruptcy()
 		}
 
 		//get rid of it
-		if(pScrapUnit)
+		if (pScrapUnit)
 		{
 			CvNotifications* pNotifications = GetNotifications();
 			if(pNotifications)
@@ -37362,30 +37281,6 @@ void CvPlayer::DoDistanceGift(PlayerTypes eFromPlayer, CvUnit* pUnit)
 
 	AddIncomingUnit(eFromPlayer, pUnit);
 }
-bool CvPlayer::CanGiftUnit(PlayerTypes eToPlayer)
-{
-	if (GET_PLAYER(eToPlayer).isMinorCiv())
-	{
-		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eToPlayer).GetMinorCivAI();
-		CvAssert(pMinorCivAI);
-		if (pMinorCivAI)
-		{
-			if (pMinorCivAI->getIncomingUnitGift(GetID()).getArrivalCountdown() != -1)
-			{
-				return false;
-			}
-		}
-
-		int iNum = GET_PLAYER(eToPlayer).GetNumUnitsToSupply();
-		int iMax = max(3, ((GET_PLAYER(eToPlayer).GetCurrentEra() + 2) * GET_PLAYER(eToPlayer).getNumCities()));
-
-		if (iNum >= iMax)
-			return false;
-
-		return true;
-	}
-	return false;
-}
 //	--------------------------------------------------------------------------------
 /// Someone sent us a present!
 void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
@@ -37394,7 +37289,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 	if (!pUnit) { return; }
 
 	// Gift to a minor civ for friendship
-	if(isMinorCiv() && eFromPlayer < MAX_MAJOR_CIVS)
+	if(isMinorCiv() && GET_PLAYER(eFromPlayer).isMajorCiv())
 	{
 		CvMinorCivAI* pMinorCivAI = GetMinorCivAI();
 		CvAssert(pMinorCivAI);
@@ -37404,7 +37299,7 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 			CvAssertMsg(!unitGift.hasIncomingUnit(), "Adding incoming unit when one is already on its way. Please send Anton your save file and version.");
 			if (!unitGift.hasIncomingUnit())
 			{
-				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS));
+				unitGift.init(*pUnit, /*3*/ GD_INT_GET(MINOR_UNIT_GIFT_TRAVEL_TURNS), eFromPlayer);
 			}
 		}
 
@@ -37449,6 +37344,8 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 {
 	int iBestValue = 0;
 	PlayerTypes eBestMinor = NO_PLAYER;
+	bool bIsGermany = GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0;
+
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eLoopMinor = (PlayerTypes)iMinorLoop;
@@ -37461,8 +37358,9 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				if (pCity == NULL)
 					continue;
 
-				//First, the exclusions!
-				if (!CanGiftUnit(eLoopMinor))
+				// Is there a distance gift from us waiting to be delivered?
+				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
+				if (pMinorCivAI->getIncomingUnitGift(m_eID).getArrivalCountdown() != -1)
 					continue;
 
 				//No ships for landlocked players
@@ -37472,8 +37370,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				// Skip if not revealed.
 				if (!pCity->isRevealed(getTeam(),false,false))
 					continue;
-
-				CvMinorCivAI* pMinorCivAI = eMinor->GetMinorCivAI();
+				
 				int iFriendship = pMinorCivAI->GetFriendshipFromUnitGift(GetID(), false, true);
 
 				if (!GET_TEAM(eMinor->getTeam()).isHasMet(getTeam()))
@@ -37483,11 +37380,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				{
 					continue;
 				}
-				if (pMinorCivAI->GetPermanentAlly() == GetID())
-				{
-					continue;
-				}
-				if (pMinorCivAI->GetPermanentAlly() != GetID() && pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+				if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 				{
 					continue;
 				}
@@ -37517,13 +37410,12 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				// Approaches
 				// **************************
 
-				int iScore = 100;
 				CivApproachTypes eApproach = GetDiplomacyAI()->GetCivApproach(eLoopMinor);
 
-				if (eApproach == CIV_APPROACH_NEUTRAL)
-				{
-					iScore /= 2;
-				}
+				if (eApproach == CIV_APPROACH_WAR || eApproach == CIV_APPROACH_HOSTILE)
+					continue;
+
+				int iScore = eApproach == CIV_APPROACH_FRIENDLY ? 100 : 50;
 
 				// **************************
 				// Benefits to Us!
@@ -37614,7 +37506,7 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 				}
 
 				//Nobody likes hostile city-states.
-				if (pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+				if (!bIsGermany && pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 				{
 					iScore /= 2;
 				}
@@ -37731,6 +37623,29 @@ PlayerTypes CvPlayer::GetBestGiftTarget(DomainTypes eUnitDomain)
 					}
 				}
 
+				// If we're Germany, don't concentrate our unit gifts too much
+				if (bIsGermany)
+				{
+					int iCurrentShift = pMinorCivAI->GetFriendshipChangePerTurnTimes100(GetID());
+
+					// Don't count any natural recovery in this anti-concentration modifier
+					if (pMinorCivAI->GetEffectiveFriendshipWithMajor(GetID()) < pMinorCivAI->GetFriendshipAnchorWithMajor(GetID()))
+					{
+						int iReduction = /*100*/ GD_INT_GET(MINOR_FRIENDSHIP_NEGATIVE_INCREASE_PER_TURN);
+						int iReligionBonus = pMinorCivAI->IsSameReligionAsMajor(GetID()) ? /*50*/ GD_INT_GET(MINOR_FRIENDSHIP_RATE_MOD_SHARED_RELIGION) : 0;
+						if (iReduction > 0)
+						{
+							iReduction *= (100 + iReligionBonus + GetPlayerTraits()->GetCityStateFriendshipModifier());
+							iReduction /= 100;
+							iCurrentShift -= iReduction;
+						}
+					}
+
+					iCurrentShift /= 100;
+					if (iCurrentShift > 1)
+						iScore /= iCurrentShift;
+				}
+
 				//All CSs should theoretically be valuable if we've gotten this far.
 				if (iScore <= 0)
 				{
@@ -37805,10 +37720,6 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	{
 		m_paiNumResourceUsed[eIndex] = m_paiNumResourceUsed[eIndex] + iChange;
 	}
-#if !defined(MOD_BALANCE_CORE)
-	if(iChange > 0)
-		DoTestOverResourceNotification(eIndex);
-#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -38019,13 +37930,6 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 		}
 	}
 
-#if !defined(MOD_BALANCE_CORE)
-		if (iChange < 0 && !bIgnoreResourceWarning)
-		{
-			DoTestOverResourceNotification(eIndex);
-		}
-#endif
-
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	CvAssert(m_paiNumResourceTotal[eIndex] >= 0);
@@ -38181,6 +38085,13 @@ void CvPlayer::UpdateMonopolyCache()
 		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus();
 		m_iCombatDefenseBonusFromMonopolies += pInfo->getMonopolyDefenseBonus(MONOPOLY_GLOBAL);
 	}
+}
+
+void CvPlayer::UpdatePlotBlockades()
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		pLoopCity->GetCityCitizens()->DoVerifyWorkingPlots();
 }
 
 int CvPlayer::GetCombatAttackBonusFromMonopolies() const
@@ -38780,13 +38691,8 @@ void CvPlayer::UpdateResourcesSiphoned()
 /// Are we over our resource limit? If so, give out a notification
 void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 {
-#if defined(MOD_BALANCE_CORE)
 	if((getNumResourceAvailable(eIndex, true) < 0) && (getNumResourceUsed(eIndex) > 0))
-#else
-	if(getNumResourceAvailable(eIndex, true) < 0)
-#endif
 	{
-#if defined(MOD_BALANCE_CORE)
 		//Flip the amount available as our drain pool - helper for cities to prevent empire wide drop.
 		setResourceShortageValue(eIndex, (getNumResourceAvailable(eIndex, true) * -1));
 		int iUnitLoop;
@@ -38812,7 +38718,7 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 		}
 		if(!bTest)
 			return;
-#endif
+
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
 		if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 		{
@@ -38823,11 +38729,7 @@ void CvPlayer::DoTestOverResourceNotification(ResourceTypes eIndex)
 				strText << pkResourceInfo->GetTextKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OVER_RESOURCE_LIMIT");
 				strSummary << pkResourceInfo->GetTextKey();
-#if defined(MOD_BALANCE_CORE)
 				pNotifications->Add(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
-#else
-				pNotifications->Add(NOTIFICATION_DEMAND_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), -1, -1, eIndex);
-#endif
 			}
 		}
 	}
@@ -39057,21 +38959,31 @@ void CvPlayer::changeTotalImprovementsBuilt(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getImprovementCount(ImprovementTypes eIndex) const
+int CvPlayer::getImprovementCount(ImprovementTypes eIndex, bool bBuiltOnly) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_paiImprovementCount[eIndex];
+	if (bBuiltOnly)
+		return m_paiImprovementBuiltCount[eIndex];
+	else
+		return m_paiImprovementCount[eIndex];
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange)
+void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool bBuilt)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumImprovementInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
-	m_paiImprovementCount[eIndex] = m_paiImprovementCount[eIndex] + iChange;
+	
+	m_paiImprovementCount[eIndex] += iChange;
 	CvAssert(getImprovementCount(eIndex) >= 0);
+
+	if (bBuilt)
+	{
+		m_paiImprovementBuiltCount[eIndex] += iChange;
+		CvAssert(getImprovementCount(eIndex, true) >= 0);
+	}
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -39231,7 +39143,7 @@ void CvPlayer::changeFreeBuildingCount(BuildingTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Is ePromotion a free promotion?
+/// How many sources have added ePromotion as a free promotion?
 int CvPlayer::GetFreePromotionCount(PromotionTypes ePromotion) const
 {
 	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
@@ -39247,7 +39159,7 @@ bool CvPlayer::IsFreePromotion(PromotionTypes ePromotion)	const
 }
 
 //	--------------------------------------------------------------------------------
-/// Is ePromotion a free promotion?
+/// Add another source of ePromotion to the free promotion list
 void CvPlayer::ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange)
 {
 	CvAssertMsg(ePromotion >= 0, "ePromotion is expected to be non-negative (invalid Index)");
@@ -41380,15 +41292,22 @@ CvAIOperation* CvPlayer::getAIOperation(int iID)
 	return NULL;
 }
 
-
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t iMaxMissingUnits, PlayerTypes eEnemy, CvCity* pTarget, CvCity* pMuster)
 {
+	//no AI operations for human players
+	if (isHuman())
+	{
+		CUSTOMLOG("warning: trying to create an AI operation for a human player!");
+		return NULL;
+	}
+
 	CvAIOperation* pNewOperation = CreateAIOperation(eOperationType,GC.getGame().GetNextGlobalID(),GetID(),eEnemy);
 	if (!pNewOperation)
 		return NULL;
 
-	//bail if impossible (just to avoid spamming the logs)
+	//bail early if impossible (just to avoid spamming the logs)
+	//note that for performance reasons we don't do real pathfinding here
 	if (!pNewOperation->PreconditionsAreMet(pMuster ? pMuster->plot() : NULL, pTarget ? pTarget->plot() : NULL, iMaxMissingUnits))
 	{
 		delete pNewOperation;
@@ -41401,8 +41320,12 @@ CvAIOperation* CvPlayer::addAIOperation(AIOperationTypes eOperationType, size_t 
 	//check if initialization works out
 	pNewOperation->Init(pTarget, pMuster);
 
+	//check number of units again
+	if (pNewOperation->GetNumUnitsNeededToBeBuilt() > iMaxMissingUnits)
+		pNewOperation->SetToAbort(AI_ABORT_NO_UNITS);
+
 	//undo if necessary
-	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID )
+	if (pNewOperation->GetOperationState() == AI_OPERATION_STATE_ABORTED || pNewOperation->GetOperationState() == AI_OPERATION_STATE_INVALID)
 	{
 		pNewOperation->LogOperationEnd();
 		deleteAIOperation(pNewOperation->GetID());
@@ -41571,6 +41494,8 @@ bool CvPlayer::StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, A
 //	--------------------------------------------------------------------------------
 CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationType, PlayerTypes eTargetPlayer /* optional */, CvPlot* pTarget /* optional */)
 {
+	int iMaxTargetDistance = 3;
+	
 	// loop through all entries looking for match
 	for (size_t i = 0; i < m_AIOperations.size(); i++)
 	{
@@ -41579,7 +41504,7 @@ CvAIOperation* CvPlayer::getFirstAIOperationOfType(AIOperationTypes eOperationTy
 		{
 			if(eTargetPlayer == NO_PLAYER || eTargetPlayer == pThisOperation->GetEnemy())
 			{
-				if(pTarget == NULL || pTarget == pThisOperation->GetTargetPlot())
+				if(pTarget == NULL || plotDistance(*pTarget,*pThisOperation->GetTargetPlot())<iMaxTargetDistance)
 				{
 					return pThisOperation;
 				}
@@ -42088,6 +42013,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Birth Retro";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
+		{
+			instantYieldName = "Tech Retro";
+			break;
+		}
 	case INSTANT_YIELD_TYPE_SPY_ATTACK:
 			{
 				instantYieldName = "Spy Attack";
@@ -43738,10 +43668,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
-	ChangeVassalCSBonusModifier(pPolicy->GetVassalCSBonusModifier() * iChange);
-#endif
+	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
+	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
 
 	if(pPolicy->GetCorporationOfficesAsFranchises() != 0)
 	{
@@ -43960,7 +43889,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 		ChangeNoUnhappinessExpansion(pPolicy->GetNoUnhappinessExpansion() * iChange);
 		ChangeNoUnhappyIsolation(pPolicy->GetNoUnhappyIsolation() * iChange);
-		ChangeDoubleBorderGA(pPolicy->GetDoubleBorderGA() * iChange);
+		ChangeDoubleBorderGrowthGA(pPolicy->GetDoubleBorderGrowthGA() * iChange);
+		ChangeDoubleBorderGrowthWLTKD(pPolicy->GetDoubleBorderGrowthWLTKD() * iChange);
 		changeGarrisonsOccupiedUnhapppinessMod(pPolicy->GetGarrisonsOccupiedUnhapppinessMod() * iChange);
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
@@ -44123,12 +44053,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeYieldFromWorldWonderConstruction(eYield, (pPolicy->GetYieldFromWorldWonderConstruction(iI) * iChange));
 
 		changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
-		if (pPolicy->IsOpener() && pPolicy->GetYieldFromTech(iI) * iChange > 0)
+		if (pPolicy->GetYieldFromTechRetroactive(eYield) != 0)
 		{
-			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTech(iI);
+			int iTechValue = (GET_TEAM(getTeam() ).GetTeamTechs()->GetNumTechsKnown()-1) * pPolicy->GetYieldFromTechRetroactive(iI);
 
 			if (iTechValue > 0)
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+				doInstantYield(INSTANT_YIELD_TYPE_TECH_RETROACTIVE, false, NO_GREATPERSON, NO_BUILDING, iTechValue, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
 		}
 		changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
 		changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
@@ -44713,23 +44643,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	int iGoldenAgeTurns = pPolicy->GetGoldenAgeTurns() * iChange;
 	if(iGoldenAgeTurns > 0)
 	{
-		// Player modifier
-		int iLengthModifier = getGoldenAgeModifier();
-
-		if(iLengthModifier > 0)
-		{
-			iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
-		}
-
-		// Game Speed mod
-		iGoldenAgeTurns *= GC.getGame().getGameSpeedInfo().getGoldenAgePercent();
-		iGoldenAgeTurns /= 100;
-#if defined(MOD_BALANCE_CORE)
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
-#else
-		changeGoldenAgeTurns(iGoldenAgeTurns);
-#endif
+		changeGoldenAgeTurns(getGoldenAgeLength(iGoldenAgeTurns));
 	}
 
 	// Free Techs
@@ -44857,9 +44771,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									}
 									if(pNewUnit->isGoldenAgeOnBirth())
 									{
-										int iGoldenAgeTurns = getGoldenAgeLength();
-										int iValue = GetGoldenAgeProgressMeter();
-										changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+										changeGoldenAgeTurns(getGoldenAgeLength());
 									}
 									if(pNewUnit->isCultureBoost())
 									{
@@ -44956,8 +44868,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-									else if (MOD_DIPLOMACY_CITYSTATES && pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+									else if (MOD_BALANCE_VP && pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 									{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 										incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -44966,7 +44877,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 										pNewUnit->jumpToNearestValidPlot();
 									}
-#endif
 #if defined(MOD_BALANCE_CORE)
 									else if (pNewUnit->getUnitInfo().IsGPExtra() == 1)
 									{
@@ -45960,7 +45870,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCanBullyFriendlyCS);
 	visitor(player.m_iBullyGlobalCSReduction);
 	visitor(player.m_iIsVassalsNoRebel);
-	visitor(player.m_iVassalCSBonusModifier);
+	visitor(player.m_iVassalYieldBonusModifier);
+	visitor(player.m_iCSYieldBonusModifier);
 	visitor(player.m_iHappinessFromLeagues);
 	visitor(player.m_iWoundedUnitDamageMod);
 	visitor(player.m_iUnitUpgradeCostMod);
@@ -46090,7 +46001,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iExtraMoves);
 	visitor(player.m_iNoUnhappinessExpansion);
 	visitor(player.m_iNoUnhappyIsolation);
-	visitor(player.m_iDoubleBorderGA);
+	visitor(player.m_iDoubleBorderGrowthGA);
+	visitor(player.m_iDoubleBorderGrowthWLTKD);
 	visitor(player.m_iIncreasedQuestInfluence);
 	visitor(player.m_iCultureBombBoost);
 	visitor(player.m_iPuppetProdMod);
@@ -46405,6 +46317,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_paiResourcesSiphoned);
 	visitor(player.m_aiNumResourceFromGP);
 	visitor(player.m_paiImprovementCount);
+	visitor(player.m_paiImprovementBuiltCount);
 	visitor(player.m_paiTotalImprovementsBuilt);
 	visitor(player.m_paiBuildingChainSteps);
 	visitor(player.m_paiFreeBuildingCount);
@@ -46765,15 +46678,13 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 	if(pGreatPeopleUnit->getUnitInfo().IsFoundReligion())
 	{
-		ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
 		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{
-		int iGoldenAgeTurns = getGoldenAgeLength();
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
 	if(pGreatPeopleUnit->isCultureBoost())
 	{
@@ -46928,9 +46839,7 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{
-		int iGoldenAgeTurns = getGoldenAgeLength();
-		int iValue = GetGoldenAgeProgressMeter();
-		changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
 	if(pGreatPeopleUnit->isCultureBoost())
 	{
@@ -47911,7 +47820,7 @@ void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
 	if (!pPlot)
 		return;
 
-	if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0) || pUnit->IsCityAttackSupport() || pUnit->IsSapper())
+	if (pUnit->IsCombatSupportUnit())
 	{
 		bool bFound = false;
 		for ( size_t i=0; i<m_unitsAreaEffectPositive.size(); i++ )
@@ -48008,9 +47917,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 			continue;
 		}
 
-		if ((pLoopUnit->IsGreatGeneral() || pLoopUnit->GetGreatGeneralCount() > 0) || 
-			(pLoopUnit->IsGreatAdmiral() || pLoopUnit->GetGreatAdmiralCount() > 0) || 
-			 pLoopUnit->IsCityAttackSupport() || pLoopUnit->IsSapper())
+		if (pLoopUnit->IsCombatSupportUnit())
 			m_unitsAreaEffectPositive.push_back(std::make_pair(pLoopUnit->GetID(), pPlot->GetPlotIndex()));
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
@@ -48118,7 +48025,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 		{
 			case AE_GREAT_GENERAL:
 			{
-				if ((pUnit->IsGreatGeneral() || pUnit->GetGreatGeneralCount() > 0) || (pUnit->IsGreatAdmiral() || pUnit->GetGreatAdmiralCount() > 0))
+				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
 				break;
 			}
@@ -49156,14 +49063,11 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 		return false;
 	}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(GetID(), eOtherPlayer) && eOtherPlayer != m_eID)
+	if (GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(GetID(), eOtherPlayer) && eOtherPlayer != m_eID)
 	{
 		return false;
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 	if (eOtherPlayer != m_eID && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
 	{
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, GetID(), true))
@@ -49176,7 +49080,7 @@ bool CvPlayer::IsAllowedToTradeWith(PlayerTypes eOtherPlayer)
 			return false;
 		}
 	}
-#endif
+
 	return true;
 }
 
@@ -49793,21 +49697,21 @@ bool CvPlayer::hasTurnTimerExpired()
 //	--------------------------------------------------------------------------------
 void CvPlayer::checkArmySizeAchievement()
 {
-#if defined(MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	int numUnits = 0;
 	int32 nLargestArmy = 0;
 	int iI;
 
 	for(iI = 0; iI < NUM_UNITAI_TYPES; iI++)
 	{
-		if((UnitAITypes)iI == UNITAI_ARTIST ||(UnitAITypes)iI == UNITAI_ENGINEER || (UnitAITypes)iI == UNITAI_UNKNOWN ||
+		if ((UnitAITypes)iI == UNITAI_ARTIST ||(UnitAITypes)iI == UNITAI_ENGINEER || (UnitAITypes)iI == UNITAI_UNKNOWN ||
 		        (UnitAITypes)iI == UNITAI_GENERAL || (UnitAITypes)iI == UNITAI_SETTLE || (UnitAITypes)iI == UNITAI_WORKER ||
 		        (UnitAITypes)iI == UNITAI_SCIENTIST || (UnitAITypes)iI == UNITAI_MERCHANT || (UnitAITypes)iI == UNITAI_WORKER_SEA ||
 		        (UnitAITypes)iI == UNITAI_SPACESHIP_PART || (UnitAITypes)iI == UNITAI_TREASURE || (UnitAITypes)iI == UNITAI_PROPHET ||
 		        (UnitAITypes)iI == UNITAI_MISSIONARY || (UnitAITypes)iI == UNITAI_INQUISITOR || (UnitAITypes)iI == UNITAI_ADMIRAL ||
-#if defined(MOD_DIPLOMACY_CITYSTATES) 
-				(MOD_DIPLOMACY_CITYSTATES && ((UnitAITypes)iI == UNITAI_DIPLOMAT || (UnitAITypes)iI == UNITAI_MESSENGER)) ||
-#endif
+				(UnitAITypes)iI == UNITAI_DIPLOMAT || (UnitAITypes)iI == UNITAI_MESSENGER ||
 				(UnitAITypes)iI == UNITAI_WRITER || (UnitAITypes)iI == UNITAI_MUSICIAN)
 		{
 			continue;
@@ -49825,7 +49729,6 @@ void CvPlayer::checkArmySizeAchievement()
 
 		CvAchievementUnlocker::Check_PSG();
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -49989,7 +49892,6 @@ bool CancelActivePlayerEndTurn()
 	return true;
 }
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 //	--------------------------------------------------------------------------------
 ///	Get the amount of Happiness we're getting from our vassals
 int CvPlayer::GetHappinessFromVassals() const
@@ -50015,12 +49917,12 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalCSBonusModifier());
+		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 200;
 	}
 	else
 	{
-		iAmount = GET_PLAYER(ePlayer).GetExcessHappiness() * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalCSBonusModifier());
+		iAmount = GET_PLAYER(ePlayer).GetExcessHappiness() * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 100;
 	}
 
@@ -50054,17 +49956,17 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 			{
 			case YIELD_CULTURE:
 				iFreeYield = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_FAITH:
 				iFreeYield = GET_PLAYER(ePlayer).GetTotalFaithPerTurn();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			case YIELD_SCIENCE:
 				iFreeYield = GET_PLAYER(ePlayer).GetScience();
-				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalCSBonusModifier());
+				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
 			}
@@ -50362,8 +50264,6 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
 	return szTooltip;
 }
 
-#endif
-
 #if defined(MOD_BALANCE_CORE)
 int CvPlayer::GetScoreFromMinorAllies() const
 {
@@ -50399,7 +50299,10 @@ int CvPlayer::GetScoreFromMilitarySize() const
 //	----------------------------------------------------------------------------
 bool CvPlayer::HasBelief(BeliefTypes iBeliefType) const
 {
-	const ReligionTypes iReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+	ReligionTypes iReligion = GetReligions()->GetOwnedReligion();
+	if (iReligion == NO_RELIGION)
+		iReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, GetID());
 
 	return (pReligion && pReligion->m_Beliefs.HasBelief(iBeliefType));
@@ -50703,12 +50606,12 @@ bool CvPlayer::HasAnyReligion() const
 
 bool CvPlayer::HasReligion(ReligionTypes iReligionType) const
 {
-	return (GetReligions()->GetReligionCreatedByPlayer() == iReligionType);
+	return (GetReligions()->GetOwnedReligion() == iReligionType);
 }
 
 bool CvPlayer::HasEnhancedReligion() const
 {
-	const ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
+	const ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 	return (pMyReligion && pMyReligion->m_bEnhanced);

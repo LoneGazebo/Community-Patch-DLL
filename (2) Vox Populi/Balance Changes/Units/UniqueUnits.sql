@@ -52,7 +52,7 @@ WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 -- Austria
 ---------------------------
 -- Hussar now a Cuirassier unit
-UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY', PrereqTech = 'TECH_METALLURGY', ObsoleteTech = 'TECH_BALLISTICS' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Class = 'UNITCLASS_CUIRASSIER', GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_CUIRASSIER' WHERE UnitType = 'UNIT_AUSTRIAN_HUSSAR';
 
@@ -78,7 +78,7 @@ UPDATE Units SET Class = 'UNITCLASS_COMPOSITE_BOWMAN', GoodyHutUpgradeUnitClass 
 -- Brazil
 ---------------------------
 -- Added Bandeirantes
-INSERT INTO Civilization_UnitClassOverrides (CivilizationType, UnitClassType, UnitType) VALUES 
+INSERT INTO Civilization_UnitClassOverrides (CivilizationType, UnitClassType, UnitType) VALUES
 ('CIVILIZATION_BRAZIL', 'UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES');
 
 INSERT INTO Unit_ClassUpgrades
@@ -86,13 +86,11 @@ INSERT INTO Unit_ClassUpgrades
 VALUES
 	('UNIT_BANDEIRANTES', 'UNITCLASS_COMMANDO');
 
-INSERT INTO Unit_Builds (UnitType, BuildType) VALUES 
+INSERT INTO Unit_Builds (UnitType, BuildType) VALUES
 ('UNIT_BANDEIRANTES', 'BUILD_FORT'),
 ('UNIT_BANDEIRANTES', 'BUILD_MINE'),
 ('UNIT_BANDEIRANTES', 'BUILD_BRAZILWOOD_CAMP'),
 ('UNIT_BANDEIRANTES', 'BUILD_QUARRY');
-
-UPDATE Units SET ObsoleteTech = 'TECH_FLIGHT' WHERE Type = 'UNIT_BANDEIRANTES';
 
 -- Removed Pracinha, now a Minor Civ Gift
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_BRAZILIAN_PRACINHA';
@@ -103,7 +101,7 @@ UPDATE Units SET Class = 'UNITCLASS_BRAZILIAN_PRACINHA', MinorCivGift = '1', Cos
 ---------------------------
 -- Byzantines
 ---------------------------
--- Removed Dromon 
+-- Removed Dromon
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_BYZANTINE_DROMON';
 
@@ -154,7 +152,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitTy
 -- Removed ski infantry, buffed berserker
 
 UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
-	
+
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_DANISH_BERSERKER';
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_DANISH_SKI_INFANTRY';
@@ -223,7 +221,7 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_GERMAN_PANZER
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_PANZER', 'TXT_KEY_UNIT_GERMAN_PANZER', 'UNIT_GERMAN_PANZER');
 
-UPDATE Units SET Class = 'UNITCLASS_PANZER', PolicyType = 'POLICY_PATRIOTIC_WAR', PrereqTech = 'TECH_COMBINED_ARMS', Moves = '5', UnitArtInfo = 'ART_DEF_UNIT_TANK', PortraitIndex = '13', UnitFlagIconOffset = '57'  WHERE Type = 'UNIT_GERMAN_PANZER';
+UPDATE Units SET Class = 'UNITCLASS_PANZER', PolicyType = 'POLICY_PATRIOTIC_WAR', Moves = '5', UnitArtInfo = 'ART_DEF_UNIT_TANK', PortraitIndex = '13', UnitFlagIconOffset = '57'  WHERE Type = 'UNIT_GERMAN_PANZER';
 
 UPDATE Units SET UnitArtInfo = 'ART_DEF_UNIT_U_GERMAN_PANZER', UnitFlagIconOffset = '58', PortraitIndex = '39' WHERE Type = 'UNIT_TANK';
 
@@ -231,16 +229,13 @@ INSERT INTO	Civilization_UnitClassOverrides
 			(CivilizationType,			UnitClassType, 		UnitType)
 VALUES		('CIVILIZATION_GERMANY',	'UNITCLASS_TERCIO',	'UNIT_GERMAN_LANDSKNECHT');
 
-UPDATE Units SET 
-Class = 'UNITCLASS_TERCIO', 						
-PrereqTech = 'TECH_GUILDS',			
-ObsoleteTech = 'TECH_REPLACEABLE_PARTS', 			
-GoodyHutUpgradeUnitClass = 'UNITCLASS_RIFLEMAN', 	
-PurchaseOnly = 0,								
-PolicyType = NULL,									
-ExtraMaintenanceCost = 1,
-Combat = 26,
-RequiresFaithPurchaseEnabled = 1					
+UPDATE Units SET
+Class = 'UNITCLASS_TERCIO',
+GoodyHutUpgradeUnitClass = 'UNITCLASS_RIFLEMAN',
+PurchaseOnly = 0,
+PolicyType = NULL,
+ExtraMaintenanceCost = 0,
+RequiresFaithPurchaseEnabled = 1
 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT';
@@ -400,7 +395,7 @@ VALUES
 ---------------------------
 -- Adjust Beggar
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_IRONCLAD' WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR';
-	
+
 ---------------------------
 -- Ottomans
 ---------------------------
@@ -410,17 +405,17 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_OTTOMAN_SIPAH
 
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_SIPAHI', 'TXT_KEY_UNIT_OTTOMAN_SIPAHI', 'UNIT_OTTOMAN_SIPAHI');
 
-UPDATE Units SET MinorCivGift = '1', Cost = '-1', Class = 'UNITCLASS_SIPAHI', ObsoleteTech = 'TECH_COMBUSTION', GoodyHutUpgradeUnitClass = 'UNITCLASS_WWI_TANK', IgnoreBuildingDefense = '0' WHERE Type = 'UNIT_OTTOMAN_SIPAHI';
+UPDATE Units SET MinorCivGift = '1', Cost = '-1', Class = 'UNITCLASS_SIPAHI', GoodyHutUpgradeUnitClass = 'UNITCLASS_WWI_TANK', IgnoreBuildingDefense = '0' WHERE Type = 'UNIT_OTTOMAN_SIPAHI';
 
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_WWI_TANK' WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI';
-	
+
 UPDATE Units SET Class = 'UNITCLASS_MUSKETMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_GATLINGGUN' WHERE Type = 'UNIT_OTTOMAN_JANISSARY';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitType = 'UNIT_OTTOMAN_JANISSARY';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GATLINGGUN' WHERE UnitType = 'UNIT_OTTOMAN_JANISSARY';
-	
+
 ---------------------------
 -- Persia
 ---------------------------
@@ -429,7 +424,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GATLINGGUN' WHERE UnitT
 ---------------------------
 -- Poland
 ---------------------------
--- Adjust Hussar
+-- Adjust Winged Hussar
 UPDATE Units SET IgnoreBuildingDefense = '0', GoodyHutUpgradeUnitClass = 'UNITCLASS_WWI_TANK' WHERE Type = 'UNIT_POLISH_WINGED_HUSSAR';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_WWI_TANK' WHERE UnitType = 'UNIT_POLISH_WINGED_HUSSAR';
@@ -466,7 +461,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_PRIVATEER' WHERE UnitTy
 ---------------------------
 -- Rome
 ---------------------------
--- Removed Ballista 
+-- Removed Ballista
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_ROMAN_BALLISTA';
 
@@ -590,7 +585,7 @@ VALUES
 DELETE FROM Civilization_UnitClassOverrides
 WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND
 UnitClassType IN (
-	'UNITCLASS_CAVALRY', 
-	'UNITCLASS_MECHANIZED_INFANTRY', 
-	'UNITCLASS_IRONCLAD', 
+	'UNITCLASS_CAVALRY',
+	'UNITCLASS_MECHANIZED_INFANTRY',
+	'UNITCLASS_IRONCLAD',
 	'UNITCLASS_MISSILE_CRUISER');

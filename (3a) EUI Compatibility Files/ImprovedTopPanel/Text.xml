@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/27/2015 4:17:17 PM [ICON_GOLD][COLOR:255:235:0:255]{1_TotalGold: number "##"} {2_GoldPerTurn: number "'(+'##')';'[COLOR:255:60:60:255](-'##')'"}[/COLOR]
+ -->
+<GameData>
+	<Language_en_US>
+		<Row>
+			<Tag>TXT_KEY_ITP_TOTAL_GOLD</Tag>
+			<Text>[COLOR:255:235:0:255]{1_TotalGold: number "##"}[/COLOR]</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_ITP_PER_TURN_GOLD</Tag>
+			<Text>[COLOR:255:235:0:255]{1_GoldPerTurn: number "'+'##' ';'[COLOR:255:60:60:255]-'##' '"}[/COLOR]</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_ITP_HAPPINESS_EXPLANATION</Tag>
+			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Both are limited by the size of the city, except for urbanization! You have a total of [ICON_HAPPINESS_1] {1_Val} / [ICON_HAPPINESS_3] {2_Val} in your cities.</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_ITP_HAPPINESS_SUMMARY</Tag>
+			<Text>You have a total of [ICON_HAPPINESS_1] {1_Val} / [ICON_HAPPINESS_3] {2_Val} in your cities.</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_ITP_TOP_PANEL_GOLD</Tag>
+			<Text>[COLOR:255:235:0:255]{1_GoldPerTurn: number "'+'##'[ICON_GOLD]';'[COLOR:255:60:60:255]-'##'[ICON_GOLD]'"}{2_TotalGold: number "##"}[/COLOR]</Text>
+		</Row>
+		<Row>
+			<Tag>TXT_KEY_HAPPINESS_TOP_PANEL_ITP</Tag>
+			<Text>([ICON_HAPPINESS_1][COLOR_POSITIVE_TEXT]{3_Val}[ENDCOLOR]/[ICON_HAPPINESS_3][COLOR_NEGATIVE_TEXT]{2_Val}[ENDCOLOR])</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
+

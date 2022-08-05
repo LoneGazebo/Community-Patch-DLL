@@ -309,7 +309,7 @@ template<typename Container>
 class CvSyncArchive : public FAutoArchive
 {
 public:
-	typedef typename Container ContainerType;
+	typedef Container ContainerType;
 	friend Container;
 	class SyncVars;
 
@@ -436,4 +436,4 @@ FDataStream& operator>>(FDataStream& loadFrom, tr1::array<T, N>& writeTo) {
 }
 
 
-#endif CVSERIALIZE_H
+#endif // CVSERIALIZE_H

@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4685,22 +4685,25 @@ int CvReligionBeliefs::GetCSYieldBonus(PlayerTypes ePlayer, const CvCity* pCity,
 	return rtnValue;
 }
 
-
-int CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+/// Get votes per improvement (fractional) from belief
+std::pair<int, int> CvReligionBeliefs::GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	int rtnValue = 0;
-
+	
+	std::pair<int, int> fVotes = std::make_pair(0, 1);
+	
+	// if two beliefs give fractional votes for the same improvement, then the fractional vote gets larger (1/2 + 1/3 = 5/6)
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
+		/// GetImprovementVoteChange() returns the number of improvements required for each vote
 		int iValue = pBeliefs->GetEntry(*it)->GetImprovementVoteChange(eImprovement);
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
-			rtnValue += iValue;
-		}
+			AddFractionToReference(fVotes, std::make_pair(1, iValue));
+   		}
 	}
 
-	return rtnValue;
+	return fVotes;
 }
 
 

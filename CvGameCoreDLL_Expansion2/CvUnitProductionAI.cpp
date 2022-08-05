@@ -224,7 +224,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return 0;
 	}
 
-	bool bDesperate = m_pCity->isInDangerOfFalling() || m_pCity->isUnderSiege();
+	bool bDesperate = m_pCity->isUnderSiege();
 	if (!bFree && bDesperate && !bCombat)
 	{
 		return 0;
@@ -395,17 +395,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iNumCitiesOther = 0;
 
 		//todo: alternatively check whether we can create a sea trade route to another player?
-		std::vector<int> areas = m_pCity->plot()->getAllAdjacentAreas();
-		for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
+		std::vector<int> landmasses = m_pCity->plot()->getAllAdjacentLandmasses();
+		for (std::vector<int>::iterator it=landmasses.begin(); it!=landmasses.end(); ++it)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
-			if (pkArea->isWater())
+			CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
+			if (pkLandmass->isWater())
 			{
-				iWaterTiles += pkArea->getNumTiles();
-				iNumUnitsofMine += pkArea->getUnitsPerPlayer(m_pCity->getOwner());
-				iNumUnitsOther += pkArea->getNumUnits()-iNumUnitsofMine;
-				iNumCitiesofMine += pkArea->getCitiesPerPlayer(m_pCity->getOwner());
-				iNumCitiesOther += pkArea->getNumCities()-iNumCitiesofMine;
+				iWaterTiles += pkLandmass->getNumTiles();
+				iNumUnitsofMine += pkLandmass->getUnitsPerPlayer(m_pCity->getOwner());
+				iNumUnitsOther += pkLandmass->getNumUnits()-iNumUnitsofMine;
+				iNumCitiesofMine += pkLandmass->getCitiesPerPlayer(m_pCity->getOwner());
+				iNumCitiesOther += pkLandmass->getNumCities()-iNumCitiesofMine;
 			}
 		}
 
@@ -605,7 +605,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				int iValue = iDesired - iCurrent;
 
-				iValue *= 1 + kPlayer.GetCurrentEra();
+				// German UA encourages producing lots of units to gift to City-States
+				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+					iBonus += 75;
+
+				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 
 				if (iCurrent * 2 < iDesired)
 					iValue *= 2;
@@ -668,6 +672,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				int iCurrent = kPlayer.GetMilitaryAI()->GetNumLandUnits();
 				int iDesired = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
 				int iValue = iDesired - iCurrent;
+
+				// German UA encourages producing lots of units to gift to City-States
+				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+					iBonus += 150;
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 
@@ -839,10 +847,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += (iProductionBonus / 5);
 		}
-		
-#if defined(MOD_DIPLOMACY_CITYSTATES)	
+
 		//Diplomatic Units!
-		if(MOD_DIPLOMACY_CITYSTATES &&  pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
+		if (MOD_BALANCE_VP && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 		{
 			if (!kPlayer.HasMetValidMinorCiv())
 				return 0;
@@ -893,7 +900,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				return 0;
 			}
 
-			if (MOD_DIPLOMACY_CITYSTATES)
+			if (MOD_BALANCE_VP)
 			{
 				ResourceTypes ePaper = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 				if (ePaper != NO_RESOURCE && kPlayer.getResourceFromCSAlliances(ePaper) > 0)
@@ -904,7 +911,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 			iBonus += iInfluence;
 		}
-#endif
+
 		if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 		{
 			EconomicAIStrategyTypes eStrategySS = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP");

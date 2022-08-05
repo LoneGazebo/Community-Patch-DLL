@@ -612,10 +612,8 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_FoundCity(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TRADE_WITH_CITY_STATE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TradeWithCityState(eStrategy, m_pPlayer);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE")
+				else if(strStrategyName == "ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_InfluenceCityState(eStrategy, m_pPlayer);
-#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedImprovement(m_pPlayer, YIELD_FOOD);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
@@ -654,12 +652,10 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(m_pPlayer);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS")
+				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedDiplomats(m_pPlayer);
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(m_pPlayer);	
-#endif
+				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL")
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_MUSEUMS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedMuseums(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_GUILDS")
@@ -3696,7 +3692,6 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	return false;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// "Influence City State" Player Strategy: If there is a diplomat who isn't in an operation?  If so, find him a city state
 bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
@@ -3737,7 +3732,6 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 
 	return false;
 }
-#endif
 
 /// "Concert Tour" Player Strategy: If there is a musician who isn't in an operation?  If so, find him a major civ to target
 bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
@@ -3990,13 +3984,13 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 	{
 		if(!pPlayer->CanEmbark())
 		{
-			int iStartArea = pPlayer->getStartingPlot()->getArea();
+			int iStartLandmass = pPlayer->getStartingPlot()->getLandmass();
 
 			// Have we revealed a high enough percentage of the coast of our landmass?
 			for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 			{
 				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-				if(pLoopPlot->getArea() == iStartArea)
+				if(pLoopPlot->getLandmass() == iStartLandmass)
 				{
 					if(pLoopPlot->isCoastalLand())
 					{
@@ -4010,7 +4004,7 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 			}
 
 			if((iRevealedCoastalTiles * 100 / (iCoastalTiles + 1)) > /*80*/ GD_INT_GET(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT) &&
-			        GC.getMap().getArea(iStartArea)->getNumTiles() < pStrategy->GetWeightThreshold())
+			        GC.getMap().getLandmass(iStartLandmass)->getNumTiles() < pStrategy->GetWeightThreshold())
 			{
 				return true;
 			}
@@ -4231,7 +4225,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 	return false;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Do we need more Diplomatic Units? Let's score it and see.
 bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
 {
@@ -4590,7 +4583,6 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	}
 	return 0;
 }
-#endif
 
 /// We see sites but don't have any art/artifact slots
 bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)

@@ -1109,8 +1109,8 @@ void CvDllPreGame::SetDLCAvailable(PlayerTypes p, ICvEnumerator* pList)
 	CvEnumerator<ICvDlcPackageInfo1> kEnum(pList->QueryInterface<ICvEnumerator>());
 	while(kEnum.MoveNext())
 	{
-		auto_ptr<ICvDlcPackageInfo1> pPackageInfo(kEnum.GetCurrent());
-		if(pPackageInfo.get() != NULL)
+		CvInterfacePtr<ICvDlcPackageInfo1> pPackageInfo(kEnum.GetCurrent());
+		if(pPackageInfo)
 		{
 			kDLCList.push_back(pPackageInfo->GetPackageID());
 		}

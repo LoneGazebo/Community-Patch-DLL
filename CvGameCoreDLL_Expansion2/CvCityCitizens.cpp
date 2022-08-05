@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 and their respective logos are all trademarks of Take-Two interactive Software, Inc.
 All other marks and trademarks are the property of their respective owners.
@@ -572,9 +572,9 @@ bool CvCityCitizens::IsNoAutoAssignSpecialists() const
 }
 
 /// Sets this City's Specialists to be under automation
-void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate)
+void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate, bool bReset)
 {
-	if (m_bNoAutoAssignSpecialists != bValue)
+	if (m_bNoAutoAssignSpecialists != bValue || bReset)
 	{
 		m_bNoAutoAssignSpecialists = bValue;
 
@@ -982,8 +982,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += 20;
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+	else if (MOD_BALANCE_VP && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
 		if (bWantDiplo)
@@ -991,7 +990,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += 20;
 		}
 	}
-#endif
 
 	GreatPersonTypes eGreatPerson = GetGreatPersonFromSpecialist(eSpecialist);
 	if (eGreatPerson != NO_GREATPERSON)
@@ -1178,7 +1176,7 @@ void CvCityCitizens::ChangeNumCitizensWorkingPlots(int iChange)
 }
 
 /// Pick the best Plot to work from one of our unassigned pool
-bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging)
+bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMode, bool bLogging, bool NoSpecialists)
 {
 	// We only assign the unassigned here, folks
 	if (GetNumUnassignedCitizens() == 0)
@@ -1186,7 +1184,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 
 	int iNetFood100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - m_pCity->foodConsumptionTimes100();
 	bool bCanAffordSpecialist = (iNetFood100 >= m_pCity->foodConsumptionSpecialistTimes100());
-	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && IsNoAutoAssignSpecialists();
+	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && ( IsNoAutoAssignSpecialists() || NoSpecialists );
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
 
 	int iSpecialistValue = -1;
@@ -1281,7 +1279,8 @@ bool CvCityCitizens::DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool b
 		// If we were force-working this Plot, turn it off
 		if (bRemoveForcedStatus && IsForcedWorkingPlot(pWorstPlot))
 		{
-			SetWorkingPlot(pWorstPlot, false, updateMode); //this automatically removes forced status
+			SetWorkingPlot(pWorstPlot, false, updateMode); 
+			SetForcedWorkingPlot(pWorstPlot, false);
 			return true;
 		}
 		else if (!IsForcedWorkingPlot(pWorstPlot))
@@ -1330,10 +1329,17 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			if (IsCanWork(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
 				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+
+				//if it's forced, don't even look at the value
+				if (IsForcedWorkingPlot(iPlotLoop))
+				{
+					iChosenValue = iValue;
+					return pLoopPlot;
+				}
+
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
-					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1342,10 +1348,17 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			if (IsCanWorkWithOverride(pLoopPlot) && !IsWorkingPlot(iPlotLoop))
 			{
 				iValue = GetPlotValue(pLoopPlot, gCachedNumbers);
+
+				//if it's forced, don't even look at the value
+				if (IsForcedWorkingPlot(iPlotLoop))
+				{
+					iChosenValue = iValue;
+					return pLoopPlot;
+				}
+
 				if ( pBestPlot==NULL || iValue > iBestPlotValue )
 				{
 					iBestPlotValue = iValue;
-					bBestPlotIsForcedWork = IsForcedWorkingPlot(iPlotLoop);
 					pBestPlot = pLoopPlot;
 				}
 			}
@@ -1796,11 +1809,9 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpda
 	}
 	else
 	{
+		//do not reset the "forced working plot" status! we want to remember that
 		if (it != m_vWorkedPlots.end())
 			m_vWorkedPlots.erase(it);
-
-		//make sure we stay consistent
-		SetForcedWorkingPlot(pPlot, false);
 	}
 
 	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
@@ -1968,7 +1979,8 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 				// If we're already working the Plot, then take the guy off and turn him into a Default Specialist
 				if (IsWorkingPlot(pPlot))
 				{
-					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL); //this automatically removes the forced status
+					SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
+					SetForcedWorkingPlot(pPlot, false);
 					ChangeNumDefaultSpecialists(1, CvCity::YIELD_UPDATE_GLOBAL);
 					ChangeNumForcedDefaultSpecialists(1);
 				}
@@ -2206,28 +2218,41 @@ void CvCityCitizens::ClearBlockades()
 	m_vBlockadedPlots.clear();
 }
 
-/// Check all Plots by this City to see if we can actually be working them (if we are)
-void CvCityCitizens::DoVerifyWorkingPlots()
+bool CvCityCitizens::AnyPlotBlockaded() const
 {
-	ClearBlockades();
+	return !m_vBlockadedPlots.empty();
+}
 
+/// Check all Plots by this City to see if we can actually be working them (if we are)
+bool CvCityCitizens::DoVerifyWorkingPlots()
+{
+	std::vector<int> oldBlocks = m_vBlockadedPlots;
+	m_vBlockadedPlots.clear();
+	
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
-		if (!pPlot)
+		if (!pPlot || !pPlot->isEffectiveOwner(m_pCity))
 			continue;
 
 		//cache which plots are blockaded, the check can be expensive
 		if (pPlot->isBlockaded(m_pCity->getOwner()))
 			SetBlockaded(pPlot);
+	}
 
-		//worked plot might be invalid now ... so move the citizen somewhere else
-		if (IsWorkingPlot(iI) && !IsCanWork(pPlot))
+	//re-assign all plots which are unavailable right now
+	for (size_t iI = 0; iI < m_vBlockadedPlots.size(); iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(m_vBlockadedPlots[iI]);
+		if (IsWorkingPlot(pPlot) && !IsCanWork(pPlot))
 		{
 			SetWorkingPlot(pPlot, false, CvCity::YIELD_UPDATE_LOCAL);
 			DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 	}
+
+	//did anything change?
+	return m_vBlockadedPlots != oldBlocks;
 }
 
 
@@ -2343,7 +2368,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 				{
 					iMod += GetPlayer()->getGreatEngineerRateModifier();
 				}
-				else if (MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+				else if (MOD_BALANCE_VP && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
 					iMod += GetPlayer()->getGreatDiplomatRateModifier();
 				}
@@ -2397,7 +2422,6 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 					}
 				}
 
-#if defined(MOD_BALANCE_CORE)
 				if (GetCity()->isCapital() && GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage())
 				{
 					int iNumMarried = 0;
@@ -2419,11 +2443,10 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 						iMod += (iNumMarried * /*15*/ GD_INT_GET(BALANCE_MARRIAGE_GP_RATE));
 					}
 				}
-#endif
+
 				// Apply mod
 				iGPPChange *= (100 + iMod);
 				iGPPChange /= 100;
-
 			}
 		}
 	}
@@ -2584,7 +2607,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		pkIFace->setDirty(ColoredPlots_DIRTY_BIT, true);
 
 		CvCity* pkCity = GetCity();
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(pkCity);
 
 		pkIFace->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2643,7 +2666,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
@@ -2683,7 +2706,7 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
 
@@ -3012,8 +3035,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 #endif
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true))
+	else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true))
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
@@ -3021,7 +3043,6 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatDiplomatsCreated();
 #endif
 	}
-#endif
 	else
 	{
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
@@ -3216,9 +3237,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
-			int iValue = kPlayer.GetGoldenAgeProgressMeter();
-			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
 		}
 		if (newUnit->isCultureBoost())
 		{
@@ -3284,8 +3303,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			kPlayer.incrementGreatMusiciansCreated();
 #endif
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		else if (MOD_DIPLOMACY_CITYSTATES && newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+		else if (MOD_BALANCE_VP && newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 		{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 			kPlayer.incrementGreatDiplomatsCreated(bIsFree);
@@ -3293,7 +3311,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			kPlayer.incrementGreatDiplomatsCreated();
 #endif
 		}
-#endif
 #if defined(MOD_BALANCE_CORE)
 		else if (newUnit->getUnitInfo().IsGPExtra() == 1)
 		{
@@ -3428,9 +3445,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isGoldenAgeOnBirth())
 		{
-			int iGoldenAgeTurns = kPlayer.getGoldenAgeLength();
-			int iValue = kPlayer.GetGoldenAgeProgressMeter();
-			kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, iValue);
+			kPlayer.changeGoldenAgeTurns(kPlayer.getGoldenAgeLength());
 		}
 		if (newUnit->isCultureBoost())
 		{
@@ -3462,7 +3477,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	// Setup prophet properly
 	if (newUnit->getUnitInfo().IsFoundReligion())
 	{
-		ReligionTypes eReligion = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eReligion = kPlayer.GetReligions()->GetOwnedReligion();
 		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 

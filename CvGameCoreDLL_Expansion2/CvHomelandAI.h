@@ -244,6 +244,8 @@ private:
 	void PlotAircraftRebase();
 
 	void ExecuteUnitGift();
+	bool SendUnitGift(DomainTypes eDomain);
+
 	void ExecuteAircraftMoves();
 	void ExecutePatrolMoves();
 
@@ -265,10 +267,8 @@ private:
 	void PlotEngineerMoves();
 	void PlotGeneralMoves();
 	void PlotMerchantMoves();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void PlotDiplomatMoves();
 	void PlotMessengerMoves();
-#endif
 	void PlotProphetMoves();
 	void PlotAdmiralMoves();
 	void PlotMissionaryMoves();
@@ -294,10 +294,8 @@ private:
 	void ExecuteScientistMoves();
 	void ExecuteEngineerMoves();
 	void ExecuteGeneralMoves();
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	void ExecuteDiplomatMoves();
 	void ExecuteMessengerMoves();
-#endif
 	void ExecuteMerchantMoves();
 	void ExecuteProphetMoves();
 	void ExecuteAdmiralMoves();

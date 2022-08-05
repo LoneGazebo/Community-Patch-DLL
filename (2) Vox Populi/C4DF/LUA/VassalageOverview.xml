@@ -72,7 +72,7 @@
 									<Label Anchor="L,T" Offset="0,32" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_LEADER_NAME" ID="VassalInfoLeaderName"/>
 									<Label Anchor="L,T" Offset="0,58" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_DIPLO_CIVILIZATION_NAME" ID="VassalInfoCivName"/>
 									<Label Anchor="L,T" Offset="0,76" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_VASSAL_TYPE" ID="VassalInfoType"/>
-									<Label Anchor="L,T" Offset="0,94" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_VO_TURNS" ID="VassalInfoStarted"/>
+									<Label Anchor="L,T" Offset="0,94" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="VassalInfoStarted"/>
 								</Box>
 							</Stack>
 						</Box>
@@ -182,7 +182,7 @@
 										<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_TAXES}"/>
 									</Box>
 									<Box Anchor="L,T" Size="290,128" Color="255,255,255,0">
-										<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="L,T" Offset="4,8" ID="TaxSliderValue"/>
+										<Label Font="TwCenMT20" Anchor="L,T" Offset="4,8" ID="TaxSliderValue"/>
 										<Box Anchor="C,T" Size="296,40" Offset="0,28" Color="255,255,255,0" ID="TaxSliderValueToolTip">
 											<Slider Length="300" Anchor="C,T" Style="Slider" ID="TaxSlider" WheelSteps="10"/>
 										</Box>
@@ -316,7 +316,7 @@
 													<Label Offset="0,8" Font="TwCenMT20" Anchor="C,B" String="{TXT_KEY_VO_TAXES}"/>
 												</Box>
 												<Box Anchor="L,T" Size="319,128" Color="255,255,255,0">
-													<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
+													<Label Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
 													<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="MasterTaxSlider" WheelSteps="10"/>
 
 													<Label ID="MasterTaxesTurnSet" Font="TwCenMT18" Anchor="C,T" Offset="4,68" String="Turn Taxes Set: X"/>
@@ -336,7 +336,7 @@
 									
 								</Box>
 								<Box Anchor="C,T" Size="646,128" Color="255,255,255,0">
-									<Label String="TXT_KEY_VO_TAX_RATE" Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
+									<Label Font="TwCenMT20" Anchor="C,T" Offset="4,8" ID="LabelMasterTaxRate"/>
 									<Slider Length="300" Anchor="C,T" Offset="0,28" Style="Slider" ID="MasterTaxSlider" WheelSteps="10"/>
 
 									<Label ID="MasterTaxesTurnSet" Font="TwCenMT18" Anchor="C,T" Offset="4,68" String="Turn Taxes Set: X"/>

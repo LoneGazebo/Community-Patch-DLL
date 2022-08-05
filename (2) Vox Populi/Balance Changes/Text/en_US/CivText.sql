@@ -2,7 +2,7 @@
 -- America
 --------------------
 UPDATE Language_en_US
-SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. 25% discount when purchasing Tiles, founding a City resets Tile purchase costs, and Tile purchases grant +20 [ICON_PRODUCTION] Production, scaling with Era. May purchase tiles owned by other Civilizations.'
+SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. The cost of purchasing a tile is reduced by 25%, and is reset upon founding a City. Purchasing a tile grants +20 [ICON_PRODUCTION] Production, scaling with Era. May purchase tiles owned by other Civilizations.'
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION';
 
 UPDATE Language_en_US
@@ -210,7 +210,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 
 UPDATE Language_en_US
-SET Text = 'Strong Ancient Era Naval Unit, available earlier than the Trireme, that is used to dominate the seas through melee attacks on naval units and cities. Receives the [COLOR_POSITIVE_TEXT]Reconnaissance[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Heavy Assault[ENDCOLOR] Promotions for free, making it a very strong attacker and allowing it to gain experience from exploration. Promotions are lost on upgrade. Only the Carthaginians may build it.'
+SET Text = 'Strong Ancient Era Naval Unit, cheaper and available earlier than the Trireme; it dominates the seas through melee attacks on naval units and cities. Receives the [COLOR_POSITIVE_TEXT]Reconnaissance[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Heavy Assault[ENDCOLOR] Promotions for free, making it a very strong attacker and allowing it to gain experience from exploration. Promotions are lost on upgrade. Only the Carthaginians may build it.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME';
 
 --------------------
@@ -228,7 +228,7 @@ SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit fr
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE';
 
 UPDATE Language_en_US
-SET Text = 'Only the Celts may build this unit. It has double movement and +25% [ICON_STRENGTH] defense in Hills, Snow, and Tundra. Can pillage enemy improvements at no additional movement cost, and earns 200% of opponents'' [ICON_STRENGTH] combat strength as [ICON_PEACE] Faith when it kills a unit.'
+SET Text = 'Only the Celts may build this unit. It has double movement in Hills, Snow, and Tundra, and +25% [ICON_STRENGTH] Combat Strength if those terrains contain neither Forest nor Jungle. Can pillage enemy improvements at no additional movement cost, and earns 200% of opponents'' [ICON_STRENGTH] Combat Strength as [ICON_PEACE] Faith when it kills a unit.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR';
 
 --------------------
@@ -274,7 +274,7 @@ SET Text = 'The Norwegian Ski Infantry can only be gifted by Minor Civilizations
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has a +25% combat bonus in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
+SET Text = 'The Norwegian Ski Infantry moves through Snow, Tundra, and Hills at double speed. It also has +25% [ICON_STRENGTH] Combat Strength in Snow, Tundra or Hill terrain if neither Forest nor Jungle are present.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY';
 
 --------------------
@@ -422,11 +422,11 @@ SET Text = 'In addition to the regular abilities of the Customs House (additiona
 WHERE Tag = 'TXT_KEY_BUILDING_HANSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Ally, and +3 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points per Friend, scaling with Era. 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in World Congress for every 3 [ICON_CITY_STATE] City-State Allies.'
+SET Text = '+3 [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital per [ICON_CITY_STATE] City-State Ally, and +3 [ICON_RESEARCH] Science per Friend, scaling with Era. Gain +1 [ICON_INFLUENCE] Influence per turn with City-States for each gifted Unit (lost when killed or upgraded).'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS';
 
 UPDATE Language_en_US
-SET Text = 'Realpolitik'
+SET Text = 'Blood and Iron'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT';
 
 UPDATE Language_en_US
@@ -446,15 +446,15 @@ SET Text = 'The T-34 was the main medium tank of the Soviet Red Army during Worl
 WHERE Tag = 'TXT_KEY_CIV5_INDUSTRIAL_PANZER_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Late Medieval replacement for the Tercio. Only Germany may build it.[NEWLINE][NEWLINE]Has no Experience penalty and can move immediately after being purchased, but costs increased Unit [ICON_GOLD] Gold Maintenance.[NEWLINE][NEWLINE]Deals increased damage against enemy Units at full health. Starts with [COLOR_POSITIVE_TEXT]Formation I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Formation II[ENDCOLOR] Promotions.'
+SET Text = 'Renaissance replacement for the Tercio. Only Germany may build it.[NEWLINE][NEWLINE]Has no Experience penalty or purchase cooldown, and can move immediately after being purchased.[NEWLINE][NEWLINE]Deals increased damage against enemy Units at full health. Starts with [COLOR_POSITIVE_TEXT]Formation I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Formation II[ENDCOLOR] Promotions.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LANDSKNECHT';
 
 UPDATE Language_en_US
-SET Text = 'Enter the era of pike and shot before anybody else with this early gunpowder unit. In addition to being unlocked a lot sooner and being a little cheaper than normal Tercios, the Landsknecht gain full XP and can move immediately when bought, which allows them to be quickly amassed when needed. However, stay aware of their increased maintenance cost, for their availability has a price.[NEWLINE][NEWLINE]Use their early unlocking and their bonus against full health units to surprise your opponents in the first turns of your wars and break their lines quickly.'
+SET Text = 'In addition to being cheaper than normal Tercios, the Landsknecht gain full XP and can move immediately when bought, which allows them to be quickly amassed when needed.[NEWLINE][NEWLINE]Use their fast deployment and their bonus against full health units to surprise your opponents in the first turns of your wars and break their lines quickly.[NEWLINE][NEWLINE]The Landsknecht''s cheap cost also makes them excellent gifts. Buy several units at once, walk them over to a nearby City State, and reap the benefits of both short- and long-term influence.'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_LANDSKNECHT_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The landsknecht were German mercenary pike & shot of the 16th century. Created in imitation of the legendary Swiss Reisläufer, the landsknecht would eventually supplant them as the best mercenary infantry available in Europe, fighting in almost every major engagement in the 16th century - often on both sides. In battle landsknechts generally carried pikes of up to twenty feet in length. Other weapons included Arquebuses, crossbows, and huge two-handed swords or halberds; these were used to chop the heads off of the pikes of their opponents.'
+SET Text = 'The landsknecht were German mercenary pike and shot of the 15th and 16th century. Created in imitation of the legendary Swiss Reisläufer, the landsknecht would eventually supplant them as the best mercenary infantry available in Europe, fighting in almost every major engagement in the 16th century - often on both sides. Landsknechts carried a variety of weapons into battle in addition to their pikes, which could be as long as twenty feet, including halberds, massive two-handed swords, and ranged weapons. The landsknechts pioneered the inclusion of crossbows into their pike formations to break the momentum of heavy cavalry charges, a popular tactic at the time. By the late 15th century, Arquebuses replaced crossbows as the weapon of choice, making the Landsknechts the earliest example of Pike & Shot formations, ushering in a new era of infantry tactics.'
 WHERE Tag = 'TXT_KEY_CIVILOPEDIA_UNITS_MEDIEVAL_LANDSKNECHT_TEXT';
 
 UPDATE Language_en_US
@@ -628,7 +628,7 @@ SET Text = 'Classical Era Melee unit that has a mystical weapon whose abilities 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN';
 
 UPDATE Language_en_US
-SET Text = 'Heals 10 HP if the unit ends its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].[NEWLINE]10 Damage to all adjacent enemy Units [COLOR_POSITIVE_TEXT]each Turn[ENDCOLOR].'
+SET Text = 'Heals 10 HP if the unit begins its turn in [COLOR_POSITIVE_TEXT]Enemy Territory[ENDCOLOR].[NEWLINE]10 Damage to all adjacent enemy Units [COLOR_POSITIVE_TEXT]each Turn[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_ENEMY_BLADE_HELP';
 
 UPDATE Language_en_US
@@ -825,6 +825,10 @@ WHERE Tag = 'TXT_KEY_TRAIT_GATEWAY_AFRICA';
 UPDATE Language_en_US
 SET Text = 'Mounted unit that specializes in protecting Moroccan lands. Receives combat bonuses when fighting in Moroccan territory. Ignores terrain penalties. May only be built by Morocco.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY';
+
+UPDATE Language_en_US
+SET Text = 'The Berber Cavalry gives the Moroccans an edge when defending their territory. They they move quickly in the desert, in addition to other difficult terrains. This also allows them to perform raids deep into rough enemy territory but other forces will need to stabilize any gains.'
+WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 
 --------------------
 -- Netherlands
@@ -1033,11 +1037,11 @@ WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'The Comanche Riders is the unique unit of the Shoshone, replacing the Cavalry. May pillage tiles for free, is available earlier, and has a chance to retreat when attacked via melee.'
+SET Text = 'The Comanche Riders is the unique unit of the Shoshone, available earlier than the Cavalry. It is faster than the Cavalry, may pillage tiles for free, is available earlier, and has a chance to retreat when attacked via melee.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_COMANCHE_RIDERS';
 
 UPDATE Language_en_US
-SET Text = 'The Comanche Riders replaces the Cavalry, and only the Shoshone may build it. May pillage tiles for free, is available earlier, and has a chance to retreat when attacked via melee.'
+SET Text = 'The Comanche Riders replaces the Cavalry, and only the Shoshone may build it. Used judiciously, this unit can enter enemy territory to destroy infrastructure with ease and escape with only minor damage.'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS_STRATEGY';
 
 UPDATE Language_en_US
@@ -1056,7 +1060,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 -- Siam
 --------------------
 UPDATE Language_en_US
-SET Text = 'Reduces enemy spy stealing rate by 50%. +2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
+SET Text = '+2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
@@ -1160,7 +1164,7 @@ SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. I
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP';
 
 UPDATE Language_en_US
-SET Text = 'In addition to the regular abilities of the Barracks which it replaces, the Ikanda grants a unique set of promotions to all melee units created within the city. These include faster movement, better flanking, experience from time in enemy territory, and greater combat strength. Only the Zulu may build it.'
+SET Text = 'In addition to the regular abilities of the Barracks which it replaces, the Ikanda grants a unique set of promotions to all melee units created within the city. These include faster movement, better flanking, and greater combat strength. Only the Zulu may build it.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY';
 
 UPDATE Language_en_US

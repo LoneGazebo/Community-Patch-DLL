@@ -29,7 +29,7 @@
 			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities for {4_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3">
-			<Text>Our priests will conduct a diviniation to see if this is a positive sign.</Text>
+			<Text>Our priests will conduct a divination to see if this is a positive sign.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3_HELP">
 			<Text>50% chance to gain {2_InstantYield}.</Text>
@@ -39,7 +39,7 @@
 			<Text>Your priests believe that the divination was successful, and your [ICON_PEACE] Faith has increased greatly as a result.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL_S">
-			<Text>Diviniation successful!</Text>
+			<Text>Divination successful!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4">
 			<Text>Our observatories are going to learn a lot from this.</Text>
@@ -252,7 +252,7 @@
 			<Text>The New World Order begins now!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3_HELP">
-			<Text>10 turns of "We Love the King Day" in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for {4_Turns}.</Text>
+			<Text>10 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR] in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for {4_Turns}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4">
 			<Text>For the Motherland!</Text>
@@ -564,7 +564,7 @@
 			<Text>Baby Boom!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_BABY_BOOM_CHOICE_1_HELP">
-			<Text>Your population is growing exponentially, thanks to a large upswing in births as of late. All Cities gain +1 [ICON_CITIZEN] Population and experience 5 turns of "We Love the King Day."</Text>
+			<Text>Your population is growing exponentially, thanks to a large upswing in births as of late. All Cities gain +1 [ICON_CITIZEN] Population and experience 5 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- Plague -->
@@ -586,7 +586,7 @@
 			<Text>International trade and friendship are the ultimate forces for good in this world. Appoint our Foreign Advisor to the head of the delegation. Tears down tariffs, closed borders and all other barriers to closer coorperation and understanding!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_1_HELP">
-			<Text>All Customs Houses produce +2 [ICON_TOURISM] Tourism. Begin {4_Turns} of [COLOR_POSITIVE_TEXT]WLTKD[ENDCOLOR] in all Cities.</Text>
+			<Text>All Customs Houses produce +2 [ICON_TOURISM] Tourism. 10 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR] in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2">
 			<Text>Only by working together will we be able to unravel the secrets of the universe! Place our Science Advisor in charge. We must come away with a leading voice in the world's greatest scientific organisations.</Text>

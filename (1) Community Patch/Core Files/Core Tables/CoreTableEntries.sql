@@ -714,7 +714,8 @@ ALTER TABLE Policies ADD COLUMN 'GreatGeneralExtraBonus' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'BullyGlobalCSInfluenceShift' INTEGER DEFAULT 0;
 
 -- More yields from Vassals and CSs
-ALTER TABLE Policies ADD COLUMN 'VassalCSBonusModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'VassalYieldBonusModifier' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CSYieldBonusModifier' INTEGER DEFAULT 0;
 
 -- Can bully friendly CSs (no penalty)
 ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;
@@ -833,8 +834,11 @@ ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
 -- No Unhapppiness from Isolation
 ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT 0;
 
--- Double City Border Growth During GA
-ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
+-- Double City Border Growth During GA (does not stack with WLTKD)
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGrowthGA' BOOLEAN DEFAULT 0;
+
+-- Double City Border Growth During WLTKD (does not stack with GA)
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGrowthWLTKD' BOOLEAN DEFAULT 0;
 
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
@@ -1092,6 +1096,10 @@ ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'Science' INTEGER DEFAULT 0;
+
+-- Additional Goody Hut options, requires NEW_GOODIES CustomModOptions to set True
+ALTER TABLE GoodyHuts ADD COLUMN 'Food' INTEGER DEFAULT 0;
+ALTER TABLE GoodyHuts ADD COLUMN 'BorderGrowth' INTEGER DEFAULT 0;
 
 -- Tech Additions
 ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
@@ -1722,6 +1730,9 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMissionarySpreads' INTEGER DEFAULT 0;
 
 -- If the player has this building, they ignore the global Defensive Pact limit
 ALTER TABLE Buildings ADD COLUMN 'IgnoreDefensivePactLimit' BOOLEAN DEFAULT 0;
+
+-- Gifting units to City-States awards Influence per turn while the units remain alive
+ALTER TABLE Traits ADD COLUMN 'MinorInfluencePerGiftedUnit' INTEGER DEFAULT 0;
 
 -- CSD
 

@@ -121,8 +121,6 @@ CvAStar::CvAStar()
 
 	//for debugging
 	m_strName = "AStar";
-
-	InitializeCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------
@@ -130,7 +128,6 @@ CvAStar::CvAStar()
 CvAStar::~CvAStar()
 {
 	DeInit();
-	DeleteCriticalSection(&m_cs);
 }
 
 //	--------------------------------------------------------------------------------

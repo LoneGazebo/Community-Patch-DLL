@@ -1,63 +1,63 @@
 -- Peace Loving (Now Mandate of Heaven)
 UPDATE Beliefs
-SET HappinessPerXPeacefulForeignFollowers = '0'
+SET HappinessPerXPeacefulForeignFollowers = 0
 WHERE Type = 'BELIEF_PEACE_LOVING';
 
 -- Interfaith Dialog (Now Hero Worship)
 UPDATE Beliefs
-SET SciencePerOtherReligionFollower = '0'
+SET SciencePerOtherReligionFollower = 0
 WHERE Type = 'BELIEF_INTERFAITH_DIALOGUE';
 
 -- Ceremonial Burial
 UPDATE Beliefs
-SET HappinessPerFollowingCity = '0'
+SET HappinessPerFollowingCity = 0
 WHERE Type = 'BELIEF_CEREMONIAL_BURIAL';
 
 -- Church Property (Now Holy Law)
 UPDATE Beliefs
-SET GoldPerFollowingCity = '0'
+SET GoldPerFollowingCity = 0
 WHERE Type = 'BELIEF_CHURCH_PROPERTY';
 
 -- Tithe (Now Way of the Pilgrim)
 UPDATE Beliefs 
-SET GoldPerXFollowers = '0'
+SET GoldPerXFollowers = 0
 WHERE Type = 'BELIEF_TITHE';
 
 -- Initiation Rites (Now Way of Transcendence)
 UPDATE Beliefs
-SET GoldPerFirstCityConversion = '0'
+SET GoldPerFirstCityConversion = 0
 WHERE Type = 'BELIEF_INITIATION_RITES';
 
 -- Papal Primacy (Now Council of Elders)
 UPDATE Beliefs
-SET CityStateMinimumInfluence = '0'
+SET CityStateMinimumInfluence = 0
 WHERE Type = 'BELIEF_PAPAL_PRIMACY';
 
 -- scalers
 
 UPDATE Beliefs
-SET CityScalerLimiter = '25'
+SET CityScalerLimiter = 25
 WHERE Type = 'BELIEF_PAPAL_PRIMACY';
 
 UPDATE Beliefs
-SET CityScalerLimiter = '25'
+SET CityScalerLimiter = 25
 WHERE Type = 'BELIEF_INITIATION_RITES';
 
 UPDATE Beliefs
-SET CityScalerLimiter = '25'
+SET CityScalerLimiter = 25
 WHERE Type = 'BELIEF_CEREMONIAL_BURIAL';
 
 UPDATE Beliefs
-SET CityScalerLimiter = '20'
+SET CityScalerLimiter = 20
 WHERE Type = 'BELIEF_TO_GLORY_OF_GOD';
 
 UPDATE Beliefs
-SET FollowerScalerLimiter = '250'
+SET FollowerScalerLimiter = 250
 WHERE Type = 'BELIEF_CHURCH_PROPERTY';
 
 
 UPDATE Beliefs
-SET FollowerScalerLimiter = '250'
+SET FollowerScalerLimiter = 250
 WHERE Type = 'BELIEF_PILGRIMAGE';
 
 
@@ -95,7 +95,7 @@ VALUES
 INSERT INTO Belief_YieldFromTechUnlock
 	(BeliefType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BELIEF_PILGRIMAGE', 'YIELD_FAITH', 2, 'false');
+	('BELIEF_PILGRIMAGE', 'YIELD_FAITH', 2, 0);
 
 INSERT INTO Belief_YieldFromForeignSpread
 	(BeliefType, YieldType, Yield)
@@ -103,11 +103,11 @@ VALUES
 	('BELIEF_TITHE', 'YIELD_TOURISM', 30);
 
 UPDATE Beliefs
-SET MissionaryInfluenceCS = '10'
+SET MissionaryInfluenceCS = 10
 WHERE Type = 'BELIEF_TITHE';
 
 UPDATE Beliefs
-SET HappinessPerXPeacefulForeignFollowers = '10'
+SET HappinessPerXPeacefulForeignFollowers = 10
 WHERE Type = 'BELIEF_TITHE';
 
 

@@ -190,9 +190,7 @@ void CvPlot::reset()
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
 	m_bIsImpassable = false;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_bImprovementEmbassy = false;
-#endif
 
 	m_bIsFreshwater = false;
 	m_bIsAdjacentToLand = false;
@@ -215,9 +213,8 @@ void CvPlot::reset()
 	m_iUnitPlotGAExperience = 0;
 	m_iPlotChangeMoves = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_ePlayerThatClearedDigHere = NO_PLAYER;
-#endif
+	m_ePlayerThatDestroyedCityHere = NO_PLAYER;
 	m_eRouteType = NO_ROUTE;
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	m_eUnitIncrement = 0;
@@ -348,7 +345,7 @@ void CvPlot::doTurn()
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK_ARTIFACT_CLASS)
+	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK)
 	{
 		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
 		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
@@ -549,12 +546,12 @@ void CvPlot::updateVisibility()
 				if (eInvisibleType != NO_INVISIBLE)
 				{
 					// This unit has visibility rules, send a message that it needs to update itself.
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 				}
 				if (pLoopUnit->IsHiddenByNearbyUnit(this))
 				{
-					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+					CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 				}
 			}
@@ -575,13 +572,13 @@ void CvPlot::updateVisibility()
 					if (eInvisibleType != NO_INVISIBLE)
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 					}
 					if (pLoopUnit->IsHiddenByNearbyUnit(this))
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam) ? true : isInvisibleVisibleUnit(eActiveTeam), true, 0.01f);
 					}
 				}
@@ -593,7 +590,7 @@ void CvPlot::updateVisibility()
 //	--------------------------------------------------------------------------------
 void CvPlot::updateSymbols()
 {
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayYieldMightHaveChanged(pDllPlot.get());
 }
 
@@ -647,7 +644,7 @@ void CvPlot::updateCenterUnit()
 
 		if(pLoopUnit)
 		{
-			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+			CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 
 			if(pCenterUnit == pLoopUnit)
 			{
@@ -939,33 +936,57 @@ bool CvPlot::isAdjacentToIce() const
 #endif
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetSizeLargestAdjacentWater() const
+CvLandmass* CvPlot::GetLargestAdjacentWater() const
 {
-	int iRtnValue = 0;
-
 	if(isWater())
-	{
-		return iRtnValue;
-	}
+		return NULL;
+
+	CvLandmass* pResult = NULL;
+	int iMaxSize = 0;
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-		if(pAdjacentPlot != NULL)
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
 		{
-			if(pAdjacentPlot->isWater())
+			CvLandmass* pAdjacentBodyOfWater = pAdjacentPlot->landmass();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
 			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iRtnValue)
-				{
-					iRtnValue = pAdjacentBodyOfWater->getNumTiles();
-				}
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
 			}
 		}
 	}
 
-	return iRtnValue;
+	return pResult;
+}
+
+//	--------------------------------------------------------------------------------
+CvArea* CvPlot::GetLargestAdjacentWaterArea() const
+{
+	if(isWater())
+		return NULL;
+
+	CvArea* pResult = NULL;
+	int iMaxSize = 0;
+
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot && pAdjacentPlot->isWater())
+		{
+			CvArea* pAdjacentBodyOfWater = pAdjacentPlot->area();
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() > iMaxSize)
+			{
+				iMaxSize = pAdjacentBodyOfWater->getNumTiles();
+				pResult = pAdjacentBodyOfWater;
+			}
+		}
+	}
+
+	return pResult;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1047,19 +1068,10 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
 				continue;
 
-			CvArea* pArea = pAdjacentPlot->area();
-			if (pArea)
-			{
-				if (pAdjacentPlot->area()->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
-			// fallback to old method if pArea is null
-			else
-			{
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-					return true;
-			}
+			//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
+			CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+				return true;
 		}
 	}
 
@@ -1999,7 +2011,8 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 
 	if(thisResourceInfo.getMinAreaSize() != -1)
 	{
-		if(area()->getNumTiles() < thisResourceInfo.getMinAreaSize())
+		//better check landmass size, one landmass may have multiple areas
+		if(landmass()->getNumTiles() < thisResourceInfo.getMinAreaSize())
 		{
 			return false;
 		}
@@ -2145,18 +2158,18 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
 	{
 		return false;
 	}
-#endif
+
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
-#if defined(MOD_BALANCE_CORE)
+
 		//Polder-specific code for lakes
 		bool bLake = false;
-		if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+		if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
 		{
 			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 			{
@@ -2172,16 +2185,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 				}
 			}
 		}
-		if(!bLake)
-		{
-#endif
-		return false;
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
+		if (!bLake)
+			return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+
+	if (MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
 	{
 		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
@@ -2197,7 +2205,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 			}
 		}
 	}
-#endif
 
 	if(pkImprovementInfo->IsRequiresImprovement())
 	{
@@ -2211,7 +2218,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		}
 	}
 
-	if(pkImprovementInfo->IsCoastal() && !isCoastalLand())
+	if(pkImprovementInfo->IsCoastal() && !isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 	{
 		return false;
 	}
@@ -2557,7 +2564,6 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// In Adjacent Friendly - Can be built in or adjacent to our lands
 					else if (GC.getImprovementInfo(eImprovement)->IsInAdjacentFriendly())
 					{
-#if defined(MOD_BALANCE_CORE_MILITARY)
 						//citadels only in adjacent _unowned_ territory
 						if (getTeam() == NO_TEAM)
 						{
@@ -2566,52 +2572,37 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 						}
 						else if (getTeam() != eTeam)
 							return false;
-#else
-						if (getTeam() != eTeam && !isAdjacentTeam(eTeam, false))
-						{
-							return false;
-						}
-#endif
 					}
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
 					{
 						bool bCityStateTerritory = false;
-						if (isOwned())
+						if (isOwned() && GET_PLAYER(getOwner()).isMinorCiv())
 						{
-							if (GET_PLAYER(getOwner()).isMinorCiv())
-							{
-								bCityStateTerritory = true;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								//Let's check for Embassies.
-								if(GC.getImprovementInfo(eImprovement)->IsEmbassy())
-								{
-									int iCityLoop;
-									for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-									{
-										if(pLoopCity != NULL)
-										{
-											for(int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-											{
-												CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+							bCityStateTerritory = true;
 
-												if(pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
-												{
-													if (pCityPlot->IsImprovementEmbassy())
-														return false;
-												}
-											}
+							// Let's check for Embassies.
+							if (GC.getImprovementInfo(eImprovement)->IsEmbassy())
+							{
+								int iCityLoop;
+								for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
+								{
+									for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
+									{
+										CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+										if (pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
+										{
+											if (pCityPlot->IsImprovementEmbassy())
+												return false;
 										}
 									}
 								}
-#endif
 							}
 						}
 
 						if (!bCityStateTerritory)
-						{
 							return false;
-						}
 					}
 					else if(getTeam() != eTeam) 
 					{//only buildable in own culture
@@ -3370,7 +3361,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, 
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if(pAdjacentPlot != NULL && pAdjacentPlot->getTeam() != eTeam)
 		{
-			if (!bIgnoreImpassable && pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
+			if (bIgnoreImpassable && pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
 				continue;
 
 			if (bAllowNoTeam || pAdjacentPlot->getTeam() != NO_TEAM)
@@ -3803,36 +3794,34 @@ CvUnit* CvPlot::plotCheck(ConstPlotUnitFunc funcA, int iData1A, int iData2A, Pla
 //	--------------------------------------------------------------------------------
 bool CvPlot::isOwned() const
 {
-	return (getOwner() != NO_PLAYER);
+	return getOwner() != NO_PLAYER;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isBarbarian() const
 {
-	return (getOwner() == BARBARIAN_PLAYER);
+	return getOwner() == BARBARIAN_PLAYER;
 }
 
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRevealedBarbarian() const
 {
-	return (getRevealedOwner(GC.getGame().getActiveTeam(), true) == BARBARIAN_PLAYER);
+	return getRevealedOwner(GC.getGame().getActiveTeam(), true) == BARBARIAN_PLAYER;
 }
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasBarbarianCamp()
 {
-	return (getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT));
+	return getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 bool CvPlot::HasDig()
 {
-	return (getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE));
+	return getResourceType() == GD_INT_GET(ARTIFACT_RESOURCE);
 }
-#endif
 
 bool CvPlot::isVisible(TeamTypes eTeam, bool bDebug) const
 {
@@ -3847,7 +3836,7 @@ bool CvPlot::isVisible(TeamTypes eTeam) const
 	if (eTeam == NO_TEAM)
 		return false;
 
-	return ((getVisibilityCount(eTeam) > 0));
+	return getVisibilityCount(eTeam) > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4083,24 +4072,22 @@ bool CvPlot::isFriendlyCity(const CvUnit& kUnit) const
 	return false;
 }
 
-bool CvPlot::isFortification(TeamTypes eDefenderTeam) const
+bool CvPlot::isFortification(TeamTypes eOccupyingTeam) const
 {
 	if (isCity())
 		return true;
 
-#if defined(MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	if (MOD_GLOBAL_NO_FOLLOWUP_FROM_CITIES)
 	{
 		// If the attacker is in a fort or citadel or other improvement with NoFollowUp, don't advance
-
-		if (getTeam() == eDefenderTeam && !IsImprovementPillaged())
+		TeamTypes eOwnerTeam = getTeam();
+		if ((eOwnerTeam == NO_TEAM || eOwnerTeam == eOccupyingTeam) && !IsImprovementPillaged())
 		{
 			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
 			if (pImprovementInfo && pImprovementInfo->IsNoFollowUp())
 				return true;
 		}
 	}
-#endif
 
 	return false;
 }
@@ -4898,7 +4885,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	std::vector<int> myAreas = getAllAdjacentAreas();
 	std::vector<int> theirAreas = pOther->getAllAdjacentAreas();
 
-	//fancy stl version works only sometimes
+	//fancy stl version works only under conditions
 	if (bAllowLand && bAllowWater)
 	{
 		std::vector<int> shared(MAX(myAreas.size(), theirAreas.size()));
@@ -4991,6 +4978,68 @@ void CvPlot::setLandmass(int iNewValue)
 		}
 	}
 }
+
+CvLandmass * CvPlot::landmass() const
+{
+	return GC.getMap().getLandmass(m_iLandmass);
+}
+
+//	--------------------------------------------------------------------------------
+std::vector<int> CvPlot::getAllAdjacentLandmasses() const
+{
+	std::vector<int> result;
+
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(this);
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = aNeighbors[iI];
+		//exclude our own area! also, simply deduplication, but no guarantee for unique values in result
+		if(pAdjacentPlot != NULL && pAdjacentPlot->getLandmass() != getLandmass())
+			if (result.empty() || result.back()!=pAdjacentPlot->getLandmass())
+				result.push_back(pAdjacentPlot->getLandmass());
+	}
+
+	return result;
+}
+
+bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bool bAllowWater) const
+{
+	if (!pOther)
+		return false;
+
+	std::vector<int> myLandmasses = getAllAdjacentLandmasses();
+	std::vector<int> theirLandmasses = pOther->getAllAdjacentLandmasses();
+
+	//fancy stl version works only under conditions
+	if (bAllowLand && bAllowWater)
+	{
+		std::vector<int> shared(MAX(myLandmasses.size(), theirLandmasses.size()));
+		std::vector<int>::iterator result = std::set_intersection(myLandmasses.begin(), myLandmasses.end(), theirLandmasses.begin(), theirLandmasses.end(), shared.begin());
+		return (result != shared.begin());
+	}
+
+	//manual version
+	for (vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
+	{
+		CvLandmass* a1 = GC.getMap().getLandmass(*i1);
+		if (!bAllowWater && a1->isWater())
+			continue;
+		if (!bAllowLand && !a1->isWater())
+			continue;
+
+		for (vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
+		{
+			CvLandmass* a2 = GC.getMap().getLandmass(*i2);
+
+			//don't need to check for water/land again, id is enough
+			if (a1->GetID() == a2->GetID())
+				return true;
+		}
+	}
+
+	return false;
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvPlot::getOwnershipDuration() const
@@ -5696,6 +5745,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	if(getOwner() != eNewValue)
 	{
 		PlayerTypes eOldOwner = getOwner();
+		PlayerTypes eBuilder = GetPlayerThatBuiltImprovement();
+		ImprovementTypes eImprovement = getImprovementType();
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 
@@ -5724,18 +5775,18 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #endif
 
 			// Plot was owned by someone else
-			if(isOwned())
+			if (isOwned())
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(pFeatureInfo && eOldOwner != NO_PLAYER)
+				if (pFeatureInfo && eOldOwner != NO_PLAYER)
 				{
-					if (pFeatureInfo->getInBorderHappiness()>0)
+					if (pFeatureInfo->getInBorderHappiness() > 0)
 						GET_PLAYER(eOldOwner).SetNaturalWonderOwned(eFeature, false);
 
 					PromotionTypes eFreePromotion = (PromotionTypes)pFeatureInfo->getPromotionIfOwned();
-					if(eFreePromotion != NO_PROMOTION)
+					if (eFreePromotion != NO_PROMOTION)
 					{
-						if(GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
+						if (GET_PLAYER(eOldOwner).IsFreePromotion(eFreePromotion))
 						{
 							GET_PLAYER(eOldOwner).ChangeFreePromotionCount(eFreePromotion, -1);
 						}
@@ -5746,107 +5797,106 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
-				if(pOldCity)
+				if (pOldCity)
 				{
-					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
 						PlayerTypes ePlayer = (PlayerTypes)ui;
-						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
+						if (GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
 							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 						}
 					}
 				}
 
-				if(eOldOwner >= MAX_MAJOR_CIVS && eOldOwner != BARBARIAN_PLAYER)
+				if (eOldOwner >= MAX_MAJOR_CIVS && eOldOwner != BARBARIAN_PLAYER)
 				{
 					CvPlayer& thisPlayer = GET_PLAYER(eOldOwner);
 					CvMinorCivAI* pMinorCivAI = thisPlayer.GetMinorCivAI();
-					if(pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
+					if (pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
 					{
 						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 					}
 				}
 
-				if(area())
+				if (area())
 				{
 					area()->changeNumOwnedTiles(-1);
 				}
 				GC.getMap().changeOwnedPlots(-1);
 
-				if(!isWater())
+				if (!isWater())
 				{
-					GET_PLAYER(getOwner()).changeTotalLand(-1);
+					GET_PLAYER(eOldOwner).changeTotalLand(-1);
 					GET_TEAM(getTeam()).changeTotalLand(-1);
 
-					if(isOwnershipScore())
+					if (isOwnershipScore())
 					{
-						GET_PLAYER(getOwner()).changeTotalLandScored(-1);
+						GET_PLAYER(eOldOwner).changeTotalLandScored(-1);
 					}
 				}
 
 				// Improvement is here
-				if(getImprovementType() != NO_IMPROVEMENT)
+				if (eImprovement != NO_IMPROVEMENT)
 				{
-					GET_PLAYER(getOwner()).changeImprovementCount(getImprovementType(), -1);
+					GET_PLAYER(eOldOwner).changeImprovementCount(eImprovement, -1, eOldOwner == eBuilder);
 
 					// Remove siphoned resources
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
 					if (pImprovementInfo != NULL && pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor() > 0)
 					{
-						if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
+						if (eBuilder != NO_PLAYER)
 						{
 							if (GET_PLAYER(eOldOwner).isMinorCiv())
 							{
-								GET_PLAYER(GetPlayerThatBuiltImprovement()).changeSiphonLuxuryCount(eOldOwner, -1 * pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
+								GET_PLAYER(eBuilder).changeSiphonLuxuryCount(eOldOwner, -1 * pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
 #if defined(MOD_BALANCE_CORE)
-								GET_PLAYER(eOldOwner).GetMinorCivAI()->SetSiphoned(GetPlayerThatBuiltImprovement(), false);
+								GET_PLAYER(eOldOwner).GetMinorCivAI()->SetSiphoned(eBuilder, false);
 #endif
 							}
 						}
 					}
 #if defined(MOD_BALANCE_CORE)
-					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					if (pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
-					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
 					{
 						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience() * -1);
 					}
-					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && eBuilder != NO_PLAYER)
 					{
 						ChangeUnitPlotGAExperience(-1 * pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					if (pImprovementInfo->GetMovesChange() > 0 && eBuilder != NO_PLAYER)
 					{
 						ChangePlotMovesChange(-1 * pImprovementInfo->GetMovesChange());
 					}
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 					// Embassy extra vote in WC mod
-					if(MOD_DIPLOMACY_CITYSTATES && pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
+					if (pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
 					{
-						if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
+						if (eBuilder != NO_PLAYER)
 						{
 							if (GET_PLAYER(eOldOwner).isMinorCiv())
 							{
-								GET_PLAYER(GetPlayerThatBuiltImprovement()).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote() * -1);
+								GET_PLAYER(eBuilder).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote() * -1);
 							}
 						}
 					}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 					//Resource from improvement - change ownership if needed.
 					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
 					int iQuantity = pImprovementInfo->GetResourceQuantityFromImprovement();
-					if(iQuantity <= 0)
+					if (iQuantity <= 0)
 					{
 						iQuantity = 1;
 					}
 
-					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
+					if (eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_RESOURCE && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 					{
 						setResourceType(NO_RESOURCE, 0);
 					}
@@ -5854,27 +5904,27 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// Remove Resource Quantity from total
-				if(getResourceType() != NO_RESOURCE)
+				if (getResourceType() != NO_RESOURCE)
 				{
-					if(GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
+					if (GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
 					{
 #if defined(MOD_BALANCE_CORE)
-						if(getImprovementType() != NO_IMPROVEMENT)
+						if (eImprovement != NO_IMPROVEMENT)
 						{
-							if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+							if (GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
 							{
-								if(!IsImprovementPillaged())
+								if (!IsImprovementPillaged())
 								{
-									GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+									GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
 								}
 							}
 						}
 #else
-						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+						if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsImprovementResourceTrade(getResourceType()))
 						{
-							if(!IsImprovementPillaged())
+							if (!IsImprovementPillaged())
 							{
-								GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+								GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
 							}
 						}
 #endif
@@ -5892,7 +5942,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// If there's a camp here, clear it
-				if(getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+				if(eImprovement == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 				{
 					setImprovementType(NO_IMPROVEMENT);
 					CvBarbarians::DoBarbCampCleared(this, eNewValue);
@@ -5902,7 +5952,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// Transfer responsibility of routes and improvements if the plot is now owned by someone else
-				if (getImprovementType() != NO_IMPROVEMENT)
+				if (eImprovement != NO_IMPROVEMENT)
 				{
 					SetPlayerResponsibleForImprovement(eNewValue);
 				}
@@ -5916,12 +5966,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Transfer responsibility of improvements back to the original builder if the plot is now unowned, and the improvement can be built outside of borders
 				// If the improvement is not supposed to function outside borders, then no one is responsible for it
 				// Original builder of route is not stored in memory, so the responsible player remains the previous owner
-				if (getImprovementType() != NO_IMPROVEMENT)
+				if (eImprovement != NO_IMPROVEMENT)
 				{
-					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(getImprovementType());
+					CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 					if (pkImprovementInfo && pkImprovementInfo->IsOutsideBorders())
 					{
-						SetPlayerResponsibleForImprovement(GetPlayerThatBuiltImprovement());
+						SetPlayerResponsibleForImprovement(eBuilder);
 					}
 					SetPlayerResponsibleForImprovement(NO_PLAYER);
 				}
@@ -6021,42 +6071,42 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 
 				// Improvement is here
-				if(getImprovementType() != NO_IMPROVEMENT)
+				if(eImprovement != NO_IMPROVEMENT)
 				{
-					GET_PLAYER(eNewValue).changeImprovementCount(getImprovementType(), 1);
+					GET_PLAYER(eNewValue).changeImprovementCount(eImprovement, 1, getOwner() == eBuilder);
 
 					// Add siphoned resources
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
 					if (pImprovementInfo != NULL && pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor() > 0)
 					{
-						if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
+						if (eBuilder != NO_PLAYER)
 						{
 							if (GET_PLAYER(eNewValue).isMinorCiv())
 							{
-								GET_PLAYER(GetPlayerThatBuiltImprovement()).changeSiphonLuxuryCount(eNewValue, pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
+								GET_PLAYER(eBuilder).changeSiphonLuxuryCount(eNewValue, pImprovementInfo->GetLuxuryCopiesSiphonedFromMinor());
 #if defined(MOD_BALANCE_CORE)
-								GET_PLAYER(eNewValue).GetMinorCivAI()->SetSiphoned(GetPlayerThatBuiltImprovement(), true);
+								GET_PLAYER(eNewValue).GetMinorCivAI()->SetSiphoned(eBuilder, true);
 #endif
 							}
 						}
 					}
 #if defined(MOD_BALANCE_CORE)
 					//Did someone else build this, and now you own it? Let's shift that around.
-					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					if(pImprovementInfo->GetGrantsVision() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
 						int iPlotVisRange = pImprovementInfo->GetGrantsVision();
-						changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
-						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+						changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
+						changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 					}
-					if (pImprovementInfo->GetUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					if (pImprovementInfo->GetUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
 						ChangeUnitPlotExperience(pImprovementInfo->GetUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					if (pImprovementInfo->GetGAUnitPlotExperience() > 0 && eBuilder != NO_PLAYER && getOwner() != eBuilder)
 					{
 						ChangeUnitPlotGAExperience(pImprovementInfo->GetGAUnitPlotExperience());
 					}
-					if (pImprovementInfo->GetMovesChange() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					if (pImprovementInfo->GetMovesChange() > 0 && eBuilder != NO_PLAYER)
 					{
 						ChangePlotMovesChange(pImprovementInfo->GetMovesChange());
 					}
@@ -6077,21 +6127,20 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #endif
 				}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy is here (somehow- city-state conquest/reconquest, perhaps?
-				if(MOD_DIPLOMACY_CITYSTATES && getImprovementType() != NO_IMPROVEMENT)
+				if (eImprovement != NO_IMPROVEMENT)
 				{
 					// Add vote
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(getImprovementType());
+					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
 					if (pImprovementInfo != NULL)
 					{
 						if (pImprovementInfo->GetCityStateExtraVote() > 0)
 						{
-							if (GetPlayerThatBuiltImprovement() != NO_PLAYER)
+							if (eBuilder != NO_PLAYER)
 							{
 								if (GET_PLAYER(eNewValue).isMinorCiv())
 								{
-									GET_PLAYER(GetPlayerThatBuiltImprovement()).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote());
+									GET_PLAYER(eBuilder).ChangeImprovementLeagueVotes(pImprovementInfo->GetCityStateExtraVote());
 								}
 							}
 						}
@@ -6101,14 +6150,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							SetImprovementEmbassy(false);
 					}
 				}
-#endif
 
 				if(getResourceType() != NO_RESOURCE)
 				{
 					// Add Resource Quantity to total
 					if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+						if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
 						{
 							if(!IsImprovementPillaged())
 							{
@@ -6165,11 +6213,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						newPlayer.SetCityDistanceHighwaterMark(bestHighWaterMark);
 						if(GC.GetEngineUserInterface()->isCityScreenUp())
 						{
-							auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
-							if(pHeadSelectedCity.get())
+							CvInterfacePtr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
+							if(pHeadSelectedCity)
 							{
 								CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
-								auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
+								CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
 								GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_CITY_ZOOM_IN);
 							}
 						}
@@ -6216,7 +6264,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					if(GC.getResourceInfo(getResourceType(getTeam()))->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if(getImprovementType() != NO_IMPROVEMENT)
+						if(eImprovement != NO_IMPROVEMENT)
 						{
 							bShouldUpdateHappiness = true;
 						}
@@ -6236,12 +6284,12 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(GC.getGame().isDebugMode())
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 				GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 			}
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
+		CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
 		GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
@@ -6277,37 +6325,21 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 	if (isEnemyUnit(eForPlayer, true, true))
 		return true;
 
-	if (isFriendlyUnit(eForPlayer, true, false))
+	if (isFriendlyUnit(eForPlayer, true, false) || isNeutralUnit(eForPlayer, true, true))
 		return false;
 
-	//need to do additional checks in water
-	if (isWater())
-	{
-		int iRange = range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3);
-		for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
-		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
-			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
-					return true;
-			}
-		}
-	}
+	int iLandRange = (MOD_ADJACENT_BLOCKADE) ? 1 : 0;
+	int iRange = isWater() ? range(/*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE),0,3) : iLandRange;
 
-	// MOD_ADJACENT_BLOCKADE : Land units blockade undefended adjacent tiles
-	if (MOD_ADJACENT_BLOCKADE && !isWater())
+	for (int i = RING0_PLOTS; i < RING_PLOTS[iRange]; i++)
 	{
-		for (int i = RING0_PLOTS; i < RING_PLOTS[1]; i++)
+		CvPlot* pNeighbor = iterateRingPlots(this, i);
+		//landmass change is equivalent to domain change
+		if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
 		{
-			CvPlot* pNeighbor = iterateRingPlots(this, i);
-			if (pNeighbor && pNeighbor->getArea() == getArea())
-			{
-				//no halo around embarked units
-				if (pNeighbor->isEnemyUnit(eForPlayer, true, false))
-					return true;
-			}
+			//no halo around embarked units
+			if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+				return true;
 		}
 	}
 
@@ -6664,7 +6696,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 			updateSeeFromSight(false,true);
 		}
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+		CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 		gDLL->GameplayFeatureChanged(pDllPlot.get(), eNewValue);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -7041,7 +7073,7 @@ ImprovementTypes CvPlot::getImprovementType() const
 }
 
 //	--------------------------------------------------------------------------------
-ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bNonSpecialOnly)
+ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer, bool bTestPlotOwner, bool bIgnoreSpecialImprovements)
 {
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer == NO_PLAYER || ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -7093,9 +7125,10 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 		if (pImprovementInfo == NULL)
 			continue;
 
-		if (bNonSpecialOnly && !pImprovementInfo->IsImprovementResourceTrade(eResource))
+		if (!pImprovementInfo->IsConnectsResource(eResource))
 			continue;
-		else if (pImprovementInfo->IsExpandedImprovementResourceTrade(eResource, true))
+
+		if (bIgnoreSpecialImprovements && (pImprovementInfo->IsCreatedByGreatPerson() || pImprovementInfo->IsAdjacentCity()))
 			continue;
 
 		if(pImprovementInfo->IsWater() != isWater())
@@ -7210,6 +7243,25 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
 
+	// new farm resources: generic farm textures for asia and american are replaced with rice and maize farm texs. 
+	// when a farm is built on those continents, check for plot's resource. if it's a generic, non-resource farm, change the art to another continent to get diverse generic graphics.
+	// if it's built on rice or maize, change the continent art if needed. america 1, asia 2, africa 3, europe 4 (ocean 0, don't use that)
+	if (eNewValue == 3) // id for farm 
+	{
+		int iContinentType = GetContinentType();
+		ResourceTypes eResourceType = getResourceType();
+
+		if (eResourceType == NO_RESOURCE && iContinentType < 3) { // only change it when current type is asia or america
+			SetContinentType(iContinentType + 2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_RICE", true) && iContinentType != 2) {
+			SetContinentType(2);
+		}
+		if (eResourceType == (ResourceTypes)GC.getInfoTypeForString("RESOURCE_MAIZE", true) && iContinentType != 1) {
+			SetContinentType(1);
+		}
+	}
+
 	if (eBuilder != NO_PLAYER)
 	{
 		if (eNewValue != NO_IMPROVEMENT && getOwner() != eBuilder && !GET_PLAYER(eBuilder).isMinorCiv())
@@ -7223,6 +7275,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 	if(eOldImprovement != eNewValue)
 	{
+		PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
+		
 #if defined(MOD_BALANCE_CORE)
 		CvCity* pOwningCity = getEffectiveOwningCity();
 		if(pOwningCity != NULL)
@@ -7319,12 +7373,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 			// Someone owns this plot
 			if(owningPlayerID != NO_PLAYER)
-			{
+			{	
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
-				owningPlayer.changeImprovementCount(eOldImprovement, -1);
+				owningPlayer.changeImprovementCount(eOldImprovement, -1, eOldBuilder == owningPlayerID);
 
 				// Siphon resource changes
-				PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
 				if(oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					if (owningPlayer.isMinorCiv())
@@ -7339,7 +7392,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();		
-					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (oldImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7367,26 +7420,22 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					setResourceType(eResourceFromImprovement, iQuantity);
 				}
 #endif
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy extra vote in WC mod
-				if(MOD_DIPLOMACY_CITYSTATES && oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
+				if (oldImprovementEntry.GetCityStateExtraVote() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					if (owningPlayer.isMinorCiv())
 					{
 						GET_PLAYER(eOldBuilder).ChangeImprovementLeagueVotes(oldImprovementEntry.GetCityStateExtraVote() * -1);
 					}
 				}
-#endif
 			}
 #if defined(MOD_BALANCE_CORE)
 			else
 			{
-				PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
 				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = oldImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eOldBuilder).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 			}
 #endif
@@ -7672,7 +7721,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			if(isOwned())
 			{
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
-				owningPlayer.changeImprovementCount(eNewValue, 1);
+				owningPlayer.changeImprovementCount(eNewValue, 1, eBuilder == owningPlayerID);
 
 #if defined(MOD_API_ACHIEVEMENTS)
 				//DLC_04 Achievement
@@ -7720,7 +7769,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}
 				if (newImprovementEntry.GetUnitPlotExperience() > 0)
 				{
@@ -7753,7 +7802,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if (newImprovementEntry.IsExpandedImprovementResourceTrade(getResourceType()))
+						if (newImprovementEntry.IsConnectsResource(getResourceType()))
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
@@ -7770,7 +7819,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
-					if(newImprovementEntry.IsExpandedImprovementResourceTrade(eResource))
+					if(newImprovementEntry.IsConnectsResource(eResource))
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -7779,9 +7828,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 				// Embassy extra vote in WC mod
-				if(MOD_DIPLOMACY_CITYSTATES && newImprovementEntry.GetCityStateExtraVote() > 0 && eBuilder != NO_PLAYER)
+				if (newImprovementEntry.GetCityStateExtraVote() > 0 && eBuilder != NO_PLAYER)
 				{
 					if (owningPlayer.isMinorCiv())
 					{
@@ -7795,7 +7843,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					SetImprovementEmbassy(true);
 				else
 					SetImprovementEmbassy(false);
-#endif
 			}
 #if defined(MOD_BALANCE_CORE) || defined(MOD_IMPROVEMENTS_EXTENSIONS)
 			else if(!isOwned())
@@ -7804,7 +7851,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
 				{
 					int iPlotVisRange = newImprovementEntry.GetGrantsVision();				
-					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+					changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, NULL);
 				}	
 #endif
 #if defined(MOD_IMPROVEMENTS_EXTENSIONS)
@@ -7870,7 +7917,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 					{
-						if (GC.getImprovementInfo(eOldImprovement)->IsExpandedImprovementResourceTrade(getResourceType()))
+						if (GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(getResourceType()))
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
 
@@ -7885,7 +7932,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
-					if(GC.getImprovementInfo(eOldImprovement)->IsExpandedImprovementResourceTrade(eResource))
+					if(GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(eResource))
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -8130,7 +8177,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 							pAdjacentPlot->updateYield();
 						}
 					}
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_PLOT && pAdjacentPlot->getOwner() == eBuilder)
+					if(pAdjacentPlot != NULL && pAdjacentPlot->getFeatureType() != NO_FEATURE && pAdjacentPlot->getOwner() == eBuilder)
 					{	
 						bool bUp2 = false;
 						for(int iK = 0; iK < NUM_YIELD_TYPES; ++iK)
@@ -8157,7 +8204,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 
 		// Update the most recent builder
-		if (GetPlayerThatBuiltImprovement() != eBuilder)
+		if (eOldBuilder != eBuilder)
 		{
 			SetPlayerThatBuiltImprovement(eBuilder);
 		}
@@ -8188,7 +8235,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementEmbassy() const
 {
@@ -8200,7 +8246,6 @@ void CvPlot::SetImprovementEmbassy(bool bEmbassy)
 {
 	m_bImprovementEmbassy = bEmbassy;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsImprovementPassable() const
@@ -8255,7 +8300,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			{
 				if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
 				{
-					if(GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType()))
+					if(GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 					{
 						if(bPillaged)
 						{
@@ -8377,23 +8422,24 @@ bool CvPlot::HasSpecialImprovement() const
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+		//Works like GP improvement.
 		if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
 		{
 			return true;
 		}
-#if defined(MOD_BALANCE_CORE)
-		//Works like GP improvement.
-		if (pImprovementInfo && pImprovementInfo->IsAdjacentCity())
+
+		//Uniques
+		if (pImprovementInfo && pImprovementInfo->IsSpecificCivRequired())
 		{
 			return true;
 		}
+
 		//Don't delete landmarks!
 		ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 		if (eLandmark != NO_IMPROVEMENT && eImprovement == eLandmark)
 		{
 			return true;
 		}
-#endif
 	}
 
 	return false;
@@ -8770,7 +8816,6 @@ void CvPlot::SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue)
 	m_ePlayerThatClearedBarbCampHere = eNewValue;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 PlayerTypes CvPlot::GetPlayerThatClearedDigHere() const
 {
@@ -8782,7 +8827,18 @@ void CvPlot::SetPlayerThatClearedDigHere(PlayerTypes eNewValue)
 {
 	m_ePlayerThatClearedDigHere = eNewValue;
 }
-#endif
+
+//	--------------------------------------------------------------------------------
+PlayerTypes CvPlot::GetPlayerThatDestroyedCityHere() const
+{
+	return (PlayerTypes)m_ePlayerThatDestroyedCityHere;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlot::SetPlayerThatDestroyedCityHere(PlayerTypes eNewValue)
+{
+	m_ePlayerThatDestroyedCityHere = eNewValue;
+}
 
 //	--------------------------------------------------------------------------------
 /// Link the resource on this plot to pCity. Note that this does NOT set the link to be active - this must be done manually
@@ -8803,7 +8859,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(false);
 				}
@@ -8819,7 +8875,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(false);
 				}
@@ -8837,7 +8893,7 @@ void CvPlot::SetResourceLinkedCity(const CvCity* pCity)
 			{
 				//connected?
 				CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-				if (pImprovement && pImprovement->IsExpandedImprovementResourceTrade(getResourceType()))
+				if (pImprovement && pImprovement->IsConnectsResource(getResourceType()))
 				{
 					SetResourceLinkedCityActive(true);
 				}
@@ -8927,8 +8983,8 @@ void CvPlot::updateOwningCity()
 				if(pLoopCity->getOwner() == getOwner())
 				{
 					if((pBestCity == NULL) ||
-						    (GC.getCityPlotPriority()[iI] < GC.getCityPlotPriority()[iBestPlot]) ||
-						    ((GC.getCityPlotPriority()[iI] == GC.getCityPlotPriority()[iBestPlot]) &&
+						    (GC.getRingFromLinearOffset()[iI] < GC.getRingFromLinearOffset()[iBestPlot]) ||
+						    ((GC.getRingFromLinearOffset()[iI] == GC.getRingFromLinearOffset()[iBestPlot]) &&
 						        ((pLoopCity->getGameTurnAcquired() < pBestCity->getGameTurnAcquired()) ||
 						        ((pLoopCity->getGameTurnAcquired() == pBestCity->getGameTurnAcquired()) &&
 						        (pLoopCity->GetID() < pBestCity->GetID())))))
@@ -8998,6 +9054,7 @@ void CvPlot::setOwningCityOverride(const CvCity* pNewValue)
 		if (pCurrentCity != NULL && pCurrentCity->GetCityCitizens()->IsWorkingPlot(this))
 		{
 			pCurrentCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+			pCurrentCity->GetCityCitizens()->SetForcedWorkingPlot(this, false);
 			pCurrentCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
@@ -9331,7 +9388,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 				{
 					iReligionChange += iValue;
 				}
@@ -9341,7 +9398,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 				{
 					iReligionChange += iValue;
 				}
@@ -9404,7 +9461,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 			{
 				if (getImprovementType() != NO_IMPROVEMENT && getResourceType(eTeam) != NO_RESOURCE)
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 					{
 						iReligionChange += iValue;
 					}
@@ -9414,7 +9471,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 			{
 				if (getImprovementType() != NO_IMPROVEMENT)
 				{
-					if (GC.getImprovementInfo(getImprovementType())->IsExpandedImprovementResourceTrade(getResourceType(eTeam)))
+					if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
 					{
 						iReligionChange += iValue;
 					}
@@ -10989,7 +11046,7 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-inline bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
+bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -11241,7 +11298,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 							}
 						}
 #endif
-						auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 						gDLL->GameplayNaturalWonderRevealed(pDllPlot.get());
 					}
 				}
@@ -11924,7 +11981,7 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->IsHiddenByNearbyUnit(pLoopUnit->plot()))
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -12024,7 +12081,7 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 
 					if (NULL != pLoopUnit && pLoopUnit->getTeam() != activeTeam && pLoopUnit->getInvisibleType() == eInvisible)
 					{
-						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
 						gDLL->GameplayUnitVisibility(pDllUnit.get(), bNewInvisibleVisible, true);
 					}
 				}
@@ -12561,16 +12618,17 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor(plot.m_ePlotType);
 	visitor(plot.m_eTerrainType);
 
-	visitor.as<FeatureTypes>(plot.m_eFeatureType);
-	visitor.as<ResourceTypes>(plot.m_eResourceType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementType);
-	visitor.as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
+	visitor.template as<FeatureTypes>(plot.m_eFeatureType);
+	visitor.template as<ResourceTypes>(plot.m_eResourceType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementType);
+	visitor.template as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
 	visitor(plot.m_ePlayerResponsibleForRoute);
 	visitor(plot.m_ePlayerThatClearedBarbCampHere);
 	visitor(plot.m_ePlayerThatClearedDigHere);
+	visitor(plot.m_ePlayerThatDestroyedCityHere);
 	visitor(plot.m_eRouteType);
 	visitor(plot.m_eUnitIncrement);
 	visitor(plot.m_eWorldAnchor);
@@ -12599,8 +12657,8 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 		visitor(plot.m_aiVisibilityCountThisTurnMax[i]);
 		visitor(plot.m_aiRevealedOwner[i]);
 		visitor(plot.m_abResourceForceReveal[i]);
-		visitor.as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
-		visitor.as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
+		visitor.template as<ImprovementTypes>(plot.m_aeRevealedImprovementType[i]);
+		visitor.template as<RouteTypes>(plot.m_aeRevealedRouteType[i]);
 		visitor(plot.m_abIsImpassable[i]);
 		visitor(plot.m_abStrategicRoute[i]);
 	}
@@ -12842,7 +12900,7 @@ void CvPlot::updateLayout(bool bDebug)
 		}
 	}
 
-	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(this));
+	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 	gDLL->GameplayPlotStateChange
 	(
 	    pDllPlot.get(),
@@ -12913,7 +12971,7 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 	{
 		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
 #if defined(MOD_BALANCE_CORE)
-		if ((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsExpandedImprovementResourceTrade(eType))
+		if ((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsConnectsResource(eType))
 #else
 		if((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType))
 #endif
@@ -13190,15 +13248,15 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	{
 		if(thisUnitDomain == DOMAIN_SEA)
 		{
-			//fast check for ocean (-1) or any lake (1) allows building ships
-			if(!isWater() && !isCoastalLand(-1) && !isCoastalLand(1))
+			//fast check for ocean (-1)
+			if(!isCoastalLand(-1) || !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
 			{
 				return false;
 			}
 		}
 		else if (thisUnitDomain == DOMAIN_LAND)
 		{
-			if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+			if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 			{
 				return false;
 			}
@@ -13206,7 +13264,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 	}
 	else
 	{
-		if(area()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
+		if(landmass()->getNumTiles() < thisUnitEntry.GetMinAreaSize())
 		{
 			return false;
 		}
@@ -13893,7 +13951,7 @@ bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, i
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -13992,7 +14050,7 @@ bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTyp
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14057,7 +14115,7 @@ bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUn
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14122,7 +14180,7 @@ bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes
 {
 	int iX = getX(); int iY = getY();
 	CvUnit* pLoopUnit;
-	if(iDistance >= 0 && this != NULL)
+	if(iDistance >= 0)
 	{
 		for(int iI = 0; iI < this->getNumUnits(); iI++)
 		{
@@ -14325,27 +14383,19 @@ bool CvPlot::IsAdjacentToUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnit
 				pLoopUnit = pLoopPlot->getUnitByIndex(iI);
 				if(pLoopUnit != NULL)
 				{
-					for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+					if(pLoopUnit->isHasPromotion(eUnitPromotion))
 					{
-						const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
-						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkPromotionInfo)
+						if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
 						{
-							if(pLoopUnit->isHasPromotion(ePromotion) && ePromotion == eUnitPromotion)
-							{
-								if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
-								{
-									return true;
-								}
-								else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-								{
-									return true;
-								}
-								else if(!bIsFriendly && !bIsEnemy)
-								{
-									return true;
-								}
-							}
+							return true;
+						}
+						else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+						{
+							return true;
+						}
+						else if(!bIsFriendly && !bIsEnemy)
+						{
+							return true;
 						}
 					}
 				}

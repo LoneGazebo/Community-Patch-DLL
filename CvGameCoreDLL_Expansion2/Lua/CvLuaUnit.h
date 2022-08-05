@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -191,6 +191,16 @@ protected:
 
 	static int lCanMove(lua_State* L);
 	static int lHasMoved(lua_State* L);
+
+	static int lIsLinked(lua_State* L);
+	static int lIsLinkedLeader(lua_State* L);
+	static int lIsGrouped(lua_State* L);
+	static int lCanLinkUnits(lua_State* L);
+	static int lLinkUnits(lua_State* L);
+	static int lUnlinkUnits(lua_State* L);
+	static int lMoveLinkedLeader(lua_State* L);
+	static int lDoGroupMovement(lua_State* L);
+
 	static int lRange(lua_State* L);
 	static int lNukeDamageLevel(lua_State* L);
 
@@ -386,6 +396,7 @@ protected:
 	static int lGetStrategicResourceCombatPenalty(lua_State* L);
 	static int lGetUnhappinessCombatPenalty(lua_State* L);
 	static int lAirSweepCombatMod(lua_State* L);
+	static int lGetEmbarkDefensiveModifier(lua_State* L);
 	static int lCapitalDefenseModifier(lua_State* L);
 	static int lCapitalDefenseFalloff(lua_State* L);
 

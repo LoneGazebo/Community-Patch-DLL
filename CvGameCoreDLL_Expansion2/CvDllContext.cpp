@@ -673,8 +673,8 @@ int CvDllGameContext::GetNUM_CITY_PLOTS() const
 {
 	int iNumCityPlots = AVG_CITY_PLOTS;
 	
-	auto_ptr<ICvCity1> pCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
-	if (pCity.get() != NULL) {
+	CvInterfacePtr<ICvCity1> pCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
+	if (pCity) {
 		CvCity* pkCity = GC.UnwrapCityPointer(pCity.get());
 		iNumCityPlots = pkCity->GetNumWorkablePlots();
 	}
@@ -867,7 +867,7 @@ bool CvDllGameContext::SetDLLIFace(ICvEngineUtility1* pDll)
 	ICvEngineUtility4* pOldDll = GC.getDLLIFace();
 	if(pOldDll != NULL)
 	{
-		delete pOldDll;
+		pOldDll->Destroy();
 	}
 
 	ICvEngineUtility4* pDllInterface = (pDll != NULL)? pDll->QueryInterface<ICvEngineUtility4>() : NULL;
@@ -1057,7 +1057,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(pPlot)
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
 		}
 	}
@@ -1076,7 +1076,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(pPlot && pPlot->isVisible(pkUnit->getTeam()) && (pPlot->isVisibleEnemyUnit(pkUnit) || pPlot->isEnemyCity(*pkUnit)))
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
 		}
 	}

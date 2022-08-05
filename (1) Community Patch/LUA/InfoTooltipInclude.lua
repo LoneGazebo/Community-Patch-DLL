@@ -745,7 +745,11 @@ function GetCultureTooltip(pCity)
 	local iCulturePerTurn = pCity:GetJONSCulturePerTurn();
 	local iCultureStored = pCity:GetJONSCultureStored();
 	local iCultureNeeded = pCity:GetJONSCultureThreshold();
-	local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
+	local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL);
+
+	if ((pCity:GetWeLoveTheKingDayCounter() > 0 and Players[pCity:GetOwner()]:IsDoubleBorderGrowthWLTKD()) or (Players[pCity:GetOwner()]:IsGoldenAge() and Players[pCity:GetOwner()]:IsDoubleBorderGrowthGA())) then
+		borderGrowthRate = borderGrowthRate * 2;
+	end
 
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStored, iCultureNeeded);

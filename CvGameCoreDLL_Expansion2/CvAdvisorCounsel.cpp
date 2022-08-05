@@ -591,6 +591,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			}
 			break;
 			case WAR_STATE_DEFENSIVE:
+			case WAR_STATE_TROUBLED:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{

@@ -15,10 +15,8 @@
 //static 
 short* CvBarbarians::m_aiPlotBarbCampSpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCampNumUnitsSpawned = NULL;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 short* CvBarbarians::m_aiPlotBarbCitySpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCityNumUnitsSpawned = NULL;
-#endif
 
 //	---------------------------------------------------------------------------
 bool CvBarbarians::IsPlotValidForBarbCamp(CvPlot* pPlot)
@@ -181,14 +179,12 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 #endif
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 /// Barbarian city captured, so reset counter
 void CvBarbarians::DoBarbCityCleared(CvPlot* pPlot)
 {
 	m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()] = -16;
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 /// What turn are we now allowed to Spawn Barbarians on?
@@ -222,7 +218,6 @@ bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 
 	return false;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //	--------------------------------------------------------------------------------
 /// Determines when to Spawn a new Barb Unit from a City
 bool CvBarbarians::ShouldSpawnBarbFromCity(CvPlot* pPlot)
@@ -234,7 +229,6 @@ bool CvBarbarians::ShouldSpawnBarbFromCity(CvPlot* pPlot)
 
 	return false;
 }
-#endif
 //	--------------------------------------------------------------------------------
 /// Gameplay informing us when a Camp has either been created or spawned a Unit so we can reseed the spawn counter
 void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
@@ -296,7 +290,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 
 	m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] = iNumTurnsToSpawn;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+
 //	--------------------------------------------------------------------------------
 /// Gameplay informing us when a City has either been acquired or spawned a Unit so we can reseed the spawn counter
 void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
@@ -368,7 +362,7 @@ void CvBarbarians::DoCityAttacked(CvPlot* pPlot)
 
 	m_aiPlotBarbCitySpawnCounter[pPlot->GetPlotIndex()] = iNewValue;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// Gameplay informing us when a camp has been attacked - make it more likely to spawn
 void CvBarbarians::DoCampAttacked(CvPlot* pPlot)
@@ -420,7 +414,6 @@ void CvBarbarians::DoCampSpawnCounter()
 		{
 			m_aiPlotBarbCampSpawnCounter[iPlotLoop]++;
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (m_aiPlotBarbCitySpawnCounter[iPlotLoop] > 0)
 		{
 			// No City here any more
@@ -441,7 +434,6 @@ void CvBarbarians::DoCampSpawnCounter()
 		{
 			m_aiPlotBarbCitySpawnCounter[iPlotLoop]++;
 		}
-#endif
 	}
 }
 
@@ -462,7 +454,6 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 		{
 			m_aiPlotBarbCampNumUnitsSpawned = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		if (m_aiPlotBarbCitySpawnCounter == NULL)
 		{
 			m_aiPlotBarbCitySpawnCounter = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
@@ -471,17 +462,14 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 		{
 			m_aiPlotBarbCityNumUnitsSpawned = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
 		}
-#endif
 
 		// Default values
 		for (iI = 0; iI < iWorldNumPlots; ++iI)
 		{
 			m_aiPlotBarbCampSpawnCounter[iI] = -1;
 			m_aiPlotBarbCampNumUnitsSpawned[iI] = -1;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 			m_aiPlotBarbCitySpawnCounter[iI] = -1;
 			m_aiPlotBarbCityNumUnitsSpawned[iI] = -1;
-#endif
 		}
 	}
 }
@@ -499,7 +487,6 @@ void CvBarbarians::Uninit()
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCampNumUnitsSpawned);
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (m_aiPlotBarbCitySpawnCounter != NULL)
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCitySpawnCounter);
@@ -508,7 +495,6 @@ void CvBarbarians::Uninit()
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCityNumUnitsSpawned);
 	}
-#endif
 }
 
 //	---------------------------------------------------------------------------

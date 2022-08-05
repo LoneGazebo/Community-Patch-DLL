@@ -52,7 +52,7 @@
 	lua_pushstring(L, szDescription); \
 	return 1; \
 	} \
-	static FLua::TypeExposure<##CLASS##>::FunctionRegistrar LuaReg_##CLASS##_##THUNK_NAME## \
+	static FLua::TypeExposure<CLASS>::FunctionRegistrar LuaReg_##CLASS##_##THUNK_NAME## \
 	(#THUNK_NAME, &LuaThunk_##CLASS##_##THUNK_NAME##, &LuaToString_##CLASS##_##THUNK_NAME##, FLua::Details::DoConstCheck(&CLASS::FUNC), CATEGORY_FLAGS)
 
 // FLUA_EXPOSE_MEMBER_EX(CLASS, FUNC, THUNK_NAME)
@@ -82,7 +82,7 @@
 	lua_pushstring(L, szDescription); \
 	return 1; \
 	} \
-	static FLua::TypeExposure<##CLASS##>::FunctionRegistrar LuaReg_##CLASS##_##FUNC## \
+	static FLua::TypeExposure<CLASS>::FunctionRegistrar LuaReg_##CLASS##_##FUNC## \
 	(#FUNC, &LuaThunk_##CLASS##_##FUNC##, &LuaToString_##CLASS##_##FUNC##, false, FLua::TypeExposures::sm_uiUnrestrictedExposure)
 
 // FLUA_SUPPORT_ENUM(ENUM)

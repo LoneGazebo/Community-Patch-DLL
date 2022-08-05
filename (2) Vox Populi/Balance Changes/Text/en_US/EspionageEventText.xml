@@ -33,7 +33,7 @@
 			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP">
-			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_TOURISM] Tourism ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_TOURISM] Tourism.</Text>
+			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_TOURISM] Tourism output each turn for duration of mission. When complete, Spy steals all collected [ICON_TOURISM] Tourism.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE">
 			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>

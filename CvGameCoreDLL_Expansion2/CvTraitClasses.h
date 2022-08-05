@@ -236,6 +236,7 @@ public:
 	bool IsCanGoldInternalTradeRoutes() const;
 	int GetExtraTradeRoutesPerXOwnedCities() const;
 	int GetExtraTradeRoutesPerXOwnedVassals() const;
+	int GetMinorInfluencePerGiftedUnit() const;
 	bool IsCapitalOnly() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -599,6 +600,7 @@ protected:
 	bool m_bCanGoldInternalTradeRoutes;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
+	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1395,6 +1397,10 @@ public:
 	int GetExtraTradeRoutesPerXOwnedVassals() const
 	{
 		return m_iExtraTradeRoutesPerXOwnedVassals;
+	};
+	int GetMinorInfluencePerGiftedUnit() const
+	{
+		return m_iMinorInfluencePerGiftedUnit;
 	};
 	bool IsCapitalOnly() const
 	{
@@ -2199,6 +2205,7 @@ private:
 	bool m_bCanGoldInternalTradeRoutes;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
+	int m_iMinorInfluencePerGiftedUnit;
 	bool m_bIsCapitalOnly;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)

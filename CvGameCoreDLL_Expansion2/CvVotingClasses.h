@@ -25,10 +25,8 @@ namespace LeagueHelpers
 	EraTypes GetGameEraForTrigger();
 	EraTypes GetNextGameEraForTrigger();
 	EraTypes GetNextGameEraForTrigger(EraTypes eThisEra);
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	BuildingTypes GetBuildingForTrigger(BuildingTypes eBuilding);
 	ResolutionTypes IsResolutionForTriggerActive(ResolutionTypes eType);
-#endif
 
 	typedef vector<PlayerTypes> PlayerList;
 
@@ -126,7 +124,6 @@ struct CvResolutionEffects
 	int iScienceyGreatPersonRateMod;
 	int iGreatPersonTileImprovementCulture;
 	int iLandmarkCulture;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	bool bOpenDoor;
 	bool bSphereOfInfluence;
 	bool bDecolonization;
@@ -134,14 +131,11 @@ struct CvResolutionEffects
 	int iLimitSpaceshipPurchase;
 	int iIsWorldWar;
 	bool bEmbargoIdeology;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int iChangeTourism;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int iVassalMaintenanceGoldPercent;
 	bool bEndAllCurrentVassals;
-#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvResolutionEffects&);
@@ -659,20 +653,16 @@ public:
 	int GetPressureForIdeology(PolicyBranchTypes eIdeology);
 	int GetArtsyGreatPersonRateModifier();
 	int GetScienceyGreatPersonRateModifier();
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
 	int GetSpaceShipProductionMod();
 	int GetSpaceShipPurchaseMod();
 	int GetWorldWar();
 	int GetUnitMaintenanceMod();
 	bool IsCityStateEmbargo();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	int GetTourismMod();
+
 	void DoEnactResolutionPublic(CvEnactProposal* pProposal);
 	void DoRepealResolutionPublic(CvRepealProposal* pProposal);
-
-#endif
 
 	// Text composition for UI
 	CvString GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix);
@@ -833,14 +823,12 @@ public:
 	int GetPressureForIdeology(PlayerTypes ePlayer, PolicyBranchTypes eIdeology);
 	int GetArtsyGreatPersonRateModifier(PlayerTypes ePlayer);
 	int GetScienceyGreatPersonRateModifier(PlayerTypes ePlayer);
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int GetSpaceShipProductionMod(PlayerTypes ePlayer);
 	int GetSpaceShipPurchaseMod(PlayerTypes ePlayer);
 	int IsWorldWar(PlayerTypes ePlayer);
 	int GetUnitMaintenanceMod(PlayerTypes ePlayer);
 	bool IsCityStateEmbargo(PlayerTypes ePlayer);
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
-#endif
 
 	// General Logging
 	CvString GetLogFileName() const;
@@ -1079,10 +1067,8 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 	EraTypes GetEraTrigger() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	BuildingTypes GetBuildingTrigger() const;
 	ResolutionTypes GetResolutionTrigger() const;
-#endif
 	ResolutionTypes GetImmediateProposal() const;
 	ResolutionTypes GetRecurringProposal() const;
 	int GetTurnsBetweenSessions() const;
@@ -1093,10 +1079,8 @@ public:
 
 protected:
 	EraTypes m_eEraTrigger;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	BuildingTypes m_eBuildingTrigger;
 	ResolutionTypes m_eResolutionTrigger;
-#endif
 	ResolutionTypes m_eImmediateProposal;
 	ResolutionTypes m_eRecurringProposal;
 	int m_iTurnsBetweenSessions;
@@ -1233,11 +1217,9 @@ public:
 	int GetGoldenAgePoints() const;
 	int GetCityStateInfluenceBoost() const;
 	int GetBaseBeakersTurnsToCount() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int GetAttackBonusTurns() const;
 	int GetBaseFreeUnits() const;
 	int GetNumFreeGreatPeople() const;
-#endif
 	UnitClassTypes GetFreeUnitClass() const;
 
 protected:
@@ -1249,11 +1231,9 @@ protected:
 	int m_iGoldenAgePoints;
 	int m_iCityStateInfluenceBoost;
 	int m_iBaseBeakersTurnsToCount;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int m_iGetAttackBonusTurns;
 	int m_iGetBaseFreeUnits;
 	int m_iGetNumFreeGreatPeople;
-#endif
 	UnitClassTypes m_eFreeUnitClass;
 
 
@@ -1401,7 +1381,6 @@ public:
 	int GetScienceyGreatPersonRateMod() const;
 	int GetGreatPersonTileImprovementCulture() const;
 	int GetLandmarkCulture() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	bool IsOpenDoor() const;
 	bool IsSphereOfInfluence() const;
 	bool IsDecolonization() const;
@@ -1409,14 +1388,11 @@ public:
 	int GetSpaceShipPurchaseMod() const;
 	int GetWorldWar() const;
 	bool IsEmbargoIdeology() const;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetTourismMod() const;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int GetVassalMaintenanceGoldPercent() const;
 	bool IsEndAllCurrentVassals() const;
-#endif
 
 protected:
 	ResolutionDecisionTypes m_eVoterDecision;
@@ -1455,7 +1431,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iTourismMod;
 #endif
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	bool m_bOpenDoor;
 	bool m_bSphereOfInfluence;
 	bool m_bDecolonization;
@@ -1463,11 +1438,8 @@ protected:
 	int m_iSpaceshipPurchaseMod;
 	int m_iIsWorldWar;
 	bool m_bEmbargoIdeology;
-#endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	int m_iVassalMaintenanceGoldPercent;
 	bool m_bEndAllCurrentVassals;
-#endif
 
 private:
 	CvResolutionEntry(const CvResolutionEntry&);

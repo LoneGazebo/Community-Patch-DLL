@@ -11,6 +11,7 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT',			'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%'),
 			('TXT_KEY_PRODMOD_WONDER_IMPROVEMENT',							'[NEWLINE][ICON_BULLET]Improvement Modifier for Wonders: {1_Num}%'),
 			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} Followers ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} Source Cities)'),
+			('TXT_KEY_EUPANEL_EMBARKATION_DEFENSE',							'Embarkation Defense'),
 			('TXT_KEY_EUPANEL_UNITCLASS_NEAR',								'Near Combat Bonus Unit'),
 			('TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS',				'Nearby Promotion Unit Mod'),
 			('TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS',			'Nearby Promotion City Mod'),
@@ -29,6 +30,11 @@ VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
 UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
+
+-- Advisors
+UPDATE Language_en_US
+SET Text = 'I''m not sure if the {1_LongCivName:textkey} has an army at all. Any hostilities with them would be laughably one-sided.'
+WHERE Tag = 'TXT_KEY_DIPLOSTRATEGY_MILITARY_STRENGTH_COMPARED_TO_US_PATHETIC';
 
 -- Leaders
 
@@ -195,6 +201,11 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_ROCKET_ARTILLERY';
 UPDATE Language_en_US
 SET Text = 'Rocket Artillery is an extremely powerful siege weapon, far superior to the standard artillery. Rocket Artillery does not lose speed in enemy territory, making it much quicker than earlier guns. Although the Rocket Artillery''s sight range is limited, it can use indirect fire to attack targets it cannot see (as long as other friendly units can see them). Like all artillery, it is vulnerable to infantry or armor attack, and should be defended by appropriate units.'
 WHERE Tag = 'TXT_KEY_UNIT_ROCKET_ARTILLERY_STRATEGY';
+
+-- Giant Death Robot
+UPDATE Language_en_US
+SET Text = 'Doesn''t benefit from defensive terrain bonuses, but is otherwise stronger than any other military unit in the game.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_MECH';
 
 
 -- Buildings

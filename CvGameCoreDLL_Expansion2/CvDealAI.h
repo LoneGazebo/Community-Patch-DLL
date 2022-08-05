@@ -152,7 +152,6 @@ public:
 	void DoTradeScreenOpened();
 	void DoTradeScreenClosed(bool bAIWasMakingOffer);
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal);
 
 	// How much is item worth to AI?
@@ -178,7 +177,6 @@ public:
 	void DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-#endif
 
 protected:
 	void UpdateResearchRateCache(PlayerTypes eOther);

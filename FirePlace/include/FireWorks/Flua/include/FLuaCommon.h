@@ -23,7 +23,11 @@
 class FCriticalSection;
 
 // Kind of like an assert for the compiler.  If the condition is not true then a compilation error is caused.
+#ifdef __clang__
+#define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) static_assert(CONDITION, #ERR_NAME)
+#else
 #define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) typedef int ERROR_##ERR_NAME##[(CONDITION)? 1 : -1]
+#endif // __clang__
 
 // Forces a compile time error.  Useful for template specializations that aren't suppose to compile.
 #define FLUA_COMPILE_TIME_ERROR(ERR_NAME) FLUA_COMPILE_TIME_CONDITION(false, ERR_NAME)
@@ -468,13 +472,13 @@ namespace FLua
 		}
 
 		// Get functions for primitive types
-		template<> static inline bool Get(lua_State *L, int idx) { return lua_toboolean(L, idx) != 0; }
-		template<> static inline lua_Integer Get(lua_State *L, int idx) { return lua_tointeger(L, idx); }
-		template<> static inline long Get(lua_State *L, int idx) { return (long)lua_tointeger(L, idx); }
-		template<> static inline lua_Number Get(lua_State *L, int idx) { return lua_tonumber(L, idx); }
-		template<> static inline float Get(lua_State *L, int idx) { return (float)lua_tonumber(L, idx); }
-		template<> static inline const char *Get(lua_State *L, int idx) { return lua_tostring(L, idx); }
-		template<> static inline StackValue Get(lua_State *L, int idx) { return StackValue(L, idx); }
+		template<> inline bool Get(lua_State *L, int idx) { return lua_toboolean(L, idx) != 0; }
+		template<> inline lua_Integer Get(lua_State *L, int idx) { return lua_tointeger(L, idx); }
+		template<> inline long Get(lua_State *L, int idx) { return (long)lua_tointeger(L, idx); }
+		template<> inline lua_Number Get(lua_State *L, int idx) { return lua_tonumber(L, idx); }
+		template<> inline float Get(lua_State *L, int idx) { return (float)lua_tonumber(L, idx); }
+		template<> inline const char *Get(lua_State *L, int idx) { return lua_tostring(L, idx); }
+		template<> inline StackValue Get(lua_State *L, int idx) { return StackValue(L, idx); }
 
 		// PushCData - Allows the creation of CData to be overriden for certain types
 		template<class T> static void PushCData(lua_State *L, T *pVal)
@@ -670,24 +674,24 @@ namespace FLua
 
 		// DescribeType - Used to describe function arguments and return values to lua.
 		template<class T> static const char *DescribeType() { return TypeNameHolder<StripPtrAndRef<T>::Result>::Get(); }
-		template<> static const char *DescribeType<void>() { return "void"; }
-		template<> static const char *DescribeType<bool>() { return "bool"; }
-		template<> static const char *DescribeType<const bool>() { return "const bool"; }
-		template<> static const char *DescribeType<char>() { return "char"; }
-		template<> static const char *DescribeType<const char>() { return "const char"; }
-		template<> static const char *DescribeType<int>() { return "int"; }
-		template<> static const char *DescribeType<const int>() { return "const int"; }
-		template<> static const char *DescribeType<unsigned int>() { return "uint"; }
-		template<> static const char *DescribeType<const unsigned int>() { return "const uint"; }
-		template<> static const char *DescribeType<unsigned long>() { return "unsigned long"; }
-		template<> static const char *DescribeType<const unsigned long>() { return "const unsigned long"; }
-		template<> static const char *DescribeType<float>() { return "float"; }
-		template<> static const char *DescribeType<const float>() { return "const float"; }
-		template<> static const char *DescribeType<double>() { return "double"; }
-		template<> static const char *DescribeType<const double>() { return "const double"; }
-		template<> static const char *DescribeType<char*>() { return "char"; } // Pointer notation added later
-		template<> static const char *DescribeType<const char*>() { return "const char"; }
-		template<> static const char *DescribeType<StackValue>() { return "variant"; }
+		template<> const char *DescribeType<void>() { return "void"; }
+		template<> const char *DescribeType<bool>() { return "bool"; }
+		template<> const char *DescribeType<const bool>() { return "const bool"; }
+		template<> const char *DescribeType<char>() { return "char"; }
+		template<> const char *DescribeType<const char>() { return "const char"; }
+		template<> const char *DescribeType<int>() { return "int"; }
+		template<> const char *DescribeType<const int>() { return "const int"; }
+		template<> const char *DescribeType<unsigned int>() { return "uint"; }
+		template<> const char *DescribeType<const unsigned int>() { return "const uint"; }
+		template<> const char *DescribeType<unsigned long>() { return "unsigned long"; }
+		template<> const char *DescribeType<const unsigned long>() { return "const unsigned long"; }
+		template<> const char *DescribeType<float>() { return "float"; }
+		template<> const char *DescribeType<const float>() { return "const float"; }
+		template<> const char *DescribeType<double>() { return "double"; }
+		template<> const char *DescribeType<const double>() { return "const double"; }
+		template<> const char *DescribeType<char*>() { return "char"; } // Pointer notation added later
+		template<> const char *DescribeType<const char*>() { return "const char"; }
+		template<> const char *DescribeType<StackValue>() { return "variant"; }
 
 		// PtrDescription - Used to add proper pointer or reference (&) notation to a described type.
 		template<class T> struct PtrDescription { static const char *Get() { return ""; } };
@@ -800,7 +804,7 @@ namespace FLua
 	// MakeProtectedCall specializations for static functions
 
 	template<>
-	static bool MakeProtectedCall(lua_State *L, void(*pfn)(lua_State*)) {
+	bool MakeProtectedCall(lua_State *L, void(*pfn)(lua_State*)) {
 		typedef void(*Func)(lua_State*); // typedef for the function signature
 		struct CallStruct { // The call struct serves as our user data
 			CallStruct(Func pfnFunc) : m_pfnFunc(pfnFunc) {}

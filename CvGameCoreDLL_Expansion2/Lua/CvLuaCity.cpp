@@ -472,10 +472,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBaseYieldRateFromProcess);
 	Method(GetBaseYieldRateFromTradeRoutes);
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	// Base yield rate from League
 	Method(GetBaseYieldRateFromLeague);
-#endif
+
 	Method(GetYieldFromCityYield);
 
 	Method(GetBaseYieldRateFromReligion);
@@ -4537,13 +4536,11 @@ int CvLuaCity::lGetBaseYieldRateFromTradeRoutes(lua_State* L)
 	lua_pushinteger(L, iReturnValue);
 	return 1;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 // Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);
 }
-#endif
 //------------------------------------------------------------------------------
 int CvLuaCity::lGetYieldFromCityYield(lua_State* L)
 {
@@ -5538,7 +5535,7 @@ int CvLuaCity::lSetBuildingGreatWork(lua_State* L)
 	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
 	const int iSlot = lua_tointeger(L, 3);
 	const int iGreatWorkIndex = lua_tointeger(L, 4);
-	if(iIndex != NO_BUILDING)
+	if(iIndex != NO_BUILDINGCLASS)
 	{
 		pkCity->GetCityBuildings()->SetBuildingGreatWork(iIndex, iSlot, iGreatWorkIndex);
 	}
@@ -5911,7 +5908,7 @@ int CvLuaCity::lGetModFromGoldenAge(lua_State* L)
 	if(GET_PLAYER(ePlayer).getGoldenAgeTurns() > 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer();
+		ReligionTypes eFoundedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
 		if(eFoundedReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, ePlayer);
@@ -6355,7 +6352,7 @@ int CvLuaCity::lIsCityEventChoiceActive(lua_State* L)
 						for(int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 						{
 							CityEventTypes eEvent = (CityEventTypes)iLoop;
-							if(eEvent != NO_EVENT)
+							if(eEvent != NO_EVENT_CITY)
 							{
 								CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
 								if(pkEventInfo != NULL)

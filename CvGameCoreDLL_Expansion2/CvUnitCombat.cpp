@@ -484,7 +484,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
 			}
 
-			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+			CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 			if(iActivePlayerID == pkAttacker->getOwner())
@@ -515,7 +515,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
 			}
 
-			auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
+			CvInterfacePtr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
 			gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
 
 			if(iActivePlayerID == pkAttacker->getOwner())
@@ -620,7 +620,10 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			{
 				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
 				{
-					pkDefender->DoFallBack(*pkAttacker);
+					if (MOD_ATTRITION && (pkDefender->plot()->isFortification(pkDefender->getTeam()) || pkDefender->plot()->HasBarbarianCamp()))
+					{ }
+					else
+						pkDefender->DoFallBack(*pkAttacker);
 					//no notifications?
 				}
 
@@ -669,7 +672,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 						{
 							if(GC.GetEngineUserInterface()->GetLengthSelectionList() > 1)
 							{
-								auto_ptr<ICvUnit1> pDllAttacker = GC.WrapUnitPointer(pkAttacker);
+								CvInterfacePtr<ICvUnit1> pDllAttacker = GC.WrapUnitPointer(pkAttacker);
 								GC.GetEngineUserInterface()->RemoveFromSelectionList(pDllAttacker.get());
 							}
 						}
@@ -1433,7 +1436,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		// Attacker died
 		else if(pkAttacker->IsDead())
 		{
-			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+			CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 			if(pkAttacker->getOwner() == iActivePlayerID)
 			{
@@ -1894,7 +1897,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				// Attacker died
 				if(pkAttacker->IsDead())
 				{
-					auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+					CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 					gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -2370,7 +2373,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			// Attacker died
 			if(bAttackerDead)
 			{
-				auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
+				CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 				gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
 				if(iActivePlayerID == pkAttacker->getOwner())
@@ -2402,7 +2405,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			// Defender died
 			else if(bDefenderDead)
 			{
-				auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
+				CvInterfacePtr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
 				gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
 
 				if(iActivePlayerID == pkAttacker->getOwner())
@@ -2831,7 +2834,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 				if(kEntry.GetFinalDamage() >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital())
 				{
-					auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
+					CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
 					gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
 					gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 
@@ -3252,11 +3255,11 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 			// Play the AA animations here ... but without an air attacker it's just not possible!!!
 			// if (!CvPreGame::quickCombat()) {
 				// Center camera here (pDropPlot MUST be visible or couldn't drop onto it!)
-				// auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&pDropPlot);
+				// CvInterfacePtr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&pDropPlot);
 				// GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 				// kCombatInfo.setVisualizeCombat(true);
 
-				// auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+				// CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 				// uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 				// Set the combat units so that other missions do not continue until combat is over.
@@ -3351,21 +3354,21 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 	if(pAttacker)
 	{
 		eAttackingPlayer = pAttacker->getOwner();
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pAttacker));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pAttacker));
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pAttacker->isInvisible(eActiveTeam, false));
 	}
 
 	CvUnit* pDefender = kInfo.getUnit(BATTLE_UNIT_DEFENDER);
 	if(pDefender)
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pDefender));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pDefender));
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pDefender->isInvisible(eActiveTeam, false));
 	}
 
 	CvUnit* pDefenderSupport = kInfo.getUnit(BATTLE_UNIT_INTERCEPTOR);
 	if(pDefenderSupport)
 	{
-		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pDefenderSupport));
+		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(pDefenderSupport));
 		gDLL->GameplayUnitVisibility(pDllUnit.get(), !pDefenderSupport->isInvisible(eActiveTeam, false));
 	}
 #if defined(MOD_EVENTS_RED_COMBAT_ABORT) || defined(MOD_EVENTS_RED_COMBAT_RESULT)
@@ -3886,12 +3889,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				// Center camera here!
 				if(isTargetVisibleToActivePlayer)
 				{
-					auto_ptr<ICvPlot1> pDefenderPlot = GC.WrapPlotPointer(pDefender->plot());
+					CvInterfacePtr<ICvPlot1> pDefenderPlot = GC.WrapPlotPointer(pDefender->plot());
 					GC.GetEngineUserInterface()->lookAt(pDefenderPlot.get(), CAMERALOOKAT_NORMAL);
 				}
 				kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-				auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+				CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 				uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 				// Set the combat units so that other missions do not continue until combat is over.
@@ -3979,12 +3982,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -4013,13 +4016,13 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			bool isTargetVisibleToActivePlayer = pPlot->isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = pPlot->getPlotCity();
@@ -4097,12 +4100,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
+				CvInterfacePtr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
 				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -4134,12 +4137,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot& t
 			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
+				CvInterfacePtr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
 				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = targetPlot.getPlotCity();
@@ -4197,12 +4200,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			bool isTargetVisibleToActivePlayer = targetPlot.isActiveVisible();
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
+				CvInterfacePtr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
 				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 			// Set the combat units so that other missions do not continue until combat is over.
@@ -4308,12 +4311,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 			// Center camera here!
 			if(isTargetVisibleToActivePlayer)
 			{
-				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(&plot);
+				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(&plot);
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
-			auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+			CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 			uiParentEventID = gDLL->GameplayCityCombat(pDllCombatInfo.get());
 
 			CvCity* pkDefender = plot.getPlotCity();
@@ -4416,7 +4419,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 
 		if(isTargetVisibleToActivePlayer)
 		{
-			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
+			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 		}
 		kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
@@ -4432,7 +4435,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 				kAttacker.setAttackPlot(pPlot, false);
 		}
 
-		auto_ptr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
+		CvInterfacePtr<ICvCombatInfo1> pDllCombatInfo(new CvDllCombatInfo(&kCombatInfo));
 		uiParentEventID = gDLL->GameplayUnitCombat(pDllCombatInfo.get());
 
 		eResult = ATTACK_QUEUED;
@@ -4459,9 +4462,6 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 //	---------------------------------------------------------------------------
 void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 {
-	// Clear cached danger in the vicinity
-	GET_PLAYER(pkWinner->getOwner()).ResetDangerCache(*pkLoser->plot(),3);
-
 	// "Heal if defeat enemy" promotion; doesn't apply if defeat a barbarian
 	if(pkWinner->getHPHealedIfDefeatEnemy() > 0 && (pkLoser->getOwner() != BARBARIAN_PLAYER || !(pkWinner->IsHealIfDefeatExcludeBarbarians())))
 	{
@@ -4648,7 +4648,7 @@ void CvUnitCombat::ApplyExtraUnitDamage(CvUnit* pkAttacker, const CvCombatInfo &
 					CvString strBuffer;
 					int iActivePlayerID = GC.getGame().getActivePlayer();
 
-					auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkUnit);
+					CvInterfacePtr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkUnit);
 					gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
 
 					if(iActivePlayerID == pkAttacker->getOwner())

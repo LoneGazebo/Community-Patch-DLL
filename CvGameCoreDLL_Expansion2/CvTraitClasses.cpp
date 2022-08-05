@@ -152,6 +152,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_bCanGoldInternalTradeRoutes(false),
 	m_iExtraTradeRoutesPerXOwnedCities(0),
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
+	m_iMinorInfluencePerGiftedUnit(0),
 	m_bIsCapitalOnly(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -929,6 +930,11 @@ int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
 int CvTraitEntry::GetExtraTradeRoutesPerXOwnedVassals() const
 {
 	return m_iExtraTradeRoutesPerXOwnedVassals;
+}
+/// Gifting units to City-States awards Influence per turn while the units remain alive
+int CvTraitEntry::GetMinorInfluencePerGiftedUnit() const
+{
+	return m_iMinorInfluencePerGiftedUnit;
 }
 bool CvTraitEntry::IsCapitalOnly() const
 {
@@ -2409,6 +2415,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
+	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");
 	m_bIsCapitalOnly						= kResults.GetBool("IsCapitalOnly");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -3994,9 +4001,8 @@ void CvPlayerTraits::SetIsDiplomat()
 		GetLuxuryHappinessRetention() != 0 ||
 		GetTradeBuildingModifier() != 0 ||
 		GetVotePerXCSAlliance() != 0 ||
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		(MOD_DIPLOMACY_CITYSTATES && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
-#endif
+		GetMinorInfluencePerGiftedUnit() > 0 ||
+		(MOD_BALANCE_VP && GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))) != 0)
 		)
 	{
 		m_bIsDiplomat = true;
@@ -4465,6 +4471,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
 			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
+			m_iMinorInfluencePerGiftedUnit += trait->GetMinorInfluencePerGiftedUnit();
 			if (trait->IsCapitalOnly())
 			{
 				m_bIsCapitalOnly = true;
@@ -4979,7 +4986,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			}
 			FreeTraitUnit traitUnit;
 			traitUnit.m_iFreeUnit = (UnitTypes)trait->GetFreeUnitClassType();
-			if(traitUnit.m_iFreeUnit != NO_UNITCLASS)
+			if(traitUnit.m_iFreeUnit != NO_UNIT)
 			{
 				traitUnit.m_ePrereqTech = trait->GetFreeUnitPrereqTech();
 				m_aFreeTraitUnits.push_back(traitUnit);
@@ -5229,6 +5236,7 @@ void CvPlayerTraits::Reset()
 	m_bCanGoldInternalTradeRoutes = false;
 	m_iExtraTradeRoutesPerXOwnedCities = 0;
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
+	m_iMinorInfluencePerGiftedUnit = 0;
 	m_bIsCapitalOnly = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -6882,26 +6890,24 @@ void CvPlayerTraits::ChooseMayaBoost()
 	UnitTypes ePossibleGreatPerson;
 
 	// Go for a prophet?
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
 	bool bHasReligion = false;
-	if(MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetReligionCreatedByPlayer() != NO_RELIGION)
+	if (MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetOwnedReligion() != NO_RELIGION)
 	{
 		bHasReligion = true;
 	}
-#endif
 
 	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 
-	if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+	if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-		ReligionTypes eReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
+		ReligionTypes eReligion = GET_PLAYER(m_pPlayer->GetID()).GetReligions()->GetOwnedReligion();
 
 		// Have a religion that isn't enhanced yet?
-		if(eReligion != NO_RELIGION)
+		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
-			if(!pMyReligion->m_bEnhanced)
+			if (!pMyReligion->m_bEnhanced)
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
@@ -6910,17 +6916,16 @@ void CvPlayerTraits::ChooseMayaBoost()
 		// Don't have a religion and they can still be founded?
 		else
 		{
-			if(pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
+			if (pReligions->GetNumReligionsStillToFound() > 0 || IsAlwaysReligion())
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
-		if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+
+		if (MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
 		{
 			eDesiredGreatPerson = NO_UNIT;
 		}
-#endif
 	}
 
 	// Highly wonder competitive and still early in game?
@@ -6964,7 +6969,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-		if (MOD_DIPLOMACY_CITYSTATES)
+		if (MOD_BALANCE_VP)
 		{
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 		}
@@ -6973,12 +6978,9 @@ void CvPlayerTraits::ChooseMayaBoost()
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
 		}
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0 && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				eDesiredGreatPerson = ePossibleGreatPerson;
-			}
+			eDesiredGreatPerson = ePossibleGreatPerson;
 		}
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -6993,20 +6995,15 @@ void CvPlayerTraits::ChooseMayaBoost()
 			}
 		}
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_BALANCE_VP)
 	{
 		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 
-		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+		if (GetUnitBaktun(ePossibleGreatPerson) == 0 && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			if(m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
-			{
-				eDesiredGreatPerson = ePossibleGreatPerson;
-			}
+			eDesiredGreatPerson = ePossibleGreatPerson;
 		}
 	}
-#endif
 
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
@@ -7087,12 +7084,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 									{
 										ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
 
-										if(GetUnitBaktun(ePossibleGreatPerson) == 0)
+										if (GetUnitBaktun(ePossibleGreatPerson) == 0)
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
 										}
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-										else if(MOD_DIPLOMACY_CITYSTATES)
+										else if (MOD_BALANCE_VP)
 										{
 											ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
 
@@ -7101,7 +7097,6 @@ void CvPlayerTraits::ChooseMayaBoost()
 												eDesiredGreatPerson = ePossibleGreatPerson;
 											}
 										}
-#endif
 									}
 								}
 							}
@@ -7464,6 +7459,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_bCanGoldInternalTradeRoutes);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedCities);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedVassals);
+	visitor(playerTraits.m_iMinorInfluencePerGiftedUnit);
 	visitor(playerTraits.m_bIsCapitalOnly);
 	visitor(playerTraits.m_iInvestmentModifier);
 	visitor(playerTraits.m_iCombatBonusVsHigherTech);

@@ -31,9 +31,7 @@ CvTreasury::CvTreasury():
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeGoldBonus(0),
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iExpensePerTurnFromVassalTax(0),
-#endif
 	m_pPlayer(NULL)
 {
 
@@ -62,9 +60,7 @@ void CvTreasury::Init(CvPlayer* pPlayer)
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeGoldBonus = 0;
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_iExpensePerTurnFromVassalTax = 0;
-#endif
 
 	m_GoldBalanceForTurnTimes100.clear();
 	m_GoldBalanceForTurnTimes100.reserve(750);
@@ -438,15 +434,9 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	iNetGold += GetInternalTradeRouteGoldBonus() * 100;
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a master of someone, we get x% of their gold
-		//iNetGold += (m_pPlayer->GetYieldPerTurnFromVassals(YIELD_GOLD) * 100);
-		
-		// We now get gold from taxes
-		iNetGold += GetMyShareOfVassalTaxes();
-	}
-#endif
+	// We're a master of someone, we get gold from taxes
+	iNetGold += GetMyShareOfVassalTaxes();
+
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 	{
@@ -580,7 +570,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		dFinalCost /= 100;
 	}
 
-	if (MOD_DIPLOMACY_CIV4_FEATURES) 
+	if (m_pPlayer->IsVassalOfSomeone()) 
 	{
 		// Vassal bonus for unit maintenance costs
 		for (int iI = 0; iI < MAX_TEAMS; iI++)
@@ -593,8 +583,6 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 			}
 		}
 	}
-
-	//iFinalCost /= 100;
 
 	return std::max(0, int(dFinalCost));
 }
@@ -662,18 +650,13 @@ int CvTreasury::CalculatePreInflatedCosts()
 	iTotalCosts += GetBuildingGoldMaintenance();
 	iTotalCosts += GetImprovementGoldMaintenance();
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		iTotalCosts += GetVassalGoldMaintenance();
-		iTotalCosts += GetExpensePerTurnFromVassalTaxes();
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_JFD)
+	iTotalCosts += GetVassalGoldMaintenance();
+	iTotalCosts += GetExpensePerTurnFromVassalTaxes();
+
+	if (MOD_BALANCE_CORE_JFD)
 	{
 		iTotalCosts += GetContractGoldMaintenance();
 	}
-#endif
 
 	return iTotalCosts;
 }
@@ -1092,7 +1075,7 @@ int CvTreasury::GetContractGoldMaintenance()
 	return iMaintenance;
 }
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 // What are our gold maintenance costs because of Vassals?
 int CvTreasury::GetVassalGoldMaintenance() const
 {
@@ -1203,5 +1186,3 @@ int CvTreasury::GetVassalTaxContribution(PlayerTypes ePlayer) const
 {
 	return GetVassalTaxContributionTimes100(ePlayer) / 100;
 }
-
-#endif

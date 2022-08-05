@@ -179,18 +179,18 @@ public:
 
 	//DLL Utility Methods
 	CvCity* UnwrapCityPointer(ICvCity1* pCity);
-	auto_ptr<ICvCity1> WrapCityPointer(CvCity* pCity);
+	CvInterfacePtr<ICvCity1> WrapCityPointer(CvCity* pCity);
 
 	CvDeal* UnwrapDealPointer(ICvDeal1* pDeal);
-	auto_ptr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
+	CvInterfacePtr<ICvDeal1> WrapDealPointer(CvDeal* pDeal);
 
 	CvPlot* UnwrapPlotPointer(ICvPlot1* pPlot);
-	auto_ptr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
+	CvInterfacePtr<ICvPlot1> WrapPlotPointer(CvPlot* pPlot);
 
 	CvRandom* UnwrapRandomPointer(ICvRandom1* pRandom);
-	auto_ptr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
+	CvInterfacePtr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
 
-	auto_ptr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
+	CvInterfacePtr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
 	CvUnit*   UnwrapUnitPointer(ICvUnit1* pUnit);
 
 	void init();
@@ -273,7 +273,7 @@ public:
 		return m_aiRingPlotYOffset;
 	}
 
-	int* getCityPlotPriority();
+	int* getRingFromLinearOffset();
 	int getRingIterationIndexHex(int i, int j);
 
 	DirectionTypes* getTurnLeftDirection();
@@ -1039,6 +1039,7 @@ public:
 	GD_INT_MEMBER(NEED_DIPLOMAT_DESIRE_MODIFIER); // VP
 	GD_INT_MEMBER(NEED_DIPLOMAT_DISTASTE_MODIFIER); // VP
 	GD_INT_MEMBER(INFLUENCE_MINOR_QUEST_BOOST); // VP
+	GD_INT_MEMBER(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER); // VP
 	GD_INT_MEMBER(LEAGUE_AID_MAX); // VP
 	GD_INT_MEMBER(CSD_GOLD_GIFT_DISABLED); // VP
 	GD_INT_MEMBER(RELIGION_BELIEF_SCORE_CITY_MULTIPLIER);
@@ -1744,7 +1745,6 @@ public:
 	GD_INT_MEMBER(COMBAT_DAMAGE);
 	GD_INT_MEMBER(NONCOMBAT_UNIT_RANGED_DAMAGE);
 	GD_INT_MEMBER(NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER);
-	GD_INT_MEMBER(LAKE_MAX_AREA_SIZE);
 	GD_INT_MEMBER(INITIAL_GOLD_PER_UNIT_TIMES_100);
 	GD_INT_MEMBER(INITIAL_FREE_OUTSIDE_UNITS);
 	GD_INT_MEMBER(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
@@ -2334,6 +2334,7 @@ public:
 	GD_INT_MEMBER(PERCENT_SITES_HIDDEN);
 	GD_INT_MEMBER(PERCENT_HIDDEN_SITES_WRITING);
 	GD_INT_MEMBER(SAPPED_CITY_ATTACK_MODIFIER);
+	GD_INT_MEMBER(BLOCKADED_CITY_ATTACK_MODIFIER); // VP
 	GD_INT_MEMBER(EXOTIC_GOODS_GOLD_MIN);
 	GD_INT_MEMBER(EXOTIC_GOODS_GOLD_MAX);
 	GD_INT_MEMBER(EXOTIC_GOODS_XP_MIN);
@@ -2419,6 +2420,7 @@ public:
 	GD_FLOAT_MEMBER(OPINION_WEIGHT_VASSAL_TAX_EXPONENT); // VP
 	GD_FLOAT_MEMBER(TECH_COST_ERA_EXPONENT); // VP
 	GD_FLOAT_MEMBER(VASSALAGE_VASSAL_CITY_POP_EXPONENT); // VP
+	GD_FLOAT_MEMBER(MINOR_INFLUENCE_SCALING_DECAY_EXPONENT); // VP
 
 	// -- post defines -- //
 	GD_INT_MEMBER(LAND_TERRAIN);
@@ -2573,7 +2575,7 @@ protected:
 
 	int m_aiRingPlotXOffset[MAX_CITY_PLOTS];
 	int m_aiRingPlotYOffset[MAX_CITY_PLOTS];
-	int m_aiCityPlotPriority[MAX_CITY_PLOTS];
+	int m_aiRingFromLinearOffset[MAX_CITY_PLOTS];
 	int m_aaiRingPlotIndex[2*MAX_CITY_RADIUS+1][2*MAX_CITY_RADIUS+1];
 
 	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];

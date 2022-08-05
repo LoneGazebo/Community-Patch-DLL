@@ -233,23 +233,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if (pUnit->getDomainType() == DOMAIN_SEA)
-		{
-			//sea units can typically not leave their area - catch this case, 
-			//else there will be a long and useless pathfinding operation
-			CvPlot* pCurPlot = pUnit->plot();
-			if (pCurPlot->isCity())
-			{
-				if (!pCurPlot->getPlotCity()->HasAccessToArea(vExplorePlots[ui].pPlot->getArea()))
-					continue;
-			}
-			else
-			{
-				if (pCurPlot->getArea() != vExplorePlots[ui].pPlot->getArea())
-					continue;
-			}
-		}
-
 		if(vExplorePlots[ui].pPlot == pUnit->plot())
 			continue;
 
@@ -263,6 +246,9 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		vPlotsByDistance.push_back( std::make_pair( (iDist2*100)/vExplorePlots[ui].score, vExplorePlots[ui]) );
 	}
+
+	if (vPlotsByDistance.empty())
+		return NULL;
 
 	//sorts ascending by the first element of the iterator ... which is our distance. nice.
 	std::stable_sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
@@ -377,7 +363,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if (pImprovement->IsWater() != pLoopPlot->isWater())
 								continue;
 
-							if (pImprovement->IsExpandedImprovementResourceTrade(pLoopPlot->getResourceType()))
+							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType()))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -532,14 +518,9 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotMissionaryMoves();
 	PlotInquisitorMoves();
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	//this is for embassies - diplomatic missions are handled via AI operation
-	if (MOD_DIPLOMACY_CITYSTATES)
-	{
-		PlotDiplomatMoves();
-		PlotMessengerMoves();
-	}
-#endif
+	PlotDiplomatMoves();
+	PlotMessengerMoves();
 
 	PlotSSPartMoves();
 
@@ -1144,14 +1125,14 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 }
 void CvHomelandAI::ExecuteUnitGift()
 {
-	UnitTypes eUnitType = NO_UNIT;
-	if (!m_pPlayer->isMajorCiv())
-	{
+	if (!m_pPlayer->isMajorCiv() || m_pPlayer->isHuman())
 		return;
-	}
-	PlayerTypes ePlayer = m_pPlayer->GetID();
 
+	UnitTypes eUnitType = NO_UNIT;
+	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvPlayer* pMinor = NULL;
+
+	// First fulfill any City-State quests
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
@@ -1162,7 +1143,7 @@ void CvHomelandAI::ExecuteUnitGift()
 			{
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 				
-				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+				if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
 				{
 					if (pMinorCivAI->getIncomingUnitGift(ePlayer).getArrivalCountdown() == -1)
 					{
@@ -1175,22 +1156,187 @@ void CvHomelandAI::ExecuteUnitGift()
 	}
 	if (pMinor && eUnitType != NO_UNIT)
 	{
-		for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		vector<int> vUnitIDs;
+		bool bFoundOne = false;
+		int iLoop;
+		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			CvUnit* pUnit = m_pPlayer->getUnit(*it);
-			if (pUnit && pUnit->getUnitType() == eUnitType && !pUnit->isDelayedDeath())
+			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
 			{
-				if (!pUnit->IsGarrisoned())
+				if (pUnit->CanDistanceGift(pMinor->GetID()) && pUnit->canUseForAIOperation())
 				{
-					pMinor->AddIncomingUnit(ePlayer, pUnit);
-					UnitProcessed(pUnit->GetID());
-					return;
+					vUnitIDs.push_back(pUnit->GetID());
+					bFoundOne = true;
 				}
 			}
 		}
+
+		if (bFoundOne)
+		{
+			CvUnit* pGiftedUnit = NULL;
+			int GiftedUnitID = -1;
+			int iLowestXP = INT_MAX;
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				int iXP = pUnit->getExperienceTimes100();
+
+				if (iXP < iLowestXP)
+				{
+					pGiftedUnit = m_pPlayer->getUnit(*it);
+					iLowestXP = iXP;
+					GiftedUnitID = pUnit->GetID();
+				}
+			}
+			pMinor->AddIncomingUnit(ePlayer, pGiftedUnit);
+			UnitProcessed(GiftedUnitID);
+			return;
+		}
 	}
+
+	// No City-State quest? But are we Germany?
+	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
+	{
+		// Don't consider gifting if we're in military trouble
+		if (GET_PLAYER(ePlayer).IsNoNewWars() || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+			return;
+
+		// Do we have units to spare?
+		bool bCanSendLandUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEUTRAL;
+		bool bCanSendNavalUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEUTRAL;
+		bool bPrioritizeLand = false, bPrioritizeNaval = false;
+
+		if (bCanSendLandUnit && bCanSendNavalUnit)
+		{
+			if (GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() < GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState())
+				bPrioritizeLand = true;
+			else if (GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() < GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState())
+				bPrioritizeNaval = true;
+		}
+
+		if (bPrioritizeLand)
+		{
+			if (SendUnitGift(DOMAIN_LAND))
+				return;
+
+			if (SendUnitGift(DOMAIN_SEA))
+				return;
+		}
+		else if (bPrioritizeNaval)
+		{
+			if (SendUnitGift(DOMAIN_SEA))
+				return;
+
+			if (SendUnitGift(DOMAIN_LAND))
+				return;
+		}
+		else
+		{
+			if (bCanSendLandUnit)
+			{
+				if (SendUnitGift(DOMAIN_LAND))
+					return;
+
+				if (SendUnitGift(DOMAIN_SEA))
+					return;
+			}
+			else if (bCanSendNavalUnit)
+			{
+				if (SendUnitGift(DOMAIN_SEA))
+					return;
+			}
+		}
+	}
+
 	return;
 }
+
+/// Try to send a valid unit gift for the specified domain; return true if successful
+bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
+{
+	PlayerTypes ePlayer = m_pPlayer->GetID();
+	PlayerTypes eBestGiftTarget = GET_PLAYER(ePlayer).GetBestGiftTarget(eDomain);
+
+	if (eBestGiftTarget != NO_PLAYER)
+	{
+		vector<int> vUnitIDs;
+		bool bFoundOne = false;
+		int iLoop;
+		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
+		{
+			if (pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			{
+				// Don't send a siege unit
+				if (eDomain == DOMAIN_LAND && pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD)
+					continue;
+
+				if (pUnit->CanDistanceGift(eBestGiftTarget) && pUnit->canUseForAIOperation())
+				{
+					// Check tech - don't gift obsolete units as we'll lose the Influence bonus if it's upgraded
+					UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+					if (eUpgradeUnitType != NO_UNIT)
+					{
+						CvUnitEntry* pUpgradeUnitInfo = GC.getUnitInfo(eUpgradeUnitType);
+						if (pUpgradeUnitInfo)
+						{
+							TechTypes ePrereqTech = (TechTypes) pUpgradeUnitInfo->GetPrereqAndTech();
+							if (ePrereqTech != NO_TECH)
+							{
+								if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+									continue;
+
+								if (GET_TEAM(GET_PLAYER(eBestGiftTarget).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+									continue;
+							}
+						}
+					}
+
+					vUnitIDs.push_back(pUnit->GetID());
+					bFoundOne = true;
+				}
+			}
+		}
+		if (bFoundOne)
+		{
+			CvUnit* pGiftedUnit = NULL;
+			int GiftedUnitID = -1;
+			int iLowestXP = INT_MAX;
+			int iStrongestUnitComparison = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(eDomain) * 85;
+			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			{
+				CvUnit* pUnit = m_pPlayer->getUnit(*it);
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
+
+				// Don't send weak units, we don't want them to be disbanded
+				if ((pkUnitInfo->GetPower() * 100) < iStrongestUnitComparison)
+					continue;
+
+				int iXP = pUnit->getExperienceTimes100();
+
+				// Unique units last longer before upgrading, so they'll give us a longer Influence bonus
+				if (pUnit->getUnitType() != pkUnitClassInfo->getDefaultUnitIndex())
+				{
+					iXP /= 2;
+					iXP -= 1;
+				}
+
+				if (iXP < iLowestXP)
+				{
+					pGiftedUnit = m_pPlayer->getUnit(*it);
+					iLowestXP = iXP;
+					GiftedUnitID = pUnit->GetID();
+				}
+			}
+			GET_PLAYER(eBestGiftTarget).AddIncomingUnit(ePlayer, pGiftedUnit);
+			UnitProcessed(GiftedUnitID);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /// When nothing better to do, have units patrol to an adjacent tiles
 void CvHomelandAI::PlotPatrolMoves()
 {
@@ -1691,7 +1837,6 @@ void CvHomelandAI::PlotEngineerMoves()
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 /// Find moves for great diplomats
 void CvHomelandAI::PlotDiplomatMoves()
 {
@@ -1728,11 +1873,7 @@ void CvHomelandAI::PlotMessengerMoves()
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER || (pUnit->IsAutomated() && pUnit->GetAutomateType() == AUTOMATE_DIPLOMAT))
-#else
-			if(pUnit->AI_getUnitAIType() == UNITAI_MESSENGER)
-#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -1746,7 +1887,6 @@ void CvHomelandAI::PlotMessengerMoves()
 		ExecuteMessengerMoves();
 	}
 }
-#endif
 
 /// Find moves for great merchants
 void CvHomelandAI::PlotMerchantMoves()
@@ -2507,7 +2647,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				}
 			}
 
-			int iRandom = GC.getGame().getSmallFakeRandNum(47,*pEvalPlot);
+			int iRandom = GC.getGame().getSmallFakeRandNum(23,*pEvalPlot);
 			int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 			//careful with plots that are too dangerous
@@ -3435,7 +3575,6 @@ void CvHomelandAI::ExecuteEngineerMoves()
 	}
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 void CvHomelandAI::ExecuteDiplomatMoves()
 {
 	CHomelandUnitArray::iterator it;
@@ -3580,7 +3719,6 @@ void CvHomelandAI::ExecuteMessengerMoves()
 		UnitProcessed(pUnit->GetID());
 	}
 }
-#endif
 
 void CvHomelandAI::ExecuteMerchantMoves()
 {
@@ -4224,12 +4362,12 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			else if (pLoopUnit->plot()->isCity())
 				nAirUnitsInCities++;
 		}
-		else if (pLoopUnit->AI_getUnitAIType()==UNITAI_CARRIER_SEA)
+		else if (pLoopUnit->domainCargo() == DOMAIN_AIR)
 		{
 			nSlotsInCarriers += pLoopUnit->cargoSpace();
 
 			//for simplicity we don't do carrier to carrier rebasing, only carrier to city
-			CvCity* pRefCity = m_pPlayer->GetClosestCityByPathLength(pLoopUnit->plot());
+			CvCity* pRefCity = m_pPlayer->GetClosestCityByPlots(pLoopUnit->plot());
 			if (pRefCity)
 			{
 				pRefCity->AttachUnit(pLoopUnit);
@@ -4922,7 +5060,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 	bool rtnValue = false;
 
 	ClearCurrentMoveUnits(eMove);
-			
+
 	// Loop through all units available to homeland AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{

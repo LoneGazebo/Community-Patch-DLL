@@ -231,7 +231,7 @@ public:
 	void AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
 	void AddDeclarationOfFriendship(PlayerTypes eFrom);
 	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+
 	void AddTechTrade(PlayerTypes eFrom, TechTypes eTech);
 	void AddVassalageTrade(PlayerTypes eFrom);
 	void AddRevokeVassalageTrade(PlayerTypes eFrom);
@@ -242,7 +242,6 @@ public:
 	bool IsTechTrade(PlayerTypes eFrom, TechTypes eTech);
 	bool IsVassalageTrade(PlayerTypes eFrom);
 	bool IsRevokeVassalageTrade(PlayerTypes eFrom);
-#endif
 
 	int GetGoldTrade(PlayerTypes eFrom);
 	bool ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount);

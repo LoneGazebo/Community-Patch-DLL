@@ -483,7 +483,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_NEED_BE_WLTKD">
-			<Text>[NEWLINE] [ICON_BULLET] City must be experiencing "We Love the King Day"</Text>
+			<Text>[NEWLINE] [ICON_BULLET] City must be experiencing [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NEED_BE_RESISTANCE">

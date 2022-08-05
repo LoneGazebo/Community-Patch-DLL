@@ -11,7 +11,23 @@ WHERE Type IN
 'UNIT_FCOMPANY',
 'UNIT_GUERILLA');
 
-UPDATE Units SET GlobalFaithPurchaseCooldown =	5  WHERE Type IN 
+UPDATE Units SET PurchaseCooldown = 5  
+WHERE Type IN 
+('UNIT_CARAVAN',
+'UNIT_CARGO_SHIP',
+'UNIT_WORKER',
+'UNIT_SETTLER',
+'UNIT_PIONEER',
+'UNIT_COLONIST',
+'UNIT_WORKBOAT');
+
+UPDATE Units SET PurchaseCooldown =	15  
+WHERE Type IN 
+('UNIT_ATOMIC_BOMB', 
+'UNIT_NUCLEAR_MISSILE'); 
+
+UPDATE Units SET GlobalFaithPurchaseCooldown =	5  
+WHERE Type IN 
 ('UNIT_ARTIST',
 'UNIT_SCIENTIST',
 'UNIT_MERCHANT',
@@ -29,10 +45,11 @@ UPDATE Units SET GlobalFaithPurchaseCooldown =	5  WHERE Type IN
 'UNIT_SS_COCKPIT', 
 'UNIT_SS_BOOSTER'); 
 
-UPDATE Units SET HurryCostModifier = 25 WHERE Type IN 
+UPDATE Units SET HurryCostModifier = 25 
+WHERE Type IN 
 ('UNIT_SS_STASIS_CHAMBER',
 'UNIT_SS_ENGINE', 
 'UNIT_SS_COCKPIT', 
 'UNIT_SS_BOOSTER'); 
 
-UPDATE Units SET PurchaseCooldown =	15  WHERE Type IN ('UNIT_ATOMIC_BOMB', 'UNIT_NUCLEAR_MISSILE');  
+ 

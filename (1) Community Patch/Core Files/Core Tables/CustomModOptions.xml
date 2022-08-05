@@ -22,6 +22,9 @@
     <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
     <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
+	<!-- New version of the MOD_BALANCE_CORE define. Will be changed back to MOD_BALANCE_CORE once that define actually works. -->
+	<Row Class="6" Name="BALANCE_VP" Value="0"/>
+
     <!-- Changes in Milae's Alternative Difficulty Mod -->
     <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
    <Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
@@ -214,19 +217,6 @@
     <!-- See also: "Diplomacy - No Leaderheads" -->
     <Row Class="4" Name="DIPLOMACY_NO_LEADERHEADS" Value="0"/>
 
-	  <!-- Changes for the City State Diplomacy mod by Gazebo (v35) -->
-	<!-- See also: "Diplomacy - City States" -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES" Value="0"/>
-	<!-- The quests sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_QUESTS" Value="0"/>
-	<!-- The resolutions sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_RESOLUTIONS" Value="0"/>
-	<!-- The hurry sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_HURRY" Value="0"/>
-
-	<!-- Changes for the Civ4 Diplomacy Features mod by Putmalk (v36) -->
-	<!-- See also: "Diplomacy - CivIV Features" -->
-    <Row Class="6" Name="DIPLOMACY_CIV4_FEATURES" Value="0"/>
 	<!-- Allows Land Units to become Cargo of Melee Ships -->
 	<Row Class="5" Name="CARGO_SHIPS" Value="0"/>
 	<!-- Switch Value to 1 to allow Ranged Boats to fire from Cities or Passable Improvements -->
@@ -253,8 +243,10 @@
 	<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 	<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
 	<Row Class="5" Name="ERA_RESTRICTION" Value="0"/>
-    	<!-- See also: Great Generals & Admirals provide combat bonuses for only the era they born and the following era -->
+   	<!-- Great Generals & Admirals provide combat bonuses for only the era they born and the following era -->
 	<Row Class="4" Name="ERA_RESTRICTED_GENERALS" Value="0" DbUpdates="1"/>
+   	<!-- Adds new Goody options for Hinin's Tweaks -->
+	<Row Class="4" Name="NEW_GOODIES" Value="0"/>
 	<!-- Toggle boolean for terrains getting a yield with a feature on them from player traits TradeRouteOnly -->
 	<Row Class="5" Name="USE_TRADE_FEATURES" Value="0"/>
 	<!-- Changes for Advanced Setup that allow players to acquire GG and GA points from fighting Barbarians -->
@@ -441,6 +433,10 @@
     <Row Class="5" Name="AI_UNIT_PRODUCTION" Value="0"/>
     <!-- Land units blockade undefended adjacent tiles -->
    <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
+    <!-- Units take damage when moving through enemy lands -->
+   <Row Class="4" Name="ATTRITION" Value="0"/>
+    <!-- When a military unit retreats, civilians units on the same tile also retreat -->
+   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
@@ -843,6 +839,8 @@
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
+	  <!-- Purchased COMBAT units do not have full health when the city is damaged  -->	
+	<Row Class="6" Name="BALANCE_CORE_UNIT_CREATION_DAMAGED" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
@@ -925,6 +923,8 @@
     <Row Class="6" Name="BALANCE_CORE_BOMBARD_RANGE_BUILDINGS" Value="0"/>
 	<!-- UI is setup to give you a hundreds for tourism (disabled in CP only) -->
 	<Row Class="6" Name="BALANCE_CORE_TOURISM_HUNDREDS" Value="0"/>
+	<!-- Flips open borders to apply in opposite ways - you have to give open borders to gain the tourism bonus -->
+	<Row Class="6" Name="BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS" Value="0"/>
 	<!-- Ranged attacks on injured units no longer get a bonus for the unit being injured -->
 	<Row Class="6" Name="BALANCE_CORE_RANGED_ATTACK_PENALTY" Value="0"/>
 	  <!-- Inquisitors don't block spread, make 50% -->

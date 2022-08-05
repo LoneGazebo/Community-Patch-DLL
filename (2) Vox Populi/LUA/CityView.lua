@@ -1563,6 +1563,7 @@ function OnCityViewUpdate()
 		end
 		sortedList = {};
 		thisId = 1;
+		local HasForcedSpecialists = false
 		for building in GameInfo.Buildings() do
 			local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxTeamInstances <= 0 then
@@ -1577,6 +1578,9 @@ function OnCityViewUpdate()
 							element.ID = building.ID;
 							sortedList[thisId] = element;
 							thisId = thisId + 1;
+							if not HasForcedSpecialists and pCity:GetNumForcedSpecialistsInBuilding(buildingID) > 0 then
+								HasForcedSpecialists = true
+							end
 						end
 					end
 				end
@@ -1585,6 +1589,7 @@ function OnCityViewUpdate()
 		table.sort(sortedList, function(a, b) return a.name < b.name end);
 		if numSpecialBuildingsInThisCity > 0 then
 			--if header is not hidden and is open
+			Controls.SpecialistStack:SetHide( false );
 			Controls.SpecialBuildingsHeader:SetHide( false );
 			Controls.SpecialistControlBox:SetHide( false );
 			Controls.FreeSpecialistLabel:SetHide( false );
@@ -1599,10 +1604,13 @@ function OnCityViewUpdate()
 					local building = GameInfo.Buildings[v.ID];
 					AddBuildingButton( pCity, building );
 				end
+				Controls.ResetSpecialistsButton:SetHide( not HasForcedSpecialists );
+				Controls.ResetSpecialistsFooter:SetHide( not HasForcedSpecialists );
 			else
 				Controls.SpecialistControlBox:SetHide( true );
 			end			
 		else
+			Controls.SpecialistStack:SetHide( true );
 			Controls.SpecialBuildingsHeader:SetHide( true );
 			Controls.SpecialistControlBox:SetHide( true );
 			Controls.FreeSpecialistLabel:SetHide( true );
@@ -1812,6 +1820,9 @@ function OnCityViewUpdate()
 		
 		Controls.WorkerManagementBox:CalculateSize();
 		Controls.WorkerManagementBox:ReprocessAnchoring();
+
+		Controls.SpecialistStack:CalculateSize();
+		Controls.SpecialistStack:ReprocessAnchoring();
 		
 		Controls.GPStack:CalculateSize();
 		Controls.GPStack:ReprocessAnchoring();
@@ -1951,7 +1962,12 @@ function OnCityViewUpdate()
 		local cultureStored = pCity:GetJONSCultureStored();
 		local cultureNext = pCity:GetJONSCultureThreshold();
 		local cultureDiff = cultureNext - cultureStored;
-		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YIELD_CULTURE_LOCAL);
+		local borderGrowthRate = iCulturePerTurn + pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL);
+
+		if ((pCity:GetWeLoveTheKingDayCounter() > 0 and pPlayer:IsDoubleBorderGrowthWLTKD()) or (pPlayer:IsGoldenAge() and pPlayer:IsDoubleBorderGrowthGA())) then
+			borderGrowthRate = borderGrowthRate * 2;
+		end
+
 		if borderGrowthRate > 0 then
 			local cultureTurns = math.ceil(cultureDiff / borderGrowthRate);
 			if (cultureTurns < 1) then
@@ -2031,6 +2047,7 @@ function OnCityViewUpdate()
 			Controls.BoxOSlackers:SetDisabled( true );
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( true );
 			Controls.NoAutoSpecialistCheckbox2:SetDisabled( true );
+			Controls.ResetSpecialistsButton:SetDisabled( true );
 			
 			-- Other
 			Controls.RazeCityButton:SetDisabled( true );
@@ -2067,6 +2084,7 @@ function OnCityViewUpdate()
 			Controls.BoxOSlackers:SetDisabled( false );
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( false );
 			Controls.NoAutoSpecialistCheckbox2:SetDisabled( false );
+			Controls.ResetSpecialistsButton:SetDisabled( false );
 			
 			-- Other
 			if (not g_bRazeButtonDisabled) then
@@ -2627,6 +2645,14 @@ Controls.NoAutoSpecialistCheckbox:RegisterCallback(Mouse.eLClick, OnNoAutoSpecia
 Controls.NoAutoSpecialistCheckbox2:RegisterCallback(Mouse.eLClick, OnNoAutoSpecialistCheckboxClick);
 
 ---------------------------------------------------------------
+-- Reset Specialists Button
+---------------------------------------------------------------
+function OnResetSpecialistsClick()
+	Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_RESET_SPECIALISTS, -1, -1);	
+end
+Controls.ResetSpecialistsButton:RegisterCallback(Mouse.eLClick, OnResetSpecialistsClick);
+
+---------------------------------------------------------------
 -- Clicking on Building instances to add or remove Specialists
 ---------------------------------------------------------------
 function OnBuildingClick(iBuilding)
@@ -2692,6 +2718,7 @@ function AddSpecialist(iBuilding, slot)
 	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
 	
 	-- If we can add something, add it
+--[[ all added should be locked
 	if (pCity:IsCanAddSpecialistToBuilding(iBuilding)) then
 		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, iSpecialist, iBuilding);
 		if 	specialistTable[iBuilding][slot].Assigned == true then
@@ -2700,7 +2727,13 @@ function AddSpecialist(iBuilding, slot)
 			specialistTable[iBuilding][slot].Assigned = true;
 		end
 	end
-	
+]]--	
+	if (pCity:IsCanAddSpecialistToBuilding(iBuilding)) then
+		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_ADD_SPECIALIST, iSpecialist, iBuilding);
+		specialistTable[iBuilding][slot].Assigned = true;
+		specialistTable[iBuilding][slot].Locked = true;
+	end
+
 	--g_iCurrentSpecialist = iSpecialist;
 end
 
@@ -2708,6 +2741,7 @@ function RemoveSpecialist(iBuilding, slot)
 	local pCity = UI.GetHeadSelectedCity();
 	
 	local iNumSpecialistsAssigned = pCity:GetNumSpecialistsInBuilding(iBuilding);
+--	local iNumForcedSpecialistsAssigned = pCity:GetNumForcedSpecialistsInBuilding(iBuilding);
 				
 	-- If Specialists are automated then you can't change things with them
 --[[
@@ -2720,22 +2754,14 @@ function RemoveSpecialist(iBuilding, slot)
 	
 	local iSpecialist = GameInfoTypes[GameInfo.Buildings[iBuilding].SpecialistType];
 	
-	-- If we can remove something, remove it
-	if (iNumSpecialistsAssigned > 0) and (pCity:IsNoAutoAssignSpecialists()) then
-		Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
-		specialistTable[iBuilding][slot].Assigned = false;
-		specialistTable[iBuilding][slot].Locked = false;
-	end
-	
-	-- replace AI-assigned with a locked one
-	if (iNumSpecialistsAssigned > 0) and (not pCity:IsNoAutoAssignSpecialists()) then
-		if (specialistTable[iBuilding][slot].Locked == true) then
-			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_REMOVE_SPECIALIST, iSpecialist, iBuilding);
+	if (iNumSpecialistsAssigned > 0) then
+		if (specialistTable[iBuilding][slot].Locked == true) then -- remove player assigned/forced specialist, assign it to the best plot
+			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_UNSLOT_SPECIALIST, iSpecialist, iBuilding, true);
 			specialistTable[iBuilding][slot].Assigned = false;
 			specialistTable[iBuilding][slot].Locked = false;
-		else
-			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_LOCK_SPECIALIST, iSpecialist, iBuilding);
-			specialistTable[iBuilding][slot].Locked = true;
+		else -- remove AI assigned specialist, assign it to the best plot
+			Game.SelectedCitiesGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_TASK, TaskTypes.TASK_UNSLOT_SPECIALIST, iSpecialist, iBuilding, false);
+			specialistTable[iBuilding][slot].Assigned = false;
 		end
 	end
 

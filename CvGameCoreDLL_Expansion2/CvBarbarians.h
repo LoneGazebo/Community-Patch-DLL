@@ -16,11 +16,9 @@ class CvBarbarians
 {
 public:
 	static void DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit* pUnit = NULL);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoBarbCityCleared(CvPlot* pPlot);
 	static bool ShouldSpawnBarbFromCity(CvPlot* pPlot);
 	static void DoCityAttacked(CvPlot* pPlot);
-#endif
 	static bool ShouldSpawnBarbFromCamp(CvPlot* pPlot);
 	static void DoCampAttacked(CvPlot* pPlot);
 	static void DoCampSpawnCounter();
@@ -38,9 +36,7 @@ public:
 	static void Serialize(Visitor& visitor);
 	static void Read(FDataStream& kStream);
 	static void Write(FDataStream& kStream);
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static void DoCityActivationNotice(CvPlot* pPlot);
-#endif
 
 private:
 	static bool CanBarbariansSpawn();
@@ -48,10 +44,8 @@ private:
 	static UnitTypes GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eUnitAI, ResourceTypes eNearbyResource = NO_RESOURCE);
 
 	static short* m_aiPlotBarbCampSpawnCounter;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	static short* m_aiPlotBarbCitySpawnCounter;
 	static short* m_aiPlotBarbCityNumUnitsSpawned;
-#endif
 	static short* m_aiPlotBarbCampNumUnitsSpawned;
 
 };

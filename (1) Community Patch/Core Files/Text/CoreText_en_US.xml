@@ -104,6 +104,11 @@
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
 			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
 		</Row>
+
+		<!-- Diplomatic Mission (No Gold) -->
+		<Row Tag="TXT_KEY_DIPLOMATIC_MISSION_RESULT_NO_GOLD">
+			<Text>You have gained {1_Num} [ICON_INFLUENCE] Influence from the Diplomatic Mission!</Text>
+		</Row>
 		
 		<!-- America - Flavoured -->
 		<Row Tag="TXT_KEY_SPY_NAME_AMERICA_10">
@@ -2410,7 +2415,7 @@
 			<Text>Tactical experts from {@2_CivName} believe {@1_CityName} to be of significant strategic importance. Acquire it by any means, and you will be greatly rewarded!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY">
-			<Text>Tacticians from {@2_CivName} want you to capture {@1_CityName}</Text>
+			<Text>{@2_CivName} wants you to capture {@1_CityName}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE">
@@ -2420,6 +2425,21 @@
 			<Text>Successful city capture for {@1_CivName}!</Text>
 		</Row>
 
+		<!-- Capture City (OCC) -->
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC">
+			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC">
+			<Text>{@2_CivName} wants you to conquer {@1_CityName}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE">
+			<Text>The tactical experts from {@1_CivName} thank you for conquering the city they targeted.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE">
+			<Text>Successfully conquered city for {@1_CivName}!</Text>
+		</Row>
+    
 		<!-- Coup -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP">
 			<Text>Intelligence reports from {@2_CivName} indicate that {@1_CityName} is ripe for a coup. Complete this coup, and you will be greatly rewarded!</Text>
@@ -2538,6 +2558,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL">
 			<Text>Acquire the city of {1_City}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL">
+			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 		<!-- Plot Helpers -->
 
@@ -2985,8 +3008,11 @@
 		<Row Tag="TXT_KEY_DIPLO_CANNOT_PEACE_VASSAL">
 			<Text>Vassals cannot make peace.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_DIPLO_BLOCKED_LOCKED_INTO_WAR">
+			<Text>A war agreement with another leader prevents this action.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BLOCKED_DIPLOMACY">
-			<Text>A diplomatic situation prevents this action.</Text>
+			<Text>A leader who has a Defensive Pact with the target also has a Declaration of Friendship or Defensive Pact with one of us.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BLOCKED_GAME_RULE">
 			<Text>A special game rule prevents this action.</Text>
@@ -3294,7 +3320,7 @@
 			<Text>You killed or captured their civilians!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_RAZED_OTHER">
-			<Text>You killed or captured civilians during war!</Text>
+			<Text>You killed or captured civilians from other civilizations!</Text>
 		</Row>
 		
 		<!-- Stolen Artifacts Diplo Mod -->
@@ -6983,6 +7009,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE">
 			<Text>Total Number of City [ICON_CITIZEN] Citizens:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE">
+			<Text>Total Number of Technologies Researched:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BIRTH_CAPITAL">
 			<Text>Birth of a [ICON_CITIZEN] Citizen in [ICON_CAPITAL] Capital:[NEWLINE]{1_YieldString}</Text>
 		</Row>
@@ -6993,7 +7022,7 @@
 			<Text>Unlocking a [ICON_CULTURE] Policy:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_INSTANT">
-			<Text>Instant yield:[NEWLINE]{1_YieldString}</Text>
+			<Text>Instant Yield:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TECH">
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
@@ -7017,16 +7046,16 @@
 			<Text>[ICON_VICTORY_DOMINATION] Conquering a City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_VICTORY">
-			<Text>[ICON_VICTORY_DOMINATION] Winning a battle:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_VICTORY_DOMINATION] Winning a Battle:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PILLAGE">
 			<Text>[ICON_RAZING] Pillaging a Tile:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION">
-			<Text>[ICON_PRODUCTION] Producing a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PRODUCTION] Producing a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_PURCHASE">
-			<Text>[ICON_GOLD] Purchasing a unit or building:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_GOLD] Purchasing a Unit or Building:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TILE_PURCHASE">
 			<Text>[ICON_GOLD] Purchasing a Tile:[NEWLINE]{1_YieldString}</Text>
@@ -7044,7 +7073,7 @@
 			<Text>Yield conversion in [ICON_CITY_STATE] City:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DEATH">
-			<Text>[ICON_PIRATE] Death of a military unit:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
 			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
@@ -7092,7 +7121,7 @@
 			<Text>[ICON_VICTORY_DOMINATION] Cleared a Barbarian Camp:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON">
-			<Text>Process in destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
+			<Text>Process in Destination City linked by [ICON_INTERNATIONAL_TRADE] Trade Route:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD">
 			<Text>Building an Improvement:[NEWLINE]{1_YieldString}</Text>

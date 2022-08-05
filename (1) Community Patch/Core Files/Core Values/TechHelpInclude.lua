@@ -27,7 +27,7 @@ function GetHelpTextForTech( iTechID )
 		local iProgress = pActivePlayer:GetResearchProgress(iTechID);
 		local bShowProgress = true;
 	
-		-- Don't show progres if we have 0 or we're done with the tech
+		-- Don't show progress if we have 0 or we're done with the tech
 		if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
 			bShowProgress = false;
 		end

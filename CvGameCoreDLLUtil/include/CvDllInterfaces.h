@@ -305,15 +305,6 @@ class ICvUnknown
 public:
 	static GUID DLLCALL GetInterfaceId(){ return guidICvUnknown; }
 
-	void DLLCALL operator delete(void* p)
-	{
-		if (p)
-		{
-			ICvUnknown* inst = (ICvUnknown*)(p);
-			inst->Destroy();
-		}
-	}
-
 	virtual void* DLLCALL QueryInterface(GUID guidInterface) = 0;
 
  	template<typename T>
@@ -322,7 +313,10 @@ public:
  		return static_cast<T*>(QueryInterface(T::GetInterfaceId()));
  	}
 
-protected:
+	// Formerly protected.
+	// 
+	// This logically needs to be part of the public interface. Hopefully this
+	// change doesn't cause ABI compatibility issues.
 	virtual void DLLCALL Destroy() = 0;
 };
 
@@ -1836,6 +1830,94 @@ public:
 //------------------------------------------------------------------------------
 // Templates
 //------------------------------------------------------------------------------
+
+// Replacement for `auto_ptr<T>` where `T` is an `ICvUnknown` interface.
+// 
+// This is meant to eliminate undefined-behavior that existed as part of `auto_ptr`
+// relying on `delete` invoking the `Destroy` function of the underlying interface
+// instead of doing any actual destruction and deallocation.
+template<typename T>
+class CvInterfacePtr
+{
+public:
+	typedef T element_type;
+
+	explicit CvInterfacePtr(T* ptr)
+		: m_ptr(ptr)
+	{}
+
+	// FIXME: This is rather horrendous as it violates the constness of `other`.
+	// This has been done because it mimics the interface of Microsoft's `auto_ptr`
+	// which avoids a cascade of complex changes being necessary.
+	// 
+	// Specifically there are numerous instances where an interface pointer is
+	// constructed from an rvalue reference which cannot be easily made correct
+	// without modifying the callsite rather dastically.
+	//
+	// With C++11 this would just be a move constructor but we still want to
+	// support VC90 so this'll do for now.
+	CvInterfacePtr(CvInterfacePtr<T> const& other)
+		: m_ptr(other.m_ptr)
+	{
+		other.m_ptr = NULL;
+	}
+	
+	// Same issues from CvInterfacePtr copy constructor apply here. See comment.
+	CvInterfacePtr<T>& operator=(CvInterfacePtr<T> const& rhs)
+	{
+		reset(rhs.m_ptr);
+		rhs.m_ptr = NULL;
+		return *this;
+	}
+
+	~CvInterfacePtr()
+	{
+		reset();
+	}
+
+	T* get() const
+	{
+		return m_ptr;
+	}
+
+	void swap(CvInterfacePtr<T>& other)
+	{
+		std::swap(m_ptr, other.m_ptr);
+	}
+
+	T& operator*() const
+	{
+		return *m_ptr;
+	}
+
+	T* operator->() const 
+	{
+		return m_ptr;
+	}
+
+	operator bool() const
+	{
+		return !!m_ptr;
+	}
+
+	T* release()
+	{
+		T* ptr = m_ptr;
+		m_ptr = NULL;
+		return ptr;
+	}
+
+	void reset(T* ptr = NULL)
+	{
+		if (m_ptr) m_ptr->Destroy();
+		m_ptr = ptr;
+	}
+private:
+	// Mutable to satisfy requirements of copy constructor.
+	// Not necessary after C++11 thanks to better move semantic features.
+	mutable T* m_ptr;
+};
+
 template<typename T>
 class CvEnumerator
 {
@@ -1846,21 +1928,21 @@ public:
 	
 	bool MoveNext()
 	{
-		return (m_Enumerator.get() != NULL)? m_Enumerator->MoveNext() : false;
+		return m_Enumerator ? m_Enumerator->MoveNext() : false;
 	}
 
 	void Reset()
 	{
-		if(m_Enumerator.get())
+		if(m_Enumerator)
 			m_Enumerator->Reset();
 	}
 
 	T* GetCurrent()
 	{
-		if(m_Enumerator.get() != NULL)
+		if(m_Enumerator)
 		{
-			auto_ptr<ICvUnknown> pValue(m_Enumerator->GetCurrent());
-			return (pValue.get() != NULL)? pValue->QueryInterface<T>() : NULL;
+			CvInterfacePtr<ICvUnknown> pValue(m_Enumerator->GetCurrent());
+			return pValue ? pValue->QueryInterface<T>() : NULL;
 		}
 		else
 		{
@@ -1869,7 +1951,7 @@ public:
 	}
 
 private:
-	std::auto_ptr<ICvEnumerator> m_Enumerator;
+	CvInterfacePtr<ICvEnumerator> m_Enumerator;
 };
 
 // Include any newer interfaces

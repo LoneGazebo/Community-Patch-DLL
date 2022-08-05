@@ -172,7 +172,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iXBuiltTriggersIdeologyChoice(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iExtraLeagueVotes(0),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iSingleLeagueVotes(0),
 	m_iFaithToVotesBase(0),
 	m_iCapitalsToVotesBase(0),
@@ -181,7 +180,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDPToVotesBase(0),
 	m_bIgnoreDefensivePactLimit(false),
 	m_iGPExpendInfluenceBase(0),
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier(0),
 	m_iEmpireNeedsModifierGlobal(0),
@@ -230,10 +228,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iPurchaseCooldownReduction(0),
 	m_iPurchaseCooldownReductionCivilian(0),
 #endif
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra(false),
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	m_iNationalPopRequired(-1),
 	m_iLocalPopRequired(-1),
@@ -296,9 +291,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
 	m_piSeaResourceYieldChange(NULL),
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_piGrowthExtraYield(NULL),
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_piYieldFromDeath(NULL),
 #endif
@@ -431,9 +424,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piYieldFromDeath);
 #endif
@@ -580,9 +571,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iPurchaseCooldownReduction = kResults.GetInt("PurchaseCooldownReduction");
 	m_iPurchaseCooldownReductionCivilian = kResults.GetInt("PurchaseCooldownReductionCivilian");
 #endif
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bVassalLevyEra = kResults.GetBool("VassalLevyEra");
-#endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
 	m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
@@ -743,7 +732,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iXBuiltTriggersIdeologyChoice = kResults.GetInt("XBuiltTriggersIdeologyChoice");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iSingleLeagueVotes = kResults.GetInt("SingleLeagueVotes");
 	m_iFaithToVotesBase = kResults.GetInt("FaithToVotes");
 	m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
@@ -752,7 +740,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iDPToVotesBase = kResults.GetInt("DPToVotes");
 	m_bIgnoreDefensivePactLimit = kResults.GetBool("IgnoreDefensivePactLimit");
 	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier = kResults.GetInt("EmpireNeedsModifier");
 	m_iEmpireNeedsModifierGlobal = kResults.GetInt("EmpireNeedsModifierGlobal");
@@ -2440,7 +2427,7 @@ int CvBuildingEntry::GetExtraLeagueVotes() const
 {
 	return m_iExtraLeagueVotes;
 }
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+
 int CvBuildingEntry::GetSingleVotes() const
 {
 	return m_iSingleLeagueVotes;
@@ -2483,7 +2470,7 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 {
 	return m_iGPExpendInfluenceBase;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 int CvBuildingEntry::GetEmpireNeedsModifier() const
 {
@@ -2667,7 +2654,7 @@ bool CvBuildingEntry::IsAnyBodyOfWater() const
 {
 	return m_bAnyWater;
 }
-/// Is this an obstacle for just the tiles around your city?
+/// How much damage does this building contribute against attacking air unit?
 int CvBuildingEntry::GetCityAirStrikeDefense() const
 {
 	return m_iCityAirStrikeDefense;
@@ -2926,8 +2913,6 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 	return m_strThemingBonusHelp;
 }
 // ARRAYS
-
-#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 /// Change to yield by type
 int CvBuildingEntry::GetUnhappinessNeedsFlatReduction(int i) const
 {
@@ -2960,7 +2945,6 @@ int CvBuildingEntry::GetNeedBuildingThisCity() const
 	return m_iNeedBuildingThisCity;
 }
 
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 /// Change to yield by type if unit defeated in battle
 int CvBuildingEntry::GetYieldFromDeath(int i) const
@@ -4183,12 +4167,11 @@ int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
 }
 #endif
 
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 bool CvBuildingEntry::IsVassalLevyEra() const
 {
 	return m_bVassalLevyEra;
 }
-#endif
+
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 int CvBuildingEntry::GetNationalPopulationRequired() const
 {
@@ -4657,7 +4640,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge())
+	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge() || kBuilding.GetPopulationChange() != 0)
 		return false;
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
@@ -4831,7 +4814,7 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 			GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
@@ -5013,7 +4996,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		if(buildingEntry->GetPreferredDisplayPosition() > 0)
 		{
-			auto_ptr<ICvCity1> pDllCity(new CvDllCity(m_pCity));
+			CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(m_pCity));
 
 			if(iNewValue > 0)
 			{
@@ -5074,7 +5057,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		if(buildingEntry->IsCityWall())
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
 		}
 
@@ -5187,7 +5170,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		m_pCity->updateStrengthValue();
 
 		// Building might affect City Banner stats
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 
 #if defined(MOD_API_ACHIEVEMENTS)
@@ -5237,14 +5220,14 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
 		if(buildingEntry->IsCityWall())
 		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
+			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
 		}
 
 		m_pCity->updateStrengthValue();
 
 		// Building might affect City Banner stats
-		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
+		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
@@ -5374,7 +5357,7 @@ int CvCityBuildings::GetBuildingGreatWork(BuildingClassTypes eBuildingClass, int
 void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, int iSlot, int iGreatWorkIndex)
 {
 	m_pCity->ResetGreatWorkYieldCache();
-	
+
 	for(std::vector<BuildingGreatWork>::iterator it = m_aBuildingGreatWork.begin(); it != m_aBuildingGreatWork.end(); ++it)
 	{
 		if((*it).eBuildingClass == eBuildingClass && (*it).iSlot == iSlot)
@@ -5390,6 +5373,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 				{
 					(*it).iGreatWorkIndex = iGreatWorkIndex;
 				}
+
+				if (eBuildingClass != NO_BUILDINGCLASS)
+				{
+					m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+				}
 			}
 
 			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -5404,6 +5392,11 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iSlot = iSlot;
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
+
+		if (eBuildingClass != NO_BUILDINGCLASS)
+		{
+			m_pCity->GetCityCulture()->UpdateThemingBonusIndex(eBuildingClass);
+		}
 	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);

@@ -233,7 +233,7 @@ __forceinline void FAutoVariable<ObjectType, ContainerType>::set(const ObjectTyp
 //---------------------------------------------------------------------------------------
 
 template<typename ObjectType, typename ContainerType>
-__forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAutoVariable<typename ObjectType, typename ContainerType>::operator-=(const ObjectType & rhs)
+__forceinline FAutoVariable<ObjectType, ContainerType> & FAutoVariable<ObjectType, ContainerType>::operator-=(const ObjectType & rhs)
 {
 	set(m_value - rhs);
 	return *this;
@@ -242,7 +242,7 @@ __forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAuto
 //---------------------------------------------------------------------------------------
 
 template<typename ObjectType, typename ContainerType>
-__forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAutoVariable<typename ObjectType, typename ContainerType>::operator+=(const ObjectType & rhs)
+__forceinline FAutoVariable<ObjectType, ContainerType> & FAutoVariable<ObjectType, ContainerType>::operator+=(const ObjectType & rhs)
 {
 	set(m_value + rhs);
 	return *this;
@@ -251,7 +251,7 @@ __forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAuto
 //---------------------------------------------------------------------------------------
 
 template<typename ObjectType, typename ContainerType>
-__forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAutoVariable<typename ObjectType, typename ContainerType>::operator++(int)
+__forceinline FAutoVariable<ObjectType, ContainerType> & FAutoVariable<ObjectType, ContainerType>::operator++(int)
 {
 	// prefix and postfix operators are not guaranteed to be applied before being passed to a function
 	ObjectType tmp = m_value;
@@ -263,7 +263,7 @@ __forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAuto
 //---------------------------------------------------------------------------------------
 
 template<typename ObjectType, typename ContainerType>
-__forceinline FAutoVariable<typename ObjectType, typename ContainerType> & FAutoVariable<typename ObjectType, typename ContainerType>::operator--(int)
+__forceinline FAutoVariable<ObjectType, ContainerType> & FAutoVariable<ObjectType, ContainerType>::operator--(int)
 {
 	// prefix and postfix operators are not guaranteed to be applied before being passed to a function
 	ObjectType tmp = m_value;
