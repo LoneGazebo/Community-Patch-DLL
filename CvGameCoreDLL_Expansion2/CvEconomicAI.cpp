@@ -1739,9 +1739,6 @@ void CvEconomicAI::DoHurry()
 	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
-	CvCityBuildable bestSelection;
-	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
-
 	CvWeightedVector<CvCityBuildable> m_Buildables;
 
 	// Look at each of our cities
@@ -1753,6 +1750,9 @@ void CvEconomicAI::DoHurry()
 			continue;
 
 		CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
+		if (selection.m_eBuildableType == NOT_A_CITY_BUILDABLE)
+			continue;
+
 		selection.m_iCityID = pLoopCity->GetID();
 		m_Buildables.push_back(selection, selection.m_iValue);
 	}
