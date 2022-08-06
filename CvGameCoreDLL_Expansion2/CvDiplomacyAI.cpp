@@ -11212,6 +11212,8 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 
 				switch (eMajorEstimate)
 				{
+				case NO_STRENGTH_VALUE:
+					UNREACHABLE();
 				case STRENGTH_PATHETIC:
 					eThirdPartyStrength = STRENGTH_IMMENSE;
 					break;
@@ -28587,8 +28589,8 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 								// If we're doing badly in the war, we appreciate the assistance.
 								switch (GetWarState(eAttackedPlayer))
 								{
+								// No war state is fine here since they may have just gone to war.
 								case NO_WAR_STATE_TYPE:
-									UNREACHABLE();
 								case WAR_STATE_NEARLY_WON:
 								case WAR_STATE_OFFENSIVE:
 									break;
