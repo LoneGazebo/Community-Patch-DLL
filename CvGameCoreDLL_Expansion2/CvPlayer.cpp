@@ -26394,6 +26394,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						int iKillYield = 0;
 						if (iCombatStrength > 0)
 						{
+							// Apply special case yields.
 							switch (eYield)
 							{
 							case YIELD_GOLD:
@@ -26421,8 +26422,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								break;
 
 							default:
-								// If we're in this spot then the input parameters are bad or we need to add support for this yield type.
-								UNREACHABLE();
+								break; // No special cases for this yield.
 							}
 
 							iKillYield += GetYieldFromKills(eYield);
@@ -28212,6 +28212,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					{
 						iValue += iPassValue;
 					}
+					break;
 				}
 				default:
 				UNREACHABLE(); // Other types should never be passed into this function.
