@@ -9280,7 +9280,7 @@ std::pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignm
 	if (nNewEnemies>0)
 		refreshVolatilePlotProperties();
 
-	return std::make_pair<int, int>( (int)newlyVisiblePlots.size(), nNewEnemies);
+	return std::make_pair( (int)newlyVisiblePlots.size(), nNewEnemies);
 }
 
 bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID) const
