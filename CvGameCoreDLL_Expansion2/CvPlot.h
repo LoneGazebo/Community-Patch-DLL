@@ -531,9 +531,10 @@ public:
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
 
-	CvCity* getPlotCity() const;
-	void setOwningCityID(int iID);
+	void setOwningCity(PlayerTypes eOwner, int iCityID);
 	int getOwningCityID() const;
+
+	CvCity* getPlotCity() const;
 	CvCity* getOwningCity() const;
 	void updateOwningCity();
 

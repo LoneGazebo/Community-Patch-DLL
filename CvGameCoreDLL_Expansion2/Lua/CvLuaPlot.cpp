@@ -2176,7 +2176,12 @@ int CvLuaPlot::lGetCityPurchaseID(lua_State* L)
 //void SetCityPurchaseID(int ID);
 int CvLuaPlot::lSetCityPurchaseID(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::setOwningCityID);
+	const int idx = GetStartingArgIndex();
+	CvPlot* kPlot = GetInstance(L);
+	const int iID = lua_tointeger(L, idx);
+	//we assume the plot owner and the city owner are the same!
+	kPlot->setOwningCity(kPlot->getOwner(), iID);
+	return 0;
 }
 
 int CvLuaPlot::lGetAirUnitsTooltip(lua_State* L)

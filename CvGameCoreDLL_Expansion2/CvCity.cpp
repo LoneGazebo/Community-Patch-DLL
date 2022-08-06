@@ -908,9 +908,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-	//Update our CoM for the diplo AI.
-	//owningPlayer.SetCenterOfMassEmpire();
-
 	// Update Proximity between this Player and all others
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
