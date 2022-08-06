@@ -8759,7 +8759,7 @@ void CvPlot::SetPlayerResponsibleForImprovement(PlayerTypes eNewValue)
 					// Change resource quantity used
 					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 					{
-						int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);;
+						int iNumResource = pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
 
 						if (iNumResource > 0)
 						{
@@ -8842,7 +8842,7 @@ void CvPlot::SetPlayerResponsibleForRoute(PlayerTypes eNewValue)
 					// Change resource quantity used
 					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 					{
-						int iNumResource = pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);;
+						int iNumResource = pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
 
 						if (iNumResource > 0)
 						{

@@ -830,7 +830,7 @@ void CvNotifications::Activate(Notification& notification)
 				return;
 			}
 
-			// CUSTOMLOG("Activate NOTIFICATION_CITY_TILE for city %s at (%i, %i)", pCity->getName().c_str(), notification.m_iX, notification.m_iY)
+			// CUSTOMLOG("Activate NOTIFICATION_CITY_TILE for city %s at (%i, %i)", pCity->getName().c_str(), notification.m_iX, notification.m_iY);
 			// We want the C++ equivalent of UI.SetInterfaceMode(INTERFACEMODE_PURCHASE_PLOT) followed by
 			// UI.DoSelectCityAtPlot(pPlot) (which itself happens to be bugged!)
 			// The following is identical to the "Select Next City" then "Open City View" keyboard short-cuts code,

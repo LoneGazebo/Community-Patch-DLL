@@ -46,7 +46,7 @@
 
 // statics
 
-static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;;
+static CvEnumMap<PlayerTypes, CvPlayerAI> s_players;
 
 CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 {
