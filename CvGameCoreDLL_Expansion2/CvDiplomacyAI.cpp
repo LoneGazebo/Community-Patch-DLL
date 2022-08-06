@@ -17330,7 +17330,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (GetPlayer()->IsVassalOfSomeone())
 	{
 		TeamTypes eMaster = GET_TEAM(GetTeam()).GetMaster();
-		vector<PlayerTypes> vMasterTeam = GET_TEAM(eMaster).getPlayers();
+		const vector<PlayerTypes>& vMasterTeam = GET_TEAM(eMaster).getPlayers();
 
 		for (size_t i=0; i<vMasterTeam.size(); i++)
 		{
