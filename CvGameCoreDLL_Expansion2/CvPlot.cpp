@@ -6296,11 +6296,9 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	}
 
 	// Sometimes we already own the plot but it's a different city
+	// Note this this will stop the previous owning city from working the plot
 	if (getOwningCityID() != iAcquiringCityID)
-	{
-		m_owningCityOverride.reset();
-		m_owningCity = IDInfo(eNewValue, iAcquiringCityID);
-	}
+		setOwningCity(eNewValue, iAcquiringCityID);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8939,9 +8937,24 @@ CvCity* CvPlot::getPlotCity() const
 	return NULL;
 }
 
-void CvPlot::setOwningCityID(int iID)
+void CvPlot::setOwningCity(PlayerTypes ePlayer, int iCityID)
 {
-	m_owningCity.iID = iID;
+	if (ePlayer != getOwner())
+		CUSTOMLOG("warning: assigning a plot to a city which is owned by a different player!");
+
+	//always reset the override as well
+	setOwningCityOverride(NULL);
+
+	CvCity*	pOldCity = getOwningCity();
+	m_owningCity = IDInfo(getOwner(), iCityID);
+
+	//if ownership changed, make sure the old city stops working the plot
+	if (pOldCity != NULL && pOldCity->GetCityCitizens()->IsWorkingPlot(this))
+	{
+		pOldCity->GetCityCitizens()->SetWorkingPlot(this, false, CvCity::YIELD_UPDATE_LOCAL);
+		pOldCity->GetCityCitizens()->SetForcedWorkingPlot(this, false);
+		pOldCity->GetCityCitizens()->DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_GLOBAL);
+	}
 }
 
 int CvPlot::getOwningCityID() const

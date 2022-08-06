@@ -111,8 +111,6 @@ public:
 	int GetNumWorkablePlots() const;
 
 	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
-	//void SetCenterOfMassEmpire();
-	//CvPlot* GetCenterOfMassEmpire() const;
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
