@@ -17334,13 +17334,14 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		for (size_t i=0; i<vMasterTeam.size(); i++)
 		{
-			if (!GET_PLAYER(vMasterTeam[i]).isAlive() || !GET_PLAYER(vMasterTeam[i]).isMajorCiv() || GET_PLAYER(vMasterTeam[i]).getNumCities() <= 0)
+			PlayerTypes eMasterPlayer = vMasterTeam[i];
+			if (!GET_PLAYER(eMasterPlayer).isAlive() || !GET_PLAYER(eMasterPlayer).isMajorCiv() || GET_PLAYER(eMasterPlayer).getNumCities() <= 0)
 				continue;
 
 			// How well are we being treated by this master? That will determine how much we care about their opinion.
 			bool bCare = false;
 			int iMasterOpinionValue = 0;
-			VassalTreatmentTypes eTreatmentLevel = GetVassalTreatmentLevel(ePlayer);
+			VassalTreatmentTypes eTreatmentLevel = GetVassalTreatmentLevel(eMasterPlayer);
 
 			if (IsVoluntaryVassalage(ePlayer))
 			{
@@ -17402,7 +17403,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Our master is treating us well, so their opinion matters.
 			if (bCare)
 			{
-				CivApproachTypes eMasterApproach = GET_PLAYER(vMasterTeam[i]).GetDiplomacyAI()->GetSurfaceApproach(ePlayer);
+				CivApproachTypes eMasterApproach = GET_PLAYER(eMasterPlayer).GetDiplomacyAI()->GetSurfaceApproach(ePlayer);
 
 				switch (eMasterApproach)
 				{
@@ -17427,7 +17428,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			// Our master is treating us poorly, so we will act against their interests!
 			else
 			{
-				CivApproachTypes ePlayerApproachTowardsMaster = pTheirDiplo->GetSurfaceApproach(vMasterTeam[i]);
+				CivApproachTypes ePlayerApproachTowardsMaster = pTheirDiplo->GetSurfaceApproach(eMasterPlayer);
 
 				switch (ePlayerApproachTowardsMaster)
 				{
