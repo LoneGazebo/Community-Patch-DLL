@@ -7601,7 +7601,6 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 	}
 
 	bool bWorthIt = false;
-	bool bValid = true;
 	for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 	{
 		TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
@@ -7614,29 +7613,31 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 			{
 				if(GET_TEAM(eLoopTeam).isAlive())
 				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					const vector<PlayerTypes>& vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
+					for (size_t iPlayerLoop = 0; iPlayerLoop < vVassalTeam.size(); ++iPlayerLoop)
 					{
-						PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eVassalPlayer = vVassalTeam[iPlayerLoop];
 
-						if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FRIEND)
-						{
-							bWorthIt = true;
-						}
-						else if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FAVORABLE)
-						{
-							if (GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eVassalPlayer) && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eVassalPlayer) == CIV_APPROACH_FRIENDLY)
-							{
-								bWorthIt = true;
-							}
-						}
-						else if (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer) || GetPlayer()->GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(eVassalPlayer))
-						{
-							bWorthIt = true;
-						}
+						// Check if this player actually wants to be free of their vassalage.
+						// If not, we never consider freeing the team worth it and exit immediately.
+						// 
+						// Note: Any one player not wanting to be free is enough for us to disregard the rest of the team.
 						if (!GET_PLAYER(eVassalPlayer).GetDiplomacyAI()->IsEndVassalageWithPlayerAcceptable(eOtherPlayer))
 						{
-							bValid = false;
+							bWorthIt = false;
 							break;
+						}
+						// Now check if we actually care about this player.
+						// 
+						// Note: We only need to care for one player on the team to consider freeing the team.
+						if (!bWorthIt)
+						{
+							bWorthIt = (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FRIEND)
+								|| (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eVassalPlayer) >= CIV_OPINION_FAVORABLE
+									&& GetPlayer()->GetDiplomacyAI()->IsDoFAccepted(eVassalPlayer)
+									&& GetPlayer()->GetDiplomacyAI()->GetCivApproach(eVassalPlayer) == CIV_APPROACH_FRIENDLY)
+								|| (GetPlayer()->GetDiplomacyAI()->WasResurrectedBy(eVassalPlayer)
+									|| GetPlayer()->GetDiplomacyAI()->IsMasterLiberatedMeFromVassalage(eVassalPlayer));
 						}
 					}
 				}
@@ -7644,7 +7645,7 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 	}
 	bool bDealAcceptable = false;
-	if(bWorthIt && bValid)
+	if(bWorthIt)
 	{
 		// Seed the deal with the item we want
 		pDeal->AddRevokeVassalageTrade(eOtherPlayer);
