@@ -53027,8 +53027,8 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 {
 	CvDiplomacyAI* pDiplo = GET_PLAYER(eObserver).GetDiplomacyAI();
 
-	// Must have met the conqueror - no cheating!
-	if (!pDiplo->IsHasMet(eConqueror))
+	// Must have met the conqueror and conqueree - no cheating!
+	if (!pDiplo->IsHasMet(eConqueror) || !pDiplo->IsHasMet(eCityOwner))
 		return 0;
 
 	// Masters and vassals ignore each other's warmongering.
