@@ -1473,7 +1473,6 @@ static DomainTypes LuaToTradeDomain(lua_State* L, int index)
 		return eDomain;
 	default:
 		luaL_error(L, "Invalid trade domain index %d", iDomain);
-		UNREACHABLE();
 	}
 }
 
@@ -9391,7 +9390,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkPlayerColor == NULL)
 	{
 		luaL_error(L, "Could not find player color at row %d", eColor);
-		return 0;
 	}
 
 	const ColorTypes ePrimaryColor	 = (ColorTypes)pkPlayerColor->GetColorTypePrimary();
@@ -9401,7 +9399,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkPrimaryColor == NULL)
 	{
 		luaL_error(L, "Could not find primary color at row %d", ePrimaryColor);
-		return 0;
 	}
 	const CvColorA& kPrimaryColor = pkPrimaryColor->GetColor();
 
@@ -9409,7 +9406,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkSecondaryColor == NULL)
 	{
 		luaL_error(L, "Could not find secondary color at row %d", eSecondaryColor);
-		return 0;
 	}
 	const CvColorA& kSecondaryColor = pkSecondaryColor->GetColor();
 
@@ -9529,7 +9525,6 @@ int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 			else
 			{
 				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
-				return 0;
 			}
 		}
 	}
@@ -9558,7 +9553,6 @@ int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 			else
 			{
 				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
-				return 0;
 			}
 		}
 	}
