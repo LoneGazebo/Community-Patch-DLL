@@ -1017,7 +1017,7 @@ bool CvEconomicAI::CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmou
 	}
 
 	// Copy into temp array and sort by priority
-	vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
+	std::vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
 	std::stable_sort(m_TempRequestedSavings.begin(), m_TempRequestedSavings.end());
 
 	for(int iI = 0; iI < (int)m_TempRequestedSavings.size(); iI++)
@@ -1053,7 +1053,7 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase)
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 
 	// Copy into temp array and sort by priority
-	vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
+	std::vector<CvPurchaseRequest> m_TempRequestedSavings = m_RequestedSavings;
 	std::stable_sort(m_TempRequestedSavings.begin(), m_TempRequestedSavings.end());
 
 	for(int iI = 0; iI < (int)m_TempRequestedSavings.size(); iI++)
@@ -1367,8 +1367,8 @@ void CvEconomicAI::LogCityMonitor()
 	int iLoopCity = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoopCity))
 	{
-		vector<int> aiCityYields(NUM_YIELD_TYPES, 0);
-		vector<int> aiSpecialistsYields(NUM_YIELD_TYPES, 0);
+		std::vector<int> aiCityYields(NUM_YIELD_TYPES, 0);
+		std::vector<int> aiSpecialistsYields(NUM_YIELD_TYPES, 0);
 
 		CvString strHeader = "";
 		CvString strLog = "";
@@ -1605,7 +1605,7 @@ void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> const& m
 		// Find the name of this civ and city
 		playerName = m_pPlayer->getCivilizationShortDescription();
 
-		string strLogName = "HurryCityPriorities.csv";
+		std::string strLogName = "HurryCityPriorities.csv";
 		if (GC.getPlayerAndCityAILogSplit())
 		{
 			strLogName = "HurryCityPriorities_" + playerName + ".csv";
@@ -1736,7 +1736,7 @@ void CvEconomicAI::DoHurry()
 		return;
 
 	// Which city needs hurrying most?
-	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
+	std::vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
 	CvWeightedVector<CvCityBuildable> m_Buildables;
@@ -1955,7 +1955,7 @@ void CvEconomicAI::DoPlotPurchases()
 	int iGoldForHalfCost = /*1000*/ GD_INT_GET(AI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM);
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
 	int iBestCost = 0;
-	int iMultiplier = max(2, (int)GC.getGame().getCurrentEra());
+	int iMultiplier = std::max(2, (int)GC.getGame().getCurrentEra());
 
 	// Let's not blow all our money on plot purchases
 	if(iCurrentCost*iMultiplier < iBalance && iGoldForHalfCost > iCurrentCost)
@@ -2090,7 +2090,7 @@ void CvEconomicAI::DoReconState()
 		m_eReconState = RECON_STATE_NEEDED;
 
 		// Increase number of explorers
-		vector< pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+		std::vector< std::pair<int,int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
 		for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
 			if(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE) 
@@ -2099,7 +2099,7 @@ void CvEconomicAI::DoReconState()
 				if(pLoopUnit->canUseForAIOperation())
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
-					eligibleExplorers.push_back( make_pair(iDistance,pLoopUnit->GetID()) );
+					eligibleExplorers.push_back( std::make_pair(iDistance,pLoopUnit->GetID()) );
 				}
 			}
 		}
@@ -2120,13 +2120,13 @@ void CvEconomicAI::DoReconState()
 		m_eReconState = RECON_STATE_ENOUGH;
 
 		// Reduce number of explorers by one
-		vector< pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+		std::vector< std::pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
 		for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 		{
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
 			{
 				int iDistance = m_pPlayer->GetCityDistanceInPlots(pLoopUnit->plot());
-				eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+				eligibleExplorers.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
 			}
 		}
 
@@ -2181,8 +2181,8 @@ void CvEconomicAI::DoReconState()
 			m_eNavalReconState = RECON_STATE_NEEDED;
 
 			// Send one additional boat out as a scout every round until we don't need recon anymore.
-			vector< pair<int,int> > eligibleExplorersCoast; //distance / id (don't store pointers for stable sorting!)
-			vector< pair<int, int> > eligibleExplorersDeepwater;
+			std::vector< std::pair<int,int> > eligibleExplorersCoast; //distance / id (don't store pointers for stable sorting!)
+			std::vector< std::pair<int, int> > eligibleExplorersDeepwater;
 			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
@@ -2198,15 +2198,15 @@ void CvEconomicAI::DoReconState()
 						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 
 						if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
-							eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+							eligibleExplorersCoast.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
 						else
-							eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+							eligibleExplorersDeepwater.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
 					}
 				}
 			}
 
 			//prefer oceangoing ships if we have any
-			vector< pair<int,int> > eligibleExplorers = eligibleExplorersDeepwater.empty() ? eligibleExplorersCoast : eligibleExplorersDeepwater;
+			std::vector< std::pair<int,int> > eligibleExplorers = eligibleExplorersDeepwater.empty() ? eligibleExplorersCoast : eligibleExplorersDeepwater;
 
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
@@ -2224,13 +2224,13 @@ void CvEconomicAI::DoReconState()
 			m_eNavalReconState = RECON_STATE_ENOUGH;
 
 			// Return one boat to normal unit AI since have enough recon
-			vector< pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
+			std::vector< std::pair<int, int> > eligibleExplorers; //distance / id (don't store pointers for stable sorting!)
 			for (pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
 				{
 					int iDistance = m_pPlayer->GetCityDistanceInPlots(pLoopUnit->plot());
-					eligibleExplorers.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+					eligibleExplorers.push_back(std::make_pair(iDistance, pLoopUnit->GetID()));
 				}
 			}
 
@@ -2682,7 +2682,7 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 {
 	int iLoop;
 	// Treat information era as atomic for this checking.
-	int playerCurrentEra = min(6,(int)m_pPlayer->GetCurrentEra());
+	int playerCurrentEra = std::min(6,(int)m_pPlayer->GetCurrentEra());
 
 	// Loop through our units
 	for(CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))

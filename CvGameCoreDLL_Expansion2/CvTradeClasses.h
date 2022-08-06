@@ -204,7 +204,7 @@ public:
 	CvString GetLogFileName() const;
 	void LogTradeMsg(CvString& strMsg);
 
-	const vector<int>& GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const;
+	const std::vector<int>& GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const;
 	size_t GetNumTradeConnections() const { return m_aTradeConnections.size(); }
 	const TradeConnection& GetTradeConnection(size_t iIndex) const { return m_aTradeConnections[iIndex]; }
 	void SetOriginYields(int iConnection, int iYield, int iValue) { m_aTradeConnections[iConnection].m_aiOriginYields[iYield]=iValue; }
@@ -221,7 +221,7 @@ protected:
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
 	std::map<PlayerTypes,int> m_lastTradePathUpdate;
-	std::vector<vector<int>> m_routesPerPlayer;
+	std::vector<std::vector<int>> m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
@@ -374,8 +374,8 @@ public:
 		int iInternationalTRsIn;
 		int iInternalTRs;
 		int iMinorTRs;
-		map<int, int> nRoutesFromCity; //city id, n outgoing routes
-		map<int, int> nRoutesToCity; //city id, n outgoing routes
+		std::map<int, int> nRoutesFromCity; //city id, n outgoing routes
+		std::map<int, int> nRoutesToCity; //city id, n outgoing routes
 
 		void reset() { iTurnSliceBuilt = 0; iInternationalTRsOut = 0; iInternationalTRsIn = 0; iInternalTRs = 0; iMinorTRs = 0; nRoutesFromCity.clear(); nRoutesToCity.clear(); }
 	};

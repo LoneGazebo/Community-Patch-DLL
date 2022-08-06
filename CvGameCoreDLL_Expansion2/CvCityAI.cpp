@@ -216,7 +216,7 @@ int CvCityAI::AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const
 	FAssert(ePlayer < MAX_PLAYERS);
 	FAssert(ePlayer > -1);
 	
-	map<PlayerTypes,int>::const_iterator it = m_mapPlotsAcquiredByOtherPlayers.find(ePlayer);
+	std::map<PlayerTypes,int>::const_iterator it = m_mapPlotsAcquiredByOtherPlayers.find(ePlayer);
 	if (it != m_mapPlotsAcquiredByOtherPlayers.end())
 		return it->second;
 

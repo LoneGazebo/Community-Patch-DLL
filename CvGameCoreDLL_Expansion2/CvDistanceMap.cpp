@@ -187,7 +187,7 @@ void CvDistanceMapByPathLength::Update()
 	allPlayers.Reset(nPlots, iVeryFar);
 	allMajorPlayers.Reset(nPlots, iVeryFar);
 	//initialize to empty
-	majorPlayers = vector<CvDistanceMap>(MAX_MAJOR_CIVS);
+	majorPlayers = std::vector<CvDistanceMap>(MAX_MAJOR_CIVS);
 
 	//in principle for all players but we filter later
 	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
@@ -229,7 +229,7 @@ void CvDistanceMapByPlots::Update()
 
 	allPlayers.Reset(nPlots, SHRT_MAX);
 	allMajorPlayers.Reset(nPlots, SHRT_MAX);
-	majorPlayers = vector<CvDistanceMap>(MAX_MAJOR_CIVS);
+	majorPlayers = std::vector<CvDistanceMap>(MAX_MAJOR_CIVS);
 
 	// since we know there are very few cities compared to the number of plots,
 	// we don't need to do the full distance transform
@@ -271,7 +271,7 @@ void CvDistanceMapByPlots::Update()
 
 void CvDistanceMap::Dump(const char* filename)
 {
-	ofstream out(filename);
+	std::ofstream out(filename);
 	if (out)
 	{
 		out << "#x,y,water,owner,id,distance\n"; 

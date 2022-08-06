@@ -3580,11 +3580,11 @@ void CvGlobals::calcGameDataHash()
 	HashGameDataCombine(m_gameDataHash, writeWord, m_pContracts->GetContractEntries());
 }
 
-const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eRefBuilding) const
+const std::vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eRefBuilding) const
 {
-	static vector<BuildingTypes> emptyResult;
+	static std::vector<BuildingTypes> emptyResult;
 
-	map<BuildingTypes, vector<BuildingTypes>>::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
+	std::map<BuildingTypes, std::vector<BuildingTypes>>::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
 	if (it != m_buildingInteractionLookup.end())
 		return it->second;
 	else
@@ -4345,7 +4345,7 @@ bool CvGlobals::GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, 
 	{
 		if(!pkPlot->isWater())
 		{
-			const int iValue = GC.getGame().GetStartSiteEvaluator()->PlotFoundValue(pkPlot, NULL, vector<int>());
+			const int iValue = GC.getGame().GetStartSiteEvaluator()->PlotFoundValue(pkPlot, NULL, std::vector<int>());
 			sprintf_s(szBuffer, uiBufferLength, "%d", iValue);
 		}
 	}

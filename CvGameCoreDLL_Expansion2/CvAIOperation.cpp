@@ -417,10 +417,10 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
 
 	ReachablePlots turnsFromMuster; //empty is ok
-	vector<size_t> freeSlots = pThisArmy->GetOpenSlots(false);
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
+	std::vector<size_t> freeSlots = pThisArmy->GetOpenSlots(false);
+	std::vector<std::pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
 	for (size_t i = 0; i < freeSlots.size(); i++)
-		freeSlotInfo.push_back( make_pair(freeSlots[i],pThisArmy->GetSlotInfo(freeSlots[i])) );
+		freeSlotInfo.push_back( std::make_pair(freeSlots[i],pThisArmy->GetSlotInfo(freeSlots[i])) );
 
 	int iIndex = OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit, turnsFromMuster, pTargetPlot, IsNavalOperation(), bOcean, freeSlotInfo);
 	if (iIndex>=0)
@@ -448,14 +448,14 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	if (!pMusterPlot || !pTargetPlot || pArmy == NULL)
 		return -1;
 
-	vector<size_t> freeSlots = pArmy->GetOpenSlots(false);
+	std::vector<size_t> freeSlots = pArmy->GetOpenSlots(false);
 	//anything to do?
 	if (freeSlots.empty())
 		return 0;
 
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
+	std::vector<std::pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
 	for (size_t i = 0; i < freeSlots.size(); i++)
-		freeSlotInfo.push_back( make_pair(freeSlots[i],pArmy->GetSlotInfo(freeSlots[i])) );
+		freeSlotInfo.push_back( std::make_pair(freeSlots[i],pArmy->GetSlotInfo(freeSlots[i])) );
 
 	//simple heuristic
 	bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
@@ -466,7 +466,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-	vector<OptionWithScore<int>> choices;
+	std::vector<OptionWithScore<int>> choices;
 	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
@@ -762,7 +762,7 @@ bool CvAIOperation::Move()
 		float fNewVarX, fNewVarY;
 		//center of mass should be moving
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
-		if (pNewCOM == pOldCOM && fNewVarX >= max(5.f, fOldVarX) && fNewVarY >= max(5.f, fOldVarY))
+		if (pNewCOM == pOldCOM && fNewVarX >= std::max(5.f, fOldVarX) && fNewVarY >= std::max(5.f, fOldVarY))
 		{
 			OutputDebugString(CvString::format("Warning: Operation %d with army at (%d,%d) not making movement progress!\n", m_iID, pNewCOM->getX(), pNewCOM->getY()).c_str());
 		}
@@ -1327,7 +1327,7 @@ CvArmyAI* CvAIOperation::AddArmy(MultiunitFormationTypes eFormation)
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices)
+bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, std::vector<OptionWithScore<int>>& choices)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 	CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -2257,7 +2257,7 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-	vector<CvCity*> coastCities = GET_PLAYER(m_eOwner).GetThreatenedCities(true);
+	std::vector<CvCity*> coastCities = GET_PLAYER(m_eOwner).GetThreatenedCities(true);
 	for (size_t i = 0; i < coastCities.size() && i < 3; i++)
 	{
 		if (!pCurrent)
@@ -2308,7 +2308,7 @@ void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 	//now where should we go
 	CvPlot* pBestTarget = NULL;
 	CvPlot* pBestMuster = NULL;
-	set<int> vTargetZones = GetPossibleDeploymentZones();
+	std::set<int> vTargetZones = GetPossibleDeploymentZones();
 
 	//peacetime
 	if (vTargetZones.empty())
@@ -2325,7 +2325,7 @@ void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 		//take the deployment zone that is closest to home
 		int iClosestDistance = INT_MAX;
 		CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
-		for (set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
+		for (std::set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
 		{
 			CvTacticalDominanceZone* pTargetZone = pTactMap->GetZoneByID(*it);
 			CvPlot* pCenterPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
@@ -2367,12 +2367,12 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 	CvPlot* pNewTarget = NULL;
 
 	//this includes the zone we are currently targeting
-	set<int> vTargetZones = GetPossibleDeploymentZones();
+	std::set<int> vTargetZones = GetPossibleDeploymentZones();
 
 	//take the one that is closest to us
 	int iClosestDistance = INT_MAX;
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
-	for (set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
+	for (std::set<int>::const_iterator it = vTargetZones.begin(); it != vTargetZones.end(); ++it)
 	{
 		CvTacticalDominanceZone* pTargetZone = pTactMap->GetZoneByID(*it);
 		CvPlot* pCenterPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
@@ -2404,9 +2404,9 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 	return NO_ABORT_REASON;
 }
 
-set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
+std::set<int> CvAIOperationCarrierGroup::GetPossibleDeploymentZones() const
 {
-	set<int> vTargetZones;
+	std::set<int> vTargetZones;
 
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(m_eOwner).GetTacticalAI()->GetTacticalAnalysisMap();
 	for (int iI = 0; iI < pTactMap->GetNumZones(); iI++)
@@ -2473,7 +2473,7 @@ void CvAIOperationCityAttackNaval::Init(CvCity* pTarget, CvCity* pMuster)
 {
 	if(pTarget == NULL || !pTarget->isCoastal())
 	{
-		pair<CvCity*,CvCity*> mustertarget = OperationalAIHelpers::GetClosestCoastalCityPair(m_eOwner,m_eEnemy);
+		std::pair<CvCity*,CvCity*> mustertarget = OperationalAIHelpers::GetClosestCoastalCityPair(m_eOwner,m_eEnemy);
 		if(mustertarget.first != NULL)
 		{
 			pMuster = mustertarget.first;
@@ -2626,7 +2626,7 @@ bool CvAIOperationNukeAttack::CheckTransitionToNextStage()
 			if(pNuke && pNuke->canMove() && pNuke->canNukeAt(pNuke->plot(),pTargetPlot->getX(),pTargetPlot->getY()))
 			{
 				//try to save any units we have nearby
-				int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
+				int iBlastRadius = std::min(5,std::max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
 				for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 				{
 					CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot,i);
@@ -2713,7 +2713,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 			int iThisCityValue = 0;
 
 			// check to see if there is anything good or bad in the radius that we should account for
-			int iBlastRadius = min(5,max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
+			int iBlastRadius = std::min(5,std::max(1,/*2*/ GD_INT_GET(NUKE_BLAST_RADIUS)));
 			for (int i=0; i<RING_PLOTS[iBlastRadius]; i++)
 			{
 				CvPlot* pLoopPlot = iterateRingPlots(pCityPlot,i);
@@ -2847,7 +2847,7 @@ AIOperationAbortReason CvAIOperationNukeAttack::VerifyOrAdjustTarget(CvArmyAI* /
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>&)
+bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, std::vector<OptionWithScore<int>>&)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 
@@ -3148,7 +3148,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 	return false;
 }
 
-int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots)
+int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget, bool bMustEmbark, bool bMustBeDeepWaterNaval, const std::vector<std::pair<size_t,CvFormationSlotEntry>>& availableSlots)
 {
 	//otherwise engaged?
 	if (!pLoopUnit->canUseForAIOperation())
@@ -3295,11 +3295,11 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 			continue;
 
 		//a single unit is too volatile, check for a whole cluster
-		pair<int,int> localPower = pLoopPlot->GetLocalUnitPower(ePlayer,2,true);
+		std::pair<int,int> localPower = pLoopPlot->GetLocalUnitPower(ePlayer,2,true);
 
 		//we don't want to adjust our target too much
 		int iDistance = pRefPlot ? plotDistance(*pRefPlot,*pLoopPlot) : 0;
-		int iEnemyPower = localPower.second * MapToPercent(iDistance,max(iMaxDistance,3),3);
+		int iEnemyPower = localPower.second * MapToPercent(iDistance,std::max(iMaxDistance,3),3);
 
 		if(iEnemyPower > iMaxEnemyPower)
 		{
@@ -3339,9 +3339,9 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 }
 
 /// Find our port operation operations against this enemy should leave from
-pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB)
+std::pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB)
 {
-	pair<CvCity*, CvCity*> result(NULL, NULL);
+	std::pair<CvCity*, CvCity*> result(NULL, NULL);
 	if (ePlayerA==NO_PLAYER || ePlayerB==NO_PLAYER)
 		return result;
 
@@ -3368,7 +3368,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 						if(iDistance>0 && iDistance<iBestDistance)
 						{
 							iBestDistance = iDistance;
-							result = make_pair(pLoopCityA,pLoopCityB);
+							result = std::make_pair(pLoopCityA,pLoopCityB);
 						}
 					}
 				}
@@ -3444,12 +3444,12 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 	//we check existance of suitable target in subclassed implementations
 
 	//use all slots, not only required slots
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlots;
-	vector<CvArmyFormationSlot> fakeStatus;
+	std::vector<std::pair<size_t,CvFormationSlotEntry>> freeSlots;
+	std::vector<CvArmyFormationSlot> fakeStatus;
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(OperationalAIHelpers::GetArmyFormationForOpType(m_eType));
 	for (size_t i = 0; i < thisFormation->getNumFormationSlotEntries(); i++)
 	{
-		freeSlots.push_back( make_pair(i, thisFormation->getFormationSlotEntry(i)) );
+		freeSlots.push_back( std::make_pair(i, thisFormation->getFormationSlotEntry(i)) );
 		fakeStatus.push_back( CvArmyFormationSlot(-1,thisFormation->getFormationSlotEntry(i).m_requiredSlot) );
 	}
 

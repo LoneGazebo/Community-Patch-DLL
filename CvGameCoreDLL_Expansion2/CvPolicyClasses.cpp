@@ -4653,11 +4653,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 	//remember the value for next time
 	if (eType == POLICYMOD_EXTRA_HAPPINESS)
 	{
-		currentHappinessModifier = make_pair(GC.getGame().getGameTurn(), rtnValue);
+		currentHappinessModifier = std::make_pair(GC.getGame().getGameTurn(), rtnValue);
 	}
 	else if (eType == POLICYMOD_EXTRA_HAPPINESS_PER_CITY)
 	{
-		currentHappinessModifierPerCity = make_pair(GC.getGame().getGameTurn(), rtnValue);
+		currentHappinessModifierPerCity = std::make_pair(GC.getGame().getGameTurn(), rtnValue);
 	}
 	else
 	{
@@ -4669,8 +4669,8 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerPolicies::ClearCache()
 {
-	currentHappinessModifier = make_pair(0, 0);
-	currentHappinessModifierPerCity = make_pair(0, 0);
+	currentHappinessModifier = std::make_pair(0, 0);
+	currentHappinessModifierPerCity = std::make_pair(0, 0);
 	mModifierLookup.clear();
 }
 #endif
@@ -5038,7 +5038,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 					}
 				}
 			}
-			iCost *= 100 - (iHigherPoliciesCount * GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod() * GC.getGame().getCurrentEra()) / max(1, iPossibleHigherCount);
+			iCost *= 100 - (iHigherPoliciesCount * GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod() * GC.getGame().getCurrentEra()) / std::max(1, iPossibleHigherCount);
 			iCost /= 100;
 		}
 	}
@@ -5726,7 +5726,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 #endif
 
 	int iOldBranchTenets = GetNumPoliciesOwnedInBranch(eOldBranchType);
-	int iNewBranchTenets = max(0, iOldBranchTenets - /*2 in CP, 5 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_TENETS_LOST));
+	int iNewBranchTenets = std::max(0, iOldBranchTenets - /*2 in CP, 5 in VP*/ GD_INT_GET(SWITCH_POLICY_BRANCHES_TENETS_LOST));
 
 	ClearPolicyBranch(eOldBranchType);
 	SetPolicyBranchUnlocked(eOldBranchType, false, false);

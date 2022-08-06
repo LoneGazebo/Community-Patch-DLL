@@ -4806,7 +4806,7 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 			NotifyNewBuildingStarted(eIndex);
 		}
 
-		m_paiBuildingProduction[eIndex] = max(0,iNewValue);
+		m_paiBuildingProduction[eIndex] = std::max(0,iNewValue);
 		CvAssert(GetBuildingProductionTimes100(eIndex) >= 0);
 
 		if((m_pCity->getOwner() == GC.getGame().getActivePlayer()) && m_pCity->isCitySelected())

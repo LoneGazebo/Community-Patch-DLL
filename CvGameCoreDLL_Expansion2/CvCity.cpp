@@ -112,9 +112,9 @@ namespace FSerialization
 
 //helper function for managing extra yields
 template <typename T>
-bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int value, bool modifyExisting)
+bool ModifierUpdateInsertRemove(std::vector<std::pair<T, int>>& container, T key, int value, bool modifyExisting)
 {
-	for (typename vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
+	for (typename std::vector<std::pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
 	{
 		if (it->first == key)
 		{
@@ -141,7 +141,7 @@ bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int valu
 	//if we're here we don't have an entry yet
 	if (value != 0)
 	{
-		container.push_back(make_pair(key, value));
+		container.push_back(std::make_pair(key, value));
 		return true; //update was made
 	}
 
@@ -149,9 +149,9 @@ bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int valu
 }
 
 template <typename T>
-int ModifierLookup(const vector<pair<T, int>>& container, T key)
+int ModifierLookup(const std::vector<std::pair<T, int>>& container, T key)
 {
-	for (typename vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
+	for (typename std::vector<std::pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
 		if (it->first == key)
 			return it->second;
 
@@ -590,7 +590,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #endif
 
 	//clear the first ring
-	int iRange = min(1, /*1*/ GD_INT_GET(CITY_STARTING_RINGS));
+	int iRange = std::min(1, /*1*/ GD_INT_GET(CITY_STARTING_RINGS));
 	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for (int iDY = -iRange; iDY <= iRange; iDY++)
@@ -1893,9 +1893,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_ppiGreatPersonProgressFromConstruction.clear();
 #endif
 
-	m_yieldChanges = vector<SCityExtraYields>(NUM_YIELD_TYPES);
-	m_eventYields = vector<SCityEventYields>(NUM_YIELD_TYPES);
-	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
+	m_yieldChanges = std::vector<SCityExtraYields>(NUM_YIELD_TYPES);
+	m_eventYields = std::vector<SCityEventYields>(NUM_YIELD_TYPES);
+	m_GwYieldCache = std::vector<int>(NUM_YIELD_TYPES, -1);
 
 	if (!bConstructorCall)
 	{
@@ -2349,7 +2349,7 @@ CvPlayer* CvCity::GetPlayer() const
 void CvCity::ResetGreatWorkYieldCache()
 {
 	//reset the cache
-	m_GwYieldCache = vector<int>(NUM_YIELD_TYPES, -1);
+	m_GwYieldCache = std::vector<int>(NUM_YIELD_TYPES, -1);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3117,7 +3117,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 		return;
 	}
 
-	int iCities = max(1, kPlayer.GetNumRealCities());
+	int iCities = std::max(1, kPlayer.GetNumRealCities());
 	int iRemainder = kPlayer.GetUnhappiness() % iCities;
 	int iUnappiness = kPlayer.GetUnhappiness() / iCities;
 
@@ -6442,7 +6442,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iEventDuration = pkEventChoiceInfo->getEventDuration();
 					iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 					iEventDuration /= 100;
-					ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
+					ChangeEventChoiceDuration(eEventChoice, std::max(1, iEventDuration));
 				}
 			}
 
@@ -6676,7 +6676,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
 				if (iNumTechsWeDontHave > 0)
 				{
-					for (int i = 0; i < min(pkEventChoiceInfo->getStealTech(), iNumTechsWeDontHave); i++)
+					for (int i = 0; i < std::min(pkEventChoiceInfo->getStealTech(), iNumTechsWeDontHave); i++)
 					{
 						GET_PLAYER(eSpyOwner).GetEspionage()->DoStealTechnology(getOwner());
 					}
@@ -6693,7 +6693,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
 				if (GWIDs.size() > 0)
 				{
-					int iMinLoop = min(pkEventChoiceInfo->getForgeGW(), (int)GWIDs.size());
+					int iMinLoop = std::min(pkEventChoiceInfo->getForgeGW(), (int)GWIDs.size());
 					while (iMinLoop > 0)
 					{
 						int iGrab = GC.getGame().getSmallFakeRandNum(iMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed() + GWIDs[0] + GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold());
@@ -7309,14 +7309,14 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				int iTurns = pkEventChoiceInfo->getResistanceTurns();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
-				ChangeResistanceTurns(max(1, iTurns));
+				ChangeResistanceTurns(std::max(1, iTurns));
 			}
 			if (pkEventChoiceInfo->getWLTKD() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getWLTKD();
 				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iTurns /= 100;
-				ChangeWeLoveTheKingDayCounter(max(1, iTurns));
+				ChangeWeLoveTheKingDayCounter(std::max(1, iTurns));
 			}
 			if (pkEventChoiceInfo->getCityHappiness() != 0)
 			{
@@ -9115,7 +9115,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 
 #if defined(MOD_BALANCE_CORE)
 	//Check for uniques of the same type.
-	vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+	std::vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(allBuildings[iI]);
@@ -9703,11 +9703,11 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 		//unimproved is just here for the cache.
 		if (bUnimproved)
 		{
-			m_paiNumUnimprovedResourcesLocal[eResource] = max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
+			m_paiNumUnimprovedResourcesLocal[eResource] = std::max(0, m_paiNumUnimprovedResourcesLocal[eResource] + iChange);
 			return;
 		}
 		else
-			m_paiNumResourcesLocal[eResource] = max(0, m_paiNumResourcesLocal[eResource] + iChange);
+			m_paiNumResourcesLocal[eResource] = std::max(0, m_paiNumResourcesLocal[eResource] + iChange);
 
 		if (bOldHasResource != IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 		{
@@ -10207,7 +10207,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		return;
 
 	// Create the list of invalid Luxury Resources
-	set<ResourceTypes> localLuxuryResources;
+	std::set<ResourceTypes> localLuxuryResources;
 
 	// Loop through all Plots near this City to see if there's Luxuries we should invalidate
 	for (int iPlotLoop = 0; iPlotLoop < GetNumWorkablePlots(); iPlotLoop++)
@@ -10227,7 +10227,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	}
 
 	// Create list of valid Luxuries
-	vector<ResourceTypes> veValidLuxuryResources;
+	std::vector<ResourceTypes> veValidLuxuryResources;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -10724,7 +10724,7 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 #endif
 	}
 
-	vector<PromotionTypes> freePromotions = getFreePromotions();
+	std::vector<PromotionTypes> freePromotions = getFreePromotions();
 	for (size_t iI = 0; iI < freePromotions.size(); iI++)
 	{
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(freePromotions[iI]);
@@ -11486,7 +11486,7 @@ int CvCity::getProductionNeeded(UnitTypes eUnit) const
 #endif
 	}
 
-	return max(1, iNumProductionNeeded);
+	return std::max(1, iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11553,18 +11553,18 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 
 				// Investment checks when AmountComplete >= 50 moved here
 				int AmountComplete = GetCityBuildings()->GetBuildingProduction(eBuilding);
-				int AmountNeeded = max(1, iNumProductionNeeded);
+				int AmountNeeded = std::max(1, iNumProductionNeeded);
 				if (AmountComplete >= AmountNeeded)
 				{
 					int iProductionDifference = getProductionDifference(iNumProductionNeeded, AmountComplete, getProductionModifier(), false, false);
-					return max(AmountNeeded, AmountComplete - iProductionDifference); //allow one turn of overflow
+					return std::max(AmountNeeded, AmountComplete - iProductionDifference); //allow one turn of overflow
 				}
 			}
 #endif
 		}
 	}
 
-	return max(1, iNumProductionNeeded);
+	return std::max(1, iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11586,7 +11586,7 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
 		}
 	}
 
-	return max(1, iNumProductionNeeded);
+	return std::max(1, iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11595,7 +11595,7 @@ int CvCity::getProductionNeeded(SpecialistTypes eSpecialist) const
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eSpecialist);
 
-	return max(1, iNumProductionNeeded);
+	return std::max(1, iNumProductionNeeded);
 }
 
 //	--------------------------------------------------------------------------------
@@ -11900,7 +11900,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
+			int iTempMod = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -12243,7 +12243,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		else if (pkUnitInfo->IsFound())
 		{
 			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
+			int iTempMod = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
@@ -15034,7 +15034,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (iNumResourceTotal != 0)
 					{
 						// Find our unique resources
-						vector<ResourceTypes> vPossibleResources;
+						std::vector<ResourceTypes> vPossibleResources;
 						for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 						{
 							ResourceTypes eResource = (ResourceTypes)iResourceLoop;
@@ -16192,7 +16192,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						if (iVal <= 0)
 							iVal = 1;
 
-						int iTempMod = min(iVal, iReligionYieldMaxFollowers);
+						int iTempMod = std::min(iVal, iReligionYieldMaxFollowers);
 						iReligionYieldChange += iTempMod;
 					}
 				}
@@ -16200,7 +16200,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 				{
 					if (iReligionYieldMaxFollowers > 0)
 					{
-						int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+						int iTempMod = std::min(iFollowers, iReligionYieldMaxFollowers);
 						iReligionYieldChange += iTempMod;
 					}
 				}
@@ -16258,7 +16258,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 					ChangeBaseYieldRateFromReligion((YieldTypes)iYield, pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this));
 				}
 
-				vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+				std::vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 				for (size_t iI = 0; iI < allBuildings.size(); iI++)
 				{
 					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -16327,7 +16327,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
 						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetYieldChangeTradeRoute((YieldTypes)iYield);
 						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionYieldChange);
 
-						vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
+						std::vector<BuildingTypes> allBuildings = GetCityBuildings()->GetAllBuildingsHere();
 						for (size_t iI = 0; iI < allBuildings.size(); iI++)
 						{
 							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -17098,8 +17098,8 @@ int CvCity::foodConsumptionSpecialistTimes100() const
 #if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if (MOD_BALANCE_YIELD_SCALE_ERA)
 	{
-		iFoodPerSpec = max((int)GET_PLAYER(getOwner()).GetCurrentEra(), /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)) + 1;
-		iFoodPerSpec = min(iFoodPerSpec, 10) * 100;
+		iFoodPerSpec = std::max((int)GET_PLAYER(getOwner()).GetCurrentEra(), /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)) + 1;
+		iFoodPerSpec = std::min(iFoodPerSpec, 10) * 100;
 
 		iFoodPerSpec += GET_PLAYER(getOwner()).GetSpecialistFoodChange() * 100;
 
@@ -17152,17 +17152,17 @@ int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount() + iExtra;
 
-		int iPopulation = max(0, (getPopulation() - iSpecialists)); //guard against stupidity
+		int iPopulation = std::max(0, (getPopulation() - iSpecialists)); //guard against stupidity
 
 		int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
 
 		iFoodPerPop += GetAdditionalFood() * 100;
 		iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-		iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
+		iFoodPerPop = std::max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
 
 		int iNormalFood = iPopulation * iFoodPerPop;
 		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists);
-		return max(iNormalFood + iSpecialistFood, 100);
+		return std::max(iNormalFood + iSpecialistFood, 100);
 	}
 	else
 	{
@@ -17192,10 +17192,10 @@ int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 			{
 				iFoodChangePerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) - 100;
 			}
-			iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop; //can't reduce food consumption per citizen to less than 1
+			iNum += std::max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop; //can't reduce food consumption per citizen to less than 1
 		}
 
-		return max(iNum, 100);
+		return std::max(iNum, 100);
 	}
 }
 
@@ -18366,7 +18366,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 {
 	VALIDATE_OBJECT
 	//make sure this is valid
-	iNewValue = max(0, iNewValue);
+	iNewValue = std::max(0, iNewValue);
 
 	int iOldPopulation = getPopulation();
 	int iPopChange = iNewValue - iOldPopulation;
@@ -18992,7 +18992,7 @@ int CvCity::GetJONSCultureThreshold() const
 	int iModifier = GET_PLAYER(getOwner()).GetPlotCultureCostModifier() + m_iPlotCultureCostModifier + iReligionMod;
 	if (iModifier != 0)
 	{
-		iModifier = max(iModifier, /*-85*/ GD_INT_GET(CULTURE_PLOT_COST_MOD_MINIMUM));	// value cannot reduced by more than 85%
+		iModifier = std::max(iModifier, /*-85*/ GD_INT_GET(CULTURE_PLOT_COST_MOD_MINIMUM));	// value cannot reduced by more than 85%
 		iCultureThreshold *= (100 + iModifier);
 		iCultureThreshold /= 100;
 	}
@@ -19238,7 +19238,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 
 	if (isCapital() || !GET_PLAYER(m_eOwner).GetPlayerTraits()->IsCapitalOnly())
 	{
-		vector<ImprovementTypes> relevantTypes = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetImprovementTypesWithYieldChange();
+		std::vector<ImprovementTypes> relevantTypes = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetImprovementTypesWithYieldChange();
 		for (size_t i = 0; i < relevantTypes.size(); i++)
 		{
 			ImprovementTypes eImprovement = relevantTypes[i];
@@ -19286,7 +19286,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 			int iEra = GET_PLAYER(m_eOwner).GetCurrentEra();
 			int iChange = GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield);
 			if (iChange > 0)
-				iYield += (max(1, iEra) * GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GET_PLAYER(m_eOwner).GetTrade()->GetNumDifferentTradingPartners());
+				iYield += (std::max(1, iEra) * GET_PLAYER(m_eOwner).GetPlayerTraits()->GetYieldChangePerTradePartner(eYield) * GET_PLAYER(m_eOwner).GetTrade()->GetNumDifferentTradingPartners());
 		}
 	}
 #endif
@@ -20787,7 +20787,7 @@ void CvCity::setFoodTimes100(int iNewValue)
 
 	if (getFoodTimes100() != iNewValue)
 	{
-		m_iFood = max(0, iNewValue);
+		m_iFood = std::max(0, iNewValue);
 	}
 }
 
@@ -21297,7 +21297,7 @@ bool CvCity::DoRazingTurn()
 			int iRazeValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
 			iRazeValue += (getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
 			iRazeValue += (getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
-			iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
+			iRazeValue /= std::max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
 
 			// Does the owner have a bonus to war score accumulation?
 			iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
@@ -22080,7 +22080,7 @@ int CvCity::getUnhappinessAggregated() const
 		{
 			int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 
-			return getUnhappinessFromSpecialists(iSpecialists) + (getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD)));
+			return getUnhappinessFromSpecialists(iSpecialists) + (getPopulation() / std::max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD)));
 		}
 	}
 
@@ -22557,7 +22557,7 @@ int CvCity::getEmpireSizeMod() const
 	//-1 for capital
 	int iBase = (GET_PLAYER(getOwner()).getNumCities() - iNumPuppets - 1) * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_EMPIRE_MULTIPLIER);
 
-	iBase *= min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+	iBase *= std::min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 	iBase /= 100;
 
 	iBase += GetEmpireNeedsModifier() + GET_PLAYER(getOwner()).GetEmpireNeedsModifierGlobal();
@@ -22580,7 +22580,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 	}
 	else if (IsPuppet())
 	{
-		iPuppetUnhappy = getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
+		iPuppetUnhappy = getPopulation() / std::max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
 	}
 	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -22768,15 +22768,15 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 
 	/*Distress*/
 	if (iYieldDef >= iNeedDef)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", max(1.0f, iDefDef));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", std::max(1.0f, iDefDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS", iDefUnhappy, max(1.0f, iDefDef), getUnhappinessFromDefenseRaw() + iReductionDef, iReductionDef, GetMinYieldNeededToReduceUnhappiness(iYieldDef, iNeedDef, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS", iDefUnhappy, std::max(1.0f, iDefDef), getUnhappinessFromDefenseRaw() + iReductionDef, iReductionDef, GetMinYieldNeededToReduceUnhappiness(iYieldDef, iNeedDef, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER)));
 
 	/*Poverty*/
 	if (iYieldGold >= iNeedGold)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", max(1.0f, iGoldDef));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", std::max(1.0f, iGoldDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappy, max(1.0f, iGoldDef), getUnhappinessFromGoldRaw() + iReductionGold, iReductionGold, GetMinYieldNeededToReduceUnhappiness(iYieldGold, iNeedGold, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappy, std::max(1.0f, iGoldDef), getUnhappinessFromGoldRaw() + iReductionGold, iReductionGold, GetMinYieldNeededToReduceUnhappiness(iYieldGold, iNeedGold, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY)));
 
 	if (iConnectionUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappy);
@@ -22791,15 +22791,15 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 
 	/*Illiteracy*/
 	if (iYieldSci >= iNeedSci)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", max(1.0f, iSciDef));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", std::max(1.0f, iSciDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iSciUnhappy, max(1.0f, iSciDef), getUnhappinessFromScienceRaw() + iReductionScience, iReductionScience, GetMinYieldNeededToReduceUnhappiness(iYieldSci, iNeedSci, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iSciUnhappy, std::max(1.0f, iSciDef), getUnhappinessFromScienceRaw() + iReductionScience, iReductionScience, GetMinYieldNeededToReduceUnhappiness(iYieldSci, iNeedSci, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY)));
 
 	/*Boredom*/
 	if (iYieldCul >= iNeedCul)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", max(1.0f, iCulDef));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", std::max(1.0f, iCulDef));
 	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, max(1.0f, iCulDef), getUnhappinessFromCultureRaw() + iReductionCulture, iReductionCulture, GetMinYieldNeededToReduceUnhappiness(iYieldCul, iNeedCul, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM)));
+		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, std::max(1.0f, iCulDef), getUnhappinessFromCultureRaw() + iReductionCulture, iReductionCulture, GetMinYieldNeededToReduceUnhappiness(iYieldCul, iNeedCul, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM)));
 
 	if (iSpecialistUnhappy != 0)
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
@@ -22907,7 +22907,7 @@ float CvCity::GetMinYieldNeededToReduceUnhappiness(int iCreated, int iNeeded, in
 	if (fUnhappy <= 1.0f)
 		return (iTotal * iPop) / 100.0f;
 
-	fRemainder = max(.01f, fRemainder / 100.0f);
+	fRemainder = std::max(.01f, fRemainder / 100.0f);
 
 	float fNewFactor = fRemainder * iFactor;
 	fNewFactor += 0.1f;
@@ -22938,7 +22938,7 @@ float CvCity::GetMinYieldNeededToIncreaseUnhappiness(int iCreated, int iNeeded, 
 	if (fUnhappy <= 1.0f)
 		return (iTotal * iPop) / 100.0f;
 
-	fRemainder = max(.01f, fRemainder / 100.0f);
+	fRemainder = std::max(.01f, fRemainder / 100.0f);
 
 	float fNewFactor = fRemainder * iFactor;
 	fNewFactor += 0.1f;
@@ -22999,7 +22999,7 @@ int CvCity::getUnhappyCitizenCount() const
 {
 	VALIDATE_OBJECT
 	//if we have more happiness than pop, unhappiness is zero (not negative)
-	return max(0,getPopulation() - GetLocalHappiness());
+	return std::max(0,getPopulation() - GetLocalHappiness());
 }
 
 //	--------------------------------------------------------------------------------
@@ -23058,7 +23058,7 @@ int CvCity::getUnhappinessFromCultureRaw(int iLimit, int iPopMod, bool bForceGlo
 	if (iThreshold > iCityCulture)
 	{
 		iUnhappiness = iThreshold - iCityCulture;
-		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM));
+		iUnhappiness /= std::max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_CULTURE);
 		if (iReduction != 0)
@@ -23066,7 +23066,7 @@ int CvCity::getUnhappinessFromCultureRaw(int iLimit, int iPopMod, bool bForceGlo
 			iUnhappiness -= iReduction;
 			if (iUnhappiness < 0)
 				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
+			return std::min(iUnhappiness, iLimit);
 		}
 
 		return range(iUnhappiness, 1, iLimit);
@@ -23158,7 +23158,7 @@ int CvCity::getUnhappinessFromScienceRaw(int iLimit, int iPopMod, bool bForceGlo
 	if (iThreshold > iCityResearch)
 	{
 		iUnhappiness = iThreshold - iCityResearch;
-		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY));
+		iUnhappiness /= std::max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_SCIENCE);
 		if (iReduction != 0)
@@ -23166,7 +23166,7 @@ int CvCity::getUnhappinessFromScienceRaw(int iLimit, int iPopMod, bool bForceGlo
 			iUnhappiness -= iReduction;
 			if (iUnhappiness < 0)
 				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
+			return std::min(iUnhappiness, iLimit);
 		}
 
 		return range(iUnhappiness, 1, iLimit);
@@ -23254,7 +23254,7 @@ int CvCity::getUnhappinessFromDefenseRaw(int iLimit, int iPopMod, bool bForceGlo
 	if (iThreshold > iBuildingDefense)
 	{
 		iUnhappiness = iThreshold - iBuildingDefense;
-		iUnhappiness /= max(1, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER));
+		iUnhappiness /= std::max(1, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_PRODUCTION);
 		if (iReduction != 0)
@@ -23263,7 +23263,7 @@ int CvCity::getUnhappinessFromDefenseRaw(int iLimit, int iPopMod, bool bForceGlo
 			if (iUnhappiness < 0)
 				iUnhappiness = 0;
 
-			return min(iUnhappiness, iLimit);
+			return std::min(iUnhappiness, iLimit);
 		}
 
 		return range(iUnhappiness, 1, iLimit);
@@ -23345,7 +23345,7 @@ int CvCity::getUnhappinessFromGoldRaw(int iLimit, int iPopMod, bool bForceGlobal
 	if (iThreshold > iGold)
 	{
 		iUnhappiness = iThreshold - iGold;
-		iUnhappiness /= max(1, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY));
+		iUnhappiness /= std::max(1, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY));
 
 		int iReduction = GetFlatNeedsReduction(YIELD_GOLD);
 		if (iReduction != 0)
@@ -23353,7 +23353,7 @@ int CvCity::getUnhappinessFromGoldRaw(int iLimit, int iPopMod, bool bForceGlobal
 			iUnhappiness -= iReduction;
 			if (iUnhappiness < 0)
 				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
+			return std::min(iUnhappiness, iLimit);
 		}
 
 		return range(iUnhappiness, 1, iLimit);
@@ -23654,7 +23654,7 @@ int CvCity::getUnhappinessFromReligionRaw(int iLimit) const
 				if (fUnhappiness < 0)
 					fUnhappiness = 0;
 
-				return min((int)fUnhappiness, iLimit);
+				return std::min((int)fUnhappiness, iLimit);
 			}
 
 			return range((int)fUnhappiness, 0, iLimit);
@@ -24378,7 +24378,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				iPantheon = GC.getGame().GetGameReligions()->GetNumPantheonsCreated();
 				if (iPantheon > 0)
 				{
-					iPantheon = min(iPantheon, 8);
+					iPantheon = std::min(iPantheon, 8);
 
 					iPantheon *= iYield;
 					iPantheon /= 100;
@@ -24475,7 +24475,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				if (iNetGold > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
-					iNetGold = min((iNumFollowers / 2), (iNetGold / iYieldPerGPT));
+					iNetGold = std::min((iNumFollowers / 2), (iNetGold / iYieldPerGPT));
 					iYieldValue += iNetGold;
 				}
 			}
@@ -24487,7 +24487,7 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				if (iNetScience > 0)
 				{
 					int iNumFollowers = GetCityReligions()->GetNumFollowers(eReligion);
-					iNetScience = min((iNumFollowers / 2), (iNetScience / iYieldPerScience));
+					iNetScience = std::min((iNumFollowers / 2), (iNetScience / iYieldPerScience));
 
 					iYieldValue += iNetScience;
 				}
@@ -24670,13 +24670,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) != 0)
 	{
-		iTempMod = min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
+		iTempMod = std::min(20, (GET_PLAYER(getOwner()).getYieldModifierFromGreatWorks(eIndex) * GetCityBuildings()->GetNumGreatWorks()));
 		iModifier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
-		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
+		iTempMod = std::min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
 		iModifier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}
@@ -24734,7 +24734,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				if (iVal <= 0)
 					iVal = 1;
 
-				iTempMod = min(iMaxVal, iVal);
+				iTempMod = std::min(iMaxVal, iVal);
 				iModifier += iTempMod;
 				if (toolTipSink)
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
@@ -24746,7 +24746,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if (iReligionYieldMaxFollowers > 0)
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-				iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+				iTempMod = std::min(iFollowers, iReligionYieldMaxFollowers);
 				iModifier += iTempMod;
 				if (toolTipSink)
 					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
@@ -24978,12 +24978,12 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 		if (eIndex == YIELD_PRODUCTION)
 		{
 			iModifier = iUnhappy * /*-2*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY_PER_UNHAPPY);
-			iModifier = max(iModifier, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_PRODUCTION_PENALTY));
+			iModifier = std::max(iModifier, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_PRODUCTION_PENALTY));
 		}
 		else if (eIndex == YIELD_GOLD)
 		{
 			iModifier = iUnhappy * /*-2*/ GD_INT_GET(VERY_UNHAPPY_GOLD_PENALTY_PER_UNHAPPY);
-			iModifier = max(iModifier, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_GOLD_PENALTY));
+			iModifier = std::max(iModifier, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_GOLD_PENALTY));
 		}
 	}
 
@@ -26334,9 +26334,9 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
 
 	const SCityExtraYields& y = GetYieldChanges(eIndex);
-	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
+	for (std::vector<std::pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
 		iBaseYield += it->second;
-	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
+	for (std::vector<std::pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
 		iBaseYield += it->second;
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
@@ -27721,7 +27721,7 @@ void CvCity::setProjectProductionTimes100(ProjectTypes eIndex, int iNewValue)
 
 	if (getProjectProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiProjectProduction[eIndex] = max(0, iNewValue);
+		m_paiProjectProduction[eIndex] = std::max(0, iNewValue);
 		CvAssert(getProjectProductionTimes100(eIndex) >= 0);
 
 		if ((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -27886,7 +27886,7 @@ void CvCity::setUnitProductionTimes100(UnitTypes eIndex, int iNewValue)
 
 	if (getUnitProductionTimes100(eIndex) != iNewValue)
 	{
-		m_paiUnitProduction[eIndex] = max(0, iNewValue);
+		m_paiUnitProduction[eIndex] = std::max(0, iNewValue);
 		CvAssert(getUnitProductionTimes100(eIndex) >= 0);
 
 		if ((getOwner() == GC.getGame().getActivePlayer()) && isCitySelected())
@@ -27992,10 +27992,10 @@ int CvCity::getFreePromotionCount(PromotionTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-vector<PromotionTypes> CvCity::getFreePromotions() const
+std::vector<PromotionTypes> CvCity::getFreePromotions() const
 {
-	vector<PromotionTypes> result;
-	for (map<PromotionTypes, int>::const_iterator it = m_paiFreePromotionCount.begin(); it != m_paiFreePromotionCount.end(); ++it)
+	std::vector<PromotionTypes> result;
+	for (std::map<PromotionTypes, int>::const_iterator it = m_paiFreePromotionCount.begin(); it != m_paiFreePromotionCount.end(); ++it)
 		if (it->second > 0)
 			result.push_back(it->first);
 
@@ -28192,7 +28192,7 @@ void CvCity::updateStrengthValue()
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if (pGarrisonedUnit)
 	{
-		int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
+		int iStrengthFromGarrison = (std::max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
 
 		iStrengthValue += (iStrengthFromGarrison * 100);
 	}
@@ -28238,7 +28238,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 			if (pGarrisonedUnit)
 			{
-				int iStrengthFromGarrisonRaw = max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
+				int iStrengthFromGarrisonRaw = std::max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength());
 				int iStrengthFromGarrison = (iStrengthFromGarrisonRaw * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
 				iValue -= (iStrengthFromGarrison * 100);
 			}
@@ -28643,7 +28643,7 @@ bool CvCity::CanBuyAnyPlot(void)
 		}
 	}
 
-	vector<int> plots;
+	std::vector<int> plots;
 	GetBuyablePlotList(plots, true);
 	return !plots.empty();
 }
@@ -28668,7 +28668,7 @@ CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
 void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase, int nChoices)
 {
 	aiPlotList.clear();
-	std::vector< pair<int, int> > resultList;
+	std::vector< std::pair<int, int> > resultList;
 
 	CvPlot* pLoopPlot = NULL;
 	CvPlot* pThisPlot = plot();
@@ -29032,7 +29032,7 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	iCost /= 100;
 
 	// Now round so the number looks neat
-	int iDivisor = /*5*/ max(1, GD_INT_GET(PLOT_COST_APPEARANCE_DIVISOR));
+	int iDivisor = /*5*/ std::max(1, GD_INT_GET(PLOT_COST_APPEARANCE_DIVISOR));
 	iCost = (iCost + iDivisor / 2) / iDivisor;
 	iCost *= iDivisor;
 
@@ -29442,7 +29442,7 @@ int CvCity::GetBuyPlotScore(int& iBestX, int& iBestY)
 	VALIDATE_OBJECT
 	int iBestScore = -1;
 
-	vector<CvPlot*> validChoices;
+	std::vector<CvPlot*> validChoices;
 	for (int iI = 0; iI < GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
@@ -29673,7 +29673,7 @@ void CvCity::SetCheapestPlotInfluenceDistance(int iValue)
 /// What is the cheapest plot we can get
 void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 {
-	vector<int> plots;
+	std::vector<int> plots;
 	GetBuyablePlotList(plots, false);
 
 	if (!plots.empty())
@@ -30660,9 +30660,9 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && !pUnit->IsCivilianUnit())
 	{
-		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
+		int iCityDamagePercent = (100 * getDamage()) / std::max(1,GetMaxHitPoints());
 		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
-		pUnit->changeDamage( min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
+		pUnit->changeDamage( std::min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
 	}
 
 	addProductionExperience(pUnit, false, bIsPurchase);
@@ -31065,7 +31065,7 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot) co
 	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, plot()->GetPlotIndex() + GET_PLAYER(m_eOwner).getNumUnits());
 
 	//check city plot and adjacent plots
-	vector<CvPlot*> validChoices;
+	std::vector<CvPlot*> validChoices;
 	for (int i = 0; i < RING1_PLOTS; i++)
 	{
 		CvPlot* pPlot = iterateRingPlots(plot(), aiShuffle[iShuffleType][i]);
@@ -31283,7 +31283,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				int AmountComplete = GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
 				if (AmountComplete > 0)
 				{
-					int AmountNeeded = max(1, getProductionNeeded(eBuildingType));
+					int AmountNeeded = std::max(1, getProductionNeeded(eBuildingType));
 					AmountComplete /= AmountNeeded;
 
 					int iTotalDiscount = (GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
@@ -32217,7 +32217,7 @@ void CvCity::doGrowth()
 		else
 		{
 			int iFoodKept = (iFoodReqForGrowth * getMaxFoodKeptPercent()) / 100;
-			int iFoodStoreChange = max(0, iFoodReqForGrowth - iFoodKept);
+			int iFoodStoreChange = std::max(0, iFoodReqForGrowth - iFoodKept);
 
 			changeFood(-iFoodStoreChange);
 			changePopulation(1);
@@ -33582,7 +33582,7 @@ bool CvCity::CanRangeStrikeNow() const
 #endif
 
 	CvPlot* pPlot = plot();
-	for (int iRing=1; iRing<=min(5,iRange); iRing++)
+	for (int iRing=1; iRing<=std::min(5,iRange); iRing++)
 	{
 		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
 		{
@@ -33783,7 +33783,7 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 	CvUnit* pBestTarget = NULL;
 
 	CvPlot* pPlot = plot();
-	for (int iRing=1; iRing<=min(5,iRange); iRing++)
+	for (int iRing=1; iRing<=std::min(5,iRange); iRing++)
 	{
 		for (int i = RING_PLOTS[iRing-1]; i < RING_PLOTS[iRing]; i++)
 		{
@@ -34028,7 +34028,7 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 	return (iEnemyPower > iFriendlyPower);
 }
 
-bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
+bool CvCity::IsInDangerFromPlayers(std::vector<PlayerTypes>& vWarAllies) const
 {
 	if (vWarAllies.empty())
 		return false;
@@ -35460,7 +35460,7 @@ void CvCity::UpdateClosestFriendlyNeighbors()
 	std::stable_sort(allNeighbors.begin(), allNeighbors.end());
 
 	m_vClosestNeighbors.clear();
-	for (size_t i = 0; i < min<size_t>(6, allNeighbors.size()); i++)
+	for (size_t i = 0; i < std::min<size_t>(6, allNeighbors.size()); i++)
 		m_vClosestNeighbors.push_back(allNeighbors[i].city->GetID());
 }
 

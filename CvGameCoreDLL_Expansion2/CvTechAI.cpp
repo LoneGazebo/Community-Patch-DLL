@@ -163,7 +163,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// If total weight is above 0, choose one above a threshold
 	if(m_ResearchableTechs.GetTotalWeight() > 0)
 	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetTechNumOptions(), 1);
+		int iNumChoices = std::max(GC.getGame().getHandicapInfo().GetTechNumOptions(), 1);
 		if (pPlayer->isBarbarian())
 		{
 			rtnValue = (TechTypes)m_ResearchableTechs.GetElement(0);
@@ -295,7 +295,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		return;
 
 	// Loop through all prerequisites
-	vector<int> prereqTechs;
+	std::vector<int> prereqTechs;
 	for(int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
 		// Did we find a prereq?

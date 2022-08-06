@@ -84,8 +84,8 @@ public:
 
 private:
 
-	void LogGrandStrategies(const vector<int>& vGrandStrategyPriorities);
-	void LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer);
+	void LogGrandStrategies(const std::vector<int>& vGrandStrategyPriorities);
+	void LogGuessOtherPlayerGrandStrategy(const std::vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer);
 
 	CvPlayer* m_pPlayer;
 	CvAIGrandStrategyXMLEntries* m_pAIGrandStrategies;

@@ -215,10 +215,10 @@ void CustomMods::reloadCache() {
 }
 
 int CustomMods::getOption(const char* szOption, int defValue) {
-	return getOption(string(szOption), defValue);
+	return getOption(std::string(szOption), defValue);
 }
 
-int CustomMods::getOption(string sOption, int defValue) {
+int CustomMods::getOption(std::string sOption, int defValue) {
 	if (!m_bInit) {
 		const char* szBadPrefix = "MOD_";
 
@@ -270,7 +270,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 			}
 
 			CUSTOMLOG("%s: %s = %d", (bPrefixError ? "PREFIX ERROR" : "Cache"), szName, iValue);
-			m_options[string(szName)] = iValue;
+			m_options[std::string(szName)] = iValue;
 		}
 		MOD_OPT_CACHE(BALANCE_VP);
 		MOD_OPT_CACHE(ALTERNATIVE_DIFFICULTY);
@@ -572,7 +572,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 }
 
 int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue) {
-	return getOption(string(szCiv) + "_" + szName, getOption(szName, defValue));
+	return getOption(std::string(szCiv) + "_" + szName, getOption(szName, defValue));
 }
 
 void CheckSentinel(uint value)

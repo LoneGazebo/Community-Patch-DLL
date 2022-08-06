@@ -50,7 +50,7 @@ void CvDangerPlots::Init(PlayerTypes ePlayer, bool bAllocate)
 	if(bAllocate)
 	{
 		int iGridSize = GC.getMap().numPlots();
-		m_DangerPlots = vector<CvDangerPlotContents>(iGridSize);
+		m_DangerPlots = std::vector<CvDangerPlotContents>(iGridSize);
 		for(int i = 0; i < iGridSize; i++)
 		{
 			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
@@ -99,7 +99,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 		{
 			CvPlot* pMoveTile = GC.getMap().plotByIndexUnchecked(moveTile->iPlotIndex);
 			if (pLoopUnit->isNativeDomain(pMoveTile))
-				m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
+				m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 		}
 	}
 	else
@@ -112,7 +112,7 @@ bool CvDangerPlots::UpdateDangerSingleUnit(const CvUnit* pLoopUnit, bool bIgnore
 			{
 				AssignUnitDangerValue(pLoopUnit, pMoveTile);
 				if (!pMoveTile->isEnemyCity(*pLoopUnit)) //only melee units can move into enemy cities
-					m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
+					m_DangerPlots[moveTile->iPlotIndex].m_apCaptureUnits.push_back(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
 			}
 		}
 	}

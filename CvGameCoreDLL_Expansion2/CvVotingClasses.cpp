@@ -874,7 +874,7 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	if (!bChangeHost)
 	{
 		int iPlayerVotes = pLeague->CalculateStartingVotesForMember(eVoter);
-		iPercentOfPlayerVotes = (iVotes * 100) / max(iPlayerVotes, 1);
+		iPercentOfPlayerVotes = (iVotes * 100) / std::max(iPlayerVotes, 1);
 	}
 
 	return (iVotes * 100) / iTotalVotes;
@@ -911,14 +911,14 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
 	int iPlayerVotes = pLeague->CalculateStartingVotesForMember(eVoter);
-	iPercentOfPlayerVotes = (iVotes * 100) / max(iPlayerVotes, 1);
+	iPercentOfPlayerVotes = (iVotes * 100) / std::max(iPlayerVotes, 1);
 
 	return (iVotes * 100) / iTotalVotes;
 }
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 {
-	vector<PlayerTypes> v;
+	std::vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
 		if (it->iChoice == iChoice && std::find(v.begin(), v.end(), it->ePlayer) == v.end())
@@ -931,7 +931,7 @@ std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingAgainstChoice(int iChoice)
 {
-	vector<PlayerTypes> v;
+	std::vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
 		if (it->iChoice != iChoice && it->iChoice != LeagueHelpers::CHOICE_NONE && std::find(v.begin(), v.end(), it->ePlayer) == v.end())
@@ -4219,7 +4219,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		{
 			iGPTVotes = (iGPT / iVotesPerGPT);
 			//Capped at 1/4 # of minor civs ever in game.
-			int iCap = max(GC.getGame().GetNumMinorCivsEver(true) / 4, 1);
+			int iCap = std::max(GC.getGame().GetNumMinorCivsEver(true) / 4, 1);
 			if (iGPTVotes > iCap)
 			{
 				iGPTVotes = iCap;
@@ -5661,12 +5661,12 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 
 	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/ false);
 	ResolutionDecisionTypes eDecision = bEnact ? pInfo->GetVoterDecision() : RESOLUTION_DECISION_REPEAL;
-	vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
+	std::vector<int> vChoices = GetChoicesForDecision(eDecision, NO_PLAYER);
 
 	s = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
 
 	// Discover what choices we can of the other players
-	vector<pair<PlayerTypes, int>> vMemberOpinions;
+	std::vector<std::pair<PlayerTypes, int>> vMemberOpinions;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
 		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
@@ -5686,8 +5686,8 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	}
 
 	bool bYesNo = true;
-	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
-	vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
+	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceCommitments;
+	std::vector<LeagueHelpers::VoteOpinionIntrigueElement> vChoiceLeanings;
 	for (uint iChoiceIndex = 0; iChoiceIndex < vChoices.size(); iChoiceIndex++)
 	{
 		int iChoice = vChoices[iChoiceIndex];
@@ -5835,7 +5835,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 
 	// Display the score for each civ
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<std::pair<int, PlayerTypes>> vScores;
 	if (bEnact)
 	{
 		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -5871,7 +5871,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<std::pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
@@ -5956,7 +5956,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 {
 	CvString s = "";
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<std::pair<int, PlayerTypes>> vScores;
 
 
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -5973,7 +5973,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<std::pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
@@ -6058,7 +6058,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 {
 	CvString s = "";
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<std::pair<int, PlayerTypes>> vScores;
 
 	ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
 	for (ActiveResolutionList::iterator itRes = vActiveResolutions.begin(); itRes != vActiveResolutions.end(); ++itRes)
@@ -6081,7 +6081,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<std::pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
@@ -6484,11 +6484,11 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 	// Ongoing resolution effects
 	ReligionTypes eWorldReligion = NO_RELIGION;
 	PolicyBranchTypes eWorldIdeology = NO_POLICY_BRANCH_TYPE;
-	vector<PlayerTypes> veEmbargoedPlayers;
-	vector<ResourceTypes> veBannedResources;
+	std::vector<PlayerTypes> veEmbargoedPlayers;
+	std::vector<ResourceTypes> veBannedResources;
 	CvResolutionEffects effects;
-	vector<PlayerTypes> veOpenMinors;
-	vector<PlayerTypes> vePermanentMinors;
+	std::vector<PlayerTypes> veOpenMinors;
+	std::vector<PlayerTypes> vePermanentMinors;
 
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
 	{
@@ -7235,8 +7235,8 @@ void CvLeague::FinishSession()
 		}
 
 		PlayerTypes eProposer = it->GetProposalPlayer();
-		vector<PlayerTypes> vHelpedOutcome = it->GetRepealDecision()->GetPlayersVotingForChoice(it->GetRepealDecision()->GetDecision());
-		vector<PlayerTypes> vHarmedOutcome = it->GetRepealDecision()->GetPlayersVotingAgainstChoice(it->GetRepealDecision()->GetDecision());
+		std::vector<PlayerTypes> vHelpedOutcome = it->GetRepealDecision()->GetPlayersVotingForChoice(it->GetRepealDecision()->GetDecision());
+		std::vector<PlayerTypes> vHarmedOutcome = it->GetRepealDecision()->GetPlayersVotingAgainstChoice(it->GetRepealDecision()->GetDecision());
 
 		// This Repeal Proposal passed.
 		if (it->IsPassed(iTotalSessionVotes))
@@ -7580,8 +7580,8 @@ void CvLeague::FinishSession()
 		}
 
 		PlayerTypes eProposer = it->GetProposalPlayer();
-		vector<PlayerTypes> vHelpedOutcome = it->GetVoterDecision()->GetPlayersVotingForChoice(it->GetVoterDecision()->GetDecision());
-		vector<PlayerTypes> vHarmedOutcome = it->GetVoterDecision()->GetPlayersVotingAgainstChoice(it->GetVoterDecision()->GetDecision());
+		std::vector<PlayerTypes> vHelpedOutcome = it->GetVoterDecision()->GetPlayersVotingForChoice(it->GetVoterDecision()->GetDecision());
+		std::vector<PlayerTypes> vHarmedOutcome = it->GetVoterDecision()->GetPlayersVotingAgainstChoice(it->GetVoterDecision()->GetDecision());
 
 		// This Enact Proposal passed
 		if (it->IsPassed(iTotalSessionVotes))
@@ -8022,7 +8022,7 @@ void CvLeague::FinishSession()
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 			continue;
 
-		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+		std::vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
 	}
 }
@@ -8536,7 +8536,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
-						int iPercentCompleted = (int) ((float)GetProjectProgress(eProject) / max(1,GetProjectCost(eProject)) * 100);
+						int iPercentCompleted = (int) ((float)GetProjectProgress(eProject) / std::max(1,GetProjectCost(eProject)) * 100);
 						iPercentCompleted = MIN(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
@@ -8626,7 +8626,7 @@ void CvLeague::CheckProjectsProgress()
 				// How close is it?
 				else
 				{
-					int iPercentCompleted = (int) (((float)iTotal / max(1,iNeeded)) * 100);
+					int iPercentCompleted = (int) (((float)iTotal / std::max(1,iNeeded)) * 100);
 					iPercentCompleted = MIN(100, iPercentCompleted);
 
 					if (!it->bProgressWarningSent && iPercentCompleted >= /*33 in CP, 25 in CSD*/ GD_INT_GET(LEAGUE_PROJECT_PROGRESS_PERCENT_WARNING))
@@ -8680,7 +8680,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 	
 	// Which rewards do we get?
 	//antonjs: A switch statement in its natural habitat without break statements...a rare sight indeed
-	vector<LeagueProjectRewardTypes> veRewards;
+	std::vector<LeagueProjectRewardTypes> veRewards;
 	switch (eTier)
 	{
 	case CONTRIBUTION_TIER_3:
@@ -10677,7 +10677,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 
 	// Finally, consider a potentially decisive factor: voting history!
 	// This is intentionally powerful compared to other factors for three reasons: it grants the player more control over their diplomacy (fun/strategy), it takes a long time/major support to get to +10 (dedication), and it often requires sacrificing the player's preferred vote choices (tradeoff)
-	iAlignment += /*-10 to 10*/ pDiplo->GetVotingHistoryScore(ePlayer) / /*240*/ max((GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / GD_INT_GET(VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER)), 1);
+	iAlignment += /*-10 to 10*/ pDiplo->GetVotingHistoryScore(ePlayer) / /*240*/ std::max((GD_INT_GET(VOTING_HISTORY_SCORE_MAX) / GD_INT_GET(VOTING_HISTORY_SCORE_LEAGUE_ALIGNMENT_SCALER)), 1);
 
 	// DoF or Denounce
 	if (pDiplo->IsDenouncedPlayer(ePlayer) || pDiplo->IsDenouncedByPlayer(ePlayer))
@@ -10847,7 +10847,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		iAlignment -= pDiplo->GetNumCitiesCapturedBy(ePlayer);
 	}
 
-	int iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(ePlayer), (int)pDiplo->GetVictoryBlockLevel(ePlayer));
+	int iDisputeLevel = std::max((int)pDiplo->GetVictoryDisputeLevel(ePlayer), (int)pDiplo->GetVictoryBlockLevel(ePlayer));
 	if (iDisputeLevel > 0)
 	{
 		iAlignment -= iDisputeLevel;
@@ -11445,8 +11445,8 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 					int iWeight = vConsiderations.GetWeight(i);
 					int iReduction = iVotes - iV;
-					iReduction = iWeight / (max(1, iReduction));
-					iWeight = max(0, iWeight - iReduction);
+					iReduction = iWeight / (std::max(1, iReduction));
+					iWeight = std::max(0, iWeight - iReduction);
 					vConsiderations.SetWeight(i, iWeight);
 					break;
 				}
@@ -11788,11 +11788,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				
 			}
 		}
-		int iProductionMightPercent = (iOurProductionMight * 100) / max(1,iHighestProduction);
+		int iProductionMightPercent = (iOurProductionMight * 100) / std::max(1,iHighestProduction);
 		bool bCanGold = iProductionMightPercent >= 80;
 		if (bCanGold)
 		{
-			iPercentofWinning = 100 / (max(iHigherProductionCivs + 1, 1));
+			iPercentofWinning = 100 / (std::max(iHigherProductionCivs + 1, 1));
 		}
 		int iProjectCost = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetProjectCostPerPlayer(eProject);
 		bool bCanSilver = iProductionMightPercent >= 50 || iOurProductionMight * 100 > GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD) * iProjectCost;
@@ -11810,8 +11810,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			if (bCanSilver)
 			{
-				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost()) / (max(1, GetPlayer()->GetTotalJONSCulturePerTurn()));
-				iExtra += (70 * GC.getGame().getGameSpeedInfo().getCulturePercent())/(max(1, iTurnsForPolicy));
+				int iTurnsForPolicy = (GetPlayer()->getNextPolicyCost()) / (std::max(1, GetPlayer()->GetTotalJONSCulturePerTurn()));
+				iExtra += (70 * GC.getGame().getGameSpeedInfo().getCulturePercent())/(std::max(1, iTurnsForPolicy));
 			}
 			if (bCanBronze)
 			{
@@ -11846,7 +11846,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					if (iLowestPercent > 25)
 					{
-						iExtra += 100 * min(iLowestPercent - 25, 50);
+						iExtra += 100 * std::min(iLowestPercent - 25, 50);
 					}
 				}
 			}
@@ -11854,7 +11854,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (iLowestPercent <= 25)
 				{
-					iExtra += 40 * max(iLowestPercent - 25, -25);
+					iExtra += 40 * std::max(iLowestPercent - 25, -25);
 				}
 				iExtra -= 250;
 			}
@@ -11884,7 +11884,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			// Gives a percent we are above global mean techs
-			int iTechPercent = max(0,((iOurTechs * iTeams * 100) / max(1,iTotalTechs)) - 100);
+			int iTechPercent = std::max(0,((iOurTechs * iTeams * 100) / std::max(1,iTotalTechs)) - 100);
 
 			if (bCanGold)
 			{
@@ -11925,7 +11925,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 					}
 				}
-				int iSeaMightPercent = (iOurSeaMight * 100) / max(1,iHighestSeaMight);
+				int iSeaMightPercent = (iOurSeaMight * 100) / std::max(1,iHighestSeaMight);
 				iExtra += (iPercentofWinning * iSeaMightPercent) / 8;
 				iExtra += iPercentofWinning * 3;
 			}
@@ -11989,8 +11989,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 					}
 				}
-				int iMilitaryMightPercent = (iOurMilitaryMight * 100) / max(1,iHighestMilitaryMight);
-				iExtra += 20 * max(0,iMilitaryMightPercent - 50);
+				int iMilitaryMightPercent = (iOurMilitaryMight * 100) / std::max(1,iHighestMilitaryMight);
+				iExtra += 20 * std::max(0,iMilitaryMightPercent - 50);
 			}
 			if (bCanBronze)
 			{
@@ -12010,7 +12010,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (iNeededVotes > 0)
 				{
-					iVoteRatio = (iVotes * 100) / max(1,iNeededVotes);
+					iVoteRatio = (iVotes * 100) / std::max(1,iNeededVotes);
 					if (iVoteRatio >= 100)
 					{
 						iExtra += 10000;
@@ -12106,7 +12106,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTradeRouteDeficit = ((int)GetPlayer()->GetTrade()->GetNumTradeRoutesPossible()) - iPossibleRoutesAfter;
 		if (iTradeRouteDeficit > 0)
 		{
-			iExtra -= min(100 * iTradeRouteDeficit, 1000);
+			iExtra -= std::min(100 * iTradeRouteDeficit, 1000);
 		}
 		if (bForSelf)
 		{
@@ -12137,7 +12137,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iTradeDealValue += GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eLoopPlayer, true) * 100;
 					}
-					iTradeDealValue += min(400, GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false) / 10);
+					iTradeDealValue += std::min(400, GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eLoopPlayer, false) / 10);
 
 					if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) > CIV_OPINION_NEUTRAL)
 					{
@@ -12174,7 +12174,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iTradeDealValue += GC.getGame().GetGameTrade()->CountNumPlayerConnectionsToPlayer(GetPlayer()->GetID(), eTargetPlayer, true) * 75;
 				}
-				iTradeDealValue += min(500,GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false) / 5);
+				iTradeDealValue += std::min(500,GC.getGame().GetGameDeals().GetDealValueWithPlayer(GetPlayer()->GetID(), eTargetPlayer, false) / 5);
 
 				iExtra -= iTradeDealValue;
 			}
@@ -12256,9 +12256,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						}
 					}
 				}
-				iExtra += min(iWarmongerThreat * 150,750);
-				iExtra -= min(iWarStates * 100, 500);
-				iExtra -= min(iWarTargets * 100, 500);
+				iExtra += std::min(iWarmongerThreat * 150,750);
+				iExtra -= std::min(iWarStates * 100, 500);
+				iExtra -= std::min(iWarTargets * 100, 500);
 			}
 		}
 		int iCivs = 0;
@@ -12284,7 +12284,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 		// Gives a percent we are above or below global average might
-		int iMightPercent =  ((iOurMight * iCivs * 100) / max(1, iTotalMight)) - 100;
+		int iMightPercent =  ((iOurMight * iCivs * 100) / std::max(1, iTotalMight)) - 100;
 
 		iExtra -= (range(iMightPercent,-50,50) * iFactor) / 2;
 		iScore += iExtra;
@@ -12323,9 +12323,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 		}
-		iExtra -= min(iWarmongerThreat * 150, 750);
-		iExtra += min(iWarStates * 100, 500);
-		iExtra += min(iWarTargets * 100, 500);
+		iExtra -= std::min(iWarmongerThreat * 150, 750);
+		iExtra += std::min(iWarStates * 100, 500);
+		iExtra += std::min(iWarTargets * 100, 500);
 		iScore += iExtra;
 	}
 	if (pProposal->GetEffects()->iVassalMaintenanceGoldPercent != 0)
@@ -12357,7 +12357,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			else if (GetPlayer()->IsVassalOfSomeone())
 			{
 				TeamTypes eMasterTeam = GET_TEAM(GetPlayer()->getTeam()).GetMaster();
-				vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
+				std::vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
 
 				for (size_t i=0; i<vMasterTeam.size(); i++)
 				{
@@ -12475,7 +12475,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 		// Gives a percent we are above or below global mean techs
-		int iTechPercent = range(((iOurTechs * iTeams * 100) / max(1, iTotalTechs)) - 100, -10, 10);
+		int iTechPercent = range(((iOurTechs * iTeams * 100) / std::max(1, iTotalTechs)) - 100, -10, 10);
 		iExtra -= iTechPercent * 60;
 		iExtra += (range(iMostTechsKnown - iOurTechs, 0, 10) - 2) * 60;
 		if (iExtra > 0)
@@ -12609,7 +12609,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			// Holy City Tourism
 			const CvReligion* pkTargetReligion = GC.getGame().GetGameReligions()->GetReligion(eFoundedReligion, GetPlayer()->GetID());
-			int iHolyCityTourism = min(50000,pkTargetReligion->GetHolyCity()->GetBaseTourism());
+			int iHolyCityTourism = std::min(50000,pkTargetReligion->GetHolyCity()->GetBaseTourism());
 			if (!bCultureVictoryEnabled)
 			{
 				iHolyCityTourism /= 10;
@@ -12669,7 +12669,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				int iVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID(),true);
 				int iVotesNeeded = GC.getGame().GetVotesNeededForDiploVictory();
 				int iVoteRatio = iVotes * 100;
-				iVoteRatio /= max(1, iVotesNeeded);
+				iVoteRatio /= std::max(1, iVotesNeeded);
 				if (iVoteRatio >= 100)
 				{
 					iExtra += 10000;
@@ -12815,19 +12815,19 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
 				{
-					iExtra += 15 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); 
+					iExtra += 15 * std::max(0, GetPlayer()->ScoreDifferencePercent(1) - 40); 
 				}
 				else
 				{
 					if (bForSelf)
 					{
-						iExtra -= 15 * max(0, 30 - GetPlayer()->ScoreDifferencePercent(1));
+						iExtra -= 15 * std::max(0, 30 - GetPlayer()->ScoreDifferencePercent(1));
 					}
 				}
 				// can't have arts and science funding
 				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
 				{
-					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(2) - 40);
+					iExtra -= 8 * std::max(0, GetPlayer()->ScoreDifferencePercent(2) - 40);
 				}
 			}
 
@@ -12835,19 +12835,19 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (GetPlayer()->AidRankGeneric(2) != NO_PLAYER)
 				{ 
-					iExtra += 15 * max (0, GetPlayer()->ScoreDifferencePercent(2) - 40); 
+					iExtra += 15 * std::max(0, GetPlayer()->ScoreDifferencePercent(2) - 40); 
 				}
 				else
 				{
 					if (bForSelf)
 					{
-						iExtra -= 15 * max(0, 30 - GetPlayer()->ScoreDifferencePercent(2));
+						iExtra -= 15 * std::max(0, 30 - GetPlayer()->ScoreDifferencePercent(2));
 					}
 				}
 				// can't have arts and science funding
 				if (GetPlayer()->AidRankGeneric(1) != NO_PLAYER)
 				{
-					iExtra -= 8 * max(0, GetPlayer()->ScoreDifferencePercent(1) - 40);
+					iExtra -= 8 * std::max(0, GetPlayer()->ScoreDifferencePercent(1) - 40);
 				}
 			}
 		}
@@ -12930,7 +12930,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				if (eAlliedPlayer != NO_PLAYER && eAlliedPlayer != ePlayer)
 				{
 					int iAllyInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer);
-					iAllyDesire *= (iInfluence * 75) / max(1,iAllyInfluence);
+					iAllyDesire *= (iInfluence * 75) / std::max(1,iAllyInfluence);
 					iAllyDesire /= 100;
 				}
 			}
@@ -13078,7 +13078,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			// Gives a percent we are above or below global mean techs
-			int iTechPercent = ((iOurTechs * iTeams * 100) / max(1,iTotalTechs)) - 100;
+			int iTechPercent = ((iOurTechs * iTeams * 100) / std::max(1,iTotalTechs)) - 100;
 			if (iTechPercent > 0)
 			{
 				iExtra -= 75 * iTechPercent;
@@ -13087,7 +13087,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			{
 				if (bForSelf)
 				{
-					iExtra -= 75 * max(iTechPercent, -10);
+					iExtra -= 75 * std::max(iTechPercent, -10);
 				}
 			}
 		}
@@ -13183,13 +13183,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iLowestPercent = GetPlayer()->GetDiplomacyAI()->GetLowestTourismInfluence();
 			if (iLowestPercent > 25)
 			{
-				iExtra += 2 * iTourismChange * min(iLowestPercent - 25, 50);
+				iExtra += 2 * iTourismChange * std::min(iLowestPercent - 25, 50);
 			}
 			else
 			{
 				if (bForSelf)
 				{
-					iExtra += iTourismChange * max(iLowestPercent - 25, -25);
+					iExtra += iTourismChange * std::max(iLowestPercent - 25, -25);
 				}
 			}
 		}
@@ -13243,7 +13243,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			int iInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
 			PlayerTypes eAlliedPlayer = NO_PLAYER;
 			eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
-			int iInfluencePercent = range((iInfluence * 100) / max(1, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer)),0,100);
+			int iInfluencePercent = range((iInfluence * 100) / std::max(1, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer)),0,100);
 			if (bEnact)
 			{
 				if (ePlayer == eProposer)
@@ -13369,7 +13369,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iDiploScore -= 6;
 					}
-					iDisputeLevel = max((int)pDiplo->GetVictoryDisputeLevel(eLoopPlayer), (int)pDiplo->GetVictoryBlockLevel(eLoopPlayer));
+					iDisputeLevel = std::max((int)pDiplo->GetVictoryDisputeLevel(eLoopPlayer), (int)pDiplo->GetVictoryBlockLevel(eLoopPlayer));
 					if (iDisputeLevel > 0)
 					{
 						iDiploScore -= iDisputeLevel * 6;
@@ -13413,7 +13413,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 			iTotalDiploScore *= 16;
-			iTotalDiploScore /= max(1,10 + iNumCivs);
+			iTotalDiploScore /= std::max(1,10 + iNumCivs);
 			iScore += iTotalDiploScore;
 		}
 	}
@@ -13441,7 +13441,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	int iScore = 0;
 	int iOurVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
 	int iTheirVotes = pLeague->CalculateStartingVotesForMember(eChoicePlayer);
-	int iNeededVotes = max(1,GC.getGame().GetVotesNeededForDiploVictory());
+	int iNeededVotes = std::max(1,GC.getGame().GetVotesNeededForDiploVictory());
 	int iTheirPercent = (iTheirVotes * 100) / iNeededVotes;
 	int iOurPercent = (iOurVotes * 100) / iNeededVotes;
 	AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer, false);
@@ -13455,7 +13455,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 			iScore += 100000;
 			break;
 		case ALIGNMENT_SELF:
-			iScore += max((/*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + 30 * iOurPercent), 1);
+			iScore += std::max((/*1000*/ GD_INT_GET(AI_WORLD_LEADER_BASE_WEIGHT_SELF) + 30 * iOurPercent), 1);
 			break;
 		case ALIGNMENT_TEAMMATE:
 		case ALIGNMENT_LIBERATOR:

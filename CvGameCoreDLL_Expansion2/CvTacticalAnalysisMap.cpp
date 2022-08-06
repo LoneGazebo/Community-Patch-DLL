@@ -88,7 +88,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDom
 	else
 	{
 		//avoid overflow
-		int iRatio = int(0.5f + 100 * ( float(GetFriendlyRangedStrength()) / max(1u, GetEnemyRangedStrength())));
+		int iRatio = int(0.5f + 100 * ( float(GetFriendlyRangedStrength()) / std::max(1u, GetEnemyRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -110,7 +110,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetUnitCountDominanceFlag(int i
 	}
 	else
 	{
-		int iRatio = (GetTotalFriendlyUnitCount() * 100) / max(1, GetTotalEnemyUnitCount());
+		int iRatio = (GetTotalFriendlyUnitCount() * 100) / std::max(1, GetTotalEnemyUnitCount());
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -133,7 +133,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalRangedDominanceFlag(int
 	else
 	{
 		//avoid overflow
-		int iRatio = int(0.5f + 100 * ( float(GetFriendlyNavalRangedStrength()) / max(1u, GetEnemyNavalRangedStrength())));
+		int iRatio = int(0.5f + 100 * ( float(GetFriendlyNavalRangedStrength()) / std::max(1u, GetEnemyNavalRangedStrength())));
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -155,7 +155,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalUnitCountDominanceFlag(
 	}
 	else
 	{
-		int iRatio = (GetFriendlyNavalUnitCount() * 100) / max(1, GetEnemyNavalUnitCount());
+		int iRatio = (GetFriendlyNavalUnitCount() * 100) / std::max(1, GetEnemyNavalUnitCount());
 		if (iRatio > 100 + iDominancePercentage)
 		{
 			return TACTICAL_DOMINANCE_FRIENDLY;
@@ -237,7 +237,7 @@ void CvTacticalAnalysisMap::Reset(PlayerTypes ePlayer)
 	m_ePlayer = ePlayer;
 	m_iLastUpdate = -1;
 
-	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), -1 );
+	m_vPlotZoneID = std::vector<int>( GC.getMap().numPlots(), -1 );
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
 }
@@ -282,7 +282,7 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 		}
 
 		//try to take into account relative strength
-		iScore += (pNeighbor->GetTotalEnemyUnitCount() + pNeighbor->GetNeutralUnitCount()) / max(1,GetTotalFriendlyUnitCount());
+		iScore += (pNeighbor->GetTotalEnemyUnitCount() + pNeighbor->GetNeutralUnitCount()) / std::max(1,GetTotalFriendlyUnitCount());
 		
 		if (pNeighbor->GetTerritoryType() == TACTICAL_TERRITORY_NONE)
 			iScore += 1;
@@ -335,15 +335,15 @@ eTacticalDominanceFlags CvTacticalDominanceZone::SetOverallDominance(int iDomina
 		else
 		{
 			//default value is 70
-			int iDominancePercentageFriendly = max(10,iDominancePercentage); //cannot go below 10
-			int iDominancePercentageEnemy = min(90,iDominancePercentage); //cannot go above 100
+			int iDominancePercentageFriendly = std::max(10,iDominancePercentage); //cannot go below 10
+			int iDominancePercentageEnemy = std::min(90,iDominancePercentage); //cannot go above 100
 
 			//adjust the threshold if we're away from home
 			if (m_eTerritoryType == TACTICAL_TERRITORY_ENEMY)
 				iDominancePercentageFriendly += 30;
 
 			//a bit complex to make sure there is no overflow
-			int iRatio = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / max(1u, GetOverallEnemyStrength())));
+			int iRatio = int(0.5f + 100 * ( float(GetOverallFriendlyStrength()) / std::max(1u, GetOverallEnemyStrength())));
 			if (iRatio > 100 + iDominancePercentageFriendly)
 			{
 				m_eOverallDominanceFlag = TACTICAL_DOMINANCE_FRIENDLY;
@@ -453,7 +453,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 }
 
 //overwrite the posture based on specific conditions in neighbor zones
-eTacticalPosture CvTacticalDominanceZone::SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors)
+eTacticalPosture CvTacticalDominanceZone::SelectPostureMultiZone(std::vector<CvTacticalDominanceZone*> vNeighbors)
 {
 	for (size_t i = 0; i < vNeighbors.size(); i++)
 	{
@@ -604,7 +604,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 {
 	//important, set this first so that lookups don't get us into an infinite loop
 	m_iLastUpdate = GC.getGame().getGameTurn();
-	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), 0 );
+	m_vPlotZoneID = std::vector<int>( GC.getMap().numPlots(), 0 );
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
 
@@ -702,7 +702,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	int iNonCityBaseId = 100000; //should be safe
 	while (!nonCityZonePlots.empty())
 	{
-		vector<CvPlot*> stack;
+		std::vector<CvPlot*> stack;
 		stack.push_back(*nonCityZonePlots.begin());
 		nonCityZonePlots.erase(nonCityZonePlots.begin());
 
@@ -763,7 +763,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 
 	//performance optimization, create a visibility lookup table
 	int iGridSize = GC.getMap().numPlots();
-	vector<bool> visible(iGridSize, false);
+	std::vector<bool> visible(iGridSize, false);
 	for (int i = 0; i < iGridSize; i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
@@ -859,7 +859,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				//a little cheating for AI - invisible units still count with reduced strength
 				bool bReducedStrength = pLoopUnit->isEmbarked() || !visible[pPlot->GetPlotIndex()] || !bZoneTypeMatch;
 				//some units are extra interesting
-				bool bRangeBonus = (max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
+				bool bRangeBonus = (std::max(pLoopUnit->baseMoves(false), pLoopUnit->GetRange()) > 2);
 				bool bDistanceBonus = (iPlotDistance <= iCenterRadius);
 				//consider citadels ... they actually boost defensive strength but whatever
 				bool bIsInCitadel = TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner());
@@ -942,7 +942,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 	{
 		CvCity* pZoneCity = m_vDominanceZones[iI].GetZoneCity();
 		if (pZoneCity)
-			iMostValuableCity = max(iMostValuableCity, pZoneCity->getEconomicValue(m_ePlayer));
+			iMostValuableCity = std::max(iMostValuableCity, pZoneCity->getEconomicValue(m_ePlayer));
 	}
 
 	// Loop through the dominance zones
@@ -1087,8 +1087,8 @@ void CvTacticalAnalysisMap::UpdatePostures()
 	{
 		CvTacticalDominanceZone* pZone = &m_vDominanceZones[iI];
 		//need to look up the neighbors manually ...
-		vector<CvTacticalDominanceZone*> vNeighbors;
-		vector<int> vNeighborIds = pZone->GetNeighboringZones();
+		std::vector<CvTacticalDominanceZone*> vNeighbors;
+		std::vector<int> vNeighborIds = pZone->GetNeighboringZones();
 		for (size_t j = 0; j < vNeighborIds.size(); j++)
 			vNeighbors.push_back( GetZoneByID(vNeighborIds[j]) );
 
@@ -1204,7 +1204,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByID(int iID)
 {
 	RefreshIfOutdated();
 
-	map<int, int>::iterator it = m_IdLookup.find(iID);
+	std::map<int, int>::iterator it = m_IdLookup.find(iID);
 	if (it != m_IdLookup.end())
 		return GetZoneByIndex(it->second);
 

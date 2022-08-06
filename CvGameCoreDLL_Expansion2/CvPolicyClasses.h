@@ -1193,8 +1193,8 @@ private:
 	ModifierMap mModifierLookup;
 
 	//these are used so often, make an even faster cache
-	pair<int, int> currentHappinessModifier;
-	pair<int, int> currentHappinessModifierPerCity;
+	std::pair<int, int> currentHappinessModifier;
+	std::pair<int, int> currentHappinessModifierPerCity;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerPolicies&);

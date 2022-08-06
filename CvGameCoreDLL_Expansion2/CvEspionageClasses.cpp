@@ -1093,7 +1093,7 @@ void CvPlayerEspionage::ProcessSpySiphon(CvCity* pCity, int uiSpyIndex)
 	int iTotal = pCity->getYieldRate(pSpy->m_eSiphonYield, false);
 	int iSiphon = iTotal * pkEventChoiceInfo->getYieldSiphon(pSpy->m_eSiphonYield);
 	iSiphon /= 100;
-	pSpy->m_iYieldSiphon += max(1, iSiphon);
+	pSpy->m_iYieldSiphon += std::max(1, iSiphon);
 }
 void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 {
@@ -1776,9 +1776,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 			int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, NO_EVENT_CHOICE_CITY, false);
 
 			strSpyAtCity += "[NEWLINE]";
-			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH", max(0, iIdentifyChance));
+			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH", std::max(0, iIdentifyChance));
 			strSpyAtCity += "[NEWLINE]";
-			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL", max(0, iKillChance));
+			strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL", std::max(0, iKillChance));
 
 			if (pCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
 			{
@@ -1837,7 +1837,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 					}
 				}
 				//We're the only one here?
-				int iVoteChance = (iOurVotes * 100) / max(1, iTotalVotes);
+				int iVoteChance = (iOurVotes * 100) / std::max(1, iTotalVotes);
 
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_COUP_CHANCE", iCoupSuccessChance);
 				if (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly() == m_pPlayer->GetID())
@@ -3385,7 +3385,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 			int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 			int iFinalModifier = (iBaseYieldRate * (100 + iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iMyPoliciesEspionageModifier)) / 100;
 
-			int iResult = max(iFinalModifier, 1);
+			int iResult = std::max(iFinalModifier, 1);
 			if (iSpyIndex >= 0)
 			{
 				int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
@@ -3484,7 +3484,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 	case SPY_STATE_BUILDING_NETWORK:
 	{
 		int iTime = pCity->GetEspionageRanking() / 100;
-		return max(1, iTime);
+		return std::max(1, iTime);
 	}
 	break;
 	case SPY_STATE_SURVEILLANCE:
@@ -3541,7 +3541,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 						iTechCost /= 100;
 					}
 
-					iMaxTechCost = max(iMaxTechCost, iTechCost);
+					iMaxTechCost = std::max(iMaxTechCost, iTechCost);
 				}
 			}
 
@@ -3888,7 +3888,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	}
 
 	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
-	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
+	int iMyInfluence = std::max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
 
 	int iMaxChance = 100;
 
@@ -3954,7 +3954,7 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
 	}
 
 	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
-	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
+	int iMyInfluence = std::max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
 
 	int iMaxChance = 100;
 
@@ -4050,7 +4050,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 			if (aiNewInfluenceValueTimes100[ui] > 0)
 			{
 				int iNewInfluence = aiNewInfluenceValueTimes100[ui] - /*2000*/ (GD_INT_GET(ESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP) * 100);
-				iNewInfluence = max(iNewInfluence, 0);
+				iNewInfluence = std::max(iNewInfluence, 0);
 				aiNewInfluenceValueTimes100[ui] = iNewInfluence;
 
 				// Update diplomacy
@@ -4077,7 +4077,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	{
 		// reduce influence of player
 		// right now move the influence into a negative space
-		aiNewInfluenceValueTimes100[m_pPlayer->GetID()] = min(aiNewInfluenceValueTimes100[m_pPlayer->GetID()], -1000);
+		aiNewInfluenceValueTimes100[m_pPlayer->GetID()] = std::min(aiNewInfluenceValueTimes100[m_pPlayer->GetID()], -1000);
 		bAttemptSuccess = false;
 
 		// kill the spy
@@ -6631,7 +6631,7 @@ void CvEspionageAI::DoTurn()
 
 	if (GC.getLogging())
 	{
-		for (uint i = 0; i < min((uint)pEspionage->GetNumSpies(), (uint)aCityScores.size()); i++)
+		for (uint i = 0; i < std::min((uint)pEspionage->GetNumSpies(), (uint)aCityScores.size()); i++)
 		{
 			CvString strScore = "";
 			strScore.Format("Score: %d,", aCityScores[i].m_iScore);
@@ -6873,7 +6873,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
-	int iDesired = max(1, iNumPlayers / 4);
+	int iDesired = std::max(1, iNumPlayers / 4);
 	if (pDiploAI->IsGoingForDiploVictory())
 		iDesired *= 2;
 
@@ -7246,7 +7246,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
-	int iDesired = max(1, m_pPlayer->getNumCities() / 4);
+	int iDesired = std::max(1, m_pPlayer->getNumCities() / 4);
 	int iTotal = 0;
 
 	for (uint i = 0; i < (uint)aCityScores.size(); i++)
@@ -7404,7 +7404,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 					}
 
 					// count however much we've invested into the friendship toward maintaining the friendship
-					iModifier += min(25, (iFriendshipWithMinor / 25));
+					iModifier += std::min(25, (iFriendshipWithMinor / 25));
 				}
 
 				if (eApproach > CIV_APPROACH_HOSTILE)
@@ -7461,26 +7461,26 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				// if the minor is allied with someone else
 				if (pMinorCivAI->GetAlly() != NO_PLAYER)
 				{
-					iModifier += min(25, (iFriendshipWithMinor / 25));
+					iModifier += std::min(25, (iFriendshipWithMinor / 25));
 				}
 				else
 				{
 					// count however much we've invested into the friendship toward maintaining the friendship
-					iModifier += min(30, (iFriendshipWithMinor / 15));
+					iModifier += std::min(30, (iFriendshipWithMinor / 15));
 				}
 				break;
 			case PLAN_ATTACK_CS_TO_PREVENT_DEFEAT:
 				// attack the least protected cities
 				if (pMinorCivAI->IsAllies(eCurrentDiploThreat))
 				{
-					iModifier += min(40, pMinorCivAI->GetEffectiveFriendshipWithMajor(eCurrentDiploThreat)/25);
+					iModifier += std::min(40, pMinorCivAI->GetEffectiveFriendshipWithMajor(eCurrentDiploThreat)/25);
 				}
 				break;
 			case PLAN_DEFEND_CS_FOR_WIN:
 				// defend the least defended cities!
 				if (pMinorCivAI->IsAllies(eCurrentDiploThreat))
 				{
-					iModifier += min(40, pMinorCivAI->GetEffectiveFriendshipWithMajor(eCurrentDiploThreat) / 25);
+					iModifier += std::min(40, pMinorCivAI->GetEffectiveFriendshipWithMajor(eCurrentDiploThreat) / 25);
 				}
 			}
 
@@ -7495,7 +7495,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
-	int iDesired = max(1, GC.getGame().GetNumMinorCivsAlive() / 5);
+	int iDesired = std::max(1, GC.getGame().GetNumMinorCivsAlive() / 5);
 	if (pDiploAI->IsGoingForDiploVictory())
 		iDesired *= 2;
 

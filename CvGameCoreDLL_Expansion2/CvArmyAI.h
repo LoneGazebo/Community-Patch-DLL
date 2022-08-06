@@ -136,9 +136,9 @@ public:
 	size_t GetNumFormationEntries() const;
 	size_t GetNumSlotsFilled() const;
 	CvArmyFormationSlot* GetSlotStatus(size_t iSlotID) { return &m_FormationEntries[iSlotID]; }
-	const vector<CvArmyFormationSlot>& GetSlotStatus() const { return m_FormationEntries; }
+	const std::vector<CvArmyFormationSlot>& GetSlotStatus() const { return m_FormationEntries; }
 	CvFormationSlotEntry GetSlotInfo(size_t iSlotID) const;
-	vector<size_t> GetOpenSlots(bool bRequiredOnly) const;
+	std::vector<size_t> GetOpenSlots(bool bRequiredOnly) const;
 	DomainTypes GetDomainType() const;
 	void SetType(ArmyType eType);
 	ArmyType GetType() const;
@@ -173,7 +173,7 @@ protected:
 	ArmyType					m_eType;
 	MultiunitFormationTypes		m_eFormation;
 	ArmyAIState					m_eAIState;
-	vector<CvArmyFormationSlot> m_FormationEntries;
+	std::vector<CvArmyFormationSlot> m_FormationEntries;
 };
 
 FDataStream& operator<<(FDataStream&, const CvArmyAI&);
@@ -184,7 +184,7 @@ FDataStream& operator>>(FDataStream&, CvArmyFormationSlot&);
 
 namespace OperationalAIHelpers
 {
-	bool HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits);
+	bool HaveEnoughUnits(const std::vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits);
 }
 
 #endif

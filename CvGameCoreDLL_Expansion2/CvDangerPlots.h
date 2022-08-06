@@ -187,7 +187,7 @@ protected:
 	PlayerTypes m_ePlayer;
 	bool m_bDirty;
 	int m_iTurnSliceBuilt;
-	vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
+	std::vector<CvDangerPlotContents> m_DangerPlots; //not serialized!
 	UnitSet m_knownUnits;
 };
 

@@ -2795,7 +2795,7 @@ int CvReligionBeliefs::GetCityScalerLimiter(int iCap) const
 	if (iBiggestValue == 0)
 		return iCap;
 
-	return min(iCap, iBiggestValue);
+	return std::min(iCap, iBiggestValue);
 }
 
 int CvReligionBeliefs::GetFollowerScalerLimiter(int iCap) const
@@ -2818,7 +2818,7 @@ int CvReligionBeliefs::GetFollowerScalerLimiter(int iCap) const
 	if (iBiggestValue == 0)
 		return iCap;
 
-	return min(iCap, iBiggestValue);
+	return std::min(iCap, iBiggestValue);
 }
 
 EraTypes CvReligionBeliefs::GetObsoleteEra(PlayerTypes ePlayer, bool bHolyCityOnly) const
@@ -3915,7 +3915,7 @@ int CvReligionBeliefs::GetMaxYieldModifierPerFollowerPercent(int& iMaxVal, Yield
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;
-			iMaxVal = max(iMaxVal, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
+			iMaxVal = std::max(iMaxVal, pBeliefs->GetEntry(*it)->GetMaxYieldModifierPerFollower(eYieldType));
 		}
 	}
 

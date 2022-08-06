@@ -115,14 +115,14 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 	{
 		typedef std::tr1::unordered_map<std::string, GreatWorkArtifactClass*> LookupTable;
 		LookupTable kArtifactTypeLookupTable;
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_ANCIENT_RUIN"), &s_eARTIFACT_ANCIENT_RUIN));
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_BARBARIAN_CAMP"), &s_eARTIFACT_BARBARIAN_CAMP));
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_BATTLE_RANGED"), &s_eARTIFACT_BATTLE_RANGED));
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_BATTLE_MELEE"), &s_eARTIFACT_BATTLE_MELEE));
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_RAZED_CITY"), &s_eARTIFACT_RAZED_CITY));
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_WRITING"), &s_eARTIFACT_WRITING));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_ANCIENT_RUIN"), &s_eARTIFACT_ANCIENT_RUIN));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_BARBARIAN_CAMP"), &s_eARTIFACT_BARBARIAN_CAMP));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_BATTLE_RANGED"), &s_eARTIFACT_BATTLE_RANGED));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_BATTLE_MELEE"), &s_eARTIFACT_BATTLE_MELEE));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_RAZED_CITY"), &s_eARTIFACT_RAZED_CITY));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_WRITING"), &s_eARTIFACT_WRITING));
 #if defined(MOD_BALANCE_CORE)
-		kArtifactTypeLookupTable.insert(make_pair(std::string("ARTIFACT_SARCOPHAGUS"), &s_eARTIFACT_SARCOPHAGUS));
+		kArtifactTypeLookupTable.insert(std::make_pair(std::string("ARTIFACT_SARCOPHAGUS"), &s_eARTIFACT_SARCOPHAGUS));
 #endif
 
 		Database::Results kResults;
@@ -156,11 +156,11 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 	{
 		typedef std::tr1::unordered_map<std::string, GreatWorkSlotType*> LookupTable;
 		LookupTable kTypeLookupTable;
-		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_ART_ARTIFACT"), &s_eGREAT_WORK_SLOT_ART_ARTIFACT));
-		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_LITERATURE"), &s_eGREAT_WORK_SLOT_LITERATURE));
-		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_MUSIC"), &s_eGREAT_WORK_SLOT_MUSIC));
-		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_RELIC"), &s_eGREAT_WORK_SLOT_RELIC));
-		kTypeLookupTable.insert(make_pair(std::string("GREAT_WORK_SLOT_FILM"), &s_eGREAT_WORK_SLOT_FILM));
+		kTypeLookupTable.insert(std::make_pair(std::string("GREAT_WORK_SLOT_ART_ARTIFACT"), &s_eGREAT_WORK_SLOT_ART_ARTIFACT));
+		kTypeLookupTable.insert(std::make_pair(std::string("GREAT_WORK_SLOT_LITERATURE"), &s_eGREAT_WORK_SLOT_LITERATURE));
+		kTypeLookupTable.insert(std::make_pair(std::string("GREAT_WORK_SLOT_MUSIC"), &s_eGREAT_WORK_SLOT_MUSIC));
+		kTypeLookupTable.insert(std::make_pair(std::string("GREAT_WORK_SLOT_RELIC"), &s_eGREAT_WORK_SLOT_RELIC));
+		kTypeLookupTable.insert(std::make_pair(std::string("GREAT_WORK_SLOT_FILM"), &s_eGREAT_WORK_SLOT_FILM));
 
 		Database::Results kResults;
 		if(db.Execute(kResults, "SELECT Type, ID from GreatWorkSlots"))
@@ -193,66 +193,66 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 	{
 		typedef std::tr1::unordered_map<std::string, MissionTypes*> LookupTable;
 		LookupTable kMissionTypesLookupTable;
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_MOVE_TO"), &s_eMISSION_MOVE_TO));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ROUTE_TO"), &s_eMISSION_ROUTE_TO));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_MOVE_TO_UNIT"), &s_eMISSION_MOVE_TO_UNIT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SWAP_UNITS"), &s_eMISSION_SWAP_UNITS));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SKIP"), &s_eMISSION_SKIP));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SLEEP"), &s_eMISSION_SLEEP));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ALERT"), &s_eMISSION_ALERT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_FORTIFY"), &s_eMISSION_FORTIFY));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_GARRISON"), &s_eMISSION_GARRISON));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SET_UP_FOR_RANGED_ATTACK"), &s_eMISSION_SET_UP_FOR_RANGED_ATTACK));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_EMBARK"), &s_eMISSION_EMBARK));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_DISEMBARK"), &s_eMISSION_DISEMBARK));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIRPATROL"), &s_eMISSION_AIRPATROL));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_HEAL"), &s_eMISSION_HEAL));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIRLIFT"), &s_eMISSION_AIRLIFT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_NUKE"), &s_eMISSION_NUKE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_PARADROP"), &s_eMISSION_PARADROP));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIR_SWEEP"), &s_eMISSION_AIR_SWEEP));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_REBASE"), &s_eMISSION_REBASE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_RANGE_ATTACK"), &s_eMISSION_RANGE_ATTACK));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_PILLAGE"), &s_eMISSION_PILLAGE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_FOUND"), &s_eMISSION_FOUND));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_JOIN"), &s_eMISSION_JOIN));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CONSTRUCT"), &s_eMISSION_CONSTRUCT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_DISCOVER"), &s_eMISSION_DISCOVER));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_HURRY"), &s_eMISSION_HURRY));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_TRADE"), &s_eMISSION_TRADE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_BUY_CITY_STATE"), &s_eMISSION_BUY_CITY_STATE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_REPAIR_FLEET"), &s_eMISSION_REPAIR_FLEET));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SPACESHIP"), &s_eMISSION_SPACESHIP));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CULTURE_BOMB"), &s_eMISSION_CULTURE_BOMB));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_FOUND_RELIGION"), &s_eMISSION_FOUND_RELIGION));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_GOLDEN_AGE"), &s_eMISSION_GOLDEN_AGE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_BUILD"), &s_eMISSION_BUILD));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_LEAD"), &s_eMISSION_LEAD));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_DIE_ANIMATION"), &s_eMISSION_DIE_ANIMATION));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_BEGIN_COMBAT"), &s_eMISSION_BEGIN_COMBAT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_END_COMBAT"), &s_eMISSION_END_COMBAT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_AIRSTRIKE"), &s_eMISSION_AIRSTRIKE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SURRENDER"), &s_eMISSION_SURRENDER));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CAPTURED"), &s_eMISSION_CAPTURED));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_IDLE"), &s_eMISSION_IDLE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_DIE"), &s_eMISSION_DIE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_DAMAGE"), &s_eMISSION_DAMAGE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_MULTI_SELECT"), &s_eMISSION_MULTI_SELECT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_MULTI_DESELECT"), &s_eMISSION_MULTI_DESELECT));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_WAIT_FOR"), &s_eMISSION_WAIT_FOR));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SPREAD_RELIGION"), &s_eMISSION_SPREAD_RELIGION));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ENHANCE_RELIGION"), &s_eMISSION_ENHANCE_RELIGION));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_REMOVE_HERESY"), &s_eMISSION_REMOVE_HERESY));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ESTABLISH_TRADE_ROUTE"), &s_eMISSION_ESTABLISH_TRADE_ROUTE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_PLUNDER_TRADE_ROUTE"), &s_eMISSION_PLUNDER_TRADE_ROUTE));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CREATE_GREAT_WORK"), &s_eMISSION_GREAT_WORK));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CHANGE_TRADE_UNIT_HOME_CITY"), &s_eMISSION_CHANGE_TRADE_UNIT_HOME_CITY));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_SELL_EXOTIC_GOODS"), &s_eMISSION_SELL_EXOTIC_GOODS));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_GIVE_POLICIES"), &s_eMISSION_GIVE_POLICIES));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_ONE_SHOT_TOURISM"), &s_eMISSION_ONE_SHOT_TOURISM));
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_CHANGE_ADMIRAL_PORT"), &s_eMISSION_CHANGE_ADMIRAL_PORT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_MOVE_TO"), &s_eMISSION_MOVE_TO));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_ROUTE_TO"), &s_eMISSION_ROUTE_TO));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_MOVE_TO_UNIT"), &s_eMISSION_MOVE_TO_UNIT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SWAP_UNITS"), &s_eMISSION_SWAP_UNITS));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SKIP"), &s_eMISSION_SKIP));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SLEEP"), &s_eMISSION_SLEEP));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_ALERT"), &s_eMISSION_ALERT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_FORTIFY"), &s_eMISSION_FORTIFY));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_GARRISON"), &s_eMISSION_GARRISON));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SET_UP_FOR_RANGED_ATTACK"), &s_eMISSION_SET_UP_FOR_RANGED_ATTACK));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_EMBARK"), &s_eMISSION_EMBARK));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_DISEMBARK"), &s_eMISSION_DISEMBARK));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_AIRPATROL"), &s_eMISSION_AIRPATROL));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_HEAL"), &s_eMISSION_HEAL));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_AIRLIFT"), &s_eMISSION_AIRLIFT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_NUKE"), &s_eMISSION_NUKE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_PARADROP"), &s_eMISSION_PARADROP));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_AIR_SWEEP"), &s_eMISSION_AIR_SWEEP));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_REBASE"), &s_eMISSION_REBASE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_RANGE_ATTACK"), &s_eMISSION_RANGE_ATTACK));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_PILLAGE"), &s_eMISSION_PILLAGE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_FOUND"), &s_eMISSION_FOUND));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_JOIN"), &s_eMISSION_JOIN));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CONSTRUCT"), &s_eMISSION_CONSTRUCT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_DISCOVER"), &s_eMISSION_DISCOVER));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_HURRY"), &s_eMISSION_HURRY));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_TRADE"), &s_eMISSION_TRADE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_BUY_CITY_STATE"), &s_eMISSION_BUY_CITY_STATE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_REPAIR_FLEET"), &s_eMISSION_REPAIR_FLEET));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SPACESHIP"), &s_eMISSION_SPACESHIP));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CULTURE_BOMB"), &s_eMISSION_CULTURE_BOMB));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_FOUND_RELIGION"), &s_eMISSION_FOUND_RELIGION));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_GOLDEN_AGE"), &s_eMISSION_GOLDEN_AGE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_BUILD"), &s_eMISSION_BUILD));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_LEAD"), &s_eMISSION_LEAD));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_DIE_ANIMATION"), &s_eMISSION_DIE_ANIMATION));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_BEGIN_COMBAT"), &s_eMISSION_BEGIN_COMBAT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_END_COMBAT"), &s_eMISSION_END_COMBAT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_AIRSTRIKE"), &s_eMISSION_AIRSTRIKE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SURRENDER"), &s_eMISSION_SURRENDER));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CAPTURED"), &s_eMISSION_CAPTURED));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_IDLE"), &s_eMISSION_IDLE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_DIE"), &s_eMISSION_DIE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_DAMAGE"), &s_eMISSION_DAMAGE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_MULTI_SELECT"), &s_eMISSION_MULTI_SELECT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_MULTI_DESELECT"), &s_eMISSION_MULTI_DESELECT));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_WAIT_FOR"), &s_eMISSION_WAIT_FOR));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SPREAD_RELIGION"), &s_eMISSION_SPREAD_RELIGION));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_ENHANCE_RELIGION"), &s_eMISSION_ENHANCE_RELIGION));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_REMOVE_HERESY"), &s_eMISSION_REMOVE_HERESY));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_ESTABLISH_TRADE_ROUTE"), &s_eMISSION_ESTABLISH_TRADE_ROUTE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_PLUNDER_TRADE_ROUTE"), &s_eMISSION_PLUNDER_TRADE_ROUTE));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CREATE_GREAT_WORK"), &s_eMISSION_GREAT_WORK));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CHANGE_TRADE_UNIT_HOME_CITY"), &s_eMISSION_CHANGE_TRADE_UNIT_HOME_CITY));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_SELL_EXOTIC_GOODS"), &s_eMISSION_SELL_EXOTIC_GOODS));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_GIVE_POLICIES"), &s_eMISSION_GIVE_POLICIES));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_ONE_SHOT_TOURISM"), &s_eMISSION_ONE_SHOT_TOURISM));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_CHANGE_ADMIRAL_PORT"), &s_eMISSION_CHANGE_ADMIRAL_PORT));
 #if defined(MOD_BALANCE_CORE)
-		kMissionTypesLookupTable.insert(make_pair(std::string("MISSION_FREE_LUXURY"), &s_eMISSION_FREE_LUXURY));
+		kMissionTypesLookupTable.insert(std::make_pair(std::string("MISSION_FREE_LUXURY"), &s_eMISSION_FREE_LUXURY));
 #endif
 
 		Database::Results kResults;
@@ -267,7 +267,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 					(*it->second) = static_cast<MissionTypes>(kResults.GetInt(1));
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-					MissionNameLookup.insert( make_pair( (MissionTypes)kResults.GetInt(1),kResults.GetText(0) ) );
+					MissionNameLookup.insert( std::make_pair( (MissionTypes)kResults.GetInt(1),kResults.GetText(0) ) );
 #endif
 				}
 			}

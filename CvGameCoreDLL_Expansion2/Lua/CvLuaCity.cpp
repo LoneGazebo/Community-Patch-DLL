@@ -4101,7 +4101,7 @@ int CvLuaCity::lChangeFood(lua_State* L)
 int CvLuaCity::lGetFoodKept(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iFoodKept = (min(pkCity->getFood(),pkCity->growthThreshold())*pkCity->getMaxFoodKeptPercent()) / 100;
+	int iFoodKept = (std::min(pkCity->getFood(),pkCity->growthThreshold())*pkCity->getMaxFoodKeptPercent()) / 100;
 	lua_pushinteger(L, iFoodKept);
 	return 1;
 }
@@ -5188,7 +5188,7 @@ int CvLuaCity::lIsFreePromotion(lua_State* L)
 	PromotionTypes promo = CvLuaArgs::toValue<PromotionTypes>(L, 2);
 
 	bool bFound = false;
-	vector<PromotionTypes> freePromotions = pkCity->getFreePromotions();
+	std::vector<PromotionTypes> freePromotions = pkCity->getFreePromotions();
 	for (size_t iI = 0; iI < freePromotions.size(); iI++)
 	{
 		if (freePromotions[iI] == promo)
@@ -5744,7 +5744,7 @@ int CvLuaCity::lGetGreatWorkYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = min(20, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromGreatWorks(eIndex) * pkCity->GetCityBuildings()->GetNumGreatWorks()));
+	const int iResult = std::min(20, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromGreatWorks(eIndex) * pkCity->GetCityBuildings()->GetNumGreatWorks()));
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5753,7 +5753,7 @@ int CvLuaCity::lGetActiveSpyYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	const int iResult = std::min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
 
 	lua_pushinteger(L, iResult);
 	return 1;

@@ -282,7 +282,7 @@ struct CvFocusArea
 FDataStream& operator<<(FDataStream&, const CvFocusArea&);
 FDataStream& operator>>(FDataStream&, CvFocusArea&);
 
-typedef vector<CvTacticalTarget> TacticalList;
+typedef std::vector<CvTacticalTarget> TacticalList;
 
 #if defined(MOD_BALANCE_CORE)
 //a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
@@ -436,10 +436,10 @@ private:
 	void ExecutePlunderTradeUnit(CvPlot* pTargetPlot);
 	void ExecuteParadropPillage(CvPlot* pTargetPlot);
 	void ExecuteLandingOperation(CvPlot* pTargetPlot);
-	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
+	bool ExecuteSpotterMove(const std::vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 	bool ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender);
-	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
+	bool PositionUnitsAroundTarget(const std::vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
@@ -553,8 +553,8 @@ struct STacticalAssignment
 
 struct SAssignmentSummary
 {
-	vector<pair<int,int>> attackedPlots; //plot and damage done 
-	vector<pair<int,int>> unitPlots; //unitid and plot
+	std::vector<std::pair<int,int>> attackedPlots; //plot and damage done 
+	std::vector<std::pair<int,int>> unitPlots; //unitid and plot
 
 	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
 	void clear() { attackedPlots.clear(); unitPlots.clear(); }
@@ -647,12 +647,12 @@ struct SPathFinderStartPosHash
 	{
 		std::size_t h0 = key.freedPlots.size();
 
-		hash_combine(h0, tr1::hash<int>()(key.iUnitID));
-		hash_combine(h0, tr1::hash<int>()(key.iPlotIndex));
-		hash_combine(h0, tr1::hash<int>()(key.iMovesLeft));
+		hash_combine(h0, std::tr1::hash<int>()(key.iUnitID));
+		hash_combine(h0, std::tr1::hash<int>()(key.iPlotIndex));
+		hash_combine(h0, std::tr1::hash<int>()(key.iMovesLeft));
 
-		for(vector<int>::const_iterator i = key.freedPlots.begin(); i!=key.freedPlots.end(); ++i)
-			hash_combine(h0, tr1::hash<int>()(*i));
+		for(std::vector<int>::const_iterator i = key.freedPlots.begin(); i!=key.freedPlots.end(); ++i)
+			hash_combine(h0, std::tr1::hash<int>()(*i));
 
 		return h0;
 	}
@@ -665,16 +665,16 @@ struct SIntPairHash
 		hash ^= extra + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 	}
 
-	std::size_t operator() (const pair<int, int>& key) const
+	std::size_t operator() (const std::pair<int, int>& key) const
 	{
-		std::size_t h0 = tr1::hash<int>()(key.first);
-		hash_combine(h0, tr1::hash<int>()(key.second));
+		std::size_t h0 = std::tr1::hash<int>()(key.first);
+		hash_combine(h0, std::tr1::hash<int>()(key.second));
 		return h0;
 	}
 };
 
-typedef tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
-typedef tr1::unordered_map<pair<int, int>, vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
+typedef std::tr1::unordered_map<SPathFinderStartPos, ReachablePlots, SPathFinderStartPosHash> TCachedMovePlots;
+typedef std::tr1::unordered_map<std::pair<int, int>, std::vector<int>, SIntPairHash> TCachedRangeAttackPlots; // (unit:plot) -> plots
 
 //forward
 class CvTacticalPosition;
@@ -685,7 +685,7 @@ class CvTacticalPlot
 public:
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
-	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
+	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const std::set<CvUnit*>& allOurUnits=std::set<CvUnit*>());
 
 	const CvPlot* getPlot() const { return pPlot; }
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
@@ -695,7 +695,7 @@ public:
 	void setNumAdjacentEnemies(eTactPlotDomain eDomain, int iValue) { aiEnemyCombatUnitsAdjacent[eDomain]=static_cast<unsigned char>(iValue); }
 	int getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;
 	int getNumAdjacentFriendliesEndTurn(eTactPlotDomain eDomain) const;
-	const vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
+	const std::vector<STacticalAssignment>& getUnitsAtPlot() const { return vUnits; }
 
 	bool isEnemy(eTactPlotDomain eDomain = TD_BOTH) const { return aiEnemyDistance[eDomain]==0; }
 	bool isEnemyCity() const { return isEnemy() && pPlot->isCity(); }
@@ -724,7 +724,7 @@ public:
 
 	unsigned char getEnemyDistance(eTactPlotDomain eDomain = TD_BOTH) const;
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
-	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
+	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, std::vector<int>& landEnemies, std::vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
@@ -732,7 +732,7 @@ public:
 
 protected:
 	const CvPlot* pPlot; //null if invalid
-	vector<STacticalAssignment> vUnits; //which (simulated) units are in this plot?
+	std::vector<STacticalAssignment> vUnits; //which (simulated) units are in this plot?
 
 	unsigned char aiEnemyDistance[3]; //distance to attack targets, not civilians. recomputed every time an enemy is killed or discovered
 	unsigned char aiEnemyCombatUnitsAdjacent[3]; //recomputed every time an enemy is killed or discovered
@@ -785,7 +785,7 @@ public:
 	bool findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
 protected:
 	//key is attacker id
-	vector<pair<int, vector<SAttackStats>>> attackStats;
+	std::vector<std::pair<int, std::vector<SAttackStats>>> attackStats;
 };
 
 class CvTacticalPosition
@@ -798,18 +798,18 @@ protected:
 	int iScoreOverParent;
 
 	//moves already assigned to get into this position (complete, mostly redundant with parent)
-	vector<STacticalAssignment> assignedMoves;
+	std::vector<STacticalAssignment> assignedMoves;
 
 	//the positions we can reach by adding more moves
-	vector<CvTacticalPosition*> childPositions;
+	std::vector<CvTacticalPosition*> childPositions;
 
 	//so we can look up stuff we haven't cached locally
 	const CvTacticalPosition* parentPosition;
 
-	vector<SUnitStats> availableUnits; //units which still need an assignment
-	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
-	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
+	std::vector<SUnitStats> availableUnits; //units which still need an assignment
+	std::vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
+	std::vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
+	std::vector<std::pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
@@ -836,17 +836,17 @@ protected:
 
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(const SUnitStats& unit) const;
-	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
-	vector<STacticalAssignment> getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
+	const std::vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
+	std::vector<STacticalAssignment> getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
 	CvTacticalPosition* addChild(CvTactPosStorage& storage);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
-	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
+	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, std::vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
 	bool canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
-	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
-	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
+	std::vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
+	std::vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
 
 	//finding a particular unit
 	struct PrMatchingUnit
@@ -872,12 +872,12 @@ public:
 	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
 	void updateMovePlotsIfRequired();
 	bool findTactPlotRecursive(int iPlotIndex) const;
-	bool addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
+	bool addTacticalPlot(const CvPlot* pPlot, const std::set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	int countChildren() const;
 	float getAggressionBias() const;
-	vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
-	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
+	std::vector<STacticalAssignment> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
+	std::pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID) const;
 	const SUnitStats* getUnitStats(int iUnitID) const;
 	const STacticalAssignment* getInitialAssignment(int iUnitID) const;
@@ -898,8 +898,8 @@ public:
 	int getHeapScore() const { return iScoreOverParent + iTotalScore/12; } //use total score mainly as tiebreaker
 
 	const CvTacticalPosition* getParent() const { return parentPosition; }
-	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
-	const vector<STacticalAssignment>& getAssignments() const { return assignedMoves; }
+	const std::vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
+	const std::vector<STacticalAssignment>& getAssignments() const { return assignedMoves; }
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
@@ -911,7 +911,7 @@ public:
 	unsigned long long getID() const { return iID; }
 	void dumpPlotStatus(const char* filename) const;
 	void exportToDotFile(const char* filename) const;
-	void dumpChildren(ofstream& out) const;
+	void dumpChildren(std::ofstream& out) const;
 };
 
 class CvTactPosStorage
@@ -942,7 +942,7 @@ namespace TacticalAIHelpers
 	bool SortByExpectedTargetDamageDescending(const CvTacticalUnit& obj1, const CvTacticalUnit& obj2);
 
 	ReachablePlots GetAllPlotsInReachThisTurn(const CvUnit* pUnit, const CvPlot* pStartPlot, int iFlags, int iMinMovesLeft=0, int iStartMoves=-1, const PlotIndexContainer& plotsToIgnoreForZOC=PlotIndexContainer());
-	vector<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
+	std::vector<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, const CvPlot* pBasePlot, bool bOnlyWithEnemy, bool bIgnoreVisibility);
 	std::set<int> GetPlotsUnderRangedAttackFrom(const CvUnit* pUnit, ReachablePlots& basePlots, bool bOnlyWithEnemy,  bool bIgnoreVisibility);
 
 	bool PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllowMovement = false);
@@ -960,15 +960,15 @@ namespace TacticalAIHelpers
 	bool KillLoneEnemyIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
 	bool IsSuicideMeleeAttack(CvUnit* pAttacker, CvPlot* pTarget);
 	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
-	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
+	std::pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 	bool IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes eOwner);
 	bool IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 
-	vector<STacticalAssignment> FindBestOffensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
-	vector<STacticalAssignment> FindBestDefensiveAssignment(const vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);
-	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const vector<STacticalAssignment>& vAssignments);
+	std::vector<STacticalAssignment> FindBestOffensiveAssignment(const std::vector<CvUnit*>& vUnits, CvPlot* pTarget, eAggressionLevel eAggLvl, CvTactPosStorage& storage);
+	std::vector<STacticalAssignment> FindBestDefensiveAssignment(const std::vector<CvUnit*>& vUnits, CvPlot* pTarget, CvTactPosStorage& storage);
+	bool ExecuteUnitAssignments(PlayerTypes ePlayer, const std::vector<STacticalAssignment>& vAssignments);
 }
 
 extern const char* tacticalMoveNames[];

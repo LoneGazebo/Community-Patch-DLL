@@ -162,7 +162,7 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 			CvAssertMsg(false, "GAMEPLAY: Player is being set to a negative Gold value. Please send Jon this with your last 5 autosaves.");
 		}
 
-		m_iGold = max(0,iNewValue);
+		m_iGold = std::max(0,iNewValue);
 
 		if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 		{
@@ -489,7 +489,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	iFreeUnits += m_pPlayer->GetNumMaintenanceFreeUnits();
 	iFreeUnits += m_pPlayer->getBaseFreeUnits();
 
-	iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
+	iPaidUnits = std::max(0, m_pPlayer->getNumUnits() - iFreeUnits);
 
 	iBaseUnitCost = iPaidUnits * m_pPlayer->getGoldPerUnitTimes100();
 

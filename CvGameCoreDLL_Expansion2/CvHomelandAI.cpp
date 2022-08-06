@@ -143,7 +143,7 @@ void CvHomelandAI::RecruitUnits()
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 	{
-		for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+		for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
 			if (!pUnit)
@@ -278,14 +278,14 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 
 		//try to explore close to our cities first to find potential settle spots
 		int iCityDistance = m_pPlayer->GetCityDistancePathLength(pEvalPlot);
-		iRating = max(1, 100 + 2*iRating - iCityDistance); 
+		iRating = std::max(1, 100 + 2*iRating - iCityDistance); 
 
 		ReachablePlots::iterator it = reachablePlots.find(pEvalPlot->GetPlotIndex());
 		if (it==reachablePlots.end())
 			continue;
 
 		//turns is actually path length
-		int iPlotScore = (1000 * iRating) / max(1,it->iPathLength);
+		int iPlotScore = (1000 * iRating) / std::max(1,it->iPathLength);
 
 		iValidCandidates++;
 		if (iPlotScore>iBestPlotScore)
@@ -546,7 +546,7 @@ void CvHomelandAI::PlotExplorerMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_EXPLORE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -589,7 +589,7 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SETTLE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && !pUnit->isHuman())
@@ -660,7 +660,7 @@ void CvHomelandAI::PlotHealMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_HEAL);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
@@ -694,7 +694,7 @@ void CvHomelandAI::PlotMovesToSafety()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TO_SAFETY);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (!pUnit)
@@ -873,7 +873,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 	
 	// Make a list of all combat units that can do this.
 	CHomelandUnitArray PossibleSettlerUnits;
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it) 
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && pUnit->IsCombatUnit() && (pUnit->isFound() || pUnit->IsFoundAbroad() || pUnit->IsFoundLate() || pUnit->IsFoundMid()))
@@ -882,7 +882,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 			ReachablePlots turnsFromMuster;
 			turnsFromMuster.insertWithIndex( SMovePlot(pUnit->plot()->GetPlotIndex()) );
 
-			vector<pair<size_t,CvFormationSlotEntry>> availableSlots(1,make_pair(0,CvFormationSlotEntry()));
+			std::vector<std::pair<size_t,CvFormationSlotEntry>> availableSlots(1,std::make_pair(0,CvFormationSlotEntry()));
 			if(OperationalAIHelpers::IsUnitSuitableForRecruitment(pUnit,turnsFromMuster,NULL,false,false,availableSlots)>=0)
 			{
 				CvHomelandUnit unit;
@@ -925,7 +925,7 @@ void CvHomelandAI::PlotWorkerMoves(bool bSecondary)
 	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER);
 
 	// Loop through all recruited units
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit)
@@ -973,7 +973,7 @@ void CvHomelandAI::PlotWorkerSeaMoves(bool bSecondary)
 	ClearCurrentMoveUnits(bSecondary ? AI_HOMELAND_MOVE_SECONDARY_WORKER : AI_HOMELAND_MOVE_WORKER_SEA);
 
 	// Loop through all recruited units
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit)
@@ -1161,7 +1161,7 @@ void CvHomelandAI::ExecuteUnitGift()
 	}
 	if (pMinor && eUnitType != NO_UNIT)
 	{
-		vector<int> vUnitIDs;
+		std::vector<int> vUnitIDs;
 		bool bFoundOne = false;
 		int iLoop;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
@@ -1181,7 +1181,7 @@ void CvHomelandAI::ExecuteUnitGift()
 			CvUnit* pGiftedUnit = NULL;
 			int GiftedUnitID = -1;
 			int iLowestXP = INT_MAX;
-			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			for (std::vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				int iXP = pUnit->getExperienceTimes100();
@@ -1264,7 +1264,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 
 	if (eBestGiftTarget != NO_PLAYER)
 	{
-		vector<int> vUnitIDs;
+		std::vector<int> vUnitIDs;
 		bool bFoundOne = false;
 		int iLoop;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
@@ -1307,7 +1307,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 			int GiftedUnitID = -1;
 			int iLowestXP = INT_MAX;
 			int iStrongestUnitComparison = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(eDomain) * 85;
-			for (vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
+			for (std::vector<int>::iterator it = vUnitIDs.begin(); it != vUnitIDs.end(); it++)
 			{
 				CvUnit* pUnit = m_pPlayer->getUnit(*it);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -1348,7 +1348,7 @@ void CvHomelandAI::PlotPatrolMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_PATROL);
 
 	// Loop through all remaining units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->IsGarrisoned() && pUnit->AI_getUnitAIType() != UNITAI_CITY_BOMBARD)
@@ -1380,7 +1380,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 	}
 	
 	//get the most exposed cities and the most threatening neighbor cities
-	vector<SPatrolTarget> vLandTargets, vWaterTargets;
+	std::vector<SPatrolTarget> vLandTargets, vWaterTargets;
 	if (iUnitsLand>0)
 		vLandTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), false, iUnitsLand);
 	if (iUnitsSea>0)
@@ -1404,7 +1404,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 			continue;
 
 		//the target we're looking at depends on the domain of the unit
-		vector<SPatrolTarget>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
+		std::vector<SPatrolTarget>& vTargets = (pUnit->getDomainType()==DOMAIN_SEA) ? vWaterTargets : vLandTargets;
 		CvTacticalDominanceZone* pCurrentZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 
 		int iHighestThreat = 0;
@@ -1603,7 +1603,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 						//Add in experience - we should promote veterans.
 						iPriority += pUnit->getExperienceTimes100();
 
-						unit.SetAuxIntData(max(1, iPriority));
+						unit.SetAuxIntData(std::max(1, iPriority));
 						m_CurrentMoveUnits.push_back(unit);
 					}
 				}
@@ -1714,7 +1714,7 @@ void CvHomelandAI::PlotWriterMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_WRITER);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1740,7 +1740,7 @@ void CvHomelandAI::PlotArtistMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ARTIST_GOLDEN_AGE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1766,7 +1766,7 @@ void CvHomelandAI::PlotMusicianMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_MUSICIAN);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1792,7 +1792,7 @@ void CvHomelandAI::PlotScientistMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SCIENTIST_FREE_TECH);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1818,7 +1818,7 @@ void CvHomelandAI::PlotEngineerMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ENGINEER_HURRY);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1848,7 +1848,7 @@ void CvHomelandAI::PlotDiplomatMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_DIPLOMAT_EMBASSY);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1873,7 +1873,7 @@ void CvHomelandAI::PlotMessengerMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_MESSENGER);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1899,7 +1899,7 @@ void CvHomelandAI::PlotMerchantMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_MERCHANT_TRADE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1925,7 +1925,7 @@ void CvHomelandAI::PlotProphetMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_PROPHET_RELIGION);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1951,7 +1951,7 @@ void CvHomelandAI::PlotMissionaryMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_MISSIONARY);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -1981,7 +1981,7 @@ void CvHomelandAI::PlotInquisitorMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_INQUISITOR);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2007,7 +2007,7 @@ void CvHomelandAI::PlotSSPartMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_SPACESHIP_PART);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->AI_getUnitAIType() == UNITAI_SPACESHIP_PART)
@@ -2030,7 +2030,7 @@ void CvHomelandAI::PlotTreasureMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TREASURE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2056,7 +2056,7 @@ void CvHomelandAI::PlotGeneralMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_GENERAL_GARRISON);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2082,7 +2082,7 @@ void CvHomelandAI::PlotAdmiralMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ADMIRAL_GARRISON);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2108,7 +2108,7 @@ void CvHomelandAI::PlotAircraftRebase()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_AIRCRAFT_REBASE);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2134,7 +2134,7 @@ void CvHomelandAI::PlotTradeUnitMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_TRADE_UNIT);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2160,7 +2160,7 @@ void CvHomelandAI::PlotArchaeologistMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_ARCHAEOLOGIST);
 
 	// Loop through all recruited units
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
@@ -2188,7 +2188,7 @@ void CvHomelandAI::PlotArchaeologistMoves()
 void CvHomelandAI::ReviewUnassignedUnits()
 {
 	// Loop through all remaining units.
-	for (list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for (std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
 		if (pUnit && !pUnit->isDelayedDeath())
@@ -2864,7 +2864,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	}
 
 	//may need this later
-	map<CvCity*, int> mapCityNeed;
+	std::map<CvCity*, int> mapCityNeed;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
@@ -2878,7 +2878,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		//find the city which is most in need of workers
 		int iMaxNeed = -100;
 		CvCity* pBestCity = NULL;
-		for (map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
+		for (std::map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
 		{
 			if (it2->second > iMaxNeed)
 			{
@@ -3656,7 +3656,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 
 void CvHomelandAI::ExecuteMessengerMoves()
 {
-	vector<int> vIgnoreCities;
+	std::vector<int> vIgnoreCities;
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
@@ -3944,8 +3944,8 @@ void CvHomelandAI::ExecuteProphetMoves()
 void CvHomelandAI::ExecuteGeneralMoves()
 {
 	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
-	vector<CvPlot*> vPlotsToAvoid;
-	vector<CvCity*> vTargets = m_pPlayer->GetThreatenedCities(false);
+	std::vector<CvPlot*> vPlotsToAvoid;
+	std::vector<CvCity*> vTargets = m_pPlayer->GetThreatenedCities(false);
 
 	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -4062,7 +4062,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (bOccupied)
 					continue;
 
-				vector<CvPlot*>::iterator ll = std::find(vPlotsToAvoid.begin(), vPlotsToAvoid.end(), pTarget);
+				std::vector<CvPlot*>::iterator ll = std::find(vPlotsToAvoid.begin(), vPlotsToAvoid.end(), pTarget);
 				if (ll != vPlotsToAvoid.end())
 					continue;
 
@@ -4137,7 +4137,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 // Get a missionary to the best city, then spread the word
 void CvHomelandAI::ExecuteMissionaryMoves()
 {
-	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_MISSIONARY];
+	std::vector<std::pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_MISSIONARY];
 
 	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -4152,7 +4152,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseMissionaryTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
-			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
+			vBurnedTargets.push_back( std::make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
 			if(iTargetTurns==0)
 			{
@@ -4212,7 +4212,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 // Get a inquisitor to the best city
 void CvHomelandAI::ExecuteInquisitorMoves()
 {
-	vector<pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_INQUISITOR];
+	std::vector<std::pair<int,int>>& vBurnedTargets = m_automatedTargetPlots[UNITAI_INQUISITOR];
 
 	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -4225,7 +4225,7 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 		CvCity* pTarget = m_pPlayer->GetReligionAI()->ChooseInquisitorTargetCity(pUnit, vBurnedTargets, &iTargetTurns);
 		if(pTarget)
 		{
-			vBurnedTargets.push_back( make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
+			vBurnedTargets.push_back( std::make_pair(pUnit->GetID(),pTarget->plot()->GetPlotIndex()));
 
 			if (pUnit->CanRemoveHeresy(pTarget->plot()) && CvReligionAIHelpers::ShouldRemoveHeresy(pTarget,pUnit->GetReligionData()->GetReligion()))
 			{
@@ -5088,7 +5088,7 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 	ClearCurrentMoveUnits(eMove);
 
 	// Loop through all units available to homeland AI this turn
-	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	for(std::list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
 		CvUnit* pLoopUnit = m_pPlayer->getUnit(*it);
 		if(pLoopUnit && !pLoopUnit->isHuman())
@@ -5387,7 +5387,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 }
 
 //returns the target plot if sucessful, null otherwise
-CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
+CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const std::map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
 {
 	// find work (considering all other workers as well)
 	BuilderDirective aDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, allWorkersReachablePlots);
@@ -5950,14 +5950,14 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 }
 
 //check all tactical zones to find the one we need to support most
-vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
+std::vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)
 {
 	if (ePlayer==NO_PLAYER)
-		return vector<SPatrolTarget>();
+		return std::vector<SPatrolTarget>();
 
 	CvTacticalAnalysisMap* pTactMap = GET_PLAYER(ePlayer).GetTacticalAI()->GetTacticalAnalysisMap();
 	DomainTypes eDomain = bWater ? DOMAIN_SEA : DOMAIN_LAND;
-	vector<SPatrolTarget> vTargets;
+	std::vector<SPatrolTarget> vTargets;
 	for(int iI = 0; iI < pTactMap->GetNumZones(); iI++)
 	{
 		CvTacticalDominanceZone* pZone = pTactMap->GetZoneByIndex(iI);
@@ -5984,7 +5984,7 @@ vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, b
 	//default sort is descending!
 	std::sort( vTargets.begin(), vTargets.end() );
 
-	vector<SPatrolTarget> vResult;
+	std::vector<SPatrolTarget> vResult;
 	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)
 		//copy the top N results, take care not to have duplicate cities in there
 		if (std::find(vResult.begin(),vResult.end(),vTargets[i])==vResult.end())

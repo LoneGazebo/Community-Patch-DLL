@@ -24,8 +24,8 @@ struct SPrecomputedExpensiveNumbers
 	int iUnhappinessFromReligion;
 	int iUnhappinessFromDistress;
 
-	vector<vector<int>> bonusForXTerrain;
-	vector<vector<int>> bonusForXFeature;
+	std::vector<std::vector<int>> bonusForXTerrain;
+	std::vector<std::vector<int>> bonusForXFeature;
 
 	SPrecomputedExpensiveNumbers();
 	void update(CvCity* pCity);

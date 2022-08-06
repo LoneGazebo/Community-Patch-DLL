@@ -294,10 +294,10 @@ void CvGrandStrategyAI::DoTurn()
 				iPriority += /*50*/ GD_INT_GET(AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT);
 			}
 
-			SetGrandStrategyPriority(eGrandStrategy, max(1, iPriority));
+			SetGrandStrategyPriority(eGrandStrategy, std::max(1, iPriority));
 		}
 		// Now look at what we think the other players in the game are up to - we might have an opportunity to capitalize somewhere
-		vector<int> viNumGrandStrategiesAdopted;
+		std::vector<int> viNumGrandStrategiesAdopted;
 		int iNumPlayers = 0;
 
 		// Init vector
@@ -330,7 +330,7 @@ void CvGrandStrategyAI::DoTurn()
 			viNumGrandStrategiesAdopted.push_back(iNumPlayers);
 		}
 
-		vector<int> viGrandStrategyChangeForLogging;
+		std::vector<int> viGrandStrategyChangeForLogging;
 
 		// Now modify our preferences based on how many people are going for stuff
 		for (iGrandStrategiesLoop = 0; iGrandStrategiesLoop < GetAIGrandStrategies()->GetNumAIGrandStrategies(); iGrandStrategiesLoop++)
@@ -345,7 +345,7 @@ void CvGrandStrategyAI::DoTurn()
 			{
 				//Modified to only reduce based on known and if we're doing better/worse than them.
 				//If 3+ are doing better than us at this GS, we need to move on.
-				iChange = min(iFraction * iNumPursuing, GetGrandStrategyPriority(eGrandStrategy));
+				iChange = std::min(iFraction * iNumPursuing, GetGrandStrategyPriority(eGrandStrategy));
 			}
 
 			ChangeGrandStrategyPriority(eGrandStrategy, -iChange);
@@ -434,7 +434,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	int iGeneralDeceptiveness = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE);
 	int iGeneralFriendliness = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY);
 
-	int iGeneralApproachModifier = max(max(iGeneralDeceptiveness, iGeneralHostility), iGeneralWarlikeness) - iGeneralFriendliness;
+	int iGeneralApproachModifier = std::max(std::max(iGeneralDeceptiveness, iGeneralHostility), iGeneralWarlikeness) - iGeneralFriendliness;
 	// Boldness gives the base weight for Conquest (no flavors added earlier)
 	int iEra = m_pPlayer->GetCurrentEra();
 	if(iEra <= 0)
@@ -1384,7 +1384,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 
 	// the later the game the greater the chance
-	iPriority += ((m_pPlayer->GetCurrentEra() * m_pPlayer->GetCurrentEra()) * max(1, iFlavorScience) * 300) / 100;
+	iPriority += ((m_pPlayer->GetCurrentEra() * m_pPlayer->GetCurrentEra()) * std::max(1, iFlavorScience) * 300) / 100;
 
 	int iNumCivsAheadScience = 0;
 	int iNumCivsBehindScience = 0;
@@ -1608,11 +1608,11 @@ int CvGrandStrategyAI::GetPersonalityAndGrandStrategy(FlavorTypes eFlavorType, b
 	{
 		CvAIGrandStrategyXMLEntry* pGrandStrategy = GetAIGrandStrategies()->GetEntry(m_eActiveGrandStrategy);
 		int iModdedFlavor = pGrandStrategy->GetFlavorModValue(eFlavorType) + m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorType);
-		iModdedFlavor = max(0,iModdedFlavor);
+		iModdedFlavor = std::max(0,iModdedFlavor);
 
 		if (bBoostGSMainFlavor && (pGrandStrategy->GetFlavorValue(eFlavorType) > 0))
 		{
-			iModdedFlavor = min(10, ((pGrandStrategy->GetFlavorValue(eFlavorType) + iModdedFlavor + 1) / 2));
+			iModdedFlavor = std::min(10, ((pGrandStrategy->GetFlavorValue(eFlavorType) + iModdedFlavor + 1) / 2));
 		}
 
 		return iModdedFlavor;
@@ -1698,7 +1698,7 @@ void CvGrandStrategyAI::ChangeGrandStrategyPriority(AIGrandStrategyTypes eGrandS
 void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 {
 	CvWeightedVector<int> vGrandStrategyPriorities;
-	vector<int>  vGrandStrategyPrioritiesForLogging;
+	std::vector<int>  vGrandStrategyPrioritiesForLogging;
 
 	GuessConfidenceTypes eGuessConfidence = GUESS_CONFIDENCE_UNSURE;
 
@@ -1870,8 +1870,8 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 			int iNumCapitalsThem = GET_PLAYER(ePlayer).GetNumCapitalCities();
 			int iMilitaryPowerUs = GetPlayer()->GetMilitaryMight();
 			int iMilitaryPowerThem = GET_PLAYER(ePlayer).GetMilitaryMight();
-			iMilitaryPowerUs *= max(1, iNumCapitalsUs);
-			iMilitaryPowerThem *= max(1, iNumCapitalsThem);
+			iMilitaryPowerUs *= std::max(1, iNumCapitalsUs);
+			iMilitaryPowerThem *= std::max(1, iNumCapitalsThem);
 			if(iMilitaryPowerThem > iMilitaryPowerUs)
 			{
 				return true;
@@ -1882,12 +1882,12 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 			int iOurInfluence = GetPlayer()->GetCulture()->GetNumCivsInfluentialOn();
 			int iOurTourism = GetPlayer()->GetCulture()->GetTourism() / 100;
 			int iOurCulture = GetPlayer()->GetTotalJONSCulturePerTurn();
-			int iOurTotal = (iOurCulture + iOurTourism) * (max(1, iOurInfluence));
+			int iOurTotal = (iOurCulture + iOurTourism) * (std::max(1, iOurInfluence));
 			
 			int iTheirInfluence = GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn();
 			int iTheirTourism = GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100;
 			int iTheirCulture = GET_PLAYER(ePlayer).GetTotalJONSCulturePerTurn();
-			int iTheirTotal = (iTheirCulture + iTheirTourism) * (max(1, iTheirInfluence));
+			int iTheirTotal = (iTheirCulture + iTheirTourism) * (std::max(1, iTheirInfluence));
 
 			if(iTheirTotal > iOurTotal)
 			{
@@ -2132,7 +2132,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 	}
 
 	int iNumTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
-	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*600*/ GD_INT_GET(AI_GS_SS_TECH_PROGRESS_MOD) / max(iWorldNumTechsAverage, 1);
+	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*600*/ GD_INT_GET(AI_GS_SS_TECH_PROGRESS_MOD) / std::max(iWorldNumTechsAverage, 1);
 
 	PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 	if (eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER) || eCurrentBranchType == (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM))
@@ -2148,7 +2148,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 // PRIVATE METHODS
 
 /// Log GrandStrategy state: what are the Priorities and who is Active?
-void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStrategyPriorities)
+void CvGrandStrategyAI::LogGrandStrategies(const std::vector<int>& vModifiedGrandStrategyPriorities)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -2205,7 +2205,7 @@ void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStra
 }
 
 /// Log our guess as to other Players' Active Grand Strategy
-void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer)
+void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const std::vector<int>& vGrandStrategyPriorities, PlayerTypes ePlayer)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

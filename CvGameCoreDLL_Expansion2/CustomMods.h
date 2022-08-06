@@ -1224,7 +1224,7 @@ void CheckSentinel(uint);
 
 // CustomMod option wrappers
 #define MOD_OPT_DECL(name)  protected: bool m_b##name:1; public: inline bool is##name() { return m_b##name; }
-#define MOD_OPT_CACHE(name) m_b##name = (m_options[string(#name)] == 1);
+#define MOD_OPT_CACHE(name) m_b##name = (m_options[std::string(#name)] == 1);
 
 
 // Class used to cache the database control settings and provide utility functions

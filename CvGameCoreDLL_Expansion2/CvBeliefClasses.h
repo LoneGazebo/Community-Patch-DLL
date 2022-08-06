@@ -399,7 +399,7 @@ private:
 	std::vector<CvBeliefEntry*> m_paBeliefEntries;
 };
 
-typedef vector<int>BeliefList;
+typedef std::vector<int>BeliefList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvReligionBeliefs

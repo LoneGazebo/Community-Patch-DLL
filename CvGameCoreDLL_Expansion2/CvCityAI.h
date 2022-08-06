@@ -44,7 +44,7 @@ protected:
 	bool m_bChooseProductionDirty;
 	int m_iCachePlayerClosenessTurn;
 	int m_iCachePlayerClosenessDistance;
-	map<PlayerTypes,int> m_mapPlotsAcquiredByOtherPlayers;
+	std::map<PlayerTypes,int> m_mapPlotsAcquiredByOtherPlayers;
 
 	void AI_stealPlots();
 };

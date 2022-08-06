@@ -71,9 +71,9 @@ public:
 	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
 	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
 	//And for messengers
-	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
+	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const std::vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
-	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
+	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, std::vector<int>* pvIgnoreCities = NULL);
 
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant);

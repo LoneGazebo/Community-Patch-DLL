@@ -161,7 +161,7 @@ public:
 		int iCutoff = GetTotalWeight() * iPercent / 100;
 
 		// Create a new weighted vector for this decision
-		vector<T> tempVector;
+		std::vector<T> tempVector;
 
 		// Loop through until adding each item that is above threshold
 		for (unsigned int i = 0; i < this->m_pItems.size(); i++)
@@ -269,7 +269,7 @@ public:
 	};
 
 private:
-	vector<WeightedElement> m_items;
+	std::vector<WeightedElement> m_items;
 };
 
 //-------------------------------

@@ -158,13 +158,13 @@ struct IntrigueNotificationMessage
 	int iSpyID;
 	bool m_bShared;
 };
-typedef vector<CvEspionageSpy> SpyList;
-typedef vector<TechTypes> TechList;
-typedef vector<TechList> PlayerTechList;
-typedef vector<int> NumTechsToStealList;
-typedef vector<int> NumGWToStealList;
-typedef vector<int> NumSpyActionsDone;
-typedef vector<int> MaxTechCost;
+typedef std::vector<CvEspionageSpy> SpyList;
+typedef std::vector<TechTypes> TechList;
+typedef std::vector<TechList> PlayerTechList;
+typedef std::vector<int> NumTechsToStealList;
+typedef std::vector<int> NumGWToStealList;
+typedef std::vector<int> NumSpyActionsDone;
+typedef std::vector<int> MaxTechCost;
 class CvPlayerEspionage
 {
 public:
@@ -367,10 +367,10 @@ FDataStream& operator<<(FDataStream&, const CvCityEspionage&);
 //!  Key Attributes:
 //!  - Object is in the player class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-typedef vector<int> EspionageAIOutOfTechTurnList;
-typedef vector<int> EspionageAILastTurns;
-typedef vector<int> EspionageAICount;
-typedef vector<CvCity*> EspionageCityList;
+typedef std::vector<int> EspionageAIOutOfTechTurnList;
+typedef std::vector<int> EspionageAILastTurns;
+typedef std::vector<int> EspionageAICount;
+typedef std::vector<CvCity*> EspionageCityList;
 
 class CvEspionageAI
 {

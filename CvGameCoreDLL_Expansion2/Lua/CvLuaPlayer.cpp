@@ -2531,7 +2531,7 @@ int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
 	iFreeUnits += pkPlayer->GetNumMaintenanceFreeUnits();
 	iFreeUnits += pkPlayer->getBaseFreeUnits();
 
-	int iPaidUnits = max(0, pkPlayer->getNumUnits() - iFreeUnits);
+	int iPaidUnits = std::max(0, pkPlayer->getNumUnits() - iFreeUnits);
 
 	int iBaseUnitCost = iPaidUnits * pkPlayer->getGoldPerUnitTimes100();
 
@@ -4238,7 +4238,7 @@ int CvLuaPlayer::lGetWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
-	lua_pushinteger(L, min(75, iResult));
+	lua_pushinteger(L, std::min(75, iResult));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -4258,7 +4258,7 @@ int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
 	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
 
 	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness() / 2;
-	int iMod = (100 - min(75, iWarWeariness));
+	int iMod = (100 - std::min(75, iWarWeariness));
 	int iSupplyReduction = iSupply;
 	iSupplyReduction *= iMod;
 	iSupplyReduction /= 100;
@@ -10130,10 +10130,10 @@ int CvLuaPlayer::lGetReplayData(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const map<CvString, CvPlayer::TurnData> replayData = pkPlayer->getReplayData();
+	const std::map<CvString, CvPlayer::TurnData> replayData = pkPlayer->getReplayData();
 
 	lua_createtable(L, 0, replayData.size());
-	for(map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
+	for(std::map<CvString, CvPlayer::TurnData>::const_iterator it=replayData.begin(); it!=replayData.end(); ++it)
 	{
 		lua_pushstring(L, it->first.c_str());
 
@@ -11187,11 +11187,11 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
 	}
 
-	vector<PlayerTypes> v;
+	std::vector<PlayerTypes> v;
 	v.push_back(eOtherPlayer);
 	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayers(v);
 
-	vector<PlayerTypes> v2;
+	std::vector<PlayerTypes> v2;
 	v2.push_back(pkPlayer->GetID());
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2);
 
@@ -11458,7 +11458,7 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 		return 0;
 
 	//fake the reachable plots, ignore all other workers
-	map<CvUnit*, ReachablePlots> allplots;
+	std::map<CvUnit*, ReachablePlots> allplots;
 	SPathFinderUserData data(pWorkerUnit, 0, 3);
 	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
@@ -14033,7 +14033,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		if (iValue != 0)
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = bHideNegatives ? iValue : max(iValue, iTempValue);
+			kOpinion.m_iValue = bHideNegatives ? iValue : std::max(iValue, iTempValue);
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_RAZED");
 			aOpinions.push_back(kOpinion);
 		}
@@ -15330,16 +15330,16 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		strOutput = aOpinions[ui].m_str.toUTF8();
 
 		EndColorFound = strOutput.rfind(strEndColor);
-		if (EndColorFound != string::npos)
+		if (EndColorFound != std::string::npos)
 		{
 			strOutput.replace(EndColorFound, strEndColor.length(), strEmpty);
 		}
 
 		BeginColorPrefixFound = strOutput.find(strColorPrefix);
-		if (BeginColorPrefixFound != string::npos)
+		if (BeginColorPrefixFound != std::string::npos)
 		{
 			BeginColorSuffixFound = strOutput.find(strColorSuffix);
-			if (BeginColorSuffixFound != string::npos)
+			if (BeginColorSuffixFound != std::string::npos)
 			{
 				strOutput.erase(BeginColorPrefixFound, (BeginColorSuffixFound - BeginColorPrefixFound) + 1);
 			}

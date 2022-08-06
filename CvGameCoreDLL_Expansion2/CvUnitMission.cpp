@@ -2194,7 +2194,7 @@ void CvUnitMission::DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer)
 			if(hUnit->IsSelected())
 			{
 				if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
-					iUnitCycleTimer = min(1, iUnitCycleTimer);
+					iUnitCycleTimer = std::min(1, iUnitCycleTimer);
 
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(iUnitCycleTimer);
 			}

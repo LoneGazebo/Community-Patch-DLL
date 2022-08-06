@@ -218,8 +218,8 @@ private:
 	CvCitySiteEvaluator* m_pSiteEvaluator;
 
 	// Internal data
-	vector<CvContinent> m_ContinentVector;
-	vector<CvStartRegion> m_StartRegionVector;
+	std::vector<CvContinent> m_ContinentVector;
+	std::vector<CvStartRegion> m_StartRegionVector;
 	int m_iRequiredSeparation;
 	int m_iBestFoundValueOnMap;
 };

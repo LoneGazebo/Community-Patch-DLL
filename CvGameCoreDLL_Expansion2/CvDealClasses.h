@@ -70,7 +70,7 @@ struct CvTradedItem
 };
 FDataStream& operator>>(FDataStream&, CvTradedItem&);
 FDataStream& operator<<(FDataStream&, const CvTradedItem&);
-typedef vector<CvTradedItem> TradedItemList;
+typedef std::vector<CvTradedItem> TradedItemList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvDeal
@@ -211,7 +211,7 @@ public:
 	CvString GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1);
 
 	bool ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER, ResourceTypes eResource = NO_RESOURCE);
-	bool ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom = NO_PLAYER);
+	bool ContainsItemTypes(std::vector<TradeableItems> vItemTypes, PlayerTypes eFrom = NO_PLAYER);
 
 	int GetNumResourceInDeal(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetNumCitiesInDeal(PlayerTypes ePlayer);
@@ -283,7 +283,7 @@ public:
 FDataStream& operator>>(FDataStream&, CvDeal&);
 FDataStream& operator<<(FDataStream&, const CvDeal&);
 
-typedef vector<CvDeal> DealList;
+typedef std::vector<CvDeal> DealList;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS: CvGameDeals
 //!  \brief All the information about deals made between players

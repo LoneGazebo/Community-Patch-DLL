@@ -93,7 +93,7 @@ void CvPolicyAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropaga
 
 	CvPolicyXMLEntries* pkPolicyEntries = m_pCurrentPolicies->GetPolicies();
 	// Create a temporary array of weights
-	vector<int> vTempWeights(pkPolicyEntries->GetNumPolicies(),0);
+	std::vector<int> vTempWeights(pkPolicyEntries->GetNumPolicies(),0);
 
 	// Loop through all our policies
 	for(int iPolicy = 0; iPolicy < pkPolicyEntries->GetNumPolicies(); iPolicy++)
@@ -130,7 +130,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
 	int iPolicyLoop;
-	vector<int> aLevel3Tenets;
+	std::vector<int> aLevel3Tenets;
 
 	bool bMustChooseTenet = (pPlayer->GetNumFreeTenets() > 0);
 
@@ -218,9 +218,9 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 					//Deemphasize older branches
 					if (pkPolicyBranchInfo->GetEraPrereq() <= pPlayer->GetCurrentEra())
 					{
-						int iDivisor = pPlayer->GetCurrentEra() - max(0, pkPolicyBranchInfo->GetEraPrereq());
+						int iDivisor = pPlayer->GetCurrentEra() - std::max(0, pkPolicyBranchInfo->GetEraPrereq());
 						iDivisor *= 2;
-						iBranchWeight /= max(1, iDivisor);
+						iBranchWeight /= std::max(1, iDivisor);
 					}
 
 					m_AdoptablePolicies.push_back(iBranchLoop, iBranchWeight);
@@ -235,12 +235,12 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// If total weight is above 0, choose one above a threshold
 	if(m_AdoptablePolicies.GetTotalWeight() > 0)
 	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
+		int iNumChoices = std::max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	else if (m_AdoptablePolicies.size() > 0)
 	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
+		int iNumChoices = std::max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
 		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
 	}
 	// Total weight may be 0 if the only branches and policies left are ones that are ineffective in our game, but we gotta pick something
@@ -627,11 +627,11 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 #endif
 	// -- Happiness we'd lose through Public Opinion
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eFreedomBranch));
+	iHappinessDelta = std::max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eFreedomBranch));
 	iFreedomPriority += iHappinessDelta * iHappinessModifier;
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eAutocracyBranch));
+	iHappinessDelta = std::max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eAutocracyBranch));
 	iAutocracyPriority += iHappinessDelta * iHappinessModifier;
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eOrderBranch));
+	iHappinessDelta = std::max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eOrderBranch));
 	iOrderPriority += iHappinessDelta * iHappinessModifier;
 
 	stage = "After Public Opinion Happiness";
@@ -971,7 +971,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 // PRIVATE METHODS
 //=====================================
 /// Add weights to policies that are prereqs for the ones already weighted in this strategy
-void CvPolicyAI::WeightPrereqs(const vector<int>& vTempWeights, int iPropagationPercent)
+void CvPolicyAI::WeightPrereqs(const std::vector<int>& vTempWeights, int iPropagationPercent)
 {
 	// Loop through policies looking for ones that are just getting some new weight
 	for(int iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
@@ -1055,16 +1055,16 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			//Estimation, because early game we assume we'll expand.
 			iNumCities = (3 + iNumCities);
 			iNumCities *= 100;
-			iNumCities /= max(50, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+			iNumCities /= std::max(50, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 
 			if (iNumCities <= 1)
 				iNumCities = 1;
 		}
 	}
 
-	int iPopulation = (int)(pPlayer->getAveragePopulation() + 0.5f) * max(1, (iNumCities / 2));
+	int iPopulation = (int)(pPlayer->getAveragePopulation() + 0.5f) * std::max(1, (iNumCities / 2));
 	iPopulation *= 100;
-	iPopulation /= max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+	iPopulation /= std::max(75, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
 
 	if (iPopulation <= 1)
 		iPopulation = 1;
@@ -1072,10 +1072,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	int iNumWonders = pPlayer->GetNumWonders() + (pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() /2);
 	
 	//Capital pop estimate for early game.
-	int iCapitalPop = max(10, pPlayer->getCapitalCity()->getPopulation());
+	int iCapitalPop = std::max(10, pPlayer->getCapitalCity()->getPopulation());
 
 	//Numbers of Technologies researched for early game
-	int iTechnologiesResearched = max(15, GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - 1);
+	int iTechnologiesResearched = std::max(15, GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - 1);
 	
 	if (PolicyInfo->GetPolicyCostModifier() != 0)
 	{
@@ -1187,33 +1187,33 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * max(1, pPlayer->GetNumGoldenAges()) * 5;
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * std::max(1, pPlayer->GetNumGoldenAges()) * 5;
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * max(1, pPlayer->GetNumGoldenAges()) * 2;
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeTurns() * std::max(1, pPlayer->GetNumGoldenAges()) * 2;
 		}
 	}
 	if (PolicyInfo->GetGoldenAgeMeterMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * 2 * max(1, pPlayer->GetNumGoldenAges());
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * 2 * std::max(1, pPlayer->GetNumGoldenAges());
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * max(1, pPlayer->GetNumGoldenAges());
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * std::max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
 	if (PolicyInfo->GetGoldenAgeDurationMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 4 * max(1, pPlayer->GetNumGoldenAges());
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 4 * std::max(1, pPlayer->GetNumGoldenAges());
 		}
 		else
 		{
-			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 2 * max(1, pPlayer->GetNumGoldenAges());
+			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeDurationMod() * 2 * std::max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
 
@@ -1287,11 +1287,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsExpansionist() || pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 5 * max(1, pPlayer->GetNumPuppetCities());
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 5 * std::max(1, pPlayer->GetNumPuppetCities());
 		}
 		else
 		{
-			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 2 * max(1, pPlayer->GetNumPuppetCities());
+			yield[YIELD_PRODUCTION] += PolicyInfo->GetConquestPerEraBuildingProductionMod() * 2 * std::max(1, pPlayer->GetNumPuppetCities());
 		}
 	}
 	if (PolicyInfo->GetPuppetYieldPenaltyMod() != 0)
@@ -2201,22 +2201,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += (max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetLandTradeRouteGoldChange()) / 50;
+			yield[YIELD_GOLD] += (std::max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetLandTradeRouteGoldChange()) / 50;
 		}
 		else
 		{
-			yield[YIELD_GOLD] += (max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetLandTradeRouteGoldChange()) / 100;
+			yield[YIELD_GOLD] += (std::max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetLandTradeRouteGoldChange()) / 100;
 		}
 	}
 	if (PolicyInfo->GetSeaTradeRouteGoldChange() != 0)
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += (max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetSeaTradeRouteGoldChange()) / 50;
+			yield[YIELD_GOLD] += (std::max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetSeaTradeRouteGoldChange()) / 50;
 		}
 		else
 		{
-			yield[YIELD_GOLD] += (max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetSeaTradeRouteGoldChange()) / 100;
+			yield[YIELD_GOLD] += (std::max(1, pPlayer->GetTrade()->GetNumberOfTradeRoutes()) * PolicyInfo->GetSeaTradeRouteGoldChange()) / 100;
 		}
 	}
 	if (PolicyInfo->GetSharedIdeologyTradeGoldChange() != 0)
@@ -2359,7 +2359,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						if (iValue <= 0)
 							iValue = 0;
 
-						yield[YIELD_PRODUCTION] += min(250, iValue);
+						yield[YIELD_PRODUCTION] += std::min(250, iValue);
 					}
 				}
 			}
@@ -2843,7 +2843,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pPlayerTraits->IsWarmonger())
 						iValue *= 3;
 
-					yield[YIELD_PRODUCTION] += min(300, iValue);
+					yield[YIELD_PRODUCTION] += std::min(300, iValue);
 				}
 			}
 		}
@@ -2984,11 +2984,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetHappfromXSpecialists() * 10 * max(1, (iPopulation / 5));
+			yield[YIELD_FOOD] += PolicyInfo->GetHappfromXSpecialists() * 10 * std::max(1, (iPopulation / 5));
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetHappfromXSpecialists() * 2 * max(1, (iPopulation / 10));
+			yield[YIELD_FOOD] += PolicyInfo->GetHappfromXSpecialists() * 2 * std::max(1, (iPopulation / 10));
 		}
 	}
 	if (PolicyInfo->GetNoUnhappfromXSpecialistsCapital() != 0)
@@ -3007,11 +3007,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -10 * max(1, (iPopulation / 5));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -10 * std::max(1, (iPopulation / 5));
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -4 * max(1, (iPopulation / 10));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -4 * std::max(1, (iPopulation / 10));
 		}
 	}
 
@@ -3436,7 +3436,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 							if (iValue <= 0)
 								iValue = 0;
 
-							yield[YIELD_FAITH] += min(250, iValue);
+							yield[YIELD_FAITH] += std::min(250, iValue);
 						}
 						else
 						{
@@ -3445,7 +3445,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 							iValue -= pPlayer->getNumBuildings(eBuilding) * 10;
 
-							yield[YIELD_PRODUCTION] += min(250, iValue);
+							yield[YIELD_PRODUCTION] += std::min(250, iValue);
 						}
 					}
 				}
@@ -3519,7 +3519,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 							if (iValue <= 0)
 								iValue = 0;
 
-							yield[YIELD_PRODUCTION] += min(250, iValue);
+							yield[YIELD_PRODUCTION] += std::min(250, iValue);
 						}
 					}
 				}
@@ -3549,7 +3549,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 							if (iValue <= 0)
 								iValue = 0;
 
-							yield[YIELD_PRODUCTION] += min(250, iValue);
+							yield[YIELD_PRODUCTION] += std::min(250, iValue);
 						}
 					}
 				}
@@ -3563,11 +3563,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			{
 				if (pPlayerTraits->IsExpansionist())
 				{
-					yield[eYield] += (PolicyInfo->GetBuildingClassYieldModifiers(eBuildingClass, eYield) * max(1, iNumCities / 2));
+					yield[eYield] += (PolicyInfo->GetBuildingClassYieldModifiers(eBuildingClass, eYield) * std::max(1, iNumCities / 2));
 				}
 				else
 				{
-					yield[eYield] += (PolicyInfo->GetBuildingClassYieldModifiers(eBuildingClass, eYield) * max(1, iNumCities/3));
+					yield[eYield] += (PolicyInfo->GetBuildingClassYieldModifiers(eBuildingClass, eYield) * std::max(1, iNumCities/3));
 				}
 			}
 			if (PolicyInfo->GetBuildingClassYieldChanges(eBuildingClass, eYield) != 0)
@@ -3668,7 +3668,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						{
 							iValue *= 2;
 						}
-						yield[YIELD_FAITH] += min(225, iValue);
+						yield[YIELD_FAITH] += std::min(225, iValue);
 					}
 				}
 			}
@@ -3685,9 +3685,9 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 						iValue *= 2;
 					}
 					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-						yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
+						yield[YIELD_GREAT_GENERAL_POINTS] += std::min(150, iValue);
 					else
-						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
+						yield[YIELD_GREAT_ADMIRAL_POINTS] += std::min(150, iValue);
 				}
 			}
 		}
@@ -3938,11 +3938,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			{
 				if (pPlayerTraits->IsSmaller())
 				{
-					yield[eYield] += PolicyInfo->GetSpecialistYieldChanges(eSpecialist, eYield) * max(2, NumSpecialists) * 6;
+					yield[eYield] += PolicyInfo->GetSpecialistYieldChanges(eSpecialist, eYield) * std::max(2, NumSpecialists) * 6;
 				}
 				else
 				{
-					yield[eYield] += PolicyInfo->GetSpecialistYieldChanges(eSpecialist, eYield) * max(2, NumSpecialists) * 2;
+					yield[eYield] += PolicyInfo->GetSpecialistYieldChanges(eSpecialist, eYield) * std::max(2, NumSpecialists) * 2;
 				}
 			}
 		}
@@ -4099,22 +4099,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 20 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 20 * std::max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 10 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetGreatWorkYieldChange(eYield) * 10 * std::max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 		}
 		if (PolicyInfo->GetSpecialistExtraYield(eYield) != 0)
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetSpecialistExtraYield(eYield) * 5 * max(2, NumSpecialists);
+				yield[eYield] += PolicyInfo->GetSpecialistExtraYield(eYield) * 5 * std::max(2, NumSpecialists);
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetSpecialistExtraYield(eYield) * 2 * max(2, NumSpecialists);
+				yield[eYield] += PolicyInfo->GetSpecialistExtraYield(eYield) * 2 * std::max(2, NumSpecialists);
 			}
 		}
 		if (PolicyInfo->GetYieldFromBirth(eYield) != 0)
@@ -4187,11 +4187,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * 5 * max(2, (iNumWonders / 2));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * 5 * std::max(2, (iNumWonders / 2));
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * max(2, (iNumWonders / 4));
+				yield[eYield] += PolicyInfo->GetYieldFromWorldWonderConstruction(eYield) * std::max(2, (iNumWonders / 4));
 			}
 		}
 		if (PolicyInfo->GetYieldFromTech(eYield) != 0)
@@ -4312,22 +4312,22 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangesNaturalWonder(eYield) * 5 * max(1, pPlayer->GetNumNaturalWondersInOwnedPlots());
+				yield[eYield] += PolicyInfo->GetYieldChangesNaturalWonder(eYield) * 5 * std::max(1, pPlayer->GetNumNaturalWondersInOwnedPlots());
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangesNaturalWonder(eYield) * max(1, pPlayer->GetNumNaturalWondersInOwnedPlots());
+				yield[eYield] += PolicyInfo->GetYieldChangesNaturalWonder(eYield) * std::max(1, pPlayer->GetNumNaturalWondersInOwnedPlots());
 			}
 		}
 		if (PolicyInfo->GetYieldChangeWorldWonder(eYield) != 0)
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * 5 * max(1, pPlayer->GetNumWonders());
+				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * 5 * std::max(1, pPlayer->GetNumWonders());
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * max(1, pPlayer->GetNumWonders());
+				yield[eYield] += PolicyInfo->GetYieldChangeWorldWonder(eYield) * std::max(1, pPlayer->GetNumWonders());
 			}
 		}
 		if (PolicyInfo->GetYieldFromMinorDemand(eYield) != 0)
@@ -4433,11 +4433,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			if (pPlayerTraits->IsTourism())
 			{
-				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 15 * max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 15 * std::max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 			else
 			{
-				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 5 *  max(1, pPlayer->GetCulture()->GetNumGreatWorks());
+				yield[eYield] += PolicyInfo->GetYieldModifierFromGreatWorks(eYield) * 5 *  std::max(1, pPlayer->GetCulture()->GetNumGreatWorks());
 			}
 		}
 		if (PolicyInfo->GetYieldModifierFromActiveSpies(eYield) != 0)
@@ -4775,7 +4775,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 			//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
 			if (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) > 0 || m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
-				iWeight *= max(1, m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch));
+				iWeight *= std::max(1, m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch));
 			}
 			else
 			{
@@ -4783,7 +4783,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 				int iPlayerEra = pPlayer->GetCurrentEra();
 				if (iPolicyEra < iPlayerEra && iPlayerEra > 0)
 				{
-					iWeight /= max(2, ((iPlayerEra * 5) - iPolicyEra));
+					iWeight /= std::max(2, ((iPlayerEra * 5) - iPolicyEra));
 				}
 			}
 		}
@@ -4877,7 +4877,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 										if (iValue <= 0)
 											iValue = 0;
 
-										iWeight += min(250, iValue);
+										iWeight += std::min(250, iValue);
 									}
 									else
 									{
@@ -4891,7 +4891,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 										if (iValue <= 0)
 											iValue = 0;
 
-										iWeight += min(250, iValue);
+										iWeight += std::min(250, iValue);
 									}
 								}
 							}

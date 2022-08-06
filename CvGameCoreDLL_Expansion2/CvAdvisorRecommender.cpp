@@ -241,7 +241,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		}
 		else
 		{
-			iNewWeight = m_aResearchableTechs.GetWeight(iI) * max(iTurnsLeft / 2, 1);
+			iNewWeight = m_aResearchableTechs.GetWeight(iI) * std::max(iTurnsLeft / 2, 1);
 		}
 
 		// Now actually change the weight

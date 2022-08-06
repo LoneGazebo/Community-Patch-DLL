@@ -50,7 +50,7 @@ public:
 	};
 
 	//cities may be connected to other players as well, so we store a pair of owner and id
-	typedef std::map<pair<int,int>,CityConnectionTypes> SingleCityConnectionStore;
+	typedef std::map<std::pair<int,int>,CityConnectionTypes> SingleCityConnectionStore;
 	typedef std::map<int,SingleCityConnectionStore> AllCityConnectionStore;
 	typedef std::vector<int> PlotIndexStore;
 

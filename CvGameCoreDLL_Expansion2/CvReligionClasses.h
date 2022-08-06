@@ -133,8 +133,8 @@ public:
 	int m_iNumTradeRoutesApplyingPressure;
 };
 
-typedef vector<CvReligion> ReligionList;
-typedef vector<CvReligionInCity> ReligionInCityList;
+typedef std::vector<CvReligion> ReligionList;
+typedef std::vector<CvReligionInCity> ReligionInCityList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameReligions
@@ -573,8 +573,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false) const;
 #endif
-	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
-	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
+	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const std::vector<std::pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
+	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const std::vector<std::pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread() const;
 	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;

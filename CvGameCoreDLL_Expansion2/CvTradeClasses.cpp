@@ -69,7 +69,7 @@ void CvGameTrade::Uninit (void)
 void CvGameTrade::Reset (void)
 {
 	m_aTradeConnections.clear();
-	m_routesPerPlayer = vector<vector<int>>(MAX_PLAYERS);
+	m_routesPerPlayer = std::vector<std::vector<int>>(MAX_PLAYERS);
 	m_iNextID = 0;
 	m_CurrentTemporaryPopupRoute.iPlotX = 0;
 	m_CurrentTemporaryPopupRoute.iPlotY = 0;
@@ -180,7 +180,7 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	//do not check whether we are at war here! the trade route cache is also used for military target selection
 	//OutputDebugString(CvString::format("updating trade path cache for player %d, turn %d\n", iPlayer1, GC.getGame().getGameTurn()).c_str());
 
-	vector<CvPlot*> vDestPlots;
+	std::vector<CvPlot*> vDestPlots;
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
 		int iCity;
@@ -203,8 +203,8 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 
 		//get all paths
-		map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
+		std::map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (std::map<CvPlot*,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
 			// if this is the origin city, nothing to do
 			if (pOriginCity->plot() == it->first)
@@ -220,8 +220,8 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.ePathType = PT_TRADE_LAND;
 
 		//get all paths
-		map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
+		std::map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (std::map<CvPlot*,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
 			// if this is the origin city, nothing to do
 			if (pOriginCity->plot() == it->first)
@@ -529,7 +529,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CopyPathIntoTradeConnection(path, &(m_aTradeConnections[iNewTradeRouteIndex]));
 
 	// try to make the trade units move faster on "faster" routes
-	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
+	m_aTradeConnections[iNewTradeRouteIndex].m_iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / std::max(1,path.iNormalizedDistanceRaw);
 
 	// reveal all plots to the player who created the trade route
 	TeamTypes eOriginTeam = GET_PLAYER(eOriginPlayer).getTeam();
@@ -1097,8 +1097,8 @@ bool CvGameTrade::ClearTradeRoute(int iIndex)
 #endif
 	
 	//update cache
-	vector<int>& originRoutes = m_routesPerPlayer[eOriginPlayer];
-	vector<int>& destRoutes = m_routesPerPlayer[eDestPlayer];
+	std::vector<int>& originRoutes = m_routesPerPlayer[eOriginPlayer];
+	std::vector<int>& destRoutes = m_routesPerPlayer[eDestPlayer];
 	originRoutes.erase(std::remove(originRoutes.begin(), originRoutes.end(), iIndex), originRoutes.end());
 	destRoutes.erase(std::remove(destRoutes.begin(), destRoutes.end(), iIndex), destRoutes.end());
 	//OutputDebugString(CvString::format("cleared TR from player %d to %d at index %d\n",eOriginPlayer,eDestPlayer,iIndex).c_str());
@@ -1159,7 +1159,7 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 
 	// calculate turns per circuit
 	int iRawSpeed = GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteSpeed(eDomain);
-	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / max(1,path.iNormalizedDistanceRaw);
+	int iSpeedFactor = (100 * SPath::getNormalizedDistanceBase() * path.length()) / std::max(1,path.iNormalizedDistanceRaw);
 	int iRouteSpeed = int(0.5f + iSpeedFactor*iRawSpeed / 100.f);
 
 	float fTurnsPerCircuit = 1;
@@ -1168,13 +1168,13 @@ int CvGameTrade::GetTradeRouteTurns(CvCity* pOriginCity, CvCity* pDestCity, Doma
 
 	int iTargetTurns = /*30*/ GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
-	iTargetTurns = max(iTargetTurns, 1);
+	iTargetTurns = std::max(iTargetTurns, 1);
 	iTargetTurns += (int)(iTargetTurns * (GET_PLAYER(pOriginCity->getOwner()).GetTrade()->GetTradeRouteTurnMod(pOriginCity) / 100.0));
 
 	// calculate how many circuits do we want this trade route to run to reach the target turns
 	int iCircuitsToComplete = 1; 
 	if (fTurnsPerCircuit != 0)
-		iCircuitsToComplete = max( int(iTargetTurns/fTurnsPerCircuit), 2);
+		iCircuitsToComplete = std::max( int(iTargetTurns/fTurnsPerCircuit), 2);
 
 	// return values
 	if (piCircuitsToComplete != NULL) 
@@ -2168,7 +2168,7 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg)
 	}
 }
 
-const vector<int>& CvGameTrade::GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const
+const std::vector<int>& CvGameTrade::GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const
 {
 	if (ePlayer>=0 && (size_t)ePlayer<m_routesPerPlayer.size())
 		return m_routesPerPlayer[ePlayer];
@@ -2609,7 +2609,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iTechDifference > 0)
 				{
 					int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
-					iAdjustedTechDifference = max(iCeilTechDifference, 1);
+					iAdjustedTechDifference = std::max(iCeilTechDifference, 1);
 
 					if(iAdjustedTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
@@ -2657,7 +2657,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				if (iCultureDifference > 0)
 				{
 					int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
-					iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
+					iAdjustedCultureDifference = std::max(iCeilCultureDifference, 1);
 
 					if (iAdjustedCultureDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 					{
@@ -2689,7 +2689,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iTechDifference > 0)
 			{
 				int iCeilTechDifference = int( sqrt((float)iTechDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100));
-				iAdjustedTechDifference = max(iCeilTechDifference, 1);
+				iAdjustedTechDifference = std::max(iCeilTechDifference, 1);
 			}
 
 			return  iAdjustedTechDifference * 100;
@@ -2701,7 +2701,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (iCultureDifference > 0)
 			{
 				int iCeilCultureDifference = int( sqrt((float)iCultureDifference) * 200.f / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100));
-				iAdjustedCultureDifference = max(iCeilCultureDifference, 1);
+				iAdjustedCultureDifference = std::max(iCeilCultureDifference, 1);
 			}
 
 			return  iAdjustedCultureDifference * 100;
@@ -2841,7 +2841,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 				else
 				{
 					iValue *= 100;
-					iValue /= max(1, iModifier);
+					iValue /= std::max(1, iModifier);
 				}
 
 				return iValue;
@@ -3253,11 +3253,11 @@ int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeCo
 	int iDistance = pOriginCity->GetLongestPotentialTradeRoute(kTradeConnection.m_eDomain);
 
 	iLength *= 100;
-	iLength /= max(1, iDistance);
+	iLength /= std::max(1, iDistance);
 
 	int iReduction = 100 - iLength;
 
-	return max(0, min(50, iReduction));
+	return std::max(0, std::min(50, iReduction));
 }
 
 
@@ -3529,7 +3529,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 
 					iValue *= iModifier;
 					iValue /= 100;
-					iValue = max(100, iValue);
+					iValue = std::max(100, iValue);
 				}
 				break;
 			case YIELD_CULTURE:
@@ -3646,7 +3646,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						{
 							iValue /= 250;
 						}
-						iValue = max(100, iValue);
+						iValue = std::max(100, iValue);
 					}
 				}
 				break;
@@ -3712,7 +3712,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						{
 							iValue /= 400;
 						}
-						iValue = max(100, iValue);
+						iValue = std::max(100, iValue);
 					}
 				}
 				break;
@@ -3954,7 +3954,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						if(iStartCityPop > iEndCityPop)
 						{
 							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
-							iValue += max((iDelta * 100), 100);
+							iValue += std::max((iDelta * 100), 100);
 						}
 
 						// Tech Progress increases City Strength
@@ -4021,7 +4021,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						if(iStartCityPop > iEndCityPop)
 						{
 							int iDelta = ((iStartCityPop - iEndCityPop) / 3);
-							iValue += max((iDelta * 100), 100);
+							iValue += std::max((iDelta * 100), 100);
 						}
 					}
 
@@ -4102,7 +4102,7 @@ int CvPlayerTrade::GetTradeValuesAtCityTimes100 (const CvCity *const pCity, Yiel
 	int iCityY = pCity->getY();
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	const vector<int>& vConnections = pTrade->GetTradeConnectionsForPlayer(pCity->getOwner());
+	const std::vector<int>& vConnections = pTrade->GetTradeConnectionsForPlayer(pCity->getOwner());
 	for (uint ui = 0; ui < vConnections.size(); ui++)
 	{
 		//should not happen?
@@ -6223,7 +6223,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	{
 		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
-		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
+		iAdjustedTechDifferenceP1fromP2 = std::max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6265,7 +6265,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	{
 		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
-		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
+		iAdjustedTechDifferenceP2fromP1 = std::max(iCeilTechDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
@@ -6309,7 +6309,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	if (iCultureDifferenceP1fromP2 > 0)
 	{
 		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
+		iAdjustedCultureDifferenceP1fromP2 = std::max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -6351,7 +6351,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	if (iCultureDifferenceP2fromP1 > 0)
 	{
 		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
+		iAdjustedCultureDifferenceP2fromP1 = std::max(iCeilCultureDifference, 1);
 #if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
@@ -6429,7 +6429,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	int iGoldScore = iGoldDelta / max(1, (10-iFlavorGold));
+	int iGoldScore = iGoldDelta / std::max(1, (10-iFlavorGold));
 	int iScienceScore = (iTechDelta *  iFlavorScience);
 	int iCultureScore = (iCultureDelta * iFlavorCulture);
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
@@ -6522,7 +6522,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			iDangerSum += 100;
 	}
 
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
+	int iEra = std::max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
 #if defined(MOD_BALANCE_CORE)
@@ -6693,13 +6693,13 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				iFranchises /= 5;
 			}
 
-			iScore /= max(1, iFranchises);
+			iScore /= std::max(1, iFranchises);
 		}	
 	}
 #endif
 	if(m_pPlayer->IsAtWar())
 	{
-		iScore /= max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
+		iScore /= std::max(2, m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
 	}
 
 	ret.m_iScore = iScore;
@@ -6980,7 +6980,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	{
 		int iCeilScience = iScienceAmount * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
-		iAdjustedScienceAmount = max(iCeilScience, 1);
+		iAdjustedScienceAmount = std::max(iCeilScience, 1);
 		if (iAdjustedScienceAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedScienceAmount *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
@@ -7007,7 +7007,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	else if (iCultureAmount > 0)
 	{
 		int iCeilCulture = iCultureAmount * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
-		iAdjustedCultureAmount = max(iCeilCulture, 1);
+		iAdjustedCultureAmount = std::max(iCeilCulture, 1);
 		if (iAdjustedCultureAmount > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
 			iAdjustedCultureAmount *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
@@ -7065,7 +7065,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 	int iFlavorScience = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 	int iFlavorReligion = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iFlavorCulture = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	int iGoldScore = iGoldAmount / max(1, (10 - iFlavorGold));
+	int iGoldScore = iGoldAmount / std::max(1, (10 - iFlavorGold));
 	int iScienceScore = (iAdjustedScienceAmount *  iFlavorScience);
 	int iCultureScore = (iAdjustedCultureAmount * iFlavorCulture);
 	int iReligionScore = (iReligionDelta *  (iFlavorReligion / 2));
@@ -7123,7 +7123,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			iDangerSum += 100;
 	}
 
-	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
+	int iEra = std::max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
 	//finally

@@ -342,7 +342,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if(!bSamePlayer)
 	{
 		//this is for a quest ... normal considerations don't apply
-		iValue = min(/*1000*/ GD_INT_GET(MINOR_CIV_ROUTE_QUEST_WEIGHT) / max(1, iPlotsNeeded), MAX_SHORT);
+		iValue = std::min(/*1000*/ GD_INT_GET(MINOR_CIV_ROUTE_QUEST_WEIGHT) / std::max(1, iPlotsNeeded), MAX_SHORT);
 	}
 	else
 	{
@@ -463,7 +463,7 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 		return false;
 
 	//do not check IsWaterAreaSeparator() but wait until there are cities on both sides
-	set<int>::const_iterator it = m_canalWantedPlots.find(pPlot->GetPlotIndex());
+	std::set<int>::const_iterator it = m_canalWantedPlots.find(pPlot->GetPlotIndex());
 	return (it != m_canalWantedPlots.end());
 }
 
@@ -482,10 +482,10 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 
 	//if it is the right route, add to needed plots
 	if (pPlot->getRouteType() == eRoute)
-		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+		m_routeNeededPlots[pPlot->GetPlotIndex()] = std::make_pair(eRoute, iValue);
 	else
 		//if no matching route, add to wanted plots
-		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+		m_routeWantedPlots[pPlot->GetPlotIndex()] = std::make_pair(eRoute, iValue);
 }
 
 int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
@@ -505,7 +505,7 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 	if (it != m_routeWantedPlots.end())
 		iCreateValue = it->second.second;
 
-	return max(iKeepValue,iCreateValue);
+	return std::max(iKeepValue,iCreateValue);
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
@@ -520,7 +520,7 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 
 	m_canalWantedPlots.clear();
 
-	vector<CvPlot*> vDestPlots;
+	std::vector<CvPlot*> vDestPlots;
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
 		int iCity;
@@ -539,8 +539,8 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 		data.iMaxNormalizedDistance = m_pPlayer->GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 
 		//get all paths
-		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
-		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
+		std::map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
+		for (std::map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			//the paths may contain not-yet-existing canals but the path cost for them is very high
 			//so they should only be used if there really is no other way.
@@ -795,7 +795,7 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 }
 
 /// Use the flavor settings to determine what the worker should do
-BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
+BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const std::map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
 {
 	m_aDirectives.clear();
 
@@ -813,7 +813,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 	}
 
 	// go through all the plots this unit can reach
-	map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
+	std::map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
 	if (thisUnitPlots == allWorkersReachablePlots.end())
 		return BuilderDirective();
 
@@ -981,12 +981,12 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			}
 
 #if defined(MOD_BALANCE_CORE)
-			iWeight = min(iWeight,0x7FFF);
+			iWeight = std::min(iWeight,0x7FFF);
 			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 #endif
 
 			int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
-			iScore = min(iScore,0x7FFF);
+			iScore = std::min(iScore,0x7FFF);
 
 			if(iScore > 0)
 			{
@@ -1188,7 +1188,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
 			iScore *= 2;
 
-		iScore = min(iScore,0x7FFF);
+		iScore = std::min(iScore,0x7FFF);
 
 		// if we're going backward, bail out!
 		if(iScore <= 0)
@@ -1239,11 +1239,11 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 						iWeightPenalty++;
 				}
 
-				iWeight /= max(1, iWeightPenalty);
+				iWeight /= std::max(1, iWeightPenalty);
 			}
 		}
 
-		iWeight = min(iWeight,0x7FFF);
+		iWeight = std::min(iWeight,0x7FFF);
 		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
 
 		//overflow danger here
@@ -1717,7 +1717,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	}
 
 	//check if we could be captured
-	vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pPlot, pUnit->getTeam());
+	std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pPlot, pUnit->getTeam());
 	bool bMayStay = vAttackers.empty() || (vAttackers.size() == 1 && pPlot->getBestDefender(pUnit->getOwner()) != NULL);
 	if (!bMayStay)
 	{
@@ -1796,7 +1796,7 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 {
 	int iBuildTimeNormal = pPlot->getBuildTime(eBuild, m_pPlayer->GetID());
 	int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, m_pPlayer->GetID(), pUnit->workRate(true), pUnit->workRate(true));
-	int iBuildTime = min(iBuildTimeNormal, iBuildTurnsLeft);
+	int iBuildTime = std::min(iBuildTimeNormal, iBuildTurnsLeft);
 	if(iBuildTime <= 0)
 	{
 		iBuildTime = 1;
@@ -2903,7 +2903,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 			{
 #endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
-				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+				m_aiProjectedPlotYields[ui] = std::max(m_aiProjectedPlotYields[ui], 0);
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 				if (MOD_RELIGION_PERMANENT_PANTHEON)
@@ -2915,7 +2915,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
 							{
 								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
-								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+								m_aiProjectedPlotYields[ui] = std::max(m_aiProjectedPlotYields[ui], 0);
 							}
 						}
 					}
@@ -2945,7 +2945,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 			{
 #endif
 				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID(), NULL, NULL, NULL);
-				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
+				m_aiProjectedPlotYields[ui] = std::max(m_aiProjectedPlotYields[ui], 0);
 
 				if (m_bLogging){
 					CvString strLog;

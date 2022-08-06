@@ -276,7 +276,7 @@ int CvDeal::GetMaxValue() const
 			iRightSideValue += it->m_iValue;
 	}
 
-	return max(iLeftSideValue, iRightSideValue);
+	return std::max(iLeftSideValue, iRightSideValue);
 }
 
 void CvDeal::SetFromPlayerValue(int iValue)
@@ -883,7 +883,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pFromTeam->isAtWar(eTargetTeam))
 				return false;
 
-			vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
+			std::vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
 
 			// If this is a peace deal, we only want allied City-States in here.
 			if (bPeaceDeal)
@@ -933,7 +933,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						if (GET_PLAYER(vMembers[i]).GetMinorCivAI()->IsPeaceBlocked(eFromTeam))
 							return false;
 
-						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
 						for (size_t j=0; j < vFromTeam.size(); j++)
 						{
 							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
@@ -951,7 +951,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 							return false;
 
 						// Check for peace blocks
-						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
 						for (size_t j=0; j < vFromTeam.size(); j++)
 						{
 							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
@@ -1025,7 +1025,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// Thoroughly check for invalid targets!
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
+			std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -1385,7 +1385,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is temporary - it cannot be traded for a permanent item
 	if (bTemporary)
 	{
-		vector<TradeableItems> vProhibitedItems;
+		std::vector<TradeableItems> vProhibitedItems;
 		vProhibitedItems.push_back(TRADE_ITEM_CITIES);
 		vProhibitedItems.push_back(TRADE_ITEM_TECHS);
 		vProhibitedItems.push_back(TRADE_ITEM_MAPS);
@@ -1401,7 +1401,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is permanent - it cannot be traded for a temporary item
 	else if (!bExempted)
 	{
-		vector<TradeableItems> vProhibitedItems;
+		std::vector<TradeableItems> vProhibitedItems;
 		vProhibitedItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
 		vProhibitedItems.push_back(TRADE_ITEM_RESOURCES);
 		vProhibitedItems.push_back(TRADE_ITEM_OPEN_BORDERS);
@@ -2485,7 +2485,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return GetLocalizedText("TXT_KEY_DIPLO_NOT_AT_WAR");
 			}
 
-			vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
+			std::vector<PlayerTypes> vMembers = GET_TEAM(eTargetTeam).getPlayers();
 
 			// If this is a peace deal, we only want allied City-States in here.
 			if (bPeaceDeal)
@@ -2548,7 +2548,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			if (!bPeaceDeal) // Skip this in peace deals; validity above overrides validity below
 			{
 				int iNumCivs = 0;
-				vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+				std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
 
 				// First loop, check all the City-States for permanent wars or peace blocks
 				for (size_t i=0; i < vMembers.size(); i++)
@@ -2621,7 +2621,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 						if (!GET_PLAYER(vMembers[i]).isAlive() || !GET_PLAYER(vMembers[i]).isMajorCiv())
 							continue;
 
-						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
 						for (size_t j=0; j < vFromTeam.size(); j++)
 						{
 							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
@@ -2648,7 +2648,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 							return GetLocalizedText("TXT_KEY_DIPLO_WAR_SCORE", iRequiredWarscore, iWarscore);							
 						}
 
-						vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
+						std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers();
 						for (size_t j=0; j < vFromTeam.size(); j++)
 						{
 							if (!GET_PLAYER(vFromTeam[j]).isAlive() || !GET_PLAYER(vFromTeam[j]).isMajorCiv())
@@ -2789,7 +2789,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 			}
 
 			// Check for Declarations of Friendship
-			vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers(), vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			std::vector<PlayerTypes> vFromTeam = pFromTeam->getPlayers(), vToTeam = pToTeam->getPlayers(), vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			for (size_t i=0; i < vFromTeam.size(); i++)
 			{
 				if (!GET_PLAYER(vFromTeam[i]).isAlive() || !GET_PLAYER(vFromTeam[i]).isMajorCiv())
@@ -2982,7 +2982,7 @@ bool CvDeal::ContainsItemType(TradeableItems eItemType, PlayerTypes eFrom /* = N
 	return false;
 }
 
-bool CvDeal::ContainsItemTypes(vector<TradeableItems> vItemTypes, PlayerTypes eFrom /* = NO_PLAYER */)
+bool CvDeal::ContainsItemTypes(std::vector<TradeableItems> vItemTypes, PlayerTypes eFrom /* = NO_PLAYER */)
 {
 	TradedItemList::iterator it;
 	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); it++)
@@ -4656,7 +4656,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
-			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			std::vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 			PlayerTypes eTargetPlayer = GET_TEAM(eTargetTeam).getLeaderID();
 			if (eTargetPlayer == NO_PLAYER)
 				break;
@@ -4723,7 +4723,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					else
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-						vector<PlayerTypes> v;
+						std::vector<PlayerTypes> v;
 						v.push_back(eReceivingPlayer);
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
 					}
@@ -4825,11 +4825,11 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		{
 			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
-			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			std::vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
 
 			// First loop, check to see who established surveillance
-			vector<PlayerTypes> vPlayersWithSurveillance;
-			vector<PlayerTypes> vDebugModePlayers;
+			std::vector<PlayerTypes> vPlayersWithSurveillance;
+			std::vector<PlayerTypes> vDebugModePlayers;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
@@ -4879,7 +4879,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			}
 
 			// Now process global reactions (anyone who establishes surveillance informs their friends and allies of what they learned!)
-			vector<PlayerTypes> vNotifiedPlayers;
+			std::vector<PlayerTypes> vNotifiedPlayers;
 
 			// First, players notify themselves
 			for (std::vector<PlayerTypes>::iterator iter = vPlayersWithSurveillance.begin(); iter != vPlayersWithSurveillance.end(); iter++)
@@ -5157,7 +5157,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				break;
 
 			// All AI players on the attacking team go to war now.
-			vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
+			std::vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
 			for (size_t i=0; i<vAttackingTeam.size(); i++)
 			{
 				if (!GET_PLAYER(vAttackingTeam[i]).isAlive() || !GET_PLAYER(vAttackingTeam[i]).isMajorCiv() || GET_PLAYER(vAttackingTeam[i]).isHuman() || GET_PLAYER(vAttackingTeam[i]).getNumCities() <= 0)
@@ -5182,7 +5182,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			{
 				if (!GET_PLAYER(*iter).isHuman())
 				{
-					vector<PlayerTypes> v;
+					std::vector<PlayerTypes> v;
 					v.push_back(eReceivingPlayer);
 					GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
 				}
@@ -5806,7 +5806,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			CvTeam& kTeam = GET_TEAM(toPlayer.getTeam());
 			int iToPlayerBeakers = toPlayer.GetResearchAgreementCounter(eFromPlayer);
 			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer);
-			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR); //one (third) of minimum contribution
+			int iBeakersBonus = std::min(iToPlayerBeakers, iFromPlayerBeakers) / /*3*/ GD_INT_GET(RESEARCH_AGREEMENT_BOOST_DIVISOR); //one (third) of minimum contribution
 			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();

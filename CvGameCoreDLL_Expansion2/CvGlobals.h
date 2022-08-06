@@ -169,7 +169,7 @@ public:
 
 	typedef stdext::hash_map<std::string /* type string */, int /* info index */> InfosMap;
 	typedef std::map<uint /* FString::HashType */, int /* info index */> InfosHashMap;
-	typedef tr1::array<uint32, 4> GameDataHash;
+	typedef std::tr1::array<uint32, 4> GameDataHash;
 
 	// singleton accessor
 	static CvGlobals& getInstance();

@@ -456,7 +456,7 @@ void CvFlavorManager::RandomizeWeights()
 {
 	int iMax = range(/*20*/ GD_INT_GET(PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
 	int iMin = range(/*0*/ GD_INT_GET(PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
-	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
+	int iPlusMinus = std::max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
 	int iSeed = 0;

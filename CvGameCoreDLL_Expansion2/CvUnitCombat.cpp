@@ -147,7 +147,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			
 			/*
 			//garrison can not be killed, only reduce to 10 hp
-			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			iGarrisonShare = std::min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
 			*/
 
 			if (iGarrisonShare>0)
@@ -786,7 +786,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 			/*
 			//garrison can not be killed, only reduce to 10 hp
-			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			iGarrisonShare = std::min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
 			*/
 
 			if (iGarrisonShare>0)
@@ -1027,7 +1027,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,std::min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
 					// Defender died
@@ -1158,7 +1158,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
-					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
+					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,std::min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 
 #if defined(MOD_BALANCE_CORE)
 					if(pCity->getDamage() != pCity->GetMaxHitPoints())
@@ -1410,7 +1410,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			// 1 HP left
 			pkDefender->setDamage(pkDefender->GetMaxHitPoints() - 1);
 
-			int iNumGoldStolen = max(/*200*/ GD_INT_GET(BARBARIAN_CITY_GOLD_RANSOM), GET_PLAYER(pkDefender->getOwner()).GetTreasury()->GetGold());
+			int iNumGoldStolen = std::max(/*200*/ GD_INT_GET(BARBARIAN_CITY_GOLD_RANSOM), GET_PLAYER(pkDefender->getOwner()).GetTreasury()->GetGold());
 
 			// City is ransomed for Gold
 			GET_PLAYER(pkDefender->getOwner()).GetTreasury()->ChangeGold(-iNumGoldStolen);
@@ -1697,7 +1697,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 			/*
 			//garrison can not be killed, only reduce to 10 hp
-			iGarrisonShare = min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
+			iGarrisonShare = std::min(iGarrisonShare,pGarrison->GetCurrHitPoints()-10);
 			*/
 
 			if (iGarrisonShare>0)
@@ -3092,7 +3092,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 						iTotalDamage += pLoopCity->getDamage();
 
 						// Can't bring a city below 1 HP
-						iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
+						iTotalDamage = std::min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
 					}
 
 					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopCity);
@@ -3320,7 +3320,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1.0)
 	double fStrengthRatio = (iDefenderStrength100 > iAttackerStrength100) ?
-		(double(iDefenderStrength100) / max(1,iAttackerStrength100)) : (double(iAttackerStrength100) / max(1,iDefenderStrength100));
+		(double(iDefenderStrength100) / std::max(1,iAttackerStrength100)) : (double(iAttackerStrength100) / std::max(1,iDefenderStrength100));
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
@@ -3339,7 +3339,7 @@ int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength10
 		iDamage /= 100;
 	}
 
-	return max(iDamage,0);
+	return std::max(iDamage,0);
 }
 
 //	---------------------------------------------------------------------------
@@ -4477,7 +4477,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 #if defined(MOD_BALANCE_CORE)
 	if(pkWinner->isExtraAttackHealthOnKill())
 	{
-		int iHealAmount = min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+		int iHealAmount = std::min(pkWinner->getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
 		pkWinner->changeMoves(GD_INT_GET(MOVE_DENOMINATOR));
 		pkWinner->setMadeAttack(false);
 		pkWinner->changeDamage(-iHealAmount);
@@ -4500,7 +4500,7 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	CvPlayer& kPlayer = GET_PLAYER(pkWinner->getOwner());
 	if (pkWinner->GetGoldenAgeValueFromKills() > 0)
 	{
-		int iCombatStrength = max(pkLoser->GetBaseCombatStrength(), pkLoser->GetBaseRangedCombatStrength());
+		int iCombatStrength = std::max(pkLoser->GetBaseCombatStrength(), pkLoser->GetBaseRangedCombatStrength());
 		if(iCombatStrength > 0)
 		{
 			int iValue = iCombatStrength * pkWinner->GetGoldenAgeValueFromKills() / 100;
@@ -4610,7 +4610,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 			GET_PLAYER(pkAttacker->getOwner()).GetTreasury()->ChangeGold(iGoldPlundered);
 
 			CvPlayer& kCityPlayer = GET_PLAYER(pkDefender->getOwner());
-			int iDeduction = min(iGoldPlundered, kCityPlayer.GetTreasury()->GetGold());
+			int iDeduction = std::min(iGoldPlundered, kCityPlayer.GetTreasury()->GetGold());
 			kCityPlayer.GetTreasury()->ChangeGold(-iDeduction);
 
 			if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())

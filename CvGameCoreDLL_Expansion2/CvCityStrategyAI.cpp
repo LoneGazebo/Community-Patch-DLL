@@ -646,7 +646,7 @@ YieldTypes CvCityStrategyAI::GetMostAbundantYield()
 /// Get the average value of the yield for this city
 void CvCityStrategyAI::PrecalcYieldStats()
 {
-	vector<float> expectedYieldPerPop;
+	std::vector<float> expectedYieldPerPop;
 	//add the values in the order of the yield enum
 	expectedYieldPerPop.push_back(100 * /*0.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD));  // food is different because we include consumption
 	expectedYieldPerPop.push_back(100 * /*1.0*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION));
@@ -655,7 +655,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	expectedYieldPerPop.push_back(100 * /*2.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_CULTURE));
 	expectedYieldPerPop.push_back(100 * /*2.5*/ GD_FLOAT_GET(AI_CITYSTRATEGY_YIELD_DEFICIENT_FAITH));
 
-	vector< OptionWithScore<YieldTypes> > deviations;
+	std::vector< OptionWithScore<YieldTypes> > deviations;
 	for (int iI = 0; iI <= YIELD_FAITH; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
@@ -665,7 +665,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 		if (eYield == YIELD_FOOD)
 			iYield -= (m_pCity->foodConsumptionTimes100());
 		
-		int iYieldPerPop100 = (iYield*100) / max(1, m_pCity->getPopulation());
+		int iYieldPerPop100 = (iYield*100) / std::max(1, m_pCity->getPopulation());
 		int iDeviation = iYieldPerPop100 - (int)expectedYieldPerPop[iI];
 
 		deviations.push_back( OptionWithScore<YieldTypes>(eYield,iDeviation) );
@@ -931,11 +931,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		if(iWaterPriority >= 0)
 		{
 			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+			iWaterRoutes = 1000 - std::min(1000, (iWaterPriority * 50));
 		}
 		if(iLandPriority >= 0)
 		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+			iLandRoutes = 1000 - std::min(1000, (iLandPriority * 50));
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
@@ -1121,7 +1121,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//pick something new
 		if (!bContinueWithCurrentBuild)
 		{
-			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
+			int iNumChoices = std::max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
 		}
 
@@ -1361,11 +1361,11 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		if (iWaterPriority >= 0)
 		{
 			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+			iWaterRoutes = 1000 - std::min(1000, (iWaterPriority * 50));
 		}
 		if (iLandPriority >= 0)
 		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+			iLandRoutes = 1000 - std::min(1000, (iLandPriority * 50));
 		}
 
 		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
@@ -1424,12 +1424,12 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
 					if (AmountComplete > 0)
 					{
-						int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
+						int AmountNeeded = std::max(1, GetCity()->getProductionNeeded(eBuildingType));
 						AmountComplete /= AmountNeeded;
 						if (AmountComplete < 50)
 						{
 							iNewWeight *= (100 + AmountComplete);
-							iNewWeight /= max(1, AmountComplete);
+							iNewWeight /= std::max(1, AmountComplete);
 						}
 					}
 					if(iNewWeight > 0)
@@ -1450,7 +1450,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
 		// Choose from the best options (currently 2)
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
+		int iNumChoices = std::max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
 		if (m_pCity->isBarbarian())
 		{
 			selection = m_Buildables.GetElement(0);
@@ -3817,7 +3817,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 	int iEra = kPlayer.GetCurrentEra();
 
-	int iYieldRate = max(1, pCity->getYieldRate(eYield, false));
+	int iYieldRate = std::max(1, pCity->getYieldRate(eYield, false));
 
 	iFlatYield = 0; //return this by reference
 	int iModifier = 0;
@@ -3893,7 +3893,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		iFlatYield += pkBuildingInfo->GetGreatWorkYieldChange(eYield) * pCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots();
 	}
 
-	const vector<BuildingTypes>& buildingInteractions = GC.getBuildingInteractions(eBuilding);
+	const std::vector<BuildingTypes>& buildingInteractions = GC.getBuildingInteractions(eBuilding);
 	for (size_t i = 0; i < buildingInteractions.size(); i++)
 	{
 		CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(buildingInteractions[i]);
@@ -4144,25 +4144,25 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					iSpecialistYield *= 2;
 					iSpecialistYield /= 3;
 
-					iFlatYield += (iSpecialistYield * max(1, iExistingSpecialists));
+					iFlatYield += (iSpecialistYield * std::max(1, iExistingSpecialists));
 				}
 				//Growing normally? Value should increase based on number of specialists already here (to encourage clumping)!
 				else
 				{
 					iSpecialistYield *= 3;
 					iSpecialistYield /= 2;
-					iFlatYield += (max(1, iExistingSpecialists) * iSpecialistYield);
+					iFlatYield += (std::max(1, iExistingSpecialists) * iSpecialistYield);
 				}
 			}
 		}
 	}
 	if (pkBuildingInfo->GetYieldPerAlly(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerAlly(eYield) * std::max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSAllies()));
 	}
 	if (pkBuildingInfo->GetYieldPerFriend(eYield) > 0)
 	{
-		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
+		iFlatYield += (pkBuildingInfo->GetYieldPerFriend(eYield) * std::max(GC.getGame().GetNumMinorCivsAlive() / 4, kPlayer.GetNumCSFriends()));
 	}
 	if (pkBuildingInfo->GetYieldFromInternal(eYield) > 0)
 	{
@@ -4216,7 +4216,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromGPExpend(eYield) > 0)
 	{
-		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * max(10, ((pCity->getGreatPeopleRateModifier() + kPlayer.getGreatPeopleRateModifier()) / 10)));
+		iInstant += (pkBuildingInfo->GetYieldFromGPExpend(eYield) * std::max(10, ((pCity->getGreatPeopleRateModifier() + kPlayer.getGreatPeopleRateModifier()) / 10)));
 		iInstant += kPlayer.GetPlayerTraits()->GetWLTKDGPImprovementModifier() * 10;
 	}
 	if (pkBuildingInfo->GetYieldFromTech(eYield) > 0)
@@ -4266,11 +4266,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromSpyAttack(eYield) > 0)
 	{
-		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyAttack(eYield) / 15;
+		iInstant += std::max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyAttack(eYield) / 15;
 	}
 	if (pkBuildingInfo->GetYieldFromSpyDefense(eYield) > 0)
 	{
-		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 15;
+		iInstant += std::max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 15;
 	}
 	if (pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
 	{
@@ -4326,7 +4326,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (pkBuildingInfo->GetYieldFromBirth(eYield) > 0)
 	{
 		//we want these as early as possible!
-		iInstant += max(1, (500 - (pCity->getPopulation() * 10)));
+		iInstant += std::max(1, (500 - (pCity->getPopulation() * 10)));
 
 		iInstant += pkBuildingInfo->GetYieldFromBirth(eYield) + pCity->foodDifference() + pCity->GetGrowthExtraYield(eYield) + kPlayer.GetCityGrowthMod();
 		if (pCity->isCapital())
@@ -4435,7 +4435,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (iFlatYield > 0)
 	{
 		//let's see our % bump here.
-		iDelta = (iFlatYield * 100) / max(1, iYieldRate);
+		iDelta = (iFlatYield * 100) / std::max(1, iYieldRate);
 
 		if (iYieldRate <= 0)
 		{
@@ -4454,11 +4454,11 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	if (iInstant > 0)
 	{
 		//Instant Yields almost always scale with era, so compensate.
-		iInstant *= max(1, iEra);
+		iInstant *= std::max(1, iEra);
 
 		//Let's see how much this is compared to our actual rate.
 		//We divide, since we are getting this sporadically, not all the time.
-		iDelta = max((iInstant/2), (iInstant / max(1, iYieldRate)));
+		iDelta = std::max((iInstant/2), (iInstant / std::max(1, iYieldRate)));
 
 		iYieldValue += iDelta;
 
@@ -4471,7 +4471,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		//Let's see how much this is compared to our actual rate.
 		//We multiply, as we want to see what the 'new' value will be with this modifier intact.
 		//We don't need to do this again as this shows us the actual bonus earned here.
-		int iActualIncrease = ((iModifier * max(1, iYieldRate)) / 100);
+		int iActualIncrease = ((iModifier * std::max(1, iYieldRate)) / 100);
 
 		iYieldValue += iActualIncrease;
 	}
@@ -4555,12 +4555,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 				if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
 				{		
-					iYieldValue += max(1, iFlavorReligion);
+					iYieldValue += std::max(1, iFlavorReligion);
 				}
 			
 				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
 				{
-					iYieldValue += max(1, iFlavorReligion);
+					iYieldValue += std::max(1, iFlavorReligion);
 				}
 				break;
 			}
@@ -4623,7 +4623,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 
 	int iReligionBonus = 0;
 
-	int iModifier = max(2, (15 - kPlayer.GetCurrentEra()));
+	int iModifier = std::max(2, (15 - kPlayer.GetCurrentEra()));
 	if (kPlayer.GetPlayerTraits()->IsReligious())
 		iModifier *= 2;
 
@@ -4685,7 +4685,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 							}
 
 							if (eYield == YIELD_FAITH)
-								iTempBonus *= max(1, (iModifier/2));
+								iTempBonus *= std::max(1, (iModifier/2));
 						}
 					}
 					if (pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
@@ -5000,11 +5000,11 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		int iTest = pCity->getYieldRate(YIELD_CULTURE, false);
 
-		iTourismValue += (iTest / max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
+		iTourismValue += (iTest / std::max(1, (pkBuildingInfo->GetLandmarksTourismPercent() + pkBuildingInfo->GetLandmarksTourismPercentGlobal())));
 	}
 	if (pCity != NULL && (pkBuildingInfo->GetGreatWorksTourismModifier() > 0 || pkBuildingInfo->GetGreatWorksTourismModifierGlobal() > 0))
 	{
-		int iWorks = max(3, pCity->GetCityCulture()->GetNumGreatWorkSlots());
+		int iWorks = std::max(3, pCity->GetCityCulture()->GetNumGreatWorkSlots());
 
 		//Higher value the higher the number of works.
 		iTourismValue += (iWorks * (pkBuildingInfo->GetGreatWorksTourismModifier() + pkBuildingInfo->GetGreatWorksTourismModifierGlobal()));
@@ -5364,7 +5364,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	//GWS
 	if (pkBuildingInfo->GetNumThemingBonuses() > 0 || pkBuildingInfo->GetGreatWorkCount() > 0)
 	{
-		int iNumWorks = max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
+		int iNumWorks = std::max(1, pCity->GetCityBuildings()->GetNumGreatWorks());
 		iValue += (pkBuildingInfo->GetNumThemingBonuses());
 		iValue += (pkBuildingInfo->GetGreatWorkCount() * iNumWorks * 2);
 		if (kPlayer.GetPlayerTraits()->GetCapitalThemingBonusModifier() > 0)

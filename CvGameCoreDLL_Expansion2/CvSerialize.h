@@ -425,12 +425,12 @@ public:
 #define SYNC_ARCHIVE_VAR_TYPE(...) __VA_ARGS__
 
 template <typename T, std::size_t N>
-FDataStream& operator<<(FDataStream& saveTo, const tr1::array<T, N>& readFrom) {
+FDataStream& operator<<(FDataStream& saveTo, const std::tr1::array<T, N>& readFrom) {
 	const CvSpan<const T, N> span(readFrom.begin(), readFrom.end());
 	return saveTo << span;
 }
 template <typename T, std::size_t N>
-FDataStream& operator>>(FDataStream& loadFrom, tr1::array<T, N>& writeTo) {
+FDataStream& operator>>(FDataStream& loadFrom, std::tr1::array<T, N>& writeTo) {
 	const CvSpan<T, N> span(writeTo.begin(), writeTo.end());
 	return loadFrom >> span;
 }

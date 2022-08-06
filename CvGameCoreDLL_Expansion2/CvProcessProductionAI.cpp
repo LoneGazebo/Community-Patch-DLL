@@ -324,7 +324,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			}
 			if (GC.getGame().GetGameLeagues()->CanContributeToLeagueProject(m_pCity->getOwner(), eLeagueProject))
 			{
-				vector<LeagueProjectRewardTypes> veRewards;
+				std::vector<LeagueProjectRewardTypes> veRewards;
 				veRewards.push_back(pInfo->GetRewardTier3());
 				veRewards.push_back(pInfo->GetRewardTier2());
 				veRewards.push_back(pInfo->GetRewardTier1());

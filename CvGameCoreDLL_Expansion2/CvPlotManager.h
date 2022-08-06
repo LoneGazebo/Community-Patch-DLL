@@ -7,7 +7,7 @@
 
 #define DEFAULT_INFO_ARRAY_SIZE	8
 
-class CvIDInfoFixedVector : public vector<IDInfo>
+class CvIDInfoFixedVector : public std::vector<IDInfo>
 {
 public:
 

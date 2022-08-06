@@ -90,7 +90,7 @@ public:
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer, bool bMyTeamIsValid = false) const;
 	int GetNumValidMajorCivs() const;
-	vector<PlayerTypes> GetAllValidMajorCivs() const;
+	std::vector<PlayerTypes> GetAllValidMajorCivs() const;
 
 	bool IsAtWar(PlayerTypes eOtherPlayer) const;
 	bool IsAlwaysAtWar(PlayerTypes eOtherPlayer) const;
@@ -103,7 +103,7 @@ public:
 	bool IsVassal(PlayerTypes eOtherPlayer) const;
 	bool IsMaster(PlayerTypes eOtherPlayer) const;
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
-	vector<PlayerTypes> GetLinkedWarPlayers(PlayerTypes eOtherPlayer, bool bIgnoreDefensivePacts, bool bIncludeMinors, bool bIncludeUnmet) const;
+	std::vector<PlayerTypes> GetLinkedWarPlayers(PlayerTypes eOtherPlayer, bool bIgnoreDefensivePacts, bool bIncludeMinors, bool bIncludeUnmet) const;
 
 	// ************************************
 	// Personality Values
@@ -250,11 +250,11 @@ public:
 	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
 	CivApproachTypes GetHighestValueApproach(PlayerTypes ePlayer, bool bExcludeWar = false, bool bIncludeOverrides = false) const;
-	PlayerTypes GetPlayerWithHighestApproachValue(CivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
+	PlayerTypes GetPlayerWithHighestApproachValue(CivApproachTypes eApproach, std::vector<PlayerTypes>& vPlayersToExclude) const;
 
 	int GetPlayerStrategicApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
 	void SetPlayerStrategicApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
-	PlayerTypes GetPlayerWithHighestStrategicApproachValue(CivApproachTypes eApproach, vector<PlayerTypes>& vPlayersToExclude) const;
+	PlayerTypes GetPlayerWithHighestStrategicApproachValue(CivApproachTypes eApproach, std::vector<PlayerTypes>& vPlayersToExclude) const;
 
 	// ------------------------------------
 	// Minor Civs
@@ -623,7 +623,7 @@ public:
 	bool IsPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerIgnoredExpansionPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerBrokenExpansionPromise(PlayerTypes ePlayer) const;
-	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
+	std::vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
 	int GetPlayerExpansionPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
@@ -1160,9 +1160,9 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluatePlayers(std::vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
-	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
+	void DoUpdateMajorCivApproaches(std::vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
 	// Priority approach updates
 	void SelectAlwaysWarApproach(PlayerTypes ePlayer);
@@ -1175,7 +1175,7 @@ public:
 	void SelectApproachTowardsVassal(PlayerTypes ePlayer);
 
 	// Main approach update function
-	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, vector<PlayerTypes>& vValidPlayers, vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
+	void SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool bStrategic, std::vector<PlayerTypes>& vValidPlayers, std::vector<PlayerTypes>& vPlayersToReevaluate, std::map<PlayerTypes, CivApproachTypes>& oldApproaches);
 
 	// Planning Exchanges
 	void DoRelationshipPairing();
@@ -1186,7 +1186,7 @@ public:
 	bool IsGoodChoiceForDefensivePact(PlayerTypes ePlayer);
 	bool IsGoodChoiceForResearchAgreement(PlayerTypes ePlayer);
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
-	PlayerTypes GetHighestScoringDefensivePact(vector<PlayerTypes>& vAcceptableChoices, vector<PlayerTypes>& vPlayersToExclude);
+	PlayerTypes GetHighestScoringDefensivePact(std::vector<PlayerTypes>& vAcceptableChoices, std::vector<PlayerTypes>& vPlayersToExclude);
 	int ScoreDefensivePactChoice(PlayerTypes eChoice, bool bCoastal);
 
 	// War!

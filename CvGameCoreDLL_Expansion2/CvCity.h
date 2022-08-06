@@ -38,24 +38,24 @@ class CvPlayer;
 
 struct SCityExtraYields
 {
-	vector<pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
-	vector<pair<FeatureTypes, int>> forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
-	vector<pair<ImprovementTypes, int>> forImprovement;
-	vector<pair<SpecialistTypes, int>> forSpecialist;
-	vector<pair<ResourceTypes, int>> forResource;
-	vector<pair<PlotTypes, int>> forPlot;
-	vector<pair<YieldTypes, int>> forYield, forActualYield;
-	vector<pair<BuildingClassTypes, int>> forLocalBuilding, forReligionBuilding;
+	std::vector<std::pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
+	std::vector<std::pair<FeatureTypes, int>> forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
+	std::vector<std::pair<ImprovementTypes, int>> forImprovement;
+	std::vector<std::pair<SpecialistTypes, int>> forSpecialist;
+	std::vector<std::pair<ResourceTypes, int>> forResource;
+	std::vector<std::pair<PlotTypes, int>> forPlot;
+	std::vector<std::pair<YieldTypes, int>> forYield, forActualYield;
+	std::vector<std::pair<BuildingClassTypes, int>> forLocalBuilding, forReligionBuilding;
 };
 
 struct SCityEventYields
 {
-	vector<pair<BuildingClassTypes, int>> forBuilding, forBuildingModifier;
-	vector<pair<ImprovementTypes, int>> forImprovement;
-	vector<pair<ResourceTypes, int>> forResource;
-	vector<pair<SpecialistTypes, int>> forSpecialist;
-	vector<pair<TerrainTypes, int>> forTerrain;
-	vector<pair<FeatureTypes, int>> forFeature;
+	std::vector<std::pair<BuildingClassTypes, int>> forBuilding, forBuildingModifier;
+	std::vector<std::pair<ImprovementTypes, int>> forImprovement;
+	std::vector<std::pair<ResourceTypes, int>> forResource;
+	std::vector<std::pair<SpecialistTypes, int>> forSpecialist;
+	std::vector<std::pair<TerrainTypes, int>> forTerrain;
+	std::vector<std::pair<FeatureTypes, int>> forFeature;
 };
 
 class CvCity
@@ -1404,7 +1404,7 @@ public:
 	void changeUnitCombatProductionModifier(UnitCombatTypes eIndex, int iChange);
 
 	int getFreePromotionCount(PromotionTypes eIndex) const;
-	vector<PromotionTypes> getFreePromotions() const;
+	std::vector<PromotionTypes> getFreePromotions() const;
 	void changeFreePromotionCount(PromotionTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE)
@@ -1460,7 +1460,7 @@ public:
 	void DoNearbyEnemy();
 
 	bool IsInDanger(PlayerTypes eEnemy) const;
-	bool IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const;
+	bool IsInDangerFromPlayers(std::vector<PlayerTypes>& vWarAllies) const;
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
@@ -2030,7 +2030,7 @@ protected:
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
-	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
+	std::vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]
 
 #if defined(MOD_BALANCE_CORE)
 	std::map<std::pair<int, int>, short> m_ppiGreatPersonProgressFromConstruction;
@@ -2047,7 +2047,7 @@ protected:
 	std::vector<int> m_aiEventCityYieldModifier;
 	int m_iEventHappiness;
 	int m_iCityEventCooldown;
-	vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
+	std::vector<SCityEventYields> m_eventYields; //[NUM_YIELD_TYPES]
 #endif
 
 #if defined(MOD_BALANCE_CORE)
@@ -2099,7 +2099,7 @@ protected:
 #endif
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
-	mutable vector<int> m_GwYieldCache; //not serialized
+	mutable std::vector<int> m_GwYieldCache; //not serialized
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
 

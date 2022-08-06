@@ -80,7 +80,7 @@ void DumpNodeList(const std::vector<CvAStarNode*>& nodes)
 
 int SMovePlot::effectivePathLength(int iMovesPerTurn) const
 { 
-	return iNormalizedDistanceRaw / (SPath::getNormalizedDistanceBase() * max(1,iMovesPerTurn)); 
+	return iNormalizedDistanceRaw / (SPath::getNormalizedDistanceBase() * std::max(1,iMovesPerTurn)); 
 }
 
 //	--------------------------------------------------------------------------------
@@ -408,7 +408,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 #if defined(MOD_CORE_DEBUGGING)
 	//debugging!
 	timer.EndPerfTest();
-	int iBin = min(99,int(timer.GetDeltaInSeconds()*1000));
+	int iBin = std::min(99,int(timer.GetDeltaInSeconds()*1000));
 	saiRuntimeHistogram[iBin]++;
 
 	if ( timer.GetDeltaInSeconds()>0.2 && data.ePathType==PT_UNIT_MOVEMENT )
@@ -567,7 +567,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	//wormholes, eg harbors
 	if(udGetExtraChildrenFunc)
 	{
-		vector<pair<int, int>> extraChildren;
+		std::vector<std::pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
 		for(size_t i = 0; i < extraChildren.size(); i++)
 		{
@@ -661,7 +661,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 }
 
 //  --------------------------------------------------------------------------------
-int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const
+int CvAStar::GetExtraChildren(const CvAStarNode* node, std::vector<std::pair<int,int>>& out) const
 {
 	if (udGetExtraChildrenFunc)
 	{
@@ -1653,7 +1653,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		//non local neighbors
 		if (udGetExtraChildrenFunc)
 		{
-			vector<pair<int, int>> extraChildren;
+			std::vector<std::pair<int, int>> extraChildren;
 			GetExtraChildren(node, extraChildren);
 			for (size_t i = 0; i < extraChildren.size(); i++)
 			{
@@ -1949,10 +1949,10 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 
 		//plot type dependent cost. should really be handled via terrain, but ok for now
 		if (pToPlot->isHills())
-			iExtraCost = max(iExtraCost,/*1*/GD_INT_GET(INFLUENCE_HILL_COST));
+			iExtraCost = std::max(iExtraCost,/*1*/GD_INT_GET(INFLUENCE_HILL_COST));
 		//inca can cross mountains ...
 		if (pToPlot->isMountain() && !pToPlot->IsNaturalWonder() && !pToPlot->isValidMovePlot(finder->GetData().ePlayer,false))
-			iExtraCost = max(iExtraCost,/*3*/GD_INT_GET(INFLUENCE_MOUNTAIN_COST));
+			iExtraCost = std::max(iExtraCost,/*3*/GD_INT_GET(INFLUENCE_MOUNTAIN_COST));
 
 		//ignore this if there's a resource here
 		if (pToPlot->getResourceType(pSourcePlot->getTeam())==NO_RESOURCE)
@@ -1961,9 +1961,9 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->isLake() ? TERRAIN_PLAINS : pToPlot->getTerrainType());
 			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
 			if (pFeature)
-				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());
+				iExtraCost = std::max(iExtraCost, pFeature->getInfluenceCost());
 			else if (pTerrain)
-				iExtraCost = max(iExtraCost, pTerrain->getInfluenceCost());
+				iExtraCost = std::max(iExtraCost, pTerrain->getInfluenceCost());
 		}
 
 		//going along routes is cheaper
@@ -1977,7 +1977,7 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 			iCost += /*3*/ GD_INT_GET(INFLUENCE_MOUNTAIN_COST);
 	}
 
-	return max(1,iCost+iExtraCost)*PATH_BASE_COST;
+	return std::max(1,iCost+iExtraCost)*PATH_BASE_COST;
 }
 
 
@@ -2008,7 +2008,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 }
 
 //	--------------------------------------------------------------------------------
-int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, std::vector<std::pair<int,int>>& out)
 {
 	out.clear();
 
@@ -2032,7 +2032,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
 			if (pSecondCity)
-				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
+				out.push_back(std::make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
 
@@ -2770,14 +2770,14 @@ ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SP
 	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 }
 
-map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
+std::map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, std::vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
 	bool bHadLock = gDLL->HasGameCoreLock();
 	if(!bHadLock)
 		gDLL->GetGameCoreLock();
 
-	map<CvPlot*,SPath> result;
+	std::map<CvPlot*,SPath> result;
 
 	if (!Configure(data) || !pStartPlot)
 	{
@@ -2983,7 +2983,7 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 }
 
 //	---------------------------------------------------------------------------
-int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, std::vector<std::pair<int,int>>& out)
 {
 	out.clear();
 	CvPlayer& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
@@ -3002,7 +3002,7 @@ int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vecto
 	{
 		CvCity* pSecondCity = kPlayer.getCity(vNeighbors[i]);
 		if (pSecondCity)
-			out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
+			out.push_back(std::make_pair(pSecondCity->getX(), pSecondCity->getY()));
 	}
 
 	std::vector<int> vAttachedUnits = pCity->GetAttachedUnits();
@@ -3010,7 +3010,7 @@ int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vecto
 	{
 		CvUnit* pCarrier = kPlayer.getUnit(vAttachedUnits[i]);
 		if (pCarrier)
-			out.push_back(make_pair(pCarrier->getX(), pCarrier->getY()));
+			out.push_back(std::make_pair(pCarrier->getX(), pCarrier->getY()));
 	}
 
 	return (int)out.size();
@@ -3607,19 +3607,19 @@ void ReachablePlots::createIndex()
 	lookup.clear();
 	lookup.reserve(storage.size());
 	for (size_t i = 0; i < storage.size(); i++)
-		lookup.push_back( make_pair(storage[i].iPlotIndex,i) );
+		lookup.push_back( std::make_pair(storage[i].iPlotIndex,i) );
 	sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }
 
 struct EqualRangeComparison
 {
-    bool operator() ( const pair<int,size_t> a, int b ) const { return a.first < b; }
-    bool operator() ( int a, const pair<int,size_t> b ) const { return a < b.first; }
+    bool operator() ( const std::pair<int,size_t> a, int b ) const { return a.first < b; }
+    bool operator() ( int a, const std::pair<int,size_t> b ) const { return a < b.first; }
 };
 
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
-	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	typedef std::pair<std::vector<std::pair<int, size_t>>::iterator, std::vector<std::pair<int, size_t>>::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;
@@ -3629,7 +3629,7 @@ ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
-	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	typedef std::pair<std::vector<std::pair<int, size_t>>::const_iterator, std::vector<std::pair<int, size_t>>::const_iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;
@@ -3645,7 +3645,7 @@ void ReachablePlots::insertNoIndex(const SMovePlot& plot)
 
 void ReachablePlots::insertWithIndex(const SMovePlot& plot)
 {
-	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
+	lookup.push_back( std::make_pair(plot.iPlotIndex,storage.size()) );
 	storage.push_back(plot);
 	sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }

@@ -2810,7 +2810,7 @@ void setNickname(PlayerTypes p, const CvString& n)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 	{
-		string _szName(n);
+		std::string _szName(n);
 		if(!n.IsEmpty())
 		{
 			size_t _pos = n.rfind('@');

@@ -945,7 +945,7 @@ void CvTeam::DoBarbarianTech()
 
 	// x% of majors (rounded down) need the tech for the Barbs to get it
 	int iTechPercent = /*75 in CP, 80 in VP*/ GD_INT_GET(BARBARIAN_TECH_PERCENT);
-	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
+	int iTeamsNeeded = std::max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 	{
@@ -1011,7 +1011,7 @@ void CvTeam::DoMinorCivTech()
 
 	// x% of majors (rounded down) need the tech for the Minors to get it
 	int iTechPercent = /*40 in CP, 60 in VP*/ GD_INT_GET(MINOR_CIV_TECH_PERCENT);
-	int iTeamsNeeded = max(1, iPossibleCount * iTechPercent / 100);
+	int iTeamsNeeded = std::max(1, iPossibleCount * iTechPercent / 100);
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 	{
@@ -1881,13 +1881,13 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 			// On the attacking team
 			if (eMajorTeam == GetID())
 			{
-				vector<PlayerTypes> v = GET_PLAYER(eMajor).GetDiplomacyAI()->GetAllValidMajorCivs();
+				std::vector<PlayerTypes> v = GET_PLAYER(eMajor).GetDiplomacyAI()->GetAllValidMajorCivs();
 				GET_PLAYER(eMajor).GetDiplomacyAI()->DoReevaluatePlayers(v, true);
 			}
 			// Has met the attacking team
 			else if (isHasMet(eMajorTeam))
 			{
-				vector<PlayerTypes> v = getPlayers();
+				std::vector<PlayerTypes> v = getPlayers();
 				GET_PLAYER(eMajor).GetDiplomacyAI()->DoReevaluatePlayers(v, true);
 			}
 		}
@@ -1969,7 +1969,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 			// Our minor civ allies declare war on eTeam
 			// ******************************
 
-			vector<PlayerTypes> veMinorAllies;
+			std::vector<PlayerTypes> veMinorAllies;
 			for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 			{
 				PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
@@ -2201,7 +2201,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 					if(GET_PLAYER(eOurPlayer).getTeam() != GetID())
 						continue;
 
-					vector<PlayerTypes> veMinorAllies;
+					std::vector<PlayerTypes> veMinorAllies;
 
 					// Loop through minors to see if they're allied with us
 					for(iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -3901,7 +3901,7 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 	if (iChange != 0)
 	{
 		m_iCanEmbarkCount += iChange;
-		const vector<PlayerTypes>& vTeamMembers = getPlayers();
+		const std::vector<PlayerTypes>& vTeamMembers = getPlayers();
 
 		for (size_t i = 0; i < vTeamMembers.size(); i++)
 		{
@@ -4047,7 +4047,7 @@ void CvTeam::changeEmbarkedAllWaterPassage(int iChange)
 	if (iChange != 0)
 	{
 		m_iEmbarkedAllWaterPassageCount += iChange;
-		const vector<PlayerTypes>& vTeamMembers = getPlayers();
+		const std::vector<PlayerTypes>& vTeamMembers = getPlayers();
 
 		for (size_t i = 0; i < vTeamMembers.size(); i++)
 		{
@@ -4364,9 +4364,9 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 
 #if defined(MOD_BALANCE_CORE)
 	//Check for bad units, and capture them!
-	vector<CvUnitCaptureDefinition> kCaptureUnitList;
+	std::vector<CvUnitCaptureDefinition> kCaptureUnitList;
 
-	vector<PlayerTypes> vOurTeam = getPlayers();
+	std::vector<PlayerTypes> vOurTeam = getPlayers();
 	for(size_t i=0; i<vOurTeam.size(); i++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
@@ -7432,7 +7432,7 @@ void CvTeam::updateTechShare(TechTypes eTech)
 		return;
 	}
 
-	iBestShare = numeric_limits<int>::max();
+	iBestShare = std::numeric_limits<int>::max();
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -9506,8 +9506,8 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
-	vector<PlayerTypes> vOurTeam = getPlayers();
-	vector<PlayerTypes> vTheirTeam = GET_TEAM(eTeam).getPlayers();
+	std::vector<PlayerTypes> vOurTeam = getPlayers();
+	std::vector<PlayerTypes> vTheirTeam = GET_TEAM(eTeam).getPlayers();
 	for (size_t i=0; i<vOurTeam.size(); i++)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
@@ -9516,7 +9516,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 
 		if (kPlayer.isAlive())
 		{
-			vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
+			std::vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
 			kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v, false, true, true);
 		}
 
@@ -9984,7 +9984,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		}
 
 		// AI needs to reevaluate all players (reprioritizes friendships and prevents exceeding the Defensive Pact limit)
-		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+		std::vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, !bVoluntary, true);
 	}
 
@@ -10168,8 +10168,8 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 	if (!CanSetVassalTax(ePlayer))
 		return;
 
-	iPercent = max(iPercent, /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM));
-	iPercent = min(iPercent, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
+	iPercent = std::max(iPercent, /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM));
+	iPercent = std::min(iPercent, /*25*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MAXIMUM));
 
 	int iCurrentTaxRate = GetVassalTax(ePlayer);
 	

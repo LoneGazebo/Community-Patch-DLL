@@ -5861,7 +5861,7 @@ int CvPlayerTraits::GetYieldChangePerImprovementBuilt(ImprovementTypes eImprovem
 	return m_ppaaiYieldChangePerImprovementBuilt[(int)eImprovement][(int)eYield];
 }
 
-vector<ImprovementTypes> CvPlayerTraits::GetImprovementTypesWithYieldChange() const
+std::vector<ImprovementTypes> CvPlayerTraits::GetImprovementTypesWithYieldChange() const
 {
 	return m_vYieldChangeImprovementTypes;
 }
@@ -6342,7 +6342,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return bResult;
 
 	// Find our unique resources
-	vector<ResourceTypes> vPossibleResources;
+	std::vector<ResourceTypes> vPossibleResources;
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		ResourceTypes eResource = (ResourceTypes)iResourceLoop;

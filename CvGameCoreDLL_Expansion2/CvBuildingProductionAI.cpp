@@ -239,12 +239,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if (isNationalWonderClass(kBuildingClassInfo))
 			{
 				//cap this at an extreme value.
-				iBonus += min(1000, m_pCity->getPopulation() * 50);
+				iBonus += std::min(1000, m_pCity->getPopulation() * 50);
 			}
 			else
 			{
 				//cap this at an extreme value.
-				iBonus += min(1500, m_pCity->getPopulation() * 100);
+				iBonus += std::min(1500, m_pCity->getPopulation() * 100);
 			}
 		}
 
@@ -366,18 +366,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if(pCapital != NULL && !pCapital->HasSharedAreaWith(m_pCity,true,true))
 		{
-			iBonus += 10 * max(1, m_pCity->getPopulation());
+			iBonus += 10 * std::max(1, m_pCity->getPopulation());
 		}
 		else
 		{
-			iBonus += 5 * max(1, m_pCity->getPopulation());
+			iBonus += 5 * std::max(1, m_pCity->getPopulation());
 		}
 
 		//Higher value the higher the number of routes.
 		iBonus += iNumSeaConnection;
 		if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 		{
-			iBonus += 5 * max(1, iNumSeaConnection);
+			iBonus += 5 * std::max(1, iNumSeaConnection);
 		}
 
 		int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
@@ -454,7 +454,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				//Decrease value based on # we own.
 				int iNumOwned = kPlayer.getNumResourceAvailable(eResource, false);
 				iNumOwned = (100 - (iNumOwned * 5));
-				iBonus += max(0, iNumOwned);
+				iBonus += std::max(0, iNumOwned);
 			}
 		}
 	}
@@ -674,11 +674,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (iBonus > 0 && (pkBuildingInfo->GetCitySupplyModifier() > 0 || pkBuildingInfo->GetCitySupplyModifierGlobal() > 0))
 	{
-		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
+		int iSupply = std::max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
 		int iGrowth = pkBuildingInfo->GetCitySupplyModifier() + (pkBuildingInfo->GetCitySupplyModifierGlobal() * kPlayer.getNumCities());
 
-		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + std::max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -687,11 +687,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	if (iBonus > 0 &&  (pkBuildingInfo->GetCitySupplyFlat() > 0 || pkBuildingInfo->GetCitySupplyFlatGlobal() > 0))
 	{
-		int iSupply = max(1,kPlayer.GetNumUnitsSupplied());
+		int iSupply = std::max(1,kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetMilitaryAI()->GetRecommendedMilitarySize();
 		int iGrowth = (pkBuildingInfo->GetCitySupplyFlat() + (pkBuildingInfo->GetCitySupplyFlatGlobal() * kPlayer.getNumCities()));
 
-		int iPercent = (iDemand * 100) / iSupply + max (0, iGrowth);
+		int iPercent = (iDemand * 100) / iSupply + std::max (0, iGrowth);
 
 		//Closer we get to cap, more we want this.
 		iBonus *= (100 + iPercent);
@@ -732,7 +732,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (iNumNeeded > 0)
 		{
 			int iNumHave = kPlayer.getNumBuildings(eBuilding);
-			iBonus += iNumNeeded * max(1, iNumHave) * 100;
+			iBonus += iNumNeeded * std::max(1, iNumHave) * 100;
 		}
 	}
 
@@ -755,7 +755,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//Corporations!
 	if (pkBuildingInfo->IsCorp())
 	{
-		iBonus += 100 * (max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumOffices()) + max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumFranchises()));
+		iBonus += 100 * (std::max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumOffices()) + std::max(1, GET_PLAYER(m_pCity->getOwner()).GetCorporations()->GetNumFranchises()));
 	}
 	if (pkBuildingInfo->GetBuildingClassInfo().getCorporationType() != NO_CORPORATION)
 	{
@@ -1112,7 +1112,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 
 		}
-		iBonus *= (100 - min(99, WarPenalty));
+		iBonus *= (100 - std::min(99, WarPenalty));
 		iBonus /= 100;
 	}
 
@@ -1132,7 +1132,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iEra = pEntry->GetEra();
 		}
 	}
-	int iEraValue =  max(1, kPlayer.GetCurrentEra() - iEra);
+	int iEraValue =  std::max(1, kPlayer.GetCurrentEra() - iEra);
 	iBonus += (200 * iEraValue);
 
 	//Unlocks another building?
@@ -1145,7 +1145,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
 		if (pkBuildingInfo->IsNoOccupiedUnhappiness())
-			iBonus += max(15, m_pCity->getPopulation()) * 25;
+			iBonus += std::max(15, m_pCity->getPopulation()) * 25;
 		else
 			iBonus += m_pCity->getPopulation() * 25;
 	}

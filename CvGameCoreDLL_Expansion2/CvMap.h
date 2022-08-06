@@ -79,7 +79,7 @@ protected:
 	bool m_bWater;
 	int m_iCentroidX;
 	int m_iCentroidY;
-	vector<int> m_vAreas;
+	std::vector<int> m_vAreas;
 };
 
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
@@ -280,7 +280,7 @@ public:
 
 	void PrecalcNeighbors();
 
-	vector<int>& GetVisibilityScratchpad() { return m_vVisibilityScratchpad; }
+	std::vector<int>& GetVisibilityScratchpad() { return m_vVisibilityScratchpad; }
 #endif
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
@@ -339,7 +339,7 @@ public:
 	// End Natural Wonders stuff
 
 	void LineOfSightChanged(const CvPlot* pPlot);
-	const vector<CvPlot*>& GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS);
+	const std::vector<CvPlot*>& GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS);
 
 	int GetPopupCount(int iPlotIndex);
 	void IncreasePopupCount(int iPlotIndex);
@@ -378,7 +378,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
-	vector<int> m_vVisibilityScratchpad;
+	std::vector<int> m_vVisibilityScratchpad;
 #endif
 
 	uint8* m_pYields;
@@ -399,8 +399,8 @@ protected:
 	TContainer<CvLandmass> m_landmasses;
 
 	//store non-zero values outside of CvPlot because it will be zero almost all the time
-	typedef map<int, vector<unsigned char>> PlotInvisibleVisibilityLookup;
-	map<TeamTypes, PlotInvisibleVisibilityLookup> m_invisibleVisibilityCount;
+	typedef std::map<int, std::vector<unsigned char>> PlotInvisibleVisibilityLookup;
+	std::map<TeamTypes, PlotInvisibleVisibilityLookup> m_invisibleVisibilityCount;
 
 	GUID m_guid;
 
@@ -409,16 +409,16 @@ protected:
 	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
 
 	//caching some semi-static data, not serialized
-	typedef vector<vector<CvPlot*>> PlotNeighborLookup;
+	typedef std::vector<std::vector<CvPlot*>> PlotNeighborLookup;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot3;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot3;
 	PlotNeighborLookup m_vPlotsAtRange2;
 	PlotNeighborLookup m_vPlotsAtRange3;
-	vector<CvPlot*>	   m_vPlotsShared; //for rare usecases which don't merit a dedicated cache
+	std::vector<CvPlot*>	   m_vPlotsShared; //for rare usecases which don't merit a dedicated cache
 
-	map<int, int> m_plotPopupCount; //not serialized
+	std::map<int, int> m_plotPopupCount; //not serialized
 
 #if defined(MOD_UNIT_KILL_STATS)
 	// player -> plot index -> number of owned units killed

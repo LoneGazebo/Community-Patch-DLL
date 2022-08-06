@@ -110,7 +110,7 @@ void CvStartPositioner::ComputeFoundValues()
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
-		int iValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, NULL, vector<int>());
+		int iValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, NULL, std::vector<int>());
 		pLoopPlot->setFoundValue((PlayerTypes)1, iValue);
 
 		if(iValue > m_iBestFoundValueOnMap)
@@ -131,9 +131,9 @@ void CvStartPositioner::ComputeFoundValues()
 }
 
 /// Take into account handicaps to rank the "draft order" for start positions
-vector<CvPlayerStartRank> GetPlayerStartOrder()
+std::vector<CvPlayerStartRank> GetPlayerStartOrder()
 {
-	vector<CvPlayerStartRank> playerOrder;
+	std::vector<CvPlayerStartRank> playerOrder;
 
 	// Add each player
 	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -176,7 +176,7 @@ void CvStartPositioner::AssignStartingLocations()
 	int iPlayersPlaced = 0;
 	int iMajorCivs = 0;
 
-	vector<CvPlayerStartRank> playerOrder = GetPlayerStartOrder();
+	std::vector<CvPlayerStartRank> playerOrder = GetPlayerStartOrder();
 	for(size_t i = 0; i < playerOrder.size(); ++i)
 	{
 		if(!GET_PLAYER((PlayerTypes)playerOrder[i].m_iPlayerID).isMinorCiv())
@@ -839,14 +839,14 @@ void CvStartPositioner::LogStartPositionMessage(CvString strMsg)
 struct SStartRegion
 {
 	int iID;
-	vector<int> vPlots; //indices of the plots making up this region
-	vector<int> vNeighbors; //indices of neighboring regions (not plots)
+	std::vector<int> vPlots; //indices of the plots making up this region
+	std::vector<int> vNeighbors; //indices of neighboring regions (not plots)
 	int iTotalWorth;
 
 	SStartRegion(int iIndex = 0, int iPlotWorth = 0)
 	{  
 		iID = iIndex;
-		vPlots = vector<int>(1, iIndex);
+		vPlots = std::vector<int>(1, iIndex);
 		iTotalWorth = iPlotWorth;
 	}
 
@@ -905,15 +905,15 @@ int getRegionDistanceMeasure(const SStartRegion& a, const SStartRegion& b)
 	return (int)sqrtf(float(ax - bx)*(ax - bx) + float(ay - by)*(ay - by));
 }
 
-int findNeighborIdToMerge(map<int, SStartRegion>::iterator self, const map<int,SStartRegion>& regions)
+int findNeighborIdToMerge(std::map<int, SStartRegion>::iterator self, const std::map<int,SStartRegion>& regions)
 {
-	vector<int> neighbors = self->second.vNeighbors;
+	std::vector<int> neighbors = self->second.vNeighbors;
 
 	int iWorstNeighborScore = INT_MAX;
 	int iWorstNeighborRegionId = -1;
 	for (size_t i = 0; i < neighbors.size(); i++)
 	{
-		map<int, SStartRegion>::const_iterator neighbor = regions.find(neighbors[i]);
+		std::map<int, SStartRegion>::const_iterator neighbor = regions.find(neighbors[i]);
 		if (neighbor == regions.end())
 			continue; //may happen if the neighbor is already very large and has been removed
 
@@ -931,7 +931,7 @@ int findNeighborIdToMerge(map<int, SStartRegion>::iterator self, const map<int,S
 
 void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 {
-	map<int,SStartRegion> regions;
+	std::map<int,SStartRegion> regions;
 	int iGlobalPlotWorth = 0;
 
 	//set up initial regions
@@ -952,7 +952,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		map<int, SStartRegion>::iterator it = regions.find(pLoopPlot->GetPlotIndex());
+		std::map<int, SStartRegion>::iterator it = regions.find(pLoopPlot->GetPlotIndex());
 		if (it == regions.end())
 			continue; //can happen for bad plots without corresponding region
 
@@ -962,22 +962,22 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 			if (!aNeighbors[i])
 				continue;
 
-			map<int, SStartRegion>::iterator it = regions.find(aNeighbors[i]->GetPlotIndex());
+			std::map<int, SStartRegion>::iterator it = regions.find(aNeighbors[i]->GetPlotIndex());
 			if (it != regions.end())
 				it->second.vNeighbors.push_back( pLoopPlot->GetPlotIndex() );
 		}
 	}
 
 	//start the merge process
-	vector<SStartRegion> regionsWeCantMerge;
-	vector<SStartRegion> regionsLargeEnough;
+	std::vector<SStartRegion> regionsWeCantMerge;
+	std::vector<SStartRegion> regionsLargeEnough;
 
 	while ( regions.size() > (size_t)iNumRegionsRequired )
 	{
 		//find the worst region we can merge
-		map<int, SStartRegion>::iterator worstRegion = regions.end();
+		std::map<int, SStartRegion>::iterator worstRegion = regions.end();
 
-		for (map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
+		for (std::map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
 		{
 			if (it->second.iTotalWorth > iGlobalPlotWorth/iNumRegionsRequired)
 			{
@@ -1005,7 +1005,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 		int neighborId = findNeighborIdToMerge(worstRegion,regions);
 		if (neighborId == -1)
 			break; //error
-		map<int, SStartRegion>::iterator neighbor = regions.find(neighborId);
+		std::map<int, SStartRegion>::iterator neighbor = regions.find(neighborId);
 
 		//debugging
 		if (true)
@@ -1023,7 +1023,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 		//clean up neighbor references
 		for (size_t i = 0; i < worstRegion->second.vNeighbors.size(); i++)
 		{
-			map<int, SStartRegion>::iterator it2 = regions.find( worstRegion->second.vNeighbors[i] );
+			std::map<int, SStartRegion>::iterator it2 = regions.find( worstRegion->second.vNeighbors[i] );
 			if (it2 == regions.end())
 				continue; //should not happen!
 
@@ -1042,7 +1042,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 		if (pLog)
 		{
 			pLog->Msg("#x,y,terrain,region\n");
-			for (map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
+			for (std::map<int, SStartRegion>::iterator it = regions.begin(); it != regions.end(); ++it)
 			{
 				for (size_t j = 0; j < it->second.vPlots.size(); j++)
 				{

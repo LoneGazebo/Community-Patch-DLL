@@ -48,7 +48,7 @@ public:
 
 private:
 	// Internal methods
-	void WeightPrereqs(const vector<int>& vTempWeights, int iPropagationPercent);
+	void WeightPrereqs(const std::vector<int>& vTempWeights, int iPropagationPercent);
 	void PropagateWeights(int iPolicy, int iWeight, int iPropagationPercent, int iPropagationLevel);
 	int WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
 	int WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy);

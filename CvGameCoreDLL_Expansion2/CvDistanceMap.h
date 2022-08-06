@@ -53,7 +53,7 @@ protected:
 	bool m_bDirty;
 	CvDistanceMap allPlayers;
 	CvDistanceMap allMajorPlayers;
-	vector<CvDistanceMap> majorPlayers; 
+	std::vector<CvDistanceMap> majorPlayers; 
 
 	CvDistanceMapWrapper() : m_bDirty(true) {}
 	virtual void Update() = 0;

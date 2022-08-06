@@ -32,7 +32,7 @@ public:
 		int m_iValue;
 	};
 
-	vector<Counsel> m_aCounsel;
+	std::vector<Counsel> m_aCounsel;
 };
 
 #endif	//CIV5_ADVISOR_COUNSEL_H

@@ -432,7 +432,7 @@ struct OptionWithScore
 };
 
 template<class T>
-T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, int randomSeed)
+T PseudoRandomChoiceByWeight(std::vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, int randomSeed)
 {
 	if (candidates.empty())
 		return defaultChoice;
@@ -440,7 +440,7 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	if (candidates.size() == 1 || maxCandidatesToConsider == 1)
 		return candidates[0].option;
 
-	size_t maxCandidates = min(candidates.size(), (size_t)maxCandidatesToConsider);
+	size_t maxCandidates = std::min(candidates.size(), (size_t)maxCandidatesToConsider);
 	sort(candidates.begin(), candidates.end());
 
 	int totalWeight = 0;
@@ -461,8 +461,8 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	return defaultChoice;
 }
 
-void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B);
-pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B);
-pair<int,int> AddFractions(vector<int>& dividendList, vector<int>& divisorList);
+void AddFractionToReference(std::pair<int,int>& A, const std::pair<int,int>& B);
+std::pair<int,int> AddFractions(std::pair<int,int>& A, std::pair<int,int>& B);
+std::pair<int,int> AddFractions(std::vector<int>& dividendList, std::vector<int>& divisorList);
 
 #endif

@@ -2131,7 +2131,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
-	setDamage(min(pUnit->getDamage(), GetMaxHitPoints()-1));
+	setDamage(std::min(pUnit->getDamage(), GetMaxHitPoints()-1));
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
@@ -2426,7 +2426,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 				if (!IsCombatSupportUnit())
 				{
 					// AI cares less about lost workers / etc in lategame
-					int iEraFactor = !isBarbarian() ? max(8 - (int)GET_PLAYER(eUnitOwner).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
+					int iEraFactor = !isBarbarian() ? std::max(8 - (int)GET_PLAYER(eUnitOwner).GetCurrentEra(), 1) : (int)GC.getGame().getCurrentEra();
 
 					if (IsGreatPerson())
 					{
@@ -2841,7 +2841,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		//check if this removes a blockade immediately (would be lifted anyhow once the enemy turn starts but nice for humans)
 		if (IsCombatUnit())
 		{
-			set<CvCity*> affectedCities;
+			std::set<CvCity*> affectedCities;
 			for (int i = 0; i < RING_PLOTS[GetBlockadeRange()]; i++)
 			{
 				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
@@ -2849,7 +2849,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 					affectedCities.insert( pPlot->getEffectiveOwningCity() );
 			}
 
-			for (set<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
+			for (std::set<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
 			{
 				//we assume blockades are lifted ... so find better plot assignments
 				if ((*it) && (*it)->GetCityCitizens()->DoVerifyWorkingPlots())
@@ -3302,7 +3302,7 @@ void CvUnit::doTurn()
 		}
 		if (iTotalMovePenalty > 0)
 		{
-			iTotalMovePenalty = min(getMoves() - 1, iTotalMovePenalty);
+			iTotalMovePenalty = std::min(getMoves() - 1, iTotalMovePenalty);
 			changeMoves(-iTotalMovePenalty);
 
 			CvString strLogString;
@@ -3435,7 +3435,7 @@ bool CvUnit::isActionRecommended(int iAction)
 		//fake this, we're really only interested in one plot
 		ReachablePlots plots;
 		plots.insertWithIndex(SMovePlot(plot()->GetPlotIndex()));
-		map<CvUnit*, ReachablePlots> allplots;
+		std::map<CvUnit*, ReachablePlots> allplots;
 		allplots[this] = plots;
 
 		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
@@ -5478,7 +5478,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	{
 		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
 		bool bCanDoLinkedMove = true;
-		vector<CvUnit*> LinkedUnits;
+		std::vector<CvUnit*> LinkedUnits;
 		for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
 		{
 			CvUnit* pLinkedUnit = GET_PLAYER(m_eOwner).getUnit(LinkedUnitIDs[iI]);
@@ -5575,7 +5575,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	SPathFinderUserData data(this, CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ENEMIES | CvUnit::MOVEFLAG_IGNORE_ZOC, 12);
 
 	CvPlot* pBestPlot = NULL;
-	vector<SPlotWithScore> candidates;
+	std::vector<SPlotWithScore> candidates;
 	ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(plot(), data);
 	for (ReachablePlots::iterator it = reachablePlots.begin(); it != reachablePlots.end(); ++it)
 	{
@@ -5696,7 +5696,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 	else
 	{
 		int iBestValue = INT_MAX;
-		iRange = min(max(1, iRange), 5);
+		iRange = std::min(std::max(1, iRange), 5);
 
 		for (int i = 1; i < RING_PLOTS[iRange]; i++)
 		{
@@ -5792,7 +5792,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,vector<pair<int,int>>());
+				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,std::vector<std::pair<int,int>>());
 				if(pTarget == NULL)
 				{
 					return false;
@@ -6790,7 +6790,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 			{
 				int iMyCombat = m_pUnitInfo->GetCombat();
 				int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + (int)(((float)iMyCombat / (float)iTheirCombat) * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER));
-				iRtnValue = min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
+				iRtnValue = std::min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
 			}
 		}
 	}
@@ -10509,7 +10509,7 @@ bool CvUnit::pillage()
 					if (iEra <= 0)
 						iEra = 1;
 
-					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
+					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + std::max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 				else
@@ -10639,7 +10639,7 @@ bool CvUnit::pillage()
 				}
 				else
 				{
-					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+					int iHealAmount = std::min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
 					changeDamage(-iHealAmount);
 				}
 			}
@@ -10652,7 +10652,7 @@ bool CvUnit::pillage()
 		}
 		else
 		{
-			int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+			int iHealAmount = std::min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
 			changeDamage(-iHealAmount);
 		}
 #endif
@@ -11693,7 +11693,7 @@ int CvUnit::GetConversionStrength(const CvCity* pCity) const
 	{
 		if (pCity->GetCityReligions()->IsDefendedAgainstSpread(GetReligionData()->GetReligion()))
 		{
-			iReligiousStrength /= max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
+			iReligiousStrength /= std::max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
 		}
 	}
 
@@ -12749,8 +12749,8 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	}
 
 	// Keep track of got hit by this so we can figure the diplo ramifications later
-	vector<bool> vePlayersBombed;
-	vector<bool> vePlayersStoleHighValueTileFrom;
+	std::vector<bool> vePlayersBombed;
+	std::vector<bool> vePlayersStoleHighValueTileFrom;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		vePlayersBombed.push_back(false);
@@ -14780,7 +14780,7 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice /= iDivisor;
 	iPrice *= iDivisor;
 
-	return max(1, iPrice);
+	return std::max(1, iPrice);
 }
 
 //	--------------------------------------------------------------------------------
@@ -15120,7 +15120,7 @@ int CvUnit::visibilityRange() const
 
 	if(isEmbarked())
 	{
-		iRtnValue += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+		iRtnValue += std::max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if (isTrade())
@@ -15138,7 +15138,7 @@ int CvUnit::visibilityRange() const
 #endif
 	else
 	{
-		iRtnValue += max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
+		iRtnValue += std::max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
 	}
 
 	return iRtnValue;
@@ -15175,7 +15175,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	if(bPretendEmbarked)
 	{
 		CvPlayerPolicies* pPolicies = thisPlayer.GetPlayerPolicies();
-		return max(1, /*2 in CP, 3 in VP*/ GD_INT_GET(EMBARKED_UNIT_MOVEMENT) + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
+		return std::max(1, /*2 in CP, 3 in VP*/ GD_INT_GET(EMBARKED_UNIT_MOVEMENT) + getExtraNavalMoves() + thisTeam.getEmbarkedExtraMoves() + thisTeam.getExtraMoves(eDomain) + pTraits->GetExtraEmbarkMoves() + pPolicies->GetNumericModifier(POLICYMOD_EMBARKED_EXTRA_MOVES));
 	}
 
 	int m_iExtraNavalMoves = 0;
@@ -15223,7 +15223,7 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	iExtraUnitCombatTypeMoves += pTraits->GetMovesChangeUnitClass((UnitClassTypes)(m_pUnitInfo->GetUnitClassType()));
 #endif
 
-	return max(1, (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves));
+	return std::max(1, (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves));
 }
 
 
@@ -15447,7 +15447,7 @@ void CvUnit::LinkUnits()
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
 	CvUnit* pLoopUnit = NULL;
-	vector<CvUnit*> v_unitvector;
+	std::vector<CvUnit*> v_unitvector;
 	UnitIdContainer LinkedUnitIDs;
 	int iLowestCurrentMoves = getMoves();
 	int iLowestMaxMoves = (IsGrouped()) ? GetLinkedMaxMoves() : maxMoves();
@@ -15549,7 +15549,7 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 	if (pCurrentPlot == NULL)
 		return;
 
-	vector<CvUnit*> v_unitvector;
+	std::vector<CvUnit*> v_unitvector;
 	int iLowestCurrentMoves = getMoves();
 	int iLowestMaxMoves = maxMoves();
 
@@ -16092,7 +16092,7 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 	}
 
 	//value is negative!
-	return max(iPenalty, /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY));
+	return std::max(iPenalty, /*-50 in CP, 0 in VP*/ GD_INT_GET(STRATEGIC_RESOURCE_EXHAUSTED_PENALTY));
 }
 
 //	--------------------------------------------------------------------------------
@@ -16121,7 +16121,7 @@ int CvUnit::GetUnhappinessCombatPenalty() const
 		{
 			//negative result!
 			int iPenalty = (-1 * kPlayer.GetExcessHappiness()) * /*-2*/ GD_INT_GET(VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY);
-			return max(iPenalty, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY));
+			return std::max(iPenalty, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY));
 		}
 		else
 			return 0;
@@ -16146,7 +16146,7 @@ int CvUnit::GetBestAttackStrength() const
 	int iRangedStrength = GetMaxRangedCombatStrength(NULL,NULL,true,NULL,NULL,true,true);
 	int iMeleeStrength = GetMaxAttackStrength(NULL,NULL,NULL,true,true);
 
-	return max(iRangedStrength,iMeleeStrength);
+	return std::max(iRangedStrength,iMeleeStrength);
 }
 
 //typically negative
@@ -16563,7 +16563,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 
 			// City is blockaded
 			if (pToPlot->getPlotCity()->IsBlockadedWaterAndLand())
-				iModifier += max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
+				iModifier += std::max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
 
 			// Nearby unit sapping this city
 			iModifier += GET_PLAYER(getOwner()).GetAreaEffectModifier(AE_SAPPER, NO_DOMAIN, pToPlot);
@@ -17209,7 +17209,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 			// City is blockaded?
 			if (pCity->IsBlockadedWaterAndLand())
-				iModifier += max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
+				iModifier += std::max(0, /*0 in CP, 20 in VP*/ GD_INT_GET(BLOCKADED_CITY_ATTACK_MODIFIER));
 		}
 
 		// Nearby unit sapping this city
@@ -17449,7 +17449,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 			//value is negative if good!
 			int iReduction = pAttacker->GetInterceptionDefenseDamageModifier();
 
-			iBaseValue = iBaseValue * max(0, 100 + iReduction);
+			iBaseValue = iBaseValue * std::max(0, 100 + iReduction);
 			iBaseValue /= 100;
 		}
 
@@ -19718,8 +19718,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	CvCity* pNewCity = 0;
 	CvUnit* pTransportUnit = 0;
 	CvUnit* pLoopUnit = 0;
-	vector<IDInfo> oldUnitList;
-	vector<CvUnitCaptureDefinition> kCaptureUnitList;
+	std::vector<IDInfo> oldUnitList;
+	std::vector<CvUnitCaptureDefinition> kCaptureUnitList;
 	ActivityTypes eOldActivityType = NO_ACTIVITY;
 	TeamTypes activeTeam = GC.getGame().getActiveTeam();
 	TeamTypes eOurTeam = getTeam();
@@ -21441,7 +21441,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			}
 			else
 			{
-				int iModdedChangeTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iChangeTimes100);
+				int iModdedChangeTimes100 = std::min(iMaxTimes100 - m_iExperienceTimes100, iChangeTimes100);
 				if (iModdedChangeTimes100 > 0)
 				{
 					if(getDomainType() == DOMAIN_SEA)
@@ -22262,7 +22262,7 @@ int CvUnit::getPlagueChance() const
 void CvUnit::changePlagueChance(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iPlagueChance = min(100, (m_iPlagueChance + iChange));
+	m_iPlagueChance = std::min(100, (m_iPlagueChance + iChange));
 	CvAssert(getPlagueChance() >= 0);
 }
 //	--------------------------------------------------------------------------------
@@ -24340,10 +24340,10 @@ int CvUnit::getMaxHitPointsBase() const
 void CvUnit::setMaxHitPointsBase(int iMaxHitPoints)
 {
 	// Do NOT allow max hit points to be less than 1
-	m_iMaxHitPointsBase = max(1, iMaxHitPoints);
+	m_iMaxHitPointsBase = std::max(1, iMaxHitPoints);
 
 	// Do NOT allow changing base max HP to kill the unit
-	setDamage(min(getDamage(), max(1, GetMaxHitPoints()-1)));
+	setDamage(std::min(getDamage(), std::max(1, GetMaxHitPoints()-1)));
 
 	setInfoBarDirty(true);
 }
@@ -25676,7 +25676,7 @@ void CvUnit::changeTerrainDoubleMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainDoubleMoveCount.push_back(make_pair(eIndex, iChange));
+	m_terrainDoubleMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25711,7 +25711,7 @@ void CvUnit::changeFeatureDoubleMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureDoubleMoveCount.push_back(make_pair(eIndex, iChange));
+	m_featureDoubleMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 
@@ -25748,7 +25748,7 @@ void CvUnit::changeTerrainHalfMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainHalfMoveCount.push_back(make_pair(eIndex, iChange));
+	m_terrainHalfMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25783,7 +25783,7 @@ void CvUnit::changeTerrainExtraMoveCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainExtraMoveCount.push_back(make_pair(eIndex, iChange));
+	m_terrainExtraMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 
@@ -25819,7 +25819,7 @@ void CvUnit::changeFeatureHalfMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureHalfMoveCount.push_back(make_pair(eIndex, iChange));
+	m_featureHalfMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -25854,7 +25854,7 @@ void CvUnit::changeFeatureExtraMoveCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureExtraMoveCount.push_back(make_pair(eIndex, iChange));
+	m_featureExtraMoveCount.push_back(std::make_pair(eIndex, iChange));
 }
 #endif
 
@@ -25899,7 +25899,7 @@ void CvUnit::changeTerrainDoubleHeal(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainDoubleHeal.push_back(make_pair(eIndex, iChange));
+	m_terrainDoubleHeal.push_back(std::make_pair(eIndex, iChange));
 }
 
 
@@ -25943,7 +25943,7 @@ void CvUnit::changeFeatureDoubleHeal(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureDoubleHeal.push_back(make_pair(eIndex, iChange));
+	m_featureDoubleHeal.push_back(std::make_pair(eIndex, iChange));
 }
 
 void CvUnit::ChangeNumTimesAttackedThisTurn(PlayerTypes ePlayer, int iValue)
@@ -26000,7 +26000,7 @@ void CvUnit::changeTerrainImpassableCount(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_terrainImpassableCount.push_back(make_pair(eIndex, iChange));
+	m_terrainImpassableCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 
@@ -26042,7 +26042,7 @@ void CvUnit::changeFeatureImpassableCount(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_featureImpassableCount.push_back(make_pair(eIndex, iChange));
+	m_featureImpassableCount.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26078,7 +26078,7 @@ void CvUnit::changeExtraTerrainAttackPercent(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraTerrainAttackPercent.push_back(make_pair(eIndex, iChange));
+	m_extraTerrainAttackPercent.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26114,7 +26114,7 @@ void CvUnit::changeExtraTerrainDefensePercent(TerrainTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraTerrainDefensePercent.push_back(make_pair(eIndex, iChange));
+	m_extraTerrainDefensePercent.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26150,7 +26150,7 @@ void CvUnit::changeExtraFeatureAttackPercent(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraFeatureAttackPercent.push_back(make_pair(eIndex, iChange));
+	m_extraFeatureAttackPercent.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26186,7 +26186,7 @@ void CvUnit::changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraFeatureDefensePercent.push_back(make_pair(eIndex, iChange));
+	m_extraFeatureDefensePercent.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26222,7 +26222,7 @@ void CvUnit::changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraUnitClassAttackMod.push_back(make_pair(eIndex, iChange));
+	m_extraUnitClassAttackMod.push_back(std::make_pair(eIndex, iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -26258,7 +26258,7 @@ void CvUnit::changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange)
 		}
 	}
 
-	m_extraUnitClassDefenseMod.push_back(make_pair(eIndex, iChange));
+	m_extraUnitClassDefenseMod.push_back(std::make_pair(eIndex, iChange));
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -29316,7 +29316,7 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 	}
 
 	//return value must be greater than zero
-	return max(0,iETA);
+	return std::max(0,iETA);
 }
 
 //	---------------------------------------------------------------------------
@@ -30778,10 +30778,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorDefense);
-		iExtra /= max(1,baseMoves(false));
+		iExtra /= std::max(1,baseMoves(false));
 		if ( IsCanAttackRanged() )
 		{
-			iExtra /= max(1,GetRange());
+			iExtra /= std::max(1,GetRange());
 		}
 		iValue += iExtra;
 	}
@@ -30943,7 +30943,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = (iTemp) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 1.6;
-		iExtra /= max(1, baseMoves(false));
+		iExtra /= std::max(1, baseMoves(false));
 		iValue += iExtra;
 	}
 
@@ -30991,7 +30991,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraAttackBelowHealthMod();
 		iExtra = (iTemp + iExtra) * (iFlavorOffense + 2 * iFlavorDefense);
 		iExtra *= 1.5;
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.5 + 0.5 * getDamage() / std::max(1,GetMaxHitPoints());
 		iValue += iExtra;
 
 	}
@@ -31047,7 +31047,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra *= 0.1;
 		if (IsCanAttackRanged())
 		{
-			iExtra /= max(1, GetRange());
+			iExtra /= std::max(1, GetRange());
 		}
 		iValue += iExtra;
 	}
@@ -31076,7 +31076,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra /= 100;
 		iExtra *= 100 + GetCityAttackPlunderModifier();
 		iExtra /= 100;
-		iExtra *= max(1, getNumAttacks());
+		iExtra *= std::max(1, getNumAttacks());
 		iExtra *= 0.2;
 		if (bWarTimePromotion)
 			iExtra *= 2;
@@ -31090,7 +31090,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = (iTemp) * ( 3 * iFlavorOffense);
 		iExtra *= 100 + getExtraCityAttackPercent();
 		iExtra /= 100;
-		iExtra *= max(1, getNumAttacks());
+		iExtra *= std::max(1, getNumAttacks());
 		iExtra *= 0.08;
 		if (bWarTimePromotion)
 			iExtra *= 2;
@@ -31149,7 +31149,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = iTemp * ( 3 * iFlavorRanged );
 		iExtra *= 100;
-		iExtra /= max(1,GetRange());
+		iExtra /= std::max(1,GetRange());
 		iValue += iExtra;
 	
 	}
@@ -31196,7 +31196,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra =  iTemp * (2 * iFlavorMobile + iFlavorOffense);
 		iExtra *= 10;
-		iExtra *= max(1,getNumAttacks());
+		iExtra *= std::max(1,getNumAttacks());
 		iValue += iExtra;
 
 	}
@@ -31237,7 +31237,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra *= 6;
 		if (bWarTimePromotion)
 			iExtra *= 1.5;
-		iExtra *= 0.7 + 0.3* getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3* getDamage() / std::max(1,GetMaxHitPoints());
 		iValue += iExtra;
 	}
 	
@@ -31261,7 +31261,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraEnemyHeal() + getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + 2 * iFlavorOffense);
 		iExtra *= 0.5;
-		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3 * getDamage() / std::max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
 			iExtra *= 6;
 		if (bWarTimePromotion)
@@ -31277,7 +31277,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra = getExtraNeutralHeal() + getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + iFlavorOffense + iFlavorDefense);
 		iExtra *= 0.5;
-		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3 * getDamage() / std::max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
 			iExtra *= 6;
 		iValue += iExtra;
@@ -31294,7 +31294,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorMobile;
 		iExtra *= 4;
-		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3 * getDamage() / std::max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
 			iExtra *= 0;
 		iValue += iExtra;
@@ -31307,7 +31307,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 		iExtra *= iFlavorOffense + 2 * iFlavorNaval;
 		iExtra *= 0.5;
-		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3 * getDamage() / std::max(1,GetMaxHitPoints());
 		if (bWarTimePromotion)
 			iExtra *= 2;
 		if (isAlwaysHeal())
@@ -31323,7 +31323,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{	
 		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
-		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.7 + 0.3 * getDamage() / std::max(1,GetMaxHitPoints());
 		iExtra *= 8;
 		if (bWarTimePromotion)
 			iExtra *= 2;
@@ -31335,7 +31335,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if (iTemp != 0)
 	{
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorMobile);
-		iExtra *= 0.2 + 0.8 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.2 + 0.8 * getDamage() / std::max(1,GetMaxHitPoints());
 		iExtra *= 25;		
 		if (bWarTimePromotion)
 			iExtra *= 2;
@@ -31355,8 +31355,8 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = iTemp * (iFlavorMobile * 2 + iFlavorNavalRecon);
 		iExtra *= 45;
-		iExtra *= 4 / (max (1, 6 + baseMoves(false)));
-		iExtra *= max(1,getNumAttacks());
+		iExtra *= 4 / (std::max (1, 6 + baseMoves(false)));
+		iExtra *= std::max(1,getNumAttacks());
 		if (IsGainsXPFromScouting())
 			iExtra *= 3;
 		iValue += iExtra;
@@ -31443,7 +31443,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra /= 100;
 		iExtra *= GetInterceptionCombatModifier() + 100;
 		iExtra /= 100;
-		iExtra *= max(1,GetNumInterceptions());
+		iExtra *= std::max(1,GetNumInterceptions());
 		iExtra *= 0.5;
 		iValue += iExtra;
 	}
@@ -31457,7 +31457,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra /= 100;
 		iExtra *= GetInterceptionCombatModifier() + 100;
 		iExtra /= 100;
-		iExtra *= max(1, GetNumInterceptions());
+		iExtra *= std::max(1, GetNumInterceptions());
 		iExtra *= 0.2;
 		iExtra *= GetAirInterceptRange();
 		iValue += iExtra;
@@ -31547,7 +31547,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 				iExtra *= iFlavorOffense + 2 * iFlavorDefense;
 				iExtra *= 0.5;
-				iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+				iExtra *= 0.5 + 0.5 * getDamage() / std::max(1,GetMaxHitPoints());
 				if (isAlwaysHeal())
 					iExtra *= 5;
 				iValue += iExtra;
@@ -31622,7 +31622,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iExtra += (getExtraFriendlyHeal() + getExtraNeutralHeal() + getExtraEnemyHeal()) / 3;
 				iExtra *= iFlavorOffense + 2 * iFlavorDefense;
 				iExtra *= 0.5;
-				iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+				iExtra *= 0.5 + 0.5 * getDamage() / std::max(1,GetMaxHitPoints());
 				if (isAlwaysHeal())
 					iExtra *= 5;
 				iValue += iExtra;
@@ -31646,7 +31646,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= -5;
-				iExtra *= max(1,getNumAttacks());
+				iExtra *= std::max(1,getNumAttacks());
 				if (IsGainsXPFromScouting())
 					iExtra *= 2;
 				iValue += iExtra;
@@ -31656,7 +31656,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= 5;
-				iExtra *= max(1,getNumAttacks());
+				iExtra *= std::max(1,getNumAttacks());
 				if (IsGainsXPFromScouting())
 					iExtra *= 1.8;
 				iValue += iExtra;
@@ -31883,7 +31883,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraFriendlyHeal() + getSameTileHeal();
 		iExtra = (iTemp + iExtra) * (iFlavorNaval + 2 * iFlavorCityDefense);
-		iExtra *= 0.5 + 0.5 * getDamage() / max(1,GetMaxHitPoints());
+		iExtra *= 0.5 + 0.5 * getDamage() / std::max(1,GetMaxHitPoints());
 		if (isAlwaysHeal())
 			iExtra *= 4;
 		if (bWarTimePromotion)
@@ -32330,7 +32330,7 @@ int CvUnit::TurnsToReachTarget(const CvPlot* pTarget, int iFlags, int iTargetTur
 		return INT_MAX;
 
 	//make sure that iTargetTurns is valid
-	iTargetTurns = max(1,iTargetTurns);
+	iTargetTurns = std::max(1,iTargetTurns);
 
 	//performance optimization
 	if (iTargetTurns!=INT_MAX)

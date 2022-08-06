@@ -40,7 +40,7 @@ public:
 FDataStream& operator>>(FDataStream&, CvGreatWork&);
 FDataStream& operator<<(FDataStream&, const CvGreatWork&);
 
-typedef vector<CvGreatWork> GreatWorkList;
+typedef std::vector<CvGreatWork> GreatWorkList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameCulture
@@ -202,17 +202,17 @@ public:
 #endif
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	void DoSwapGreatWorks(YieldTypes eFocusYield);
-	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
+	void MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap);
 #else
 	void DoSwapGreatWorks();
-	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
+	void MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2);
 #endif
-	bool ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
-	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID = -1);
+	bool ThemeBuilding(std::vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
+	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID = -1);
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	bool MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet);
+	bool MoveSingleWorks(std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet);
 #endif
-	bool FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
+	bool FillBuilding(std::vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2);
 #if defined(MOD_BALANCE_CORE)
 	bool MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot);
 #else
@@ -315,7 +315,7 @@ public:
 	int GetTotalThemingBonuses() const;
 
 	// Public data
-	vector<CvPlot*> m_aDigCompletePlots;
+	std::vector<CvPlot*> m_aDigCompletePlots;
 	int m_iLastTurnLifetimeCulture;
 	int m_iLastTurnCPT;
 	int m_aiCulturalInfluence[MAX_MAJOR_CIVS];
@@ -362,7 +362,7 @@ private:
 
 	CvPlayer *m_pPlayer;
 
-	mutable map<PlayerTypes, pair<int, InfluenceLevelTrend>> m_influenceTrendCache;
+	mutable std::map<PlayerTypes, std::pair<int, InfluenceLevelTrend>> m_influenceTrendCache;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerCulture&);
@@ -430,12 +430,12 @@ namespace CultureHelpers
 	CvString GetGreatWorkName(GreatWorkType eGreatWorkType);
 	GreatWorkSlotType GetGreatWorkSlot(GreatWorkType eType);
 	CvString GetGreatWorkAudio(GreatWorkType eGreatWorkType);
-	int GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, vector<int> &aGreatWorkIndices);
-	bool IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
+	int GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, std::vector<int> &aGreatWorkIndices);
+	bool IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, std::vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, std::vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
 #if defined(MOD_BALANCE_CORE)
-	bool IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
+	bool IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, std::vector<EraTypes> &aForeignErasSeen, std::vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, std::vector<PlayerTypes> &aForeignPlayersSeen, std::vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner);
 #endif
-	int FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen);
+	int FindWorkNotChosen(std::vector<CvGreatWorkInMyEmpire> &aWorks, std::vector<int> &aWorksChosen);
 	void SendArtSwapNotification(GreatWorkSlotType eType, bool bArt, PlayerTypes eOriginator, PlayerTypes eReceipient, int iWorkFromOriginator, int iWorkFromRecipient);
 }
 

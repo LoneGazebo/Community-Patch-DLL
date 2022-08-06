@@ -634,8 +634,8 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	// Wonder is MIN between weight of wonders available to build and value from flavors (but not less than zero)
 	int iWonderFlavorWeight = iFlavorWonder * /*250*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_FLAVOR_WONDER);
 	int iWeightOfWonders = (int)(m_iNextWonderWeight * /*0.2f*/ GD_FLOAT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER));
-	iWonderWeight = min(iWonderFlavorWeight, iWeightOfWonders);
-	iWonderWeight = max(iWonderWeight, 0);
+	iWonderWeight = std::min(iWonderFlavorWeight, iWeightOfWonders);
+	iWonderWeight = std::max(iWonderWeight, 0);
 
 	// One-half of normal weight if critical defense is on
 	if (bCriticalDefenseOn)
@@ -677,10 +677,10 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 /// Assign specializations to cities
 void CvCitySpecializationAI::AssignSpecializations()
 {
-	map<int, vector<int>> citiesWithoutSpecialization;
+	std::map<int, std::vector<int>> citiesWithoutSpecialization;
 	CitySpecializationTypes eWonderSpecialization = GetWonderSpecialization();
-	vector<CitySpecializationTypes> specializationsNeeded =	SelectSpecializations();
-	vector<CitySpecializationTypes>::iterator it;
+	std::vector<CitySpecializationTypes> specializationsNeeded =	SelectSpecializations();
+	std::vector<CitySpecializationTypes>::iterator it;
 
 	// OBVIOUS ASSIGNMENTS: Loop through our cities making obvious assignments
 	int iLoop;
@@ -713,7 +713,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		}
 
 		// Store all other cities for later
-		vector<int> cityData = CityValueForUnworkedTileYields(pLoopCity);
+		std::vector<int> cityData = CityValueForUnworkedTileYields(pLoopCity);
 		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
 			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData[iI]);
@@ -743,7 +743,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		// Pick best existing city based on a better computation of existing city's value for a yield type
 		int iBestValue = 1;
 		int iBestCityID = -1;
-		for (map<int, vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
+		for (std::map<int, std::vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 		{
 			CvCity* pCity = m_pPlayer->getCity(itCity->first);
 			if (bCoastal && !pCity->isCoastal())
@@ -782,7 +782,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 	}
 
 	//set all remaining cities to default
-	for(map<int,vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
+	for(std::map<int,std::vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 	{
 		CvCity* pCity = m_pPlayer->getCity(itCity->first);
 		pCity->GetCityStrategyAI()->SetSpecialization(GetEconomicDefaultSpecialization());
@@ -793,9 +793,9 @@ void CvCitySpecializationAI::AssignSpecializations()
 }
 
 /// Evaluate strength of an existing city for providing a specific type of yield
-vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity)
+std::vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity)
 {
-	vector<int> result(YIELD_TOURISM, 0);
+	std::vector<int> result(YIELD_TOURISM, 0);
 	CvPlot* pPlot = pCity->plot();
 
 	// Evaluate potential from plots not currently being worked
@@ -808,7 +808,7 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 			{
 				int iPotentialYield = pLoopPlot->getYield((YieldTypes)iYield);
 				if (iYield == YIELD_FOOD) //a plot needs to be worked by a citizen who needs food
-					iPotentialYield = max(0, iPotentialYield - /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION));
+					iPotentialYield = std::max(0, iPotentialYield - /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION));
 
 				result[iYield] += iPotentialYield*100; //to make sure modifiers are not rounded away later on
 			}
@@ -820,11 +820,11 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 
 
 /// Find specializations needed (including for the next city we build)
-vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
+std::vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 {
-	vector<CitySpecializationTypes> specializationsNeeded;
-	map<YieldTypes,int> numSpecializationsPerYield;
-	map<ProductionSpecializationSubtypes, int> numSpecializationsPerSubtype;
+	std::vector<CitySpecializationTypes> specializationsNeeded;
+	std::map<YieldTypes,int> numSpecializationsPerYield;
+	std::map<ProductionSpecializationSubtypes, int> numSpecializationsPerSubtype;
 
 	CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights = WeightProductionSubtypes();
 	CvWeightedVector<YieldTypes> yieldWeights = WeightSpecializations();
@@ -874,7 +874,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 /// Find production specializations needed
 CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 	CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
-	map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype)
+	std::map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype)
 {
 	// Find current highest weighted subtype
 	prodSubtypeWeights.SortItems();
@@ -1359,7 +1359,7 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 	}
 }
 
-void CvCitySpecializationAI::LogCity(CvCity* pCity, const vector<int>& data)
+void CvCitySpecializationAI::LogCity(CvCity* pCity, const std::vector<int>& data)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

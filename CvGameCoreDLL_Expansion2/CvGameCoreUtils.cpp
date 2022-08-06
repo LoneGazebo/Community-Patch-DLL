@@ -1548,7 +1548,7 @@ int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
 }
 
 // add a fraction to a referenced fraction without losing information; the referenced fraction is assumed to have the larger dividend & divisor
-void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B)
+void AddFractionToReference(std::pair<int,int>& A, const std::pair<int,int>& B)
 {
 	// protect from integer overflow (safe, simple max that will probably never be hit)
 	if (A.first >= (INT_MAX / B.first / B.second) - A.second)
@@ -1575,22 +1575,22 @@ void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B)
 }
 
 // add two fractions together without losing information; A is assumed to have the larger dividend & divisor
-pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B)
+std::pair<int,int> AddFractions(std::pair<int,int>& A, std::pair<int,int>& B)
 {
 	AddFractionToReference(A, B);
 	return A;
 }
 
 // add a list of fractions together (separated numerators and denominators)
-pair<int,int> AddFractions(vector<int>& aDividendList, vector<int>& aDivisorList)
+std::pair<int,int> AddFractions(std::vector<int>& aDividendList, std::vector<int>& aDivisorList)
 {
 	CvAssert(aDividendList.size() == aDivisorList.size());
 
-	pair<int,int> result = make_pair(0, 1);
+	std::pair<int,int> result = std::make_pair(0, 1);
 
 	for (size_t jJ = 0, jlen = aDividendList.size(); jJ < jlen; ++jJ)
 	{
-		AddFractionToReference(result, make_pair(aDividendList[jJ], aDivisorList[jJ]));
+		AddFractionToReference(result, std::make_pair(aDividendList[jJ], aDivisorList[jJ]));
 	}
 	return result;
 }

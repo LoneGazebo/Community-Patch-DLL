@@ -1144,15 +1144,15 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
 
-	vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksArtifacts;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksMusic;
-	vector<CvGreatWorkInMyEmpire> aNull;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksArtifacts;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksMusic;
+	std::vector<CvGreatWorkInMyEmpire> aNull;
 
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsWriting;
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsArt;
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsMusic;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsWriting;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsArt;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsMusic;
 
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
@@ -1264,15 +1264,15 @@ void CvPlayerCulture::DoSwapGreatWorks()
 	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
 
-	vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksArtifacts;
-	vector<CvGreatWorkInMyEmpire> aGreatWorksMusic;
-	vector<CvGreatWorkInMyEmpire> aNull;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksWriting;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksArt;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksArtifacts;
+	std::vector<CvGreatWorkInMyEmpire> aGreatWorksMusic;
+	std::vector<CvGreatWorkInMyEmpire> aNull;
 
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsWriting;
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsArt;
-	vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsMusic;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsWriting;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsArt;
+	std::vector<CvGreatWorkBuildingInMyEmpire> aGreatWorkBuildingsMusic;
 
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
@@ -1413,9 +1413,9 @@ static bool SortThemingBonus(const CvGreatWorkBuildingInMyEmpire& kEntry1, const
 
 /// Overall routine that orchestrates all the maneuvering of Great Works between buildings and players for one AI turn
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap)
+void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bSwap)
 #else
-void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
+void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2)
 #endif
 {
 	// CUSTOMLOG("Move Works for slot type %i", ((int) eType));
@@ -1442,7 +1442,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 
 	// First building that are not endangered and not puppets
 	// CUSTOMLOG("  ... theming safe buildings");
-	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
+	std::vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
 		if (!itBuilding->m_bEndangered && !itBuilding->m_bPuppet)
@@ -1662,19 +1662,19 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 }
 
 /// Uses the available Great Works to fill a building with those works that provide the best Theming Bonus
-bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers)
+bool CvPlayerCulture::ThemeBuilding(std::vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers)
 {
 	CvGameCulture *pkGameCulture = GC.getGame().GetGameCulture();
 
-	vector<CvGreatWorkInMyEmpire> worksToConsider;
-	vector<CvGreatWorkInMyEmpire>::const_iterator it;
-	vector<CvGreatWorkInMyEmpire>::const_iterator it2;
-	vector<CvGreatWorkInMyEmpire>::iterator it3;
-	vector<CvGreatWorkInMyEmpire> tempWorks;
+	std::vector<CvGreatWorkInMyEmpire> worksToConsider;
+	std::vector<CvGreatWorkInMyEmpire>::const_iterator it;
+	std::vector<CvGreatWorkInMyEmpire>::const_iterator it2;
+	std::vector<CvGreatWorkInMyEmpire>::iterator it3;
+	std::vector<CvGreatWorkInMyEmpire> tempWorks;
 
-	vector<int> aWorksChosen;
-	vector<PlayerTypes> aPlayersSeen;
-	vector<EraTypes> aErasSeen;
+	std::vector<int> aWorksChosen;
+	std::vector<PlayerTypes> aPlayersSeen;
+	std::vector<EraTypes> aErasSeen;
 
 	CvBuildingEntry *pkEntry = GC.getBuildingInfo(buildingIt->m_eBuilding);
 	if (!pkEntry || pkEntry->GetGreatWorkCount() < 2)
@@ -1780,9 +1780,9 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 			if (!bThemedProperly && bConsiderOtherPlayers && (pkEntry->GetGreatWorkSlotType() != CvTypes::getGREAT_WORK_SLOT_MUSIC()))
 			{
 				//Let's look at every applicable GW in the world.
-				vector<int> aForeignWorksToConsider;
+				std::vector<int> aForeignWorksToConsider;
 				CvWeightedVector<int> aGreatWorkPairs;
-				vector<int> aWorksToDiscard;
+				std::vector<int> aWorksToDiscard;
 
 				GreatWorkSlotType eSlotType = pkEntry->GetGreatWorkSlotType();
 
@@ -2290,20 +2290,20 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 /// Specialized version of ThemeBuilding() that handles those buildings that are split between Art and Artifact
 #if defined(MOD_BALANCE_CORE)
-bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID)
+bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers, int iThemeID)
 #else
 bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool /*bConsiderOtherPlayers*/)
 #endif
 {
 	CvGameCulture *pkGameCulture = GC.getGame().GetGameCulture();
 
-	vector<CvGreatWorkInMyEmpire>::const_iterator it;
-	vector<CvGreatWorkInMyEmpire>::iterator it5;
-	vector<CvGreatWorkInMyEmpire> tempWorks;
+	std::vector<CvGreatWorkInMyEmpire>::const_iterator it;
+	std::vector<CvGreatWorkInMyEmpire>::iterator it5;
+	std::vector<CvGreatWorkInMyEmpire> tempWorks;
 
-	vector<int> aArtifactsChosen;
-	vector<PlayerTypes> aArtifactsPlayersSeen;
-	vector<EraTypes> aArtifactsErasSeen;
+	std::vector<int> aArtifactsChosen;
+	std::vector<PlayerTypes> aArtifactsPlayersSeen;
+	std::vector<EraTypes> aArtifactsErasSeen;
 
 	int iWorksInHalf = iNumSlots / 2;
 	if (iWorksInHalf % 2 != 0 || (int)works1.size() < iWorksInHalf || (int)works2.size() < iWorksInHalf)
@@ -2343,7 +2343,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 		aArtifactsErasSeen.push_back(it->m_eEra);
 
 		// Loop through the rest looking for works that will match up
-		vector<CvGreatWorkInMyEmpire>::const_iterator it2 = it;
+		std::vector<CvGreatWorkInMyEmpire>::const_iterator it2 = it;
 		for (it2++; it2 != works2.end() && aArtifactsChosen.size() < (unsigned int)iWorksInHalf; it2++)
 		{
 			if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it2->m_eEra, aArtifactsErasSeen, it2->m_ePlayer, aArtifactsPlayersSeen, m_pPlayer->GetID()))
@@ -2356,12 +2356,12 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 		// Do we have the right amount of art?
 		if (aArtifactsChosen.size() == iWorksInHalf)
 		{
-			vector<int> aWorksChosen;
-			vector<PlayerTypes> aPlayersSeen;
-			vector<EraTypes> aErasSeen;
+			std::vector<int> aWorksChosen;
+			std::vector<PlayerTypes> aPlayersSeen;
+			std::vector<EraTypes> aErasSeen;
 
 			// Now see if we can get the right number of art works to work as well
-			vector<CvGreatWorkInMyEmpire>::iterator it3;
+			std::vector<CvGreatWorkInMyEmpire>::iterator it3;
 			for (it3 = works1.begin(); it3 != works1.end() && aWorksChosen.size() < (unsigned int)iNumSlots; it3++)
 			{
 				// First, make sure this "starter" is valid
@@ -2391,7 +2391,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				aErasSeen.push_back(it3->m_eEra);
 
 				// Loop through the rest looking for works that will match up
-				vector<CvGreatWorkInMyEmpire>::const_iterator it4 = it3;
+				std::vector<CvGreatWorkInMyEmpire>::const_iterator it4 = it3;
 				for (it4++; it4 != works1.end() && aWorksChosen.size() < (unsigned int)iNumSlots; it4++)
 				{
 					if (CultureHelpers::IsValidForThemingBonus(pkBonusInfo, it4->m_eEra, aErasSeen, it4->m_ePlayer, aPlayersSeen, m_pPlayer->GetID()))
@@ -2412,9 +2412,9 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 				if (!bThemedProperly && bConsiderOtherPlayers && (pkEntry->GetGreatWorkSlotType() != CvTypes::getGREAT_WORK_SLOT_MUSIC()))
 				{
 					//Let's look at every applicable GW in the world.
-					vector<int> aForeignWorksToConsider;
+					std::vector<int> aForeignWorksToConsider;
 					CvWeightedVector<int> aGreatWorkPairs;
-					vector<int> aWorksToDiscard;
+					std::vector<int> aWorksToDiscard;
 
 					GreatWorkSlotType eSlotType = pkEntry->GetGreatWorkSlotType();
 
@@ -2902,10 +2902,10 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 }
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet)
+bool CvPlayerCulture::MoveSingleWorks(std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet)
 {
 	// CUSTOMLOG("Move Single Works");
-	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
+	std::vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
 
 	/*
 	 * The order is
@@ -2920,15 +2920,15 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 	 *  - fill single endangered buildings with no yield
 	*/
 
-	vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsFocus;
-	vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsAny;
-	vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsNone;
-	vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsFocus;
-	vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsAny;
-	vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsNone;
-	vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsFocus;
-	vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsAny;
-	vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsNone;
+	std::vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsFocus;
+	std::vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsAny;
+	std::vector<CvGreatWorkBuildingInMyEmpire> homelandBuildingsNone;
+	std::vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsFocus;
+	std::vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsAny;
+	std::vector<CvGreatWorkBuildingInMyEmpire> puppetBuildingsNone;
+	std::vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsFocus;
+	std::vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsAny;
+	std::vector<CvGreatWorkBuildingInMyEmpire> endangeredBuildingsNone;
 
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
@@ -3001,7 +3001,7 @@ bool CvPlayerCulture::MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &bui
 #endif
 
 /// Simple version of ThemeBuilding() which just fills in a building with ANY Great Works, not ones that provide a theming bonus
-bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
+bool CvPlayerCulture::FillBuilding(std::vector<CvGreatWorkBuildingInMyEmpire>::const_iterator buildingIt, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2)
 {
 	// CUSTOMLOG("Fill building %i in city %i", ((int) (buildingIt->m_eBuilding)), buildingIt->m_iCityID);
 	CvBuildingEntry *pkEntry = GC.getBuildingInfo(buildingIt->m_eBuilding);
@@ -3020,11 +3020,11 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 	bool bUpdate = false;
 #endif
 
-	vector<CvGreatWorkInMyEmpire> worksToConsider;
-	vector<int> aWorksChosen;
+	std::vector<CvGreatWorkInMyEmpire> worksToConsider;
+	std::vector<int> aWorksChosen;
 
 	worksToConsider = works1;
-	vector<CvGreatWorkInMyEmpire>::const_iterator it;
+	std::vector<CvGreatWorkInMyEmpire>::const_iterator it;
 	for (it = works2.begin(); it != works2.end(); it++)
 	{
 		worksToConsider.push_back(*it);
@@ -3045,8 +3045,8 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 	// Remove these works from those to consider later
 	if (aWorksChosen.size() > 0)
 	{
-		vector<CvGreatWorkInMyEmpire>::iterator it2;
-		vector<CvGreatWorkInMyEmpire> tempWorks;
+		std::vector<CvGreatWorkInMyEmpire>::iterator it2;
+		std::vector<CvGreatWorkInMyEmpire> tempWorks;
 
 		tempWorks.clear();
 		for (it2 = works1.begin(); it2 != works1.end(); it2++)
@@ -3176,7 +3176,7 @@ void CvPlayerCulture::AddDigCompletePlot(CvPlot* pPlot)
 void CvPlayerCulture::RemoveDigCompletePlot(CvPlot* pPlot)
 {
 	CvAssert(pPlot != NULL);
-	vector<CvPlot*>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot);
+	std::vector<CvPlot*>::iterator it = std::find(m_aDigCompletePlots.begin(), m_aDigCompletePlots.end(), pPlot);
 	if (it != m_aDigCompletePlots.end())
 	{
 		m_aDigCompletePlots.erase(it);
@@ -3316,7 +3316,7 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true) - 1 /* For this one that just completed work */;
 		int iNumSites = m_pPlayer->GetEconomicAI()->GetVisibleAntiquitySites() - 1 /* For this one then just was completed */;
 		int iNumGreatWorkSlots = m_pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
-		int iLimitingFactor = min(iNumArchaeologists, iNumSites);
+		int iLimitingFactor = std::min(iNumArchaeologists, iNumSites);
 
 		if (iNumGreatWorkSlots <= iLimitingFactor)
 		{
@@ -4439,7 +4439,7 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) const
 {
 	//looking up average yields is expensive, so we cache the last result
-	map<PlayerTypes, pair<int, InfluenceLevelTrend>>::const_iterator it = m_influenceTrendCache.find(ePlayer);
+	std::map<PlayerTypes, std::pair<int, InfluenceLevelTrend>>::const_iterator it = m_influenceTrendCache.find(ePlayer);
 	if (it != m_influenceTrendCache.end() && it->second.first == GC.getGame().getTurnSlice())
 		return it->second.second;
 
@@ -4474,7 +4474,7 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	}
 
 	//update the cache
-	m_influenceTrendCache[ePlayer] = make_pair(GC.getGame().getTurnSlice(), eRtnValue);
+	m_influenceTrendCache[ePlayer] = std::make_pair(GC.getGame().getTurnSlice(), eRtnValue);
 	return eRtnValue;
 }
 
@@ -4526,10 +4526,10 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 		int iNumerator = (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCulture / 100) - iInfluence;
 		int iDivisor = iInflPerTurn - (/*100*/ GD_INT_GET(CULTURE_LEVEL_INFLUENTIAL) * iCultPerTurn / 100);
 
-		iRtnValue = iNumerator / max(1, iDivisor);
+		iRtnValue = iNumerator / std::max(1, iDivisor);
 
 		// Round up
-		if (iNumerator % max(1, iDivisor) != 0)
+		if (iNumerator % std::max(1, iDivisor) != 0)
 		{
 			iRtnValue++;
 		}
@@ -5091,7 +5091,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 
 		iMod *= iNumCities;
 
-		iMod = min(90, iMod);
+		iMod = std::min(90, iMod);
 
 		if (iMod != 0)
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
@@ -5283,7 +5283,7 @@ int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iStrength /= 100;
 
-	return max(iStrength, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
+	return std::max(iStrength, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
 }
 
 /// Add tourism with all known civs
@@ -5421,7 +5421,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		}
 
 		// Cultural Influence has an effect here.
-		int iInfluenceModifier = max(5, ((kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer)) * 5));
+		int iInfluenceModifier = std::max(5, ((kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer)) * 5));
 		iWarDamage *= iInfluenceModifier;
 		iWarDamage /= 100;
 
@@ -5456,8 +5456,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 	if (iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = max(1, GC.getGame().getSmallFakeRandNum( max(3, iLeastPeaceTurns/2), iHighestWarDamage));
-		iFallingWarWeariness = max(iCurrentWarWeariness-iReduction, 0);
+		int iReduction = std::max(1, GC.getGame().getSmallFakeRandNum( std::max(3, iLeastPeaceTurns/2), iHighestWarDamage));
+		iFallingWarWeariness = std::max(iCurrentWarWeariness-iReduction, 0);
 	}
 
 	// If we have a war going, it will generate rising unhappiness
@@ -5468,7 +5468,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	}
 
 	// Target war weariness = whichever is higher
-	int iTargetWarWeariness = max(iRisingWarWeariness, iFallingWarWeariness);
+	int iTargetWarWeariness = std::max(iRisingWarWeariness, iFallingWarWeariness);
 
 	// UA and policies can reduce this amount...
 	int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
@@ -5631,7 +5631,7 @@ void CvPlayerCulture::DoPublicOpinion()
 					}
 				}
 
-				iCulturalDominanceOverUs = max(0, iTheirInfluenceLevel) - max(0, iOurInfluenceLevel);
+				iCulturalDominanceOverUs = std::max(0, iTheirInfluenceLevel) - std::max(0, iOurInfluenceLevel);
 
 				if (iCulturalDominanceOverUs > 0)
 				{
@@ -5948,7 +5948,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 					iOurInfluenceLevel -= (int)(m_pPlayer->GetCulture()->GetInfluenceTrend((PlayerTypes)iLoopPlayer)) - 1;
 				}
 
-				int iCulturalDominanceOverUs = max(0, iTheirInfluenceLevel) - max(0, iOurInfluenceLevel);
+				int iCulturalDominanceOverUs = std::max(0, iTheirInfluenceLevel) - std::max(0, iOurInfluenceLevel);
 				if (iCulturalDominanceOverUs > 0)
 					aIdeologyPressure[eOtherCivIdeology] += iCulturalDominanceOverUs;
 			}
@@ -6134,7 +6134,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 			iUnhappyPerXPop = 3;
 		}
 
-		return max(m_pPlayer->getNumCities() * iPerCityUnhappy, m_pPlayer->getTotalPopulation() / iUnhappyPerXPop);
+		return std::max(m_pPlayer->getNumCities() * iPerCityUnhappy, m_pPlayer->getTotalPopulation() / iUnhappyPerXPop);
 	}
 
 	float fPerCityUnhappy = 1.0f;
@@ -6148,10 +6148,10 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 	fUnhappyPerXPop += iDissatisfaction*fUnhappyPerXPopSlope;
 
 	//sanitization
-	fPerCityUnhappy = min(10.f,max(1.f,fPerCityUnhappy));
-	fUnhappyPerXPop = min(100.f,max(1.f,fUnhappyPerXPop));
+	fPerCityUnhappy = std::min(10.f,std::max(1.f,fPerCityUnhappy));
+	fUnhappyPerXPop = std::min(100.f,std::max(1.f,fUnhappyPerXPop));
 
-	return (int) max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop);
+	return (int) std::max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop);
 }
 
 // LOGGING FUNCTIONS
@@ -6630,7 +6630,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 
 		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
 		bool bRome = GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings();
-		vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		std::vector<BuildingTypes> allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
 			int iCount = m_pCity->GetCityBuildings()->GetNumBuilding(allBuildings[iI]);
@@ -6646,7 +6646,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 	}
 
 	// Tech enhanced Tourism
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		BuildingTypes eBuilding = allBuildings[iI];
@@ -6660,7 +6660,7 @@ void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 			}
 		}
 	}
-	m_pCity->SetBaseTourismBeforeModifiers(max(0, iBase));
+	m_pCity->SetBaseTourismBeforeModifiers(std::max(0, iBase));
 	return;
 }
 
@@ -6692,7 +6692,7 @@ void CvCityCulture::CalculateBaseTourism()
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 	
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -6715,7 +6715,7 @@ void CvCityCulture::CalculateBaseTourism()
 		iBase *= (100 + iModifier);
 		iBase /= 100;
 	}
-	m_pCity->SetBaseTourism(max(0, iBase));
+	m_pCity->SetBaseTourism(std::max(0, iBase));
 }
 #endif
 
@@ -6886,7 +6886,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		iMod *= iNumCities;
 
 
-		iMultiplier -= min(90, iMod);
+		iMultiplier -= std::min(90, iMod);
 	}
 #endif
 	// LATER add top science city and research agreement with this player???
@@ -6990,7 +6990,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
-		const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+		const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 		for(size_t iI = 0; iI < allBuildings.size(); iI++)
 		{
 			BuildingTypes eBuilding = allBuildings[iI];
@@ -7016,7 +7016,7 @@ CvString CvCityCulture::GetTourismTooltip()
 	}
 
 	// Tech enhanced Tourism
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		BuildingTypes eBuilding = allBuildings[iI];
@@ -7468,7 +7468,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += GetLocalizedText("TXT_KEY_YIELD_MODIFIER_DEVELOPMENT", iTempMod);
 	}
 
-	iTempMod = min(20, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromGreatWorks(YIELD_TOURISM) * m_pCity->GetCityBuildings()->GetNumGreatWorks()));
+	iTempMod = std::min(20, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromGreatWorks(YIELD_TOURISM) * m_pCity->GetCityBuildings()->GetNumGreatWorks()));
 	if (iTempMod != 0)
 	{
 		if (bHasCityModTooltip == false)
@@ -7482,7 +7482,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
 	}
 
-	iTempMod = min(30, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromActiveSpies(YIELD_TOURISM) * GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	iTempMod = std::min(30, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromActiveSpies(YIELD_TOURISM) * GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
 	if (iTempMod != 0)
 	{
 		if (bHasCityModTooltip == false)
@@ -7561,7 +7561,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			if (iVal <= 0)
 				iVal = 1;
 
-			iTempMod = min(max, iReligionYieldMaxFollowersPercent);
+			iTempMod = std::min(max, iReligionYieldMaxFollowersPercent);
 			if (iTempMod != 0)
 			{
 				if (bHasCityModTooltip == false)
@@ -7581,7 +7581,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			if (iReligionYieldMaxFollowers > 0)
 			{
 				int iFollowers = m_pCity->GetCityReligions()->GetNumFollowers(eMajority);
-				iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+				iTempMod = std::min(iFollowers, iReligionYieldMaxFollowers);
 				if (iTempMod != 0)
 				{
 					if (bHasCityModTooltip == false)
@@ -7967,7 +7967,7 @@ int CvCityCulture::GetCultureFromWonders() const
 {
 	int iRtnValue = 0;
 
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for(size_t iI = 0; iI < allBuildings.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(allBuildings[iI]);
@@ -8032,7 +8032,7 @@ void CvCityCulture::LogGreatWorks(FILogFile* pLog)
 /// Which of the theming bonuses for this building is active
 int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 {  
-	vector<int> aGreatWorkIndices;
+	std::vector<int> aGreatWorkIndices;
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
 	{
@@ -8060,7 +8060,7 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 /// Which of the theming bonuses for this building is active
 void CvCityCulture::UpdateThemingBonusIndex(BuildingClassTypes eBuildingClass)
 {
-	vector<int> aGreatWorkIndices;
+	std::vector<int> aGreatWorkIndices;
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
 	{
@@ -8277,12 +8277,12 @@ GreatWorkSlotType CultureHelpers::GetGreatWorkSlot(GreatWorkType eType)
 	return eSlot;
 }
 
-int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, vector<int> &aGreatWorkIndices)
+int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pkEntry, std::vector<int> &aGreatWorkIndices)
 {
 	int iCountArt = 0;
 	int iCountArtifact = 0;
-	set<EraTypes> aErasSeen;
-	set<PlayerTypes> aPlayersSeen;
+	std::set<EraTypes> aErasSeen;
+	std::set<PlayerTypes> aPlayersSeen;
 
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 	GreatWorkClass eArtifactClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
@@ -8399,7 +8399,7 @@ int CultureHelpers::GetThemingBonusIndex(PlayerTypes eOwner, CvBuildingEntry *pk
 	return -1;
 }
 #if defined(MOD_BALANCE_CORE)
-bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aForeignErasSeen, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aForeignPlayersSeen, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
+bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, std::vector<EraTypes> &aForeignErasSeen, std::vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, std::vector<PlayerTypes> &aForeignPlayersSeen, std::vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;
 
@@ -8457,7 +8457,7 @@ bool CultureHelpers::IsValidForForeignThemingBonus(CvThemingBonusInfo *pBonusInf
 	return bValid;
 }
 #endif
-bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
+bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraTypes eEra, std::vector<EraTypes> &aErasSeen, PlayerTypes ePlayer, std::vector<PlayerTypes> &aPlayersSeen, PlayerTypes eOwner)
 {
 	bool bValid = true;
 
@@ -8511,7 +8511,7 @@ bool CultureHelpers::IsValidForThemingBonus(CvThemingBonusInfo *pBonusInfo, EraT
 	return bValid;
 }
 
-int CultureHelpers::FindWorkNotChosen(vector<CvGreatWorkInMyEmpire> &aWorks, vector<int> &aWorksChosen)
+int CultureHelpers::FindWorkNotChosen(std::vector<CvGreatWorkInMyEmpire> &aWorks, std::vector<int> &aWorksChosen)
 {
 	for (unsigned int iI = 0; iI < aWorks.size(); iI++)
 	{

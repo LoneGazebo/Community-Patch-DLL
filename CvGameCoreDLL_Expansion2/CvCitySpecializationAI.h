@@ -146,11 +146,11 @@ private:
 	void AssignSpecializations();
 	CvWeightedVector<YieldTypes> WeightSpecializations();
 	CvWeightedVector<ProductionSpecializationSubtypes> WeightProductionSubtypes();
-	vector<int> CityValueForUnworkedTileYields(CvCity* pCity);
-	vector<CitySpecializationTypes> SelectSpecializations();
+	std::vector<int> CityValueForUnworkedTileYields(CvCity* pCity);
+	std::vector<CitySpecializationTypes> SelectSpecializations();
 	CitySpecializationTypes SelectProductionSpecialization(
 		CvWeightedVector<ProductionSpecializationSubtypes>& prodSubtypeWeights, 
-		map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype);
+		std::map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype);
 	CitySpecializationTypes GetEconomicDefaultSpecialization() const;
 	int GetWonderSubtype() const;
 	CvCity* FindBestWonderCity() const;
@@ -163,7 +163,7 @@ private:
 	void LogSpecializationWeights(CvWeightedVector<ProductionSpecializationSubtypes> prodSubtypeWeights, CvWeightedVector<YieldTypes> yieldWeights);
 	void LogSpecializationAssignment(CvCity* pCity, CitySpecializationTypes eType, bool bWonderCity=false);
 	void LogSpecializationUpdate(CitySpecializationUpdateType eUpdate);
-	void LogCity(CvCity* pCity, const vector<int>& data);
+	void LogCity(CvCity* pCity, const std::vector<int>& data);
 
 	CvPlayer* m_pPlayer;
 	CvCitySpecializationXMLEntries* m_pSpecializations;

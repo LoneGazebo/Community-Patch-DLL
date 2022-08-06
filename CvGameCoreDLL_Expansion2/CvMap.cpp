@@ -177,7 +177,7 @@ bool CvLandmass::addArea(int iAreaID)
 int CvLandmass::getUnitsPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getUnitsPerPlayer(eIndex);
 
 	return iResult;
@@ -185,7 +185,7 @@ int CvLandmass::getUnitsPerPlayer(PlayerTypes eIndex) const
 int CvLandmass::getEnemyUnits(PlayerTypes eIndex) const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getEnemyUnits(eIndex);
 
 	return iResult;
@@ -193,7 +193,7 @@ int CvLandmass::getEnemyUnits(PlayerTypes eIndex) const
 int CvLandmass::getCitiesPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getCitiesPerPlayer(eIndex);
 
 	return iResult;
@@ -201,7 +201,7 @@ int CvLandmass::getCitiesPerPlayer(PlayerTypes eIndex) const
 int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getPopulationPerPlayer(eIndex);
 
 	return iResult;
@@ -209,7 +209,7 @@ int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
 int CvLandmass::getNumUnits() const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getNumUnits();
 
 	return iResult;
@@ -217,7 +217,7 @@ int CvLandmass::getNumUnits() const
 int CvLandmass::getNumCities() const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getNumCities();
 
 	return iResult;
@@ -225,7 +225,7 @@ int CvLandmass::getNumCities() const
 int CvLandmass::getTotalPopulation() const
 {
 	int iResult = 0;
-	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+	for (std::vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getTotalPopulation();
 
 	return iResult;
@@ -428,7 +428,7 @@ void CvMap::InitPlots()
 	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES + 2)*sizeof(CvPlot*));
 	PrecalcNeighbors();
 
-	m_vVisibilityScratchpad = vector<int>(iNumPlots, 0);
+	m_vVisibilityScratchpad = std::vector<int>(iNumPlots, 0);
 
 	OutputDebugString("realloc map\n");
 	m_vPlotsAtRange2.clear();
@@ -811,12 +811,12 @@ void CvMap::updateYield()
 //	Update the adjacency cache values
 void CvMap::updateAdjacency()
 {
-	m_vPlotsWithLineOfSightFromPlot2.resize(numPlots(), vector<CvPlot*>());
-	m_vPlotsWithLineOfSightFromPlot3.resize(numPlots(), vector<CvPlot*>());
-	m_vPlotsWithLineOfSightToPlot2.resize(numPlots(), vector<CvPlot*>());
-	m_vPlotsWithLineOfSightToPlot3.resize(numPlots(), vector<CvPlot*>());
-	m_vPlotsAtRange2.resize(numPlots(), vector<CvPlot*>());
-	m_vPlotsAtRange3.resize(numPlots(), vector<CvPlot*>());
+	m_vPlotsWithLineOfSightFromPlot2.resize(numPlots(), std::vector<CvPlot*>());
+	m_vPlotsWithLineOfSightFromPlot3.resize(numPlots(), std::vector<CvPlot*>());
+	m_vPlotsWithLineOfSightToPlot2.resize(numPlots(), std::vector<CvPlot*>());
+	m_vPlotsWithLineOfSightToPlot3.resize(numPlots(), std::vector<CvPlot*>());
+	m_vPlotsAtRange2.resize(numPlots(), std::vector<CvPlot*>());
+	m_vPlotsAtRange3.resize(numPlots(), std::vector<CvPlot*>());
 }
 
 //	--------------------------------------------------------------------------------
@@ -1674,10 +1674,10 @@ void CvMap::calculateAreas()
 	}
 
 	//need to do a projection of the areas onto the x/y axis to find the size (with wrapping!)
-	vector<bool> rows(getGridHeight(),false);
-	vector<bool> cols(getGridWidth());
-	vector<vector<bool>> rp(m_areas.GetCount(), rows);
-	vector<vector<bool>> cp(m_areas.GetCount(), cols);
+	std::vector<bool> rows(getGridHeight(),false);
+	std::vector<bool> cols(getGridWidth());
+	std::vector<std::vector<bool>> rp(m_areas.GetCount(), rows);
+	std::vector<std::vector<bool>> cp(m_areas.GetCount(), cols);
 
 	//last pass, set boundaries
 	for (int iI = 0; iI < numPlots(); iI++)
@@ -2500,7 +2500,7 @@ void CvMap::LineOfSightChanged(const CvPlot* pPlot)
 }
 
 //may contain null pointers!
-const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS)
+const std::vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, bool bFromPlot, bool bWithLoS)
 {
 	m_vPlotsShared.clear();
 
@@ -2529,7 +2529,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 		case 2:
 			if (bFromPlot)
 			{
-				vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
+				std::vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()];
 				if (current.empty())
 				{
 					//not found? update cache
@@ -2554,7 +2554,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 			}
 			else
 			{
-				vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()];
+				std::vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot2[pPlot->GetPlotIndex()];
 				if (current.empty())
 				{
 					//not found? update cache
@@ -2580,7 +2580,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 		case 3:
 			if (bFromPlot)
 			{
-				vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()];
+				std::vector<CvPlot*>& current = m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()];
 				if (current.empty())
 				{
 					//not found? update cache
@@ -2602,7 +2602,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 			}
 			else
 			{
-				vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()];
+				std::vector<CvPlot*>& current = m_vPlotsWithLineOfSightToPlot3[pPlot->GetPlotIndex()];
 				if (current.empty())
 				{
 					//not found? update cache

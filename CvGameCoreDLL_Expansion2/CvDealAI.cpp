@@ -147,11 +147,11 @@ bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNe
 {
 	int iLeewayPercent = GetDealPercentLeeway(ePlayer,iNetValue>0);
 	// Make trades at low max value easier
-	int iMaxDeviation = iMaxValue * iLeewayPercent + min(100, iMaxValue) * 15;
+	int iMaxDeviation = iMaxValue * iLeewayPercent + std::min(100, iMaxValue) * 15;
 	iMaxDeviation /= 100;
 
 	//put some sanity checks
-	return abs(iNetValue) < min(max(iMaxDeviation,3),500);
+	return abs(iNetValue) < std::min(std::max(iMaxDeviation,3),500);
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
@@ -694,7 +694,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 					else
 						iModdedGoldValue = 0;
 
-					iValueDemanded += max(iTempGold, iModdedGoldValue);
+					iValueDemanded += std::max(iTempGold, iModdedGoldValue);
 					break;
 				}
 
@@ -1258,7 +1258,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 		if (MOD_BALANCE_CORE_DIFFICULTY && bFromMe && GET_PLAYER(eOtherPlayer).isHuman() && it->m_eItemType != TRADE_ITEM_PEACE_TREATY)
 		{
 			int iDifficultyModifier = 100 + (it->m_eItemType == TRADE_ITEM_TECHS ? GET_PLAYER(eOtherPlayer).getHandicapInfo().getTechTradeKnownModifier() : GET_PLAYER(eOtherPlayer).getHandicapInfo().getNoTechTradeModifier());
-			iItemValue *= max(1, iDifficultyModifier);
+			iItemValue *= std::max(1, iDifficultyModifier);
 			iItemValue /= 100;
 		}
 
@@ -1398,7 +1398,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 	if (bNumGPTFromValue)
 	{
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / std::max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//add interest. 100 gold now is better than 100 gold in the future
 		iGPTorValue += (iGPTorValue*iInterestPercent) / 100;
@@ -1422,11 +1422,11 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		iValueTimes100 = (iGPTorValue * iNumTurns);
 
 		//let's assume an interest rate of 0.5% per turn, no compounding
-		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
+		int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / std::max(1,GC.getGame().getGameSpeedInfo().GetDealDuration());
 
 		//subtract interest. 100 gold now is better than 100 gold in the future
 		iValueTimes100 *= 100;
-		iValueTimes100 /= max(1,100 + iInterestPercent);
+		iValueTimes100 /= std::max(1,100 + iInterestPercent);
 	}
 
 	int iReturnValue = iValueTimes100;
@@ -1494,12 +1494,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		// at a reasonable price, and unneeded trades rejected due to low price AND the potential of a high price if the seller waits.
 		int iEra = GC.getGame().getCurrentEra();
 		int OneGPT = iNumTurns;
-		int OneGPTScaled = iNumTurns * max(iEra, 1);
+		int OneGPTScaled = iNumTurns * std::max(iEra, 1);
 
 		// We are selling!
 		if (bFromMe)
 		{
-			int iItemValue = (iBaseHappiness + max(iEra, 0)) * OneGPT;
+			int iItemValue = (iBaseHappiness + std::max(iEra, 0)) * OneGPT;
 
 			if (iNumAvailableToUs == 1)
 			{
@@ -1512,7 +1512,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				if (iUnhappyCitizens > 0)
 				{
 					int iHappyCitizens = GetPlayer()->getHappinessFromCitizenNeeds() - iBaseHappiness;
-					int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
+					int iPercent = std::min(200, (iHappyCitizens * 100) / std::max(1, iUnhappyCitizens));
 					iPercent /= 2;
 
 					if (iPercent < /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD))
@@ -1662,7 +1662,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
 			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
-			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			iItemValue += std::min(iGPTSurcharge, iItemValue / 5);
 
 			return iItemValue;
 		}
@@ -1902,7 +1902,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
 			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
-			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			iItemValue += std::min(iGPTSurcharge, iItemValue / 5);
 
 			return iItemValue;
 		}
@@ -1916,14 +1916,14 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/3.));
 		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+			iItemValue += std::min(iGPT,iItemValue);
 	}
 	else
 	{
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
 		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+			iItemValue += std::min(iGPT,iItemValue);
 	}
 
 	if (bFromMe)
@@ -2103,9 +2103,9 @@ int CvDealAI::GetResourceRatio(PlayerTypes eSeller, PlayerTypes eBuyer, Resource
 	
 	int iRatio = 100;
 	if (bImSelling)
-		iRatio = (iBuyerAmount * 100) / max(1, iSellerAmount);
+		iRatio = (iBuyerAmount * 100) / std::max(1, iSellerAmount);
 	else
-		iRatio = (iSellerAmount * 100) / max(1, iBuyerAmount);
+		iRatio = (iSellerAmount * 100) / std::max(1, iBuyerAmount);
 
 	//min half, max double
 	return range(iRatio, 50, 200);
@@ -2151,14 +2151,14 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
 		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+			iItemValue += std::min(iGPT,iItemValue);
 	}
 	else
 	{
 		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
 		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/5.));
 		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+			iItemValue += std::min(iGPT,iItemValue);
 	}
 
 	// Uranium is extra valuable
@@ -2321,7 +2321,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			int iResourceRatio = GetResourceRatio(eOtherPlayer, GetPlayer()->GetID(), eResource, iResourceQuantity);
 			//More we have compared to them, the less what they're offering is worth!
 			iItemValue *= 100;
-			iItemValue /= max(80, iResourceRatio); //pay a premium if we have less but max 20%
+			iItemValue /= std::max(80, iResourceRatio); //pay a premium if we have less but max 20%
 		}
 
 		// Approach is important
@@ -2422,8 +2422,8 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 
 	//economic value is important
 	int iEconomicValue = pCity->getEconomicValue(eAssumedOwner);
-	int iEconomicValuePerPop = (iEconomicValue / (max(1, pCity->getPopulation())));
-	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
+	int iEconomicValuePerPop = (iEconomicValue / (std::max(1, pCity->getPopulation())));
+	iItemValue += (std::max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
 	//prevent cheesy exploit: founding cities just to sell them
 	if ((GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().getSmallFakeRandNum(5, iEconomicValue)))
@@ -2434,7 +2434,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 	int iCityLoop;
 	for(CvCity* pLoopCity = assumedOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = assumedOwner.nextCity(&iCityLoop))
 	{
-		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (max(1, pLoopCity->getPopulation())));
+		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (std::max(1, pLoopCity->getPopulation())));
 		if (iEconomicValuePerPop > iScore)
 			iBetterThanCount++;
 	}
@@ -2501,7 +2501,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 	//don't want the trouble
 	if (pCity->IsResistance())
 	{
-		iItemValue *= (100-10*min(5,pCity->GetResistanceTurns()));
+		iItemValue *= (100-10*std::min(5,pCity->GetResistanceTurns()));
 		iItemValue /= 100;
 	}
 
@@ -2564,7 +2564,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 	}
 
 	//OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
-	return max(iItemValue, pCity->getPopulation()*729);
+	return std::max(iItemValue, pCity->getPopulation()*729);
 }
 
 // How much is an embassy worth?
@@ -2702,7 +2702,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 
 		if (iNumEnemiesAtWarWith > 0)
 		{
-			iItemValue *= max(5, (100 - (iNumEnemiesAtWarWith * 5)));
+			iItemValue *= std::max(5, (100 - (iNumEnemiesAtWarWith * 5)));
 			iItemValue /= 100;
 		}
 
@@ -2880,7 +2880,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	int iDefensivePactValue = GetPlayer()->GetDiplomacyAI()->ScoreDefensivePactChoice(eOtherPlayer, GetPlayer()->GetNumEffectiveCoastalCities() > 1);
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-		iDefensivePactValue *= max(1, (int)GetPlayer()->GetCurrentEra());
+		iDefensivePactValue *= std::max(1, (int)GetPlayer()->GetCurrentEra());
 
 	int iItemValue = 0;
 	bool bMostValuableAlly = GetPlayer()->GetDiplomacyAI()->GetMostValuableAlly() == eOtherPlayer;
@@ -2929,7 +2929,7 @@ int CvDealAI::GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, 
 		EraTypes eMyEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
 		EraTypes eTheirEra = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetCurrentEra();
 
-		int iAdditionalValue = iItemValue * max(0,(int)(eTheirEra-eMyEra));
+		int iAdditionalValue = iItemValue * std::max(0,(int)(eTheirEra-eMyEra));
 		iItemValue += iAdditionalValue;
 
 		// Approach is important
@@ -3318,7 +3318,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	// AI sanity check - who else would we go to war with?
 	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
-		vector<PlayerTypes> vLinkedWarPlayers = pDiploAI->GetLinkedWarPlayers(eWithPlayer, false, true, false);
+		std::vector<PlayerTypes> vLinkedWarPlayers = pDiploAI->GetLinkedWarPlayers(eWithPlayer, false, true, false);
 		for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
 		{
 			// Would we be declaring war on a powerful neighbor?
@@ -3369,7 +3369,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 
 	// How much does this AI like to go to war?
 	int iWarApproachWeight = pDiploAI->GetMajorCivApproachBias(CIV_APPROACH_WAR);
-	iItemValue *= max(1, (5 - iWarApproachWeight/2));
+	iItemValue *= std::max(1, (5 - iWarApproachWeight/2));
 
 	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
@@ -3550,7 +3550,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			{
 				int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-				int iOurPercent = (iOurVotes * 100) / max(1,iNeededVotes);
+				int iOurPercent = (iOurVotes * 100) / std::max(1,iNeededVotes);
 				if (iOurPercent >= 50)
 				{
 					return INT_MAX;
@@ -4330,8 +4330,8 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Them, but them is us.  Please show Jon");
 
-	typedef pair<ResourceTypes, int> TradeItem;
-	vector<OptionWithScore<TradeItem>> vOptions;
+	typedef std::pair<ResourceTypes, int> TradeItem;
+	std::vector<OptionWithScore<TradeItem>> vOptions;
 
 	if (iTotalValue < 1)
 		return;
@@ -4365,11 +4365,11 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 		int iAlreadyInDeal = pDeal->GetNumResourcesInDeal(eThem, eResource);
 		if (iAlreadyInDeal > 0)
 		{
-			iResourceQuantity = min(iAlreadyInDeal + 1, iMaxResourceQuantity);
+			iResourceQuantity = std::min(iAlreadyInDeal + 1, iMaxResourceQuantity);
 		}
 		else
 		{
-			iResourceQuantity = max((iMaxResourceQuantity / 3), 1);
+			iResourceQuantity = std::max((iMaxResourceQuantity / 3), 1);
 		}
 
 		// Don't buy more than we're willing to pay for
@@ -4387,7 +4387,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 					continue;
 			}
 
-			iResourceQuantity = min(iResourceQuantity, iAmountToCap);
+			iResourceQuantity = std::min(iResourceQuantity, iAmountToCap);
 		}
 
 		// See if they can actually trade it to us
@@ -4429,8 +4429,8 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Us, but them is us.  Please show Jon");
 
-	typedef pair<ResourceTypes, int> TradeItem;
-	vector<OptionWithScore<TradeItem>> vOptions;
+	typedef std::pair<ResourceTypes, int> TradeItem;
+	std::vector<OptionWithScore<TradeItem>> vOptions;
 
 	if (iTotalValue < 1)
 		return;
@@ -4466,7 +4466,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 			continue;
 		else if (iMaxResourceQuantity > iTheirResourceCount)
 			//offer max 2 copies more
-			iResourceQuantity = min(iMaxResourceQuantity,iTheirResourceCount+2);
+			iResourceQuantity = std::min(iMaxResourceQuantity,iTheirResourceCount+2);
 
 		//already in deal? add one more to the mix and reset quantity
 		if (pDeal->IsResourceTrade(eThem, eResource))
@@ -4479,7 +4479,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		}
 
 		//don't exceed total.
-		iResourceQuantity = min(iResourceQuantity, iMaxResourceQuantity);
+		iResourceQuantity = std::min(iResourceQuantity, iMaxResourceQuantity);
 
 		// See if we can actually trade it to them
 		if (pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_RESOURCES, eResource, iResourceQuantity))
@@ -4689,7 +4689,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
+		int iRatio = (iWhatTheyWouldPay * 100) / std::max(1,iWhatIWouldPay);
 		//if the deal is good
 		if(iRatio>111)
 		{
@@ -4769,7 +4769,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 			continue;
 		}
 
-		int iRatio = (iWhatTheyWouldPay * 100) / max(1,iWhatIWouldPay);
+		int iRatio = (iWhatTheyWouldPay * 100) / std::max(1,iWhatIWouldPay);
 		//if the deal is good
 		if (iRatio<88) 
 		{
@@ -4838,9 +4838,9 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 			}
 
 			iNumGold += iNumGoldAlreadyInTrade;
-			iNumGold = min(iNumGold, pDeal->GetGoldAvailable(eThem, TRADE_ITEM_GOLD));
+			iNumGold = std::min(iNumGold, pDeal->GetGoldAvailable(eThem, TRADE_ITEM_GOLD));
 
-			//iNumGold = min(iNumGold, GET_PLAYER(eThem).GetTreasury()->GetGold());
+			//iNumGold = std::min(iNumGold, GET_PLAYER(eThem).GetTreasury()->GetGold());
 			if(iNumGold != iNumGoldAlreadyInTrade && !pDeal->ChangeGoldTrade(eThem, iNumGold))
 			{
 				pDeal->AddGoldTrade(eThem, iNumGold);
@@ -4882,9 +4882,9 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 			}
 				
 			iNumGold += iNumGoldAlreadyInTrade;
-			iNumGold = min(iNumGold, pDeal->GetGoldAvailable(eMyPlayer, TRADE_ITEM_GOLD));
+			iNumGold = std::min(iNumGold, pDeal->GetGoldAvailable(eMyPlayer, TRADE_ITEM_GOLD));
 
-			//iNumGold = min(iNumGold, GET_PLAYER(eMyPlayer).GetTreasury()->GetGold());
+			//iNumGold = std::min(iNumGold, GET_PLAYER(eMyPlayer).GetTreasury()->GetGold());
 			if(iNumGold != iNumGoldAlreadyInTrade && !pDeal->ChangeGoldTrade(eMyPlayer, iNumGold))
 			{
 				pDeal->AddGoldTrade(eMyPlayer, iNumGold);
@@ -4932,11 +4932,11 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 					return;
 
 				iNumGPT += iNumGPTAlreadyInTrade;
-				iNumGPT = min(iNumGPT, iGoldRate);
+				iNumGPT = std::min(iNumGPT, iGoldRate);
 
 				if (iNumGPT <= 0)
 					return;
-				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / std::max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 				bool bAcceptable = false;
 				int iNetValue = iTotalValue+(iNumGPT * iDealDuration * 100) / (100 + iInterestPercent);
 				int iMaxValue = pDeal->GetMaxValue();
@@ -5003,8 +5003,8 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 					return;
 					
 				iNumGPT += iNumGPTAlreadyInTrade;
-				iNumGPT = min(iNumGPT, iGoldRate);
-				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+				iNumGPT = std::min(iNumGPT, iGoldRate);
+				int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iDealDuration) / std::max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
 				bool bAcceptable = false;
 				int iNetValue = iTotalValue - (iNumGPT * iDealDuration * 100) / (100 + iInterestPercent);
 				int iMaxValue = pDeal->GetMaxValue();
@@ -5145,7 +5145,7 @@ void CvDealAI::DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int iToRemo
 	if (iNumGoldPerTurnInThisDeal > 0)
 	{
 		// Found some GoldPerTurn to remove
-		int iNumGoldPerTurnToRemove = min(iToRemove, iNumGoldPerTurnInThisDeal);
+		int iNumGoldPerTurnToRemove = std::min(iToRemove, iNumGoldPerTurnInThisDeal);
 		iNumGoldPerTurnInThisDeal -= iNumGoldPerTurnToRemove;
 
 		// Removing ALL GoldPerTurn, so just erase the item from the deal
@@ -5175,7 +5175,7 @@ void CvDealAI::DoRemoveGPTFromUs(CvDeal* pDeal, int iToRemove)
 	if(iNumGoldPerTurnInThisDeal > 0)
 	{
 		// Found some GoldPerTurn to remove
-		int iNumGoldPerTurnToRemove = min(iToRemove, iNumGoldPerTurnInThisDeal);
+		int iNumGoldPerTurnToRemove = std::min(iToRemove, iNumGoldPerTurnInThisDeal);
 		iNumGoldPerTurnInThisDeal -= iNumGoldPerTurnToRemove;
 
 		// Removing ALL GoldPerTurn, so just erase the item from the deal
@@ -5205,7 +5205,7 @@ void CvDealAI::DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iGold
 	if(iNumGoldInThisDeal > 0)
 	{
 		// Found some Gold to remove
-		int iNumGoldToRemove = min(iNumGoldInThisDeal, iGold);
+		int iNumGoldToRemove = std::min(iNumGoldInThisDeal, iGold);
 		iNumGoldInThisDeal -= iNumGoldToRemove;
 
 		// Removing ALL Gold, so just erase the item from the deal
@@ -5234,7 +5234,7 @@ void CvDealAI::DoRemoveGoldFromUs(CvDeal* pDeal, int& iGold)
 	{
 		
 		// Found some Gold to remove
-		int iNumGoldToRemove = min(iNumGoldInThisDeal, iGold);
+		int iNumGoldToRemove = std::min(iNumGoldInThisDeal, iGold);
 		iNumGoldInThisDeal -= iNumGoldToRemove;
 
 		// Removing ALL Gold, so just erase the item from the deal
@@ -5295,7 +5295,7 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 		// If we're both willing to give something up (for whatever reason) reduce the surrender level of both parties until White Peace is on one side
 		if(ePeaceTreatyImWillingToOffer > PEACE_TREATY_WHITE_PEACE && ePeaceTreatyTheyreWillingToOffer > PEACE_TREATY_WHITE_PEACE)
 		{
-			int iAmountToReduce = min(ePeaceTreatyImWillingToOffer, ePeaceTreatyTheyreWillingToOffer);
+			int iAmountToReduce = std::min(ePeaceTreatyImWillingToOffer, ePeaceTreatyTheyreWillingToOffer);
 
 			ePeaceTreatyImWillingToOffer = PeaceTreatyTypes(ePeaceTreatyImWillingToOffer - iAmountToReduce);
 			ePeaceTreatyTheyreWillingToOffer = PeaceTreatyTypes(ePeaceTreatyTheyreWillingToOffer - iAmountToReduce);
@@ -5420,7 +5420,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	{
 		//If we're willing to do this, give less below.
 		bRevokeMyVassals = true;
-		iWarScore /= max(2, GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals());
+		iWarScore /= std::max(2, GET_TEAM(pLosingPlayer->getTeam()).GetNumVassals());
 	}
 	if(iWarScore < 0)
 	{
@@ -5429,7 +5429,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	//strategic warscore adjustment
 	if (!pLosingPlayer->HasCityInDanger(false,0))
-		iWarScore = max(0, iWarScore - 10);
+		iWarScore = std::max(0, iWarScore - 10);
 
 	int iPercentGoldToGive = iWarScore;
 	int iPercentGPTToGive = (iWarScore / 2);
@@ -5897,7 +5897,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		if (GET_PLAYER(eOtherPlayer).isHuman())
 		{
 			int iEra = GC.getGame().getCurrentEra();
-			int OneGPTScaled = GC.getGame().GetDealDuration() * max(iEra, 1);
+			int OneGPTScaled = GC.getGame().GetDealDuration() * std::max(iEra, 1);
 			if (iBestValue < (OneGPTScaled * 2))
 				return false;
 		}
@@ -5983,18 +5983,18 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	if(eStratFromThem != NO_RESOURCE)
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
-		int iDesired = min(4,max(1,iAvailable/2));
+		int iDesired = std::min(4,std::max(1,iAvailable/2));
 		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
 		//if we are in the red we want more!
 		iDesired += GetPlayer()->getResourceShortageValue(eStratFromThem);
-		iDesired = min(iAvailable, iDesired);
+		iDesired = std::min(iAvailable, iDesired);
 
 		// Don't buy more than we're willing to pay for
 		int iNumberWeAlreadyHave = GetPlayer()->getNumResourceAvailable(eStratFromThem, true);
 		if ((iNumberWeAlreadyHave + iDesired) > 5)
 		{
 			int iAmountToCap = 5 - iNumberWeAlreadyHave;
-			iDesired = min(iDesired, iAmountToCap);
+			iDesired = std::min(iDesired, iAmountToCap);
 		}
 
 		// Can we actually complete this deal?
@@ -6248,7 +6248,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iMyPrice = GetCityValueForDeal(pTheirCity, GetPlayer()->GetID());
 			int iTheirPrice = GetCityValueForDeal(pTheirCity, eOtherPlayer);
 
-			int iBuyRatio = (iMyPrice*100)/max(1,iTheirPrice);
+			int iBuyRatio = (iMyPrice*100)/std::max(1,iTheirPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iBuyRatio>iBestBuyCity)
 			{
 				pBestBuyCity = pTheirCity;
@@ -6278,7 +6278,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 			int iMyPrice = GetCityValueForDeal(pMyCity, m_pPlayer->GetID());
 			int iTheirPrice = GetCityValueForDeal(pMyCity, eOtherPlayer);
 
-			int iSellRatio = (iTheirPrice*100)/max(1,iMyPrice);
+			int iSellRatio = (iTheirPrice*100)/std::max(1,iMyPrice);
 			if(iMyPrice!=INT_MAX && iTheirPrice!=INT_MAX && iSellRatio>iBestSellCity)
 			{
 				pBestSellCity = pMyCity;
@@ -7236,7 +7236,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	}
 
 	// BASE COST = (TurnsLeft * 30 * (era ^ 0.7))	-- Ancient Era is 1, Classical Era is 2 because I incremented it
-	iItemValue = max(10, iTurnsLeft) * /*30*/ max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
+	iItemValue = std::max(10, iTurnsLeft) * /*30*/ std::max(100, GC.getGame().getGameSpeedInfo().getTechCostPerTurnMultiplier());
 	float fItemMultiplier = (float)(pow( (double) std::max(1, (iTechEra)), (double) /*0.7*/ GD_FLOAT_GET(TECH_COST_ERA_EXPONENT) ) );
 	iItemValue = (int)(iItemValue * fItemMultiplier);
 
@@ -7352,7 +7352,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		}
 	}
 
-	return max(1000,iItemValue);
+	return std::max(1000,iItemValue);
 }
 
 /// How much is Vassalage worth?
@@ -7377,10 +7377,10 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
-		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
+		iItemValue += iItemValue * std::min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
 		// Increase deal value based on number of vassals player already has
-		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
+		iItemValue += iItemValue * std::min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
 
 		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
 
@@ -7480,10 +7480,10 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
-		iItemValue -= iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
+		iItemValue -= iItemValue * std::min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(true));
 
 		// Increase deal value based on number of vassals player already has
-		iItemValue -= iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
+		iItemValue -= iItemValue * std::min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetNumVassals());
 
 		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
 
@@ -8053,7 +8053,7 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 			{
 				if(GET_TEAM(eLoopTeam).isAlive())
 				{
-					const vector<PlayerTypes>& vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
+					const std::vector<PlayerTypes>& vVassalTeam = GET_TEAM(eLoopTeam).getPlayers();
 					for (size_t iPlayerLoop = 0; iPlayerLoop < vVassalTeam.size(); ++iPlayerLoop)
 					{
 						PlayerTypes eVassalPlayer = vVassalTeam[iPlayerLoop];

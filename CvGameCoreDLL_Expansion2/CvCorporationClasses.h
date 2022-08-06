@@ -140,7 +140,7 @@ FDataStream& operator<<(FDataStream&, const CorporationTypes&);
 
 class CvPlayerCorporations;
 
-typedef vector<CvCorporation> CorporationList;
+typedef std::vector<CvCorporation> CorporationList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameCorporations

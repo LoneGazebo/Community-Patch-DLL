@@ -314,7 +314,7 @@ private:
 
 	void UnitProcessed(int iID);
 	CvPlot* ExecuteWorkerMove(CvUnit* pUnit);
-	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
+	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const std::map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
@@ -362,7 +362,7 @@ bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelan
 
 int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, bool bDesperate, int iRange);
 bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
-vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
+std::vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 }
 
 #endif //CIV5_HOMELAND_AI_H

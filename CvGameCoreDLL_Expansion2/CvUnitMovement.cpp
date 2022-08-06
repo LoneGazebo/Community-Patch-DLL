@@ -290,7 +290,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	}
 
 	//sometimes the route cost can be higher than what we get with promotions
-	return min(iRegularCost,iRouteCost);
+	return std::min(iRegularCost,iRouteCost);
 }
 
 //	---------------------------------------------------------------------------

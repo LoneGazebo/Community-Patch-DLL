@@ -92,7 +92,7 @@ void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iO
 	{
 		CvTreasury* pkTreasury = kPlayer.GetTreasury();
 		int iTreasuryGold = pkTreasury->GetGold();
-		int iNumGold = min(iTreasuryGold, /*100*/ GD_INT_GET(BARBARIAN_UNIT_GOLD_RANSOM));
+		int iNumGold = std::min(iTreasuryGold, /*100*/ GD_INT_GET(BARBARIAN_UNIT_GOLD_RANSOM));
 		pkTreasury->ChangeGold(-iNumGold);
 	}
 	// Abandon Unit
@@ -1198,7 +1198,7 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 					kPlayer.chooseTech(iDiscover - 1);
 				}
 			}
-			kPlayer.SetNumFreeTechs(max(0, iDiscover - 1));
+			kPlayer.SetNumFreeTechs(std::max(0, iDiscover - 1));
 		}
 	}
 	// Stealing tech

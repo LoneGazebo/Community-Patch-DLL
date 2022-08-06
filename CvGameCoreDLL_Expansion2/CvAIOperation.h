@@ -228,7 +228,7 @@ protected:
 
 	virtual CvArmyAI* AddArmy(MultiunitFormationTypes eFormation);
 	virtual bool SetUpArmy(CvArmyAI* pArmyAI, CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvPlot* pDeployPlot = NULL);
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, std::vector<OptionWithScore<int>>& choices);
 
 	std::vector<int> m_viArmyIDs;
 	std::deque<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
@@ -260,7 +260,7 @@ protected:
 	int m_iDistanceMusterToTarget;
 
 	// Abort if we're stalling
-	deque<int> m_progressToTarget;
+	std::deque<int> m_progressToTarget;
 
 	// for debugging
 	CvString m_strInfoString;
@@ -354,7 +354,7 @@ public:
 	virtual bool IsNeverEnding() const { return true; }
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 protected:
-	set<int> GetPossibleDeploymentZones() const;
+	std::set<int> GetPossibleDeploymentZones() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -372,7 +372,7 @@ public:
 	virtual bool PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot, int iMaxMissingUnits);
 
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
-	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices);
+	virtual bool FindBestFitReserveUnit(OperationSlot thisOperationSlot, std::vector<OptionWithScore<int>>& choices);
 	virtual bool CheckTransitionToNextStage();
 
 protected:
@@ -583,9 +583,9 @@ namespace OperationalAIHelpers
 	CvPlot* FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPlot** ppMuster);
 	CvPlot* FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, CvPlot* pRefPlot, int iMaxDistance);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
-	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget,	bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots);
+	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget,	bool bMustEmbark, bool bMustBeDeepWaterNaval, const std::vector<std::pair<size_t,CvFormationSlotEntry>>& availableSlots);
 	CvCity* GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot);
-	pair<CvCity*, CvCity*> GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB);
+	std::pair<CvCity*, CvCity*> GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB);
 }
 
 #endif

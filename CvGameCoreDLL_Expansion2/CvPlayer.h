@@ -114,7 +114,7 @@ public:
 
 	void UpdateCityThreatCriteria();
 	//0 == highest, 1 = second highest, etc. Not all cities will be assigned!
-	vector<CvCity*> GetThreatenedCities(bool bCoastalOnly);
+	std::vector<CvCity*> GetThreatenedCities(bool bCoastalOnly);
 
 	void UpdateBestMilitaryCities();
 	void SetBestMilitaryCityDomain(int iValue, DomainTypes eDomain);
@@ -2077,7 +2077,7 @@ public:
 	PlayerProximityTypes GetProximityToPlayer(PlayerTypes ePlayer) const;
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
 
-	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
+	std::pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
 	void DoUpdateProximityToPlayers();
 
 	void UpdateResearchAgreements(int iValue);
@@ -2397,7 +2397,7 @@ public:
 	bool StopAllSeaDefensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 	bool StopAllSeaOffensiveOperationsAgainstPlayer(PlayerTypes ePlayer, AIOperationAbortReason eReason);
 
-	vector<int> GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit=NULL) const;
+	std::vector<int> GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit=NULL) const;
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 
 	void GatherPerTurnReplayStats(int iGameTurn);
@@ -2743,7 +2743,7 @@ public:
 	bool IsAtWarAnyMajor() const;
 	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
-	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
+	std::vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
 	int CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
 	bool HasPantheon() const;
 	bool HasAnyReligion() const;
@@ -3604,8 +3604,8 @@ protected:
 
 	std::map<CvString,TurnData> m_ReplayData;
 
-	std::deque< pair< int, vector<int> > > m_ppiInstantYieldHistoryValues;
-	std::deque< pair< int, vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;
+	std::deque< std::pair< int, std::vector<int> > > m_ppiInstantYieldHistoryValues;
+	std::deque< std::pair< int, std::vector<int> > > m_ppiInstantTourismPerPlayerHistoryValues;
 
 	void doResearch();
 	void doWarnings();

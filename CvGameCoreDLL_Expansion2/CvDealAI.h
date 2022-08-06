@@ -220,14 +220,14 @@ protected:
 
 		std::size_t operator() (const SDealItemValueParams& key) const
 		{
-			std::size_t h1 = tr1::hash<int>()(key.eItem);
-			std::size_t h2 = tr1::hash<bool>()(key.bFromMe);
-			std::size_t h3 = tr1::hash<int>()(key.eOtherPlayer);
-			std::size_t h4 = tr1::hash<int>()(key.iData1);
-			std::size_t h5 = tr1::hash<int>()(key.iData2);
-			std::size_t h6 = tr1::hash<int>()(key.iData3);
-			std::size_t h7 = tr1::hash<bool>()(key.bFlag1);
-			std::size_t h8 = tr1::hash<int>()(key.iDuration);
+			std::size_t h1 = std::tr1::hash<int>()(key.eItem);
+			std::size_t h2 = std::tr1::hash<bool>()(key.bFromMe);
+			std::size_t h3 = std::tr1::hash<int>()(key.eOtherPlayer);
+			std::size_t h4 = std::tr1::hash<int>()(key.iData1);
+			std::size_t h5 = std::tr1::hash<int>()(key.iData2);
+			std::size_t h6 = std::tr1::hash<int>()(key.iData3);
+			std::size_t h7 = std::tr1::hash<bool>()(key.bFlag1);
+			std::size_t h8 = std::tr1::hash<int>()(key.iDuration);
  
 			//rotate the bits so that XORing isn't quite as likely to collapse
 			return rotl32(h1,1) ^ rotl32(h2,2) ^ rotl32(h3,3) ^ rotl32(h4,4) ^ rotl32(h5,5) ^ rotl32(h6,6) ^ rotl32(h7,7) ^ rotl32(h8,8);
@@ -235,7 +235,7 @@ protected:
 	};
 
 	//finally the cache itself
-	tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
+	std::tr1::unordered_map<SDealItemValueParams, int, SDealItemValueParamsHash> m_dealItemValues;
 	int m_iDealItemValuesTurnSlice;
 };
 

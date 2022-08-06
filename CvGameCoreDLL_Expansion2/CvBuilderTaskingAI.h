@@ -74,8 +74,8 @@ public:
 	void Update(void);
 	void UpdateRoutePlots(void);
 
-	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
-	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
+	CvUnit* FindBestWorker(const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
+	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const std::map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
 
 	void AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
 	void AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
@@ -129,13 +129,13 @@ protected:
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
-	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
+	std::vector<OptionWithScore<BuilderDirective>> m_aDirectives;
 
 	//plotindex,type,value
-	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
+	typedef std::tr1::unordered_map<int, std::pair<RouteTypes, int>> RoutePlotContainer;
 	RoutePlotContainer m_routeWantedPlots; //create route here. serialized
 	RoutePlotContainer m_routeNeededPlots; //do not remove route here. serialized
-	set<int> m_canalWantedPlots; //serialized
+	std::set<int> m_canalWantedPlots; //serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];

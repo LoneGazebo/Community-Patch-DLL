@@ -113,7 +113,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 		// Has the AI agreed to not settle here?
 		if (!pPlayer->isHuman() && pPlayer->isMajorCiv())
 		{
-			vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
+			std::vector<PlayerTypes> vNoSettlePlayers = pPlayer->GetDiplomacyAI()->GetPlayersWithNoSettlePolicy();
 			for (size_t i = 0; i < vNoSettlePlayers.size(); i++)
 			{
 				int iDistanceToOtherPlayer = GET_PLAYER(vNoSettlePlayers[i]).GetCityDistanceInPlots(pPlot);
@@ -349,7 +349,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	workablePlots.reserve(49);
 
 	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0, nGoodPlots = 0;
-	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
+	int iRange = pPlayer ? std::max(2,std::min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
 		//do not check fog of war!
@@ -725,7 +725,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
 
 			int iInvScaler = 0;
-			int iThreshold = min(iOwnCityDistance - 1, iBorderlandRange);
+			int iThreshold = std::min(iOwnCityDistance - 1, iBorderlandRange);
 			if (iEnemyDistance < iThreshold)
 				iInvScaler = 1;
 			else if (iEnemyDistance == iThreshold)
@@ -828,7 +828,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 	}
 
-	return max(0,iTotalPlotValue + iValueModifier + iStratModifier + iCivModifier);
+	return std::max(0,iTotalPlotValue + iValueModifier + iStratModifier + iCivModifier);
 }
 
 /// Retrieve the relative fertility of this plot (alone)
@@ -849,14 +849,14 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast)
 	return rtnValue;
 }
 
-vector<int> CvCitySiteEvaluator::GetAllCitySiteValues(const CvPlayer* pPlayer)
+std::vector<int> CvCitySiteEvaluator::GetAllCitySiteValues(const CvPlayer* pPlayer)
 {
-	vector<int> vValues;
+	std::vector<int> vValues;
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = PlotFoundValue(pPlot, pPlayer, vector<int>());
+		int iValue = PlotFoundValue(pPlot, pPlayer, std::vector<int>());
 
 		if (iValue > 0)
 			vValues.push_back(iValue);

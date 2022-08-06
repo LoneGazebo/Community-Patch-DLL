@@ -126,7 +126,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
-	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
+	std::vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
 		PlayerTypes ePlayer = vTeamPlayers[i];
@@ -186,7 +186,7 @@ CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(con
 	if (it1==m_connectionState.end())
 		return CONNECTION_NONE;
 	
-	pair<int, int> destination(pCityB->getOwner(), pCityB->GetID());
+	std::pair<int, int> destination(pCityB->getOwner(), pCityB->GetID());
 	AllCityConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(destination);
 	if (it2==it1->second.end())
 		return CONNECTION_NONE;
@@ -284,7 +284,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(DOMAIN_LAND))
 					continue;
 				
-				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				std::pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
 				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
@@ -304,7 +304,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (pEndCity->IsBlockaded(DOMAIN_LAND))
 					continue;
 				
-				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				std::pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
 				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
@@ -331,7 +331,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 				if (!bEndCityAllowsWater || pEndCity->IsBlockaded(DOMAIN_SEA))
 					continue;
 				
-				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
+				std::pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
 				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
 				if ( lala == localConnections.end() )
 					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
@@ -378,7 +378,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//no matter whether "direct" or "indirect", we pretend it's a harbor
 				//this works as is with the capital connection check below
-				localConnections.insert( make_pair( make_pair(pCityB->getOwner(),pCityB->GetID()),CONNECTION_HARBOR));
+				localConnections.insert( std::make_pair( std::make_pair(pCityB->getOwner(),pCityB->GetID()),CONNECTION_HARBOR));
 
 				//don't forget to save it
 				m_connectionState[pCityA->GetID()] = localConnections;

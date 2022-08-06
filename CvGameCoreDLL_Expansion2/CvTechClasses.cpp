@@ -1274,7 +1274,7 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	//preparation
-	map<TechTypes, vector<UnitTypes>> unitPrereqTechs;
+	std::map<TechTypes, std::vector<UnitTypes>> unitPrereqTechs;
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 	{
 		UnitTypes eUnit = (UnitTypes)iUnitLoop;
@@ -1285,7 +1285,7 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	//preparation pt2
-	map<TechTypes, vector<BuildingTypes>> buildingPrereqTechs;
+	std::map<TechTypes, std::vector<BuildingTypes>> buildingPrereqTechs;
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
@@ -1395,7 +1395,7 @@ void CvPlayerTechs::SetGSPriorities()
 			{
 				if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate())
 				{
-					m_piGSTechPriority[iTechLoop]+= max(1, 10 - m_pPlayer->getNumCities());
+					m_piGSTechPriority[iTechLoop]+= std::max(1, 10 - m_pPlayer->getNumCities());
 				}
 				if (bSeekingConquestVictory)
 				{
@@ -1868,7 +1868,7 @@ int CvPlayerTechs::GetResearchProgress(TechTypes eTech) const
 /// Median value of a tech we can research (that's what's awarded for research agreements now)
 int CvPlayerTechs::GetMedianTechResearch() const
 {
-	vector<int> aiTechCosts;
+	std::vector<int> aiTechCosts;
 	int iRtnValue = 0;
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
@@ -2076,13 +2076,13 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	int iDifficultyBonus = (200 - ((GC.getGame().getHandicapInfo().getAIConstructPercent() + GC.getGame().getHandicapInfo().getAITrainPercent()) / 2));
 	int estimatedTurnsWithDiff = (GC.getGame().getDefaultEstimateEndTurn() * 90) / iDifficultyBonus;
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 1000) / estimatedTurnsWithDiff;
-	iGameProgressFactor = min(900,max(100,iGameProgressFactor));
+	iGameProgressFactor = std::min(900,std::max(100,iGameProgressFactor));
 	for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 	{
 		int iCurrentFlavorValue = GetLatestFlavorValue((FlavorTypes) iFlavor);
 
 		// Scale the current to the same scale as the personality
-		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / max(1,iBiggestFlavor);
+		iCurrentFlavorValue = (iCurrentFlavorValue * 10) / std::max(1,iBiggestFlavor);
 
 		int iPersonalityFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor, true /*bBoostGSMainFlavor*/);
 
@@ -2627,7 +2627,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier /= 100;
 
 #if defined(MOD_CIV6_EUREKA)
-	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
+	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / std::max(1, m_pTeam->getNumMembers())) / 10000) - 100);
 #endif
 
 	if (iCost<10000)
@@ -2718,7 +2718,7 @@ int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) co
 
 	int iCost = pkTechInfo->GetResearchCost() * 100;
 
-	iReturnValue = max(iCost, iReturnValue);
+	iReturnValue = std::max(iCost, iReturnValue);
 
 	return iReturnValue;
 }

@@ -258,7 +258,7 @@ public:
 	bool HasNeighborZone(PlayerTypes eOwner) const;
 	eTacticalDominanceFlags SetOverallDominance(int iDominancePercentage);
 	eTacticalPosture SelectPostureSingleZone(int iDominancePercent);
-	eTacticalPosture SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors);
+	eTacticalPosture SelectPostureMultiZone(std::vector<CvTacticalDominanceZone*> vNeighbors);
 #endif
 
 private:

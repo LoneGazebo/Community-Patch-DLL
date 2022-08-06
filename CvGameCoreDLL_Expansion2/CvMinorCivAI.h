@@ -88,7 +88,7 @@ FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);
 
 
-typedef vector<PlayerTypes> CivsList;
+typedef std::vector<PlayerTypes> CivsList;
 typedef CvWeightedVector< PlayerTypes> WeightedCivsList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -304,8 +304,8 @@ FDataStream& operator<<(FDataStream&, const CvMinorCivIncomingUnitGift&);
 
 class CvPlayer;
 
-typedef vector< CvMinorCivQuest > QuestListForPlayer; // will grow size if needed
-typedef vector< QuestListForPlayer > QuestListForAllPlayers;
+typedef std::vector< CvMinorCivQuest > QuestListForPlayer; // will grow size if needed
+typedef std::vector< QuestListForPlayer > QuestListForAllPlayers;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvMinorCivAI
@@ -832,7 +832,7 @@ public:
 	bool IsSameReligionAsMajor(PlayerTypes eMajor);
 
 	CvString GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies);
-	pair<CvString, CvString> GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly);
+	std::pair<CvString, CvString> GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly);
 	CvString GetNamesListAsString(CivsList veNames);
 
 	bool IsDisableNotifications() const;

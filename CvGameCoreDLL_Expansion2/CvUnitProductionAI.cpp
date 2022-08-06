@@ -235,7 +235,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
 		{
 			int iGoldSpentOnUnits = kPlayer.GetTreasury()->GetExpensePerTurnUnitMaintenance();
-			int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
+			int iAverageGoldPerUnit = iGoldSpentOnUnits / (std::max(1, kPlayer.getNumUnits()));
 			int iTurnsLeft = kPlayer.getTurnsToBankruptcy(iAverageGoldPerUnit);
 
 			if (iTurnsLeft < 7)
@@ -273,14 +273,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	{
 		if (bCombat)
 		{
-			if (kPlayer.getNumMilitaryUnits() > max(4, ((kPlayer.GetCurrentEra() + 3) * max(1, kPlayer.getNumCities()))))
+			if (kPlayer.getNumMilitaryUnits() > std::max(4, ((kPlayer.GetCurrentEra() + 3) * std::max(1, kPlayer.getNumCities()))))
 				return 0;
 
 			if (pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_SEA, true);
 				if (iNumUnits <= 2)
-					iBonus += max(0, 300 - (iNumUnits * 100));
+					iBonus += std::max(0, 300 - (iNumUnits * 100));
 
 				int iLimit = kPlayer.GetMilitaryAI()->GetRecommendNavySize();
 				if (iNumUnits <= iLimit)
@@ -298,7 +298,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				int iNumUnits = kPlayer.GetNumUnitsWithDomain(DOMAIN_LAND, true);
 				if (iNumUnits <= 2)
-					iBonus += max(0, 800 - (iNumUnits * 100));
+					iBonus += std::max(0, 800 - (iNumUnits * 100));
 
 				int iLimit = kPlayer.GetMilitaryAI()->GetRecommendLandArmySize();
 				if (iNumUnits <= iLimit)
@@ -319,7 +319,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	int iScale = 0;
 	if (bCombat && !bFree)
 	{
-		int iSupply = max(1, kPlayer.GetNumUnitsSupplied());
+		int iSupply = std::max(1, kPlayer.GetNumUnitsSupplied());
 		int iDemand = kPlayer.GetNumUnitsToSupply();
 		if (bAtWar || bForOperation)
 		{
@@ -465,7 +465,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						//we should really be building as many resource units as we can...
 						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
 						{
-							iResourceBonus += max(40, (kPlayer.getNumResourceAvailable(eResourceLoop, false) - pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop)) * 40);
+							iResourceBonus += std::max(40, (kPlayer.getNumResourceAvailable(eResourceLoop, false) - pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop)) * 40);
 						}
 					}
 				}
@@ -543,7 +543,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if(iSurplus > 0)
 				{
 					//Bonus based on difference in gold - the more money we have, the more we want this!
-					iBonus += min(250, iSurplus);
+					iBonus += std::min(250, iSurplus);
 				}
 			}
 			else if(bCombat && !bAtWar)
@@ -553,7 +553,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if(iSurplus > 0)
 				{
 					//Bonus based on difference in gold - the more money we have, the more we want this!
-					iBonus += min(200, iSurplus);
+					iBonus += std::min(200, iSurplus);
 				}
 			}
 			else if(!bCombat)
@@ -563,7 +563,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if(iSurplus > 0)
 				{
 					//Bonus based on difference in gold - the more money we have, the more we want this!
-					iBonus += min(150, iSurplus);
+					iBonus += std::min(150, iSurplus);
 				}
 			}
 		}
@@ -619,7 +619,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
 					iBonus += 75;
 
-				iValue *= max(1, (int)kPlayer.GetCurrentEra());
+				iValue *= std::max(1, (int)kPlayer.GetCurrentEra());
 
 				if (iCurrent * 2 < iDesired)
 					iValue *= 2;
@@ -659,7 +659,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						}
 					}
 
-					iWarValue /= max(1, iNumPlayers);
+					iWarValue /= std::max(1, iNumPlayers);
 
 					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_SEA)
 					{
@@ -687,7 +687,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && kPlayer.GetPlayerTraits()->GetMinorInfluencePerGiftedUnit() > 0)
 					iBonus += 150;
 
-				iValue *= max(1, (int)kPlayer.GetCurrentEra());
+				iValue *= std::max(1, (int)kPlayer.GetCurrentEra());
 
 				if (iValue > 0)
 				{
@@ -726,7 +726,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						}
 					}
 
-					iWarValue /= max(1, iNumPlayers);
+					iWarValue /= std::max(1, iNumPlayers);
 
 					if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND)
 					{
@@ -889,7 +889,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 			//should not iterate all promotion types ... this way is faster
-			vector<PromotionTypes> freePromotions = m_pCity->getFreePromotions();
+			std::vector<PromotionTypes> freePromotions = m_pCity->getFreePromotions();
 			for (size_t iI = 0; iI < freePromotions.size(); iI++)
 			{
 				iInfluence += GC.getPromotionInfo(freePromotions[iI])->GetDiploMissionInfluence();
@@ -1415,7 +1415,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		int iWarBooster = 0;
 		if (bCombat)
 		{
-			vector<PlayerTypes> enemies = kPlayer.GetPlayersAtWarWith();
+			std::vector<PlayerTypes> enemies = kPlayer.GetPlayersAtWarWith();
 			if (kPlayer.GetMilitaryAI()->GetWarType() == WARTYPE_LAND && eDomain == DOMAIN_LAND)
 			{
 				iWarBooster += enemies.size();

@@ -265,7 +265,7 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	int iNumUnitsSpawned = m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()];
 
 	// Reduce turns between spawn if we've pumped out more guys (meaning we're further into the game)
-	iNumTurnsToSpawn -= min(3, iNumUnitsSpawned);	// -1 turns if we've spawned one Unit, -3 turns if we've spawned three
+	iNumTurnsToSpawn -= std::min(3, iNumUnitsSpawned);	// -1 turns if we've spawned one Unit, -3 turns if we've spawned three
 
 	// Increment # of barbs spawned from this camp
 	m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()]++;	// This starts at -1 so when a camp is first created it will bump up to 0, which is correct
@@ -328,7 +328,7 @@ void CvBarbarians::DoCityActivationNotice(CvPlot* pPlot)
 	int iNumUnitsSpawned = m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()];
 
 	// Reduce turns between spawn if we've pumped out more guys (meaning we're further into the game)
-	iNumTurnsToSpawn -= min(3, iNumUnitsSpawned);	// -1 turns if we've spawned one Unit, -3 turns if we've spawned three
+	iNumTurnsToSpawn -= std::min(3, iNumUnitsSpawned);	// -1 turns if we've spawned one Unit, -3 turns if we've spawned three
 
 	// Increment # of barbs spawned from this city
 	m_aiPlotBarbCityNumUnitsSpawned[pPlot->GetPlotIndex()]++;	// This starts at -1 so when a city is first acquired it will bump up to 0, which is correct
@@ -833,7 +833,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
 	CvGame &kGame = GC.getGame();
 
-	vector<OptionWithScore<UnitTypes>> candidates;
+	std::vector<OptionWithScore<UnitTypes>> candidates;
 	for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 	{
 		bool bValid = false;
@@ -1127,16 +1127,16 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 		return true;
 
 	//they get x turns worth of yields
-	int iTheftTurns = max(1, iDefenderDamage / 30 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
+	int iTheftTurns = std::max(1, iDefenderDamage / 30 + GC.getGame().getSmallFakeRandNum(5, pUnit->GetID() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
 
 	//but they lose some health in exchange
-	pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
+	pUnit->changeDamage( GC.getGame().getSmallFakeRandNum( std::min(pUnit->GetCurrHitPoints(),30), iDefenderDamage + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
 
 	//which yield is affected?
 	int iYield = GC.getGame().getSmallFakeRandNum(10, pUnit->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 	if(iYield <= 2)
 	{
-		int iGold = min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iGold = std::min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iGold > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
@@ -1160,7 +1160,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 	}
 	else if(iYield <= 4)
 	{
-		int iCulture = min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iCulture = std::min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iCulture > 0)
 		{
 			GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
@@ -1187,7 +1187,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 		int iScience = 0;
 		if(eCurrentTech != NO_TECH)
 		{
-			iScience = min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
+			iScience = std::min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iScience > 0)
 			{
 				GET_TEAM(pCity->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
@@ -1212,7 +1212,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 	}
 	else if(iYield <= 8)
 	{
-		int iFood = min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iFood = std::min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
 		if(iFood > 0)
 		{
 			pCity->changeFood(-iFood);
@@ -1238,7 +1238,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit * pUnit, CvCity* pCity)
 	{
 		if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
 		{
-			int iProduction = min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
+			int iProduction = std::min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
 			if(iProduction > 0)
 			{
 				pCity->changeProduction(-iProduction);

@@ -3540,7 +3540,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 
 			// Other instant yields from conquering a city?
-			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
+			int iScaler = std::max(1, (iPopulation / 2) - GetCurrentEra());
 			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
 
 			// All units heal from conquering a city?
@@ -3966,12 +3966,12 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	int iPercentPopulationRetained = 100;
 	if (bSlaughter)
 	{
-		iPercentPopulationRetained = min(/*50 in CP, 75 in VP*/ GD_INT_GET(CITY_CAPTURE_POPULATION_PERCENT), 100);
+		iPercentPopulationRetained = std::min(/*50 in CP, 75 in VP*/ GD_INT_GET(CITY_CAPTURE_POPULATION_PERCENT), 100);
 		int iRetentionFromTourism = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner) * (100 - iPercentPopulationRetained) / 100;
 		iPercentPopulationRetained += iRetentionFromTourism;
 	}
 
-	int iNewPopulation = max(1, (iPopulation * iPercentPopulationRetained) / 100);
+	int iNewPopulation = std::max(1, (iPopulation * iPercentPopulationRetained) / 100);
 	pNewCity->setPopulation(iNewPopulation, true, true);
 	pNewCity->setLowestRazingPop(iNewPopulation);
 	pNewCity->setHighestPopulation(iHighestPopulation);
@@ -4454,7 +4454,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	// Set city damage (only do this after having added all buildings, some of which might have increased city HP)
 	int iMaximumBattleDamage = bConquest ? (pNewCity->GetMaxHitPoints() * /*50*/ GD_INT_GET(CITY_CAPTURE_DAMAGE_PERCENT)) / 100 : pNewCity->GetMaxHitPoints();
 	if (iMaximumBattleDamage >= pNewCity->GetMaxHitPoints())
-		iMaximumBattleDamage = max(0, pNewCity->GetMaxHitPoints() - 1);
+		iMaximumBattleDamage = std::max(0, pNewCity->GetMaxHitPoints() - 1);
 	if (iBattleDamage > iMaximumBattleDamage)
 		iBattleDamage = iMaximumBattleDamage;
 
@@ -4523,7 +4523,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				int iResistanceTurns = MOD_BALANCE_CORE_SETTLER_ADVANCED ? (pNewCity->getPopulation() * 2) / 3 : pNewCity->getPopulation();
 				iResistanceTurns *= 100 - iReductionFromTourism;
 				iResistanceTurns /= 100;
-				pNewCity->ChangeResistanceTurns(max(iResistanceTurns, 1));
+				pNewCity->ChangeResistanceTurns(std::max(iResistanceTurns, 1));
 			}
 		}
 		// Our team's city?
@@ -4676,7 +4676,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
-	vector<PlayerTypes> vNewOwnerTeam = GET_TEAM(getTeam()).getPlayers();
+	std::vector<PlayerTypes> vNewOwnerTeam = GET_TEAM(getTeam()).getPlayers();
 
 	// New owner's team reevaluates all players now that they're in possession of this city
 	for (size_t i=0; i<vNewOwnerTeam.size(); i++)
@@ -4685,7 +4685,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (!GET_PLAYER(eOwnerTeamMember).isAlive() || !GET_PLAYER(eOwnerTeamMember).isMajorCiv())
 			continue;
 
-		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
+		std::vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoUpdateConquestStats();
 		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
 	}
@@ -4706,7 +4706,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
 				else
 				{
-					vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+					std::vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
 				}
 			}
@@ -5162,9 +5162,9 @@ void CvPlayer::UpdateCityThreatCriteria()
 }
 
 //sorted by threat level, descending
-vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
+std::vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
 {
-	vector<CvCity*> result;
+	std::vector<CvCity*> result;
 	struct SortByThreatLevel
 	{
 		bool operator()(const CvCity* lhs, const CvCity* rhs) const { return lhs->getThreatValue() > rhs->getThreatValue(); }
@@ -5212,15 +5212,15 @@ void CvPlayer::UpdateBestMilitaryCities()
 
 				if(pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass) > 0)
 				{
-					iCombatClassValue += max(1, pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass));
+					iCombatClassValue += std::max(1, pLoopCity->getUnitCombatFreeExperience(eUnitCombatClass));
 				}
 				if(pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass) > 0)
 				{
-					iCombatClassValue += max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
+					iCombatClassValue += std::max(1, pLoopCity->getUnitCombatProductionModifier(eUnitCombatClass));
 				}
 
 				//Promotion Bonus
-				vector<PromotionTypes> freePromotions = pLoopCity->getFreePromotions();
+				std::vector<PromotionTypes> freePromotions = pLoopCity->getFreePromotions();
 				for (size_t iI = 0; iI < freePromotions.size(); iI++)
 				{
 					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(freePromotions[iI]);
@@ -5270,19 +5270,19 @@ void CvPlayer::UpdateBestMilitaryCities()
 
 				if (pLoopCity->getDomainFreeExperience(eTestDomain) > 0)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
+					iDomainValue += std::max(1, pLoopCity->getDomainFreeExperience(eTestDomain));
 				}
 				if (pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain) > 0)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
+					iDomainValue += std::max(1, pLoopCity->getDomainFreeExperienceFromGreatWorks(eTestDomain));
 				}
 				if (pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain) > 0)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
+					iDomainValue += std::max(1, pLoopCity->getDomainFreeExperienceFromGreatWorksGlobal(eTestDomain));
 				}
 				if (pLoopCity->getDomainProductionModifier(eTestDomain) > 0)
 				{
-					iDomainValue += max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
+					iDomainValue += std::max(1, pLoopCity->getDomainProductionModifier(eTestDomain));
 				}
 
 				//Let's try to synergize our domain and combat class productions in the same cities.
@@ -9067,7 +9067,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			{
 				int iTurns = pkEventChoiceInfo->getGoldenAgeTurns();
 				iTurns = iTurns * GC.getGame().getGameSpeedInfo().getTrainPercent() / 100;
-				changeGoldenAgeTurns(getGoldenAgeLength(max(1, iTurns)), true);
+				changeGoldenAgeTurns(getGoldenAgeLength(std::max(1, iTurns)), true);
 			}
 			if(pkEventChoiceInfo->getNumFreeGreatPeople() > 0)
 			{
@@ -9304,7 +9304,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					{
 						continue;
 					}
-					pLoopCity->ChangeResistanceTurns(max(1, iTurns));
+					pLoopCity->ChangeResistanceTurns(std::max(1, iTurns));
 				}
 			}
 			if(pkEventChoiceInfo->getWLTKD() > 0)
@@ -9323,7 +9323,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 					{
 						continue;
 					}
-					pLoopCity->ChangeWeLoveTheKingDayCounter(max(1, iTurns));
+					pLoopCity->ChangeWeLoveTheKingDayCounter(std::max(1, iTurns));
 				}
 			}
 
@@ -9870,16 +9870,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Update diplo stuff
 	if (bAlive)
 	{
-		vector<PlayerTypes> v = GET_TEAM(getTeam()).getPlayers();
+		std::vector<PlayerTypes> v = GET_TEAM(getTeam()).getPlayers();
 		pDiploAI->DoReevaluatePlayers(v, false, false);
 	}
 	else
 	{
-		vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+		std::vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
 		pDiploAI->DoReevaluatePlayers(v, false, false, true);
 	}
 
-	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
+	std::vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
 	GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
 
 	if (MOD_EVENTS_LIBERATION) 
@@ -13529,7 +13529,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		goodyValueModifier(iCulture, GC.getGame().getGameSpeedInfo().getCulturePercent(), true, true);
 		if (MOD_BALANCE_CORE_BARBARIAN_THEFT)
 		{
-			iCulture *= max(1, (GetPlayerPolicies()->GetNumPoliciesOwned(true, true) / 2));
+			iCulture *= std::max(1, (GetPlayerPolicies()->GetNumPoliciesOwned(true, true) / 2));
 		}
 
 		changeJONSCulture(iCulture);
@@ -17712,7 +17712,7 @@ int CvPlayer::calculateUnitProductionMaintenanceMod() const
 	if (iUnitsOverSupply > 0)
 	{
 		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Production
-		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in VP*/ max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		int iMaintenanceMod = std::min(/*70*/ std::max(GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD), 0), iUnitsOverSupply * /*10 in CP, 5 in VP*/ std::max(GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
 		return iMaintenanceMod * -1;
 	}
 
@@ -17748,7 +17748,7 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 	if (iUnitsOverSupply > 0)
 	{
 		// Example: Player can support 8 Units, he has 12. 4 * 5 means he loses 20% of his Food
-		int iMaintenanceMod = min(/*70*/ max(GD_INT_GET(MAX_UNIT_SUPPLY_GROWTH_MOD), 0), iUnitsOverSupply * /*5*/ max(GD_INT_GET(GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
+		int iMaintenanceMod = std::min(/*70*/ std::max(GD_INT_GET(MAX_UNIT_SUPPLY_GROWTH_MOD), 0), iUnitsOverSupply * /*5*/ std::max(GD_INT_GET(GROWTH_PENALTY_PER_UNIT_OVER_SUPPLY), 0));
 		return iMaintenanceMod * -1;
 	}
 
@@ -17769,7 +17769,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY && bCheckWarWeariness)
 		{
 			int iWarWeariness = GetCulture()->GetWarWeariness()/2;
-			int iMod = (100 - min(75, iWarWeariness));
+			int iMod = (100 - std::min(75, iWarWeariness));
 			iFreeUnits *= iMod;
 			iFreeUnits /= 100;
 		}
@@ -17781,7 +17781,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 			iFreeUnits /= 100;
 		}
 
-		m_iNumUnitsSuppliedCached = max(0,iFreeUnits);
+		m_iNumUnitsSuppliedCached = std::max(0,iFreeUnits);
 	}
 
 	return m_iNumUnitsSuppliedCached;
@@ -18044,7 +18044,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 			if (iMinorAllies > 0)
 			{
 				// -2% tech costs per ally.
-				int iLeaguesAidScience = min(50, (iMinorAllies * /*2*/ GD_INT_GET(SCHOLAR_MINOR_ALLY_MULTIPLIER)));
+				int iLeaguesAidScience = std::min(50, (iMinorAllies * /*2*/ GD_INT_GET(SCHOLAR_MINOR_ALLY_MULTIPLIER)));
 				SetScienceRateFromMinorAllies(iLeaguesAidScience);
 				iLeaguesMod += GetScienceRateFromMinorAllies();
 			}
@@ -18108,7 +18108,7 @@ int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
 	if (iAvgGPT > 0)
 		return INT_MAX;
 
-	return -iGold/max(1,iAvgGPT);
+	return -iGold/std::max(1,iAvgGPT);
 }
 
 //	--------------------------------------------------------------------------------
@@ -18905,7 +18905,7 @@ void CvPlayer::setJONSCulture(int iNewValue)
 			ChangeJONSCultureEverGenerated(iNewValue - m_iJONSCulture);
 		}
 
-		m_iJONSCulture = max(0,iNewValue);
+		m_iJONSCulture = std::max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -19258,7 +19258,7 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 {
 	PlayerTypes eOpponent = pConqueredCity->getOwner();
-	vector<TechTypes> vePossibleTechs;
+	std::vector<TechTypes> vePossibleTechs;
 	int iCheapestTechCost = MAX_INT;
 	for (int i = 0; i < GC.getNumTechInfos(); i++)
 	{
@@ -19427,7 +19427,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			int iNotificationArtwork = -1;
 			if (artChoices.size() > 0)
 			{
-				int iPlunder = GC.getGame().getSmallFakeRandNum(max(1, (iOpenSlots / 5)), GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
+				int iPlunder = GC.getGame().getSmallFakeRandNum(std::max(1, (iOpenSlots / 5)), GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
 				if (iPlunder <= 2)
 				{
 					iPlunder = 2;
@@ -19642,7 +19642,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			iYieldHandicap /= 100;
 		}
 	}
-	int iYieldForCities = max(1, iYieldHandicap / max(1, getNumCities()));
+	int iYieldForCities = std::max(1, iYieldHandicap / std::max(1, getNumCities()));
 	if (MOD_ABC_TRIGGER_CHANGE)
 	{
 		if (eHistoricEvent == HISTORIC_EVENT_GA)
@@ -20047,7 +20047,7 @@ void CvPlayer::SetFaith(int iNewValue)
 			ChangeFaithEverGenerated(iNewValue - m_iFaith);
 		}
 
-		m_iFaith = max(0,iNewValue);
+		m_iFaith = std::max(0,iNewValue);
 
 		if(GC.getGame().getActivePlayer() == GetID())
 		{
@@ -20305,7 +20305,7 @@ int CvPlayer::GetHappinessRatioRawPercent()
 {
 	int iUnhappyCitizens = getUnhappinessFromCitizenNeeds();
 	int iHappyCitizens = getHappinessFromCitizenNeeds();
-	return ((iHappyCitizens * 100) / max(1, iUnhappyCitizens) / 2);
+	return ((iHappyCitizens * 100) / std::max(1, iUnhappyCitizens) / 2);
 }
 
 void CvPlayer::CalculateNetHappiness()
@@ -20327,7 +20327,7 @@ void CvPlayer::CalculateNetHappiness()
 		else
 		{
 			int iHappyCitizens = getHappinessFromCitizenNeeds();
-			int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
+			int iPercent = std::min(200, (iHappyCitizens * 100) / std::max(1, iUnhappyCitizens));
 			iPercent /= 2;
 
 			if (iPercent != m_iHappinessTotal)
@@ -20565,7 +20565,7 @@ void CvPlayer::SetTurnLastAttackedMinorCiv(int iTurn)
 	if (GetTurnsSinceLastAttackedMinorCiv() > -1 && GetTurnsSinceLastAttackedMinorCiv() < 10)
 		return;
 
-	m_iTurnLastAttackedMinorCiv = max(iTurn, -1);
+	m_iTurnLastAttackedMinorCiv = std::max(iTurn, -1);
 }
 
 //	--------------------------------------------------------------------------------
@@ -21723,7 +21723,7 @@ int CvPlayer::GetHappinessFromNaturalWonders() const
 		iHappiness /= 100;
 	}
 
-	for (vector<FeatureTypes>::const_iterator it=m_ownedNaturalWonders.begin(); it!=m_ownedNaturalWonders.end(); ++it)
+	for (std::vector<FeatureTypes>::const_iterator it=m_ownedNaturalWonders.begin(); it!=m_ownedNaturalWonders.end(); ++it)
 	{
 		int iPlotHappiness = GC.getFeatureInfo(*it)->getInBorderHappiness();
 
@@ -21747,7 +21747,7 @@ void CvPlayer::SetNaturalWonderOwned(FeatureTypes eFeature, bool bValue)
 	CvAssertMsg(eFeature >= 0, "eFeature is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "eEvent is expected to be within maximum bounds (invalid Index)");
 
-	vector<FeatureTypes>::const_iterator it = std::find(m_ownedNaturalWonders.begin(), m_ownedNaturalWonders.end(), eFeature);
+	std::vector<FeatureTypes>::const_iterator it = std::find(m_ownedNaturalWonders.begin(), m_ownedNaturalWonders.end(), eFeature);
 
 	if (bValue && it==m_ownedNaturalWonders.end())
 		m_ownedNaturalWonders.push_back(eFeature);
@@ -21860,7 +21860,7 @@ int CvPlayer::GetBonusHappinessFromLuxuries(int iPop) const
 	//scaler is in 1/1000th
 	int iScaled = int(0.5f + iTotalResourceWeight / 1000.f * iPop * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000);
 
-	return max(1, iScaled);
+	return std::max(1, iScaled);
 	
 }
 
@@ -21949,7 +21949,7 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 	if (iTotalResourceWeight <= 0)
 		return 0;
 
-	return iTotalResourceWeight / max(1, iNumResources);
+	return iTotalResourceWeight / std::max(1, iNumResources);
 	 
 }
 #endif
@@ -22373,7 +22373,7 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 			if (!pLoopCity->IsPuppet())
 				continue;
 			else
-				iTotal += pLoopCity->getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
+				iTotal += pLoopCity->getPopulation() / std::max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
 		}
 		return iTotal;
 	}
@@ -25805,7 +25805,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		return;
 
 	ReligionTypes eStateReligion = GetReligions()->GetStateReligion();
-	int iEra = max<int>(1, GetCurrentEra());
+	int iEra = std::max<int>(1, GetCurrentEra());
 
 	CvString totalyieldString = "";
 	//Let's loop through all cities for this.
@@ -25874,14 +25874,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BIRTH:
 				{
-					iValue += ((pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield)) * max(1, iPassYield));
+					iValue += ((pLoopCity->GetYieldFromBirth(eYield) + getYieldFromBirth(eYield)) * std::max(1, iPassYield));
 					if (pReligion)
 					{
-						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * max(1, iPassYield);
+						iValue += pReligion->m_Beliefs.GetYieldPerBirth(eYield, GetID(), pLoopCity) * std::max(1, iPassYield);
 					}
 					if (pLoopCity->isCapital())
 					{
-						iValue += getYieldFromBirthCapital(eYield) * max(1, iPassYield);
+						iValue += getYieldFromBirthCapital(eYield) * std::max(1, iPassYield);
 					}
 					//Scale it here to avoid scaling the growth yield below.
 					if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && bEraScale)
@@ -25906,7 +25906,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 					if(iCurrentYield != 0)
 					{
-						iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * max(1, iPassYield));
+						iValue += (((iCurrentYield * pLoopCity->GetGrowthExtraYield(eYield)) / 100) * std::max(1, iPassYield));
 						if(iValue <= 0 && pLoopCity->GetGrowthExtraYield(eYield) > 0)
 						{
 							iValue = 1;
@@ -26238,7 +26238,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereq);
 									if (pkTechInfo && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(ePrereq))
 									{
-										int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkUnitInfo->GetCombat(), pkUnitInfo->GetRangedCombat());
+										int iCombatStrength = pUnit != NULL ? std::max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : std::max(pkUnitInfo->GetCombat(), pkUnitInfo->GetRangedCombat());
 										if (iCombatStrength > 0)
 										{
 											int iTechCost = GetPlayerTechs()->GetResearchCost(ePrereq);
@@ -26265,7 +26265,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					CvUnitEntry* pkKilledUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 					if (pkKilledUnitInfo)
 					{
-						int iCombatStrength = pUnit != NULL ? max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
+						int iCombatStrength = pUnit != NULL ? std::max(pUnit->GetBaseCombatStrength(), pUnit->GetBaseRangedCombatStrength()) : std::max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
 						int iKillYield = 0;
 						if (iCombatStrength > 0)
 						{
@@ -26530,7 +26530,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							if(!pCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
 							{
-								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * max(1, iPassYield+1);
+								iValue += pReligion->m_Beliefs.GetYieldFromSpread(eYield, GetID(), pLoopCity, true) * std::max(1, iPassYield+1);
 							}
 						}
 					}
@@ -26549,7 +26549,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						if(pReligion)
 						{
 							int iTempValue = pReligion->m_Beliefs.GetYieldFromForeignSpread(eYield, GetID(), pLoopCity, true);
-							iTempValue *= max(1, iPassYield+1);
+							iTempValue *= std::max(1, iPassYield+1);
 
 							iValue += iTempValue;
 
@@ -28707,7 +28707,7 @@ void CvPlayer::DoSeedGreatPeopleSpawnCounter()
 	if (iExtraAllies > 0)
 	{
 		int iExtraAlliesChange = iExtraAllies * /*-1*/ GD_INT_GET(MINOR_ADDITIONAL_ALLIES_GP_CHANGE);
-		iExtraAlliesChange = max(/*-10*/ GD_INT_GET(MAX_MINOR_ADDITIONAL_ALLIES_GP_CHANGE), iExtraAlliesChange);
+		iExtraAlliesChange = std::max(/*-10*/ GD_INT_GET(MAX_MINOR_ADDITIONAL_ALLIES_GP_CHANGE), iExtraAlliesChange);
 		iNumTurns += iExtraAlliesChange;
 	}
 
@@ -30405,7 +30405,7 @@ int CvPlayer::GetMinorFriendshipAnchorMod() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::SetMinorFriendshipAnchorMod(int iValue)
 {
-	m_iMinorFriendshipMinimum = max(iValue, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
+	m_iMinorFriendshipMinimum = std::max(iValue, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
 }
 
 //	--------------------------------------------------------------------------------
@@ -30834,7 +30834,7 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 void CvPlayer::DoUnitDiversity()
 {
 	//find out which types we can build
-	map<DomainTypes, map<UnitAITypes, int>> countByType;
+	std::map<DomainTypes, std::map<UnitAITypes, int>> countByType;
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
@@ -30863,17 +30863,17 @@ void CvPlayer::DoUnitDiversity()
 	}
 
 	m_neededUnitAITypes.clear();
-	for (map<DomainTypes, map<UnitAITypes, int>>::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
+	for (std::map<DomainTypes, std::map<UnitAITypes, int>>::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
 	{
 		int minCount = INT_MAX;
 		int maxCount = 0;
-		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
+		for (std::map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
 		{
-			minCount = min(minCount, itType->second);
-			maxCount = max(maxCount, itType->second);
+			minCount = std::min(minCount, itType->second);
+			maxCount = std::max(maxCount, itType->second);
 		}
 
-		for (map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
+		for (std::map<UnitAITypes, int>::iterator itType = itDomain->second.begin(); itType != itDomain->second.end(); ++itType)
 		{
 			if (itType->second == minCount && itType->second != maxCount)
 			{
@@ -30902,9 +30902,9 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	int iHandicapCap = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
+	int iHandicapCap = std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
 
-	return min(iHandicapCap, iResistance/25);
+	return std::min(iHandicapCap, iResistance/25);
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetArchaeologicalDigTourism() const
@@ -31117,7 +31117,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 	int iEventGP = GetPlayerTraits()->GetEventGP();
 	if (pCapital != NULL && iEventGP > 0)
 	{
-		vector<SpecialistTypes> vPossibleSpecialists;
+		std::vector<SpecialistTypes> vPossibleSpecialists;
 		for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 		{
 			const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
@@ -31693,7 +31693,7 @@ int CvPlayer::GetTechDeviation() const
 	int iNumTechs = GC.getNumTechInfos();
 
 	int iPercentResearched = iOurTech * 100;
-	iPercentResearched /= max(1, iNumTechs);
+	iPercentResearched /= std::max(1, iNumTechs);
 
 	iPercentResearched *= /*160*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_BASE_MODIFIER);
 	iPercentResearched /= 100;
@@ -32004,7 +32004,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 		}
 	}
 
-	map<TeamTypes, int> numOriginalCapitals;
+	std::map<TeamTypes, int> numOriginalCapitals;
 	int iMostOriginalCapitals = 0;
 	TeamTypes eWinningTeam = NO_TEAM;
 	PlayerTypes eWinningPlayer = NO_PLAYER;
@@ -32583,8 +32583,8 @@ int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = 
 	if (!isMajorCiv() || !isAlive() || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return 0;
 
-	int iBaseLimit = isHuman() || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
-	int iLimitScaler = isHuman() || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
+	int iBaseLimit = isHuman() || bIsAITradeWithHumanPossible ? /*99 in CP, 2 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE) : /*2*/ std::min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_BASE), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_BASE));
+	int iLimitScaler = isHuman() || bIsAITradeWithHumanPossible ? /*0 in CP, 10 in VP*/ GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER) : /*10*/ std::min(GD_INT_GET(DEFENSIVE_PACT_LIMIT_SCALER), GD_INT_GET(AI_DEFENSIVE_PACT_LIMIT_SCALER));
 	if (iBaseLimit <= -1)
 		return 0;
 
@@ -32612,7 +32612,7 @@ int CvPlayer::CalculateDefensivePactLimit(bool bIsAITradeWithHumanPossible /* = 
 	if (iLimitScaler > 0)
 		iLimit += (iTotalOtherMajors / iLimitScaler);
 
-	return min(iLimit, iTotalOtherMajors);
+	return std::min(iLimit, iTotalOtherMajors);
 }
 
 bool CvPlayer::IsIgnoreDefensivePactLimit() const
@@ -32655,7 +32655,7 @@ int CvPlayer::GetMilitaryRating() const
 
 void CvPlayer::SetMilitaryRating(int iValue)
 {
-	m_iMilitaryRating = max(iValue, 0);
+	m_iMilitaryRating = std::max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -32676,13 +32676,13 @@ void CvPlayer::DoMilitaryRatingDecay()
 	if (iCurrentRating < iStartingRating)
 	{
 		int iDifference = iStartingRating - iCurrentRating;
-		int iReduction = max(1, ((iDifference * iDecayRate) / 1000));
+		int iReduction = std::max(1, ((iDifference * iDecayRate) / 1000));
 		ChangeMilitaryRating(iReduction);
 	}
 	else if (iCurrentRating > iStartingRating)
 	{
 		int iDifference = iCurrentRating - iStartingRating;
-		int iReduction = max(1, ((iDifference * iDecayRate) / 1000));
+		int iReduction = std::max(1, ((iDifference * iDecayRate) / 1000));
 		ChangeMilitaryRating(-iReduction);
 	}
 }
@@ -32833,7 +32833,7 @@ int CvPlayer::calculateEconomicMight() const
 	if (iNumCities > 0)
 	{
 		iEconomicMight *= 100;
-		iEconomicMight /= min(300, iNumCities);
+		iEconomicMight /= std::min(300, iNumCities);
 	}
 
 	//Finally, divide our power by the number of cities we own - the more we have, the more our upkeep.
@@ -34201,7 +34201,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 	CvPlayer& kPossibleVictimPlayer = GET_PLAYER(ePossibleVictimPlayer);
 
 	// Trigger war victory bonuses for all majors at war if a major was killed
-	vector<PlayerTypes> vAtWarWithPossibleVictim;
+	std::vector<PlayerTypes> vAtWarWithPossibleVictim;
 	if (kPossibleVictimPlayer.isMajorCiv())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -34228,7 +34228,7 @@ void CvPlayer::CheckForMurder(PlayerTypes ePossibleVictimPlayer)
 			kPossibleVictimPlayer.GetDiplomacyAI()->DoKilledByPlayer(GetID());
 		}
 
-		for (vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
+		for (std::vector<PlayerTypes>::iterator it = vAtWarWithPossibleVictim.begin(); it != vAtWarWithPossibleVictim.end(); it++)
 		{
 			GET_PLAYER(*it).DoWarVictoryBonuses();
 		}
@@ -35919,7 +35919,7 @@ int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) con
 				iNationalPop *= iModifier;
 				iNationalPop /= 100;
 				
-				return max(0, iNationalPop);
+				return std::max(0, iNationalPop);
 			}
 		}
 	}
@@ -36040,7 +36040,7 @@ int CvPlayer::GetScienceTimes100() const
 		iValue += iFreeScience;
 	}
 
-	return max(iValue, 0);
+	return std::max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -36319,7 +36319,7 @@ int CvPlayer::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
 
 	int iMaxTurns = 0;
 
-	vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
+	std::vector<PlayerTypes> vTeamPlayers = GET_TEAM(eTeam).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) vTeamPlayers[i];
@@ -36400,7 +36400,7 @@ void CvPlayer::SetWarValueLost(PlayerTypes ePlayer, int iValue)
 {
 	if (isBarbarian()) return;
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarValueLost[ePlayer] = max(iValue, 0);
+	m_aiWarValueLost[ePlayer] = std::max(iValue, 0);
 }
 
 void CvPlayer::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
@@ -36472,7 +36472,7 @@ void CvPlayer::DoWarValueLostDecay()
 		{
 			if (iValue > 0)
 			{
-				int iChange = max((iValue/50), 1); // Must go down by at least 1
+				int iChange = std::max((iValue/50), 1); // Must go down by at least 1
 				ChangeWarValueLost(eLoopPlayer, -iChange);
 			}
 		}
@@ -36481,7 +36481,7 @@ void CvPlayer::DoWarValueLostDecay()
 		{
 			if (iValue > 0)
 			{
-				int iChange = max((iValue/10), 1); // Must go down by at least 1
+				int iChange = std::max((iValue/10), 1); // Must go down by at least 1
 				ChangeWarValueLost(eLoopPlayer, -iChange);
 			}
 		}
@@ -36626,7 +36626,7 @@ void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
 {
 	if (isBarbarian()) return;
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
+	m_aiWarDamageValue[ePlayer] = std::max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -36721,11 +36721,11 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 
 //	--------------------------------------------------------------------------------
 /// Returns plot indices!
-pair<int,int> CvPlayer::GetClosestCityPair(PlayerTypes ePlayer)
+std::pair<int,int> CvPlayer::GetClosestCityPair(PlayerTypes ePlayer)
 {
 	int iCityLoop = 0;
 	int iMinDistance = INT_MAX;
-	pair<int, int> result(-1,-1);
+	std::pair<int, int> result(-1,-1);
 	for (CvCity* pOtherCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pOtherCity != NULL; pOtherCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
 		CvCity* pOurClosestCity = GetClosestCityByPlots(pOtherCity->plot()); //use estimated turns here?
@@ -36736,7 +36736,7 @@ pair<int,int> CvPlayer::GetClosestCityPair(PlayerTypes ePlayer)
 		if (iDistance < iMinDistance)
 		{
 			iMinDistance = iDistance;
-			result = make_pair( pOurClosestCity->plot()->GetPlotIndex(),pOtherCity->plot()->GetPlotIndex() );
+			result = std::make_pair( pOurClosestCity->plot()->GetPlotIndex(),pOtherCity->plot()->GetPlotIndex() );
 		}
 	}
 
@@ -36761,7 +36761,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
 
 		//the current pair for comparison
-		pair<int, int> closestCities = GetClosestCityPair(eLoopPlayer);
+		std::pair<int, int> closestCities = GetClosestCityPair(eLoopPlayer);
 		if (closestCities.first < 0 || closestCities.second < 0)
 		{
 			SetProximityToPlayer(eLoopPlayer, eProximity);
@@ -38221,7 +38221,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				
 				if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 				{
-					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD));
+					int iThreshold = std::max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD));
 					//Do we have >50% of this resource under our control?
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
@@ -38275,7 +38275,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 						SetHasStrategicMonopoly(eResource, false);
 					}
 					//Do we also have >50% of this resource under our control?
-					int iThreshold = max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD));
+					int iThreshold = std::max(GC.getGame().GetGreatestPlayerResourceMonopolyValue(eResource), GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD));
 
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
@@ -38452,7 +38452,7 @@ bool CvPlayer::WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) co
 		return false;
 
 	int iCurrent = GetMonopolyPercent(eResource);
-	int iExtra = (iExtraResource * 100) / max(1,GC.getMap().getNumResources(eResource));
+	int iExtra = (iExtraResource * 100) / std::max(1,GC.getMap().getNumResources(eResource));
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
@@ -38638,7 +38638,7 @@ void CvPlayer::changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange)
 /// we are now allowed to siphon.  Change our resource count if there is a discrepancy.
 void CvPlayer::UpdateResourcesSiphoned()
 {
-	vector<int> vDeltas;
+	std::vector<int> vDeltas;
 	
 	// Subtract all currently siphoned resources
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -41553,9 +41553,9 @@ bool CvPlayer::IsMusterCityForOperation(CvCity* pCity, bool bNaval) const
 	return false;
 }
 
-vector<int> CvPlayer::GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit) const
+std::vector<int> CvPlayer::GetPlotsTargetedByExplorers(const CvUnit* pIgnoreUnit) const
 {
-	vector<int> result;
+	std::vector<int> result;
 
 	// Loop through our units
 	int iLoop = 0;
@@ -41713,7 +41713,7 @@ void CvPlayer::changeInstantYieldValue(YieldTypes eYield, int iValue)
 		if (m_ppiInstantYieldHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
 			m_ppiInstantYieldHistoryValues.pop_front();
 
-		m_ppiInstantYieldHistoryValues.push_back( make_pair(iTurn, vector<int>(NUM_YIELD_TYPES, 0)));
+		m_ppiInstantYieldHistoryValues.push_back( std::make_pair(iTurn, std::vector<int>(NUM_YIELD_TYPES, 0)));
 		m_ppiInstantYieldHistoryValues.back().second[eYield] += iValue;
 	}
 	else if (m_ppiInstantYieldHistoryValues.back().first == iTurn)
@@ -41752,7 +41752,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 	int MaxTurnsBack = 0;
 
 	bool bShowPlayerTourism = false;
-	vector<int> tourismVal(MAX_MAJOR_CIVS, 0);
+	std::vector<int> tourismVal(MAX_MAJOR_CIVS, 0);
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
 	{
 		int TurnsBack = 0;
@@ -41799,7 +41799,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 					iTempSum += iTempTourism;
 					tourismVal[iPlayerLoop] += iTempTourism;
 				}
-				iTempSum /= max(1, iNumPlayers);
+				iTempSum /= std::max(1, iNumPlayers);
 				iSum += iTempSum;
 			}
 			TurnsBack++;
@@ -41828,8 +41828,8 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 
 			if (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION)
 			{
-				int iAverage = max(1, (iSum / max(1, TurnsBack)));
-				iAverage /= max(1, getNumCities());
+				int iAverage = std::max(1, (iSum / std::max(1, TurnsBack)));
+				iAverage /= std::max(1, getNumCities());
 				yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_AVERAGE_CITIES", iAverage);
 			}
 		}
@@ -41844,13 +41844,13 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 			if (tourismVal[iPlayerLoop] == 0)
 				continue;
 
-			int iTourismAverage = max(1, (tourismVal[iPlayerLoop] / max(1, MaxTurnsBack)));
+			int iTourismAverage = std::max(1, (tourismVal[iPlayerLoop] / std::max(1, MaxTurnsBack)));
 
 			yieldtooltip += " " + GetLocalizedText("TXT_KEY_INSTANT_YIELD_PER_PLAYER_TOURISM_NAME", GET_PLAYER(ePlayer).getCivilizationShortDescription(), tourismVal[iPlayerLoop], iTourismAverage);
 		}
 	}
 
-	CvString tooltip = GetLocalizedText("TXT_KEY_YIELD_PER_TURN_HEADER", min(iNumPreviousTurnsToCount, MaxTurnsBack)) + "[NEWLINE]";
+	CvString tooltip = GetLocalizedText("TXT_KEY_YIELD_PER_TURN_HEADER", std::min(iNumPreviousTurnsToCount, MaxTurnsBack)) + "[NEWLINE]";
 
 	if (yieldtooltip != "")
 	{
@@ -42140,7 +42140,7 @@ void CvPlayer::changeInstantTourismPerPlayerValue(PlayerTypes ePlayer, int iValu
 		if (m_ppiInstantTourismPerPlayerHistoryValues.size() == INSTANT_YIELD_HISTORY_LENGTH)
 			m_ppiInstantTourismPerPlayerHistoryValues.pop_front();
 
-		m_ppiInstantTourismPerPlayerHistoryValues.push_back( make_pair(iTurn, vector<int>(MAX_MAJOR_CIVS, 0)));
+		m_ppiInstantTourismPerPlayerHistoryValues.push_back( std::make_pair(iTurn, std::vector<int>(MAX_MAJOR_CIVS, 0)));
 		m_ppiInstantTourismPerPlayerHistoryValues.back().second[ePlayer] += iValue;
 	}
 	else if (m_ppiInstantTourismPerPlayerHistoryValues.back().first == iTurn)
@@ -47790,7 +47790,7 @@ void CvPlayer::UpdateMilitaryStats()
 				iCivCount++;
 		}
 
-		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / max(1, (iCivCount-1));
+		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / std::max(1, (iCivCount-1));
 	}
 
 	int iExpCount = 0, iExpSum = 0;
@@ -47803,7 +47803,7 @@ void CvPlayer::UpdateMilitaryStats()
 		}
 	}
 
-	m_iAvgUnitExp100 = iExpSum / max(1,iExpCount);
+	m_iAvgUnitExp100 = iExpSum / std::max(1,iExpCount);
 }
 
 void CvPlayer::UpdateAreaEffectUnit(CvUnit* pUnit)
@@ -48022,7 +48022,7 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 			case AE_GREAT_GENERAL:
 			{
 				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-					iResult = max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
+					iResult = std::max(iResult, GetGreatGeneralCombatBonus() + GetPlayerTraits()->GetGreatGeneralExtraBonus() + pUnit->GetAuraEffectChange());
 				break;
 			}
 			case AE_SAPPER:
@@ -48031,11 +48031,11 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 				{
 					if (iDistance < iEffectRange)
 					{
-						iResult = max(iResult, /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
+						iResult = std::max(iResult, /*50 in CP, 40 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER));
 					}
 					else if (iDistance == iEffectRange)
 					{
-						iResult = max(iResult, /*25 in CP, 20 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
+						iResult = std::max(iResult, /*25 in CP, 20 in VP*/ GD_INT_GET(SAPPED_CITY_ATTACK_MODIFIER)/2);
 					}
 				}
 				break;
@@ -48153,7 +48153,7 @@ int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets)
 	}
 
 	//always at least one ...
-	return max(1, iNumCities);
+	return std::max(1, iNumCities);
 }
 
 // How many Coastal Cities does this player own
@@ -48294,7 +48294,7 @@ void CvPlayer::ChangeTurnsSinceSettledLastCity(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
-ostream& operator<<(ostream& os, const CvPlot* pPlot)
+std::ostream& operator<<(std::ostream& os, const CvPlot* pPlot)
 {
 	if (pPlot)
 	    os << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
@@ -48320,7 +48320,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
 
 	//in case we're not getting the cached data, we need to prepare some things
-	vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
+	std::vector<int> ignorePlots(GC.getMap().numPlots(), 0); //these are the plots whose yield we ignore
 	if (bLogging)
 	{
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
@@ -48335,13 +48335,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	}
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
+	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / std::max(512, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. 
 	int iMaxSettleDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE) + iTimeOffset; //plot value at max distance or greater is scaled to zero
 	if(IsCramped())
 		iMaxSettleDistance += iTimeOffset;
-	int iSettleDropoffThreshold = min(iMaxSettleDistance,/*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER));
+	int iSettleDropoffThreshold = std::min(iMaxSettleDistance,/*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER));
 
 	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
@@ -48444,7 +48444,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		//if we want offshore expansion, manipulate the distance scaler
 		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
 		if (bWantOffshore && bOffshore)
-			iScale = max(42, iScale);
+			iScale = std::max(42, iScale);
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
@@ -48698,18 +48698,18 @@ void CvPlayer::SetBestWonderCities()
 			if (iWaterPriority >= 0)
 			{
 				//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-				iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+				iWaterRoutes = 1000 - std::min(1000, (iWaterPriority * 50));
 			}
 			if (iLandPriority >= 0)
 			{
-				iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+				iLandRoutes = 1000 - std::min(1000, (iLandPriority * 50));
 			}
 
 			//Best? Do it!
 			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, true);
 
 			int iPenalty = 25 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
-			iValue -= min((iValue - 1), iPenalty);
+			iValue -= std::min((iValue - 1), iPenalty);
 
 			if (iValue > iBestValue)
 			{
@@ -48778,7 +48778,7 @@ bool CvPlayer::isCapitalCompetitive()
 		}
 	}
 
-	int iThreshold = iSum / max(1, iCount);
+	int iThreshold = iSum / std::max(1, iCount);
 	//venice exception
 	if (GetPlayerTraits()->IsNoAnnexing())
 		iThreshold -= iThreshold / 3;
@@ -48888,7 +48888,7 @@ bool CvPlayer::IsCityCompetitive(CvCity* pCity, BuildingTypes eBuilding, Project
 		}
 	}
 
-	int iThreshold = iSumProduction / max(1, iNumCities);
+	int iThreshold = iSumProduction / std::max(1, iNumCities);
 	return iOurProduction >= iThreshold;
 }
 
@@ -49900,7 +49900,7 @@ int CvPlayer::GetHappinessFromVassals() const
 		}
 	}
 
-	return max(0, iHappiness);
+	return std::max(0, iHappiness);
 }
 //	--------------------------------------------------------------------------------
 /// Happiness from a Vassal
@@ -50486,13 +50486,13 @@ bool CvPlayer::IsAtWarWith(PlayerTypes iPlayer) const
 }
 
 /// Returns a vector containing pointers to all civs helping us in war against a major civ AND ourselves (used for city danger/peace evaluations)
-vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
+std::vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
 {
-	vector<PlayerTypes> result;
+	std::vector<PlayerTypes> result;
 	if (!IsAtWarWith(ePlayer))
 		return result;
 
-	vector<PlayerTypes> vMinorsToCheck;
+	std::vector<PlayerTypes> vMinorsToCheck;
 	PlayerTypes eAlly = isMinorCiv() ? GetMinorCivAI()->GetAlly() : NO_PLAYER;
 	result.push_back(GetID());
 
@@ -51081,7 +51081,7 @@ void CvPlayer::computeFoundValueThreshold()
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
+	std::vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
 	if (vValues.empty())
 		return;
 
@@ -51093,7 +51093,7 @@ void CvPlayer::computeFoundValueThreshold()
 	//some flavor adjustment
 	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 	//clamp it to a sensible range
-	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
+	iFlavorExpansion = std::min(std::max(0, iFlavorExpansion), 12);
 	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
 
 	if (GC.getLogging() && GC.getAILogging())
@@ -51124,7 +51124,7 @@ void CvPlayer::updatePlotFoundValues()
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 	//these are the plots whose yield we ignore
-	vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
+	std::vector<int> ignoreYieldPlots(GC.getMap().numPlots(), 0); 
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{

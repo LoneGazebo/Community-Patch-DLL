@@ -546,22 +546,22 @@ bool CvGameReligions::IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFr
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pFromCity, pToCity, &path))
 	{
 		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
-		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
+		iRelativeDistancePercent = std::min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pToCity, pFromCity, &path))
 	{
 		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceLand;
-		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
+		iRelativeDistancePercent = std::min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pFromCity, pToCity, &path))
 	{
 		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
-		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
+		iRelativeDistancePercent = std::min(iRelativeDistancePercent, iPercent);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pToCity, pFromCity, &path))
 	{
 		int iPercent = (path.iNormalizedDistanceRaw * 100) / iMaxDistanceSea;
-		iRelativeDistancePercent = min(iRelativeDistancePercent, iPercent);
+		iRelativeDistancePercent = std::min(iRelativeDistancePercent, iPercent);
 	}
 
 	return (iRelativeDistancePercent<100);
@@ -2934,7 +2934,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 #endif
 
 		//if there is no traderoute, base pressure falls off with distance
-		int iPressurePercent = max(100 - iRelativeDistancePercent,1);
+		int iPressurePercent = std::max(100 - iRelativeDistancePercent,1);
 		//make the scaling quadratic - four times as many cities in range if we double the radius!
 		iBasePressure = (iBasePressure*iPressurePercent*iPressurePercent) / (100*100);
 	}
@@ -2991,7 +2991,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopReligionModifer = pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10;
-			iPressureMod += min(350,iPopReligionModifer);
+			iPressureMod += std::min(350,iPopReligionModifer);
 		}
 	}
 
@@ -3017,7 +3017,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iPressure = iBasePressure * (100 + iPressureMod);
 
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
-	return max(0, iPressure / 100);
+	return std::max(0, iPressure / 100);
 }
 
 /// How much does this prophet cost (recursive)
@@ -3930,7 +3930,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 	{
 		//We didn't found a religion, or we lost our holy city? Okay, let's see if we've conquered any holy cities
 		const ReligionList& allReligions = GC.getGame().GetGameReligions()->m_CurrentReligions;
-		vector<OptionWithScore<ReligionTypes>> vHolyReligions;
+		std::vector<OptionWithScore<ReligionTypes>> vHolyReligions;
 		for (ReligionList::const_iterator it = allReligions.begin(); it != allReligions.end(); it++)
 		{
 			//We own this holy city? It is ours to work with now.
@@ -4770,7 +4770,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 				{
 					if (kPlayer.GetEspionage()->GetSpyIndexInCity(m_pCity) != -1)
 					{
-						iPressure += iSpyPressure * max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
+						iPressure += iSpyPressure * std::max(1, GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity());
 					}
 				}
 			}
@@ -4967,10 +4967,10 @@ void CvCityReligions::AddReligiousPressure(CvReligiousFollowChangeReason eReason
 		{
 #if defined(MOD_CORE_RESILIENT_PANTHEONS)
 			//do it a bit more slowly
-			it->m_iPressure = max(0, (it->m_iPressure - iPressureChange/2));
+			it->m_iPressure = std::max(0, (it->m_iPressure - iPressureChange/2));
 			LogPressureChange(eReason, it->m_eReligion, -iPressureChange/2, it->m_iPressure, eResponsiblePlayer);
 #else
-			it->m_iPressure = max(0, (it->m_iPressure - iPressureChange));
+			it->m_iPressure = std::max(0, (it->m_iPressure - iPressureChange));
 			LogPressureChange(eReason, it->m_eReligion, iPressureChange, it->m_iPressure, eResponsiblePlayer);
 #endif
 		}
@@ -5003,7 +5003,7 @@ void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason 
 			continue;
 
 		//default
-		int iReductionPercent = min(100,iErosionPercent);
+		int iReductionPercent = std::min(100,iErosionPercent);
 
 		//some beliefs are resistant
 		if (it->m_eReligion > RELIGION_PANTHEON && bAllowRetention)
@@ -5013,7 +5013,7 @@ void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason 
 			{
 				int iRetentionPercent = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
 				iReductionPercent = iReductionPercent * (100 - iRetentionPercent) / 100;
-				iReductionPercent = max(0, iReductionPercent);
+				iReductionPercent = std::max(0, iReductionPercent);
 			}
 		}
 
@@ -5102,9 +5102,9 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 		{
 #if defined(MOD_CORE_RESILIENT_PANTHEONS)
 			//don't need to check for CvReligiousFollowChangeReason - this method is only used for prophets/missionaries
-			it->m_iPressure = max(0, (it->m_iPressure - iPressure/2));
+			it->m_iPressure = std::max(0, (it->m_iPressure - iPressure/2));
 #else
-			it->m_iPressure = max(0, (it->m_iPressure - iPressure));
+			it->m_iPressure = std::max(0, (it->m_iPressure - iPressure));
 #endif
 		}
 
@@ -5115,7 +5115,7 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 			if (iPressureErosion > 0)
 			{
 				int iErosionAmount = iPressureErosion * iPressure / 100;
-				it->m_iPressure = max(0, (it->m_iPressure - iErosionAmount));
+				it->m_iPressure = std::max(0, (it->m_iPressure - iErosionAmount));
 			}
 		}
 	}
@@ -5324,19 +5324,19 @@ void CvCityReligions::UpdateNumTradeRouteConnections(CvCity* pOtherCity)
 	SPath path; //trade routes are not necessarily symmetric in case of of unrevealed tiles etc
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, pOtherCity, m_pCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = std::min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(false, m_pCity, pOtherCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = std::min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, pOtherCity, m_pCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = std::min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 	if (GC.getGame().GetGameTrade()->HavePotentialTradePath(true, m_pCity, pOtherCity, &path))
 	{
-		iApparentDistance = min(iApparentDistance, path.iNormalizedDistanceRaw);
+		iApparentDistance = std::min(iApparentDistance, path.iNormalizedDistanceRaw);
 	}
 
 	bool bWithinDistance = (iApparentDistance <= iDistance*SPath::getNormalizedDistanceBase());
@@ -5435,7 +5435,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 
 	int iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
 
-	vector<int> remainders;
+	std::vector<int> remainders;
 
 	// Loop through each religion
 	for(it = m_ReligionStatus.begin(); it != m_ReligionStatus.end(); it++)
@@ -5518,7 +5518,7 @@ void CvCityReligions::SimulateFollowers()
 
 	iPressurePerFollower = iTotalPressure / iUnassignedFollowers;
 
-	vector<int> remainders;
+	std::vector<int> remainders;
 
 	// Loop through each religion
 	for(it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
@@ -6402,7 +6402,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
-CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const std::vector<std::pair<int,int>>& vIgnoreTargets, int* piTurns) const
 {
 	ReligionTypes eOwnedReligion = m_pPlayer->GetReligions()->GetOwnedReligion();
 	ReligionTypes eSpreadReligion = GetReligionToSpread();
@@ -6434,7 +6434,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 					continue;
 
 				//we often have multiple missionaries active at the same time, don't all go to the same target
-				vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+				std::vector<std::pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
@@ -6469,7 +6469,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const std::vector<std::pair<int,int>>& vIgnoreTargets, int* piTurns) const
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -6485,7 +6485,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 			continue;
 
 		//we often have multiple inquisitors active at the same time, don't all go to the same target
-		vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+		std::vector<std::pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
 		if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 			continue;
 
@@ -6638,7 +6638,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 				if (eMajorityReligion == eReligion)
 					continue;
 
-				int iOurPressure = max(1,pCR->GetPressurePerTurn(eReligion));
+				int iOurPressure = std::max(1,pCR->GetPressurePerTurn(eReligion));
 				int iMajorityPressure = pCR->GetPressurePerTurn(eMajorityReligion);
 				int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
@@ -7237,8 +7237,8 @@ bool CvReligionAI::DoFaithPurchases()
 			int iFaithPerTurn = m_pPlayer->GetTotalFaithPerTurn();
 			int iFaithStored = m_pPlayer->GetFaith();
 			int iFaithNeeded = pCapital->GetFaithPurchaseCost(eGPType, true);
-			int iTurnsRemaining = (iFaithNeeded - iFaithStored) / max(1, iFaithPerTurn);
-			if (iTurnsRemaining < max(13,23-iFlavorReligion))
+			int iTurnsRemaining = (iFaithNeeded - iFaithStored) / std::max(1, iFaithPerTurn);
+			if (iTurnsRemaining < std::max(13,23-iFlavorReligion))
 			{
 				if (BuyGreatPerson(eGPType, (eGPType == eProphetType) ? eReligionWeFounded : NO_RELIGION))
 				{
@@ -7979,8 +7979,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
 
 	//let's establish some mid-game goals for the AI.
-	int iIdealCityPop = max(m_pPlayer->getCapitalCity()->getPopulation(), 30);
-	int iIdealEmpireSize = max(m_pPlayer->getNumCities(), GC.getMap().getWorldInfo().getTargetNumCities());
+	int iIdealCityPop = std::max(m_pPlayer->getCapitalCity()->getPopulation(), 30);
+	int iIdealEmpireSize = std::max(m_pPlayer->getNumCities(), GC.getMap().getWorldInfo().getTargetNumCities());
 	if (pPlayerTraits->IsSmaller())
 	{
 		iIdealCityPop += 5;
@@ -8008,7 +8008,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 
 	iRtnValue += (pEntry->GetCityRangeStrikeModifier() / 3) * MAX(pEntry->GetCityRangeStrikeModifier() / 3, iFlavorCityDefense - iFlavorOffense);
 
-	iRtnValue += (pEntry->GetFriendlyHealChange() * iFlavorDefense) / max(1, iFlavorOffense);
+	iRtnValue += (pEntry->GetFriendlyHealChange() * iFlavorDefense) / std::max(1, iFlavorOffense);
 
 	// Wonder production multiplier
 	if(pEntry->GetObsoleteEra() > 0)
@@ -8109,7 +8109,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		}
 	}
 
-	int iFood = max(1, pCity->getYieldRate(YIELD_FOOD, false) * iIdealCityPop);
+	int iFood = std::max(1, pCity->getYieldRate(YIELD_FOOD, false) * iIdealCityPop);
 	iTempValue = 0;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -8157,11 +8157,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 				}
 			}
 
-			iTempValue += (pEntry->GetYieldPerLux(iI) * max(1, iNumLuxuries)) * ModifierValue;
+			iTempValue += (pEntry->GetYieldPerLux(iI) * std::max(1, iNumLuxuries)) * ModifierValue;
 		}
 		if (pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) > 0)
 		{
-			int iVal = ((pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) * iCulture) / max(4, pCity->GetJONSCultureLevel() * 4));
+			int iVal = ((pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) * iCulture) / std::max(4, pCity->GetJONSCultureLevel() * 4));
 			if (m_pPlayer->GetPlayerTraits()->IsBuyOwnedTiles()) // America UA has an anti-synergy with this
 			{
 				iVal /= 2;
@@ -8228,7 +8228,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			{
 				iTempValue -= 100;
 			}
-			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));
+			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / std::max(1, iEvaluator)));
 		}
 		if (bIsHolyCity && pEntry->GetYieldPerHolyCityBirth(iI) > 0)
 		{
@@ -8249,7 +8249,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			{
 				iTempValue -= 100;
 			}
-			iTempValue += (pEntry->GetYieldPerHolyCityBirth(iI) * (iFood / max(1, iEvaluator)));
+			iTempValue += (pEntry->GetYieldPerHolyCityBirth(iI) * (iFood / std::max(1, iEvaluator)));
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
@@ -8699,8 +8699,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	CvPlayerTraits* pPlayerTraits = m_pPlayer->GetPlayerTraits();
 
 	//let's establish some mid-game goals for the AI.
-	int iIdealCityPop = max(m_pPlayer->getCapitalCity()->getPopulation(), 30);
-	int iIdealEmpireSize = max(m_pPlayer->getNumCities(), GC.getMap().getWorldInfo().getTargetNumCities());
+	int iIdealCityPop = std::max(m_pPlayer->getCapitalCity()->getPopulation(), 30);
+	int iIdealEmpireSize = std::max(m_pPlayer->getNumCities(), GC.getMap().getWorldInfo().getTargetNumCities());
 	if (pPlayerTraits->IsSmaller())
 	{
 		iIdealCityPop += 5;
@@ -8950,7 +8950,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			
 			iWarTemp += iInquisitor;
 
-			iWarTemp += (pEntry->GetInquisitorCostModifier() * -1 * max(1, iForeignReligions));
+			iWarTemp += (pEntry->GetInquisitorCostModifier() * -1 * std::max(1, iForeignReligions));
 		}
 	}
 
@@ -8961,18 +8961,18 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	int iHappinessTemp = 0;
 	if (pEntry->GetPlayerHappiness() > 0)
 	{
-		iHappinessTemp += max(0, pEntry->GetPlayerHappiness() * iIdealEmpireSize);
+		iHappinessTemp += std::max(0, pEntry->GetPlayerHappiness() * iIdealEmpireSize);
 	}
 	if (pEntry->GetHappinessPerFollowingCity() > 0)
 	{
 		int iFloatToInt = (int)((pEntry->GetHappinessPerFollowingCity() * (iNumNearbyCities + iIdealEmpireSize)) / 5);
-		iHappinessTemp += max(0, iFloatToInt);
+		iHappinessTemp += std::max(0, iFloatToInt);
 	}
 
 	if (pEntry->GetFullyConvertedHappiness() > 0)
 	{
 		int iTemp = (pEntry->GetFullyConvertedHappiness() * iIdealEmpireSize * (m_pPlayer->GetPlayerTraits()->IsReligious() ? 4 : 2));
-		iHappinessTemp += max(0, iTemp);
+		iHappinessTemp += std::max(0, iTemp);
 	}
 
 	if (pEntry->GetHappinessPerPantheon() > 0)
@@ -8990,7 +8990,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			}
 		}
 
-		iHappinessTemp += (pEntry->GetHappinessPerPantheon() * max(3, iPantheons) * (15 - iIdealEmpireSize));
+		iHappinessTemp += (pEntry->GetHappinessPerPantheon() * std::max(3, iPantheons) * (15 - iIdealEmpireSize));
 	}
 
 	////////////////////
@@ -9006,7 +9006,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	{
 		if (pEntry->GetYieldFromPolicyUnlock(iI) > 0)
 		{
-			iCultureTemp += ((pEntry->GetYieldFromPolicyUnlock(iI)) / max(1, iCulture));
+			iCultureTemp += ((pEntry->GetYieldFromPolicyUnlock(iI)) / std::max(1, iCulture));
 
 			if ((YieldTypes)iI == YIELD_SCIENCE && m_pPlayer->GetPlayerTraits()->IsPermanentYieldsDecreaseEveryEra())
 			{
@@ -9045,7 +9045,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	///////////////////
 
 	int iGoldTemp = 0;
-	int iGrossGold = max(15, (m_pPlayer->GetTreasury()->CalculateGrossGold() * iIdealEmpireSize));
+	int iGrossGold = std::max(15, (m_pPlayer->GetTreasury()->CalculateGrossGold() * iIdealEmpireSize));
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		if (pEntry->GetYieldPerGPT(iI) > 0)
@@ -9201,7 +9201,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 			if (pEntry->GetMaxYieldPerFollowerPercent(iI) > 0)
 			{
-				iSpreadYieldsLocal += pEntry->GetMaxYieldPerFollowerPercent(iI) * 25 / max(1, 100 - pEntry->GetMaxYieldPerFollower((YieldTypes)iI));
+				iSpreadYieldsLocal += pEntry->GetMaxYieldPerFollowerPercent(iI) * 25 / std::max(1, 100 - pEntry->GetMaxYieldPerFollower((YieldTypes)iI));
 			}
 			else
 			{
@@ -9209,7 +9209,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				{
 					int iVal = iIdealCityPop / pEntry->GetYieldPerXFollowers((YieldTypes)iI);
 					iVal *= 100;
-					iVal /= (100 + max(0, (2 * (iIdealCityPop - m_pPlayer->getCapitalCity()->getPopulation()))));
+					iVal /= (100 + std::max(0, (2 * (iIdealCityPop - m_pPlayer->getCapitalCity()->getPopulation()))));
 
 					if (iVal > pEntry->GetMaxYieldPerFollower(iI))
 					{
@@ -9230,7 +9230,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 
 
-		iSpreadYieldsLocal = (iSpreadYieldsLocal * max(m_pPlayer->getNumCities(), (iIdealCityPop / iIdealEmpireSize))) / 2;
+		iSpreadYieldsLocal = (iSpreadYieldsLocal * std::max(m_pPlayer->getNumCities(), (iIdealCityPop / iIdealEmpireSize))) / 2;
 
 		if (bNoNaturalSpread)
 			iSpreadYields = 0;
@@ -9244,7 +9244,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iSpreadTemp /= 100;
 
 			//Increase based on nearby cities that lack our faith.
-			iSpreadTemp *= max(1, iNumNearbyCities);
+			iSpreadTemp *= std::max(1, iNumNearbyCities);
 			//Divide by estimated total # of cities on map.
 			iSpreadTemp /= GC.getMap().getWorldInfo().GetEstimatedNumCities();
 		}
@@ -9439,11 +9439,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 						if (iWaterPriority >= 0)
 						{
 							//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-							iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+							iWaterRoutes = 1000 - std::min(1000, (iWaterPriority * 50));
 						}
 						if (iLandPriority >= 0)
 						{
-							iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+							iLandRoutes = 1000 - std::min(1000, (iLandPriority * 50));
 						}
 
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
@@ -9494,7 +9494,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 					CvCity* pLoopCity;
 					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
-						iBuildingTemp += max(1, (pEntry->GetBuildingClassTourism(iI) * pLoopCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)iI) * 5));
+						iBuildingTemp += std::max(1, (pEntry->GetBuildingClassTourism(iI) * pLoopCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)iI) * 5));
 					}
 				}
 			}
@@ -9507,7 +9507,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuildingsFromFaith() > 0)
 					{
-						iBuildingTemp += max(1, (pEntry->GetFaithBuildingTourism() * pLoopCity->GetCityBuildings()->GetNumBuildingsFromFaith() * 5));
+						iBuildingTemp += std::max(1, (pEntry->GetFaithBuildingTourism() * pLoopCity->GetCityBuildings()->GetNumBuildingsFromFaith() * 5));
 					}
 				}
 			}
@@ -9568,7 +9568,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 		iDiploTemp += (pEntry->GetCityStateMinimumInfluence() * GC.getGame().GetNumMinorCivsAlive()) / 10;
 
-		iDiploTemp += pEntry->GetHappinessFromForeignSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
+		iDiploTemp += pEntry->GetHappinessFromForeignSpies() * std::max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
 
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
@@ -9621,14 +9621,14 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		}
 
 		int iNumImprovementInfos = GC.getNumImprovementInfos();
-		pair<int, int> fVoteRatio = make_pair(0, 1);
+		std::pair<int, int> fVoteRatio = std::make_pair(0, 1);
 		for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
 		{
 			int potentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
 			if (potentialVotes > 0)
 			{
-				int numImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
-				AddFractionToReference(fVoteRatio, make_pair(numImprovements, potentialVotes));
+				int numImprovements = std::max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
+				AddFractionToReference(fVoteRatio, std::make_pair(numImprovements, potentialVotes));
 			}
 		}
 		iDiploTemp += 80 * fVoteRatio.first / fVoteRatio.second;
@@ -9988,7 +9988,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	CvCity* pHolyCity = pSpreadReligion->GetHolyCity();
 	int iDistToHolyCity = pHolyCity ? plotDistance(*pCity->plot(), *pHolyCity->plot()) : 0;
 	int iDistToUnit = pUnit ? plotDistance(*pCity->plot(), *pUnit->plot()) : 0;
-	int iScore = max(0, 50 - iDistToHolyCity - iDistToUnit);
+	int iScore = std::max(0, 50 - iDistToHolyCity - iDistToUnit);
 
 	UnitTypes eMissionary = m_pPlayer->GetSpecificUnitType("UNITCLASS_MISSIONARY");
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eMissionary);
@@ -9997,17 +9997,17 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 
 	// In the early game there is little accumulated pressure and conversion is easy
 	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
-	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
+	int iTotalPressure = std::max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
 	// Freshly founded cities have zero accumulated pressure, so limit the impact to a sane value
-	int iImpactPercent = min(100, (iPressureFromUnit * 100) / iTotalPressure);
+	int iImpactPercent = std::min(100, (iPressureFromUnit * 100) / iTotalPressure);
 
 	//see if our missionary can make a dent
 	int iOurPressure = pCity->GetCityReligions()->GetPressureAccumulated(eSpreadReligion);
 	int iCurrentRatio = (iOurPressure * 100) / iTotalPressure;
 
 	//make up some thresholds ...
-	int iImmediateEffectScore = max(0, iImpactPercent - 23);
-	int iCumulativeEffectScore = max(0, iCurrentRatio+iImpactPercent - 54);
+	int iImmediateEffectScore = std::max(0, iImpactPercent - 23);
+	int iCumulativeEffectScore = std::max(0, iCurrentRatio+iImpactPercent - 54);
 	iScore += iImmediateEffectScore * 3;
 	iScore += iCumulativeEffectScore * 3;
 
@@ -10033,7 +10033,7 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	if (pCity->GetCityReligions()->IsDefendedAgainstSpread(eSpreadReligion))
 	{
 		if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
-			iScore /= max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
+			iScore /= std::max(/*2*/ GD_INT_GET(INQUISITOR_CONVERSION_REDUCTION_FACTOR), 1);
 		else
 			return 0;
 	}
@@ -10154,8 +10154,8 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 	//note that we do not consider number of foreign followers here; that is done in offensive scoring
 	int iMissionaryStrength = pkMissionaryInfo ? pkMissionaryInfo->GetReligiousStrength()*pkMissionaryInfo->GetReligionSpreads() : 1;
 	int iPressureFromUnit = iMissionaryStrength * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
-	int iTotalPressure = max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
-	int iImpactPercent = min(100,(iPressureFromUnit * 100) / iTotalPressure);
+	int iTotalPressure = std::max(1, pCity->GetCityReligions()->GetTotalAccumulatedPressure(false));
+	int iImpactPercent = std::min(100,(iPressureFromUnit * 100) / iTotalPressure);
 	iScore += iImpactPercent;
 
 	//now we want inquisitors to stay in a city once posted, so distance must be the most important score
@@ -10409,11 +10409,11 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 				if (iWaterPriority >= 0)
 				{
 					//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-					iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
+					iWaterRoutes = 1000 - std::min(1000, (iWaterPriority * 50));
 				}
 				if (iLandPriority >= 0)
 				{
-					iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
+					iLandRoutes = 1000 - std::min(1000, (iLandPriority * 50));
 				}
 				for (unsigned int iI = 0; iI < choices.size(); iI++)
 				{
@@ -10453,7 +10453,7 @@ bool CvReligionAI::IsProphetGainRateAcceptable()
 	int iFaithToNextProphet = m_pPlayer->GetReligions()->GetCostNextProphet(true, true, true);
 	
 	//Let's see how long it is going to take at this rate...
-	int iTurns = (iFaithToNextProphet / max(1, iFaithPerTurn));
+	int iTurns = (iFaithToNextProphet / std::max(1, iFaithPerTurn));
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eReligion = GET_PLAYER(m_pPlayer->GetID()).GetReligions()->GetOwnedReligion();
@@ -10591,7 +10591,7 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 			if (pCapital->IsCanPurchase(false/*bTestPurchaseCost*/, false/*bTestTrainable*/, eUnit, NO_BUILDING, NO_PROJECT, YIELD_FAITH))
 			{
 				//let's be diverse, as hoarding faith isn't terribly useful.
-				int iScore = max(0, 20000 - pCapital->GetFaithPurchaseCost(eUnit, true));
+				int iScore = std::max(0, 20000 - pCapital->GetFaithPurchaseCost(eUnit, true));
 
 				// Score it
 				if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))

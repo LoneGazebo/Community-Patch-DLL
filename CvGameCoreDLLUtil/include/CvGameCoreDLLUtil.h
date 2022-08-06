@@ -16,8 +16,6 @@
 
 #include <limits>
 
-using namespace std;
-
 // JAR : Initialize your variables, don't desync an MP game and make me cry
 #pragma warning ( 1 : 4701) 
 

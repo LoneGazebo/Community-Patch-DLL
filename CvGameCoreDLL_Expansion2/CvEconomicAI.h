@@ -288,7 +288,7 @@ private:
 	std::vector<SPlotWithScore> m_vPlotsToExploreLand;
 	std::vector<SPlotWithScore> m_vPlotsToExploreSea;
 
-	vector<CvPurchaseRequest> m_RequestedSavings;
+	std::vector<CvPurchaseRequest> m_RequestedSavings;
 };
 
 FDataStream& operator>>(FDataStream&, CvEconomicAI&);

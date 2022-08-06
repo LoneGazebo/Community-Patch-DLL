@@ -101,7 +101,7 @@ private:
 	CvEnumMap<FlavorTypes, int> m_piPersonalityFlavor;
 	CvEnumMap<FlavorTypes, int> m_piActiveFlavor;
 	CvPlayer* m_pPlayer;
-	typedef vector<CvFlavorRecipient*> Flavor_List;
+	typedef std::vector<CvFlavorRecipient*> Flavor_List;
 	Flavor_List m_FlavorTargetList;
 };
 

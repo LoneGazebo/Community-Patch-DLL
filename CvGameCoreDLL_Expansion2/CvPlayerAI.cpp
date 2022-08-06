@@ -347,7 +347,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// City value is rated on a percentage scale, where 0 = worthless, 100 = equal value with median city, 200 = twice the value of the median city.
 	int iMedianEconomicPower = GC.getGame().getMedianEconomicValue();
 	int iLocalEconomicPower = pCity->getEconomicValue(GetID());
-	int iCityValue = (iLocalEconomicPower * 100) / max(1, iMedianEconomicPower);
+	int iCityValue = (iLocalEconomicPower * 100) / std::max(1, iMedianEconomicPower);
 
 	// Modders can change this value to apply a multiplier to the worth of all cities
 	iCityValue *= /*100*/ GD_INT_GET(AI_CITY_VALUE_MULTIPLIER);
@@ -681,7 +681,7 @@ void CvPlayerAI::AI_considerAnnex()
 	//Need this later
 	ReligionTypes eOurReligion = GetReligions()->GetStateReligion(false);
 
-	vector<OptionWithScore<CvCity*>> options;
+	std::vector<OptionWithScore<CvCity*>> options;
 	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
@@ -1682,9 +1682,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	//during war we want field commanders
 	int iWars = (int)GetPlayersAtWarWith().size();
 	//just a rough estimation
-	int iPotentialArmies = max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
+	int iPotentialArmies = std::max(1,GetMilitaryAI()->GetNumLandUnits()-getNumCities()*3) / 13;
 
-	int iDesiredNumCommanders = max(1, (iWars+iPotentialArmies)/2);
+	int iDesiredNumCommanders = std::max(1, (iWars+iPotentialArmies)/2);
 	if (iCommanders <= iDesiredNumCommanders || pGreatGeneral->getArmyID() != -1 || pGreatGeneral->IsRecentlyDeployedFromOperation())
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
@@ -1818,7 +1818,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	}
 	
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = max(1, ((iFlavorDiplo * 2) - 3));
+	int iDesiredEmb = std::max(1, ((iFlavorDiplo * 2) - 3));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
 	if (iDesiredEmb > iNumMinors)
 	{
@@ -1845,7 +1845,7 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 	bool bIsVenice = GetPlayerTraits()->IsNoAnnexing();
 	if (bIsVenice)
 	{
-		if (GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3)) //what would be a sane limit?
+		if (GetNumPuppetCities() > std::max(2,GC.getGame().GetNumMinorCivsEver()-3)) //what would be a sane limit?
 		{
 			return true;
 		}
@@ -1910,7 +1910,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 		return NULL;
 
 	// distance and plot id
-	vector< pair<int,int> > vCandidates;
+	std::vector< std::pair<int,int> > vCandidates;
 
 	// Loop through each city state
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -1927,7 +1927,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 		if (GetDiplomacyAI()->GetCivApproach(kPlayer.GetID()) > CIV_APPROACH_HOSTILE && !kPlayer.IsAtWarWith(GetID()))
 		{
 			int iDistance = plotDistance(*pCity->plot(), *pMerchant->plot());
-			vCandidates.push_back(make_pair(iDistance, pCity->plot()->GetPlotIndex()));
+			vCandidates.push_back(std::make_pair(iDistance, pCity->plot()->GetPlotIndex()));
 		}
 	}
 
@@ -1995,7 +1995,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	SPathFinderUserData data(pUnit, 0, 13);
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-	set<PlayerTypes> badTargets;
+	std::set<PlayerTypes> badTargets;
 	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
@@ -2043,7 +2043,7 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	return NULL;
 }
 
-CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities)
+CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const std::vector<int>& vIgnoreCities)
 {
 	CvWeightedVector<CvCity *> vTargets;
 
@@ -2134,7 +2134,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
-	vector<PlayerTypes> currentWars = GetPlayersAtWarWith();
+	std::vector<PlayerTypes> currentWars = GetPlayersAtWarWith();
 	for (size_t i = 0; i < currentWars.size(); i++)
 	{
 		CvPlayer& kEnemy = GET_PLAYER(currentWars[i]);
@@ -2466,7 +2466,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	iScore -= iDistance;
 
 	//All CSs should theoretically be valuable if we've gotten this far.
-	return max(1,iScore);
+	return std::max(1,iScore);
 }
 
 CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
@@ -2525,7 +2525,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
 	return pBestTarget;
 }
 
-CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities)
+CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, std::vector<int>* pvIgnoreCities)
 {
 	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
 	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
@@ -2533,7 +2533,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 		return NULL;
 	}
 
-	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
+	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : std::vector<int>());
 	if(pCity == NULL)
 	{
 		return NULL;

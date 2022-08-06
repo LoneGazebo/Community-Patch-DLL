@@ -28,7 +28,7 @@ namespace LeagueHelpers
 	BuildingTypes GetBuildingForTrigger(BuildingTypes eBuilding);
 	ResolutionTypes IsResolutionForTriggerActive(ResolutionTypes eType);
 
-	typedef vector<PlayerTypes> PlayerList;
+	typedef std::vector<PlayerTypes> PlayerList;
 
 	struct VoteTextSortElement
 	{
@@ -391,7 +391,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvEnactProposal&);
 FDataStream& operator<<(FDataStream&, const CvEnactProposal&);
 
-typedef vector<CvEnactProposal> EnactProposalList;
+typedef std::vector<CvEnactProposal> EnactProposalList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -427,7 +427,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvActiveResolution&);
 FDataStream& operator<<(FDataStream&, const CvActiveResolution&);
 
-typedef vector<CvActiveResolution> ActiveResolutionList;
+typedef std::vector<CvActiveResolution> ActiveResolutionList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -462,7 +462,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvRepealProposal&);
 FDataStream& operator<<(FDataStream&, const CvRepealProposal&);
 
-typedef vector<CvRepealProposal> RepealProposalList;
+typedef std::vector<CvRepealProposal> RepealProposalList;
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -504,9 +504,9 @@ public:
 		int m_startingVotesCached; //not serialized
 		int m_startingVotesCachedIfUN; // not serialized
 	};
-	typedef vector<Member> MemberList;
+	typedef std::vector<Member> MemberList;
 
-	typedef vector<int> ProjectProductionList;
+	typedef std::vector<int> ProjectProductionList;
 	struct Project {
 		Project(void);
 		~Project(void);
@@ -519,7 +519,7 @@ public:
 		bool bComplete;
 		bool bProgressWarningSent;
 	};
-	typedef vector<Project> ProjectList;
+	typedef std::vector<Project> ProjectList;
 
 	enum ContributionTier {
 		CONTRIBUTION_TIER_0,

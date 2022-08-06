@@ -4398,7 +4398,7 @@ void CvGame::UpdateGameEra()
 	}
 	if (iCount >= 0)
 	{
-		int iRoundedEra = int(fEra / (max(1, iCount)) + 0.5f);
+		int iRoundedEra = int(fEra / (std::max(1, iCount)) + 0.5f);
 		m_eGameEra = (EraTypes)iRoundedEra;
 	}
 	else
@@ -5740,7 +5740,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 	//This implementation generates a ton of strings to store the text keys though and would benefit greatly from a "stack_string"
 	//implementation.  For now though, it works, and the code is called so infrequently that it shouldn't be noticeable.
 	//NOTE: Profiled on my machine to take 0.006965 seconds on average to complete.
-	std::vector<string> probabilities;
+	std::vector<std::string> probabilities;
 	probabilities.reserve(512);
 
 #if defined(MOD_NO_RANDOM_TEXT_CIVS)
@@ -6198,7 +6198,7 @@ int CvGame::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePe
 		return 100;
 
 	// Calculate the percentage difference from the average
-	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / max(iAverageRating, 1);
+	int iPercentageDifference = ((iCivRating * 100) - (iAverageRating * 100)) / std::max(iAverageRating, 1);
 	if (iPercentageDifference < 0)
 		iPercentageDifference *= -1; // need the absolute value
 
@@ -6207,12 +6207,12 @@ int CvGame::ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePe
 	// If above average, apply the % difference as a positive modifier to strength, cap above at +100%
 	if (iCivRating > iAverageRating)
 	{
-		iRtnValue = min((100 + iPercentageDifference), 200);
+		iRtnValue = std::min((100 + iPercentageDifference), 200);
 	}
 	// If below average, apply the % difference as a negative modifier to strength, cap below at -50%
 	else if (iCivRating < iAverageRating)
 	{
-		iRtnValue = max((100 - iPercentageDifference), 50);
+		iRtnValue = std::max((100 - iPercentageDifference), 50);
 	}
 
 	return iRtnValue;
@@ -9219,7 +9219,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	vector<OptionWithScore<UnitTypes>> veUnitRankings;
+	std::vector<OptionWithScore<UnitTypes>> veUnitRankings;
 
 	// Loop through all Unit Classes
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++) {
@@ -9467,7 +9467,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		}
 	}
 	
-	vector<OptionWithScore<UnitTypes>> veUnitRankings;
+	std::vector<OptionWithScore<UnitTypes>> veUnitRankings;
 	// Loop through all Unit Classes twice; once to find UUs that won't exist in game,
 	// but if our list of candidates is empty, include all possible UUs the second time around
 	for(int iTrialLoop = 0; iTrialLoop < 2; iTrialLoop++)
@@ -9652,7 +9652,7 @@ void CvGame::updateMoves()
 	// Processing of the AI 'first' only occurs when the AI are activated first
 	// in doTurn, when MPSIMULTANEOUS_TURNS is set.  If the turns are sequential,
 	// only one human or AI is active at one time and this will process them in order.
-	vector<PlayerTypes> playersToProcess;
+	std::vector<PlayerTypes> playersToProcess;
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -9724,7 +9724,7 @@ void CvGame::updateMoves()
 		}
 	}
 
-	vector<PlayerTypes>::const_iterator i;
+	std::vector<PlayerTypes>::const_iterator i;
 
 	for(i = playersToProcess.begin(); i != playersToProcess.end(); ++i)
 	{
@@ -11178,7 +11178,7 @@ uint CvGame::getNumReplayMessages() const
 //	--------------------------------------------------------------------------------
 int CvGame::CalculateMedianNumCities()
 {
-	vector<int> v;
+	std::vector<int> v;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -11199,7 +11199,7 @@ int CvGame::CalculateMedianNumCities()
 //	--------------------------------------------------------------------------------
 int CvGame::CalculateMedianNumPlots()
 {
-	vector<int> v;
+	std::vector<int> v;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -11220,7 +11220,7 @@ int CvGame::CalculateMedianNumPlots()
 //	--------------------------------------------------------------------------------
 int CvGame::CalculateMedianNumWondersConstructed()
 {
-	vector<int> v;
+	std::vector<int> v;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -11548,7 +11548,7 @@ void CvGame::SetHighestSpyPotential()
 				{
 					int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
 
-					iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
+					iHighestEspionagePotential = std::max(iPotential, iHighestEspionagePotential);
 				}
 			}
 		}
@@ -11568,7 +11568,7 @@ void CvGame::SetHighestSpyPotential()
 				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
 
 				//We want a value between 1 and 10
-				int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
+				int iRank = std::max(1, (iPotential * 10) / iHighestEspionagePotential);
 
 				pLoopCity->SetEspionageRanking(iRank);
 			}
@@ -12756,7 +12756,7 @@ int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 
 	EraTypes ePlayer1Era = GET_TEAM(GET_PLAYER(ePlayer1).getTeam()).GetCurrentEra();
 	EraTypes ePlayer2Era = GET_TEAM(GET_PLAYER(ePlayer2).getTeam()).GetCurrentEra();
-	EraTypes eHighestEra = max(ePlayer1Era, ePlayer2Era);
+	EraTypes eHighestEra = std::max(ePlayer1Era, ePlayer2Era);
 
 	int iCost = GC.getEraInfo(eHighestEra)->getResearchAgreementCost();
 
@@ -13511,7 +13511,7 @@ void CvGame::TriggerArchaeologySiteCreation(bool bCheckInitialized)
 
 
 //	--------------------------------------------------------------------------------
-int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites)
+int CalculateDigSiteWeight(int iIndex, std::vector<CvArchaeologyData>& inputData, std::vector<CvArchaeologyData>& chosenDigSites)
 {
 	CvMap& theMap = GC.getMap();
 	int iGridWidth = theMap.getGridWidth();
@@ -13631,7 +13631,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 
 
 //	--------------------------------------------------------------------------------
-void CalculateDigSiteWeights(int iGridSize, vector<CvArchaeologyData>& inputData, vector<CvArchaeologyData>& chosenDigSites, vector<int>& currentWeights)
+void CalculateDigSiteWeights(int iGridSize, std::vector<CvArchaeologyData>& inputData, std::vector<CvArchaeologyData>& chosenDigSites, std::vector<int>& currentWeights)
 {
 	CvAssertMsg(NO_GREAT_WORK_ARTIFACT_CLASS == 0, "Value of NO_ARTIFACT has changed");
 	for (int i = 0; i < iGridSize; i++)
@@ -13854,8 +13854,8 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	int iHowManyChosenDigSites = 0;
 
 	// fill the historical buffer with the archaeological data
-	vector<CvArchaeologyData> historicalDigSites;
-	vector<CvArchaeologyData> scratchDigSites;
+	std::vector<CvArchaeologyData> historicalDigSites;
+	std::vector<CvArchaeologyData> scratchDigSites;
 	int iGridSize = theMap.numPlots();
 	CvAssertMsg(iGridSize > 0, "iGridSize is zero");
 	historicalDigSites.resize(iGridSize);
@@ -13910,14 +13910,14 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	}
 
 	// calculate initial weights
-	vector<int> digSiteWeights(iGridSize,0);
+	std::vector<int> digSiteWeights(iGridSize,0);
 	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
 
 	// build a weight vector
 	static CvWeightedVector<int> aDigSiteWeights; // size of a HUGE world
 	aDigSiteWeights.resize(iGridSize);
 
-	vector<GreatWorkType> aWorksWriting;
+	std::vector<GreatWorkType> aWorksWriting;
 	Database::Connection* db = GC.GetGameDatabase();
 	if(db != NULL)
 	{
@@ -13934,7 +13934,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 	int iApproxNumHiddenSites = iIdealNumDigSites * /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN) / 100;
 	int iNumDesiredWritingSites = iApproxNumHiddenSites * /*30*/ GD_INT_GET(PERCENT_HIDDEN_SITES_WRITING) / 100;
-	int iNumWritingSites = min((int)aWorksWriting.size(), iNumDesiredWritingSites);
+	int iNumWritingSites = std::min((int)aWorksWriting.size(), iNumDesiredWritingSites);
 
 	// while we are not in the proper range of number of dig sites
 	while (iHowManyChosenDigSites < iIdealNumDigSites)
@@ -13994,7 +13994,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 
 			// Erase that writing from future consideration
-			vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
+			std::vector<GreatWorkType>::const_iterator it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
 			aWorksWriting.erase(it);
 
 			// One less writing to give out

@@ -484,9 +484,9 @@ CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 	return CvFormationSlotEntry();
 }
 
-vector<size_t> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
+std::vector<size_t> CvArmyAI::GetOpenSlots(bool bRequiredOnly) const
 {
-	vector<size_t> result;
+	std::vector<size_t> result;
 	for (size_t i = 0; i<m_FormationEntries.size(); i++)
 		if (m_FormationEntries[i].IsFree())
 			if (!bRequiredOnly || m_FormationEntries[i].IsRequired())
@@ -660,7 +660,7 @@ CvUnit* CvArmyAI::GetFirstUnit()
 {
 	//for unknown reasons we sometimes get into endless loops because the same unit is present in multiple slots
 	//so we need to sanitize this
-	set<int> unitsInArmy;
+	std::set<int> unitsInArmy;
 	for (size_t i = 0; i < m_FormationEntries.size(); i++)
 	{
 		if (!m_FormationEntries[i].IsUsed())
@@ -791,13 +791,13 @@ bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 	return true;
 }
 
-bool OperationalAIHelpers::HaveEnoughUnits(const vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits)
+bool OperationalAIHelpers::HaveEnoughUnits(const std::vector<CvArmyFormationSlot>& slotStatus, int iMaxMissingUnits)
 {
 	int iFreeRequired = 0;
 	int iPresentRequired = 0;
 	int iPresentOptional = 0;
 
-	for (vector<CvArmyFormationSlot>::const_iterator it = slotStatus.begin(); it != slotStatus.end(); ++it)
+	for (std::vector<CvArmyFormationSlot>::const_iterator it = slotStatus.begin(); it != slotStatus.end(); ++it)
 	{
 		if (it->IsFree() && it->IsRequired())
 			iFreeRequired++;

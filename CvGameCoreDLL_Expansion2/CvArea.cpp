@@ -283,7 +283,7 @@ void CvArea::UpdateBadPlotsCount(CvPlot* pPlot)
 	}
 }
 
-void CvArea::FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>& occupiedRows)
+void CvArea::FindBoundaries(const std::vector<bool>& occupiedCols, const std::vector<bool>& occupiedRows)
 {
 	//we know an area is contiguous, so there should be exactly one rising and one falling edge in each direction
 	int colRise=-1; //west
@@ -445,7 +445,7 @@ void CvArea::SetMountains(bool bValue)
 //	How many units for the specified player are in the area?
 int CvArea::getUnitsPerPlayer(PlayerTypes eIndex) const
 {
-	map<PlayerTypes, int>::const_iterator it = m_aiUnitsPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::const_iterator it = m_aiUnitsPerPlayer.find(eIndex);
 	if (it != m_aiUnitsPerPlayer.end())
 		return it->second;
 
@@ -456,7 +456,7 @@ int CvArea::getUnitsPerPlayer(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::changeUnitsPerPlayer(PlayerTypes eIndex, int iChange)
 {
-	map<PlayerTypes, int>::iterator it = m_aiUnitsPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::iterator it = m_aiUnitsPerPlayer.find(eIndex);
 	if (it != m_aiUnitsPerPlayer.end())
 	{
 		it->second += iChange;
@@ -464,7 +464,7 @@ void CvArea::changeUnitsPerPlayer(PlayerTypes eIndex, int iChange)
 			m_aiUnitsPerPlayer.erase(it);
 	}
 	else
-		m_aiUnitsPerPlayer.insert(make_pair(eIndex,iChange));
+		m_aiUnitsPerPlayer.insert(std::make_pair(eIndex,iChange));
 
 	m_iNumUnits += iChange;
 }
@@ -479,7 +479,7 @@ int CvArea::getEnemyUnits(PlayerTypes eIndex) const
 	int iRtnValue = 0;
 	CvPlayer& kPlayer = GET_PLAYER(eIndex);
 
-	for (map<PlayerTypes, int>::const_iterator it = m_aiUnitsPerPlayer.begin(); it != m_aiUnitsPerPlayer.end(); ++it)
+	for (std::map<PlayerTypes, int>::const_iterator it = m_aiUnitsPerPlayer.begin(); it != m_aiUnitsPerPlayer.end(); ++it)
 		if (kPlayer.IsAtWarWith(it->first))
 			iRtnValue += it->second;
 
@@ -490,7 +490,7 @@ int CvArea::getEnemyUnits(PlayerTypes eIndex) const
 //	Get the number of cities for the specified player in the area
 int CvArea::getCitiesPerPlayer(PlayerTypes eIndex) const
 {
-	map<PlayerTypes, int>::const_iterator it = m_aiCitiesPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::const_iterator it = m_aiCitiesPerPlayer.find(eIndex);
 	if (it != m_aiCitiesPerPlayer.end())
 		return it->second;
 
@@ -501,7 +501,7 @@ int CvArea::getCitiesPerPlayer(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::changeCitiesPerPlayer(PlayerTypes eIndex, int iChange)
 {
-	map<PlayerTypes, int>::iterator it = m_aiCitiesPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::iterator it = m_aiCitiesPerPlayer.find(eIndex);
 	if (it != m_aiCitiesPerPlayer.end())
 	{
 		it->second += iChange;
@@ -509,7 +509,7 @@ void CvArea::changeCitiesPerPlayer(PlayerTypes eIndex, int iChange)
 			m_aiCitiesPerPlayer.erase(it);
 	}
 	else
-		m_aiCitiesPerPlayer.insert(make_pair(eIndex,iChange));
+		m_aiCitiesPerPlayer.insert(std::make_pair(eIndex,iChange));
 
 	m_iNumCities += iChange;
 }
@@ -519,7 +519,7 @@ void CvArea::changeCitiesPerPlayer(PlayerTypes eIndex, int iChange)
 //	What is the population for the specified player in the area?
 int CvArea::getPopulationPerPlayer(PlayerTypes eIndex) const
 {
-	map<PlayerTypes, int>::const_iterator it = m_aiPopulationPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::const_iterator it = m_aiPopulationPerPlayer.find(eIndex);
 	if (it != m_aiPopulationPerPlayer.end())
 		return it->second;
 
@@ -530,7 +530,7 @@ int CvArea::getPopulationPerPlayer(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::changePopulationPerPlayer(PlayerTypes eIndex, int iChange)
 {
-	map<PlayerTypes, int>::iterator it = m_aiPopulationPerPlayer.find(eIndex);
+	std::map<PlayerTypes, int>::iterator it = m_aiPopulationPerPlayer.find(eIndex);
 	if (it != m_aiPopulationPerPlayer.end())
 	{
 		it->second += iChange;
@@ -538,7 +538,7 @@ void CvArea::changePopulationPerPlayer(PlayerTypes eIndex, int iChange)
 			m_aiPopulationPerPlayer.erase(it);
 	}
 	else
-		m_aiPopulationPerPlayer.insert(make_pair(eIndex,iChange));
+		m_aiPopulationPerPlayer.insert(std::make_pair(eIndex,iChange));
 
 	m_iTotalPopulation += iChange;
 }
@@ -548,7 +548,7 @@ void CvArea::changePopulationPerPlayer(PlayerTypes eIndex, int iChange)
 //	What is the number of free specialist in the area for the specified player?
 int CvArea::getFreeSpecialist(PlayerTypes eIndex) const
 {
-	map<PlayerTypes, int>::const_iterator it = m_aiFreeSpecialist.find(eIndex);
+	std::map<PlayerTypes, int>::const_iterator it = m_aiFreeSpecialist.find(eIndex);
 	if (it != m_aiFreeSpecialist.end())
 		return it->second;
 
@@ -559,7 +559,7 @@ int CvArea::getFreeSpecialist(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::changeFreeSpecialist(PlayerTypes eIndex, int iChange)
 {
-	map<PlayerTypes, int>::iterator it = m_aiFreeSpecialist.find(eIndex);
+	std::map<PlayerTypes, int>::iterator it = m_aiFreeSpecialist.find(eIndex);
 	if (it != m_aiFreeSpecialist.end())
 	{
 		it->second += iChange;
@@ -567,7 +567,7 @@ void CvArea::changeFreeSpecialist(PlayerTypes eIndex, int iChange)
 			m_aiFreeSpecialist.erase(it);
 	}
 	else
-		m_aiFreeSpecialist.insert(make_pair(eIndex,iChange));
+		m_aiFreeSpecialist.insert(std::make_pair(eIndex,iChange));
 }
 
 //	---------------------------------------------------------------------------
@@ -583,7 +583,7 @@ int CvArea::getTotalFoundValue() const
 void CvArea::setTotalFoundValue(int iNewValue)
 {
 	//avoid overflow
-	m_iTotalFoundValue = min(INT_MAX/2,max(0,iNewValue));
+	m_iTotalFoundValue = std::min(INT_MAX/2,std::max(0,iNewValue));
 	CvAssert(m_iTotalFoundValue >= 0);
 }
 
@@ -591,7 +591,7 @@ void CvArea::setTotalFoundValue(int iNewValue)
 //	Get the number of revealed tiles (plots) for the specified team
 int CvArea::getNumRevealedTiles(TeamTypes eIndex) const
 {
-	map<TeamTypes, int>::const_iterator it = m_aiNumRevealedTiles.find(eIndex);
+	std::map<TeamTypes, int>::const_iterator it = m_aiNumRevealedTiles.find(eIndex);
 	if (it != m_aiNumRevealedTiles.end())
 		return it->second;
 
@@ -609,7 +609,7 @@ int CvArea::getNumUnrevealedTiles(TeamTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::changeNumRevealedTiles(TeamTypes eIndex, int iChange)
 {
-	map<TeamTypes, int>::iterator it = m_aiNumRevealedTiles.find(eIndex);
+	std::map<TeamTypes, int>::iterator it = m_aiNumRevealedTiles.find(eIndex);
 	if (it != m_aiNumRevealedTiles.end())
 	{
 		it->second += iChange;
@@ -617,13 +617,13 @@ void CvArea::changeNumRevealedTiles(TeamTypes eIndex, int iChange)
 			m_aiNumRevealedTiles.erase(it);
 	}
 	else
-		m_aiNumRevealedTiles.insert(make_pair(eIndex,iChange));
+		m_aiNumRevealedTiles.insert(std::make_pair(eIndex,iChange));
 }
 
 //	--------------------------------------------------------------------------------
 CvCity* CvArea::getTargetCity(PlayerTypes eIndex) const
 {
-	map<PlayerTypes, IDInfo>::const_iterator it = m_aTargetCities.find(eIndex);
+	std::map<PlayerTypes, IDInfo>::const_iterator it = m_aTargetCities.find(eIndex);
 	if (it != m_aTargetCities.end())
 		return ::GetPlayerCity(it->second);
 
@@ -633,7 +633,7 @@ CvCity* CvArea::getTargetCity(PlayerTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvArea::setTargetCity(PlayerTypes eIndex, CvCity* pNewValue)
 {
-	map<PlayerTypes, IDInfo>::iterator it = m_aTargetCities.find(eIndex);
+	std::map<PlayerTypes, IDInfo>::iterator it = m_aTargetCities.find(eIndex);
 	if (it != m_aTargetCities.end())
 	{
 		if (pNewValue == NULL)
@@ -642,14 +642,14 @@ void CvArea::setTargetCity(PlayerTypes eIndex, CvCity* pNewValue)
 			it->second = IDInfo(eIndex,pNewValue->GetID());
 	}
 	else if (pNewValue != NULL)
-		m_aTargetCities.insert(make_pair(eIndex,IDInfo(eIndex,pNewValue->GetID())));
+		m_aTargetCities.insert(std::make_pair(eIndex,IDInfo(eIndex,pNewValue->GetID())));
 }
 
 
 //	--------------------------------------------------------------------------------
 int CvArea::getYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2) const
 {
-	map<PlayerTypes, vector<int>>::const_iterator it = m_aaiYieldRateModifier.find(eIndex1);
+	std::map<PlayerTypes, std::vector<int>>::const_iterator it = m_aaiYieldRateModifier.find(eIndex1);
 	if (it != m_aaiYieldRateModifier.end())
 		return it->second[eIndex2];
 
@@ -663,21 +663,21 @@ void CvArea::changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, in
 	if (iChange == 0)
 		return;
 
-	map<PlayerTypes,vector<int>>::iterator it = m_aaiYieldRateModifier.find(eIndex1);
+	std::map<PlayerTypes,std::vector<int>>::iterator it = m_aaiYieldRateModifier.find(eIndex1);
 	if (it != m_aaiYieldRateModifier.end())
 	{
 		it->second[eIndex2] += iChange;
 
 		//check if it's all zero and can be removed
 		int iSum = 0;
-		for (vector<int>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+		for (std::vector<int>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 			iSum += abs(*it2);
 
 		if ( iSum == 0)
 			m_aaiYieldRateModifier.erase(it);
 	}
 	else
-		m_aaiYieldRateModifier.insert(make_pair(eIndex1,vector<int>(NUM_YIELD_TYPES,0)));
+		m_aaiYieldRateModifier.insert(std::make_pair(eIndex1,std::vector<int>(NUM_YIELD_TYPES,0)));
 
 
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex1);
@@ -694,7 +694,7 @@ void CvArea::changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, in
 //	Get the number of resources of the specified type in the area.
 int CvArea::getNumResources(ResourceTypes eResource) const
 {
-	map<ResourceTypes, int>::const_iterator it = m_aiNumResources.find(eResource);
+	std::map<ResourceTypes, int>::const_iterator it = m_aiNumResources.find(eResource);
 	if (it != m_aiNumResources.end())
 		return it->second;
 
@@ -708,7 +708,7 @@ int CvArea::getNumTotalResources() const
 {
 	int iTotal = 0;
 
-	for (map<ResourceTypes, int>::const_iterator it = m_aiNumResources.begin(); it != m_aiNumResources.end(); ++it)
+	for (std::map<ResourceTypes, int>::const_iterator it = m_aiNumResources.begin(); it != m_aiNumResources.end(); ++it)
 		iTotal += it->second;
 
 	return iTotal;
@@ -718,7 +718,7 @@ int CvArea::getNumTotalResources() const
 //	--------------------------------------------------------------------------------
 void CvArea::changeNumResources(ResourceTypes eResource, int iChange)
 {
-	map<ResourceTypes, int>::iterator it = m_aiNumResources.find(eResource);
+	std::map<ResourceTypes, int>::iterator it = m_aiNumResources.find(eResource);
 	if (it != m_aiNumResources.end())
 	{
 		it->second += iChange;
@@ -726,7 +726,7 @@ void CvArea::changeNumResources(ResourceTypes eResource, int iChange)
 			m_aiNumResources.erase(it);
 	}
 	else
-		m_aiNumResources.insert(make_pair(eResource,iChange));
+		m_aiNumResources.insert(std::make_pair(eResource,iChange));
 }
 
 
@@ -734,7 +734,7 @@ void CvArea::changeNumResources(ResourceTypes eResource, int iChange)
 //	Get the number of the specified improvements in the area
 int CvArea::getNumImprovements(ImprovementTypes eImprovement) const
 {
-	map<ImprovementTypes, int>::const_iterator it = m_aiNumImprovements.find(eImprovement);
+	std::map<ImprovementTypes, int>::const_iterator it = m_aiNumImprovements.find(eImprovement);
 	if (it != m_aiNumImprovements.end())
 		return it->second;
 
@@ -745,7 +745,7 @@ int CvArea::getNumImprovements(ImprovementTypes eImprovement) const
 //	--------------------------------------------------------------------------------
 void CvArea::changeNumImprovements(ImprovementTypes eImprovement, int iChange)
 {
-	map<ImprovementTypes, int>::iterator it = m_aiNumImprovements.find(eImprovement);
+	std::map<ImprovementTypes, int>::iterator it = m_aiNumImprovements.find(eImprovement);
 	if (it != m_aiNumImprovements.end())
 	{
 		it->second += iChange;
@@ -753,7 +753,7 @@ void CvArea::changeNumImprovements(ImprovementTypes eImprovement, int iChange)
 			m_aiNumImprovements.erase(it);
 	}
 	else
-		m_aiNumImprovements.insert(make_pair(eImprovement,iChange));
+		m_aiNumImprovements.insert(std::make_pair(eImprovement,iChange));
 }
 
 //	--------------------------------------------------------------------------------
@@ -795,7 +795,7 @@ int CvArea::GetAreaMaxLatitude()
 	int iTopLatitude, iBottomLatitude;
 	GetTopAndBottomLatitudes(iTopLatitude, iBottomLatitude);
 
-	return max(iTopLatitude, iBottomLatitude);
+	return std::max(iTopLatitude, iBottomLatitude);
 }
 
 //	--------------------------------------------------------------------------------
@@ -805,7 +805,7 @@ int CvArea::GetAreaMinLatitude()
 	int iTopLatitude, iBottomLatitude;
 	GetTopAndBottomLatitudes(iTopLatitude, iBottomLatitude);
 
-	return min(iTopLatitude, iBottomLatitude);
+	return std::min(iTopLatitude, iBottomLatitude);
 }
 
 //	--------------------------------------------------------------------------------

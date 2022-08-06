@@ -112,7 +112,7 @@ public:
 	void changeNumImprovements(ImprovementTypes eImprovement, int iChange);
 
 	CvAreaBoundaries getAreaBoundaries() const;
-	void FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>& occupiedRows);
+	void FindBoundaries(const std::vector<bool>& occupiedCols, const std::vector<bool>& occupiedRows);
 
 	void GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude);
 	int GetAreaMaxLatitude();
@@ -144,16 +144,16 @@ protected:
 	int m_iBadPlots;
 	unsigned int m_iTotalFoundValue;
 
-	map<PlayerTypes,int> m_aiUnitsPerPlayer;
-	map<PlayerTypes,int> m_aiCitiesPerPlayer;
-	map<PlayerTypes,int> m_aiPopulationPerPlayer;
-	map<PlayerTypes,int> m_aiFreeSpecialist;
-	map<TeamTypes,int> m_aiNumRevealedTiles;
-	map<PlayerTypes,IDInfo> m_aTargetCities;
-	map<PlayerTypes,vector<int>> m_aaiYieldRateModifier;
+	std::map<PlayerTypes,int> m_aiUnitsPerPlayer;
+	std::map<PlayerTypes,int> m_aiCitiesPerPlayer;
+	std::map<PlayerTypes,int> m_aiPopulationPerPlayer;
+	std::map<PlayerTypes,int> m_aiFreeSpecialist;
+	std::map<TeamTypes,int> m_aiNumRevealedTiles;
+	std::map<PlayerTypes,IDInfo> m_aTargetCities;
+	std::map<PlayerTypes,std::vector<int>> m_aaiYieldRateModifier;
 
-	map<ResourceTypes,int> m_aiNumResources;
-	map<ImprovementTypes, int> m_aiNumImprovements;
+	std::map<ResourceTypes,int> m_aiNumResources;
+	std::map<ImprovementTypes, int> m_aiNumImprovements;
 
 	CvAreaBoundaries m_Boundaries;
 

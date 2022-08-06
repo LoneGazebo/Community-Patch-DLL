@@ -649,7 +649,7 @@ void CvPlot::updateCenterUnit()
 //	--------------------------------------------------------------------------------
 void CvPlot::verifyUnitValidPlot()
 {
-	vector<IDInfo> oldUnitList;
+	std::vector<IDInfo> oldUnitList;
 
 	IDInfo* pUnitNode = headUnitNode();
 	while(pUnitNode != NULL)
@@ -1446,7 +1446,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 		return;
 	}
 
-	vector<int>& scratchpad = GC.getMap().GetVisibilityScratchpad();
+	std::vector<int>& scratchpad = GC.getMap().GetVisibilityScratchpad();
 
 	bool bBasedOnUnit = (pUnit != NULL);
 
@@ -2913,7 +2913,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
-			int iBaseCS = max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
+			int iBaseCS = std::max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
 			//naval units considered weaker
 			if (!pLoopUnit->isNativeDomain(this))
 				iBaseCS /= 2;
@@ -3519,7 +3519,7 @@ int CvPlot::GetNumAdjacentMountains() const
 int CvPlot::GetSeaBlockadeScore(PlayerTypes ePlayer) const
 {
 	int iScore = 0;
-	int iRange = min(5,max(0, /*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE)));
+	int iRange = std::min(5,std::max(0, /*2 in CP, 1 in VP*/ GD_INT_GET(NAVAL_PLOT_BLOCKADE_RANGE)));
 
 	for(int iI = 0; iI < RING_PLOTS[iRange]; iI++)
 	{
@@ -4883,7 +4883,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	}
 
 	//manual version
-	for (vector<int>::iterator i1 = myAreas.begin(); i1 != myAreas.end(); ++i1)
+	for (std::vector<int>::iterator i1 = myAreas.begin(); i1 != myAreas.end(); ++i1)
 	{
 		CvArea* a1 = GC.getMap().getArea(*i1);
 		if (!bAllowWater && a1->isWater())
@@ -4891,7 +4891,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 		if (!bAllowLand && !a1->isWater())
 			continue;
 
-		for (vector<int>::iterator i2 = theirAreas.begin(); i2 != theirAreas.end(); ++i2)
+		for (std::vector<int>::iterator i2 = theirAreas.begin(); i2 != theirAreas.end(); ++i2)
 		{
 			CvArea* a2 = GC.getMap().getArea(*i2);
 
@@ -5008,7 +5008,7 @@ bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bo
 	}
 
 	//manual version
-	for (vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
+	for (std::vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
 	{
 		CvLandmass* a1 = GC.getMap().getLandmass(*i1);
 		if (!bAllowWater && a1->isWater())
@@ -5016,7 +5016,7 @@ bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bo
 		if (!bAllowLand && !a1->isWater())
 			continue;
 
-		for (vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
+		for (std::vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
 		{
 			CvLandmass* a2 = GC.getMap().getLandmass(*i2);
 
@@ -7640,7 +7640,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						if (GC.getGame().getSmallFakeRandNum(100, GET_PLAYER(getOwner()).GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iPlotIndex) < iResourceChance)
 						{
 							// get list of valid resources for the plot
-							vector<ResourceTypes> vPossibleResources;
+							std::vector<ResourceTypes> vPossibleResources;
 							for (int iI = 0; iI < GC.getNumResourceInfos(); iI++)
 							{
 								ResourceTypes eResource = (ResourceTypes)iI;
@@ -9122,7 +9122,7 @@ void CvPlot::changeYield(YieldTypes eYield, int iChange)
 	}
 
 	//not found? add a new entry		
-	m_vExtraYields.push_back( make_pair(eYield,iChange) );
+	m_vExtraYields.push_back( std::make_pair(eYield,iChange) );
     updateYield();
 }
 
@@ -10528,7 +10528,7 @@ void CvPlot::updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityRe
 		if(getYield(eYield) != iNewYield)
 		{
 			int iOldYield = getYield(eYield);
-			m_aiYield[iI] = max(0, iNewYield);
+			m_aiYield[iI] = std::max(0, iNewYield);
 
 			if(pWorkingCity != NULL && pWorkingCity->GetCityCitizens()->IsWorkingPlot(this))
 			{
@@ -10691,7 +10691,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		m_aiVisibilityCount[eTeam] += iChange;
 
 	//remember the maximum
-	m_aiVisibilityCountThisTurnMax[eTeam] = max(m_aiVisibilityCountThisTurnMax[eTeam], m_aiVisibilityCount[eTeam]);
+	m_aiVisibilityCountThisTurnMax[eTeam] = std::max(m_aiVisibilityCountThisTurnMax[eTeam], m_aiVisibilityCount[eTeam]);
 
 	if(eSeeInvisible != NO_INVISIBLE)
 	{
@@ -10718,7 +10718,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			//we are seeing this plot for the first time
 			if (bInformExplorationTracking)
 			{
-				vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
+				std::vector<PlayerTypes> vPlayers = GET_TEAM(eTeam).getPlayers();
 				for (size_t i = 0; i < vPlayers.size(); i++)
 					GET_PLAYER(vPlayers[i]).GetEconomicAI()->UpdateExplorePlotsLocally(this);
 			}
@@ -11644,7 +11644,7 @@ void CvPlot::SilentlyResetAllBuildProgress()
 //	--------------------------------------------------------------------------------
 int CvPlot::getBuildProgress(BuildTypes eBuild) const
 {
-	map<BuildTypes,int>::const_iterator it = m_buildProgress.find(eBuild);
+	std::map<BuildTypes,int>::const_iterator it = m_buildProgress.find(eBuild);
 
 	if (it != m_buildProgress.end())
 		return it->second;
@@ -11960,7 +11960,7 @@ void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 			}
 		}
 		if (!bFound)
-			m_vInvisibleVisibilityUnitCount.push_back( make_pair(eTeam,iChange) );
+			m_vInvisibleVisibilityUnitCount.push_back( std::make_pair(eTeam,iChange) );
 		//--------
 
 		bNewInvisibleVisible = isInvisibleVisibleUnit(eTeam);
@@ -12056,9 +12056,9 @@ void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInv
 		}
 		if (!bFound)
 		{
-			vector<int> values(NUM_INVISIBLE_TYPES, 0);
+			std::vector<int> values(NUM_INVISIBLE_TYPES, 0);
 			values[eInvisible] = iChange;
-			m_vInvisibleVisibilityCount.push_back(make_pair(eTeam, values));
+			m_vInvisibleVisibilityCount.push_back(std::make_pair(eTeam, values));
 		}
 		//--------
 
@@ -13610,7 +13610,7 @@ int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
 			if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged() && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() != 0)
 			{
 				if (pLoopPlot->getOwner() != NO_PLAYER && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
-					iDamage = max(iDamage, GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage());
+					iDamage = std::max(iDamage, GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage());
 			}
 
 			// Unit here that acts like a citadel?
@@ -13618,7 +13618,7 @@ int CvPlot::GetDamageFromAdjacentPlots(PlayerTypes ePlayer) const
 			{
 				CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(iZ);
 				if (pLoopUnit && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopUnit->getTeam()))
-					iDamage = max(iDamage, pLoopUnit->getNearbyEnemyDamage());
+					iDamage = std::max(iDamage, pLoopUnit->getNearbyEnemyDamage());
 			}
 		}
 	}
@@ -14585,9 +14585,9 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 	return false;
 }
 
-vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const
+std::vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const
 {
-	vector<CvUnit*> result;
+	std::vector<CvUnit*> result;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsShuffled(this);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
@@ -14628,7 +14628,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDo
 }
 
 //friendly, enemy power
-pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const
+std::pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const
 {
 	int iFriendlyPower = 0;
 	int iEnemyPower = 0;
@@ -14666,7 +14666,7 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 		}
 	}
 
-	return make_pair(iFriendlyPower,iEnemyPower);
+	return std::make_pair(iFriendlyPower,iEnemyPower);
 }
 
 int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const

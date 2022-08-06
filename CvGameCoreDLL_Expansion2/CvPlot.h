@@ -46,7 +46,7 @@ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 #define NUM_INVISIBLE_TYPES 1
 #endif
 
-typedef vector<IDInfo> IDInfoVector;
+typedef std::vector<IDInfo> IDInfoVector;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  STRUCT: CvArchaeologyData
@@ -827,8 +827,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
-	vector<CvUnit*> GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const;
-	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
+	std::vector<CvUnit*> GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const;
+	std::pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
 
 	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
@@ -932,15 +932,15 @@ protected:
 #endif
 
 	//can add extra yield from lua. no overhead if unused!
-	vector<pair<YieldTypes, int>> m_vExtraYields;
+	std::vector<std::pair<YieldTypes, int>> m_vExtraYields;
 
 	char* m_szScriptData;
-	map<BuildTypes,int> m_buildProgress;
+	std::map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
 	//this is totally f'd ... don't waste memory on it
-	vector<pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
-	vector<pair<TeamTypes,vector<int>>> m_vInvisibleVisibilityCount;
+	std::vector<std::pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
+	std::vector<std::pair<TeamTypes,std::vector<int>>> m_vInvisibleVisibilityCount;
 
 	short m_iArea;
 	short m_iLandmass;

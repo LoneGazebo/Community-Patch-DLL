@@ -109,7 +109,7 @@ FDataStream& operator<<(FDataStream&, const ContractTypes&);
 
 class CvPlayerContracts;
 
-typedef vector<CvContract> ContractList;
+typedef std::vector<CvContract> ContractList;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:		CvGameContracts

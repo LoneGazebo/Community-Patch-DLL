@@ -518,7 +518,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 			{
 				if (cache.iExcessFoodTimes100>0)
 					// if we have growth penalties, pretend the yield is lower
-					iYield100 += min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
+					iYield100 += std::min(0, (iYield100*m_pCity->getGrowthMods()) / 100);
 
 				// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
 				if (!bEmphasizeFood && bAvoidGrowth)
@@ -527,7 +527,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 
 			int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
 
-			iValue += iYield100*max(1,iYieldMod);
+			iValue += iYield100*std::max(1,iYieldMod);
 		}
 	}
 
@@ -705,7 +705,7 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	//sanity check: do not focus too much on anything else while we need food
 	//if we are too greedy initially we fix it in OptimizeWorkedPlots()
 	if (bEmphasizeFood && eYield != YIELD_FOOD)
-		return min(iDefaultValue + /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD), iYieldMod);
+		return std::min(iDefaultValue + /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD), iYieldMod);
 	else
 		return iYieldMod;
 }
@@ -794,9 +794,9 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistCurrentlyInBuilding(int& iSpeci
 	gCachedNumbers.update(m_pCity);
 
 	//many buildings have the same specialist yields ...
-	vector<int> checked(GC.getNumSpecialistInfos(),0);
+	std::vector<int> checked(GC.getNumSpecialistInfos(),0);
 
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t i=0; i<allBuildings.size(); i++)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(allBuildings[i]);
@@ -891,7 +891,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
 				iYieldMod += 3;
 
-			iValue += iYield100 * max(1, iYieldMod);
+			iValue += iYield100 * std::max(1, iYieldMod);
 		}
 	}
 
@@ -1121,7 +1121,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		iCityUnhappiness = m_pCity->getHappinessDelta();
 		if (iCityUnhappiness > 0)
 		{
-			iCityUnhappiness = max(0, 15 - iCityUnhappiness);
+			iCityUnhappiness = std::max(0, 15 - iCityUnhappiness);
 			iCityUnhappiness *= 3;
 		}
 	}
@@ -1139,7 +1139,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	}
 
 	//And reduce the specialist's value based on this.
-	iValue *= max(1, (100 - iCityUnhappiness));
+	iValue *= std::max(1, (100 - iCityUnhappiness));
 	iValue /= 100;
 
 	if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
@@ -1452,7 +1452,7 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	{
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-			return max(200, m_pCity->getPopulation() * 50);
+			return std::max(200, m_pCity->getPopulation() * 50);
 
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 			return m_pCity->getPopulation() * 150;
@@ -1716,7 +1716,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	}
 
 	// Remove Non-Forced Specialists in Buildings
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];
@@ -2722,9 +2722,9 @@ bool CvCityCitizens::DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpeciali
 	BuildingTypes eWorstType = NO_BUILDING;
 
 	gCachedNumbers.update(m_pCity);
-	vector<int> checked(GC.getNumSpecialistInfos(),0);
+	std::vector<int> checked(GC.getNumSpecialistInfos(),0);
 
-	const vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
+	const std::vector<BuildingTypes>& allBuildings = m_pCity->GetCityBuildings()->GetAllBuildingsHere();
 	for (size_t iBuildingLoop = 0; iBuildingLoop < allBuildings.size(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = allBuildings[iBuildingLoop];
@@ -3561,8 +3561,8 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 }
 
 SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
-	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(),INT_MAX)),
-	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(),INT_MAX)),
+	bonusForXFeature(YIELD_TOURISM, std::vector<int>(GC.getNumFeatureInfos(),INT_MAX)),
+	bonusForXTerrain(YIELD_TOURISM, std::vector<int>(GC.getNumTerrainInfos(),INT_MAX)),
 	iUnhappinessFromGold(0),
 	iUnhappinessFromScience(0),
 	iUnhappinessFromCulture(0),
@@ -3579,7 +3579,7 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
 	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
 	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
-	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(), pCity->getUnhappinessFromStarving());
+	iUnhappinessFromDistress = std::max(pCity->getUnhappinessFromDefense(), pCity->getUnhappinessFromStarving());
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 

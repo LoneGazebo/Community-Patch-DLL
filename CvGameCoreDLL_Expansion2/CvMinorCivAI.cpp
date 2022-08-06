@@ -364,7 +364,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 		iBaseModifier *= (100 + iFriendshipMod);
 		iBaseModifier /= 100;
 	}
-	iBaseModifier = max(iBaseModifier, 0);
+	iBaseModifier = std::max(iBaseModifier, 0);
 
 	// Now determine the rewards!
 
@@ -3469,7 +3469,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 	// This quest reward changed our status, so grab that info for the notification
 	if ((!bWasFriends && bNowFriends) || (!bWasAllies && bNowAllies))
 	{
-		pair<CvString, CvString> statusChangeStrings = pMinor->GetMinorCivAI()->GetStatusChangeNotificationStrings(m_eAssignedPlayer, /*bAdd*/ true, bNowFriends, bNowAllies, eOldAlly, eNewAlly);
+		std::pair<CvString, CvString> statusChangeStrings = pMinor->GetMinorCivAI()->GetStatusChangeNotificationStrings(m_eAssignedPlayer, /*bAdd*/ true, bNowFriends, bNowAllies, eOldAlly, eNewAlly);
 		sMessage = sMessage + "[NEWLINE][NEWLINE]" + statusChangeStrings.first;
 	}
 #if defined(MOD_BALANCE_CORE)
@@ -4882,9 +4882,9 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						int iBonusMultiplier = /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER);
 						int iBonusDivisor = /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR);
 
-						iFriendshipBoost = (iFriendshipBoost * iBonusMultiplier) / max(1,iBonusDivisor);
-						iCultureGift = iCultureGift / max(1,iBonusDivisor);
-						iFaithGift = iFaithGift / max(1,iBonusDivisor);
+						iFriendshipBoost = (iFriendshipBoost * iBonusMultiplier) / std::max(1,iBonusDivisor);
+						iCultureGift = iCultureGift / std::max(1,iBonusDivisor);
+						iFaithGift = iFaithGift / std::max(1,iBonusDivisor);
 
 						iGoldGift = 0;
 						iFoodGift = 0;
@@ -4910,7 +4910,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (eFakePersonality == MINOR_CIV_PERSONALITY_FRIENDLY) 
 					{
 						int iBonusMultiplier = /*3*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER);
-						int iBonusDivisor = max(1, /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR));
+						int iBonusDivisor = std::max(1, /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR));
 
 						iFriendshipBoost = iFriendshipBoost * iBonusMultiplier / iBonusDivisor;
 						iCultureGift = iCultureGift * iBonusMultiplier / iBonusDivisor;
@@ -4919,14 +4919,14 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						iFoodGift = iFoodGift * iBonusMultiplier / iBonusDivisor;
 
 						int iUnitMultiplier = /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER);
-						int iUnitDivisor = max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR));
+						int iUnitDivisor = std::max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR));
 
 						iUnitGift = iUnitGift * iUnitMultiplier / iUnitDivisor;
 					} 
 					else if (eFakePersonality == MINOR_CIV_PERSONALITY_HOSTILE) 
 					{
 						int iBonusMultiplier = /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER);
-						int iBonusDivisor = max(1, /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR));
+						int iBonusDivisor = std::max(1, /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR));
 
 						iFriendshipBoost = iFriendshipBoost * iBonusMultiplier / iBonusDivisor;
 						iCultureGift = iCultureGift * iBonusMultiplier / iBonusDivisor;
@@ -4935,7 +4935,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						iFoodGift = iFoodGift * iBonusMultiplier / iBonusDivisor;
 
 						int iUnitMultiplier = /*0*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER);
-						int iUnitDivisor = max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR));
+						int iUnitDivisor = std::max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR));
 
 						iUnitGift = iUnitGift * iUnitMultiplier / iUnitDivisor;
 					}
@@ -4980,7 +4980,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						// Food and unit gifts only go to the player who actually met the CS
 						if (eMeetingPlayer == ePlayer) {
 							int iBonusMultiplier = /*2*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER);
-							int iBonusDivisor = max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR));
+							int iBonusDivisor = std::max(1, /*1*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR));
 
 							// Give the friendship boost again to this team member (ie the meeting player gets twice the friendship boost)
 							int iExtraFriendship = (iFriendshipBoost * iBonusMultiplier / iBonusDivisor) - iFriendshipBoost;
@@ -5493,7 +5493,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 		// Pick and add a unique luxury
 		if (bAddUniqueLuxury)
 		{
-			vector<ResourceTypes> veUniqueLuxuries;
+			std::vector<ResourceTypes> veUniqueLuxuries;
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
 				const ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
@@ -5902,7 +5902,7 @@ void CvMinorCivAI::DoTurnQuests()
 	if (GetGlobalQuestCountdown() > 0)
 		ChangeGlobalQuestCountdown(-1);
 
-	vector<PlayerTypes> ValidMajors;
+	std::vector<PlayerTypes> ValidMajors;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
@@ -6025,7 +6025,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// Pick a valid quest
-	vector<MinorCivQuestTypes> veValidQuests;
+	std::vector<MinorCivQuestTypes> veValidQuests;
 	MinorCivQuestTypes eQuest;
 	PlayerTypes ePlayer;
 	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -6107,7 +6107,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 		return;
 	}
 
-	vector<MinorCivQuestTypes> veValidQuests;
+	std::vector<MinorCivQuestTypes> veValidQuests;
 
 	int iCount, iCountLoop;
 
@@ -7623,7 +7623,7 @@ int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
 	}
 
 	int iMajorsEverAlive = GC.getGame().countMajorCivsEverAlive();
-	iPlayersNeeded = min(iPlayersNeeded, iMajorsEverAlive);
+	iPlayersNeeded = std::min(iPlayersNeeded, iMajorsEverAlive);
 
 	return iPlayersNeeded;
 }
@@ -8216,7 +8216,7 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	}
 	}
 
-	return max(iWeight/100, 1);
+	return std::max(iWeight/100, 1);
 }
 
 /// ASSUMPTION: There is no more than one active quest of any given MinorCivQuestTypes
@@ -9243,7 +9243,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	{
 		CvArea* pPlayerArea = GC.getMap().getArea(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
 
-		vector<ResourceTypes> veValidResources;
+		std::vector<ResourceTypes> veValidResources;
 
 		// Loop through all Resources and see if they're useful
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -9315,7 +9315,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestWonder;
 
-	vector<BuildingTypes> veValidBuildings;
+	std::vector<BuildingTypes> veValidBuildings;
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9399,7 +9399,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestNationalWonder;
 
-	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
+	std::vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
@@ -9496,7 +9496,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 
 	PlayerTypes eBestCityStateLiberate = NO_PLAYER;
 
-	vector<PlayerTypes> veValidTargets;
+	std::vector<PlayerTypes> veValidTargets;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
 	int iTargetLoop;
@@ -9576,7 +9576,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
-	vector<UnitTypes> veValidUnits;
+	std::vector<UnitTypes> veValidUnits;
 
 	// Loop through all Units and see if they're useful
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9919,7 +9919,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 {
 	BuildingTypes eBestBuilding;
 
-	vector<BuildingTypes> veValidBuildings;
+	std::vector<BuildingTypes> veValidBuildings;
 
 	// Have nowhere to build.
 	if(GET_PLAYER(ePlayer).getNumCities() <= 3 || GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
@@ -10097,7 +10097,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 				}
 			}
 			// Random weighting
-			iValue = max(1, iBonusValue);
+			iValue = std::max(1, iBonusValue);
 
 			if (iValue > iBestValue)
 			{
@@ -10232,7 +10232,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	// First, loop through the Majors in the game to what the closest proximity is to any of the players
 	PlayerTypes eTarget;
 
-	vector<PlayerTypes> veValidTargets;
+	std::vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(uint iTargetLoop = 0; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10303,7 +10303,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				int iValue = pLoopCity->getPopulation();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-				iValue *= max(1, (pLoopCity->GetEspionageRanking() / 100));
+				iValue *= std::max(1, (pLoopCity->GetEspionageRanking() / 100));
 
 				if(iValue > iBestValue)
 				{
@@ -10555,7 +10555,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvTeam* pTeam = &GET_TEAM(eTeam);
 
-	vector<PlayerTypes> veValidTargets;
+	std::vector<PlayerTypes> veValidTargets;
 
 	// First, loop through majors and see if the player has met them
 	PlayerTypes eTargetMajor;
@@ -10674,7 +10674,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 		return NO_PLAYER;
 	}
 
-	vector<PlayerTypes> veValidTargets;
+	std::vector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10858,7 +10858,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			{
 				int iTradeRouteBonus = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
 				int iNumRoutes = (kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes() - 1) * 100;
-				iShift = min(iTradeRouteBonus*5, iNumRoutes);
+				iShift = std::min(iTradeRouteBonus*5, iNumRoutes);
 			}
 		}
 
@@ -10996,7 +10996,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 	if (iCurrentInfluence > iRestingPoint && iChangeThisTurn < 0)
 	{
-		iRtnValue = max(iChangeThisTurn, iDelta);
+		iRtnValue = std::max(iChangeThisTurn, iDelta);
 	}
 	else if (iCurrentInfluence < iRestingPoint && iChangeThisTurn > 0)
 	{
@@ -11005,11 +11005,11 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			int iChangeThisTurnWithoutShift = iChangeThisTurn - iShift;
 			if (iChangeThisTurnWithoutShift > 0)
 			{
-				iRtnValue = min(iChangeThisTurnWithoutShift, iDelta) + iShift;
+				iRtnValue = std::min(iChangeThisTurnWithoutShift, iDelta) + iShift;
 			}
 		}
 		else
-			iRtnValue = min(iChangeThisTurn, iDelta);
+			iRtnValue = std::min(iChangeThisTurn, iDelta);
 	}
 
 	return iRtnValue;
@@ -11722,7 +11722,7 @@ int CvMinorCivAI::GetFriendsThreshold(PlayerTypes ePlayer) const
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iThreshold *= 100 + max(0, m_pPlayer->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iThreshold *= 100 + std::max(0, m_pPlayer->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iThreshold /= 100;
 
 		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
@@ -11766,7 +11766,7 @@ int CvMinorCivAI::GetAlliesThreshold(PlayerTypes ePlayer) const
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iThreshold *= 100 + max(0, m_pPlayer->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iThreshold *= 100 + std::max(0, m_pPlayer->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iThreshold /= 100;
 
 		EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
@@ -11875,7 +11875,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 
 	if (!bSuppressNotifications)
 	{
-		pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bAdd, bFriends, bAllies, eOldAlly, (bAdd && bAllies) ? ePlayer : eNewAlly);
+		std::pair<CvString, CvString> notifStrings = GetStatusChangeNotificationStrings(ePlayer, bAdd, bFriends, bAllies, eOldAlly, (bAdd && bAllies) ? ePlayer : eNewAlly);
 		if (notifStrings.first != "")
 		{
 			AddNotification(notifStrings.first, notifStrings.second, ePlayer);
@@ -12029,7 +12029,7 @@ void CvMinorCivAI::DoIntrusion()
 		}
 	}
 
-	vector<PlayerTypes> vIntruders;
+	std::vector<PlayerTypes> vIntruders;
 
 	// Look at how many Units each Major Civ has in the Minor's Territory
 	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
@@ -12253,8 +12253,8 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	// Otherwise, raise to ally status
 	else
 	{
-		iNewInfluence = max(iHighestOtherMajorInfluence + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP), GetBaseFriendshipWithMajor(eLiberator) + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP));
-		iNewInfluence = max(GetAlliesThreshold(eLiberator) + 10, iNewInfluence); // Must be at least enough to make us allies
+		iNewInfluence = std::max(iHighestOtherMajorInfluence + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP), GetBaseFriendshipWithMajor(eLiberator) + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP));
+		iNewInfluence = std::max(GetAlliesThreshold(eLiberator) + 10, iNewInfluence); // Must be at least enough to make us allies
 
 		if (MOD_BALANCE_CORE_MINORS)
 		{
@@ -12366,7 +12366,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		}
 	}
 
-	int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
+	int iPercent = iMajorStrength * 100 / std::max(iHighestStrength, 1);
 	int iMinimumPercent = /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP);
 
 	if (iPercent < iMinimumPercent)
@@ -12517,7 +12517,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		}
 	}
 
-	int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
+	int iPercent = iMajorStrength * 100 / std::max(iHighestStrength, 1);
 
 	if (iPercent < /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP))
 	{
@@ -12671,7 +12671,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			}
 		}
 
-		int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
+		int iPercent = iMajorStrength * 100 / std::max(iHighestStrength, 1);
 
 		if (iPercent < /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP))
 		{
@@ -13093,7 +13093,7 @@ int CvMinorCivAI::GetCurrentCultureFlatBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max( 1, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + std::max( 1, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
 
@@ -13234,7 +13234,7 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
 
@@ -13490,7 +13490,7 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
 
@@ -13643,7 +13643,7 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
 
@@ -13795,7 +13795,7 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
 
@@ -13854,7 +13854,7 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iBonus /= 100;
 	}
 
@@ -13903,7 +13903,7 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iBonus /= 100;
 	}
 
@@ -13938,7 +13938,7 @@ int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iBonus /= 100;
 	}
 
@@ -13973,7 +13973,7 @@ int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iBonus *= 100 + std::max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iBonus /= 100;
 	}
 
@@ -14543,7 +14543,7 @@ int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 	iGold /= 100;
 
 	// Rounding
-	int iVisibleDivisor = /*5*/ max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
+	int iVisibleDivisor = /*5*/ std::max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
 	iGold /= iVisibleDivisor;
 	iGold *= iVisibleDivisor;
 
@@ -14569,7 +14569,7 @@ int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 	}
 
 	// Rounding
-	int iVisibleDivisor = /*5*/ max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
+	int iVisibleDivisor = /*5*/ std::max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
 	iGold /= iVisibleDivisor;
 	iGold *= iVisibleDivisor;
 
@@ -14707,7 +14707,7 @@ int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor)
 
 	// Transfer all cities (turn off notifications during the transfer)
 	SetDisableNotifications(true);
-	vector<CvCity*> vpCitiesToAcquire;
+	std::vector<CvCity*> vpCitiesToAcquire;
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop, true); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop, true))
 	{
 		vpCitiesToAcquire.push_back(pLoopCity);
@@ -14845,7 +14845,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 			iTotalMilitaryMight +=  GET_PLAYER(eMajorLoop).GetMilitaryMight(true); 
 	}
 
-	int iMilitaryMightPercent = (100 * GET_PLAYER(eBullyPlayer).GetMilitaryMight(true)) / max(1, iTotalMilitaryMight);
+	int iMilitaryMightPercent = (100 * GET_PLAYER(eBullyPlayer).GetMilitaryMight(true)) / std::max(1, iTotalMilitaryMight);
 	int iGlobalMilitaryScore = (iMilitaryMightPercent * iGlobalMilitaryScoreMax)/100;
 	iScore += iGlobalMilitaryScore;
 
@@ -14866,7 +14866,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, C
 	if (pMinorCapital == NULL)
 		return iFailScore;
 
-	pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
+	std::pair<int, int> localPower = TacticalAIHelpers::EstimateLocalUnitPower(GetBullyRelevantPlots(), GetPlayer()->getTeam(), GET_PLAYER(eBullyPlayer).getTeam(), false);
 	//don't forget the city itself
 	int iOurPower = localPower.first + pMinorCapital->GetPower();
 	int iBullyPower = localPower.second;
@@ -16336,7 +16336,7 @@ void CvMinorCivAI::DoElection()
 				int iDiminishAmount = 0;
 				if (GetEffectiveFriendshipWithMajorTimes100(ePlayer) > 0)
 				{
-					iDiminishAmount = min(/*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
+					iDiminishAmount = std::min(/*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
 					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 					{
 						iDiminishAmount *= GC.getGame().getCurrentEra();
@@ -16468,7 +16468,7 @@ int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreat
 			iInfluence += iMilitaryInfluence;
 		}
 
-		iInfluence -= min((/*7*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED) / 2), (GetPlayer()->getNumMilitaryUnits()));
+		iInfluence -= std::min((/*7*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED) / 2), (GetPlayer()->getNumMilitaryUnits()));
 	}
 
 	return iInfluence;
@@ -16538,7 +16538,7 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 
 	// Game progress factor based on how far into the game we are
 	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
-	fGameProgressFactor = min(fGameProgressFactor, 1.0); // Don't count above 1.0, otherwise it will end up negative!
+	fGameProgressFactor = std::min(fGameProgressFactor, 1.0); // Don't count above 1.0, otherwise it will end up negative!
 	
 	// Tweak factor slightly, otherwise Gold will do literally NOTHING once we reach the end of the game!
 	fGameProgressFactor *= /*2*/ GD_INT_GET(MINOR_CIV_GOLD_GIFT_GAME_MULTIPLIER);
@@ -16573,11 +16573,11 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 	}
 
 	// Friendship gained should always be positive
-	int iMinimumReward = max(/*5 in CP, 0 in CSD*/ GD_INT_GET(MINOR_CIV_GOLD_GIFT_MINIMUM_FRIENDSHIP_REWARD), 0);
-	iFriendship = max(iFriendship, iMinimumReward);
+	int iMinimumReward = std::max(/*5 in CP, 0 in CSD*/ GD_INT_GET(MINOR_CIV_GOLD_GIFT_MINIMUM_FRIENDSHIP_REWARD), 0);
+	iFriendship = std::max(iFriendship, iMinimumReward);
 
 	// Round the number so it's pretty
-	int iVisibleDivisor = /*5*/ max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
+	int iVisibleDivisor = /*5*/ std::max(GD_INT_GET(MINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR), 1);
 	iFriendship /= iVisibleDivisor;
 	iFriendship *= iVisibleDivisor;
 
@@ -17200,7 +17200,7 @@ int CvMinorCivAI::GetTurnLastAttacked(TeamTypes eTeam) const
 void CvMinorCivAI::SetTurnLastAttacked(TeamTypes eTeam, int iTurn)
 {
 	if (eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return;
-	m_aiTurnLastAttacked[eTeam] = max(iTurn, -1);
+	m_aiTurnLastAttacked[eTeam] = std::max(iTurn, -1);
 }
 
 int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
@@ -17833,7 +17833,7 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 	return strDetailedInfo.toUTF8();
 }
 
-pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly)
+std::pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, PlayerTypes eOldAlly, PlayerTypes eNewAlly)
 {
 	Localization::String strMessage = "";
 	Localization::String strSummary = "";
@@ -17875,7 +17875,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 
 				// Build Resource info
 				int iNumResourceTypes = 0;
-				vector<ResourceTypes> veResources;
+				std::vector<ResourceTypes> veResources;
 				ResourceTypes eResource;
 				ResourceUsageTypes eUsage;
 				int iResourceQuantity;
@@ -17969,7 +17969,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 		strSummary << GetPlayer()->getNameKey();
 	}
 
-	pair<CvString, CvString> notifStrings = pair<CvString, CvString>(strMessage.toUTF8(), strSummary.toUTF8());
+	std::pair<CvString, CvString> notifStrings = std::pair<CvString, CvString>(strMessage.toUTF8(), strSummary.toUTF8());
 	return notifStrings;
 }
 

@@ -437,7 +437,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 	iNumVoronoiSeeds = std::max(iNumVoronoiSeeds,3); // make sure that we have at least 3
 
 	// randomly place the seed points of each region ??? do we want a way for an advanced script to pass this in ???
-	vector<VoronoiSeed> vVoronoiSeeds;
+	std::vector<VoronoiSeed> vVoronoiSeeds;
 	vVoronoiSeeds.reserve(iNumVoronoiSeeds);
 
 	for(int iThisVoronoiSeedIndex = 0; iThisVoronoiSeedIndex < iNumVoronoiSeeds; iThisVoronoiSeedIndex++)

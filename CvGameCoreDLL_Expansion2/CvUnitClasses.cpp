@@ -1876,7 +1876,7 @@ void CvUnitEntry::DoUpdatePower()
 	}
 
 	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
-	iPower = int((float) iPower * pow(min(1.0,(double) GetMoves()), 0.3));
+	iPower = int((float) iPower * pow(std::min(1.0,(double) GetMoves()), 0.3));
 
 	if (IsImmobile()) 
 	{
