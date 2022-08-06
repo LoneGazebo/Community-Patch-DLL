@@ -1047,7 +1047,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 	}
 #endif
 
-	// CUSTOMLOG("GetReligionToFound: Using NO_RELIGION");
+	// CUSTOMLOG("%s", "GetReligionToFound: Using NO_RELIGION");
 	return NO_RELIGION;
 }
 
@@ -1509,7 +1509,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 	if (!bFoundIt)
 	{
 		CvAssertMsg(false, "Internal error in religion code.");
-		CUSTOMLOG("Trying to enhance a religion/pantheon that doesn't exist!!!");
+		CUSTOMLOG("%s", "Trying to enhance a religion/pantheon that doesn't exist!!!");
 		return;
 	}
 

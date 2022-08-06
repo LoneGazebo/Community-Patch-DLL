@@ -580,7 +580,7 @@ void CheckSentinel(uint value)
 	if (value == 0xDEADBEEF)
 		return; //everything ok
 
-	CUSTOMLOG("Deserialization Error, check DeserializationCallstack.log\n");
+	CUSTOMLOG("%s", "Deserialization Error, check DeserializationCallstack.log");
 
 #if defined(STACKWALKER)
 	FILogFile* pLog=LOGFILEMGR.GetLog( "DeserializationCallstack.log", FILogFile::kDontTimeStamp );

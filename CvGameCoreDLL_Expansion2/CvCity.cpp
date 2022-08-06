@@ -18220,7 +18220,7 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 		if (pGarrison)
 			return pGarrison;
 		else
-			CUSTOMLOG("warning: invalid garrison override!\n");
+			CUSTOMLOG("%s", "warning: invalid garrison override!");
 	}
 
 	if (m_hGarrison > -1)

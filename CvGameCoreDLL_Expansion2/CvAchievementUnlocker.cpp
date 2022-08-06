@@ -113,25 +113,25 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 	GUID guid;
 
 	ExtractGUID("7459BA32-5764-44ae-8E95-01AD0E0EFD48", guid);
-	bool bDLC_DX = gDLL->IsDLCValid(guid); if (bDLC_DX) CUSTOMLOG("Found DLC Deluxe");
+	bool bDLC_DX = gDLL->IsDLCValid(guid); if (bDLC_DX) CUSTOMLOG("%s", "Found DLC Deluxe");
 	ExtractGUID("293C1EE3-1176-44f6-AC1F-59663826DE74", guid);
-	bool bDLC_01 = gDLL->IsDLCValid(guid); if (bDLC_01) CUSTOMLOG("Found DLC 1");
+	bool bDLC_01 = gDLL->IsDLCValid(guid); if (bDLC_01) CUSTOMLOG("%s", "Found DLC 1");
 	ExtractGUID("B685D5DE-7CCA-4e75-81B4-2F60754E6330", guid);
-	bool bDLC_02 = gDLL->IsDLCValid(guid); if (bDLC_02) CUSTOMLOG("Found DLC 2");
+	bool bDLC_02 = gDLL->IsDLCValid(guid); if (bDLC_02) CUSTOMLOG("%s", "Found DLC 2");
 	ExtractGUID("ECF7C605-BA11-4CAC-8D80-D71306AAC471", guid);
-	bool bDLC_03 = gDLL->IsDLCValid(guid); if (bDLC_03) CUSTOMLOG("Found DLC 3");
+	bool bDLC_03 = gDLL->IsDLCValid(guid); if (bDLC_03) CUSTOMLOG("%s", "Found DLC 3");
 	ExtractGUID("B3030D39-C0D8-4bc7-91B1-7AD1CAF585AB", guid);
-	bool bDLC_04 = gDLL->IsDLCValid(guid); if (bDLC_04) CUSTOMLOG("Found DLC 4");
+	bool bDLC_04 = gDLL->IsDLCValid(guid); if (bDLC_04) CUSTOMLOG("%s", "Found DLC 4");
 	ExtractGUID("112C22B2-5308-42b6-B734-171CCAB3037B", guid);
-	bool bDLC_05 = gDLL->IsDLCValid(guid); if (bDLC_05) CUSTOMLOG("Found DLC 5");
+	bool bDLC_05 = gDLL->IsDLCValid(guid); if (bDLC_05) CUSTOMLOG("%s", "Found DLC 5");
 	ExtractGUID("BBB0D085-A0B1-4475-B007-3E549CF3ADC3", guid);
-	bool bDLC_06 = gDLL->IsDLCValid(guid); if (bDLC_06) CUSTOMLOG("Found DLC 6");
+	bool bDLC_06 = gDLL->IsDLCValid(guid); if (bDLC_06) CUSTOMLOG("%s", "Found DLC 6");
 	ExtractGUID("EA67AED5-5859-4875-BF3A-360FE9E55D1B", guid);
-	bool bDLC_07 = gDLL->IsDLCValid(guid); if (bDLC_07) CUSTOMLOG("Found DLC 7");
+	bool bDLC_07 = gDLL->IsDLCValid(guid); if (bDLC_07) CUSTOMLOG("%s", "Found DLC 7");
 	ExtractGUID("0E3751A1-F840-4e1b-9706-519BF484E59D", guid);
-	bool bEXP_01 = gDLL->IsDLCValid(guid); if (bEXP_01) CUSTOMLOG("Found G&K");
+	bool bEXP_01 = gDLL->IsDLCValid(guid); if (bEXP_01) CUSTOMLOG("%s", "Found G&K");
 	ExtractGUID("6DA07636-4123-4018-B643-6575B4EC336B", guid);
-	bool bEXP_02 = gDLL->IsDLCValid(guid); if (bEXP_02) CUSTOMLOG("Found BNW");
+	bool bEXP_02 = gDLL->IsDLCValid(guid); if (bEXP_02) CUSTOMLOG("%s", "Found BNW");
 
 	for (int iAchievement = 0; iAchievement < NUM_ACHIEVEMENTS; iAchievement++) {
 		EAchievement eAchievement = (EAchievement) iAchievement;

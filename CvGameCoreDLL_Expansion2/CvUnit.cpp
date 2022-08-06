@@ -1365,7 +1365,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (CanEverEmbark())
 			setEmbarked(true);
 		else
-			CUSTOMLOG("warning: putting un-embarkable unit on water plot!\n");
+			CUSTOMLOG("%s", "warning: putting un-embarkable unit on water plot!");
 	}
 	
 	if(bSetupGraphical)
@@ -2692,7 +2692,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 		if (HasUnusedGreatWork())
 		{
-			CUSTOMLOG("Killing a Great Writer, Artist or Musician who didn't create their Great Work!");
+			CUSTOMLOG("%s", "Killing a Great Writer, Artist or Musician who didn't create their Great Work!");
 			GC.getGame().removeGreatPersonBornName(getGreatName());
 		}
 	}

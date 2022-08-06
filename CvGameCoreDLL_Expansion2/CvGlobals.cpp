@@ -2021,7 +2021,7 @@ void CvGlobals::init()
 #if defined(MOD_DEBUG_MINIDUMP)
 	/* Enable our custom exception that will write the minidump for us. */
 	SetUnhandledExceptionFilter(CustomFilter);
-	CUSTOMLOG("MiniDump exception handler installed");
+	CUSTOMLOG("%s", "MiniDump exception handler installed");
 #endif
 
 	//

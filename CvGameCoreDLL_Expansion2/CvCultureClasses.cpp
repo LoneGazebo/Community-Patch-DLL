@@ -1157,7 +1157,7 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	// CUSTOMLOG("Processing Great Works by city -> building -> slot into art(ifact)/writing/music silos");
+	// CUSTOMLOG("%s", "Processing Great Works by city -> building -> slot into art(ifact)/writing/music silos");
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -1277,7 +1277,7 @@ void CvPlayerCulture::DoSwapGreatWorks()
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
 
-	// CUSTOMLOG("Processing Great Works by city -> building -> slot into art(ifact)/writing/music silos");
+	// CUSTOMLOG("%s", "Processing Great Works by city -> building -> slot into art(ifact)/writing/music silos");
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -1441,7 +1441,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWor
 #endif
 
 	// First building that are not endangered and not puppets
-	// CUSTOMLOG("  ... theming safe buildings");
+	// CUSTOMLOG("%s", "  ... theming safe buildings");
 	std::vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
@@ -1459,7 +1459,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWor
 	}
 
 	// Next building that are not endangered and are puppets
-	// CUSTOMLOG("  ... theming safe buildings");
+	// CUSTOMLOG("%s", "  ... theming safe buildings");
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
 		if (!itBuilding->m_bEndangered && itBuilding->m_bPuppet)
@@ -1480,7 +1480,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWor
 		bSwap = true;
 
 	// Set the first work left that we haven't themed as something we'd be willing to trade
-	// CUSTOMLOG("Setting available swaps");
+	// CUSTOMLOG("%s", "Setting available swaps");
 	//    for Writing
 	if (eType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
 	{
@@ -1573,7 +1573,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWor
 		// One more pass through those that are not endangered to see if swapping with another player would help (as long as this isn't Music)
 		if (eType != CvTypes::getGREAT_WORK_SLOT_MUSIC())
 		{
-			// CUSTOMLOG("  ... checking safe buildings for swaps");
+			// CUSTOMLOG("%s", "  ... checking safe buildings for swaps");
 			for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 			{
 				if (!itBuilding->m_bEndangered && !itBuilding->m_bThemed)
@@ -1593,7 +1593,7 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, std::vector<CvGreatWor
 #endif
 
 	// Then endangered ones
-	// CUSTOMLOG("  ... theming endangered buildings");
+	// CUSTOMLOG("%s", "  ... theming endangered buildings");
 	for (itBuilding = buildings.begin(); itBuilding != buildings.end(); itBuilding++)
 	{
 		if (itBuilding->m_bEndangered)
@@ -2904,7 +2904,7 @@ bool CvPlayerCulture::ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg,
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 bool CvPlayerCulture::MoveSingleWorks(std::vector<CvGreatWorkBuildingInMyEmpire> &buildings, std::vector<CvGreatWorkInMyEmpire> &works1, std::vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield, bool bPuppet)
 {
-	// CUSTOMLOG("Move Single Works");
+	// CUSTOMLOG("%s", "Move Single Works");
 	std::vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;
 
 	/*

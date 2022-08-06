@@ -99,7 +99,7 @@ void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 /// Compute the value of having a city at each plot
 void CvStartPositioner::ComputeFoundValues()
 {
-	CUSTOMLOG("CvStartPositioner::ComputeFoundValues()");
+	CUSTOMLOG("%s", "CvStartPositioner::ComputeFoundValues()");
 
 	// Progress through entire map
 	unsigned int iSum = 0, iValidPlots = 0;
@@ -170,7 +170,7 @@ std::vector<CvPlayerStartRank> GetPlayerStartOrder()
 /// Pick start positions for all civs
 void CvStartPositioner::AssignStartingLocations()
 {
-	CUSTOMLOG("CvStartPositioner::AssignStartingLocations()");
+	CUSTOMLOG("%s", "CvStartPositioner::AssignStartingLocations()");
 	CvString strString;
 	unsigned int iNextRegion = 0;
 	int iPlayersPlaced = 0;
@@ -397,7 +397,7 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 		int iWidth = region.m_Boundaries.m_iEastEdge - region.m_Boundaries.m_iWestEdge;
 		bool bTallerThanWide = (iHeight>iWidth);
 		if (iHeight < 1 || iWidth < 1)
-			CUSTOMLOG("warning, invalid region for subdivision!");
+			CUSTOMLOG("%s", "warning, invalid region for subdivision!");
 
 #if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
 		// CUSTOMLOG("CvStartPositioner::SubdivideRegion into %i divisions (by algorithm)", iNumDivisions);

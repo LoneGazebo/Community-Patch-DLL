@@ -2746,7 +2746,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 
 	// Just use the unknown spy name
 	pSpy->m_sName = "TXT_KEY_SPY_NAME_UNKNOWN";
-	CUSTOMLOG("Using unknown spy name TXT_KEY_SPY_NAME_UNKNOWN");
+	CUSTOMLOG("%s", "Using unknown spy name TXT_KEY_SPY_NAME_UNKNOWN");
 }
 
 /// IsSpyInCity - Checks to see if spy is in a city

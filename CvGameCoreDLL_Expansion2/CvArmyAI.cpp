@@ -576,7 +576,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 	// uh, slot already used?
 	if (GetSlotStatus(iSlotNum)->IsUsed())
 	{
-		CUSTOMLOG("warning, trying to assign unit to non-free slot\n");
+		CUSTOMLOG("%s", "warning, trying to assign unit to non-free slot");
 		return;
 	}
 

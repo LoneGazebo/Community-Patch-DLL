@@ -8927,7 +8927,7 @@ CvCity* CvPlot::getPlotCity() const
 void CvPlot::setOwningCity(PlayerTypes ePlayer, int iCityID)
 {
 	if (ePlayer != getOwner())
-		CUSTOMLOG("warning: assigning a plot to a city which is owned by a different player!");
+		CUSTOMLOG("%s", "warning: assigning a plot to a city which is owned by a different player!");
 
 	//always reset the override as well
 	setOwningCityOverride(NULL);

@@ -2237,7 +2237,7 @@ CvUnit* SwitchEscort(CvUnit* pCivilian, CvPlot* pNewEscortPlot, CvUnit* pEscort,
 			return pPlotDefender;
 		}
 		else
-			CUSTOMLOG("SwitchEscort: Failed to remove unit from army!");
+			CUSTOMLOG("%s", "SwitchEscort: Failed to remove unit from army!");
 	}
 
 	return NULL;
