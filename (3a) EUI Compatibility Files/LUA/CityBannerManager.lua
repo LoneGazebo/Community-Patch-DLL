@@ -1358,8 +1358,13 @@ local function RefreshCityBannersNow()
 				else
 					for plot in CityPlots( city ) do
 						local hexPos = ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }
-						Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
-						Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+						if city:IsPlotBlockaded( plot ) and plot:IsVisible(g_activeTeamID, false) then
+							Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyFill" )
+							Events_SerialEventHexHighlight( hexPos , true, nil, "EnemyOutline" )
+						else
+							Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedFill" )
+							Events_SerialEventHexHighlight( hexPos , true, nil, "OwnedOutline" )
+						end
 					end
 				end
 				Events_RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, city:GetX(), city:GetY() )

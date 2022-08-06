@@ -11197,8 +11197,44 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 		for (std::vector<PlayerTypes>::iterator it = vPlayersToCheck.begin(); it != vPlayersToCheck.end(); it++)
 		{
 			int iThirdPartyValue = 0;
-			StrengthTypes eThirdPartyStrength = GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(*it);
 			PlayerProximityTypes eThirdPartyProximity = GET_PLAYER(*it).GetProximityToPlayer(eComparedToPlayer);
+
+			// How strong is this player we'd also go to war with?
+			StrengthTypes eThirdPartyStrength = STRENGTH_AVERAGE;
+			if (GET_PLAYER(eComparedToPlayer).isMajorCiv()) // Major civ vs. another player - use the major civ's estimate
+			{
+				eThirdPartyStrength = GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(*it);
+			}
+			else if (GET_PLAYER(*it).isMajorCiv()) // City-State vs. a major civ - flip the major civ's estimate
+			{
+				StrengthTypes eMajorEstimate = GET_PLAYER(*it).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eComparedToPlayer);
+
+				switch (eMajorEstimate)
+				{
+				case STRENGTH_PATHETIC:
+					eThirdPartyStrength = STRENGTH_IMMENSE;
+					break;
+				case STRENGTH_WEAK:
+					eThirdPartyStrength = STRENGTH_POWERFUL;
+					break;
+				case STRENGTH_POOR:
+					eThirdPartyStrength = STRENGTH_STRONG;
+					break;
+				case STRENGTH_AVERAGE:
+					eThirdPartyStrength = STRENGTH_AVERAGE;
+					break;
+				case STRENGTH_STRONG:
+					eThirdPartyStrength = STRENGTH_POOR;
+					break;
+				case STRENGTH_POWERFUL:
+					eThirdPartyStrength = STRENGTH_WEAK;
+					break;
+				case STRENGTH_IMMENSE:
+					eThirdPartyStrength = STRENGTH_PATHETIC;
+					break;
+				}
+			}
+			// else: City-State vs. City-State - assume STRENGTH_AVERAGE (set above), will be correct in 99% of cases
 
 			// Major civ?
 			if (GET_PLAYER(*it).isMajorCiv())
@@ -11270,7 +11306,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				{
 					if (GET_PLAYER(*it).isHuman() && !GET_PLAYER(*it).IsVassalOfSomeone())
 					{
-						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
+						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || !GET_PLAYER(eComparedToPlayer).isMajorCiv() || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
 						{
 							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
 							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID()) - 100;

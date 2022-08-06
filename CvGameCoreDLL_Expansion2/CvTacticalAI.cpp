@@ -6367,9 +6367,14 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		}
 
 		//can we stay there?
-		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION) && pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+		if (!pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION))
 		{
-			if (!pUnit->CanPushOutUnitHere(*pPlot))
+			if (pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+			{
+				if (!pUnit->CanPushOutUnitHere(*pPlot))
+					continue;
+			}
+			else
 				continue;
 		}
 
@@ -7603,7 +7608,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			return result; //don't ever go there, wouldn't work anyway
 			break;
 		case 1:
-			iScore = 2; //dangerous to end the turn, avoid
+			iScore = pTestPlot->isCity() ? 13 : 2; //dangerous to end the turn, avoid
 			break;
 		case 2:
 			iScore = 23; //good for defense support, good for attack support, but risky
