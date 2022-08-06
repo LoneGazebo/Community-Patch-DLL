@@ -11156,8 +11156,9 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-				if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(eComparedToPlayer).getTeam())
+				if (IsPlayerValid(eLoopPlayer) && eLoopTeam != GET_PLAYER(eComparedToPlayer).getTeam() && GET_TEAM(eLoopTeam).isHasMet(GET_PLAYER(eComparedToPlayer).getTeam()))
 				{
 					if (GET_PLAYER(eLoopPlayer).isMajorCiv())
 					{
@@ -11173,7 +11174,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 						if (eAlly == NO_PLAYER || GET_PLAYER(eAlly).getTeam() == GetTeam())
 							continue;
 
-						vMinorsToCheck.push_back(eAlly);
+						vMinorsToCheck.push_back(eLoopPlayer);
 					}
 				}
 			}
