@@ -218,8 +218,7 @@ public:
 		}
 
 		// We should have found something, so reaching here is an error
-		assert(false);
-		return T();
+		UNREACHABLE();
 	};
 
 	/// Pick an element from the top iNumChoices
@@ -249,6 +248,10 @@ public:
 		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
 			return m_items[0].m_Element;
 
+		// All of the choices have a weight of 0 so pick randomly
+		if (iTotalTopChoicesWeight == 0)
+			return ChooseAtRandom(rndFcn, szRollName);
+
 		int iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
 
 		// Find out which element was chosen
@@ -262,8 +265,7 @@ public:
 		}
 
 		// We should have found something, so reaching here is an error
-		assert(false);
-		return T();
+		UNREACHABLE();
 	};
 
 private:
