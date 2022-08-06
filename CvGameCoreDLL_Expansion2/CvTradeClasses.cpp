@@ -3911,6 +3911,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue /= 100;						
 					}
 					break;
+				case YIELD_FOOD:
 				case YIELD_PRODUCTION:
 					break;
 				default:
