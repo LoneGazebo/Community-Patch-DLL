@@ -11882,7 +11882,7 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}
-		if (bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
+		if (MOD_LINKED_MOVEMENT && bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}

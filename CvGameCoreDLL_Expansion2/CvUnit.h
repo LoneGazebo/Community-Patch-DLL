@@ -606,6 +606,7 @@ public:
 	bool hasMoved() const;
 
 	// VP - Linked & Group Movement 
+#if defined(MOD_LINKED_MOVEMENT)
 	bool IsLinked() const;
 	void SetIsLinked(bool bValue);
 	bool IsLinkedLeader() const;
@@ -623,6 +624,7 @@ public:
 	void UnlinkUnits();
 	void MoveLinkedLeader(CvPlot* pDestPlot);
 	void DoGroupMovement(CvPlot* pDestPlot);
+#endif
 
 	int GetRange() const;
 	int GetNukeDamageLevel() const;
