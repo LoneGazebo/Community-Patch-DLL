@@ -11113,7 +11113,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 
 		if (GET_PLAYER(eComparedToPlayer).isMajorCiv())
 		{
-			vector<PlayerTypes> vLinkedWarPlayers = bSelfEvaluation ? GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetLinkedWarPlayers(ePlayer, false, true, true) : GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetLinkedWarPlayers(ePlayer, false, true, false);
+			vector<PlayerTypes> vLinkedWarPlayers = GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetLinkedWarPlayers(ePlayer, false, true, false);
 
 			// If this is a self-evaluation, also factor in our coop wars
 			if (bSelfEvaluation)
