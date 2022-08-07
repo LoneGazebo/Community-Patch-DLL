@@ -437,6 +437,8 @@
    <Row Class="4" Name="ATTRITION" Value="0"/>
     <!-- When a military unit retreats, civilians units on the same tile also retreat -->
    <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
+    <!-- Linked & group movement -->
+   <Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
