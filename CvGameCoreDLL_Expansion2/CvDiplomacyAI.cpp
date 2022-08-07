@@ -4732,7 +4732,7 @@ void CvDiplomacyAI::SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Apply a backstabbing mark for ePlayer and their teammates to our entire team
-void CvDiplomacyAI::SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bFromWar)
+void CvDiplomacyAI::SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bSkipReevaluation)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
@@ -4751,7 +4751,7 @@ void CvDiplomacyAI::SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bFro
 			GET_PLAYER(vOurTeam[i]).GetDiplomacyAI()->SetEverBackstabbedBy((PlayerTypes)vTheirTeam[j], bValue);
 		}
 	}
-	if (bValue)
+	if (bValue && !bSkipReevaluation)
 	{
 		// All AI players must re-evaluate the trustworthiness of other players.
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -4762,15 +4762,12 @@ void CvDiplomacyAI::SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bFro
 			{
 				if (GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(ePlayer).getTeam())
 				{
-					if (bFromWar)
-						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
-
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vTheirTeam, bFromWar);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vTheirTeam, false);
 				}
 				else
 				{
 					vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, bFromWar);
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false);
 				}
 			}
 		}
@@ -4914,7 +4911,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 			return;
 
 		SetFriendDenouncedUsTurn(ePlayer, GC.getGame().getGameTurn());
-		SetBackstabbedBy(ePlayer, true);
+		SetBackstabbedBy(ePlayer, true, false);
 	}
 	else
 	{
@@ -4986,7 +4983,7 @@ void CvDiplomacyAI::SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue)
 			return;
 
 		SetFriendDeclaredWarOnUsTurn(ePlayer, GC.getGame().getGameTurn());
-		SetBackstabbedBy(ePlayer, true);
+		SetBackstabbedBy(ePlayer, true, true);
 
 		// If they didn't backstab in reaction to our backstabbing, mark them as a serial backstabber
 		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->WasEverBackstabbedBy(GetID()) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthy(GetID()))
@@ -7689,7 +7686,7 @@ void CvDiplomacyAI::ChangeNumTimesNuked(PlayerTypes ePlayer, int iChange)
 	// and do diplo...
 	if (iChange > 0)
 	{
-		SetBackstabbedBy(ePlayer, true);
+		SetBackstabbedBy(ePlayer, true, false);
 
 		int iWarmongerValueTimes100 = CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(ePlayer, GetTeam(), GetID(), WARMONGER_NUKED_PLAYER) * 100;
 		ChangeOtherPlayerWarmongerAmountTimes100(ePlayer, iWarmongerValueTimes100);
@@ -8605,7 +8602,7 @@ void CvDiplomacyAI::SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bVa
 			return;
 
 		SetPlayerBrokenVassalAgreementTurn(ePlayer, GC.getGame().getGameTurn());
-		SetBackstabbedBy(ePlayer, true);
+		SetBackstabbedBy(ePlayer, true, true);
 	}
 	else
 	{
@@ -39539,7 +39536,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 						{
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetVassalageForcefullyRevokedTurn(eFromPlayer, GC.getGame().getGameTurn());
 							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, 300);
-							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetBackstabbedBy(eFromPlayer, true);
+							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetBackstabbedBy(eFromPlayer, true, true);
 							
 							// Friends of the vassal - penalty to recent assistance!
 							for (int iThirdPartyLoop = 0; iThirdPartyLoop < MAX_MAJOR_CIVS; iThirdPartyLoop++)

@@ -479,7 +479,7 @@ public:
 	// Did this friend ever betray us?
 	bool WasEverBackstabbedBy(PlayerTypes ePlayer) const;
 	void SetEverBackstabbedBy(PlayerTypes ePlayer, bool bValue);
-	void SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bFromWar = false);
+	void SetBackstabbedBy(PlayerTypes ePlayer, bool bValue, bool bSkipReevaluation);
 
 	// DoF Broken?
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
