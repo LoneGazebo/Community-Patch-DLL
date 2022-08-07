@@ -6285,7 +6285,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	}
 
 	// Sometimes we already own the plot but it's a different city
-	// Note this this will stop the previous owning city from working the plot
+	// Note that this will stop the previous owning city from working the plot
 	if (getOwningCityID() != iAcquiringCityID)
 		setOwningCity(eNewValue, iAcquiringCityID);
 }

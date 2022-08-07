@@ -4731,6 +4731,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			continue;
 
 		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
+		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoUpdateConquestStats();
 		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
 	}
 
@@ -4740,14 +4741,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		bool bReevaluate = bMajorEliminated || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(getTeam());
 
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam() && bReevaluate)
+		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getTeam() != getTeam())
 		{
-			if (!bMajorEliminated)
-				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
-			else
+			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
+
+			if (bReevaluate)
 			{
-				vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
+				if (!bMajorEliminated)
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+				else
+				{
+					vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
+				}
 			}
 		}
 	}
@@ -9690,8 +9696,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetPlayerBrokenVassalAgreement(ePlayer, false);
 
 					// Clear backstabbing mark
-					pDiploAI->SetBackstabbedBy(eMyTeamPlayer, false);
-					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetBackstabbedBy(ePlayer, false);
+					pDiploAI->SetBackstabbedBy(eMyTeamPlayer, false, false);
+					GET_PLAYER(eMyTeamPlayer).GetDiplomacyAI()->SetBackstabbedBy(ePlayer, false, false);
 				}
 			}
 

@@ -876,7 +876,8 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <Filename>Balance Changes/Terrain/NewFarmResources_Text.xml</Filename>
-      </Action>      <Action>
+      </Action>
+      <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <Filename>Compatibility/CSD/CSDCompatibility.sql</Filename>
@@ -2724,6 +2725,14 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Terrain\ImprovementChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Terrain\NewFarmResources.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Terrain\NewFarmResources_Text.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
