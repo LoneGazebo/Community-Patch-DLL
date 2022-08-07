@@ -26851,6 +26851,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				switch(eYield)
 				{
+					case NO_YIELD:
+					UNREACHABLE();
 					case YIELD_FOOD:
 					{
 						pLoopCity->changeFood(iValue);
@@ -27030,9 +27032,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 					}
 					break;
-					default:
-					// Need to add support for this yield.
-					UNREACHABLE();
+					case YIELD_JFD_HEALTH:
+					case YIELD_JFD_DISEASE:
+					case YIELD_JFD_CRIME:
+					case YIELD_JFD_LOYALTY:
+					case YIELD_JFD_SOVEREIGNTY:
+					// JFD have no special behavior, but they are still tracked.
+					// Lua scripts can access the tracked information though it
+					// would probably be better to have a Lua hook instead.
+					break; 
 				}
 
 				//keep track of what we're doing
