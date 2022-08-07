@@ -664,10 +664,6 @@ function AssignStartingPlots:__Init()
 			self.stone_ID = resourceID;
 		elseif resourceType == "RESOURCE_BISON" then
 			self.bison_ID = resourceID;
-		elseif resourceType == "RESOURCE_MAIZE" then	-- new farm resources for VP
-			self.maize_ID = resourceID;
-		elseif resourceType == "RESOURCE_RICE" then	-- new farm resources for VP
-			self.rice_ID = resourceID;
 		-- Set up Strategic IDs
 		elseif resourceType == "RESOURCE_IRON" then
 			self.iron_ID = resourceID;
@@ -763,10 +759,14 @@ function AssignStartingPlots:__Init()
 				self.hardwood_ID = resourceID;
 			elseif resourceType == "RESOURCE_LEAD" then		-- MOD.HungryForFood: New
 				self.lead_ID = resourceID;
+			elseif resourceType == "RESOURCE_MAIZE" then	-- MOD.HungryForFood: New
+				self.maize_ID = resourceID;
 			elseif resourceType == "RESOURCE_PINEAPPLE" then	-- MOD.HungryForFood: New
 				self.pineapple_ID = resourceID;
 			elseif resourceType == "RESOURCE_POTATO" then	-- MOD.HungryForFood: New
 				self.potato_ID = resourceID;
+			elseif resourceType == "RESOURCE_RICE" then	-- MOD.HungryForFood: New
+				self.rice_ID = resourceID;
 			elseif resourceType == "RESOURCE_RUBBER" then	-- MOD.HungryForFood: New
 				self.rubber_ID = resourceID;
 			elseif resourceType == "RESOURCE_SULFUR" then	-- MOD.HungryForFood: New
@@ -10877,8 +10877,6 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 	print("-");
 	print("- BONUS Resources -");
 	print(self.wheat_ID,    "Wheat...: ", self.amounts_of_resources_placed[self.wheat_ID + 1])
-	print(self.maize_ID,    "Maize...: ", self.amounts_of_resources_placed[self.maize_ID + 1])
-	print(self.rice_ID,     "Rice....: ", self.amounts_of_resources_placed[self.rice_ID + 1])
 	print(self.cow_ID,      "Cow.....: ", self.amounts_of_resources_placed[self.cow_ID + 1])
 	print(self.sheep_ID,    "Sheep...: ", self.amounts_of_resources_placed[self.sheep_ID + 1])
 	print(self.deer_ID,     "Deer....: ", self.amounts_of_resources_placed[self.deer_ID + 1])
@@ -10893,8 +10891,10 @@ function AssignStartingPlots:PrintFinalResourceTotalsToLog()
 		print(self.coconut_ID,  "Coconut.: ", self.amounts_of_resources_placed[self.coconut_ID + 1])
 		print(self.hardwood_ID, "Hardwood: ", self.amounts_of_resources_placed[self.hardwood_ID + 1])
 		print(self.lead_ID,     "Lead....: ", self.amounts_of_resources_placed[self.lead_ID + 1])
+		print(self.maize_ID,    "Maize...: ", self.amounts_of_resources_placed[self.maize_ID + 1])
 		print(self.pineapple_ID,"Pineapple: ", self.amounts_of_resources_placed[self.pineapple_ID + 1])
 		print(self.potato_ID,   "Potato..: ", self.amounts_of_resources_placed[self.potato_ID + 1])
+		print(self.rice_ID,     "Rice....: ", self.amounts_of_resources_placed[self.rice_ID + 1])
 		print(self.rubber_ID,   "Rubber..: ", self.amounts_of_resources_placed[self.rubber_ID + 1])
 		print(self.sulfur_ID,   "Sulfur..: ", self.amounts_of_resources_placed[self.sulfur_ID + 1])
 		print(self.titanium_ID, "Titanium: ", self.amounts_of_resources_placed[self.titanium_ID + 1])
@@ -11341,14 +11341,6 @@ function AssignStartingPlots:PlaceBonusResources()
 		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
 		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 		-- 25
-		-- new farm resources for VP
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 	end
 end
 ------------------------------------------------------------------------------

@@ -466,6 +466,8 @@
 #define MOD_CIVILIANS_RETREAT_WITH_MILITARY			gCustomMods.isCIVILIANS_RETREAT_WITH_MILITARY()
 // Linked&Group Movement
 #define MOD_LINKED_MOVEMENT							gCustomMods.isLINKED_MOVEMENT()
+// DLL support for maize & rice farms
+#define MOD_MAIZE_RICE_FARMS						gCustomMods.isMAIZE_RICE_FARMS()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1538,6 +1540,7 @@ public:
 	MOD_OPT_DECL(ATTRITION);
 	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(LINKED_MOVEMENT);
+	MOD_OPT_DECL(MAIZE_RICE_FARMS);
 
 protected:
 	bool m_bInit;

@@ -439,6 +439,8 @@
    <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
     <!-- Linked & group movement -->
    <Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
+    <!-- DLL support for maize&rice farms -->
+   <Row Class="4" Name="MAIZE_RICE_FARMS" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
