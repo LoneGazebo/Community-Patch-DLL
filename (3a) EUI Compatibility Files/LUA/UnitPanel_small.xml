@@ -102,7 +102,6 @@
 							<Image Anchor="C,C" Size="36,36" Texture="BuildCityGold36.dds"/>
 						</ShowOnMouseOver>
 					</Button>
-					<Button ID="LinkUnitsButton" Size="36,36" Texture="Link36.dds" Tooltip="TXT_KEY_MISSION_LINK_UNITS" Hidden="1"/>
 				</Stack>
 			</Container>
 		</Container>

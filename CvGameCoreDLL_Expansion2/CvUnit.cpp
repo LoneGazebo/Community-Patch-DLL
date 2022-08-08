@@ -140,12 +140,14 @@ CvUnit::CvUnit() :
 	, m_iGameTurnCreated()
 	, m_iDamage()
 	, m_iMoves()
+#if defined(MOD_LINKED_MOVEMENT)
 	, m_bIsLinked()
 	, m_bIsLinkedLeader()
 	, m_bIsGrouped()
 	, m_iLinkedMaxMoves()
 	, m_LinkedUnitIDs()
 	, m_iLinkedLeaderID()
+#endif
 	, m_bImmobile()
 	, m_iExperienceTimes100()
 	, m_iLevel()
@@ -1402,12 +1404,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGameTurnCreated = 0;
 	m_iDamage = 0;
 	m_iMoves = 0;
+#if defined(MOD_LINKED_MOVEMENT)
 	m_bIsLinked = false;
 	m_bIsLinkedLeader = false;
 	m_bIsGrouped = false;
 	m_iLinkedMaxMoves = 0;
 	m_LinkedUnitIDs.clear();
 	m_iLinkedLeaderID = -1;
+#endif
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
 	m_iLevel = 1;
@@ -2724,13 +2728,16 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		setTransportUnit(NULL);
 	}
 
-	// remove linked status
-	if (IsLinkedLeader()) {
-		SetIsLinkedLeader(false);
-	}
-	else if (IsLinked()) {
-		CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
-		pLinkedLeader->SetIsLinkedLeader(false);
+	if (MOD_LINKED_MOVEMENT)
+	{
+		// remove linked status
+		if (IsLinkedLeader()) {
+			SetIsLinkedLeader(false);
+		}
+		else if (IsLinked()) {
+			CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
+			pLinkedLeader->SetIsLinkedLeader(false);
+		}
 	}
 
 	setReconPlot(NULL);
@@ -3340,7 +3347,7 @@ void CvUnit::doTurn()
 	}				
 
 	// prevent linked units in movement from asking orders
-	if (IsLinked() && !IsLinkedLeader())
+	if (MOD_LINKED_MOVEMENT && IsLinked() && !IsLinkedLeader())
 	{
 		SetTurnProcessed(true);
 	}
@@ -5457,7 +5464,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 		}
 	}
 
-	if (IsLinkedLeader()) // moving the whole stack, one plot at a time
+	if (MOD_LINKED_MOVEMENT && IsLinkedLeader()) // moving the whole stack, one plot at a time
 	{
 		UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
 		bool bCanDoLinkedMove = true;
@@ -15191,7 +15198,7 @@ int CvUnit::maxMoves() const
 {
 	if (plot() == NULL)
 		return 0;
-	if (IsLinked() || IsGrouped())
+	if (MOD_LINKED_MOVEMENT && (IsLinked() || IsGrouped() ))
 		return GetLinkedMaxMoves();
 	// WARNING: Depends on the current embark state of the unit!
 	if (plot()->getOwner() == getOwner())
@@ -28700,7 +28707,7 @@ bool CvUnit::ReadyToMove() const
 		return false;
 	}
 
-	if (IsLinked() && !IsLinkedLeader()) // do not ask orders for units following another
+	if (MOD_LINKED_MOVEMENT && IsLinked() && !IsLinkedLeader()) // do not ask orders for units following another
 	{
 		return false;
 	}
@@ -29394,7 +29401,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		break;
 
 	case INTERFACEMODE_MOVE_TO_ALL:
-		if (IsCombatUnit() && getDomainType() != DOMAIN_AIR && GetNumOwningPlayerUnitsAdjacent() > 0)
+		if (MOD_LINKED_MOVEMENT && IsCombatUnit() && getDomainType() != DOMAIN_AIR && GetNumOwningPlayerUnitsAdjacent() > 0)
 		{
 			return true;
 		}
