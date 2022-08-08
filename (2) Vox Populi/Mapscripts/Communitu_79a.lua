@@ -1700,12 +1700,15 @@ function MapGlobals:New()
 				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
-				-- 10
+				self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_BONUS, self.wheat_list, resources_to_place)
+				
 				resources_to_place = {
-				{self.wheat_ID, 1, 100, 2, 3} };
-				self:ProcessResourceList(22 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
-				-- 27
+				{self.rice_ID, 1, 100, 1, 2} };
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.rice_list, resources_to_place)
+				
+				resources_to_place = {
+				{self.maize_ID, 1, 100, 1, 2} };
+				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.maize_list, resources_to_place)
 				
 				resources_to_place = {
 				{self.banana_ID, 1, 100, 0, 1} };
@@ -1768,14 +1771,6 @@ function MapGlobals:New()
 				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
 				self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 				-- 25
-				-- new farm resources for VP
-				resources_to_place = {
-				{self.rice_ID, 1, 100, 0, 2} };
-				self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
-
-				resources_to_place = {
-				{self.maize_ID, 1, 100, 1, 2} };
-				self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 			end
 		end
 		------------------------------------------------------------------------------
@@ -1862,7 +1857,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.3.3",
+		Name = "Communitu_79a v2.4.0",
 		Description = "Communitas mapscript for Vox Populi",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
