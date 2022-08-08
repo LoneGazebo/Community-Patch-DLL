@@ -253,6 +253,7 @@ function AssignStartingPlots.Create()
 		IsImpactLayerStrategic = AssignStartingPlots.IsImpactLayerStrategic,
 		GenerateResourcePlotListsFromSpecificPlots = AssignStartingPlots.GenerateResourcePlotListsFromSpecificPlots,
 		IsTropical = AssignStartingPlots.IsTropical,
+		IsTemperate = AssignStartingPlots.IsTemperate,
 
 		-- Support custom map resource settings
 		resDensity = 2,
@@ -436,6 +437,11 @@ function AssignStartingPlots.Create()
 		ocean_list = {},
 		unknown_list = {},
 		-- azum4roll additions: End
+		-- balparmak additions: Start
+		maize_list = {},
+		rice_list = {},
+		plains_wheat_list = {},
+		-- balparmak additions: end
 		barren_plots = 0,
 		
 		-- Positioner defaults. These are the controls for the "Center Bias" placement method for civ starts in regions.
@@ -3975,28 +3981,43 @@ function AssignStartingPlots:AttemptToPlaceBonusResourceAtPlot(x, y, bAllowOasis
 		return true, false
 	elseif plotType == PlotTypes.PLOT_LAND then
 		if featureType == FeatureTypes.NO_FEATURE then
-			if terrainType == TerrainTypes.TERRAIN_GRASS then -- Place Cows or Bison
+			if terrainType == TerrainTypes.TERRAIN_GRASS then -- Place Rice, Cows or Bison
 				local diceroll = Map.Rand(3, "Selection of Bonus Resource type - Start Normalization LUA");
 				local resourceType;
-				if diceroll < 2 then
-					resourceType = self.cow_ID;
-					--print("Placed Cows.");
+				
+				if (plot:IsAdjacentToFeature(FeatureTypes.FEATURE_MARSH) or plot:IsFreshWater()) and self:IsTemperate(plot) then
+					resourceType = self.rice_ID;
+					print("Placed Rice in AttemptToPlaceBonusResourceAtPlot")
 				else
-					resourceType = self.bison_ID;
-					--print("Placed Bison.");
+					if diceroll < 2 then
+						resourceType = self.cow_ID;
+						--print("Placed Cows.");
+					else
+						resourceType = self.bison_ID;
+						--print("Placed Bison.");
+					end
 				end
 				plot:SetResourceType(resourceType, 1);
 				self.amounts_of_resources_placed[resourceType + 1] = self.amounts_of_resources_placed[resourceType + 1] + 1;
 				return true, false
-			elseif terrainType == TerrainTypes.TERRAIN_PLAINS then -- Place Wheat or Bison
+			elseif terrainType == TerrainTypes.TERRAIN_PLAINS then -- Place Maize, Wheat or Bison
 				local diceroll = Map.Rand(3, "Selection of Bonus Resource type - Start Normalization LUA");
 				local resourceType;
-				if diceroll < 2 then
-					resourceType = self.wheat_ID;
-					--print("Placed Wheat.");
+				if (plot:IsAdjacentToFeature(FeatureTypes.FEATURE_JUNGLE) or plot:IsFreshWater()) and self:IsTemperate(plot) then
+					resourceType = self.maize_ID;
+					print("Placed Maize in AttemptToPlaceBonusResourceAtPlot")
 				else
-					resourceType = self.bison_ID;
-					--print("Placed Bison.");
+					if plot:IsAdjacentToFeature(FeatureTypes.FEATURE_JUNGLE) then
+						resourceType = self.bison_ID;
+					else
+						if diceroll < 2 then
+							resourceType = self.wheat_ID;
+							--print("Placed Wheat.");
+						else
+							resourceType = self.bison_ID;
+							--print("Placed Bison.");
+						end
+					end
 				end
 				plot:SetResourceType(resourceType, 1);
 				self.amounts_of_resources_placed[resourceType + 1] = self.amounts_of_resources_placed[resourceType + 1] + 1;
@@ -7743,7 +7764,11 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 
 	-- azum4roll: Might as well add these. Currently used for counting barren plots.
 	local temp_mountain_list, temp_lake_list, temp_ice_list, temp_ocean_list, temp_unknown_list = {}, {}, {}, {}, {};
-
+		
+	-- balparmak: lists for maize & rice
+	local temp_maize_list, temp_rice_list, temp_plains_wheat_list =  {}, {}, {};
+	--
+	
 	for loop, plotIndex in ipairs(plotList) do
 		local x = (plotIndex - 1) % iW;
 		local y = (plotIndex - x - 1) / iW;
@@ -7846,6 +7871,9 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 			if self:IsTropical(y) then
 				table.insert(temp_tropical_marsh_list, plotIndex);
 			end
+			if self:IsTemperate(plot) then
+				table.insert(temp_rice_list, plotIndex);
+			end
 		elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
 			table.insert(temp_land_list, plotIndex);
 			table.insert(temp_land_hills_list, plotIndex);
@@ -7921,8 +7949,14 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 					table.insert(temp_flat_open_no_desert, plotIndex);					
 					table.insert(temp_flat_open, plotIndex);							
 					table.insert(temp_flat_open_no_tundra_no_desert, plotIndex);		
+					if not plot:IsAdjacentToFeature(FeatureTypes.FEATURE_JUNGLE) then
+						table.insert(temp_plains_wheat_list, plotIndex);
+					end
 					if plot:IsFreshWater() then									
 						table.insert(temp_fresh_water_plains_flat_no_feature, plotIndex);
+						if self:IsTemperate(plot) then
+							table.insert(temp_maize_list, plotIndex);
+						end
 					else
 						table.insert(temp_dry_plains_flat_no_feature, plotIndex);		
 					end
@@ -7937,8 +7971,14 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 					table.insert(temp_flat_open_no_desert, plotIndex);				
 					table.insert(temp_flat_open, plotIndex);						
 					table.insert(temp_flat_open_no_tundra_no_desert, plotIndex);	
+					if self:IsTemperate(plot) then
+						table.insert(temp_maize_list, plotIndex);
+					end
 					if plot:IsFreshWater() then
 						table.insert(temp_fresh_water_grass_flat_no_feature, plotIndex);
+						if self:IsTemperate(plot) then
+							table.insert(temp_rice_list, plotIndex);
+						end
 					else
 						table.insert(temp_dry_grass_flat_no_feature, plotIndex);
 					end
@@ -8029,6 +8069,10 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 		GetShuffledCopyOfTable(temp_ice_list),								-- 59
 		GetShuffledCopyOfTable(temp_ocean_list),							-- 60
 		GetShuffledCopyOfTable(temp_unknown_list),							-- 61
+
+		GetShuffledCopyOfTable(temp_maize_list),							-- 62
+		GetShuffledCopyOfTable(temp_rice_list),								-- 63
+		GetShuffledCopyOfTable(temp_plains_wheat_list),						-- 64
 	};
 end
 ------------------------------------------------------------------------------
@@ -8117,6 +8161,11 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	self.ocean_list								 = resourcePlotLists[60];
 	self.unknown_list							 = resourcePlotLists[61];
 
+	-- balparmak: maize & rice
+	self.maize_list								 = resourcePlotLists[62];
+	self.rice_list								 = resourcePlotLists[63];
+	self.plains_wheat_list						 = resourcePlotLists[64];
+
 	-- Unused, but keeping this here anyway just in case some mapscripts need it
 	self.barren_plots = table.maxn(self.mountain_list) + table.maxn(self.lake_list) +
 		table.maxn(self.ice_list) + table.maxn(self.ocean_list) + table.maxn(self.unknown_list);
@@ -8186,6 +8235,10 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 		self.ice_list,								-- 59
 		self.ocean_list,							-- 60
 		self.unknown_list,							-- 61
+		-- balparmak : maize & rice
+		self.maize_list,							-- 62
+		self.rice_list,								-- 63
+		self.plains_wheat_list,						-- 64
 	};
 end
 ------------------------------------------------------------------------------
@@ -10316,11 +10369,23 @@ function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
 							elseif terrainType == TerrainTypes.TERRAIN_TUNDRA and plotType == PlotTypes.PLOT_LAND then
 								table.insert(plot_list, plotIndex);
 							end
+						elseif use_this_ID == self.rice_ID and self:IsTemperate(plot) then
+							if featureType == FeatureTypes.FEATURE_MARSH then
+								table.insert(plot_list, plotIndex);
+							elseif terrainType == TerrainTypes.TERRAIN_GRASS and plot:IsFreshWater() and featureType == FeatureTypes.NO_FEATURE then
+								table.insert(plot_list, plotIndex);
+							end
+							print("Placed Rice in PlaceSexyBonusAtCivStarts")
+						elseif use_this_ID == self.maize_ID and self:IsTemperate(plot) and featureType == FeatureTypes.NO_FEATURE then
+							if (terrainType == TerrainTypes.TERRAIN_PLAINS and plot:IsFreshWater()) or terrainType == TerrainTypes.TERRAIN_GRASS then
+								table.insert(plot_list, plotIndex);
+								print("Placed Maize in PlaceSexyBonusAtCivStarts")
+							end
 						elseif use_this_ID == self.banana_ID then
 							if featureType == FeatureTypes.FEATURE_JUNGLE then
 								table.insert(plot_list, plotIndex);
 							end
-						elseif use_this_ID == self.wheat_ID then
+						elseif use_this_ID == self.wheat_ID and not plot:IsAdjacentToFeature(FeatureTypes.FEATURE_JUNGLE) then
 							if plotType == PlotTypes.PLOT_LAND then
 								if terrainType == TerrainTypes.TERRAIN_PLAINS and featureType == FeatureTypes.NO_FEATURE then
 									table.insert(plot_list, plotIndex);
@@ -10445,7 +10510,7 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 		
 		--
 		-- Generate plot lists for the extra Bonus placements.
-		local dry_hills, flat_plains, flat_grass, flat_tundra, jungles, forests = {}, {}, {}, {}, {}, {};
+		local dry_hills, extra_wheat_list, extra_maize_list, extra_rice_list, flat_grass, flat_tundra, jungles, forests = {}, {}, {}, {}, {}, {}, {}, {};
 		for region_loop_y = 0, iHeight - 1 do
 			for region_loop_x = 0, iWidth - 1 do
 				local x = (region_loop_x + iWestX) % iW;
@@ -10465,7 +10530,9 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 							elseif featureType == FeatureTypes.FEATURE_FOREST then
 								table.insert(forests, plotIndex);
 							elseif featureType == FeatureTypes.FEATURE_FLOOD_PLAINS then
-								table.insert(flat_plains, plotIndex);
+								table.insert(extra_wheat_list, plotIndex);
+							elseif featureType == FeatureTypes.FEATURE_MARSH and self:IsTemperate(plot) then
+								table.insert(extra_rice_list, plotIndex);
 							elseif featureType == FeatureTypes.NO_FEATURE then
 								if plotType == PlotTypes.PLOT_HILLS then
 									if (terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_PLAINS or terrainType == TerrainTypes.TERRAIN_TUNDRA) then
@@ -10475,11 +10542,19 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 									end
 								elseif plotType == PlotTypes.PLOT_LAND then
 									if terrainType == TerrainTypes.TERRAIN_PLAINS then
-										table.insert(flat_plains, plotIndex);
+										if self:IsTemperate() and plot:IsFreshWater() then
+											table.insert(extra_maize_list, plotIndex);
+										elseif not plot:IsAdjacentToFeature(FeatureTypes.FEATURE_JUNGLE) then
+											table.insert(extra_wheat_list, plotIndex);
+										end
 									elseif terrainType == TerrainTypes.TERRAIN_DESERT and plot:IsFreshWater() then
-										table.insert(flat_plains, plotIndex);
+										table.insert(extra_wheat_list, plotIndex);
 									elseif terrainType == TerrainTypes.TERRAIN_GRASS then
-										table.insert(flat_grass, plotIndex);
+										if self:IsTemperate(plot) and plot:IsFreshWater() then
+											table.insert(extra_rice_list, plotIndex);
+										else
+											table.insert(flat_grass, plotIndex);
+										end
 									elseif terrainType == TerrainTypes.TERRAIN_TUNDRA then
 										table.insert(flat_tundra, plotIndex);
 									end
@@ -10517,10 +10592,20 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 			{self.deer_ID, 1, 100, 0, 1} };
 			self:ProcessResourceList(14 / infertility_quotient, ImpactLayers.LAYER_BONUS, flat_tundra, resources_to_place);
 		end
-		if table.maxn(flat_plains) > 0 then
+		if table.maxn(extra_maize_list) > 0 then
+			local resources_to_place = {
+			{self.maize_ID, 1, 100, 0, 2} };
+			self:ProcessResourceList(16 / infertility_quotient, ImpactLayers.LAYER_BONUS, extra_maize_list, resources_to_place);
+		end
+		if table.maxn(extra_rice_list) > 0 then
+			local resources_to_place = {
+			{self.rice_ID, 1, 100, 0, 2} };
+			self:ProcessResourceList(16 / infertility_quotient, ImpactLayers.LAYER_BONUS, extra_rice_list, resources_to_place);
+		end
+		if table.maxn(extra_wheat_list) > 0 then
 			local resources_to_place = {
 			{self.wheat_ID, 1, 100, 0, 2} };
-			self:ProcessResourceList(16 / infertility_quotient, ImpactLayers.LAYER_BONUS, flat_plains, resources_to_place);
+			self:ProcessResourceList(16 / infertility_quotient, ImpactLayers.LAYER_BONUS, extra_wheat_list, resources_to_place);
 		end
 		if table.maxn(flat_grass) > 0 then
 			local resources_to_place = {
@@ -11271,18 +11356,28 @@ function AssignStartingPlots:PlaceBonusResources()
 		self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 		-- 12
 		
+		-- new farm resources for VP
+		resources_to_place = {
+		{self.rice_ID, 1, 100, 0, 2} };
+		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.rice_list, resources_to_place)
+
+		resources_to_place = {
+		{self.maize_ID, 1, 100, 1, 2} };
+		self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.maize_list, resources_to_place)
+		--
+		
 		resources_to_place = {
 		{self.wheat_ID, 1, 100, 1, 2} };
 		self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
 		-- 10
 		resources_to_place = {
 		{self.wheat_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(22 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
+		self:ProcessResourceList(18 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_wheat_list, resources_to_place)
 		-- 27
 		
 		resources_to_place = {
 		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(15 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
+		self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
 		-- 14
 		
 		resources_to_place = {
@@ -11341,14 +11436,6 @@ function AssignStartingPlots:PlaceBonusResources()
 		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
 		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
 		-- 25
-		-- new farm resources for VP
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
 	end
 end
 ------------------------------------------------------------------------------
@@ -11607,6 +11694,14 @@ function AssignStartingPlots:GetRandomMultiplier(variance, rand, higher)
 	else
 		return 1 / multiplier
 	end
+end
+---------------------------------------
+function AssignStartingPlots:IsTemperate(plot)	
+	local plot = plot
+	local IsDesertAdjacent = plot:IsAdjacentToTerrain(TerrainTypes.TERRAIN_DESERT) or plot:IsAdjacentToFeature(FeatureTypes.FEATURE_OASIS)
+	local IsTundraAdjacent = plot:IsAdjacentToTerrain(TerrainTypes.TERRAIN_TUNDRA)
+	
+	return not IsDesertAdjacent and not IsTundraAdjacent	
 end
 ------------------------------------------------------------------------------
 --                             REFERENCE
