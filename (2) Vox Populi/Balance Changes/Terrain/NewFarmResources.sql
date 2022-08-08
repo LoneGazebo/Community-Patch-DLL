@@ -5,18 +5,19 @@ INSERT INTO Resources (Type, ResourceClassType,  Hills, Flatlands, MaxLatitude, 
 
 INSERT INTO Resource_FeatureBooleans (ResourceType, FeatureType) VALUES
 ( 'RESOURCE_RICE',  'FEATURE_MARSH'),
-( 'RESOURCE_RICE',  'FEATURE_FLOOD_PLAINS');
-
-INSERT INTO Resource_FeatureTerrainBooleans (ResourceType, TerrainType) VALUES
-( 'RESOURCE_RICE', 'TERRAIN_PLAINS'),
-( 'RESOURCE_RICE', 'TERRAIN_GRASS');
+( 'RESOURCE_MAIZE',  'FEATURE_FLOOD_PLAINS');
 
 INSERT INTO Resource_Flavors (ResourceType, FlavorType, Flavor) VALUES
 ('RESOURCE_MAIZE', 'FLAVOR_GROWTH', 10),
 ('RESOURCE_RICE', 'FLAVOR_GROWTH', 10);
 
+INSERT INTO Resource_FeatureTerrainBooleans (ResourceType, TerrainType) VALUES
+( 'RESOURCE_RICE',  'TERRAIN_GRASS'),
+( 'RESOURCE_MAIZE',  'TERAIN_DESERT');
+
 INSERT INTO Resource_TerrainBooleans (ResourceType, TerrainType) VALUES
 ( 'RESOURCE_MAIZE',  'TERRAIN_GRASS'),
+( 'RESOURCE_MAIZE',  'TERRAIN_PLAINS'),
 ( 'RESOURCE_RICE',  'TERRAIN_GRASS');
 
 INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES 
