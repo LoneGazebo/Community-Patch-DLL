@@ -1211,6 +1211,7 @@ VALUES
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 VALUES
+	('BUILDING_COAL_PLANT', 'RESOURCE_OIL', 1),
 	('BUILDING_COAL_PLANT', 'RESOURCE_COAL', 1),
 	('BUILDING_COAL_PLANT', 'RESOURCE_IRON', 1);
 
