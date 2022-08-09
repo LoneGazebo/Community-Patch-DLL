@@ -56,12 +56,16 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_HELP';
 	
 -- added Enhanced Flank Attack
-	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG', 'Superior Flank Attack');
-	INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG_HELP', '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.');
+	INSERT INTO Language_en_US (Tag, Text) VALUES
+	('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG', 'Superior Flank Attack'),
+	('TXT_KEY_PROMOTION_FLANK_ATTACK_BONUS_STRONG_HELP', '[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 25%.');
 
- -- added Combat Bonus in forest/jungle (33) Mohawk Warrior
+-- added Professional Soldier
+	INSERT INTO Language_en_US (Tag, Text) VALUES
+	('TXT_KEY_PROMOTION_PROFESSIONAL_SOLDIER', 'Professional Soldier'),
+	('TXT_KEY_PROMOTION_PROFESSIONAL_SOLDIER_HELP',	'+10% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+10 Hit Points.');
+
+-- added Combat Bonus in forest/jungle (33) Mohawk Warrior
 	UPDATE Language_en_US
 	SET Text = '+33% [ICON_STRENGTH] Combat Strength when fighting in Forest/Jungle.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MOHAWK_HELP';
