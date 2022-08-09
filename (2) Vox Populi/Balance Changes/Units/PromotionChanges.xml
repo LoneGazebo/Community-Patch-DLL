@@ -3085,7 +3085,7 @@
 			<Help>TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<HPHealedIfDestroyEnemy>50</HPHealedIfDestroyEnemy>
+			<HPHealedIfDestroyEnemy>30</HPHealedIfDestroyEnemy>
 			<AttackWoundedMod>20</AttackWoundedMod>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>13</PortraitIndex>

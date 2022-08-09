@@ -312,7 +312,7 @@
 			<Text>Hakkaa Päälle!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 50 HP after defeating an Enemy Unit.</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 30 HP after defeating an Enemy Unit.</Text>
 		</Row>
 	<!-- Impi-->
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">

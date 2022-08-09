@@ -133,8 +133,8 @@ UPDATE Units SET RangedCombat = '14' WHERE Type = 'UNIT_ROMAN_BALLISTA';
 	
 -- Medieval --
 UPDATE Units SET RangedCombat = '19' WHERE Type = 'UNIT_CROSSBOWMAN';
+UPDATE Units SET RangedCombat = '19' WHERE Type = 'UNIT_ENGLISH_LONGBOWMAN';
 UPDATE Units SET RangedCombat = '20' WHERE Type = 'UNIT_CHINESE_CHUKONU';
-UPDATE Units SET RangedCombat = '20' WHERE Type = 'UNIT_ENGLISH_LONGBOWMAN';
 
 UPDATE Units SET RangedCombat = '20' WHERE Type = 'UNIT_TREBUCHET';
 UPDATE Units SET RangedCombat = '21' WHERE Type = 'UNIT_KOREAN_HWACHA';
@@ -219,7 +219,8 @@ UPDATE Units SET Combat = '15' WHERE Type = 'UNIT_BARBARIAN_SWORDSMAN';
 UPDATE Units SET Combat = '16' WHERE Type = 'UNIT_KRIS_SWORDSMAN';
 UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_IROQUOIAN_MOHAWKWARRIOR';
 UPDATE Units SET Combat = '18' WHERE Type = 'UNIT_ROMAN_LEGION';
-UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_DANISH_BERSERKER';
+
+UPDATE Units SET Combat = '19' WHERE Type = 'UNIT_DANISH_BERSERKER';
 -- Ranged
 UPDATE Units SET Combat = '7' WHERE Type = 'UNIT_CATAPULT';
 UPDATE Units SET Combat = '8' WHERE Type = 'UNIT_ROMAN_BALLISTA';
@@ -234,10 +235,10 @@ UPDATE Units SET Combat = '13' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 -- Medieval --
 -- Melee
 UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_PIKEMAN';
-UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 -- UPDATE Units Set Combat = '19' WHERE Type = 'UNIT_FCOMPANY' -- Free Company, Entry in NewUnits.sql
 
 UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_LONGSWORDSMAN';
+UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 UPDATE Units SET Combat = '25' WHERE Type = 'UNIT_JAPANESE_SAMURAI';
 
 UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_EXPLORER';
