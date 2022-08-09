@@ -210,7 +210,7 @@ UPDATE Units SET Combat = '9' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
 
 -- Classical --
 -- Melee
-UPDATE Units SET Combat = '9' WHERE Type = 'UNIT_SCOUT';
+UPDATE Units SET Combat = '10' WHERE Type = 'UNIT_SCOUT';
 
 UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_HUN_BATTERING_RAM';
 
@@ -234,7 +234,7 @@ UPDATE Units SET Combat = '13' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 -- Medieval --
 -- Melee
 UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_PIKEMAN';
-UPDATE Units SET Combat = '21' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 -- UPDATE Units Set Combat = '19' WHERE Type = 'UNIT_FCOMPANY' -- Free Company, Entry in NewUnits.sql
 
 UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_LONGSWORDSMAN';
