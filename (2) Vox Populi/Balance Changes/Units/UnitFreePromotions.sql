@@ -70,7 +70,8 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType) VALUES
 
 ---------------------------
 -- Combat Units
--- Spear Melee
+
+-- Melee Infantry
 -- UNITCLASS_WARRIOR
 ('UNIT_WARRIOR','PROMOTION_BARBARIAN_BONUS'),
 

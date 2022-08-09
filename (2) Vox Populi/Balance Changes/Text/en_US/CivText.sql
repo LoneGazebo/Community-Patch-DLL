@@ -725,7 +725,7 @@ SET Text = 'The Turtle Ship can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, it may not enter deep ocean hexes outside of the city borders.'
+SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, while it can end its movement in Ocean Tiles, the Turtle Ship still travels at half speed through them.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY';
 
 --------------------
@@ -764,10 +764,6 @@ WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_HELP';
 UPDATE Language_en_US
 SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike the Chariot before them, they can move through rough terrain without a movement penalty. As a mounted unit, the Skirmisher is vulnerable to units equipped with spears.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Friendly Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.[NEWLINE]Adjacent Enemy Units take 10 Damage Each Turn.'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The Khan is a Mongolian Unique Great Person, replacing the standard Great General.  The same combat bonuses apply, but the Khan moves 5 points per turn, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies each turn. This beefed up General ensures that his cavalry units will always be in a battle ready state.'

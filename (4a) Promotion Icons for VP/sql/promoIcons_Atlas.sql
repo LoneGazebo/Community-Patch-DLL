@@ -24,6 +24,12 @@ INSERT INTO IconTextureAtlases	(Atlas, IconSize, Filename, IconsPerRow, IconsPer
 	('promoVP_atlas_03', 045, 'promoVP_03_045.dds', '8', '8'),
 	('promoVP_atlas_03', 032, 'promoVP_03_032.dds', '8', '8'),
 	('promoVP_atlas_03', 016, 'promoVP_03_016.dds', '8', '8'),
+	
+	('promoVP_atlas_04', 256, 'promoVP_04_256.dds', '4', '1'),
+	('promoVP_atlas_04', 064, 'promoVP_04_064.dds', '4', '1'),
+	('promoVP_atlas_04', 045, 'promoVP_04_045.dds', '4', '1'),
+	('promoVP_atlas_04', 032, 'promoVP_04_032.dds', '4', '1'),
+	('promoVP_atlas_04', 016, 'promoVP_04_016.dds', '4', '1'),
 
 	('extraPromo_Atlas', 256, 'extraPromo_256.dds', '8', '8'),
 	('extraPromo_Atlas', 064, 'extraPromo_064.dds', '8', '8'),

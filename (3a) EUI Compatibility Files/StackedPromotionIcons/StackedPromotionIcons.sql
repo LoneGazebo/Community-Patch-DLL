@@ -129,9 +129,10 @@ UPDATE UnitPromotions SET RankList = 'HOMELAND_DEFENDER', RankNumber = 1 WHERE T
 UPDATE UnitPromotions SET RankList = 'HOMELAND_DEFENDER', RankNumber = 2 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN';
 */
 -- UndeadDevel: group Cover and Field works promos/ bal: don't group cover
-UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 1 WHERE Type = 'PROMOTION_FIELD_WORKS_1';
-UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 2 WHERE Type = 'PROMOTION_FIELD_WORKS_2';
-UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 3 WHERE Type = 'PROMOTION_FIELD_WORKS_3';
+UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 1 WHERE Type = 'PROMOTION_FIELD_WORKS_0';
+UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 2 WHERE Type = 'PROMOTION_FIELD_WORKS_1';
+UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 3 WHERE Type = 'PROMOTION_FIELD_WORKS_2';
+UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 4 WHERE Type = 'PROMOTION_FIELD_WORKS_3';
 
 UPDATE UnitPromotions SET RankList = 'COVER', RankNumber = 1 WHERE Type = 'PROMOTION_COVER_1';
 UPDATE UnitPromotions SET RankList = 'COVER', RankNumber = 2 WHERE Type = 'PROMOTION_COVER_2';
@@ -402,6 +403,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 50 WHERE Type IN (
 -- most of these are unit-specific but kept on upgrade...want to know which unit "descends" from a special one
 UPDATE UnitPromotions SET FlagPromoOrder = 55 WHERE Type IN (
 	'PROMOTION_REPEATER',
+	'PROMOTION_ASSIZE_OF_ARMS',
 	'PROMOTION_RAIDER',
 	'PROMOTION_FEARED_ELEPHANT',
 	'PROMOTION_GOLDEN_AGE_POINTS',
@@ -410,6 +412,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 55 WHERE Type IN (
 	'PROMOTION_HEAVY_CHARGE',
 	'PROMOTION_GENERAL_STACKING',
 	'PROMOTION_FREE_PILLAGE_MOVES',
+	'PROMOTION_HAKKAA_PAALLE',
 	'PROMOTION_SCOUT_XP_PILLAGE'
 );
 
@@ -438,7 +441,8 @@ UPDATE UnitPromotions SET FlagPromoOrder = 60 WHERE Type IN (
 	'PROMOTION_BUFFALO_LOINS',
 	'PROMOTION_BUFFALO_HORNS',
 	'PROMOTION_FASTER_HEAL',
-	'PROMOTION_SELL_EXOTIC_GOODS'
+	'PROMOTION_SELL_EXOTIC_GOODS',
+	'PROMOTION_SCOUT_CAVALRY'
 );
 
 -- mostly trait- or policy- specific promos and keeping some unit-specific ones separate from the above group
@@ -461,6 +465,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 68 WHERE Type IN (
 	'PROMOTION_TREASURE_FLEET',
 	'PROMOTION_KNOCKOUT_I', -- this is actually the upgrade promo, but leave grouped as is, as it will behave in a useful way
 	'PROMOTION_KNOCKOUT_II',
+	'PROMOTION_FIELD_WORKS_0',
 	'PROMOTION_FIELD_WORKS_1',
 	'PROMOTION_FIELD_WORKS_2',
 	'PROMOTION_FIELD_WORKS_3',
@@ -591,6 +596,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 94 WHERE Type IN (
 	'PROMOTION_CARGO_IV',
 	'PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY',
 	'PROMOTION_OCEAN_IMPASSABLE',
+	'PROMOTION_OCEAN_HALF_MOVES',
 	'PROMOTION_NO_DEFENSIVE_BONUSES',
 	'PROMOTION_ROUGH_TERRAIN_ENDS_TURN'
 );
