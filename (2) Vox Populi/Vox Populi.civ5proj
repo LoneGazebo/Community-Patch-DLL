@@ -917,6 +917,11 @@
         <Type>UpdateDatabase</Type>
         <Filename>Compatibility/MoreLuxuries/Text/Text_en_US.sql</Filename>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Units/UnitTriggers.sql</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -4547,6 +4552,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Compatibility\MoreLuxuries\Text\Text_en_US.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance\Units\UnitTriggers.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
