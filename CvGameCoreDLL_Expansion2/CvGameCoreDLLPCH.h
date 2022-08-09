@@ -30,7 +30,7 @@
 #define FLAG_ENUM
 #define ENUM_META_VALUE
 #define BUILTIN_UNREACHABLE() __assume(0)
-#define BUILTIN_TRAP() __ud2(); __assume(0)
+#define BUILTIN_TRAP() do { __ud2(); __assume(0); } while(0)
 #else
 #error Unrecognized compiler
 #endif // defined(__clang__)
@@ -41,7 +41,7 @@
 /// optimizations. Because of this when you write code using this macro you are signing a contract
 /// with the compiler that this line is truly unreachable. Programs where this line is reachable are
 /// thusly ill-formed.
-#define UNREACHABLE_UNCHECKED() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE()
+#define UNREACHABLE_UNCHECKED() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE(); } while(0)
 
 /// Weaker variant of UNREACHABLE_UNCHECKED.
 ///
@@ -50,7 +50,7 @@
 /// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
 /// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
 /// well-formed.
-#define UNREACHABLE() CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP()
+#define UNREACHABLE() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP(); } while(0)
 
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
