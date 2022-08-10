@@ -1,6 +1,6 @@
 -- New Resources
 INSERT INTO Resources (Type, ResourceClassType,  Hills, Flatlands, MaxLatitude, TechReveal, IconAtlas, PortraitIndex, ArtDefineTag, IconString, Description, Civilopedia,  Help, AITradeModifier, ResourceUsage, AIObjective, PlacementOrder, ConstAppearance, RandApp1, RandApp2, MinAreaSize, IsMonopoly, Normalize) VALUES
-('RESOURCE_RICE',  'RESOURCECLASS_BONUS', 0, 1, 50, 'TECH_AGRICULTURE', 'VP_RESOURCE_ATLAS', 13, 'ART_DEF_RESOURCE_RICE', '[ICON_RES_RICE]', 'TXT_KEY_RESOURCE_RICE', 'TXT_KEY_CIV5_RESOURCE_RICE_TEXT', 'TXT_KEY_RESOURCE_RICE_HELP', 0, 0, 0, 4, 50, 25, 25, 3, 0, 1),
+('RESOURCE_RICE',  'RESOURCECLASS_BONUS', 0, 1, 50, 'TECH_AGRICULTURE', 'VP_RESOURCE_ATLAS', 13, 'ART_DEF_RESOURCE_RICE', '[ICON_RES_RICE]', 'TXT_KEY_RESOURCE_RICE', 'TXT_KEY_CIV5_RESOURCE_RICE_TEXT', NULL, 0, 0, 0, 4, 50, 25, 25, 3, 0, 1),
 ('RESOURCE_MAIZE', 'RESOURCECLASS_BONUS', 0, 1, 60, 'TECH_AGRICULTURE', 'VP_RESOURCE_ATLAS', 12, 'ART_DEF_RESOURCE_MAIZE', '[ICON_RES_MAIZE]', 'TXT_KEY_RESOURCE_MAIZE', 'TXT_KEY_CIV5_RESOURCE_MAIZE_TEXT', NULL, 0, 0, 0, 4, 50, 25, 25, 3, 0, 1);
 
 INSERT INTO Resource_FeatureBooleans (ResourceType, FeatureType) VALUES
