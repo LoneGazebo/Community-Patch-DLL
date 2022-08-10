@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2411,7 +2411,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 		CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
 		if (pkLandmass->isWater())
 		{
-			if (pkLandmass->getNumTiles() < /*9*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN))
+			if (pkLandmass->isLake())
 				bHaveLake = true;
 			else
 				bHaveOcean = true;

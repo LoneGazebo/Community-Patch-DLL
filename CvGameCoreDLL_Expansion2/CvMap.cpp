@@ -120,7 +120,7 @@ bool CvLandmass::isWater() const
 //	--------------------------------------------------------------------------------
 bool CvLandmass::isLake() const
 {
-	return (m_bWater && m_iNumTiles < GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN));
+	return (m_bWater && m_iNumTiles < GD_INT_GET(/*10*/ MIN_WATER_SIZE_FOR_OCEAN));
 }
 
 

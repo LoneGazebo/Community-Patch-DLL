@@ -928,7 +928,7 @@
 			<Strategy>TXT_KEY_BUILDING_MINEFIELD_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_MINEFIELD_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
-			<MinAreaSize>1</MinAreaSize>
+			<MinAreaSize>10</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<Water>true</Water>
 			<Defense>500</Defense>
