@@ -6023,48 +6023,57 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			// ACTUALLY CHANGE OWNERSHIP HERE
 			m_eOwner = eNewValue;
 
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+			if (MOD_EVENTS_TILE_IMPROVEMENTS) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileOwnershipChanged, getX(), getY(), getOwner(), eOldOwner);
+				// lua modders likely will want to mess with improvements/resources on the tile, so do this *before* that is calculated and re-check
+				eBuilder = GetPlayerThatBuiltImprovement();
+				eImprovement = getImprovementType();
+			}
+#endif
+
 			// Post ownership switch
-			if(isOwned())
+			if (isOwned())
 			{
 				CvPlayerAI& newPlayer = GET_PLAYER(eNewValue);
 
 				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
-				if(pOldCity)
+				if (pOldCity)
 				{
-					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
 						PlayerTypes ePlayer = (PlayerTypes)ui;
-						if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
+						if (GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
 						{
 							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 						}
 					}
 				}
 
-				if(eNewValue >= MAX_MAJOR_CIVS && eNewValue != BARBARIAN_PLAYER)
+				if (eNewValue >= MAX_MAJOR_CIVS && eNewValue != BARBARIAN_PLAYER)
 				{
 					CvPlayer& thisPlayer = GET_PLAYER(eNewValue);
 					CvMinorCivAI* pMinorCivAI = thisPlayer.GetMinorCivAI();
-					if(pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
+					if (pMinorCivAI && pMinorCivAI->GetAlly() != NO_PLAYER)
 					{
 						changeAdjacentSight(GET_PLAYER(pMinorCivAI->GetAlly()).getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 					}
 				}
 
-				if(area())
+				if (area())
 				{
 					area()->changeNumOwnedTiles(1);
 				}
 				GC.getMap().changeOwnedPlots(1);
 
-				if(!isWater())
+				if (!isWater())
 				{
 					GET_PLAYER(getOwner()).changeTotalLand(1);
 					GET_TEAM(getTeam()).changeTotalLand(1);
 
-					if(isOwnershipScore())
+					if (isOwnershipScore())
 					{
 						GET_PLAYER(getOwner()).changeTotalLandScored(1);
 					}
@@ -6125,13 +6134,8 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						setResourceType(eResourceFromImprovement, iQuantity);
 					}
 #endif
-				}
 
-				// Embassy is here (somehow- city-state conquest/reconquest, perhaps?
-				if (eImprovement != NO_IMPROVEMENT)
-				{
-					// Add vote
-					CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
+					// Embassy is here (somehow- city-state conquest/reconquest, perhaps? Add vote
 					if (pImprovementInfo != NULL)
 					{
 						if (pImprovementInfo->GetCityStateExtraVote() > 0)
@@ -6223,12 +6227,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						}
 					}
 				}
-
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-				if (MOD_EVENTS_TILE_IMPROVEMENTS) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileOwnershipChanged, getX(), getY(), getOwner(), eOldOwner);
-				}
-#endif
 			}
 
 			pUnitNode = headUnitNode();
