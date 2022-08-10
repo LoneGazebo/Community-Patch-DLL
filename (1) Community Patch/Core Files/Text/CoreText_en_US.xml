@@ -7481,7 +7481,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] towards 0 (0 [ICON_CAPITAL]) and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 1000 (5 [ICON_CAPITAL]) and enemy Spies will operate more slowly.</Text>
+			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] towards 100 (1/2 [ICON_CAPITAL]) and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 1000 (5 [ICON_CAPITAL]) and enemy Spies will operate more slowly.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">

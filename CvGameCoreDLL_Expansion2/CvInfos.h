@@ -3455,6 +3455,7 @@ public:
 	int GetDeathModifier() const;
 	int GetSpyLevelRequired() const;
 	int getEspionageDifficultyModifier() const;
+	int getEspionageExperience() const;
 	int getDamageCity() const;
 	int getDamageGarrison() const;
 	int getStealTech() const;
@@ -3585,6 +3586,7 @@ protected:
 	int m_iDeathModifier;
 	int m_iSpyLevelRequired;
 	int m_iDifficultyModEsp;
+	int m_iSpyExperience;
 	bool m_bIsMissionSetup;
 	bool m_bRequiresCounterSpy;
 	bool m_bExpiresOnCounterSpyExit;

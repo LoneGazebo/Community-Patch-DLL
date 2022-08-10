@@ -10539,6 +10539,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bLacksPlayerMajority(false),
 	 m_iSpyLevelRequired(0),
 	 m_iDifficultyModEsp(0),
+	 m_iSpyExperience(0),
 	 m_iDamageCity(0),
 	 m_iDamageGarrison(0),
 	 m_iStealTech(0),
@@ -10673,6 +10674,10 @@ bool CvModEventCityChoiceInfo::isSpyMissionSetup() const
 int CvModEventCityChoiceInfo::getEspionageDifficultyModifier() const
 {
 	return m_iDifficultyModEsp;
+}
+int CvModEventCityChoiceInfo::getEspionageExperience() const
+{
+	return m_iSpyExperience;
 }
 int CvModEventCityChoiceInfo::getDamageCity() const
 {
@@ -11254,6 +11259,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iDeathModifier = kResults.GetInt("DeathModifier");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
 	m_iDifficultyModEsp = kResults.GetInt("EspionageDifficultyMod");
+	m_iSpyExperience = kResults.GetInt("ExperienceGainedModifier");
 	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
 	m_bExpiresOnCounterSpyExit = kResults.GetBool("ExpiresOnCounterSpyExit");
 	m_bIsMissionSetup = kResults.GetBool("MissionSetup");

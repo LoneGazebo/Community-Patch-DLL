@@ -822,6 +822,8 @@
 		<Column name="ExpiresOnCounterSpyExit" type="boolean" default="false"/>
 		<!-- Affects duration of mission -->
 		<Column name="EspionageDifficultyMod" type="integer" default="0"/>
+		<!-- Experience Modifier for Missions -->
+		<Column name="ExperienceGainedModifier" type="integer" default="0"/>
 		<!-- Damages city -->
 		<Column name="DamageCity" type="integer" default="0"/>
 		<!-- Damages garrison unit -->

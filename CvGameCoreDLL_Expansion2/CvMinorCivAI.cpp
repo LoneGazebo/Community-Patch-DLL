@@ -10268,7 +10268,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				int iValue = pLoopCity->getPopulation();
 				iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 				iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-				iValue *= pLoopCity->GetEspionageRanking();
+				iValue *= max(1, (pLoopCity->GetEspionageRanking() / 100));
 
 				if(iValue > iBestValue)
 				{
@@ -16257,7 +16257,7 @@ void CvMinorCivAI::DoElection()
 				}
 
 				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
-				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION));
+				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 			}
 			else
 			{

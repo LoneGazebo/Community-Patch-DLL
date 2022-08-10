@@ -8011,13 +8011,7 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 int CvCity::GetEspionageRanking() const
 {
 	VALIDATE_OBJECT
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-		if (GET_PLAYER(getOwner()).isMinorCiv())
-			return 0;
-		else
-			return range((m_iCitySpyRank / 100), 1, 10);
-	else
-		return m_iCitySpyRank;
+	return m_iCitySpyRank;
 }
 int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const
 {
@@ -8028,12 +8022,13 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 	int iRankingMod = 0;
 	if (ePlayer != NO_PLAYER)
 	{
+		iRank = GET_PLAYER(ePlayer).GetEspionage()->GetSpyResistance(GET_PLAYER(this->getOwner()).getCity(GetID()));
 		int iPolicyDifference = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwned(false, true) - GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
-		iPolicyDifference *= -10;
+		iPolicyDifference *= 10;
 		iPolicyDifference = range(iPolicyDifference, -50, 50);
 
 		int iTechDifference = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
-		iTechDifference *= -10;
+		iTechDifference *= 2;
 		iTechDifference = range(iTechDifference, -50, 50);
 
 		int iNumTimesStolenModifier = GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer] * GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer];
@@ -8048,7 +8043,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventInfo != NULL)
 		{
-			iRank = pkEventInfo->getEspionageDifficultyModifier();
+			iRankingMod += pkEventInfo->getEspionageDifficultyModifier();
 
 			if (pkEventInfo->getWonderUnderConstructionSpeedMod() != 0)
 			{
@@ -8079,7 +8074,7 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		}
 	}
 
-	iRank *= max(1, iRankingMod);
+	iRank *= 100 + iRankingMod;
 	iRank /= 100;
 
 	return iRank;
@@ -8092,7 +8087,7 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	{
 		if (GetTurnsSinceLastRankMessage() >= /*60*/ GD_INT_GET(BALANCE_SPY_SABOTAGE_RATE) * 2)
 		{
-			if ((iNewRank / 100) < GetEspionageRanking() && GetEspionageRanking() < 6 && GetEspionageRanking() > 1)
+			if ((iNewRank / 100) < GetEspionageRanking() && GetEspionageRanking() < 600 && GetEspionageRanking() > 100)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
@@ -8151,7 +8146,7 @@ void CvCity::ResetEspionageRanking()
 }
 void CvCity::InitEspionageRanking()
 {
-	m_iCitySpyRank = /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+	m_iCitySpyRank = /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
 
 	if (GC.getLogging())
 	{
