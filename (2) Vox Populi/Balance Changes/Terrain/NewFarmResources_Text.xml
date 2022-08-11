@@ -15,9 +15,6 @@
 		<Row Tag="TXT_KEY_RESOURCE_RICE">
 			<Text>Rice</Text>
 		</Row>
-		<Row Tag="TXT_KEY_RESOURCE_RICE_HELP">
-			<Text>Only found near rivers.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_CIV5_RESOURCE_RICE">
 			<Text>Rice</Text>
 		</Row>

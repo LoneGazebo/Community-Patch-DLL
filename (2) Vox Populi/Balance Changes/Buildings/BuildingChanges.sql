@@ -728,7 +728,12 @@ UPDATE Buildings
 SET CityAirStrikeDefense = '10'
 WHERE Type = 'BUILDING_BOMB_SHELTER';
 
- -- Factory
+-- Refinery
+UPDATE Buildings  
+SET PrereqTech = 'TECH_PLASTIC'
+WHERE Type = 'BUILDING_COAL_PLANT';
+
+-- Factory
 UPDATE Building_YieldChanges
 SET Yield = '5'
 WHERE BuildingType = 'BUILDING_FACTORY';
@@ -1211,6 +1216,7 @@ VALUES
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 VALUES
+	('BUILDING_COAL_PLANT', 'RESOURCE_OIL', 1),
 	('BUILDING_COAL_PLANT', 'RESOURCE_COAL', 1),
 	('BUILDING_COAL_PLANT', 'RESOURCE_IRON', 1);
 

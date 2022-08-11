@@ -1,6 +1,6 @@
 -- Table of Vox Populi tips
 local g_VPTipTable = {
-"Great Person yields are fixed at the moment they are created.", 
+"Great Person yields are determined at the moment they are created.", 
 "Unhappiness from needs caps at city population.", 
 "A large standing army costs less than losing half your empire to an opportunistic neighbor. The AI knows exactly how big your military is, so make sure it's never small.", 
 "Roads and forts can help immensely in both offensive and defensive wars, but be wary of the maintenance cost.",
@@ -8,7 +8,7 @@ local g_VPTipTable = {
 "Against an aggressive warmonger, value defensive positions for your frontier cities instead of good economic output: a lost city will grant you no reward.",
 "Tourism is more than a victory condition: it also helps your trade routes and preserves the buildings and population of conquered cities.",
 "Internal trade routes can be reliable ways to preserve your economy when barbarians and aggressive neighbors roam around.",
-"Never let a settler or great person unguarded.",
+"Never leave a settler or great person unguarded.",
 "Your recon units are most vulnerable near coastal or mountainous tiles, where barbarians can often surprise and trap them.",
 "Founding a religion isn't crucial if you know you can take the Holy City of your neighbor.",
 "Even if you aren't aiming for a diplomatic victory, Great Diplomats are critical to not to be left at the mercy of more influential civilizations after the World Congress is founded.",
@@ -25,7 +25,8 @@ local g_VPTipTable = {
  "When you expend a Great Writer, make sure you do it in a city where you want to grab new tiles from border growth.",
 "Issue move orders with SHIFT+RCLICK to create waypoints.",
 "CTRL+RCLICK issues a 'Move and Act' order. 'Act' depends on the unit: Workers repair tiles and improve resources, missionaries spread religion, diplomatic units spread influence, archaeologists dig, and combat units go into fortify or alert mode.",
-"When voting for resolutions, right-click to assign all delegates and middle click to assign ten."
+"When voting for resolutions, right-click to assign all delegates and middle click to assign ten.",
+"SHIFT+LCLICK on the Next Turn button to issue a skip turn order on all idle units. This can be used if you're experiencing the glitch that prevents progressing to the next turn."
  }
 
 function getVPTip()

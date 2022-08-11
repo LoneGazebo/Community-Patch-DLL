@@ -1338,7 +1338,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
 			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
-			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
+			iExperience *= (100 + pkEventChoiceInfo->getEspionageExperience());
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
 		}
@@ -1348,7 +1348,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		if (!pkEventChoiceInfo->isNoLevelUp())
 		{
 			int iExperience = /*20*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE);
-			iExperience *= pkEventChoiceInfo->getEspionageDifficultyModifier();
+			iExperience *= (100 + pkEventChoiceInfo->getEspionageExperience());
 			iExperience /= 100;
 			DoSpyFocusLevelUp(uiSpyIndex, iExperience);
 		}
@@ -1939,7 +1939,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				iPolicyDifference = range(iPolicyDifference, -50, 50);
 
 				int iTechDifference = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(pCity->getTeam()).GetTeamTechs()->GetNumTechsKnown();
-				iTechDifference *= 10;
+				iTechDifference *= 2;
 				iTechDifference = range(iTechDifference, -50, 50);
 
 				int iNumTimesStolenModifier = pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()] * pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()];
@@ -1989,7 +1989,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
-		int iRank = pCity->GetEspionageRanking();
+		int iRank = pCity->GetEspionageRanking() / 100;
 
 		if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
@@ -2057,7 +2057,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 	}
 	else
 	{
-		int iEspRank = pCity->GetEspionageRanking();
+		int iEspRank = pCity->GetEspionageRanking() / 100;
 
 		int iSpy = GetSpyIndexInCity(pCity);
 		CvEspionageSpy* pSpy = GetSpyByID(iSpy);
@@ -2084,7 +2084,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		iPolicyDifference = range(iPolicyDifference, -50, 50);
 
 		int iTechDifference = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() - GET_TEAM(pCity->getTeam()).GetTeamTechs()->GetNumTechsKnown();
-		iTechDifference *= 10;
+		iTechDifference *= 2;
 		iTechDifference = range(iTechDifference, -50, 50);
 
 		int iNumTimesStolenModifier = pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()] * pCity->GetCityEspionage()->m_aiNumTimesCityRobbed[m_pPlayer->GetID()];
@@ -2136,8 +2136,8 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iBaseDefense = 25;
-	int iChancetoIdentify = 25;
+	int iBaseDefense = 10;
+	int iChancetoIdentify = 15;
 	int iChancetoKill = 0;
 
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -2153,7 +2153,7 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 	bool bCannotDie = (iChancetoKill <= 0);
 
 	//Chance to detect decreases based on city potency. More SECURITY = less likely!
-	int iDefensePower = 5 * max(1, (10 - pCity->GetEspionageRanking()));
+	int iDefensePower = pCity->GetEspionageRanking() / 10;
 	iDefensePower += iBaseDefense;
 
 	PlayerTypes eOwner = pCity->getOwner();
@@ -3307,10 +3307,10 @@ int CvPlayerEspionage::GetSpyPower(CvCity* pCity, int iSpyIndex)
 }
 int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy)
 {
-	int iBaseResistance = /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
+	int iBaseResistance = pCity->GetEspionageRanking();
 
 	int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-	iYieldValue *= 6;
+	iYieldValue *= 5;
 	iYieldValue /= 10;
 
 	int iUnhappinessMod = 0, iPopMod = 0;
@@ -3499,7 +3499,7 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex,
 	break;
 	case SPY_STATE_BUILDING_NETWORK:
 	{
-		int iTime = 10 - pCity->GetEspionageRanking();
+		int iTime = pCity->GetEspionageRanking() / 100;
 		return max(1, iTime);
 	}
 	break;
@@ -3914,8 +3914,8 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 
 	if (iMaxChance <= 5)
 		iMaxChance = 5;
-	else if (iMaxChance >= 25)
-		iMaxChance = 25;
+	else if (iMaxChance >= 75)
+		iMaxChance = 75;
 
 	int iMySpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(m_pPlayer->GetID());
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
@@ -3927,7 +3927,7 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	iMaxChance *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
 	iMaxChance /= 100;
 
-	return range(iMaxChance, 10, 90);
+	return range(iMaxChance, 5, 99);
 }
 
 int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
@@ -4226,6 +4226,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 
 	if (bAttemptSuccess)
 	{
+		LevelUpSpy(uiSpyIndex, /*50*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE));
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 	}
@@ -7243,7 +7244,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 		int iResistance = m_pPlayer->GetEspionage()->GetSpyResistance(pLoopCity);
 
 		//city is safe, or rising? De-emphasize!
-		if (pLoopCity->GetEspionageRanking() > 6 || iResistance > /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))
+		if (pLoopCity->GetEspionageRanking() > 500 || iResistance > /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))
 		{
 			iValue *= 75;
 			iValue /= 100;
@@ -7680,7 +7681,7 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
 				int iResistance = pEspionage->GetSpyResistance(pCity);
-				if (pCity->GetEspionageRanking() < 6)
+				if (pCity->GetEspionageRanking() < 500)
 				{
 					//is our resistance better than average?
 					if (iResistance > /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))

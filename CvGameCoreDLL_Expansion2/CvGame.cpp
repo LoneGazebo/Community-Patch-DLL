@@ -11468,7 +11468,6 @@ void CvGame::SetHighestSpyPotential()
 {	
 	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		// first pass to get the largest base potential available
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -11489,13 +11488,41 @@ void CvGame::SetHighestSpyPotential()
 				int iLoop = 0;
 				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
-					int iResistance = kLoopPlayer.GetEspionage()->GetSpyResistance(pLoopCity);
+					int iYieldMod = pLoopCity->getEconomicValue(pLoopCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
+					iYieldMod *= 5;
+					iYieldMod /= 10;
 
-					//are we better than 'average?'
-					int iDelta = iResistance - /*1000*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT);
+					int iUnhappinessMod = 0, iPopMod = 0;
+					int iPop = pLoopCity->getPopulation();
+					if (iPop > 0)
+					{
+						iUnhappinessMod = (pLoopCity->getUnhappyCitizenCount() * 50) / iPop;
+						iPopMod = 2 * iPop;
+					}
+
+					int iCityDefense = pLoopCity->getStrengthValue() / 100;
+					//negative!
+					int iCityEspionageModifier = pLoopCity->GetEspionageModifier() * -1;
+					//negative!
+					int iPlayerEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetEspionageModifier() * -1;
+					int iTheirPoliciesEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
+
+					int iCounterSpy = 0;
+					if (pLoopCity->GetCityEspionage()->HasCounterSpy())
+					{
+						int iCounterspyIndex = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pLoopCity);
+						int iSpyRank = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pLoopCity->getOwner()) + 1;
+						iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+					}
+
+					int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
+					iFinalModifier -= (iYieldMod + iPopMod + iUnhappinessMod);
+
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
-					if (iDelta != 0)
-						pLoopCity->ChangeEspionageRanking(iDelta, iNumSpies > 0);
+					if (iFinalModifier != 0)
+					{
+						pLoopCity->ChangeEspionageRanking(iFinalModifier, iNumSpies > 0);
+					}
 				}
 			}
 		}

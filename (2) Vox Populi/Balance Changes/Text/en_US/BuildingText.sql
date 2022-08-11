@@ -156,7 +156,7 @@ SET Text = 'Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_G
 WHERE Tag = 'TXT_KEY_BUILDING_MINT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Customs House boosts the Gold value of Trade Routes, and boosts the Tourism you generate from Trade Routes to foreign Civilizations. Build these buildings in all Cities if you wish to improve your Gold ouput as well as the cultural value of your Trade Routes.'
+SET Text = 'The Customs House boosts the Gold value of Trade Routes, and boosts the Tourism you generate from Trade Routes to foreign Civilizations. Build these buildings in all Cities if you wish to improve your Gold output as well as the cultural value of your Trade Routes.'
 WHERE Tag = 'TXT_KEY_BUILDING_MINT_STRATEGY';
 
 UPDATE Language_en_US

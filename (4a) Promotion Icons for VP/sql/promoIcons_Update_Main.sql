@@ -676,3 +676,5 @@ UPDATE UnitPromotions SET PortraitIndex = '35' WHERE Type = 'PROMOTION_JAGUAR';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS' WHERE Type = 'PROMOTION_MOHAWK'; --                                  ->  Combat Bonus in Forest and Jungle (33)
 UPDATE UnitPromotions SET PortraitIndex = '35' WHERE Type = 'PROMOTION_MOHAWK';
 
+-- Professional Soldier
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = '39' WHERE Type = 'PROMOTION_PROFESSIONAL_SOLDIER';
