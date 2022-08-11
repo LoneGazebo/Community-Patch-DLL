@@ -35,13 +35,13 @@ protected:
 	struct SContent {
 		enum { INVALID = 0xFFFF };
 
-		SContent(unsigned short _distance) : distance(_distance), owner(INVALID), feature(INVALID) {}
-		SContent(int _distance, int _owner, int _feature) : distance((unsigned short)_distance), owner((unsigned short)_owner), feature((unsigned short)_feature) {}
+		SContent(unsigned short _distance) : distance(_distance), owner(INVALID), feature(-1) {}
+		SContent(int _distance, int _owner, int _feature) : distance((unsigned short)_distance), owner((unsigned short)_owner), feature(_feature) {}
 
 		//try and save some memory here
 		unsigned short distance;
 		unsigned short owner;
-		unsigned short feature;
+		int feature;
 	};
 
 	std::vector<SContent> m_vData;
