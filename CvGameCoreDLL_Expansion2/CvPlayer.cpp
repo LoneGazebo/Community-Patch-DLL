@@ -40934,11 +40934,16 @@ int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
-	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
-
-	//for minors just assume they have only one city (99% correct)
-	return getCapitalCity();
+	// Optimization for players with only one city.
+	// `CvPlayer::firstCity` does not work here because it will return a const city pointer.
+	if (m_cities.GetCount() == 1)
+	{
+		return m_cities.GetAt(0);
+	}
+	else
+	{
+		return GC.getGame().GetClosestCityByPlots(pPlot, GetID());
+	}
 }
 
 CvCity* CvPlayer::GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const
