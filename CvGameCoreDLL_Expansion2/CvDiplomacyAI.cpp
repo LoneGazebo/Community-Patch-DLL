@@ -53484,8 +53484,8 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 {
 	CvDiplomacyAI* pDiplo = GET_PLAYER(eObserver).GetDiplomacyAI();
 
-	// Must have met the liberator - no cheating!
-	if (!pDiplo->IsHasMet(eLiberator))
+	// Must have met the liberator and liberatee - no cheating!
+	if (!pDiplo->IsHasMet(eLiberator) || !pDiplo->IsHasMet(eNewOwner))
 		return 0;
 
 	// Masters and vassals ignore each other's warmongering.
