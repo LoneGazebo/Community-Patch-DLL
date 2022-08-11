@@ -1917,10 +1917,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER", iBaseYieldRate);
 				}
-				else
-				{
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER", /*100 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT));
-				}
+
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES", iSpeedBonuses);
 
@@ -1949,19 +1946,17 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 				int iDefenseBonuses = iPolicyDifference + iTechDifference + iNumTimesStolenModifier + iCityEspMod + iTheirEspMod;
 
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE", iDefensePower);
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES", iDefenseBonuses);
 
 				if (iCityEspMod != 0)
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD", iCityEspMod);
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD", iCityEspMod * -1);
 				if (iTheirEspMod != 0)
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD", iTheirEspMod);
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD", iTheirEspMod * -1);
 				if (iPolicyDifference != 0)
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY", iPolicyDifference);
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY", iPolicyDifference * -1);
 				if (iTechDifference != 0)
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH", iTechDifference);
+					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH", iTechDifference * -1);
 				if (iNumTimesStolenModifier != 0)
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT", iNumTimesStolenModifier);
 			}
@@ -1998,30 +1993,17 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 				return GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iRank);
 		}
 
-		if (!bNoBasic)
-		{
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iRank);
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
-		}
-		else
-		{
-			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iRank);
-			strSpyAtCity += "[NEWLINE][NEWLINE]";
-		}
-
-		int iYieldMod = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-		iYieldMod *= 5;
-		iYieldMod /= 10;
-
-		int iUnhappinessMod = 0, iPopMod = 0;
+		int iUnhappinessMod = 0;
 		int iPop = pCity->getPopulation();
 		if (iPop > 0)
 		{
-			iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
-			iPopMod = 2*iPop;
+			iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 100) / iPop;
+			iPop *= 2;
 		}
 
-		int iCityDefense = pCity->getStrengthValue() / 100;
+		int iTradeMod = GET_PLAYER(pCity->getOwner()).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
+		iTradeMod *= 10;
+
 		//negative!
 		int iCityEspionageModifier = pCity->GetEspionageModifier() * -1;
 		//negative!
@@ -2036,16 +2018,16 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 		}
 
-		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-		iFinalModifier -= (iYieldMod + iPopMod + iUnhappinessMod);
+		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
+		iFinalModifier -= (iUnhappinessMod + iPop + iTradeMod);
 
 		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_CALCULATION", iFinalModifier, iRank, pCity->GetEspionageRankingForEspionage());
 
 		strSpyAtCity += "[NEWLINE][NEWLINE]";
 
-		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iYieldMod, iPopMod, iUnhappinessMod);
+		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE", iTradeMod, iPop, iUnhappinessMod);
 		strSpyAtCity += "[NEWLINE]";
-		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE", iPlayerEspionageModifier + iTheirPoliciesEspionageModifier, iCityEspionageModifier, iCounterSpy, iCityDefense);
+		strSpyAtCity += GetLocalizedText("TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE", iPlayerEspionageModifier + iTheirPoliciesEspionageModifier, iCityEspionageModifier, iCounterSpy);
 
 		int iEspionageMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 		if (iEspionageMod != 0)
@@ -3287,7 +3269,7 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 
 int CvPlayerEspionage::GetSpyPower(CvCity* pCity, int iSpyIndex)
 {
-	int iBaseSpyPower = /*100 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
+	int iBaseSpyPower = /*100 in CP, 25 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
 
 	int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
 	iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(pCity->getOwner());
@@ -3308,19 +3290,17 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 {
 	int iBaseResistance = pCity->GetEspionageRanking();
 
-	int iYieldValue = pCity->getEconomicValue(pCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-	iYieldValue *= 5;
-	iYieldValue /= 10;
-
-	int iUnhappinessMod = 0, iPopMod = 0;
+	int iUnhappinessMod = 0;
 	int iPop = pCity->getPopulation();
 	if (iPop > 0)
 	{
-		iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 50) / iPop;
-		iPopMod = iPop*2;
+		iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 100) / iPop;
+		iPop *= 2;
 	}
 
-	int iCityDefense = pCity->getStrengthValue() / 100;
+	int iTradeMod = GET_PLAYER(pCity->getOwner()).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
+	iTradeMod *= 10;
+
 	//negative!
 	int iCityEspionageModifier = pCity->GetEspionageModifier() * -1;
 	//negative!
@@ -3342,8 +3322,8 @@ int CvPlayerEspionage::GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSp
 		}
 	}
 
-	int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-	iFinalModifier -= (iYieldValue + iPopMod + iUnhappinessMod);
+	int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
+	iFinalModifier -= (iPop + iTradeMod + iUnhappinessMod);
 
 	iBaseResistance *= 100 + iFinalModifier;
 	iBaseResistance /= 100;

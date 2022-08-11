@@ -11484,19 +11484,17 @@ void CvGame::SetHighestSpyPotential()
 				int iLoop = 0;
 				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
-					int iYieldMod = pLoopCity->getEconomicValue(pLoopCity->getOwner()) * 100 / max(1, GC.getGame().getHighestEconomicValue());
-					iYieldMod *= 5;
-					iYieldMod /= 10;
-
-					int iUnhappinessMod = 0, iPopMod = 0;
+					int iUnhappinessMod = 0;
 					int iPop = pLoopCity->getPopulation();
 					if (iPop > 0)
 					{
-						iUnhappinessMod = (pLoopCity->getUnhappyCitizenCount() * 50) / iPop;
-						iPopMod = 2 * iPop;
+						iUnhappinessMod = (pLoopCity->getUnhappyCitizenCount() * 100) / iPop;
+						iPop *= 2;
 					}
 
-					int iCityDefense = pLoopCity->getStrengthValue() / 100;
+					int iTradeMod = kLoopPlayer.GetTrade()->GetNumberOfTradeRoutesCity(pLoopCity);
+					iTradeMod *= 10;
+
 					//negative!
 					int iCityEspionageModifier = pLoopCity->GetEspionageModifier() * -1;
 					//negative!
@@ -11511,8 +11509,8 @@ void CvGame::SetHighestSpyPotential()
 						iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 					}
 
-					int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy + iCityDefense;
-					iFinalModifier -= (iYieldMod + iPopMod + iUnhappinessMod);
+					int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
+					iFinalModifier -= (iPop + iTradeMod + iUnhappinessMod);
 
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iFinalModifier != 0)
