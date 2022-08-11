@@ -242,6 +242,7 @@ function AssignStartingPlots.Create()
 		AdjustTiles = AssignStartingPlots.AdjustTiles,
 		PlaceBonusResources = AssignStartingPlots.PlaceBonusResources,
 		IsEvenMoreResourcesActive = AssignStartingPlots.IsEvenMoreResourcesActive,
+		IsReducedSupplyActive = AssignStartingPlots.IsReducedSupplyActive,
 		Plot_GetPlotsInCircle = AssignStartingPlots.Plot_GetPlotsInCircle,
 		Plot_GetFertilityInRange = AssignStartingPlots.Plot_GetFertilityInRange,
 		Plot_GetFertility = AssignStartingPlots.Plot_GetFertility,
@@ -11007,6 +11008,12 @@ function AssignStartingPlots:GetMajorStrategicResourceQuantityValues()
 	elseif self.resSize == 3 then -- Large
 		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 4, 6, 9, 6, 7, 10;
 	end
+
+	if self:IsReducedSupplyActive() then
+		print("Reduced Supply Mod is active, halving major strategic supply quantity values")
+		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = math.floor(uran_amt / 2), math.floor(horse_amt / 2), math.floor(oil_amt / 2), math.floor(iron_amt / 2), math.floor(coal_amt / 2), math.floor(alum_amt / 2);
+	end
+
 	return uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt
 end
 ------------------------------------------------------------------------------
@@ -11019,6 +11026,12 @@ function AssignStartingPlots:GetSmallStrategicResourceQuantityValues()
 	elseif self.resSize == 3 then -- Large
 		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 2, 2, 2, 2, 2, 3;
 	end
+
+	if self:IsReducedSupplyActive() then
+		print("Reduced Supply Mod is active, halving small strategic supply quantity values")
+		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 1, 1, 1, 1, 1, 2;
+	end
+
 	return uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt
 end
 ------------------------------------------------------------------------------
@@ -11517,7 +11530,25 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 	end
 	return isUsingEvenMoreResources
 end
+--------------------------------------------------------------------------------
+-- Check if Reduced Supply for Vox Populi is activated
+function AssignStartingPlots:IsReducedSupplyActive()
+	local communityPatchModID = "d1b6328c-ff44-4b0d-aad7-c657f83610cd"
+	local ReducedSupplyModID = "abbade81-2894-41e9-SUPP-SWVPx13a770d"
+	local isUsingCommunityPatch = false
+	local isUsingReducedSupply = false
 
+	for _, mod in pairs(Modding.GetActivatedMods()) do
+		if (mod.ID == communityPatchModID) then -- if Community Patch is not activated, then we are running in modpack mode
+			isUsingCommunityPatch = true
+		elseif (mod.ID == ReducedSupplyModID) then
+			isUsingReducedSupply = true
+			break
+		end
+	end
+
+	return isUsingReducedSupply
+end
 ----------------------------------------------------------------
 function AssignStartingPlots:Plot_GetPlotsInCircle(plot, minR, maxR)
 	if not plot then
