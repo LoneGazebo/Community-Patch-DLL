@@ -16642,6 +16642,33 @@ bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
 }
 
 //	--------------------------------------------------------------------------------
+/// Who owns this city for the purposes of a Domination Victory?
+/// Note: This function assumes the city is an original major capital.
+PlayerTypes CvCity::GetOwnerForDominationVictory() const
+{
+	PlayerTypes eCapitalOwner = getOwner();
+	TeamTypes eOwnerTeam = getTeam();
+
+	// City-States' allies control the capital.
+	if (GET_PLAYER(eCapitalOwner).isMinorCiv())
+	{
+		PlayerTypes eAlly = GET_PLAYER(eCapitalOwner).GetMinorCivAI()->GetAlly();
+		if (eAlly != NO_PLAYER)
+			return eAlly;
+	}
+	// Vassals' masters control the capital.
+	else if (GET_TEAM(eOwnerTeam).IsVassalOfSomeone())
+	{
+		TeamTypes eMasterTeam = GET_TEAM(eOwnerTeam).GetMaster();
+		if (GET_TEAM(eMasterTeam).getLeaderID() != NO_PLAYER)
+			return GET_TEAM(eMasterTeam).getLeaderID();
+	}
+
+	// Otherwise, the owner controls the capital.
+	return eCapitalOwner;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvCity::isCoastal(int iMinWaterSize) const
 {
 	VALIDATE_OBJECT

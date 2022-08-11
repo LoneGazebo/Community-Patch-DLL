@@ -500,6 +500,7 @@ public:
 	bool IsOriginalMajorCapital() const; // is the original capital of a major civ
 	bool IsOriginalMinorCapital() const;
 	bool IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const;
+	PlayerTypes GetOwnerForDominationVictory() const;
 
 	bool isCoastal(int iMinWaterSize = -1) const;
 	bool isAddsFreshWater() const;

@@ -12774,114 +12774,82 @@ int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
 /// slewis, 10.1.12 - changing conquest so that a player has to hold all capitals
 void CvGame::DoTestConquestVictory()
 {
-	TeamTypes eTeamWhoWon = NO_TEAM;
-
-	PlayerTypes eLoopPlayer;
-
-	// find out how many original capitals there are
-	int iNumOriginalCapitals = 0;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	VictoryTypes eConquestVictory = NO_VICTORY;
+	for (int iVictoryLoop = 0; iVictoryLoop < GC.getNumVictoryInfos(); iVictoryLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(GET_PLAYER(eLoopPlayer).isAlive())
+		VictoryTypes eLoopVictory = static_cast<VictoryTypes>(iVictoryLoop);
+		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eLoopVictory);
+		if (pkVictoryInfo && pkVictoryInfo->isConquest())
 		{
-			int iCityLoop;
-			CvCity* pLoopCity = NULL;
-			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			if (isVictoryValid(eLoopVictory))
 			{
-				if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
-				{
-					iNumOriginalCapitals += 1;
-				}
-			}
-		}
-	}
-
-	CvAssertMsg(iNumOriginalCapitals > 0, "No one controls an original capital. This is wrong.");
-
-	// find out if any team controls all the capitals
-	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-	{
-		int iNumCapitalsControlled = 0;
-		if(GET_TEAM((TeamTypes)iTeamLoop).isAlive())
-		{
-			if (GET_TEAM((TeamTypes)iTeamLoop).IsVassalOfSomeone())
-				continue;
-
-			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iTeamLoop)
-				{
-					int iCityLoop;
-					CvCity* pLoopCity = NULL;
-					for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
-					{
-						if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
-						{
-							iNumCapitalsControlled += 1;
-						}
-					}
-				}
-			}
-			if (GET_TEAM((TeamTypes)iTeamLoop).GetNumVassals() > 0)
-			{
-				for (int iVassalLoop = 0; iVassalLoop < MAX_CIV_TEAMS; iVassalLoop++)
-				{
-					if (GET_TEAM((TeamTypes)iVassalLoop).isAlive())
-					{
-						//C4DF: We include vassals for count!
-						if (!GET_TEAM((TeamTypes)iTeamLoop).IsVassal((TeamTypes)iTeamLoop))
-							continue;
-
-						for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-						{
-							eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == (TeamTypes)iVassalLoop)
-							{
-								int iCityLoop;
-								CvCity* pLoopCity = NULL;
-								for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
-								{
-									if (pLoopCity->getOriginalOwner() < MAX_MAJOR_CIVS && pLoopCity->IsOriginalCapital())
-									{
-										iNumCapitalsControlled += 1;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-			if (iNumCapitalsControlled == iNumOriginalCapitals)
-			{
-				eTeamWhoWon = (TeamTypes)iTeamLoop;
+				eConquestVictory = eLoopVictory;
 				break;
 			}
+
+			return; // Domination Victory is disabled
 		}
 	}
 
-	// If we got here then only one player remains alive!
-	if (eTeamWhoWon != NO_TEAM)
+	// Find out how many original capitals there are
+	int iNumOriginalCapitals = 0;
+	std::vector<CvCity*> OriginalCapitals;
+	CvMap& kMap = GC.getMap();
+
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		for(int iVictoryLoop = 0; iVictoryLoop < GC.getNumVictoryInfos(); iVictoryLoop++)
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+
+		if (!kLoopPlayer.isEverAlive())
+			continue;
+
+		const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
+		const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
+
+		if (iOriginalCapitalX == -1 || iOriginalCapitalY == -1)
+			continue;
+
+		CvPlot* pCapitalPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
+		if (pCapitalPlot)
 		{
-			VictoryTypes eVictory = static_cast<VictoryTypes>(iVictoryLoop);
-			CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-			if(pkVictoryInfo)
+			CvCity* pCapital = pCapitalPlot->getPlotCity();
+			if (pCapital)
 			{
-				if(pkVictoryInfo->isConquest() && isVictoryValid(eVictory))
-				{
-					CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", eTeamWhoWon, eVictory);
-					setWinner(eTeamWhoWon, eVictory);
-				}
+				iNumOriginalCapitals++;
+				OriginalCapitals.push_back(pCapital);
 			}
 		}
 	}
+
+	if (iNumOriginalCapitals == 0)
+		return;
+
+	// Go through all capitals and see if they are all owned by the same major team
+	TeamTypes ePossibleWinner = NO_TEAM;
+	for (size_t i = 0; i < OriginalCapitals.size(); i++)
+	{
+		// Note: For Domination Victories, City-States' allies control their capitals, and vassals' masters control their capitals.
+		PlayerTypes eCapitalOwner = OriginalCapitals[i]->GetOwnerForDominationVictory();
+
+		// If effectively owned by Barbarians or City-States, Domination Victory is impossible!
+		if (!GET_PLAYER(eCapitalOwner).isMajorCiv())
+			return;
+
+		// First loop?
+		if (ePossibleWinner == NO_TEAM)
+		{
+			ePossibleWinner = GET_PLAYER(eCapitalOwner).getTeam();
+			continue;
+		}
+
+		// Subsequent loop? If this team isn't the first team, no one has won.
+		if (GET_PLAYER(eCapitalOwner).getTeam() != ePossibleWinner)
+			return;
+	}
+
+	// The winner wins!
+	CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", ePossibleWinner, eConquestVictory);
+	setWinner(ePossibleWinner, eConquestVictory);
 }
 
 //	--------------------------------------------------------------------------------
