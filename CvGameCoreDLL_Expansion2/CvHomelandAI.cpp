@@ -3091,6 +3091,9 @@ void CvHomelandAI::ExecuteWriterMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -3206,6 +3209,9 @@ void CvHomelandAI::ExecuteArtistMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -3321,6 +3327,9 @@ void CvHomelandAI::ExecuteMusicianMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -3364,6 +3373,9 @@ void CvHomelandAI::ExecuteScientistMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -3571,6 +3583,9 @@ void CvHomelandAI::ExecuteEngineerMoves()
 		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
 			MoveCivilianToSafety(pUnit);
 			break;
+
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -3586,12 +3601,11 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 			continue;
 		}
 
-		//Handled by economic AI
-		GreatPeopleDirectiveTypes eDirective = pUnit->GetGreatPeopleDirective();
-		if (eDirective==GREAT_PEOPLE_DIRECTIVE_USE_POWER)
-			continue;
-
-		if (eDirective == GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT)
+		switch (pUnit->GetGreatPeopleDirective())
+		{
+		case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
+			continue; //Handled by economic AI
+		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
 			//stupid workaround to call CvPlayerAI method
 			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
@@ -3616,18 +3630,19 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 					}
 				}
 			}
-			else
-				MoveCivilianToSafety(pUnit);
+			break;
 		}
-
-		//no directive
-		MoveCivilianToSafety(pUnit);
-
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strLogString;
-			strLogString.Format("Moving Great Diplomat to safety.");
-			LogHomelandMessage(strLogString);
+		case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
+			MoveCivilianToSafety(pUnit);
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Moving Great Diplomat to safety.");
+				LogHomelandMessage(strLogString);
+			}
+			break;
+		default:
+			UNREACHABLE();
 		}
 
 		UnitProcessed(pUnit->GetID());
@@ -3775,6 +3790,8 @@ void CvHomelandAI::ExecuteMerchantMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+		default:
+			UNREACHABLE();
 		}
 
 	}
@@ -3912,6 +3929,8 @@ void CvHomelandAI::ExecuteProphetMoves()
 			MoveCivilianToSafety(pUnit);
 			UnitProcessed(pUnit->GetID());
 			break;
+		default:
+			UNREACHABLE();
 		}
 	}
 }
@@ -4348,13 +4367,15 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			switch (pLoopUnit->getUnitInfo().GetDefaultUnitAIType())
 			{
 			case UNITAI_DEFENSE_AIR:
-					nAirUnitsDefensive++;
-					break;
+				nAirUnitsDefensive++;
+				break;
 			case UNITAI_ATTACK_AIR:
 			case UNITAI_ICBM:
 			case UNITAI_MISSILE_AIR:
-					nAirUnitsOffensive++;
-					break;
+				nAirUnitsOffensive++;
+				break;
+			default:
+				break;
 			}
 
 			if (pLoopUnit->getTransportUnit()!=NULL)
@@ -5108,6 +5129,8 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 					bSuitableUnit = true;
 				}
 				break;
+			default:
+				continue;
 			}
 
 			// If unit was suitable, add it to the proper list
@@ -5816,6 +5839,8 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 		case UNITAI_MISSILE_AIR:
 			iOffensive++;
 			break;
+		default:
+			break;
 		}
 
 		pUnitNode = pBasePlot->nextUnitNode(pUnitNode);
@@ -5831,6 +5856,8 @@ bool HomelandAIHelpers::IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit)
 	case UNITAI_ICBM:
 	case UNITAI_MISSILE_AIR:
 		return iOffensive<iDefensive+3;
+		break;
+	default:
 		break;
 	}
 
@@ -5909,6 +5936,8 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 					iBaseScore += 20; 
 				break;
 			}
+		default:
+			break;
 		}
 	}
 

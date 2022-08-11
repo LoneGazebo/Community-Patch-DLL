@@ -6,7 +6,7 @@
 	All rights reserved. 
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
-#include ".\cvreplaymessage.h"
+#include ".\CvReplayMessage.h"
 #include "CvEnumSerialization.h"
 
 // include this after all other headers!

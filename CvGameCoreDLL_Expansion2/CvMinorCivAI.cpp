@@ -1187,6 +1187,8 @@ int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
 		iValue = GET_PLAYER(ePlayer).GetCulture()->GetTourism() / 100;
 		break;
 	}
+	default:
+		break; // Not a contest quest.
 	}
 
 	return iValue;
@@ -1286,6 +1288,8 @@ bool CvMinorCivQuest::IsComplete()
 
 	switch (m_eType)
 	{
+	case NO_MINOR_CIV_QUEST_TYPE:
+		UNREACHABLE();
 	case MINOR_CIV_QUEST_ROUTE:
 	{
 		// Road connection established?
@@ -4482,6 +4486,10 @@ void CvMinorCivAI::DoPickPersonality()
 		}
 	}
 
+	CvAssert(eFlavorCityDefense != NO_FLAVOR);
+	CvAssert(eFlavorDefense != NO_FLAVOR);
+	CvAssert(eFlavorOffense != NO_FLAVOR);
+
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	CvEnumMap<FlavorTypes, int>& pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
@@ -4506,6 +4514,8 @@ void CvMinorCivAI::DoPickPersonality()
 		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, iSeed);
 		pFlavorManager->ResetToBasePersonality();
 		break;
+	default:
+		break; // TODO: Why do other personalities not have their flavors modified?
 	}
 }
 
@@ -7540,9 +7550,9 @@ bool CvMinorCivAI::IsGlobalQuest(MinorCivQuestTypes eQuest) const
 		return true;
 	case MINOR_CIV_QUEST_REBELLION:
 		return true;
+	default:
+		return false;
 	}
-
-	return false;
 }
 
 bool CvMinorCivAI::IsPersonalQuest(MinorCivQuestTypes eQuest) const
@@ -7608,6 +7618,8 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 
 	switch (eQuest)
 	{
+	case NO_MINOR_CIV_QUEST_TYPE:
+		UNREACHABLE();
 	case MINOR_CIV_QUEST_ROUTE:
 	{
 		if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
@@ -8534,7 +8546,7 @@ int CvMinorCivAI::GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) c
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) CvMinorCivQuest::NO_QUEST_DATA;
+	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return CvMinorCivQuest::NO_QUEST_DATA;
 
 	for(uint iQuestLoop = 0; iQuestLoop < m_QuestsGiven[ePlayer].size(); iQuestLoop++)
 	{
@@ -15874,7 +15886,9 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 					switch (eTrait)
 					{
-					case(MINOR_CIV_TRAIT_CULTURED) :
+					case NO_MINOR_CIV_TRAIT_TYPE:
+						UNREACHABLE();
+					case MINOR_CIV_TRAIT_CULTURED:
 					{
 						int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE, true);
 						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
@@ -15882,7 +15896,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_CULTURE);
 						break;
 					}
-					case(MINOR_CIV_TRAIT_MARITIME) :
+					case MINOR_CIV_TRAIT_MARITIME:
 					{
 						int iYield = GetYieldTheftAmount(eBully, YIELD_FOOD, true);
 						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
@@ -15898,7 +15912,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_GOLD);
 						break;
 					}
-					case(MINOR_CIV_TRAIT_MILITARISTIC) :
+					case MINOR_CIV_TRAIT_MILITARISTIC:
 					{
 						int iYield = GetYieldTheftAmount(eBully, YIELD_SCIENCE, true);
 						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
@@ -15906,7 +15920,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_SCIENCE);
 						break;
 					}
-					case(MINOR_CIV_TRAIT_RELIGIOUS) :
+					case MINOR_CIV_TRAIT_RELIGIOUS:
 					{
 						int iYield = GetYieldTheftAmount(eBully, YIELD_FAITH, true);
 						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();

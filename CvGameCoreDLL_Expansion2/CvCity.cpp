@@ -114,7 +114,7 @@ namespace FSerialization
 template <typename T>
 bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int value, bool modifyExisting)
 {
-	for (vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
 	{
 		if (it->first == key)
 		{
@@ -151,7 +151,7 @@ bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int valu
 template <typename T>
 int ModifierLookup(const vector<pair<T, int>>& container, T key)
 {
-	for (vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
 		if (it->first == key)
 			return it->second;
 
@@ -19426,10 +19426,11 @@ int CvCity::GetFaithPerTurn() const
 	// City modifier
 	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
 
-	// Puppet?
+	// FIXME: EUI doesn't expect `CvCity::getBaseYieldRateModifier` to populate the puppet modifier for faith.
+	// EUI should be fixed and this behavior moved to `CvCity::getBaseYieldRateModifier`.
 	if (IsPuppet())
 	{
-		int iTempMod = /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER) + GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction();
+		int iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 		if (iTempMod > 0)
 			iTempMod = 0;
 		iModifier += iTempMod;
@@ -22162,25 +22163,33 @@ CvString CvCity::getPotentialUnhappinessWithGrowth()
 	CvString strPotential = GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH");
 
 	if (potDefUnhappy != 0)
+	{
 		if (potDefUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", potDefUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS", potDefUnhappy);
+	}
 	if (potGoldUnhappy != 0)
+	{
 		if (potGoldUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", potGoldUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS", potGoldUnhappy);
+	}
 	if (potSciUnhappy != 0)
+	{
 		if (potSciUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", potSciUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS", potSciUnhappy);
+	}
 	if (potCulUnhappy != 0)
+	{
 		if (potCulUnhappy > 0)
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", potCulUnhappy);
 		else
 			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS", potCulUnhappy);
+	}
 
 	return strPotential;
 }
@@ -22781,10 +22790,12 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappy);
 
 	if (iMinorityUnhappy != 0)
+	{
 		if (strReligionIcon != "")
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, strReligionIcon, iReductionFaith);
 		else
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, "[ICON_RELIGION]", iReductionFaith);
+	}
 
 	/*Illiteracy*/
 	if (iYieldSci >= iNeedSci)
@@ -22812,10 +22823,12 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorTe
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTech);
 
 		if (iPopMod != 0)
+		{
 			if (iPopMod > 0)
 				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iPopMod);
 			else
 				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+		}
 
 		if (iEmpireMod != 0)
 			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
@@ -24875,7 +24888,41 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
 				iTempMod = 0;
 			iModifier += iTempMod;
-			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			// FIXME: Disabled because EUI doesn't interact well with this.
+			// EUI should be fixed and this re-enabled.
+			/*
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			*/
+			break;
+
+		case YIELD_FAITH:
+			// FIXME: EUI doesn't expect this information to be populated for faith.
+			// Because of this, the calculation is handled in `CvCity::GetFaithPerTurn`.
+			// EUI should be fixed and this re-enabled.
+			/*
+			iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + GD_INT_GET(PUPPET_FAITH_MODIFIER);
+			if (iTempMod > 0)
+				iTempMod = 0;
+			iModifier += iTempMod;
+
+			if (iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			*/
+			break;
+
+		case NO_YIELD:
+		case YIELD_FOOD:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // Yield unaffected by being a puppet.
 		}
 	}
 
@@ -27359,6 +27406,8 @@ int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) cons
 				*toolTipSink += "[NEWLINE][BULLET]";
 				*toolTipSink += GetLocalizedText("TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
 				break;
+			default:
+				UNREACHABLE(); // All other yields cannot be acquired from trade.
 			}
 		}
 	}
@@ -29250,7 +29299,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 								}
 								if (pAdjacentPlot->getOwner() == getOwner())
 								{
-									iUsOwned;
+									iUsOwned++;
 								}
 							}
 						}
@@ -29537,7 +29586,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 			{
 				DisputeLevelTypes eLandDisputeLevel = owningPlayerDiploAI->GetLandDisputeLevel((PlayerTypes)iI);
 
-				if (eLandDisputeLevel != NO_DISPUTE_LEVEL && eLandDisputeLevel != DISPUTE_LEVEL_NONE)
+				if (eLandDisputeLevel != DISPUTE_LEVEL_NONE)
 				{
 					CvCity* pCity = GC.getMap().findCity(pPlot->getX(), pPlot->getY(), (PlayerTypes)iI, NO_TEAM, true /*bSameArea */);
 
@@ -29573,6 +29622,8 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 									iRtnValue *= 2;
 
 								break;
+							case DISPUTE_LEVEL_NONE:
+								UNREACHABLE();
 							}
 						}
 					}
@@ -30960,6 +31011,9 @@ bool IsValidPlotForUnitType(CvPlot* pPlot, PlayerTypes ePlayer, CvUnitEntry* pkU
 	bool bAccept = false;
 	switch (pkUnitInfo->GetDomainType())
 	{
+	case NO_DOMAIN:
+	case DOMAIN_IMMOBILE:
+		break;
 	case DOMAIN_AIR:
 		bAccept = pPlot->isCity();
 		break;
@@ -31557,6 +31611,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		}
 	}
 	break;
+	default:
+		// This function is accessible from Lua scripts so it's incorrect to assume this is unreachable unless we make the Lua function
+		// throw errors for non-gold/faith inputs.
+		CvAssertMsg(false, "CvCity::IsCanPurchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		return false;
 	}
 
 	return true;
@@ -32111,6 +32170,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		}
 	}
 	break;
+	default:
+		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
+		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
 	}
 }
 
@@ -33090,32 +33152,31 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 				bool bIsValid = false;
 				switch (order.eOrderType)
 				{
+				case NO_ORDER:
+					break;
+
 				case ORDER_TRAIN:
 					bIsValid = GC.getUnitInfo(UnitTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Unit in build queue is invalid");
 					break;
 
 				case ORDER_CONSTRUCT:
 					bIsValid = GC.getBuildingInfo(BuildingTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Building in build queue is invalid");
 					break;
 
 				case ORDER_CREATE:
 					bIsValid = GC.getProjectInfo(ProjectTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Project in build queue is invalid");
 					break;
 
 				case ORDER_PREPARE:
 					bIsValid = GC.getSpecialistInfo(SpecialistTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Specialize in build queue is invalid");
 					break;
 
 				case ORDER_MAINTAIN:
 					bIsValid = GC.getProcessInfo(ProcessTypes(order.iData1)) != NULL;
-					CvAssertMsg(bIsValid, "Process in build queue is invalid");
 					break;
 				}
 
+				CvAssertMsg(bIsValid, "Unit in build queue is invalid");
 				if (bIsValid)
 					city.m_orderQueue.insertAtEnd(&order);
 			}

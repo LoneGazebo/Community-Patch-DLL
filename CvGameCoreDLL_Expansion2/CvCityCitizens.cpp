@@ -15,7 +15,7 @@ All rights reserved.
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#include "cvMilitaryAI.h"
+#include "CvMilitaryAI.h"
 #include "CvTypes.h"
 #include "CvEnumMapSerialization.h"
 
@@ -3527,8 +3527,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 {
 	YieldTypes eTargetYield = NO_YIELD;
+	
 	switch (eFocus)
 	{
+	case NO_CITY_AI_FOCUS_TYPE:
+		eTargetYield = NO_YIELD;
+		break;
 	case CITY_AI_FOCUS_TYPE_PRODUCTION:
 		eTargetYield = YIELD_PRODUCTION;
 		break;
@@ -3547,6 +3551,10 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 	case CITY_AI_FOCUS_TYPE_SCIENCE:
 		eTargetYield = YIELD_SCIENCE;
 		break;
+	case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
+	case CITY_AI_FOCUS_TYPE_PROD_GROWTH:
+	case CITY_AI_FOCUS_TYPE_GOLD_GROWTH:
+		break; // No yield to map too.
 	}
 
 	return eTargetYield;

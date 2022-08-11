@@ -1299,6 +1299,8 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		case UNITAI_DIPLOMAT:
 			eDirective = GetDirectiveDiplomat(pLoopUnit);
 			break;
+		default:
+			continue; // Not a great person.
 		}
 
 		pLoopUnit->SetGreatPeopleDirective(eDirective);
@@ -1663,12 +1665,16 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		{
 			switch (pLoopUnit->GetGreatPeopleDirective())
 			{
+			case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
+				break;
 			case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
 				iCitadels++;
 				break;
 			case GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND:
 				iCommanders++;
 				break;
+			default:
+				UNREACHABLE(); // Great generals shouldn't have directives other than these.
 			}
 		}
 	}

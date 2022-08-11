@@ -158,14 +158,19 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 
 bool CvAdvisorRecommender::IsUnitRecommended(UnitTypes eUnit, AdvisorTypes eAdvisor)
 {
-	if(m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_UNIT && (UnitTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eUnit)
+	switch (m_aRecommendedBuilds[eAdvisor].m_eBuildableType)
 	{
-		return true;
+	case CITY_BUILDABLE_UNIT:
+	case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+	case CITY_BUILDABLE_UNIT_FOR_ARMY:
+		return static_cast<UnitTypes>(m_aRecommendedBuilds[eAdvisor].m_iIndex) == eUnit;
+	case NOT_A_CITY_BUILDABLE:
+	case CITY_BUILDABLE_BUILDING:
+	case CITY_BUILDABLE_PROJECT:
+	case CITY_BUILDABLE_PROCESS:
+		break;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 bool  CvAdvisorRecommender::IsBuildingRecommended(BuildingTypes eBuilding, AdvisorTypes eAdvisor)
@@ -286,6 +291,8 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 	//todo: normalize weights!
 	switch(eAdvisor)
 	{
+	case NO_ADVISOR_TYPE:
+		break;
 	case ADVISOR_ECONOMIC:
 		if(strFlavorName == "FLAVOR_CITY_DEFENSE")
 		{
@@ -504,7 +511,6 @@ int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorT
 		}
 		break;
 	}
-
 	return 0;
 }
 
@@ -561,18 +567,14 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes /*ePlayer*/, CvCityBuildable& buildable)
 {
-	int aiAdvisorValues[NUM_ADVISOR_TYPES];
-	for(uint ui = 0; ui < NUM_ADVISOR_TYPES; ui++)
-	{
-		aiAdvisorValues[ui] = 0;
-	}
-
 	CvBuildingEntry* pBuilding = NULL;
 	CvUnitEntry*     pUnit     = NULL;
 	CvProjectEntry*  pProject  = NULL;
 	switch(buildable.m_eBuildableType)
 	{
 	case CITY_BUILDABLE_UNIT:
+	case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+	case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		pUnit = GC.getUnitInfo((UnitTypes)buildable.m_iIndex);
 		break;
 	case CITY_BUILDABLE_BUILDING:
@@ -581,6 +583,15 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 	case CITY_BUILDABLE_PROJECT:
 		pProject = GC.getProjectInfo((ProjectTypes)buildable.m_iIndex);
 		break;
+	case NOT_A_CITY_BUILDABLE:
+	case CITY_BUILDABLE_PROCESS:
+		return NO_ADVISOR_TYPE;
+	}
+
+	int aiAdvisorValues[NUM_ADVISOR_TYPES];
+	for(uint ui = 0; ui < NUM_ADVISOR_TYPES; ui++)
+	{
+		aiAdvisorValues[ui] = 0;
 	}
 
 	for(int i = 0; i < GC.getNumFlavorTypes(); i++)

@@ -911,7 +911,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	ResetDigCompletePlots();
 
 	m_iLastTurnLifetimeCulture = 0;
-	m_iLastTurnCPT;
+	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iRawWarWeariness = 0;
@@ -3365,6 +3365,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	switch (eChoice)
 	{
+	case NO_ARCHAEOLOGY_CHOICE:
 	case ARCHAEOLOGY_DO_NOTHING:
 		break;
 	case ARCHAEOLOGY_LANDMARK:
@@ -4620,11 +4621,14 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 
 	int iRtnValue = 0;
 
-	if (ePlayer < MAX_MAJOR_CIVS)
+	if (ePlayer > NO_PLAYER && ePlayer < MAX_MAJOR_CIVS)
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break;
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*200*/ GD_INT_GET(BALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4659,6 +4663,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) cons
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*5*/ GD_INT_GET(BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4689,6 +4696,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*0 in CP, 2 in VP*/ GD_INT_GET(BALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4720,6 +4730,9 @@ int CvPlayerCulture::GetInfluenceCityConquestReduction(PlayerTypes ePlayer) cons
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = 10;
 			break;
@@ -4752,25 +4765,26 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 
 		if (MOD_BALANCE_CORE_SPIES)
 		{
-			if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+			switch (eLevel)
 			{
+			case NO_INFLUENCE_LEVEL:
+			case INFLUENCE_LEVEL_UNKNOWN:
+				break; // No impact.
+			case INFLUENCE_LEVEL_EXOTIC:
 				iRtnValue = /*5*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_EXOTIC);
-			}
-			if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-			{
+				break;
+			case INFLUENCE_LEVEL_FAMILIAR:
 				iRtnValue = /*4*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_FAMILIAR);
-			}
-			if (eLevel == INFLUENCE_LEVEL_POPULAR)
-			{
+				break;
+			case INFLUENCE_LEVEL_POPULAR:
 				iRtnValue = /*3*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_POPULAR);
-			}
-			if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-			{
+				break;
+			case INFLUENCE_LEVEL_INFLUENTIAL:
 				iRtnValue = /*2*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL);
-			}
-			if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-			{
+				break;
+			case INFLUENCE_LEVEL_DOMINANT:
 				iRtnValue = /*1*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_DOMINANT);
+				break;
 			}
 		}
 		else if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
@@ -4815,6 +4829,11 @@ int CvPlayerCulture::GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePla
 			InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
 			switch (eLevel)
 			{
+			case NO_INFLUENCE_LEVEL:
+			case INFLUENCE_LEVEL_UNKNOWN:
+			case INFLUENCE_LEVEL_EXOTIC:
+			case INFLUENCE_LEVEL_FAMILIAR:
+				break; // No impact.
 			case INFLUENCE_LEVEL_POPULAR:
 				iRtnValue = 1;
 				break;
@@ -4839,6 +4858,12 @@ int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 	InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 	switch (eLevel)
 	{
+	case NO_INFLUENCE_LEVEL:
+	case INFLUENCE_LEVEL_UNKNOWN:
+	case INFLUENCE_LEVEL_EXOTIC:
+	case INFLUENCE_LEVEL_FAMILIAR:
+	case INFLUENCE_LEVEL_POPULAR:
+		break; // No impact.
 	case INFLUENCE_LEVEL_INFLUENTIAL:
 		iRtnValue = 1;
 		break;

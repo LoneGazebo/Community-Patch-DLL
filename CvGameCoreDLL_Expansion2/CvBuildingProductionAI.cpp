@@ -923,6 +923,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			switch (eYield)
 			{
+			case NO_YIELD:
+				UNREACHABLE();
 			case YIELD_GOLD:
 				if (iAvgGPT < 0)
 				{
@@ -1013,6 +1015,16 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldTrait /= 2;
 				}
 				break;
+			case YIELD_GREAT_GENERAL_POINTS:
+			case YIELD_GREAT_ADMIRAL_POINTS:
+			case YIELD_POPULATION:
+			case YIELD_CULTURE_LOCAL:
+			case YIELD_JFD_HEALTH:
+			case YIELD_JFD_DISEASE:
+			case YIELD_JFD_CRIME:
+			case YIELD_JFD_LOYALTY:
+			case YIELD_JFD_SOVEREIGNTY:
+				break; // TODO: These yields have no special scoring behavior.
 			}
 			
 			if (eFocusYield == eYield)

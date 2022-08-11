@@ -55,7 +55,7 @@ public:
 	enum SeekMode { begin=0, current=1, end=2 };
 	enum OpenMode { modeRead=1, modeWrite=2, modeEdit=3 };
 
-	virtual ~FIFile() = 0 { };
+	virtual ~FIFile() = 0;
 
 	virtual FileErr Open( const  char*  szFileName, OpenMode eOpenMode = modeRead, dword dwFlags = FFILE_FLAG_DEFAULT, uint uiBufferSize = FFILE_DEFAULT_BUFFER_SIZE ) = 0;
 	virtual FileErr Open( const wchar* wszFileName, OpenMode eOpenMode = modeRead, dword dwFlags = FFILE_FLAG_DEFAULT, uint uiBufferSize = FFILE_DEFAULT_BUFFER_SIZE ) = 0;
@@ -118,6 +118,7 @@ protected:
 	// Assignment operator protection
 	FIFile& operator=( const FIFile& obj );
 };
+inline FIFile::~FIFile() {}
 
 /*	An encapsulation of an FIFile class that allows for auto creation and destruction.
 	Use this where you used to use the FFile class.  This allows the file system implementation code

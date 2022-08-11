@@ -186,7 +186,7 @@ protected:
 
 	inline int xRange(int iX) const;
 	inline int yRange(int iY) const;
-	inline bool isValid(int iX, int iY) const;
+	bool isValid(int iX, int iY) const;
 
 	void PrecalcNeighbors(CvAStarNode* node);
 

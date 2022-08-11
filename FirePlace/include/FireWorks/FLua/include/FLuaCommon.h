@@ -202,7 +202,7 @@ namespace FLua
 			T ret = T(); // Don't use with reference types!!! ...EVER!!!
 
 			// Get the lua analog for this type off of the lua stack
-			typedef Details::LuaAnalog<T>::Result Analog;
+			typedef typename Details::LuaAnalog<T>::Result Analog;
 			Analog analog = Details::Get<Analog>(m_pkLuaState, m_iStackIndex);
 
 			// Validate the value from lua

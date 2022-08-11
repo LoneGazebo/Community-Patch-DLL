@@ -344,19 +344,6 @@ void CvPlot::doTurn()
 		changeImprovementDuration(1);
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	if (GetArchaeologicalRecord().m_eWork == NO_GREAT_WORK)
-	{
-		ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(ARTIFACT_RESOURCE));
-		ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE));
-
-		if (getResourceType() == eArtifactResourceType || getResourceType() == eHiddenArtifactResourceType)
-		{
-			setResourceType(NO_RESOURCE, 0);
-		}
-	}
-#endif
-
 	verifyUnitValidPlot();
 
 	// Clear world anchor
@@ -1509,6 +1496,8 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					// try to look at the two plot inwards
 					switch(eDirectionOfNextTileToCheck)
 					{
+					case NO_DIRECTION:
+						UNREACHABLE();
 					case DIRECTION_NORTHEAST:
 						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(),pPlotToCheck->getY(),DIRECTION_EAST);
 						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(),pPlotToCheck->getY(),DIRECTION_SOUTHEAST);
@@ -12838,6 +12827,9 @@ void CvPlot::updateLayout(bool bDebug)
 	{
 		switch(eRoute)
 		{
+		case NO_ROUTE:
+		case ROUTE_ANY:
+			UNREACHABLE();
 		case ROUTE_ROAD:
 			if(IsRoutePillaged())
 			{
@@ -12901,6 +12893,9 @@ void CvPlot::updateLayout(bool bDebug)
 		{
 			switch(eRoute)
 			{
+			case NO_ROUTE:
+			case ROUTE_ANY:
+				UNREACHABLE();
 			case ROUTE_ROAD:
 				eRoadTypeValue = ROAD_UNDER_CONSTRUCTION;
 				break;

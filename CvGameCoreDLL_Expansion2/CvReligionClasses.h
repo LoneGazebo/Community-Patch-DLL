@@ -152,7 +152,7 @@ public:
 	CvGameReligions(void);
 	~CvGameReligions(void);
 
-	enum FOUNDING_RESULT
+	enum CLOSED_ENUM FOUNDING_RESULT
 	{
 	    FOUNDING_OK = 0,
 	    FOUNDING_BELIEF_IN_USE,

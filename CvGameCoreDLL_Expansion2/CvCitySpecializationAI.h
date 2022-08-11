@@ -88,7 +88,7 @@ private:
 	YieldTypes m_CurrentYield;
 };
 
-enum CitySpecializationUpdateType
+enum CLOSED_ENUM CitySpecializationUpdateType
 {
     SPECIALIZATION_UPDATE_NEW_GRAND_STRATEGY,
     SPECIALIZATION_UPDATE_NOW_AT_WAR,

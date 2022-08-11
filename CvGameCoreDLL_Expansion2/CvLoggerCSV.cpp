@@ -1,7 +1,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "ICvDLLUserInterface.h"
 #include "CvGameCoreUtils.h"
-#include "Fireworks/FVariableSystem.h"
+#include "FireWorks/FVariableSystem.h"
 #include "CvLoggerCSV.h"
 
 // Include this after all other headers.

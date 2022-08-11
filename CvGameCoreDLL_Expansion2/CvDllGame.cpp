@@ -472,6 +472,15 @@ bool CvDllGame::TunerEverConnected() const
 //------------------------------------------------------------------------------
 void CvDllGame::Uninit()
 {
+	// There exists a bug that allows the game core to be shutdown early if mods are loaded.
+	// Executing `SetGameViewRenderType(GameViewTypes.GAMEVIEW_NONE)` in Lua will trigger this.
+	// 
+	// Because the first step of the shutdown process deinitializes the game instance, this
+	// should trap before the program has a chance to enter a broken state which hopefully
+	// protects users from any exploits that could be leveraged while the state is broken.
+	if (CvPreGame::gameStarted())
+		BUILTIN_TRAP();
+
 	m_pGame->uninit();
 }
 //------------------------------------------------------------------------------

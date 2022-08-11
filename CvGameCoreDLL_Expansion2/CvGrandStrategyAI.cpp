@@ -170,7 +170,7 @@ void CvGrandStrategyAI::Reset()
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_eGuessOtherPlayerActiveGrandStrategy[iI] = NO_AIGRANDSTRATEGY;
-		m_eGuessOtherPlayerActiveGrandStrategyConfidence[iI] = NO_GUESS_CONFIDENCE_TYPE;
+		m_eGuessOtherPlayerActiveGrandStrategyConfidence[iI] = GUESS_CONFIDENCE_UNSURE;
 	}
 
 	//defaults
@@ -1700,7 +1700,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 	CvWeightedVector<int> vGrandStrategyPriorities;
 	vector<int>  vGrandStrategyPrioritiesForLogging;
 
-	GuessConfidenceTypes eGuessConfidence = NO_GUESS_CONFIDENCE_TYPE;
+	GuessConfidenceTypes eGuessConfidence = GUESS_CONFIDENCE_UNSURE;
 
 	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy = NO_AIGRANDSTRATEGY;
@@ -1799,7 +1799,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 
 					eGrandStrategy = (AIGrandStrategyTypes) vGrandStrategyPriorities.GetElement(0);
 					iPriority = vGrandStrategyPriorities.GetWeight(0);
-					eGuessConfidence = NO_GUESS_CONFIDENCE_TYPE;
+					eGuessConfidence = GUESS_CONFIDENCE_UNSURE;
 
 					// How confident are we in our Guess?
 					if(eGrandStrategy != NO_AIGRANDSTRATEGY)
@@ -2274,9 +2274,6 @@ void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGra
 					break;
 				case GUESS_CONFIDENCE_UNSURE:
 					strTemp.Format("Unsure");
-					break;
-				default:
-					strTemp.Format("XXX");
 					break;
 				}
 

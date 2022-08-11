@@ -872,7 +872,6 @@ protected:
 	CvEnumMap<UnitClassTypes, int> m_paiUnitClassCreatedCount;
 	CvEnumMap<BuildingClassTypes, int> m_paiBuildingClassCreatedCount;
 	CvEnumMap<ProjectTypes, int> m_paiProjectCreatedCount;
-	CvEnumMap<VoteTypes, PlayerVoteTypes> m_paiVoteOutcome;
 	CvEnumMap<TeamTypes, TeamTypes> m_aiVotesCast;
 	CvEnumMap<TeamTypes, TeamTypes> m_aiPreviousVotesCast;
 	CvEnumMap<TeamTypes, int> m_aiNumVotesForTeam;

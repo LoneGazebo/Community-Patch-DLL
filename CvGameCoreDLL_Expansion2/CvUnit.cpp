@@ -3114,7 +3114,7 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 #if defined(MOD_BALANCE_CORE)
 				if (kCaptureDef.eOriginalOwner != NO_PLAYER && GET_PLAYER(kCaptureDef.eOriginalOwner).isAlive() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman() && !GET_PLAYER(kCaptureDef.eCapturingPlayer).IsAtWarWith(kCaptureDef.eOriginalOwner))
 				{
-					CivOpinionTypes eMajorOpinion = NO_CIV_OPINION;
+					CivOpinionTypes eMajorOpinion = CIV_OPINION_NEUTRAL;
 					CivApproachTypes eMinorOpinion = NO_CIV_APPROACH;
 					if(GET_PLAYER(kCaptureDef.eOriginalOwner).isMajorCiv())
 					{
@@ -13706,7 +13706,7 @@ bool CvUnit::build(BuildTypes eBuild)
 								}
 								if(bWater)
 								{
-									if(!pUnitEntry->GetDomainType() == DOMAIN_SEA)
+									if(pUnitEntry->GetDomainType() != DOMAIN_SEA)
 									{
 										continue;
 									}
@@ -14967,6 +14967,8 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 
 	switch (getDomainType())
 	{
+	case NO_DOMAIN:
+		return true; // TODO: Should probably be an error, but maintains existing behavior.
 	case DOMAIN_LAND:
 		if (!pPlot->isWater())
 			return true;
@@ -14999,7 +15001,6 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 		break;
 	case DOMAIN_AIR:
 		return true;
-		break;
 	case DOMAIN_SEA:
 #if defined(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
 		if(MOD_SHIPS_FIRE_IN_CITIES_IMPROVEMENTS)
@@ -15019,13 +15020,10 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 		}
 #endif
 		return (pPlot->isWater());
-		break;
 	case DOMAIN_HOVER:
 		return true;
-		break;
 	case DOMAIN_IMMOBILE:
 		return false;
-		break;
 	}
 
 	return true;
@@ -24669,6 +24667,8 @@ int CvUnit::GetBlockadeRange() const
 {
 	switch (getDomainType())
 	{
+	case NO_DOMAIN:
+		return 0; // TODO: Should probably be an error, but maintains existing behavior.
 	case DOMAIN_LAND:
 	case DOMAIN_HOVER:
 		if (MOD_ADJACENT_BLOCKADE)
@@ -29509,6 +29509,9 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 		{
 			return true;
 		}
+
+	default:
+		break;
 	}
 
 	return false;
@@ -30043,7 +30046,7 @@ bool CvUnit::GeneratePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, int*
 			{
 				*piPathTurns = m_kLastPath.back().m_iTurns;
 				if ((iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && m_kLastPath.back().m_iMoves == 0)
-					*piPathTurns++;
+					(*piPathTurns)++;
 			}
 
 			return true;

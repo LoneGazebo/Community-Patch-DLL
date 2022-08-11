@@ -2296,7 +2296,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_ppaaiImprovementYieldChange[i] = yield;
 		}
 
-		m_aVote.clear();
 		m_aUnitExtraCosts.clear();
 
 		AI_reset();
@@ -3512,6 +3511,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 				switch (eTrait)
 				{
+				case NO_MINOR_CIV_TRAIT_TYPE:
+					UNREACHABLE();
 				case MINOR_CIV_TRAIT_CULTURED:
 					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
 					iYield /= 100;
@@ -11222,7 +11223,7 @@ void CvPlayer::doTurn()
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
-		if(eInstantYield != NO_INSTANT_YIELD_TYPE && getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
+		if(getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
 		{
 			// Instant yield
 			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
@@ -16677,14 +16678,6 @@ int CvPlayer::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSi
 		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_BUILDING_PRODUCTION_MODIFIER);
 		iMultiplier += iTempMod;
 		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BUILDING_POLICY_PLAYER", iTempMod);
-	}
-
-	// Religion
-	if(pkBuildingInfo->IsReligious())
-	{
-		iTempMod = m_pPlayerPolicies->GetNumericModifier(POLICYMOD_RELIGION_PRODUCTION_MODIFIER);
-		iMultiplier += iTempMod;
-		kGame.BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RELIGION_PLAYER", iTempMod);
 	}
 
 	return iMultiplier;
@@ -26327,6 +26320,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						int iKillYield = 0;
 						if (iCombatStrength > 0)
 						{
+							// Apply special case yields.
 							switch (eYield)
 							{
 							case YIELD_GOLD:
@@ -26352,6 +26346,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									return;
 								}
 								break;
+
+							default:
+								break; // No special cases for this yield.
 							}
 
 							iKillYield += GetYieldFromKills(eYield);
@@ -26854,6 +26851,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 				switch(eYield)
 				{
+					case NO_YIELD:
+					UNREACHABLE();
 					case YIELD_FOOD:
 					{
 						pLoopCity->changeFood(iValue);
@@ -26943,18 +26942,28 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									CvString strInfluenceText;
 									InfluenceLevelTypes eLevel = GetCulture()->GetInfluenceLevel(pPlot->getOwner());
 
-									if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
-									else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
-									else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
-									else if (eLevel == INFLUENCE_LEVEL_POPULAR)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
-									else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
-									else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-										strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+									switch (eLevel)
+									{
+									case NO_INFLUENCE_LEVEL:
+									case INFLUENCE_LEVEL_UNKNOWN:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_UNKNOWN");
+										break;
+									case INFLUENCE_LEVEL_EXOTIC:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_EXOTIC");
+										break;
+									case INFLUENCE_LEVEL_FAMILIAR:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_FAMILIAR");
+										break;
+									case INFLUENCE_LEVEL_POPULAR:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_POPULAR");
+										break;
+									case INFLUENCE_LEVEL_INFLUENTIAL:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_INFLUENTIAL");
+										break;
+									case INFLUENCE_LEVEL_DOMINANT:
+										strInfluenceText = GetLocalizedText("TXT_KEY_CO_DOMINANT");
+										break;
+									}
 
 									char text[256] = {0};
 									sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iValue, strInfluenceText.c_str());
@@ -27023,6 +27032,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 					}
 					break;
+					case YIELD_JFD_HEALTH:
+					case YIELD_JFD_DISEASE:
+					case YIELD_JFD_CRIME:
+					case YIELD_JFD_LOYALTY:
+					case YIELD_JFD_SOVEREIGNTY:
+					// JFD have no special behavior, but they are still tracked.
+					// Lua scripts can access the tracked information though it
+					// would probably be better to have a Lua hook instead.
+					break; 
 				}
 
 				//keep track of what we're doing
@@ -27123,6 +27141,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						const char* MinorName = GET_PLAYER(pQuestData->GetMinor()).getNameKey();
 						switch (pQuestData->GetType())
 						{
+						case NO_MINOR_CIV_QUEST_TYPE:
+							UNREACHABLE();
 						case MINOR_CIV_QUEST_ROUTE:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME", MinorName);
 							break;
@@ -28126,7 +28146,10 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					{
 						iValue += iPassValue;
 					}
+					break;
 				}
+				default:
+				UNREACHABLE(); // Other types should never be passed into this function.
 			}
 
 			// 2nd step: Apply the desired amount of GP points to the loop city
@@ -28237,7 +28260,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				bImmediate = true;
 				break;
 			}
-
+			default:
+			UNREACHABLE(); // Other types should never be passed into this function.
 		}
 		if (bImmediate)
 		{
@@ -31340,6 +31364,9 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 			iTourism = pCity->GetSeaTourismBonus();
 		}
 		break;
+	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
+	case HISTORIC_EVENT_CITY_FOUND:
+		break; // These events offer no tourism bonus.
 	}
 
 	if (iTourism <= 0)
@@ -31397,6 +31424,9 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	case HISTORIC_EVENT_TRADE_SEA:
 		iTotalBonus /= 15;
 		break;
+	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
+	case HISTORIC_EVENT_CITY_FOUND:
+		UNREACHABLE();
 	}
 
 	if (GC.getLogging() && GC.getAILogging())
@@ -40904,11 +40934,16 @@ int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
-	if ( isMajorCiv() )
-		return GC.getGame().GetClosestCityByPlots( pPlot, GetID() );
-
-	//for minors just assume they have only one city (99% correct)
-	return getCapitalCity();
+	// Optimization for players with only one city.
+	// `CvPlayer::firstCity` does not work here because it will return a const city pointer.
+	if (m_cities.GetCount() == 1)
+	{
+		return m_cities.GetAt(0);
+	}
+	else
+	{
+		return GC.getGame().GetClosestCityByPlots(pPlot, GetID());
+	}
 }
 
 CvCity* CvPlayer::GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const
@@ -41510,13 +41545,9 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) 
 		CvAIOperation* pOperation = m_AIOperations[i].second;
 		if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 		{
-			switch (pOperation->GetOperationType())
+			if (pOperation->GetOperationType() == AI_OPERATION_FOUND_CITY && plotDistance(*pPlot, *pOperation->GetTargetPlot()) <= 3)
 			{
-			case AI_OPERATION_FOUND_CITY:
-				if (plotDistance(*pPlot,*pOperation->GetTargetPlot()) <= 3)
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -41617,6 +41648,8 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
 			}
 			break;
 		}
+		default:
+		UNREACHABLE(); // Other yield types are untracked.
 	}
 	return iYield;
 }
@@ -45668,7 +45701,7 @@ CvTreasury* CvPlayer::GetTreasury() const
 int CvPlayer::GetPseudoRandomSeed() const
 {
 	//this should return a different number for each turn (each call would be even better ...)
-	return GetID() + m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : 0 + getGlobalAverage(YIELD_CULTURE);
+	return static_cast<int>(GetID()) + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : getGlobalAverage(YIELD_CULTURE));
 }
 
 //	--------------------------------------------------------------------------------
@@ -46418,7 +46451,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_ppiInstantYieldHistoryValues);
 	visitor(player.m_ppiInstantTourismPerPlayerHistoryValues);
 
-	visitor(player.m_aVote);
 	visitor(player.m_aUnitExtraCosts);
 
 	visitor(player.m_aiPlots);
@@ -49858,14 +49890,23 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 /// Special bonus for having a vassal
 int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 {
-	if (eYield == YIELD_SCIENCE && GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
-		return 0;
-
-	if (eYield == YIELD_CULTURE && GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
-		return 0;
-
-	if (eYield == YIELD_FAITH && GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
-		return 0;
+	switch (eYield)
+	{
+	case YIELD_SCIENCE:
+		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return 0;
+		break;
+	case YIELD_CULTURE:
+		if (GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
+			return 0;
+		break;
+	case YIELD_FAITH:
+		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+			return 0;
+		break;
+	default:
+		return 0; // Other yields cannot be recieved from vassals.
+	}
 
 	int iYield = 0;
 
@@ -49895,6 +49936,8 @@ int CvPlayer::GetYieldPerTurnFromVassals(YieldTypes eYield) const
 				iFreeYield *= (/*20*/ GD_INT_GET(VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT) + GetVassalYieldBonusModifier());
 				iFreeYield /= 100;
 				break;
+			default:
+				UNREACHABLE();
 			}
 
 			iYield += iFreeYield;

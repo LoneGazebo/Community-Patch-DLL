@@ -8,7 +8,7 @@
 
 #pragma once
 
-enum YieldTypes
+enum CLOSED_ENUM YieldTypes
 {
     NO_YIELD = -1,
 
@@ -34,7 +34,7 @@ enum YieldTypes
 	YIELD_JFD_SOVEREIGNTY,
 #endif
 
-    NUM_YIELD_TYPES
+    NUM_YIELD_TYPES ENUM_META_VALUE
 };
 
 // Carries the value of an enum represented by type T.

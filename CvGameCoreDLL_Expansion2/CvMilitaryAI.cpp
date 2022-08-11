@@ -3764,7 +3764,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
 	{
-		if(!pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
+		if(pPlayer->GetDiplomacyAI()->GetStateAllWars() != STATE_ALL_WARS_WINNING)
 		{
 			return false;
 		}
@@ -4262,9 +4262,9 @@ MultiunitFormationTypes MilitaryAIHelpers::GetCurrentBestFormationTypeForLandAtt
 	case 6: //atomic
 	case 7: //information
 		return MUFORMATION_BIGGER_CITY_ATTACK_FORCE;
+	default:
+		return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 	}
-
-	return MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 }
 
 const char * ArmyTypeToString(ArmyType eType)

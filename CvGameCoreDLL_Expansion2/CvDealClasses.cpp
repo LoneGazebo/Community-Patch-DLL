@@ -452,8 +452,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 	switch (eItem)
 	{
-		// Peace Treaty
-		case TRADE_ITEM_PEACE_TREATY:
+	case TRADE_ITEM_NONE:
+		UNREACHABLE();
+
+	// Peace Treaty
+	case TRADE_ITEM_PEACE_TREATY:
 		{
 			// Not at war?
 			if (!bPeaceDeal)
@@ -499,8 +502,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		// Declaration of Friendship (human only)
-		case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
+	// Declaration of Friendship (human only)
+	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
 		{
 			if (!bHumanToHuman || bPeaceDeal) // Recursive: Would be nice to allow this to be tradeable in a peace treaty, but unsure if this breaks functionality
 				return false;
@@ -510,7 +513,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 		}
 
-		case TRADE_ITEM_GOLD:
+	case TRADE_ITEM_GOLD:
 		{
 			// Can't trade more Gold than you have!
 			int iGold = iData1;
@@ -522,7 +525,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_GOLD_PER_TURN:
+	case TRADE_ITEM_GOLD_PER_TURN:
 		{
 			// Can't trade more Gold Per Turn than you have!
 			int iGoldPerTurn = iData1;
@@ -545,7 +548,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_RESOURCES:
+	case TRADE_ITEM_RESOURCES:
 		{
 			ResourceTypes eResource = (ResourceTypes) iData1;
 			int iResourceQuantity = iData2;
@@ -624,7 +627,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_CITIES:
+	case TRADE_ITEM_CITIES:
 		{
 			// Some game options restrict all city trades
 			if (GC.getGame().IsAllCityTradingDisabled())
@@ -683,7 +686,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_ALLOW_EMBASSY:
+	case TRADE_ITEM_ALLOW_EMBASSY:
 		{
 			if (bSameTeam || bPeaceDeal)
 				return false;
@@ -714,7 +717,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_OPEN_BORDERS:
+	case TRADE_ITEM_OPEN_BORDERS:
 		{
 			if (bSameTeam || bPeaceDeal)
 				return false;
@@ -754,7 +757,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_DEFENSIVE_PACT:
+	case TRADE_ITEM_DEFENSIVE_PACT:
 		{
 			if (bSameTeam || bPeaceDeal || bOneSided)
 				return false;
@@ -821,7 +824,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_RESEARCH_AGREEMENT:
+	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		{
 			if (bSameTeam || bPeaceDeal || bOneSided)
 				return false;
@@ -861,7 +864,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_THIRD_PARTY_PEACE:
+	case TRADE_ITEM_THIRD_PARTY_PEACE:
 		{
 			if (bSameTeam)
 				return false;
@@ -964,7 +967,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_THIRD_PARTY_WAR:
+	case TRADE_ITEM_THIRD_PARTY_WAR:
 		{
 			if (bSameTeam || bPeaceDeal)
 				return false;
@@ -1089,7 +1092,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_VOTE_COMMITMENT:
+	case TRADE_ITEM_VOTE_COMMITMENT:
 		{
 			if (bPeaceDeal)
 				return false;
@@ -1188,7 +1191,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_MAPS:
+	case TRADE_ITEM_MAPS:
 		{
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
@@ -1219,7 +1222,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
-		case TRADE_ITEM_TECHS:
+	case TRADE_ITEM_TECHS:
 		{
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
@@ -1271,7 +1274,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_VASSALAGE:
+	case TRADE_ITEM_VASSALAGE:
 		{
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
@@ -1297,7 +1300,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			break;
 		}
 
-		case TRADE_ITEM_VASSALAGE_REVOKE:
+	case TRADE_ITEM_VASSALAGE_REVOKE:
 		{
 			if (bSameTeam || !MOD_BALANCE_VP)
 				return false;
@@ -1354,6 +1357,10 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	bool bTemporary = false;
 	switch (eItemType)
 	{
+	case TRADE_ITEM_NONE:
+	case TRADE_ITEM_PEACE_TREATY:
+	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
+		UNREACHABLE();
 	case TRADE_ITEM_GOLD_PER_TURN:
 	case TRADE_ITEM_RESOURCES:
 	case TRADE_ITEM_OPEN_BORDERS:
@@ -1364,6 +1371,14 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	case TRADE_ITEM_ALLOW_EMBASSY:
 	case TRADE_ITEM_VOTE_COMMITMENT:
 		bTemporary = true;
+		break;
+	case TRADE_ITEM_GOLD:
+	case TRADE_ITEM_MAPS:
+	case TRADE_ITEM_CITIES:
+	case TRADE_ITEM_TECHS:
+	case TRADE_ITEM_VASSALAGE:
+	case TRADE_ITEM_VASSALAGE_REVOKE:
+		bTemporary = false;
 		break;
 	}
 
@@ -1426,6 +1441,8 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 	case TRADE_ITEM_VOTE_COMMITMENT:
 	case TRADE_ITEM_TECHS:
 		return strError;
+	default:
+		break;
 	}
 
 	// Can't trade something to nobody, yourself, City-States, or Barbarians
@@ -2933,6 +2950,9 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 			break;
 		}
+
+		default:
+			break;
 	}
 
 	strTooltip += strEndColor;
@@ -3677,6 +3697,9 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 {
 	switch(eTradeItem)
 	{
+	case TRADE_ITEM_NONE:
+		UNREACHABLE();
+
 		// not renewable
 	case TRADE_ITEM_ALLOW_EMBASSY:
 	case TRADE_ITEM_CITIES:
@@ -3687,22 +3710,21 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_VASSALAGE:
 	case TRADE_ITEM_TECHS:
 	case TRADE_ITEM_MAPS:
+	case TRADE_ITEM_VASSALAGE_REVOKE:
 		return DEAL_NONRENEWABLE;
-		break;
 
 		// renewable
 	case TRADE_ITEM_GOLD_PER_TURN:
 	case TRADE_ITEM_RESOURCES:
 	case TRADE_ITEM_OPEN_BORDERS:
 	case TRADE_ITEM_DEFENSIVE_PACT:
+	case TRADE_ITEM_DECLARATION_OF_FRIENDSHIP:
 		return DEAL_RENEWABLE;
-		break;
 
 		// doesn't matter
 	case TRADE_ITEM_GOLD:
 	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;
-		break;
 	}
 
 	CvAssertMsg(false, "unknown eTradeItem passed in");
@@ -4471,6 +4493,9 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		// What happens next depends on the item type...
 		switch (it->m_eItemType)
 		{
+		case TRADE_ITEM_NONE:
+			UNREACHABLE();
+
 		case TRADE_ITEM_GOLD:
 		{
 			int iGoldAmount = it->m_iData1;

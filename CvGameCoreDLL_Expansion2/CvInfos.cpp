@@ -22,7 +22,7 @@
 #include "CvImprovementClasses.h"
 #include "FireWorks/FRemark.h"
 #include "CvInfosSerializationHelper.h"
-#include <Fireworks/Win32/FKBInputDevice.h>
+#include <FireWorks/Win32/FKBInputDevice.h>
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -1232,6 +1232,8 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 {
 	switch(getSubType())
 	{
+	case NO_ACTIONSUBTYPE:
+		break;
 	case ACTIONSUBTYPE_INTERFACEMODE:
 	{
 		CvInterfaceModeInfo* pkInterfaceModInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)getOriginalIndex());

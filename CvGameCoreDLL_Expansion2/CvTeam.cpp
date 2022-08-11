@@ -2227,7 +2227,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 									eMakingPeaceWithMinor = (PlayerTypes) iMakingPeaceWithMinorLoop;
 
 									// Not on the team we're making peace with
-									if(!GET_PLAYER(eMakingPeaceWithMinor).getTeam() == eTeamWeMadePeaceWith)
+									if(GET_PLAYER(eMakingPeaceWithMinor).getTeam() != eTeamWeMadePeaceWith)
 										continue;
 
 									// Minor not alive

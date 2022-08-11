@@ -102,7 +102,7 @@ namespace FLua
 			// Try pushing this value onto the lua stack
 			if( Push() ) {
 				// Get the lua analog for this type off of the lua stack
-				typedef Details::LuaAnalog<T>::Result Analog;
+				typedef typename Details::LuaAnalog<T>::Result Analog;
 				Analog analog = Details::Get<Analog>(m_pkLuaState, lua_gettop(m_pkLuaState));
 
 				// Validate the value from lua
@@ -263,7 +263,7 @@ namespace FLua
 		private:
 			friend Table;
 			template<class T> Field(const Table &kTable, T key) : m_kTable((Table&)kTable) {
-				typedef Details::PushAnalog<T>::Result KeyAnalog;
+				typedef typename Details::PushAnalog<T>::Result KeyAnalog;
 				lua_State *L = kTable.GetLuaState();
 				if( L != NULL )
 				{
@@ -347,7 +347,7 @@ namespace FLua
 					}
 					else
 					{
-						typedef Details::PushAnalog<T>::Result Analog;
+						typedef typename Details::PushAnalog<T>::Result Analog;
 						Analog analog = Details::ToLuaAnalog<Analog>::Convert(val);
 						lua_checkstack(L, 1);
 						Details::Push(L, analog); // Push the value

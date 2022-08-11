@@ -15,6 +15,17 @@
 
 #include "luaconf.h"
 
+// Added for Vox Populi.
+// 
+// Certain Lua functions are documented as not returning and it's desirable
+// that be reflected in the function declarations so that the compiler is
+// able to recognize unreachable code.
+#ifdef _MSC_VER
+#define LUA_NORETURN __declspec(noreturn)
+#else
+#define LUA_NORETURN [[noreturn]]
+#endif // _MSC_VER
+
 
 #define LUA_VERSION	"Lua 5.1"
 #define LUA_RELEASE	"Lua 5.1.4"
@@ -234,7 +245,7 @@ LUA_API int (lua_gc) (lua_State *L, int what, int data);
 ** miscellaneous functions
 */
 
-LUA_API int   (lua_error) (lua_State *L);
+LUA_API LUA_NORETURN int   (lua_error) (lua_State *L);
 
 LUA_API int   (lua_next) (lua_State *L, int idx);
 

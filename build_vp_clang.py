@@ -77,38 +77,30 @@ PREDEFS = {
     Config.Debug: DEBUG_PREDEFS,
 }
 CL_SUPPRESS = [
-    'nonportable-include-path',
-    'typename-missing',
-    'undefined-inline',
     'invalid-offsetof',
-    'microsoft-pure-definition',
-    'microsoft-template-shadow',
-    'microsoft-extra-qualification',
-    'microsoft-template',
-    'switch',
-    'missing-declarations',
     'tautological-constant-out-of-range-compare',
+    'comment',
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
 PCH_H = 'CvGameCoreDLLPCH.h'
 PCH = 'CvGameCoreDLLPCH.pch'
 CPP = [
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaArea.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaArgsHandle.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaCity.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaDeal.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaEnums.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaFractal.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaGame.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaGameInfo.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaLeague.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaMap.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaPlayer.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaPlot.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaSupport.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaTeam.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaTeamTech.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaUnit.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaArea.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaArgsHandle.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaCity.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaDeal.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaEnums.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaFractal.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGame.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGameInfo.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaLeague.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaMap.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaPlayer.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaPlot.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaSupport.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaTeam.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaTeamTech.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaUnit.cpp',
     'CvGameCoreDLL_Expansion2\\stackwalker\\StackWalker.cpp',
     'CvGameCoreDLL_Expansion2\\CustomMods.cpp',
     'CvGameCoreDLL_Expansion2\\CvAchievementInfo.cpp',
@@ -309,7 +301,7 @@ class TaskMan:
         return results
 
 def build_cl_config_args(config: Config) -> list[str]:
-    args = ['-m32', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
+    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
     if config == Config.Release:
         args.append('/Ox')
         args.append('/Ob2')

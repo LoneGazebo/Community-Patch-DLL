@@ -692,6 +692,11 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
 			}
+			case NOT_A_CITY_BUILDABLE:
+			case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROCESS:
+				break;
 		}
 	}
 
@@ -938,7 +943,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
 			switch(selection.m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
@@ -958,7 +965,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
+			case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
@@ -971,7 +978,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_UNIT: //any unit
+			case CITY_BUILDABLE_UNIT: //any unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
@@ -984,7 +991,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
@@ -997,20 +1004,13 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 						LogInvalidItem(selection, iNewWeight);
 					break;
 				}
-				case CITY_BUILDABLE_PROCESS:
-				{
-					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
-				}
-				case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROCESS:
+				// Don't continue processes.
+				// Recursive has provided two reasons for this:
+				// 1) So the AI doesn't flipflop through production choices without getting anything done.
+				// 2) Because there is randomness to the AI's production choices on lower difficulties - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				break;
+			case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
 					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
@@ -1053,9 +1053,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 			switch (m_Buildables.GetElement(i).m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT:
-				case CITY_BUILDABLE_UNIT_FOR_ARMY:
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // m_Buildables is never supposed to have these items.
+			case CITY_BUILDABLE_UNIT:
+			case CITY_BUILDABLE_UNIT_FOR_ARMY:
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
 					UnitTypes eUnitType = (UnitTypes)m_Buildables.GetElement(i).m_iIndex;
 					if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnitType)
@@ -1066,7 +1068,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					break;
 				}
 
-				case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes)m_Buildables.GetElement(i).m_iIndex;
 					if (m_pCity->isProductionBuilding() && !bInterruptBuildings && m_pCity->getProductionBuilding() == eBuildingType)
@@ -1077,7 +1079,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					break;
 				}
 
-				case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
 					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProjectType);
@@ -1099,6 +1101,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					}
 					break;
 				}
+			
+			case CITY_BUILDABLE_PROCESS:
+				break; // Do nothing for processes. Don't want the AI to get stuck on them.
 			}
 		}
 
@@ -1115,9 +1120,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 		switch(selection.m_eBuildableType)
 		{
-			case CITY_BUILDABLE_UNIT:
-			case CITY_BUILDABLE_UNIT_FOR_ARMY:
-			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // selection is never supposed to have these items.
+		case CITY_BUILDABLE_UNIT:
+		case CITY_BUILDABLE_UNIT_FOR_ARMY:
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 			{
 				UnitTypes eUnitType = (UnitTypes)selection.m_iIndex;
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
@@ -1134,21 +1141,21 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				break;
 			}
 
-			case CITY_BUILDABLE_BUILDING:
+		case CITY_BUILDABLE_BUILDING:
 			{
 				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, true, false, bRush);
 				break;
 			}
 
-			case CITY_BUILDABLE_PROJECT:
+		case CITY_BUILDABLE_PROJECT:
 			{
 				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_CREATE, eProjectType, -1, false, true, false, bRush);
 				break;
 			}
 
-			case CITY_BUILDABLE_PROCESS:
+		case CITY_BUILDABLE_PROCESS:
 			{
 				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_MAINTAIN, eProcessType, -1, false, true, false, false); // ignoring rush because we can't rush a process
@@ -1355,7 +1362,11 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			selection = m_BuildablesPrecheck.GetElement(iI);
 			switch(selection.m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
+			case NOT_A_CITY_BUILDABLE:
+			case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROCESS:
+				UNREACHABLE(); // These items are not expected to be purchasable.
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
@@ -1373,7 +1384,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
+			case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), true);
@@ -1384,7 +1395,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					}
 					break;
 				}
-				case CITY_BUILDABLE_UNIT:
+			case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, true);
@@ -1395,7 +1406,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					}
 					break;
 				}
-				case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
@@ -1946,6 +1957,8 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 
 			switch(buildable.m_eBuildableType)
 			{
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // builds is never supposed to have these items.
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2066,6 +2079,8 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 
 			switch(buildable.m_eBuildableType)
 			{
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // builds is never supposed to have these items.
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2161,6 +2176,8 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		int iEra = -1;
 		switch(buildable.m_eBuildableType)
 		{
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // buildable is never supposed to be this.
 		case CITY_BUILDABLE_BUILDING:
 		{
 			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2243,6 +2260,8 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		CvBaseInfo* pEntry = NULL;
 		switch (buildable.m_eBuildableType)
 		{
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // buildable is never supposed to be this item.
 		case CITY_BUILDABLE_BUILDING:
 			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
 			break;
@@ -4458,6 +4477,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		switch (eYield)
 		{
+		case NO_YIELD:
+			UNREACHABLE(); // Never supposed to be passed to this function.
 		case YIELD_CULTURE:
 			if (eNeedCulture != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedCulture))
 			{
@@ -4507,30 +4528,44 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			break;
 		case YIELD_FAITH:
-			
-			int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-			
-			if (kPlayer.GetPlayerTraits()->IsReligious())
 			{
-				iFlavorReligion *= 3;
-				iFlavorReligion /= 2;
-			}
-			else
-			{
-				iFlavorReligion *= 2;
-				iFlavorReligion /= 3;
-			}
+				int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			
+				if (kPlayer.GetPlayerTraits()->IsReligious())
+				{
+					iFlavorReligion *= 3;
+					iFlavorReligion /= 2;
+				}
+				else
+				{
+					iFlavorReligion *= 2;
+					iFlavorReligion /= 3;
+				}
 
-			if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
-			{		
-				iYieldValue += max(1, iFlavorReligion);
-			}
+				if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
+				{		
+					iYieldValue += max(1, iFlavorReligion);
+				}
 			
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
-			{
-				iYieldValue += max(1, iFlavorReligion);
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
+				{
+					iYieldValue += max(1, iFlavorReligion);
+				}
+				break;
 			}
-			break;
+		case YIELD_FOOD:
+		case YIELD_GOLD:
+		case YIELD_GOLDEN_AGE_POINTS:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // TODO: These yields have no special scoring behavior.
 		}
 
 		CvDiplomacyAI* pDiplo = kPlayer.GetDiplomacyAI();

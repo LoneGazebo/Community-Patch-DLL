@@ -1036,7 +1036,6 @@ void CvGame::uninit()
 	m_paiUnitClassCreatedCount.uninit();
 	m_paiBuildingClassCreatedCount.uninit();
 	m_paiProjectCreatedCount.uninit();
-	m_paiVoteOutcome.uninit();
 	m_aiVotesCast.uninit();
 	m_aiPreviousVotesCast.uninit();
 	m_aiNumVotesForTeam.uninit();
@@ -1241,7 +1240,6 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 		//antonjs: todo: remove unused UN and voting variables and allocations
 		CvAssertMsg(0 < GC.getNumVoteInfos(), "GC.getNumVoteInfos() is not greater than zero in CvGame::reset");
-		m_paiVoteOutcome.init(NO_PLAYER_VOTE);
 
 		CvAssertMsg(0 < GC.getNumVoteSourceInfos(), "GC.getNumVoteSourceInfos() is not greater than zero in CvGame::reset");
 		m_aiVotesCast.init(NO_TEAM);
@@ -7434,6 +7432,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 						case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DEITY);
 							break;
+						default:
+							break;
 						}
 					}
 
@@ -7462,6 +7462,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 							break;
 						case 7: // Deity
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_DEITY);
+							break;
+						default:
 							break;
 						}
 
@@ -7506,6 +7508,8 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 							break;
 						case 7:	// Deity
 							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_DEITY);
+							break;
+						default:
 							break;
 						}
 
@@ -11726,7 +11730,6 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_paiBuildingClassCreatedCount);
 
 	visitor(game.m_paiProjectCreatedCount);
-	visitor(game.m_paiVoteOutcome);
 
 	visitor(game.m_aiVotesCast);
 	visitor(game.m_aiPreviousVotesCast);
@@ -13204,6 +13207,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 		int iCompetitor = 0;
 		int iEnemy = 0;
 		int iUnforgivable = 0;
+		int iNoOpinion = 0;
 
 		int iMajorWar = 0;
 		int iMajorHostile = 0;
@@ -13212,11 +13216,13 @@ void CvGame::LogGameState(bool bLogHeaders)
 		int iMajorAfraid = 0;
 		int iMajorFriendly = 0;
 		int iMajorNeutral = 0;
+		int iMajorNoApproach = 0;
 
 		int iMinorIgnore = 0;
 		int iMinorProtective = 0;
 		int iMinorConquest = 0;
 		int iMinorBully = 0;
+		int iMinorNoApproach = 0;
 
 		// Loop through all Players
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -13278,6 +13284,9 @@ void CvGame::LogGameState(bool bLogHeaders)
 							case CIV_OPINION_UNFORGIVABLE:
 								iUnforgivable++;
 								break;
+							case NO_CIV_OPINION:
+								iNoOpinion++;
+								break;
 							}
 
 							switch (pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer2))
@@ -13303,6 +13312,9 @@ void CvGame::LogGameState(bool bLogHeaders)
 							case CIV_APPROACH_FRIENDLY:
 								iMajorFriendly++;
 								break;
+							case NO_CIV_APPROACH:
+								iMajorNoApproach++;
+								break;
 							}
 						}
 						// Minor
@@ -13322,6 +13334,13 @@ void CvGame::LogGameState(bool bLogHeaders)
 							case CIV_APPROACH_FRIENDLY:
 								iMinorProtective++;
 								break;
+							case NO_CIV_APPROACH:
+								iMajorNoApproach++;
+								break;
+							case CIV_APPROACH_DECEPTIVE:
+							case CIV_APPROACH_GUARDED:
+							case CIV_APPROACH_AFRAID:
+								UNREACHABLE();
 							}
 						}
 					}
@@ -13363,6 +13382,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", Competitor";
 			strOutput += ", Enemy";
 			strOutput += ", Unforgivable";
+			strOutput += ", No Opinion";
 		}
 		else
 		{
@@ -13380,6 +13400,8 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iUnforgivable);
 			strOutput += ", " + strTemp;
+			strTemp.Format("%d", iNoOpinion);
+			strOutput += ", " + strTemp;
 		}
 
 		// Major Approaches
@@ -13392,6 +13414,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", Afraid";
 			strOutput += ", Friendly";
 			strOutput += ", Neutral";
+			strOutput += ", No Approach (Major)";
 		}
 		else
 		{
@@ -13409,6 +13432,8 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iMajorNeutral);
 			strOutput += ", " + strTemp;
+			strTemp.Format("%d", iMajorNoApproach);
+			strOutput += ", " + strTemp;
 		}
 
 		// Minor Approaches
@@ -13418,6 +13443,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", Protective";
 			strOutput += ", Conquest";
 			strOutput += ", Bully";
+			strOutput += ", No Approach (Minor)";
 		}
 		else
 		{
@@ -13428,6 +13454,8 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iMinorConquest);
 			strOutput += ", " + strTemp;
 			strTemp.Format("%d", iMinorBully);
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", iMinorNoApproach);
 			strOutput += ", " + strTemp;
 		}
 
@@ -14832,8 +14860,6 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kPlayer.GetMinorCivAI()->DoPickInitialItems();
 	
 	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false, false);
-	kPlayer.setFoundedFirstCity(true);
-	kPlayer.setCapitalCity(pNewCity);
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
 

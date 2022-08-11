@@ -16,6 +16,42 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
+#if defined(__clang__)
+#define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
+#define OPEN_ENUM __attribute__((enum_extensibility(open)))
+#define FLAG_ENUM __attribute__((flag_enum))
+#define ENUM_META_VALUE [[maybe_unused]]
+#define BUILTIN_UNREACHABLE() __builtin_unreachable()
+#define BUILTIN_TRAP() __builtin_trap()
+#elif defined(_MSC_VER)
+#include <intrin.h>
+#define CLOSED_ENUM
+#define OPEN_ENUM
+#define FLAG_ENUM
+#define ENUM_META_VALUE
+#define BUILTIN_UNREACHABLE() __assume(0)
+#define BUILTIN_TRAP() do { __ud2(); __assume(0); } while(0)
+#else
+#error Unrecognized compiler
+#endif // defined(__clang__)
+
+/// Informs that a location is unreachable.
+///
+/// In release builds the compiler may take advantage of this being unreachable to perform additional
+/// optimizations. Because of this when you write code using this macro you are signing a contract
+/// with the compiler that this line is truly unreachable. Programs where this line is reachable are
+/// thusly ill-formed.
+#define UNREACHABLE_UNCHECKED() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE(); } while(0)
+
+/// Weaker variant of UNREACHABLE_UNCHECKED.
+///
+/// This should still be used for branches that aren't expected to be reachable, but it's far preferable
+/// that this be used in the majority of scenarios thanks to the compilers ability to often catch unreachable
+/// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
+/// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
+/// well-formed.
+#define UNREACHABLE() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP(); } while(0)
+
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
 #  if !defined(_SECURE_SCL)
@@ -31,8 +67,11 @@
 #  endif
 #endif
 
-//Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
-#define DEBUG_VARIABLE(x) (x)
+// Silences warnings about an unused variable.
+#define UNUSED_VARIABLE(x) ((void)x)
+
+// Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
+#define DEBUG_VARIABLE(x) UNUSED_VARIABLE(x)
 
 #include "CvGameCoreDLLUtil_Win32Headers.h"
 #include <MMSystem.h>
@@ -77,8 +116,8 @@ typedef wchar_t          wchar;
 #include <FireWorks/FDefNew.h>
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>
-#include <Fireworks/FILogFile.h>
-#include <Fireworks/FDataStream.h>
+#include <FireWorks/FILogFile.h>
+#include <FireWorks/FDataStream.h>
 
 #include "TContainer.h"
 #include "CustomMods.h"
@@ -90,7 +129,7 @@ typedef wchar_t          wchar;
 #include "CvGameCoreEnums.h"
 #include "CvGameCoreStructs.h"
 #include "ICvDLLUtility.h"
-#include "ICvDllUserInterface.h"
+#include "ICvDLLUserInterface.h"
 #include "ICvDLLScriptSystem.h"
 #include "Lua/CvLuaSupport.h"
 

@@ -1171,9 +1171,6 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 #endif
 		break;
 
-	case YIELD_GOLD:
-		break;
-
 	case YIELD_SCIENCE:
 		break;
 #if defined(MOD_BALANCE_CORE)
@@ -1195,6 +1192,20 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		}
 		break;
 #endif
+	case NO_YIELD:
+	case YIELD_GOLD:
+	case YIELD_TOURISM:
+	case YIELD_GOLDEN_AGE_POINTS:
+	case YIELD_GREAT_GENERAL_POINTS:
+	case YIELD_GREAT_ADMIRAL_POINTS:
+	case YIELD_POPULATION:
+	case YIELD_CULTURE_LOCAL:
+	case YIELD_JFD_HEALTH:
+	case YIELD_JFD_DISEASE:
+	case YIELD_JFD_CRIME:
+	case YIELD_JFD_LOYALTY:
+	case YIELD_JFD_SOVEREIGNTY:
+		break; // Yield unmodified.
 	}
 
 	return iRtnValue;
@@ -1335,7 +1346,14 @@ void CvCitySpecializationAI::LogSpecializationUpdate(CitySpecializationUpdateTyp
 			strTypeString = "Update: Tech research complete";
 			break;
 		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
-			strTypeString = "Update: wonder unlocked or built by rival, WONDER";
+			strTypeString = "Update: Wonder unlocked or built by rival, WONDER";
+			break;
+		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_US:
+			strTypeString = "Update: Wonder unlocked or built by us, WONDER";
+			break;
+		case SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE:
+			strTypeString = "Update: Cities under siege";
+			break;
 		}
 		LogMsg( strTypeString );
 	}

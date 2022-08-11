@@ -1591,7 +1591,7 @@ void CvEconomicAI::LogCityMonitor()
 // PRIVATE METHODS
 
 /// See if we want to finish any of our builds by rushing
-void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> m_Buildables)
+void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> const& m_Buildables)
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -1625,6 +1625,8 @@ void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> m_Builda
 
 			switch (buildable.m_eBuildableType)
 			{
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // m_Buildables is not supposed to contain these items.
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -1737,9 +1739,6 @@ void CvEconomicAI::DoHurry()
 	vector<CvCity*> threatCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pMostThreatenedCity = threatCities.empty() ? NULL : threatCities.front();
 
-	CvCityBuildable bestSelection;
-	bestSelection.m_eBuildableType = NOT_A_CITY_BUILDABLE;
-
 	CvWeightedVector<CvCityBuildable> m_Buildables;
 
 	// Look at each of our cities
@@ -1751,6 +1750,9 @@ void CvEconomicAI::DoHurry()
 			continue;
 
 		CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
+		if (selection.m_eBuildableType == NOT_A_CITY_BUILDABLE)
+			continue;
+
 		selection.m_iCityID = pLoopCity->GetID();
 		m_Buildables.push_back(selection, selection.m_iValue);
 	}
@@ -1773,6 +1775,10 @@ void CvEconomicAI::DoHurry()
 		//Units
 		switch (selection.m_eBuildableType)
 		{
+		case NOT_A_CITY_BUILDABLE:
+		case CITY_BUILDABLE_PROJECT:
+		case CITY_BUILDABLE_PROCESS:
+			UNREACHABLE(); // selection is not supposed to be one of these items.
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
@@ -3787,6 +3793,8 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 	case YIELD_PRODUCTION:
 		eCityStrategy = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEED_IMPROVEMENT_PRODUCTION");
 		break;
+	default:
+		UNREACHABLE(); // Only YIELD_FOOD & YIELD_PRODUCTION supported.
 	}
 
 	FAssertMsg(eCityStrategy != NO_AICITYSTRATEGY, "No strategy found. What?");
