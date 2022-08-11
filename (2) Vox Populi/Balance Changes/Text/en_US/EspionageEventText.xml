@@ -39,19 +39,19 @@
 			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP">
-			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_RESEARCH] Science ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_RESEARCH] Science.</Text>
+			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_RESEARCH] Science output each turn for duration of mission. When complete, Spy steals all collected [ICON_RESEARCH] Science.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD">
 			<Text>Steal [ICON_GOLD] Gold from treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP">
-			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_GOLD] Gold ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_GOLD] Gold.</Text>
+			<Text>{6_Spy}Target City: Spy collects 25% of City's [ICON_GOLD] Gold output each turn for duration of mission. When complete, Spy steals all collected [ICON_GOLD] Gold.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH">
 			<Text>Pilfer [ICON_PEACE] Religious Relics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH_HELP">
-			<Text>{6_Spy}Target City: Spy collects 50% of City's [ICON_PEACE] Faith ouput each turn for duration of mission. When complete, Spy steals all collected [ICON_PEACE] Faith.</Text>
+			<Text>{6_Spy}Target City: Spy collects 50% of City's [ICON_PEACE] Faith output each turn for duration of mission. When complete, Spy steals all collected [ICON_PEACE] Faith.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
 			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
