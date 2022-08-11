@@ -14869,7 +14869,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	//	pNewCity->setName(strCityName, false, true);
 	//}
 
-	pNewCity->ChangeNumTimesOwned(eNewPlayer, 1);
+	kPlayer.setFoundedFirstCity(true);
 	pNewCity->SetOccupied(false);
 
 	if (!pNewCity->IsNoOccupiedUnhappiness())
