@@ -14833,8 +14833,6 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	kPlayer.GetMinorCivAI()->DoPickInitialItems();
 	
 	CvCity* pNewCity = kPlayer.acquireCity(pStartingCity, false, false);
-	kPlayer.setFoundedFirstCity(true);
-	kPlayer.setCapitalCity(pNewCity);
 	pStartingCity = NULL; //no longer valid
 	//we have to set this here!
 
