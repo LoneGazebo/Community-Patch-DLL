@@ -53153,11 +53153,6 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 			iWarmongerStatusModifier = max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT));
 			bHisLossIsOurOwn = true;
 		}
-		// Do we not know the defender?
-		else if (!pDiplo->IsHasMet(eCityOwner))
-		{
-			iWarmongerStatusModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT);
-		}
 		// Care less if we're also at war with the city owner
 		else if (pDiplo->IsAtWar(eCityOwner))
 		{
@@ -53572,11 +53567,6 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 			{
 				iWarmongerStatusModifier += max(0, /*200*/ GD_INT_GET(WARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT));
 			}
-		}
-		// Do we not know the defender?
-		else if (!pDiplo->IsHasMet(eNewOwner))
-		{
-			iWarmongerStatusModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT);
 		}
 	}
 

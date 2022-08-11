@@ -394,9 +394,6 @@ INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_SHARED_FATE_PERCENT', 
 -- Multiplicative modifier to the bonus for liberating a city owned by this player's team (added on top of SHARED_FATE_PERCENT)
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_LIBERATED_TEAM_BONUS_PERCENT', '200';
 
--- Multiplicative modifier for when the bystander doesn't know the defender, but does know the attacker
-INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_KNOWS_ATTACKER_PERCENT', '50';
-
 -- Multiplicative modifier for when the bystander is in a coop war with the attacker against the defender (huge reduction!)
 INSERT INTO Defines(Name, Value) SELECT 'WARMONGER_THREAT_COOP_WAR_PERCENT', '10';
 
