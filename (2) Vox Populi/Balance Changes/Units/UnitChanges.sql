@@ -9,7 +9,7 @@
 	
 	-- Cargo Ship -- Move to Optics
 
-	UPDATE Units SET PrereqTech = 'TECH_OPTICS', MilitarySupport = '0', ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARGO_SHIP';
+	UPDATE Units SET PrereqTech = 'TECH_OPTICS', MilitarySupport = '0', ProductionCostAddedPerEra = '75', MinAreaSize = '10' WHERE Type = 'UNIT_CARGO_SHIP';
 
 	-- Settler moved to Pottery
 	UPDATE Units SET PrereqTech = 'TECH_POTTERY' WHERE Type = 'UNIT_SETTLER';
@@ -43,7 +43,7 @@
 	UPDATE Units SET OneShotTourismPercentOthers = '0', OneShotTourism = '0', TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';
 
 	-- work boat sight penalty
-	UPDATE Units SET BaseSightRange = '1', Moves = '2', MilitarySupport = '0' WHERE Type = 'UNIT_WORKBOAT';
+	UPDATE Units SET BaseSightRange = '1', Moves = '2', MilitarySupport = '0', MinAreaSize = '10' WHERE Type = 'UNIT_WORKBOAT';
 
 	UPDATE Units
 	SET RequiresFaithPurchaseEnabled = '1'

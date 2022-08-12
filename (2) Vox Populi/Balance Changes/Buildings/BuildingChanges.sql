@@ -313,7 +313,7 @@ SET CitySupplyFlat = '1'
 WHERE Type = 'BUILDING_LIGHTHOUSE';
 
 UPDATE Buildings
-SET MinAreaSize = 1
+SET MinAreaSize = '10'
 WHERE Type = 'BUILDING_LIGHTHOUSE';
 
 -- Harbor
@@ -338,7 +338,7 @@ SET BuildingType = 'BUILDING_HARBOR'
 WHERE BuildingType = 'BUILDING_SEAPORT';
 
 UPDATE Buildings
-SET MinAreaSize = 1
+SET MinAreaSize = '10'
 WHERE Type = 'BUILDING_HARBOR';
 
 -- Seaport	
@@ -371,7 +371,7 @@ SET CitySupplyModifier = '20'
 WHERE Type = 'BUILDING_SEAPORT';
 
 UPDATE Buildings
-SET MinAreaSize = 1
+SET MinAreaSize = '10'
 WHERE Type = 'BUILDING_SEAPORT';
 
 -- Market	

@@ -112,12 +112,12 @@ INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
 VALUES ('BUILDING_GREAT_LIGHTHOUSE' , 'YIELD_PRODUCTION' , '2');
 
 UPDATE Buildings
-SET FreePromotion = 'PROMOTION_NAVAL_SENTRY_II', Cost = '200', MinAreaSize = -1
+SET FreePromotion = 'PROMOTION_NAVAL_SENTRY_II', Cost = '200', MinAreaSize = '10'
 WHERE Type = 'BUILDING_GREAT_LIGHTHOUSE';
 
 -- Colossus
 UPDATE Buildings
-SET PrereqTech = 'TECH_METAL_CASTING', Cost = '250', MinAreaSize = -1
+SET PrereqTech = 'TECH_METAL_CASTING', Cost = '250', MinAreaSize = '10'
 WHERE Type = 'BUILDING_COLOSSUS';
 
 -- Terracotta Army
@@ -385,7 +385,7 @@ VALUES ('BUILDING_CRISTO_REDENTOR' , 'YIELD_TOURISM' , '25');
 
 -- Prora
 UPDATE Buildings
-SET Cost = '1700', UnmoddedHappiness = '0', Happiness = '1', MinAreaSize = -1
+SET Cost = '1700', UnmoddedHappiness = '0', Happiness = '1', MinAreaSize = '10'
 WHERE Type = 'BUILDING_PRORA_RESORT';
 
 INSERT INTO Building_YieldFromPillageGlobal
@@ -447,7 +447,7 @@ VALUES
 
 -- Sydney Opera House
 UPDATE Buildings
-SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '25', MinAreaSize = -1
+SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '25', MinAreaSize = '10'
 WHERE Type = 'BUILDING_SYDNEY_OPERA_HOUSE';
 
 -- Move Apollo 
