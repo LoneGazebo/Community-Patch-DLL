@@ -7481,14 +7481,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>[ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]reduce[ENDCOLOR] towards 100 (1/2 [ICON_CAPITAL]) and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 1000 (5 [ICON_CAPITAL]) and enemy Spies will operate more slowly.</Text>
+			<Text>[ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]fall[ENDCOLOR] towards 1 and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 10 and enemy Spies will operate more slowly.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_GOLD] Economic Value (-{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness ({3_Num}%)</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Trade Routes (-{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Modifiers (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_STRENGTH] City Defense (+{4_Num}%)</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Buildings (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
@@ -7554,47 +7554,44 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
-			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES">
-			<Text>Spy Power Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>Spy Power Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] Our Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_UNHAPPINESS_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] City Unhappiness Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB">
-			<Text>[NEWLINE]  [ICON_BULLET] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
-			<Text>[NEWLINE]  [ICON_BULLET] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_TOURISM] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE">
-			<Text>Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].</Text>
+			<Text>Security Threshold: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
-			<Text>Security Modifiers: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]Security Threshold Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] Their Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] City Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Buildings: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY">
-			<Text>[NEWLINE]  [ICON_BULLET] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH">
-			<Text>[NEWLINE]  [ICON_BULLET] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
-			<Text>[NEWLINE]  [ICON_BULLET] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Spy Focus -->

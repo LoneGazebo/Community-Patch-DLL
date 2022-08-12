@@ -38,7 +38,7 @@
 			<SpyVisionDuration>15</SpyVisionDuration>
 			<IDModifier>0</IDModifier>
 			<DeathModifier>0</DeathModifier>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<EspionageDifficultyMod>-25</EspionageDifficultyMod>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
 			<IgnoreLocalForeignSpies>true</IgnoreLocalForeignSpies>
 			<SpyVisionRange>3</SpyVisionRange>
@@ -55,7 +55,7 @@
 			<IDModifier>75</IDModifier>
 			<ExperienceGainedModifier>75</ExperienceGainedModifier>
 			<DeathModifier>25</DeathModifier>
-			<EspionageDifficultyMod>75</EspionageDifficultyMod>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<!-- SCIENCE -->
@@ -66,7 +66,7 @@
 			<IsEspionageEffect>true</IsEspionageEffect>
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<ExperienceGainedModifier>50</ExperienceGainedModifier>
 			<IDModifier>75</IDModifier>
 			<DeathModifier>25</DeathModifier>
@@ -81,7 +81,7 @@
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<ExperienceGainedModifier>50</ExperienceGainedModifier>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<EspionageDifficultyMod>15</EspionageDifficultyMod>
 			<IDModifier>50</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
@@ -95,7 +95,7 @@
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
-			<EspionageDifficultyMod>75</EspionageDifficultyMod>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<IDModifier>50</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
@@ -112,7 +112,7 @@
 			<RequiredEra>ERA_RENAISSANCE</RequiredEra>
 			<TriggerPlayerEventChoice>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</TriggerPlayerEventChoice>
 			<IDModifier>50</IDModifier>
-			<EspionageDifficultyMod>75</EspionageDifficultyMod>
+			<EspionageDifficultyMod>50</EspionageDifficultyMod>
 			<ExperienceGainedModifier>100</ExperienceGainedModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>1</SpyLevelRequired>
@@ -146,7 +146,7 @@
 			<EventDuration>-1</EventDuration>
 			<IsUnhappy>true</IsUnhappy>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
-			<EspionageDifficultyMod>100</EspionageDifficultyMod>
+			<EspionageDifficultyMod>50</EspionageDifficultyMod>
 			<ResistanceTurns>2</ResistanceTurns>
 			<RandomBarbarianSpawn>5</RandomBarbarianSpawn>
 			<DeathModifier>60</DeathModifier>
@@ -163,7 +163,7 @@
 			<IDModifier>50</IDModifier>
 			<Expires>true</Expires>
 			<EventDuration>20</EventDuration>
-			<EspionageDifficultyMod>50</EspionageDifficultyMod>
+			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<DeathModifier>30</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
@@ -182,7 +182,7 @@
 			<GrowthMod>-25</GrowthMod>
 			<Expires>true</Expires>
 			<PillageCityStrategicNum>2</PillageCityStrategicNum>
-			<EspionageDifficultyMod>-25</EspionageDifficultyMod>
+			<EspionageDifficultyMod>10</EspionageDifficultyMod>
 			<SpyLevelRequired>1</SpyLevelRequired>
 		</Row>
 		<!-- STEAL TECH -->
@@ -199,7 +199,7 @@
 			<EraScaling>true</EraScaling>
 			<DeathModifier>25</DeathModifier>
 			<StealNumTechs>1</StealNumTechs>
-			<EspionageDifficultyMod>100</EspionageDifficultyMod>
+			<EspionageDifficultyMod>75</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- STEAL GW -->
@@ -216,7 +216,7 @@
 			<ExperienceGainedModifier>100</ExperienceGainedModifier>
 			<DeathModifier>75</DeathModifier>
 			<ForgeNumGW>1</ForgeNumGW>
-			<EspionageDifficultyMod>100</EspionageDifficultyMod>
+			<EspionageDifficultyMod>75</EspionageDifficultyMod>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!--- CounterSpy -->
