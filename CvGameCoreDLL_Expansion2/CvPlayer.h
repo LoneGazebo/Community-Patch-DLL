@@ -2078,7 +2078,6 @@ public:
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
 
 	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
-	void DoUpdateProximityToPlayer(PlayerTypes ePlayer); // obsolete; kept only for LUA compatibility
 	void DoUpdateProximityToPlayers();
 
 	void UpdateResearchAgreements(int iValue);

@@ -9500,10 +9500,10 @@ int CvLuaPlayer::lGetProximityToPlayer(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetProximityToPlayer);
 }
 //------------------------------------------------------------------------------
-//void DoUpdateProximityToPlayer(PlayerTypes  eIndex);
+// DEPRECATED
 int CvLuaPlayer::lDoUpdateProximityToPlayer(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::DoUpdateProximityToPlayer);
+	luaL_error(L, "DoUpdateProximityToPlayer - function is deprecated");
 }
 //------------------------------------------------------------------------------
 //int GetIncomingUnitType(PlayerTypes eFromPlayer);

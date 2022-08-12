@@ -36739,13 +36739,6 @@ pair<int,int> CvPlayer::GetClosestCityPair(PlayerTypes ePlayer)
 	return result;
 }
 
-/// Have to keep this function for LUA compatibility - but whenever a proximity update is called, do it for everyone
-void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
-{
-	if (ePlayer != NO_PLAYER)
-		DoUpdateProximityToPlayers();
-}
-
 /// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
 void CvPlayer::DoUpdateProximityToPlayers()
 {
