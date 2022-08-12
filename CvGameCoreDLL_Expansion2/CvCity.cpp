@@ -903,28 +903,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
 		}
 	}
-#if defined(MOD_BALANCE_CORE_EVENTS)
+
 	if (MOD_BALANCE_CORE_EVENTS && bInitialFounding)
-	{
 		owningPlayer.CheckActivePlayerEvents(this);
-	}
-#endif
 
 	// Update Proximity between this Player and all others
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
-		if (ePlayer != getOwner())
-		{
-			if (GET_PLAYER(ePlayer).isAlive())
-			{
-				// Players do NOT have to know one another in order to calculate proximity.  Having this info available (even whey they haven't met) can be useful
-				owningPlayer.DoUpdateProximityToPlayer(ePlayer);
-				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(getOwner());
-			}
-		}
-	}
+	owningPlayer.DoUpdateProximityToPlayers();
 
 	// Free Buildings in the first City
 	if (GC.getGame().isFinalInitialized())
@@ -2256,22 +2240,6 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, int iWorkPlotDistance, Playe
 
 	// Update Unit Maintenance for the player
 	owningPlayer.UpdateUnitProductionMaintenanceMod();
-
-	// Update Proximity between this Player and all others
-	PlayerTypes ePlayer;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		ePlayer = (PlayerTypes)iPlayerLoop;
-
-		if (ePlayer != eOwner)
-		{
-			if (GET_PLAYER(ePlayer).isAlive())
-			{
-				owningPlayer.DoUpdateProximityToPlayer(ePlayer);
-				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOwner);
-			}
-		}
-	}
 
 	GC.getMap().updateOwningCityForPlots(pPlot, iWorkPlotDistance * 2);
 	if (bCapital)

@@ -1707,12 +1707,6 @@ public:
 		return m_bPotentiallyAlive;
 	}
 
-	void setBeingResurrected(bool bNewValue);
-	bool isBeingResurrected() const
-	{
-		return m_bBeingResurrected;
-	}
-
 	bool isTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bDoTurn = true);
 	bool isSimultaneousTurns() const;
@@ -2084,7 +2078,8 @@ public:
 	void SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eProximity);
 
 	pair<int,int> GetClosestCityPair(PlayerTypes ePlayer);
-	void DoUpdateProximityToPlayer(PlayerTypes ePlayer);
+	void DoUpdateProximityToPlayer(PlayerTypes ePlayer); // obsolete; kept only for LUA compatibility
+	void DoUpdateProximityToPlayers();
 
 	void UpdateResearchAgreements(int iValue);
 	int GetResearchAgreementCounter(PlayerTypes ePlayer) const;
@@ -3413,7 +3408,6 @@ protected:
 	bool m_bAlive;
 	bool m_bEverAlive;
 	bool m_bPotentiallyAlive;
-	bool m_bBeingResurrected;
 	bool m_bTurnActive;
 	bool m_bAutoMoves;					// Signal that we can process the auto moves when ready.
 	bool						  m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
@@ -4192,7 +4186,6 @@ SYNC_ARCHIVE_VAR(bool, m_bHasBetrayedMinorCiv)
 SYNC_ARCHIVE_VAR(bool, m_bAlive)
 SYNC_ARCHIVE_VAR(bool, m_bEverAlive)
 SYNC_ARCHIVE_VAR(bool, m_bPotentiallyAlive)
-SYNC_ARCHIVE_VAR(bool, m_bBeingResurrected)
 SYNC_ARCHIVE_VAR(bool, m_bTurnActive)
 SYNC_ARCHIVE_VAR(bool, m_bAutoMoves)
 SYNC_ARCHIVE_VAR(bool, m_bEndTurn)

@@ -357,7 +357,6 @@ CvPlayer::CvPlayer() :
 	, m_bAlive()
 	, m_bEverAlive()
 	, m_bPotentiallyAlive()
-	, m_bBeingResurrected(false)
 	, m_bTurnActive(false)
 	, m_bAutoMoves(false)
 	, m_bEndTurn(false)
@@ -1676,7 +1675,6 @@ void CvPlayer::uninit()
 	m_bAlive = false;
 	m_bEverAlive = false;
 	m_bPotentiallyAlive = false;
-	m_bBeingResurrected = false;
 	m_bTurnActive = false;
 	m_bAutoMoves = false;
 	m_bProcessedAutoMoves = false;
@@ -3937,27 +3935,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	GC.getMap().updateOwningCityForPlots(pCityPlot,iCityRings*2);
 	GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 
-	// Update Proximity between this Player and all others
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
-		if (ePlayer == m_eID)
-			continue;
-
-		if (!GET_PLAYER(ePlayer).isAlive())
-			continue;
-
-		GET_PLAYER(m_eID).DoUpdateProximityToPlayer(ePlayer);
-		GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(m_eID);
-
-		if (ePlayer != eOldOwner)
-		{
-			GET_PLAYER(eOldOwner).DoUpdateProximityToPlayer(ePlayer);
-			GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
-		}
-	}
-
 	// Now create a new city!
 	CvCity* pNewCity = initCity(iCityX, iCityY, !bConquest, false, NO_RELIGION, strName.c_str());
 	if (!pNewCity)
@@ -4403,6 +4380,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		ownedPlots[i]->setOwner(GetID(), pNewCity->GetID(), (bBumpUnits || ownedPlots[i]->isCity()), true);
 	}
 
+	// Update Player Proximity
+	GET_PLAYER(eOldOwner).DoUpdateProximityToPlayers();
+	DoUpdateProximityToPlayers();
+
 	// Update events
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem)
@@ -4689,35 +4670,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (GC.getGame().getActiveTeam() == GET_PLAYER(eOldOwner).getTeam())
 		GC.getMap().updateDeferredFog();
 
-	if (pNewCity)
-	{
-		// City acquired by Barbarians? Start the spawn counter.
-		if (MOD_BALANCE_VP && isBarbarian())
-		{
-			CvBarbarians::DoCityActivationNotice(pCityPlot);
-		}
-
-		// Update Proximity between this Player and all others (again!)
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
-			if (ePlayer == m_eID)
-				continue;
-
-			if (!GET_PLAYER(ePlayer).isAlive())
-				continue;
-
-			GET_PLAYER(m_eID).DoUpdateProximityToPlayer(ePlayer);
-			GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(m_eID);
-
-			if (ePlayer != eOldOwner)
-			{
-				GET_PLAYER(eOldOwner).DoUpdateProximityToPlayer(ePlayer);
-				GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eOldOwner);
-			}
-		}
-	}
+	// City acquired by Barbarians? Start the spawn counter.
+	if (pNewCity && MOD_BALANCE_VP && isBarbarian())
+		CvBarbarians::DoCityActivationNotice(pCityPlot);
 
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
@@ -9491,8 +9446,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// If they aren't alive, start the resurrection process
 	if (!bAlive)
 	{
-		GET_PLAYER(ePlayer).setBeingResurrected(true);
-
 		// Mark the liberators
 		if (!bForced)
 		{
@@ -9897,30 +9850,22 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 #endif
 	}
 
-	GET_PLAYER(ePlayer).GetDiplomacyAI()->DoUpdateConquestStats();
+	// Meet the team, if we haven't already
+	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
 
-	// Update Proximity between the liberated player and all others
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != ePlayer)
-		{
-			if (GET_PLAYER(eLoopPlayer).isMajorCiv())
-			{
-				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
-			}
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+			continue;
 
-			GET_PLAYER(ePlayer).DoUpdateProximityToPlayer(eLoopPlayer);
-			GET_PLAYER(eLoopPlayer).DoUpdateProximityToPlayer(ePlayer);
-		}
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
 	}
 
-	// Meet the team, if we haven't already
-	if (!GET_TEAM(getTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-	{
-		GET_TEAM(getTeam()).makeHasMet(GET_PLAYER(ePlayer).getTeam(), true);
-	}
+	// Update Proximity between the liberated player and all others
+	GET_PLAYER(ePlayer).DoUpdateProximityToPlayers();
 
 	// Update diplo stuff
 	if (bAlive)
@@ -9936,9 +9881,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
 	GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
-
-	// Mark the resurrection process as complete
-	GET_PLAYER(ePlayer).setBeingResurrected(false);
 
 	if (MOD_EVENTS_LIBERATION) 
 	{
@@ -12802,6 +12744,9 @@ void CvPlayer::disband(CvCity* pCity)
 	}
 
 	pCity->kill();
+
+	// Update Proximity between this Player and all others
+	DoUpdateProximityToPlayers();
 
 	if (pPlot)
 	{
@@ -33503,6 +33448,9 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 		killUnits();
 		killCities();
 
+		// Update Player Proximity
+		DoUpdateProximityToPlayers();
+
 		// Entire team is dead
 		if (!GET_TEAM(getTeam()).isAlive())
 		{
@@ -33607,12 +33555,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	}
 
 	GC.getGame().setScoreDirty(true);
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::setBeingResurrected(bool bValue)
-{
-	m_bBeingResurrected = bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -36797,69 +36739,118 @@ pair<int,int> CvPlayer::GetClosestCityPair(PlayerTypes ePlayer)
 	return result;
 }
 
-/// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
+/// Have to keep this function for LUA compatibility - but whenever a proximity update is called, do it for everyone
 void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 {
-	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_PLAYERS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer != NO_PLAYER)
+		DoUpdateProximityToPlayers();
+}
 
-	//the current pair for comparison
-	pair<int, int> closestCities = GetClosestCityPair(ePlayer);
-	if (closestCities.first < 0 || closestCities.second < 0)
+/// Figure out how "close" we are to another player (useful for diplomacy, war planning, etc.)
+void CvPlayer::DoUpdateProximityToPlayers()
+{
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		SetProximityToPlayer(ePlayer, NO_PLAYER_PROXIMITY);
-		return;
-	}
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-	//default
-	PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
-
-	//can't embark? non-continent members are distant.
-	if (!CanEmbark())
-	{
-		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
-		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-		if (pA->getArea() != pB->getArea())
+		if (!isAlive() || !GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			SetProximityToPlayer(ePlayer, PLAYER_PROXIMITY_DISTANT);
+			SetProximityToPlayer(eLoopPlayer, NO_PLAYER_PROXIMITY);
+			GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, NO_PLAYER_PROXIMITY);
+			continue;
+		}
+
+		//default
+		PlayerProximityTypes eProximity = PLAYER_PROXIMITY_DISTANT;
+
+		//the current pair for comparison
+		pair<int, int> closestCities = GetClosestCityPair(eLoopPlayer);
+		if (closestCities.first < 0 || closestCities.second < 0)
+		{
+			SetProximityToPlayer(eLoopPlayer, eProximity);
+			GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);
 			return;
 		}
-	}
 
-	// Closest Cities must be within a certain range
-	int iDistance = plotDistance(closestCities.first,closestCities.second);
-	if (iDistance < /*8*/ GD_INT_GET(PROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT))
-	{
-		eProximity = PLAYER_PROXIMITY_NEIGHBORS;
-	}
-	// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
-	else if (iDistance < /*16*/ GD_INT_GET(PROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY))
-	{
-		eProximity = PLAYER_PROXIMITY_CLOSE;
-	}
-	// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
-	else if (iDistance < /*24*/ GD_INT_GET(PROXIMITY_FAR_DISTANCE_MAX))
-	{
-		eProximity = PLAYER_PROXIMITY_FAR;
-	}
-
-	//can embark, but not oceanic? non-continent members are one pip less.
-	if (CanEmbark() && !CanCrossOcean())
-	{
-		CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
-		CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-		if (pA->getArea() != pB->getArea())
+		// Closest Cities must be within a certain range
+		int iDistance = plotDistance(closestCities.first,closestCities.second);
+		if (iDistance < /*8*/ GD_INT_GET(PROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT))
 		{
-			if (eProximity == PLAYER_PROXIMITY_FAR)
-				eProximity = PLAYER_PROXIMITY_DISTANT;
-			else if (eProximity == PLAYER_PROXIMITY_CLOSE)
-				eProximity = PLAYER_PROXIMITY_FAR;
-			else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-				eProximity = PLAYER_PROXIMITY_CLOSE;
+			eProximity = PLAYER_PROXIMITY_NEIGHBORS;
 		}
-	}
+		// If our closest Cities are pretty near one another and our average is less than the max then we can be considered CLOSE
+		else if (iDistance < /*16*/ GD_INT_GET(PROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY))
+		{
+			eProximity = PLAYER_PROXIMITY_CLOSE;
+		}
+		// If our closest Cities are far away from one another and our average is less than the max then we can be considered FAR
+		else if (iDistance < /*24*/ GD_INT_GET(PROXIMITY_FAR_DISTANCE_MAX))
+		{
+			eProximity = PLAYER_PROXIMITY_FAR;
+		}
 
-	SetProximityToPlayer(ePlayer, eProximity);
+		//can't embark? non-continent members are distant.
+		if (!GET_PLAYER(eLoopPlayer).CanEmbark())
+		{
+			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+			if (pA->getArea() != pB->getArea())
+			{
+				GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_DISTANT);
+			}
+			else
+				GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);
+		}
+		//can embark, but not oceanic? non-continent members are one pip less.
+		else if (!GET_PLAYER(eLoopPlayer).CanCrossOcean())
+		{
+			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+			if (pA->getArea() != pB->getArea())
+			{
+				if (eProximity == PLAYER_PROXIMITY_FAR)
+					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_DISTANT);
+				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_FAR);
+				else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_CLOSE);
+			}
+			else
+				GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);
+		}
+		else
+		{
+			GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);
+		}
+
+		//can't embark? non-continent members are distant.
+		if (!CanEmbark())
+		{
+			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+			if (pA->getArea() != pB->getArea())
+			{
+				eProximity = PLAYER_PROXIMITY_DISTANT;
+			}
+		}
+		//can embark, but not oceanic? non-continent members are one pip less.
+		else if (!CanCrossOcean())
+		{
+			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
+			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
+			if (pA->getArea() != pB->getArea())
+			{
+				if (eProximity == PLAYER_PROXIMITY_FAR)
+					eProximity = PLAYER_PROXIMITY_DISTANT;
+				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
+					eProximity = PLAYER_PROXIMITY_FAR;
+				else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					eProximity = PLAYER_PROXIMITY_CLOSE;
+			}
+		}
+
+		SetProximityToPlayer(eLoopPlayer, eProximity);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -46193,7 +46184,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bAlive);
 	visitor(player.m_bEverAlive);
 	visitor(player.m_bPotentiallyAlive);
-	visitor(player.m_bBeingResurrected);
 	visitor(player.m_bTurnActive);
 	visitor(player.m_bAutoMoves);
 	visitor(player.m_bEndTurn);

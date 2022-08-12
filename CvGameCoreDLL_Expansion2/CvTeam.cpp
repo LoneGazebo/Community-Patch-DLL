@@ -3150,7 +3150,7 @@ CvString CvTeam::getName() const
 		const PlayerTypes ePlayer(static_cast<PlayerTypes>(iI));
 		CvPlayerAI& kPlayer(GET_PLAYER(ePlayer));
 
-		if(kPlayer.isAlive() || kPlayer.isBeingResurrected())
+		if(kPlayer.isAlive())
 		{
 			if(kPlayer.getTeam() == eID)
 			{
@@ -3898,28 +3898,32 @@ int CvTeam::getCanEmbarkCount() const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeCanEmbarkCount(int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		m_iCanEmbarkCount += iChange;
+		const vector<PlayerTypes>& vTeamMembers = getPlayers();
 
-		if(canEmbark())
+		for (size_t i = 0; i < vTeamMembers.size(); i++)
 		{
-			int iLoop;
-			CvUnit* pLoopUnit;
+			PlayerTypes ePlayer = vTeamMembers[i];
 
-			// Give embarkation promotion to all civilians, because they have no way to earn it later
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			if (GET_PLAYER(ePlayer).isAlive())
 			{
-				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+				// Update proximity to all other players
+				GET_PLAYER(ePlayer).DoUpdateProximityToPlayers();
+
+				// Apply the embarkation promotion to this player's units
+				if (canEmbark())
 				{
-					PromotionTypes ePromotionEmbarkation = GET_PLAYER((PlayerTypes)iI).GetEmbarkationPromotion();
-					for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
+					int iLoop;
+					PromotionTypes ePromotionEmbarkation = GET_PLAYER(ePlayer).GetEmbarkationPromotion();
+					for (CvUnit* pLoopUnit = GET_PLAYER(ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(ePlayer).nextUnit(&iLoop))
 					{
 						// Land Unit
-						if(pLoopUnit->getDomainType() == DOMAIN_LAND)
+						if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 						{
 							// Civilian unit or the unit can acquire this promotion
-							if(!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
+							if (!pLoopUnit->IsCombatUnit() || ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, pLoopUnit->getUnitType()))
 								pLoopUnit->setHasPromotion(ePromotionEmbarkation, true);
 						}
 					}
@@ -3927,8 +3931,6 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 			}
 		}
 	}
-
-	CvAssert(getCanEmbarkCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4042,11 +4044,19 @@ int CvTeam::getEmbarkedAllWaterPassage() const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeEmbarkedAllWaterPassage(int iChange)
 {
-	if(iChange != 0)
+	if (iChange != 0)
 	{
 		m_iEmbarkedAllWaterPassageCount += iChange;
+		const vector<PlayerTypes>& vTeamMembers = getPlayers();
+
+		for (size_t i = 0; i < vTeamMembers.size(); i++)
+		{
+			PlayerTypes ePlayer = vTeamMembers[i];
+
+			if (GET_PLAYER(ePlayer).isAlive())
+				GET_PLAYER(ePlayer).DoUpdateProximityToPlayers();
+		}
 	}
-	CvAssert(getEmbarkedAllWaterPassage() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4150,10 +4160,6 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 								if(GET_PLAYER(eTheirPlayer).getTeam() == eIndex)
 								{
 									// Begin contact stuff here
-
-									// Update Proximity between players
-									GET_PLAYER(eMyPlayer).DoUpdateProximityToPlayer(eTheirPlayer);
-									GET_PLAYER(eTheirPlayer).DoUpdateProximityToPlayer(eMyPlayer);
 
 									// First contact Diplo changes (no Minors)
 									if(isMajorCiv())
