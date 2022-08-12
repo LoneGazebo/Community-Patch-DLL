@@ -38558,6 +38558,45 @@ bool CvPlayer::IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam) cons
 
 //	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
+/// What is the best improvement that connects eResource for this player (does it need to be Civ-Specific)?
+CvImprovementEntry* CvPlayer::GetResourceImprovement(ResourceTypes eResource, bool bCivSpecific) const
+{
+	CvImprovementEntry* pBestImprovement = NULL;
+	for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+	{
+		BuildTypes eBuild = ((BuildTypes)iJ);
+		if (eBuild == NO_BUILD)
+			continue;
+
+		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+		if (!pkBuildInfo)
+			continue;
+
+		ImprovementTypes eUniqueImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		if (eUniqueImprovement == NO_IMPROVEMENT)
+			continue;
+
+		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eUniqueImprovement);
+		if (pkImprovementInfo->IsConnectsResource(eResource))
+		{
+			// immediately return a civ-specific resource improvement
+			if (pkImprovementInfo->IsSpecificCivRequired() && IsCivilization(pkImprovementInfo->GetRequiredCivilization()))
+			{
+				return pkImprovementInfo;
+			}
+			// store current improvement to be used later if we don't find a civ-specific improvement
+			else if (!bCivSpecific)
+			{
+				pBestImprovement = pkImprovementInfo;
+			}
+		}
+	}
+
+	return pBestImprovement;
+}
+
+//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
 /// Do we get copies of each type of luxury connected by eFromPlayer?
 int CvPlayer::getSiphonLuxuryCount(PlayerTypes eFromPlayer) const
 {

@@ -7231,9 +7231,32 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if (IsRecentlyBulliedByMajor(ePlayer))
 			return false;
 
-		// Any nearby camps?
-		if(GetBestNearbyDig() == NULL)
+		// Any nearby dig sites?
+		CvPlot* pDigPlot = GetBestNearbyDig();
+		if(pDigPlot == NULL)
 			return false;
+		// Can the player send an archaeologist?
+		for (int i = 0; i < GC.getNumBuildInfos(); i++)
+		{
+			BuildTypes eBuild = (BuildTypes)i;
+			CvBuildInfo* pBuildInfo = GC.getBuildInfo(eBuild);
+			if (pBuildInfo == NULL || eBuild == NO_BUILD)
+				continue;
+			// Does the build action create an archaeology prompt?
+			ImprovementTypes eImprovement = (ImprovementTypes)pBuildInfo->getImprovement();
+			if (eImprovement == NO_IMPROVEMENT)
+				continue;
+			CvImprovementEntry& pImprovementEntry = *GC.getImprovementInfo(eImprovement);
+			ResourceTypes eResource = pDigPlot->getResourceType(GET_PLAYER(ePlayer).getTeam());
+			if (!(pImprovementEntry.IsPromptWhenComplete() && pImprovementEntry.IsImprovementResourceMakesValid(eResource)))
+				continue;
+			// Does the player have access to the build action?
+			if (!GET_PLAYER(ePlayer).canBuild(pDigPlot, eBuild, false /*bTestEra*/, false /*bTestVisible*/, false /*bTestGold*/, false /*bTestPlotOwner*/))
+				continue;
+
+			return true;
+		}
+		return false;
 	}
 	// Circumnavigation
 	else if(eQuest == MINOR_CIV_QUEST_CIRCUMNAVIGATION)
