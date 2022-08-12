@@ -149,9 +149,12 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitTy
 ---------------------------
 -- Denmark
 ---------------------------
--- Removed ski infantry, buffed berserker
+-- Removed ski infantry; buffed berserker, now an early pikeman UU
+DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_DANISH_BERSERKER';
 
-UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
+UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_PIKEMAN' WHERE UnitType = 'UNIT_DANISH_BERSERKER';
+
+UPDATE Units SET Class = 'UNITCLASS_PIKEMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_DANISH_BERSERKER';
 
@@ -433,12 +436,12 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_WWI_TANK' WHERE UnitTyp
 ---------------------------
 -- Polynesia
 ---------------------------
--- Maori Warrior now a pikeman UU
-UPDATE Units SET Class = 'UNITCLASS_PIKEMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+-- Maori Warrior now a longswordsman UU
+UPDATE Units SET Class = 'UNITCLASS_LONGSWORDSMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
-UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_PIKEMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_LONGSWORDSMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 INSERT INTO Trait_BuildsUnitClasses
 	(TraitType, UnitClassType, BuildType)

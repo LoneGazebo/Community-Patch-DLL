@@ -22,6 +22,14 @@ Promotions icons included in Vanilla and VP only are affected.
 ------------------------------------------------------------------
 Versions
 
+(v 6)
+- Import Icons from MUC: English Longbowman and Korean Turtle Ship
+- Add new Icons for Hakkapeliitta, Swordsman line
+- Reorganized Promotion Icons so that Swordsman Line and Naval promotions are each grouped together
+
+(v 5)
+- Add new Promotion Icon for Superior Flank Attack.
+- Reorganized Promotion Icons so that Superior Flank Attack is next to Enhanced Flank Attack
 
 (v 4)
 - Add new Promotion Icons for Iklwa, Commando, Attack bonus (25)
@@ -62,6 +70,7 @@ Credits
 
 
 Author : Asterix Rage
+Maintained by : Rek, gwennog
 
 Many of the icons are made from "flat silhouette" pics. Royalty-free for non commercial use.
 

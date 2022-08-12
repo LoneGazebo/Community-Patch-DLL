@@ -315,11 +315,11 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
 
 	UPDATE Language_en_US
-	SET Text = 'Attacks with lethal Greek Fire, making it the first naval unit with a ranged attack. It cannot end its turn in Deep Ocean tiles outside of the city borders.'
+	SET Text = 'Attacks with lethal Greek Fire, making it the first naval unit with a ranged attack. It cannot end its turn in Ocean Tiles outside of the city borders.'
 	WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
 
 	UPDATE Language_en_US
-	SET Text = 'The Galleass is the second naval unit with a ranged attack available to the civilizations in the game. It is much stronger than earlier naval units but a bit slower. It cannot initiate melee combat. The Galleass is useful for clearing enemy ships out of shallow waters. It cannot end its turn in Deep Ocean hexes.'
+	SET Text = 'The Galleass is the second naval unit with a ranged attack available to the civilizations in the game. It is much stronger than earlier naval ships, and can enter the ocean. The Galleass is useful for clearing enemy ships out of shallow waters and supporting sieges.'
 	WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
 
 	UPDATE Language_en_US
@@ -327,7 +327,7 @@
 	WHERE Tag = 'TXT_KEY_CIV5_PRIVATEER_TEXT';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Caravel is a significant upgrade to your naval power. A Melee unit, it is stronger and faster than the ageing Trireme, and it can enter Deep Ocean hexes.Use it to explore the world, or to defend your home cities.'
+	SET Text = 'The Caravel is a significant upgrade to your naval power. A Melee unit, it is stronger and faster than the ageing Trireme, and it can enter Ocean Tiles. Use it to explore the world, or to defend your home cities.'
 	WHERE Tag = 'TXT_KEY_UNIT_CARAVEL_STRATEGY';
 	
 	UPDATE Language_en_US
@@ -335,7 +335,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARAVEL';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Frigate is an upgrade over the Galleass. Its Range, Combat and Ranged Combat strengths are much larger than the older naval unit. The Frigate can clear the seas of any Caravels, Triremes, and Barbarian units still afloat. It cannot, however, fire on non-coastal land tiles.'
+	SET Text = 'The Frigate is an upgrade over the Galleass. Its Range, Combat and Ranged Combat Strengths are much larger than the older naval unit. The Frigate can clear the seas of any Caravels, Triremes, and Barbarian units still afloat. It cannot, however, fire on non-coastal Land Tiles.'
 	WHERE Tag = 'TXT_KEY_UNIT_FRIGATE_STRATEGY';
 
 	UPDATE Language_en_US

@@ -23,10 +23,10 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 -- Game Options
 
 INSERT INTO Language_en_US
-			(Tag,											Text)
-VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
-			('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
-			
+		(Tag,											Text)
+VALUES	('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
+		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
+
 UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
@@ -40,8 +40,8 @@ WHERE Tag = 'TXT_KEY_DIPLOSTRATEGY_MILITARY_STRENGTH_COMPARED_TO_US_PATHETIC';
 
 -- Assyria UA
 INSERT INTO Language_en_US
-			(Tag,										Text)
-SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
+		(Tag,										Text)
+SELECT	'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );
 
 
@@ -88,7 +88,7 @@ SET Text = 'Move a unit to a tile where it can end the turn.'
 WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
 
 UPDATE Language_en_US
-SET Text = 'Allows land units to embark and cross water tiles.'
+SET Text = 'Allows land units to embark and cross water Tiles.'
 WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 -- Capture Chance
@@ -122,20 +122,24 @@ WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
 
 -- Ocean travel change
 UPDATE Language_en_US
-SET Text = 'Can never end turn on an Ocean tile. May move through Ocean tiles if ending on a Coastal tile.'
-WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_OCEAN_IMPASSABLE_HELP';
+SET Text = 'Cannot End Turn on Ocean Tile'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
-UPDATE Language_en_US
-SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean tiles if ending on a Coastal tile.'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+INSERT INTO Language_en_US
+		(Tag,										Text)
+VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through Ocean Tiles if ending on a Coastal Tile.');
+
+UPDATE UnitPromotions
+SET Help = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP'
+WHERE Type = 'PROMOTION_OCEAN_IMPASSABLE';
 
 UPDATE Language_en_US
 SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO';
 
 UPDATE Language_en_US
-SET Text = 'Cannot End Turn on Ocean Tile'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
+SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean Tiles if ending on a Coastal Tile.'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 -- Siege Units
 UPDATE Language_en_US
@@ -317,8 +321,8 @@ SET Text = 'Someone demanded tribute very recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
 
 INSERT INTO Language_en_US
-			(Tag,										Text)
-SELECT		'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';
+		(Tag,										Text)
+SELECT	'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';
 
 -- Fixed quest text - transitioned to new 'quest rewards' panel
 UPDATE Language_en_US

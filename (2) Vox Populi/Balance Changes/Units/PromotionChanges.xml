@@ -1846,19 +1846,19 @@
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_OCEAN_IMPASSABLE_ASTRO</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_OCEAN_IMPASSABLE</Type>
 			<Description>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE</Description>
-			<Help>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE</Help>
+			<Help>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP</Help>
 			<CannotBeChosen>true</CannotBeChosen>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_NAVAL</PediaType>
-			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_OCEAN_IMPASSABLE</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_STEAM_POWERED</Type>
@@ -2265,6 +2265,7 @@
 			<FriendlyHealChange>10</FriendlyHealChange>
 			<SameTileHealChange>10</SameTileHealChange>
 			<AdjacentTileHealChange>10</AdjacentTileHealChange>
+			<NearbyEnemyDamage>10</NearbyEnemyDamage>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -2307,7 +2308,6 @@
 			<CombatPercent>10</CombatPercent>
 			<MovesChange>1</MovesChange>
 		</Replace>
-		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 		<Replace>
 			<Type>PROMOTION_BUFFALO_HORNS</Type>
 			<Description>TXT_KEY_PROMOTION_BUFFALO_HORNS</Description>
@@ -2321,6 +2321,7 @@
 			<FlankAttackModifier>25</FlankAttackModifier>
 			<CombatPercent>10</CombatPercent>
 		</Replace>
+		<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 		<Replace>
 			<Type>PROMOTION_ANTI_GUNPOWDER</Type>
 			<Description>TXT_KEY_PROMOTION_ANTI_GUNPOWDER</Description>
@@ -2943,6 +2944,17 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ATLATL_ATTACK</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 		</Row>
+		<Row>
+			<Type>PROMOTION_ASSIZE_OF_ARMS</Type>
+			<Description>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS</Description>
+			<Help>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ASSIZE_OF_ARMS</PediaEntry>
+		</Row>
 		<!-- Eight Virtues -->
 		<Row>
 			<Type>PROMOTION_BUSHIDO</Type>
@@ -3073,13 +3085,28 @@
 			<Help>TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<HPHealedIfDestroyEnemy>50</HPHealedIfDestroyEnemy>
+			<HPHealedIfDestroyEnemy>30</HPHealedIfDestroyEnemy>
 			<AttackWoundedMod>20</AttackWoundedMod>
 			<OrderPriority>1</OrderPriority>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HAKKAA_PAALLE</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SCOUT_CAVALRY</Type>
+			<Description>TXT_KEY_PROMOTION_SCOUT_CAVALRY</Description>
+			<Help>TXT_KEY_PROMOTION_SCOUT_CAVALRY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<CombatPercent>-20</CombatPercent>
+			<FreePillageMoves>true</FreePillageMoves>
+			<VisibilityChange>1</VisibilityChange>
+			<OrderPriority>1</OrderPriority>
+			<PortraitIndex>58</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCOUT_CAVALRY</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>
@@ -3890,6 +3917,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_NAVAL_INACCURACY</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_OCEAN_HALF_MOVES</Type>
+			<Description>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES</Description>
+			<Help>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>57</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_HALF_MOVES</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_PRISONER_WAR</Type>
 			<Description>TXT_KEY_PROMOTION_PRISONER_WAR</Description>
 			<Help>TXT_KEY_PROMOTION_PRISONER_WAR_HELP</Help>
@@ -4225,6 +4264,20 @@
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVASION_III</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FIELD_WORKS_0</Type>
+			<Description>TXT_KEY_PROMOTION_FIELD_WORKS_0</Description>
+			<Help>TXT_KEY_PROMOTION_FIELD_WORKS_0_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>80</OrderPriority>
+			<RangedDefenseMod>10</RangedDefenseMod>
+			<MaxHitPointsChange>10</MaxHitPointsChange>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<PortraitIndex>14</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MELEE</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FIELD_WORKS_0</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_FIELD_WORKS_1</Type>
