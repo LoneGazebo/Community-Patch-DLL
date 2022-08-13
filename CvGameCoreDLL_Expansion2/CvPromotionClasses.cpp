@@ -734,7 +734,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbTerrainHalfMove[iTerrainID] = bHalfMove;
 
-			const int bExtraMove = pResults->GetBool("ExtraMove");
+			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbTerrainExtraMove[iTerrainID] = bExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -796,7 +796,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbFeatureHalfMove[iFeatureID] = bHalfMove;
 
-			const int bExtraMove = pResults->GetBool("ExtraMove");
+			const bool bExtraMove = pResults->GetBool("ExtraMove");
 			m_pbFeatureExtraMove[iFeatureID] = bExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
