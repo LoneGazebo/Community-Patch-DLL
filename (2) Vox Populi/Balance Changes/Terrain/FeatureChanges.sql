@@ -1,6 +1,6 @@
 -- Removal of Forest/Jungle/Marsh moved back a bit
 UPDATE Builds
-SET PrereqTech = 'TECH_CALENDAR'
+SET PrereqTech = 'TECH_TRAPPING'
 WHERE Type = 'BUILD_REMOVE_JUNGLE';
 
 UPDATE Builds
@@ -97,6 +97,7 @@ UPDATE BuildFeatures SET Production = 40 WHERE FeatureType = 'FEATURE_JUNGLE' AN
 UPDATE BuildFeatures SET Time = 300 WHERE FeatureType = 'FEATURE_FOREST' AND Time > 0 AND Remove = 1;
 UPDATE BuildFeatures SET Time = 400 WHERE FeatureType = 'FEATURE_JUNGLE' AND Time > 0 AND Remove = 1;
 UPDATE BuildFeatures SET Time = 600 WHERE FeatureType = 'FEATURE_MARSH'  AND Time > 0 AND Remove = 1;
+UPDATE BuildFeatures SET PrereqTech = "TECH_TRAPPING" WHERE FeatureType = 'FEATURE_JUNGLE';
 
 -- Additive Nature of Features
 UPDATE Features

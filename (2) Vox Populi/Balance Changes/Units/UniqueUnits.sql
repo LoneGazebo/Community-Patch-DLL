@@ -70,9 +70,9 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_SPEARMAN' WHERE UnitTyp
 -- Bowman now a UU composite bowman
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CROSSBOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_ARCHER' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Units SET Class = 'UNITCLASS_COMPOSITE_BOWMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_CROSSBOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Units SET Class = 'UNITCLASS_ARCHER', GoodyHutUpgradeUnitClass = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
 
 ---------------------------
 -- Brazil
@@ -280,7 +280,17 @@ VALUES
 ---------------------------
 -- Inca
 ---------------------------
--- Slinger modified below
+-- Slinger
+UPDATE Units SET
+	Class 			= 'UNITCLASS_VP_SLINGER',
+	PrereqTech 		= 'TECH_AGRICULTURE', 
+	ObsoleteTech 	= 'TECH_CURRENCY',
+	Range 			= 2,
+	GoodyHutUpgradeUnitClass = 'UNITCLASS_ARCHER'
+WHERE Type = 'UNIT_INCAN_SLINGER';
+
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_VP_SLINGER' WHERE UnitType = 'UNIT_INCAN_SLINGER';
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_ARCHER' WHERE UnitType = 'UNIT_INCAN_SLINGER';
 
 ---------------------------
 -- India
