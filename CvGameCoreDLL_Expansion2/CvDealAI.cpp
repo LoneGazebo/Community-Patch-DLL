@@ -1462,14 +1462,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	if (!pkResourceInfo)
 		return 0;
 
-	if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetPlayer()->GetID(), eResource))
-		return INT_MAX;
-
 	//Integer zero check...
 	if (iNumTurns <= 0)
 		iNumTurns = 1;
-
-	std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 
 	//how much happiness from one additional luxury?
 	int iBaseHappiness = 0;
@@ -1481,6 +1476,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	// How much of this luxury resource do we already have?
 	int iNumAvailableToUs = GetPlayer()->getNumResourceTotal(eResource, true);
 
+	std::vector<CvDeal*> pRenewDeals = GetPlayer()->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 	if (pRenewDeals.size() > 0)
 	{
 		for (uint i = 0; i < pRenewDeals.size(); i++)
@@ -1839,11 +1835,33 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				}
 			}
 
+			// Is there a City-State quest the AI wants to fulfill by obtaining this resource?
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+				if (GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eMinor) && GET_PLAYER(eMinor).isMinorCiv() && !GetPlayer()->GetDiplomacyAI()->IsAtWar(eMinor) && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eMinor) > CIV_APPROACH_HOSTILE)
+				{
+					CvMinorCivAI* pMinorAI = GET_PLAYER(eMinor).GetMinorCivAI();
+					if (!pMinorAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_CONNECT_RESOURCE))
+						continue;
+
+					for (QuestListForPlayer::iterator itr_quest = pMinorAI->m_QuestsGiven[GetPlayer()->GetID()].begin(); itr_quest != pMinorAI->m_QuestsGiven[GetPlayer()->GetID()].end(); itr_quest++)
+					{
+						if (itr_quest->GetType() == MINOR_CIV_QUEST_CONNECT_RESOURCE && (ResourceTypes)itr_quest->GetPrimaryData() == eResource)
+						{
+							iItemValue += itr_quest->GetGold();
+							iItemValue += (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory()) ? itr_quest->GetInfluence() * 4 : itr_quest->GetInfluence() * 2;
+						}
+					}
+				}
+			}
+
 			// Worth nothing? The AI doesn't want it, then!
 			if (iItemValue <= 0)
 			{
+				// Still somewhat valuable to the Netherlands
 				if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-					return 10;
+					return OneGPTScaled;
 				else
 					return INT_MAX;
 			}
