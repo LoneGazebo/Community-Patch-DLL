@@ -1748,12 +1748,8 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	if (bFromMe)
 	{
 		//Never trade away everything.
-		int iNumLeft = iNumberAvailableToUs - iResourceQuantity;
-		if (iNumLeft <= 0)
+		if (iNumberAvailableToUs - iResourceQuantity <= 0)
 			return INT_MAX;
-		else if (iNumLeft <= 2)
-			iItemValue *= 10;
-
 
 		//If they're stronger than us, strategic resources are valuable.
 		if (GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
@@ -1828,10 +1824,24 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			break;
 		}
 
-		//And now speed/quantity.
-		iItemValue *= (iResourceQuantity * iNumTurns);
+		//Scale with game speed.
+		iItemValue *= iNumTurns;
 
-		return iItemValue/iValueScale;
+		// Scale with resource quantity.
+		// If this trade leaves us with 1 or 2 of the resource, we'll charge way more for those.
+		int iFinalValue = 0;
+
+		for (int iLoop = 1; iLoop <= iResourceQuantity; iLoop++)
+		{
+			int iAmountAfterThisResource = iNumberAvailableToUs - iLoop;
+
+			if (iAmountAfterThisResource <= 2)
+				iFinalValue += iItemValue * 10;
+			else
+				iFinalValue += iItemValue;
+		}
+
+		return iFinalValue/iValueScale;
 	}
 	else
 	{
