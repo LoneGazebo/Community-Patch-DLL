@@ -26,7 +26,7 @@ class FCriticalSection;
 #ifdef __clang__
 #define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) static_assert(CONDITION, #ERR_NAME)
 #else
-#define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) typedef int ERROR_##ERR_NAME##[(CONDITION)? 1 : -1]
+#define FLUA_COMPILE_TIME_CONDITION(CONDITION, ERR_NAME) typedef int ERROR_##ERR_NAME[(CONDITION)? 1 : -1]
 #endif // __clang__
 
 // Forces a compile time error.  Useful for template specializations that aren't suppose to compile.
