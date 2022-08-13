@@ -13,7 +13,7 @@ INSERT INTO Resource_Flavors (ResourceType, FlavorType, Flavor) VALUES
 
 INSERT INTO Resource_FeatureTerrainBooleans (ResourceType, TerrainType) VALUES
 ( 'RESOURCE_RICE',  'TERRAIN_GRASS'),
-( 'RESOURCE_MAIZE',  'TERAIN_DESERT');
+( 'RESOURCE_MAIZE',  'TERRAIN_DESERT');
 
 INSERT INTO Resource_TerrainBooleans (ResourceType, TerrainType) VALUES
 ( 'RESOURCE_MAIZE',  'TERRAIN_GRASS'),
