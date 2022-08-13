@@ -1478,7 +1478,420 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	else
 		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
 
-	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra()+2)*iNumTurns/2;
+	// How much of this luxury resource do we already have?
+	int iNumAvailableToUs = GetPlayer()->getNumResourceTotal(eResource, true);
+
+	if (pRenewDeals.size() > 0)
+	{
+		for (uint i = 0; i < pRenewDeals.size(); i++)
+		{
+			iNumAvailableToUs += pRenewDeals[i]->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
+			iNumAvailableToUs -= pRenewDeals[i]->GetNumResourcesInDeal(eOtherPlayer, eResource);
+		}
+	}
+
+	// VP calculation
+	if (MOD_BALANCE_VP)
+	{
+		// When a luxury is not needed (for WLTKD or CS quest) and civ is happy, a new lux is only worth 2-3 global happiness = 2-3 golden age points and 2% growth in 2-3 cities...
+		// at the cost of potentially making future luxury requests more difficult compared to buying the lux when needed. The aim of this rework is to only let REQUIRED luxury trades go through
+		// at a reasonable price, and unneeded trades rejected due to low price AND the potential of a high price if the seller waits.
+		int iEra = GC.getGame().getCurrentEra();
+		int OneGPT = iNumTurns;
+		int OneGPTScaled = iNumTurns * max(iEra, 1);
+
+		// We are selling!
+		if (bFromMe)
+		{
+			int iItemValue = (iBaseHappiness + max(iEra, 0)) * OneGPT;
+
+			if (iNumAvailableToUs == 1)
+			{
+				// Don't sell our last copy if already unhappy
+				if (GetPlayer()->IsEmpireUnhappy())
+					return INT_MAX;
+
+				// Don't sell our last copy if it would make us unhappy
+				int iUnhappyCitizens = GetPlayer()->getUnhappinessFromCitizenNeeds();
+				if (iUnhappyCitizens > 0)
+				{
+					int iHappyCitizens = GetPlayer()->getHappinessFromCitizenNeeds() - iBaseHappiness;
+					int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
+					iPercent /= 2;
+
+					if (iPercent < /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD))
+						return INT_MAX;
+				}
+
+				// Extra value for the last copy
+				iItemValue += OneGPTScaled * 2;
+
+				int iWLTKD = /*20*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
+				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iWLTKD /= 100;
+
+				// Plus add additional value based on any extra bonuses we get from WLTKD
+				if (iWLTKD > 0)
+				{
+					// First, check how long it would take us to regain this luxury if we traded it away.
+					int iTurnsUntilRegained = GC.getGame().GetGameDeals().GetTurnsBeforeRegainingLuxury(GetPlayer()->GetID(), eResource);
+					double dN = iTurnsUntilRegained / iWLTKD; // n = Estimated number of times each city will ask for this resource
+
+					// Second, tally up how many resources there are in the world.
+					int iNumResourcesInWorld = 0;
+					int iNumResourcesWeHave = 0;
+					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						ResourceTypes eLoopResource = (ResourceTypes)iResourceLoop;
+
+						// Is this a Luxury Resource?
+						CvResourceInfo* pkResource = GC.getResourceInfo(eLoopResource);
+						if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+						{
+							// Is the Resource actually on the map?
+							if (GC.getMap().getNumResources(eLoopResource) <= 0)
+								continue;
+
+							if (pLeague && pLeague->IsLuxuryHappinessBanned(eLoopResource))
+								continue;
+
+							iNumResourcesInWorld++;
+
+							if (GetPlayer()->getNumResourceAvailable(eLoopResource, true) > 0)
+								iNumResourcesWeHave++;
+						}
+					}
+					double dP = iNumResourcesWeHave / iNumResourcesInWorld;
+
+					// Third, tally up the total modifiers each city gets.
+					int iTotalModifier = 0;
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
+					for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+					{
+						YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+						//Simplification - errata yields not worth considering.
+						if (eYield > YIELD_GOLDEN_AGE_POINTS)
+							continue;
+
+						// Do we have any WLTKD modifiers at the player level?
+						int iPlayerModifier = GetPlayer()->GetYieldFromWLTKD(eYield);
+						if (eYield == YIELD_CULTURE)
+							iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetWLTKDCulture();
+						else if (eYield == YIELD_FOOD)
+							iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetGrowthBoon();
+
+						// Do we have any WLTKD modifiers at the city level?
+						int iLoop;
+						for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
+						{
+							if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+								continue;
+
+							int iCityModifier = iPlayerModifier; // Add the player modifier for each city
+							iCityModifier += pLoopCity->GetYieldFromWLTKD(eYield);
+							if (pReligion)
+								iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
+
+							iTotalModifier += iCityModifier * iEra;
+						}
+					}
+
+					double dModifierValue = (iTotalModifier * OneGPT * (1 - (pow((1 - dP), dN)))) / 10;
+					iItemValue += (int)dModifierValue;
+				}
+			}
+
+			// Netherlands sells resources more cheaply
+			if (GetPlayer()->getResourceExport(eResource) <= 0)
+			{
+				int iYieldBonusFromExport = 0;
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+					//Simplification - errata yields not worth considering.
+					if (eYield > YIELD_GOLDEN_AGE_POINTS)
+						continue;
+
+					int iBonus = GetPlayer()->GetPlayerTraits()->GetYieldFromExport(eYield);
+					if (iBonus > 0)
+					{
+						if (eYield == YIELD_SCIENCE || eYield == YIELD_CULTURE)
+							iBonus *= 2;
+
+						iYieldBonusFromExport += iBonus;
+					}
+				}
+
+				iItemValue -= (iYieldBonusFromExport * OneGPTScaled) / 2;
+				if (iItemValue <= 0)
+					return 1;
+			}
+
+			//How much is OUR stuff worth?
+			switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer))
+			{
+			case CIV_APPROACH_FRIENDLY:
+				iItemValue *= 90;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_AFRAID:
+				iItemValue *= 90;
+				iItemValue /= 100;
+				break;
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_NEUTRAL:
+				iItemValue *= 100;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_GUARDED:
+				iItemValue *= 150;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_HOSTILE:
+				iItemValue *= 200;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_WAR:
+				iItemValue *= 250;
+				iItemValue /= 100;
+				break;
+			}
+
+			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
+			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
+			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+
+			return iItemValue;
+		}
+		// We are buying!
+		else
+		{
+			int iItemValue = 0; // Base value is 0 - there has to be some reason for the AI to buy this resource
+
+			// Goddess of Festivals bonus
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
+			if (pReligion)
+			{
+				if ((iNumAvailableToUs + GetPlayer()->getResourceExport(eResource)) <= 0)
+				{
+					int iYieldBonuses = 0;
+					for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+					{
+						YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+						//Simplification - errata yields not worth considering.
+						if (eYield > YIELD_GOLDEN_AGE_POINTS)
+							continue;
+
+						if (eYield == YIELD_SCIENCE || eYield == YIELD_CULTURE || eYield == YIELD_FAITH)
+							iYieldBonuses += pReligion->m_Beliefs.GetYieldPerLux(eYield, GetPlayer()->GetID(), GetPlayer()->getCapitalCity()) * 2;
+						else
+							iYieldBonuses += pReligion->m_Beliefs.GetYieldPerLux(eYield, GetPlayer()->GetID(), GetPlayer()->getCapitalCity());
+					}
+					iItemValue += (iYieldBonuses * OneGPT) / 2;
+				}
+			}
+
+			// We're unhappy! Buy luxuries!
+			if (GetPlayer()->IsEmpireUnhappy())
+			{
+				if (GetPlayer()->IsEmpireSuperUnhappy())
+					iItemValue += OneGPTScaled * 15;
+				else if (GetPlayer()->IsEmpireVeryUnhappy())
+					iItemValue += OneGPTScaled * 8;
+				else
+					iItemValue += OneGPTScaled * 4;
+
+				// At war or planning war: this is more serious; we may lose the war due to this.
+				if (GetPlayer()->IsAtWarAnyMajor())
+					iItemValue += OneGPTScaled * 3;
+				else
+				{
+					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+						if (GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && GetPlayer()->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
+						{
+							iItemValue += OneGPTScaled * 3;
+							break;
+						}
+					}
+				}
+			}
+
+			// Are any of our cities demanding this resource?
+			int iLoop;
+			int iTotalModifier = 0;
+			for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
+			{
+				if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->GetResourceDemanded() != eResource)
+					continue;
+
+				// Bonus value for each WLTKD if we're not unhappy, plus additional bonus value for any yield bonuses we get (below)
+				if (!GetPlayer()->IsEmpireUnhappy())
+					iItemValue += OneGPTScaled * 2;
+
+				// Tally up the total modifiers this city gets.
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+					//Simplification - errata yields not worth considering.
+					if (eYield > YIELD_GOLDEN_AGE_POINTS)
+						continue;
+
+					// Do we have any WLTKD modifiers at the player level?
+					int iPlayerModifier = GetPlayer()->GetYieldFromWLTKD(eYield);
+					if (eYield == YIELD_CULTURE)
+						iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetWLTKDCulture();
+					else if (eYield == YIELD_FOOD)
+						iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetGrowthBoon();
+
+					// Do we have any WLTKD modifiers at the city level?
+					int iCityModifier = iPlayerModifier; // Add the player modifier for each city
+					iCityModifier += pLoopCity->GetYieldFromWLTKD(eYield);
+					if (pReligion)
+						iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
+
+					iTotalModifier += iCityModifier;
+				}
+			}
+			iItemValue += (iTotalModifier * OneGPTScaled) / 10;
+
+			// Netherlands buys resources for more if they aren't already importing it
+			if (GetPlayer()->getResourceImportFromMajor(eResource) <= 0 && 
+				GetPlayer()->getResourceFromMinors(eResource) <= 0 &&
+				GetPlayer()->getResourceFromCSAlliances(eResource) <= 0 &&
+				GetPlayer()->getResourceSiphoned(eResource) <= 0)
+			{
+				int iYieldBonusFromImport = 0;
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+					//Simplification - errata yields not worth considering.
+					if (eYield > YIELD_GOLDEN_AGE_POINTS)
+						continue;
+
+					int iBonus = GetPlayer()->GetPlayerTraits()->GetYieldFromImport(eYield);
+					if (iBonus > 0)
+					{
+						if (eYield == YIELD_SCIENCE || eYield == YIELD_CULTURE)
+							iBonus *= 2;
+
+						iYieldBonusFromImport += iBonus;
+					}
+				}
+
+				iItemValue += (iYieldBonusFromImport * OneGPTScaled) / 2;
+			}
+
+			// Netherlands might also want to buy resources that get them a monopoly
+			if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies() && GetPlayer()->WouldGainMonopoly(eResource, 1))
+			{
+				// What does this monopoly give us?
+				bool bPercentageBonus = false;
+				int iNumYieldChangeBonuses = 0;
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					YieldTypes eYield = (YieldTypes) iYieldLoop;
+
+					//Simplification - errata yields not worth considering.
+					if (eYield > YIELD_GOLDEN_AGE_POINTS)
+						continue;
+
+					if (pkResourceInfo->getCityYieldModFromMonopoly(eYield) > 0)
+						bPercentageBonus = true;
+
+					if (pkResourceInfo->getYieldChangeFromMonopoly(eYield) > 0)
+						iNumYieldChangeBonuses++;
+				}
+
+				// Percentage bonuses? This is definitely worth it!
+				if (bPercentageBonus || pkResourceInfo->getMonopolyGALength() > 0)
+					iItemValue += OneGPTScaled * 8;
+
+				// Yield change bonuses? Value depends on how much of this resource we have in our borders.
+				if (iNumYieldChangeBonuses > 0)
+				{
+					for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
+					{
+						if (pLoopCity->IsRazing())
+							continue;
+
+						int iX = pLoopCity->getX(), iY = pLoopCity->getY(), iNumWorkablePlots = pLoopCity->GetNumWorkablePlots();
+						for (int iPlotLoop = 0; iPlotLoop < iNumWorkablePlots; iPlotLoop++)
+						{
+							CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iPlotLoop);
+							if (pLoopPlot && pLoopPlot->getResourceType() == eResource)
+							{
+								iItemValue += OneGPTScaled * iNumYieldChangeBonuses; // Okay to double count; monopoly resources placed between two cities are extra valuable
+							}
+						}
+					}
+				}
+			}
+
+			// Worth nothing? The AI doesn't want it, then!
+			if (iItemValue <= 0)
+			{
+				if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+					return 10;
+				else
+					return INT_MAX;
+			}
+
+			//How much is THEIR stuff worth?
+			switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer))
+			{
+			case CIV_APPROACH_FRIENDLY:
+				iItemValue *= 110;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_AFRAID:
+				iItemValue *= 110;
+				iItemValue /= 100;
+				break;
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_NEUTRAL:
+				iItemValue *= 100;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_GUARDED:
+				iItemValue *= 75;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_DECEPTIVE:
+				iItemValue *= 100;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_HOSTILE:
+				iItemValue *= 75;
+				iItemValue /= 100;
+				break;
+			case CIV_APPROACH_WAR:
+				iItemValue *= 50;
+				iItemValue /= 100;
+				break;
+			}
+
+			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
+			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
+			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+
+			return iItemValue;
+		}
+	}
+
+	// Base Community Patch calculation
+	int iItemValue = (iBaseHappiness+GC.getGame().getCurrentEra())*iNumTurns/2;
 
 	if (bFromMe)
 	{
@@ -1497,21 +1910,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 	if (bFromMe)
 	{
-		int iNumAvailable = GetPlayer()->getNumResourceTotal(eResource);
-
-		if (pRenewDeals.size() > 0)
-		{
-			for (uint i = 0; i < pRenewDeals.size(); i++)
-			{
-				iNumAvailable += pRenewDeals[i]->GetNumResourcesInDeal(GetPlayer()->GetID(), eResource);
-			}
-		}
-
-		if (GetPlayer()->IsEmpireUnhappy() && iNumAvailable == 1)
+		if (GetPlayer()->IsEmpireUnhappy() && iNumAvailableToUs == 1)
 		{
 			return INT_MAX;
 		}
-		if (iNumAvailable == 1)
+		if (iNumAvailableToUs == 1)
 		{
 			int iFactor = GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() ? 2 : 3;
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
@@ -5470,6 +5873,15 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		if(!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eLuxuryFromThem, 1))
 		{
 			return false;
+		}
+
+		// Don't send humans low value requests.
+		if (GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			int iEra = GC.getGame().getCurrentEra();
+			int OneGPTScaled = GC.getGame().GetDealDuration() * max(iEra, 1);
+			if (iBestValue < (OneGPTScaled * 2))
+				return false;
 		}
 
 		// Seed the deal with the item we want

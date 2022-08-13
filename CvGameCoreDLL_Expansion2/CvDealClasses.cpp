@@ -6723,6 +6723,32 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 	return iVal;
 }
 
+int CvGameDeals::GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource)
+{
+	DealList::iterator iter;
+	DealList::iterator end = m_CurrentDeals.end();
+
+	int iShortestDuration = GC.getGame().GetDealDuration(); // If no existing deal will expire sooner, it will take the full deal duration
+	for (iter = m_CurrentDeals.begin(); iter != end; ++iter)
+	{
+		if (iter->m_eToPlayer == ePlayer || iter->m_eFromPlayer == ePlayer)
+		{
+			int iEndTurn = iter->GetEndTurn();
+			if (iEndTurn <= GC.getGame().getGameTurn())
+				continue;
+
+			if (iter->GetNumResourcesInDeal(ePlayer, eResource) > 0)
+			{
+				int iRemainingTurns = iEndTurn - GC.getGame().getGameTurn();
+				if (iRemainingTurns < iShortestDuration)
+					iShortestDuration = iRemainingTurns;
+			}
+		}
+	}
+
+	return iShortestDuration;
+}
+
 int CvGameDeals::GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer)
 {
 	DealList::iterator iter;

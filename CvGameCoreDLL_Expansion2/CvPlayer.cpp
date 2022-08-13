@@ -20323,7 +20323,6 @@ void CvPlayer::CalculateNetHappiness()
 		{
 			int iHappyCitizens = getHappinessFromCitizenNeeds();
 			int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
-
 			iPercent /= 2;
 
 			if (iPercent != m_iHappinessTotal)
@@ -20602,10 +20601,10 @@ bool CvPlayer::IsEmpireUnhappy() const
 {
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		return (GetExcessHappiness() < /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD));
+		return GetExcessHappiness() < /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD);
 	}
 
-	return (GetExcessHappiness() < 0);
+	return GetExcessHappiness() < 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20614,10 +20613,10 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 {
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		return (GetExcessHappiness() < /*35*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD));
+		return GetExcessHappiness() < /*35*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD);
 	}
 
-	return (GetExcessHappiness() <= /*-10*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD));
+	return GetExcessHappiness() <= /*-10*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD);
 }
 
 //	--------------------------------------------------------------------------------
@@ -20626,10 +20625,10 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 {
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		return (GetExcessHappiness() < /*20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD));
+		return GetExcessHappiness() < /*20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
 	}
 
-	return (GetExcessHappiness() <= /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD));
+	return GetExcessHappiness() <= /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
 }
 
 //	--------------------------------------------------------------------------------

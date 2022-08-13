@@ -339,6 +339,7 @@ public:
 	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
+	int GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();

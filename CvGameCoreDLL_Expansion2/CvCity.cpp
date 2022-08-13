@@ -9994,7 +9994,6 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		CorporationTypes eCorporation = kBuildingClass.getCorporationType();
 		if (kBuildingClass.IsHeadquarters() && eCorporation != NO_CORPORATION)
 		{
-
 			CvCorporationEntry* pkCorporationInfo = GC.getCorporationInfo(eCorporation);
 			if (pkCorporationInfo)
 			{
@@ -10014,7 +10013,6 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		if (pkResource == NULL)
 			continue;
 
-		// City doesn't have resource locally - return false immediately
 		if (!GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
 		{
 			int iOwnedNumResource = GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) + GET_PLAYER(getOwner()).getResourceExport(eResource);
@@ -10071,7 +10069,6 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 		if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(getOwner(), eResource))
 			continue;
 
-		// City has resource locally - return true immediately
 		if (GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
 			return true;
 
@@ -16617,14 +16614,14 @@ PlayerTypes CvCity::GetOwnerForDominationVictory() const
 	PlayerTypes eCapitalOwner = getOwner();
 	TeamTypes eOwnerTeam = getTeam();
 
-	// City-States' allies control the capital.
+	// A City-State's ally controls their capital.
 	if (GET_PLAYER(eCapitalOwner).isMinorCiv())
 	{
 		PlayerTypes eAlly = GET_PLAYER(eCapitalOwner).GetMinorCivAI()->GetAlly();
 		if (eAlly != NO_PLAYER)
 			return eAlly;
 	}
-	// Vassals' masters control the capital.
+	// A vassal's master controls their capital.
 	else if (GET_TEAM(eOwnerTeam).IsVassalOfSomeone())
 	{
 		TeamTypes eMasterTeam = GET_TEAM(eOwnerTeam).GetMaster();
