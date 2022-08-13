@@ -538,8 +538,6 @@ public:
 	// Military Aggressive Posture: How aggressively has ePlayer positioned their Units in relation to us?
 	AggressivePostureTypes GetMilitaryAggressivePosture(PlayerTypes ePlayer) const;
 	void SetMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
-	AggressivePostureTypes GetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer) const;
-	void SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 
 	// Expansion Aggressive Posture: How aggressively has ePlayer settled or conquered in proximity to us?
 	AggressivePostureTypes GetExpansionAggressivePosture(PlayerTypes ePlayer) const;
@@ -1102,6 +1100,7 @@ public:
 	// Aggressive Postures
 	// ------------------------------------
 
+	int CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalveDefenders);
 	void DoUpdateMilitaryAggressivePostures();
 
 	void DoExpansionBickering();
@@ -1970,7 +1969,6 @@ private:
 
 	// Aggressive Postures
 	char m_aeMilitaryAggressivePosture[MAX_CIV_PLAYERS];
-	char m_aeLastTurnMilitaryAggressivePosture[MAX_CIV_PLAYERS];
 	char m_aePlotBuyingAggressivePosture[MAX_MAJOR_CIVS];
 
 	// Dispute Levels

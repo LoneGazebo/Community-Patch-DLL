@@ -383,7 +383,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 
 		// Aggressive Postures
 		m_aeMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
-		m_aeLastTurnMilitaryAggressivePosture[iI] = AGGRESSIVE_POSTURE_NONE;
 
 		// Dispute Levels
 		m_aeLandDisputeLevel[iI] = DISPUTE_LEVEL_NONE;
@@ -524,7 +523,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 
 	// Aggressive Postures
 	visitor(diplomacyAI.m_aeMilitaryAggressivePosture);
-	visitor(diplomacyAI.m_aeLastTurnMilitaryAggressivePosture);
 	visitor(diplomacyAI.m_aePlotBuyingAggressivePosture);
 
 	// Dispute Levels
@@ -865,10 +863,8 @@ void CvDiplomacyAI::SlotStateChange()
 
 			// Reset aggressive postures
 			SetMilitaryAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
-			SetLastTurnMilitaryAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
 			SetPlotBuyingAggressivePosture(eMajor, AGGRESSIVE_POSTURE_NONE);
 			pOther->SetMilitaryAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
-			pOther->SetLastTurnMilitaryAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
 			pOther->SetPlotBuyingAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
 
 			// Reset strength evaluations
@@ -5252,20 +5248,6 @@ void CvDiplomacyAI::SetMilitaryAggressivePosture(PlayerTypes ePlayer, Aggressive
 	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
 	if (ePosture < 0 || ePosture >= NUM_AGGRESSIVE_POSTURE_TYPES) return;
 	m_aeMilitaryAggressivePosture[ePlayer] = ePosture;
-}
-
-/// How aggressively were this player's military Units positioned in relation to us last turn?
-AggressivePostureTypes CvDiplomacyAI::GetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return AGGRESSIVE_POSTURE_NONE;
-	return (AggressivePostureTypes) m_aeLastTurnMilitaryAggressivePosture[ePlayer];
-}
-
-void CvDiplomacyAI::SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	if (ePosture < 0 || ePosture >= NUM_AGGRESSIVE_POSTURE_TYPES) return;
-	m_aeLastTurnMilitaryAggressivePosture[ePlayer] = ePosture;
 }
 
 /// How aggressively has this player settled in relation to us?
@@ -11840,18 +11822,90 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 // AGGRESSIVE POSTURES
 // ////////////////////////////////////
 
+int CvDiplomacyAI::CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalveDefenders)
+{
+	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+	TeamTypes eOurTeam = GetTeam();
+
+	// Don't be frightened of vassals, they can't declare war on their own.
+	if (kPlayer.IsVassalOfSomeone() && !IsAtWar(ePlayer))
+		return 0;
+
+	// Vassals count units for the purposes of determining deterrence against independence
+	if (!IsVassal(ePlayer))
+	{
+		// We're allowing them Open Borders? We shouldn't care.
+		if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(kPlayer.getTeam()))
+			return 0;
+
+		// We're working together, so don't worry about it
+		if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
+			return 0;
+
+		// They resurrected us, so don't worry about it
+		if ((WasResurrectedBy(ePlayer) || IsMasterLiberatedMeFromVassalage(ePlayer)) && !IsAtWar(ePlayer))
+			return 0;
+	}
+
+	// Sometimes we ignore other wars the player may be waging, and always count their units as aggressive
+	bool bIgnoreOtherWars = GetPlayer()->isHuman() || IsAtWar(ePlayer) || IsVassal(ePlayer);
+	bool bIsAtWarWithSomeone = bIgnoreOtherWars ? false : kTeam.getAtWarCount(false) > 0;
+
+	// Loop through the other guy's units
+	int iScore = 0;
+	int iLoop;
+	for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
+	{
+		// Don't be scared of noncombat Units!
+		if (pLoopUnit->IsCivilianUnit() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+			continue;
+
+		CvPlot* pUnitPlot = pLoopUnit->plot();
+		// Can we actually see this Unit? No cheating!
+		if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false))
+			continue;
+
+		// Must be close to us
+		if (!pUnitPlot->IsCloseToCity(GetID()))
+			continue;
+
+		// At war with someone? Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
+		if (bIsAtWarWithSomeone)
+		{
+			// Loop through all players...
+			for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_PLAYERS; iOtherPlayerLoop++)
+			{
+				PlayerTypes eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+				TeamTypes eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
+
+				// At war with this player? Slight cheating here in that the AI counts players they haven't met.
+				if (GET_PLAYER(eLoopOtherPlayer).isAlive() && kTeam.isAtWar(eLoopOtherTeam))
+				{
+					// Is this an ally of ours? We're not going to ignore it then.
+					bool bAlly = GET_PLAYER(eLoopOtherPlayer).isMinorCiv() ? (GET_PLAYER(eLoopOtherPlayer).GetMinorCivAI()->IsProtectedByMajor(GetID()) || GET_PLAYER(eLoopOtherPlayer).GetMinorCivAI()->GetAlly() == GetID()) : IsFriendOrAlly(eLoopOtherPlayer);
+
+					// Is the unit close to the other player?
+					if (!bAlly && pUnitPlot->IsCloseToCity(eLoopOtherPlayer))
+						continue;
+				}
+			}
+		}
+
+		// If the Unit is in the other team's territory, halve its "aggression value", since he may just be defending himself
+		if (bHalveDefenders && GET_PLAYER(pUnitPlot->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+			iScore++;
+		else
+			iScore += 2;
+	}
+
+	return iScore;
+}
+
 /// Updates how aggressively all players' military Units are positioned in relation to us
 void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 {
-	TeamTypes eOurTeam = GetTeam();
-	PlayerTypes eOurPlayerID = GetID();
 	vector<PlayerTypes> v;
-	int iUnitLoop;
-	bool bHuman = GetPlayer()->isHuman();
-
-	int iTypicalLandPower = bHuman ? 100 : GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
-	int iTypicalNavalPower = bHuman ? 100 : GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_SEA);
-	int iTypicalAirPower = bHuman ? 100 : GetPlayer()->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_AIR);
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -11860,196 +11914,29 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 
 		if (IsPlayerValid(ePlayer))
 		{
-			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-			CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
-			// Keep a record of last turn
-			AggressivePostureTypes eCurrentPosture = GetMilitaryAggressivePosture(ePlayer);
-			SetLastTurnMilitaryAggressivePosture(ePlayer, eCurrentPosture);
-
-			if (!IsVassal(ePlayer))
-			{
-				// We're allowing them Open Borders? We shouldn't care.
-				if (GET_TEAM(GetTeam()).IsAllowsOpenBordersToTeam(eTeam))
-				{
-					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-					return;
-				}
-
-				// We're working together, so don't worry about it
-				if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
-				{
-					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-					return;
-				}
-
-				// They resurrected us, so don't worry about it
-				if ((WasResurrectedBy(ePlayer) || IsMasterLiberatedMeFromVassalage(ePlayer)) && !IsAtWar(ePlayer))
-				{
-					SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-					return;
-				}
-			}
-
-			// Don't be frightened of vassals.
-			if (GET_PLAYER(ePlayer).IsVassalOfSomeone() && !IsAtWar(ePlayer))
-			{
-				SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-				return;
-			}
-
-			int iUnitValueOnMyHomeFront = 0;
-			int iUnitScore = 0;
-			bool bIsAtWarWithSomeone = (kTeam.getAtWarCount(false) > 0);
-
-			// Sometimes we ignore other wars the player may be waging
-			bool bIgnoreOtherWars = bHuman || IsAtWar(ePlayer) || IsVassal(ePlayer);
-
-			// Loop through the other guy's units
-			for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
-			{
-				// Don't be scared of noncombat Units!
-				if (pLoopUnit->IsCivilianUnit() || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE || pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
-				{
-					continue;
-				}
-
-				CvPlot* pUnitPlot = pLoopUnit->plot();
-				// Can we actually see this Unit? No cheating!
-				if (!pUnitPlot->isVisible(eOurTeam) || pLoopUnit->isInvisible(eOurTeam, false))
-				{
-					continue;
-				}
-
-				// Must be close to us
-				if (!pUnitPlot->IsCloseToCity(eOurPlayerID))
-				{
-					continue;
-				}
-
-				// At war with someone? Because if this Unit is in the vicinity of another player he's already at war with, don't count this Unit as aggressive
-				if (bIsAtWarWithSomeone && !bIgnoreOtherWars)
-				{
-					// Loop through all players...
-					for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_CIV_PLAYERS; iOtherPlayerLoop++)
-					{
-						PlayerTypes eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
-						TeamTypes eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
-
-						// At war with this player?
-						if (IsPlayerValid(eLoopOtherPlayer) && eLoopOtherTeam != eTeam && kTeam.isAtWar(eLoopOtherTeam))
-						{
-							// Is the unit close to the other player?
-							if (pUnitPlot->IsCloseToCity(eLoopOtherPlayer))
-							{
-								continue;
-							}
-						}
-					}
-				}
-
-				int iValueToAdd = 100;
-
-				// Adjust based on unit power compared to us
-				// Units stronger than ours are worth more, units weaker than ours are worth less
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-				if (pkUnitInfo)
-				{
-					int iUnitValuePercent = pkUnitInfo->GetPower() * 100;
-
-					if (iUnitValuePercent > 0)
-					{
-						// Compare to strongest unit we can build in that domain, for an apples to apples comparison
-						// Best unit that can be currently built in a domain is given a value of 100
-						DomainTypes eDomain = (DomainTypes) pkUnitInfo->GetDomainType();
-
-						if (eDomain == DOMAIN_AIR)
-						{
-							if (iTypicalAirPower > 0)
-							{
-								iUnitValuePercent /= iTypicalAirPower;
-							}
-							else
-							{
-								iUnitValuePercent = /*100*/ GD_INT_GET(DEFAULT_WAR_VALUE_FOR_UNIT);
-							}
-						}
-						else if (eDomain == DOMAIN_SEA)
-						{
-							if (iTypicalNavalPower > 0)
-							{
-								iUnitValuePercent /= iTypicalNavalPower;
-							}
-							else
-							{
-								iUnitValuePercent = /*100*/ GD_INT_GET(DEFAULT_WAR_VALUE_FOR_UNIT);
-							}
-						}
-						else
-						{
-							if (iTypicalLandPower > 0)
-							{
-								iUnitValuePercent /= iTypicalLandPower;
-							}
-							else
-							{
-								iUnitValuePercent = /*100*/ GD_INT_GET(DEFAULT_WAR_VALUE_FOR_UNIT);
-							}
-						}
-
-						iValueToAdd *= iUnitValuePercent;
-						iValueToAdd /= 100;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				// If the Unit is in the other team's territory, halve its "aggression value", since he may just be defending himself
-				if (GET_PLAYER(pUnitPlot->getOwner()).getTeam() == eTeam)
-				{
-					iValueToAdd /= 2;
-					iUnitScore++;
-				}
-				else
-				{
-					iUnitScore += 2;
-				}
-
-				iUnitValueOnMyHomeFront += iValueToAdd;
-			}
-
+			AggressivePostureTypes eLastPosture = GetMilitaryAggressivePosture(ePlayer);
 			AggressivePostureTypes eAggressivePosture = AGGRESSIVE_POSTURE_NONE;
 
 			// So how threatening is he being?
-			if (iUnitValueOnMyHomeFront >= /*800*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE))
-				eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
-			else if (iUnitValueOnMyHomeFront >= /*500*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH))
-				eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-			else if (iUnitValueOnMyHomeFront >= /*300*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM))
-				eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
-			else if (iUnitValueOnMyHomeFront >= /*100*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW))
-				eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
+			int iAggressionScore = CountAggressiveMilitaryScore(ePlayer, true);
 
-			// Common sense override in case they have a large number of low-power units nearby
-			if (eAggressivePosture < AGGRESSIVE_POSTURE_INCREDIBLE && iUnitScore >= 18) // 9 units
+			if (iAggressionScore >= /*12*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_INCREDIBLE))
 				eAggressivePosture = AGGRESSIVE_POSTURE_INCREDIBLE;
-			else if (eAggressivePosture < AGGRESSIVE_POSTURE_HIGH && iUnitScore >= 14) // 7 units
+			else if (iAggressionScore >= /*8*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_HIGH))
 				eAggressivePosture = AGGRESSIVE_POSTURE_HIGH;
-			else if (eAggressivePosture < AGGRESSIVE_POSTURE_MEDIUM && iUnitScore >= 10) // 5 units
+			else if (iAggressionScore >= /*6*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_MEDIUM))
 				eAggressivePosture = AGGRESSIVE_POSTURE_MEDIUM;
+			else if (iAggressionScore >= /*2*/ GD_INT_GET(MILITARY_AGGRESSIVE_POSTURE_THRESHOLD_LOW))
+				eAggressivePosture = AGGRESSIVE_POSTURE_LOW;
 
 			SetMilitaryAggressivePosture(ePlayer, eAggressivePosture);
 
-			if (eAggressivePosture > eCurrentPosture && eAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
+			if (eAggressivePosture > eLastPosture && eAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
 				v.push_back(ePlayer);
 		}
 		else
 		{
 			SetMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
-			SetLastTurnMilitaryAggressivePosture(ePlayer, AGGRESSIVE_POSTURE_NONE);
 		}
 	}
 
@@ -32911,8 +32798,8 @@ void CvDiplomacyAI::DoAggressiveMilitaryStatement(PlayerTypes ePlayer, DiploStat
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GetTeam(), ePlayer))
 			return;
 
-		// They're HIGH or INCREDIBLE this turn, or they're MEDIUM this turn and were NONE last turn
-		if (GetMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH && !(GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM && GetLastTurnMilitaryAggressivePosture(ePlayer) <= AGGRESSIVE_POSTURE_NONE))
+		// They're HIGH or INCREDIBLE this turn
+		if (GetMilitaryAggressivePosture(ePlayer) < AGGRESSIVE_POSTURE_HIGH)
 			return;
 
 		// Check other player status

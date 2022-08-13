@@ -1256,6 +1256,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHappinessFromVassals);
 	Method(GetScoreFromVassals);
 	Method(GetMilitaryAggressivePosture);
+	Method(CountAggressiveMilitaryScore);
 	Method(MoveRequestTooSoon);
 	Method(GetPlayerMoveTroopsRequestCounter);
 	Method(GetMyShareOfVassalTaxes);
@@ -16379,6 +16380,15 @@ int CvLuaPlayer::lGetMilitaryAggressivePosture(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
 	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMilitaryAggressivePosture(eOtherPlayer));
+	return 1;
+}
+// -------------------
+int CvLuaPlayer::lCountAggressiveMilitaryScore(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->CountAggressiveMilitaryScore(eOtherPlayer, false));
 	return 1;
 }
 // --------------------
