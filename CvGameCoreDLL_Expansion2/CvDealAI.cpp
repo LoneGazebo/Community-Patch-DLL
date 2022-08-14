@@ -1074,7 +1074,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 
 	int iTotalValue = GetDealValue(pDeal);
 	int iOtherTotalValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pDeal);
-	if (iTotalValue == MAX_INT)
+	if (iTotalValue == INT_MAX || iOtherTotalValue == INT_MAX)
 		return false;
 
 	bool bMakeOffer = false;
