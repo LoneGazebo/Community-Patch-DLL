@@ -96,11 +96,6 @@ FObjectPool<T>::FObjectPool( uint uiSize, bool bGrow )
 	// Allocate the array memory
 	m_pStorage = FNEW( FPoolNode[uiSize], c_eMPoolTypeContainer, 0 );
 
-	#ifndef		_NDS
-	if (!m_pStorage)
-		throw(-1);
-	#endif	//	!_NDS
-
 	// Now pre-allocated each object in that array
 	for (uint i = 0; i < uiSize; ++i)
 	{
@@ -126,11 +121,6 @@ FObjectPool<T>::FObjectPool( const FObjectPool<T>& source )
 	
 	// Allocate the array memory
 	m_pStorage = FNEW( T(source.m_uiSize * sizeof(FPoolNode)), c_eMPoolTypeContainer, 0 );
-
-	#ifndef		_NDS
-	if (!m_pStorage)
-		throw(-1);
-	#endif	//	!_NDS
 
 	// Pre-allocate and set each object in the array
 	for (int i = 0; i < source.m_uiSize; ++i)
@@ -167,11 +157,6 @@ FObjectPool<T>& FObjectPool<T>::operator=( const FObjectPool<T>& source )
 		memmove( m_pStorage, pOldStorage, sizeof( FPoolNode ) * m_uiSize );
 		SAFE_DELETE_ARRAY( pOldStorage );
 	}
-
-	#ifndef		_NDS
-	if (!m_pStorage)
-		throw(-1);
-	#endif	//	!_NDS
 
 	// Pre-allocate and set each object in the array
 	for (int i = 0; i < source.m_uiSize; ++i)
@@ -242,12 +227,6 @@ T* FObjectPool<T>::GetFreeObject( )
 			m_pStorage = FNEW( FPoolNode[ m_uiSize * 2 ], c_eMPoolTypeFireWorks, 0);
 			memmove( m_pStorage, pOldStorage, sizeof( FPoolNode ) * m_uiSize );
 			SAFE_DELETE_ARRAY( pOldStorage );
-
-			// If we get a memory error, bad bad things will happen.  Just bail
-			#ifndef		_NDS
-			if (!m_pStorage)
-				throw(-1);
-			#endif	//	!_NDS
 
 			// Pre-allocate and set each object in the array
 			for (uint i = m_uiSize; i < (2*m_uiSize); ++i)
