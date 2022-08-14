@@ -35,7 +35,7 @@ function getVPTip()
 	math.randomseed(os.time()) -- random initialize
 	math.random(); math.random(); math.random() -- warming up
 
-	value = math.random(29)
+	value = math.random(#g_VPTipTable)
 	return g_VPTipTable[value]
 end
 
