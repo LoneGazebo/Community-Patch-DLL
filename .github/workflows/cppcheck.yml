@@ -29,7 +29,7 @@ jobs:
           
     - name: Run cppcheck analysis
       run: >
-        docker run --rm -v ${PWD}:/src ghcr.io/facthunder/cppcheck:latest cppcheck -j 4 -i CvGameCoreDLL_Expansion2/stackwalker --max-ctu-depth=2 --max-configs=2 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --suppress=uninitMemberVar --suppress=useInitializationList --suppress=postfixOperator --suppress=nullPointerRedundantCheck --suppress=identicalInnerCondition --suppress=constStatement --verbose --xml CvGameCoreDLL_Expansion2 2> cppcheck.xml
+        docker run --rm -v ${PWD}:/src ghcr.io/facthunder/cppcheck:latest cppcheck -j 4 --project=VoxPopuli_vs2013.sln --max-ctu-depth=2 --max-configs=2 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --suppress=uninitMemberVar --suppress=useInitializationList --suppress=postfixOperator --suppress=nullPointerRedundantCheck --suppress=identicalInnerCondition --suppress=constStatement --verbose --xml 2> cppcheck.xml
 
     - name: Upload cppcheck xml
       uses: actions/upload-artifact@v2.3.1
