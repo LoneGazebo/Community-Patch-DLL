@@ -10107,7 +10107,6 @@ void CvPlayer::disbandUnit(bool)
 	CvUnit* pLoopUnit;
 	CvUnit* pBestUnit;
 	char szBuffer[1024];
-	const size_t lenBuffer = 1024;
 	int iValue;
 	int iBestValue;
 	int iLoop;
@@ -10247,7 +10246,7 @@ void CvPlayer::disbandUnit(bool)
 	{
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
-			sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_UNIT_DISBANDED_NO_MONEY", pBestUnit->getNameKey()).GetCString());
+			strcpy_s(szBuffer, GetLocalizedText("TXT_KEY_MISC_UNIT_DISBANDED_NO_MONEY", pBestUnit->getNameKey()));
 			GC.GetEngineUserInterface()->AddUnitMessage(0, pBestUnit->GetIDInfo(), GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), szBuffer);//, "AS2D_UNITDISBANDED", MESSAGE_TYPE_MINOR_EVENT, pBestUnit->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pBestUnit->getX(), pBestUnit->getY(), true, true);
 		}
 
@@ -12622,11 +12621,10 @@ void CvPlayer::raze(CvCity* pCity)
 		return;
 
 	char szBuffer[1024];
-	const size_t lenBuffer = 1024;
 
 	if (GetID() == GC.getGame().getActivePlayer())
 	{
-		sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_DESTROYED_CITY", pCity->getNameKey()).GetCString());
+		strcpy_s(szBuffer, GetLocalizedText("TXT_KEY_MISC_DESTROYED_CITY", pCity->getNameKey()));
 		GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), szBuffer);
 	}
 
@@ -12640,12 +12638,12 @@ void CvPlayer::raze(CvCity* pCity)
 
 		if (GET_PLAYER(ePlayer).isObserver() || (GET_PLAYER(ePlayer).isAlive() && pCity->isRevealed(GET_PLAYER(ePlayer).getTeam(), false, false)))
 		{
-			sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()).GetCString());
+			strcpy_s(szBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_HAS_BEEN_RAZED_BY", pCity->getNameKey(), getCivilizationDescriptionKey()));
 			GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), szBuffer);
 		}
 	}
 
-	sprintf_s(szBuffer, lenBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_RAZED_BY", pCity->getNameKey(), getCivilizationShortDescriptionKey()).GetCString());
+	strcpy_s(szBuffer, GetLocalizedText("TXT_KEY_MISC_CITY_RAZED_BY", pCity->getNameKey(), getCivilizationShortDescriptionKey()));
 	GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), szBuffer, pCity->getX(), pCity->getY());
 
 	// Can't raze a puppet or "undetermined fate" city - must annex first
