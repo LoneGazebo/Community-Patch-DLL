@@ -591,7 +591,7 @@ local function GenericRightClick ( Id )
 			end
 		end
 	else
-		if UI.CtrlKeyDown() then
+		if UI.CtrlKeyDown() then -- VP/bal: ctrl+RCLICK removes all notifications
 			for i = 0, #g_ActiveNotifications do
 				UI.RemoveNotification( i )
 			end
