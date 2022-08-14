@@ -17,11 +17,6 @@
 #include "CvLuaSupport.h"
 #include "CvLuaTeamTech.h"
 
-//Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
-
 //------------------------------------------------------------------------------
 void CvLuaTeamTech::HandleMissingInstance(lua_State* L)
 {
@@ -30,6 +25,11 @@ void CvLuaTeamTech::HandleMissingInstance(lua_State* L)
 //------------------------------------------------------------------------------
 void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 {
+//Utility macro for registering methods
+#define Method(Name)			\
+	lua_pushcclosure(L, l##Name, 0);	\
+	lua_setfield(L, t, #Name);
+
 	Method(SetHasTech);
 	Method(HasTech);
 
@@ -55,6 +55,8 @@ void CvLuaTeamTech::PushMethods(lua_State* L, int t)
 	Method(GetEurekaCounter);
 	Method(SetEurekaCounter);
 #endif
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 const char* CvLuaTeamTech::GetTypeName()

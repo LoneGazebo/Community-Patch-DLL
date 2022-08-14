@@ -35,8 +35,6 @@
 #include "../CvLoggerCSV.h"
 #endif
 
-#define Method(func) RegisterMethod(L, l##func, #func);
-
 //------------------------------------------------------------------------------
 const char* CvLuaGame::GetInstanceName()
 {
@@ -50,6 +48,8 @@ CvGame* CvLuaGame::GetInstance(lua_State* L, int idx)
 //------------------------------------------------------------------------------
 void CvLuaGame::RegisterMembers(lua_State* L)
 {
+#define Method(func) RegisterMethod(L, l##func, #func);
+
 	Method(CanHandleAction);
 	Method(HandleAction);
 	Method(UpdateScore);
@@ -507,6 +507,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsPitbossHost);
 	Method(IsHost);
 	Method(GetTimeStringForYear);
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 

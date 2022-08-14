@@ -18,11 +18,6 @@
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-//Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
-
 //------------------------------------------------------------------------------
 void CvLuaUnit::HandleMissingInstance(lua_State* L)
 {
@@ -31,6 +26,11 @@ void CvLuaUnit::HandleMissingInstance(lua_State* L)
 //------------------------------------------------------------------------------
 void CvLuaUnit::PushMethods(lua_State* L, int t)
 {
+//Utility macro for registering methods
+#define Method(Name)			\
+	lua_pushcclosure(L, l##Name, 0);	\
+	lua_setfield(L, t, #Name);
+
 	Method(IsNone);
 	Method(Convert);
 	Method(Upgrade);
@@ -654,6 +654,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsOnTerrain);
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 const char* CvLuaUnit::GetTypeName()

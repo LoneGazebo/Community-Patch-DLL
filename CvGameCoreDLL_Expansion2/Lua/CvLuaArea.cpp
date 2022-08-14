@@ -12,13 +12,13 @@
 #include "CvLuaArea.h"
 #include "CvLuaCity.h"
 
+void CvLuaArea::PushMethods(lua_State* L, int t)
+{
 //Utility macro for registering methods
 #define Method(Name)			\
 	lua_pushcclosure(L, l##Name, 0);	\
 	lua_setfield(L, t, #Name);
 
-void CvLuaArea::PushMethods(lua_State* L, int t)
-{
 	Method(IsNone);
 
 	Method(CalculateTotalBestNatureYield);
@@ -50,6 +50,8 @@ void CvLuaArea::PushMethods(lua_State* L, int t)
 	Method(GetNumResources);
 	Method(GetNumTotalResources);
 	Method(GetNumImprovements);
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 void CvLuaArea::HandleMissingInstance(lua_State* L)

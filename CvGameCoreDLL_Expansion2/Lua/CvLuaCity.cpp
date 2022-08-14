@@ -19,17 +19,17 @@
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-//Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
-
 
 using namespace CvLuaArgs;
 
 //------------------------------------------------------------------------------
 void CvLuaCity::PushMethods(lua_State* L, int t)
 {
+//Utility macro for registering methods
+#define Method(Name)			\
+	lua_pushcclosure(L, l##Name, 0);	\
+	lua_setfield(L, t, #Name);
+
 	Method(IsNone);
 	Method(Kill);
 
@@ -781,6 +781,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetYieldFromDevelopment);
 	Method(SetYieldFromDevelopment);
 #endif
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 void CvLuaCity::HandleMissingInstance(lua_State* L)

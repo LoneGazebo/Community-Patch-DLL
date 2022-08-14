@@ -21,11 +21,6 @@
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
-//Utility macro for registering methods
-#define Method(Name)			\
-	lua_pushcclosure(L, l##Name, 0);	\
-	lua_setfield(L, t, #Name);
-
 //------------------------------------------------------------------------------
 void CvLuaTeam::Register(lua_State* L)
 {
@@ -39,6 +34,11 @@ void CvLuaTeam::HandleMissingInstance(lua_State* L)
 //------------------------------------------------------------------------------
 void CvLuaTeam::PushMethods(lua_State* L, int t)
 {
+//Utility macro for registering methods
+#define Method(Name)			\
+	lua_pushcclosure(L, l##Name, 0);	\
+	lua_setfield(L, t, #Name);
+
 	Method(IsNone);
 
 	Method(AddTeam);
@@ -250,6 +250,8 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetNumVassals);
 
 	Method(IsCorporationsEnabled);
+
+#undef Method
 }
 //------------------------------------------------------------------------------
 const char* CvLuaTeam::GetTypeName()
