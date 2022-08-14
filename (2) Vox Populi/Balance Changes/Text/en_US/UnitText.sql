@@ -199,14 +199,48 @@
 
 	-- Archer
 
+	INSERT INTO Language_en_US (Tag, Text)
+	VALUES
+		('TXT_KEY_UNIT_VP_SLINGER',				'Slinger'),
+		('TXT_KEY_UNIT_VP_SLINGER_TEXT',		'Like most early weapon systems, the sling evolved from a tool for hunting game to one for killing people. Simply a pouch between two lengths of cord, the sling was used to swing a projectile – a stone, lump of lead, or anything else convenient – in an arc until it was launched. Although a thrown stone doesn’t have the lethality of an arrow or bullet, it can still do a lot of damage. If nothing else, a rain of well-aimed stones gives an enemy pause before rushing in. In addition, it wasn’t hard to find ammunition. With the exception of Australia, ancient slings have been found in archaeological digs all over the world. Slings are cheap, portable, and as the First Book of Samuel points out, a slinger can bring down even a Goliath...'),
+		('TXT_KEY_UNIT_VP_SLINGER_STRATEGY',	'Slingers are the first ranged unit available in the game. Although they lack damage and range, a Slinger can still prevent a barbarian encampment from healing, and gives you a cheap, early option for fighting off small waves of invading barbarians.'),
+		('TXT_KEY_UNIT_VP_SLINGER_HELP',		'First Ranged unit, available from the start of the Game.');
+		
 	UPDATE Language_en_US
-	SET Text = 'This is the earliest ranged unit. Attacks without retaliation. It is critically important when attacking enemy cities early in the game. However, it is fairly weak when attacked by other units. Assign it to garrison cities or keep it behind your lines, protected by melee units.'
+	SET Text = 'Ancient Era unit with a Ranged attack.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHER';
+
+	UPDATE Language_en_US
+	SET Text = 'The Archer is an early ranged unit. It is the first in the unit line to have 2 range, allowing it to initiate fights and keep away from melee attackers. Use archers to soften up stargets before a melee strike.'
 	WHERE Tag = 'TXT_KEY_UNIT_ARCHER_STRATEGY';
 
 	UPDATE Language_en_US
-	SET Text = 'Ancient Era ranged Unit that can strike foes from two tiles away without retaliation.'
-	WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHER';
+	SET Text = 'Waraq''Ak'
+	WHERE Tag = 'TXT_KEY_UNIT_INCAN_SLINGER';
 
+	UPDATE Language_en_US
+	SET Text = 'This Incan Unique Unit replaces the Slinger. Has increased [ICON_RANGE_STRENGTH] Attack Range and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
+	WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
+
+	UPDATE Language_en_US
+	SET Text = 'The Waraq''Ak is an Ancient Era ranged infantry Unit that can strike foes from afar. This Incan Unique Unit can daze enemy units; use it to harass your foes and take down Barbarian camps quickly.'
+	WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
+
+	UPDATE Language_en_US
+	SET Text = 'This Babylonian Unique Unit replaces the Archer. The Bowman is stronger and can better withstand melee attacks than the standard Archer. Starts with the [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] promotion.'
+	WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_HELP';
+
+	UPDATE Language_en_US
+	SET Text = 'The Bowman is the Babylonian Unique Unit, replacing the Archer. This Unit is defensively stronger than the Archer, allowing placement in the front line. The Bowman''s improved combat prowess helps ameliorate any concern that it may be quickly overrun.'
+	WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_STRATEGY';
+
+	UPDATE Language_en_US
+	SET Text = 'Only the Maya may build this unit. It is available sooner than the Composite Bowman, which it replaces, and inflicts bonus damage when it attacks wounded units.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_MAYAN_ATLATLIST';
+
+	UPDATE Language_en_US
+	SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are cheaper and available earlier than Composite Bowmen, and gain bonus damage from attacking wounded units. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
+	WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 
 	-- Melee
 

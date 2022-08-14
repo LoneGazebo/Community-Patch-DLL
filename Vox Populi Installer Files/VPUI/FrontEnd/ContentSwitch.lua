@@ -27,13 +27,15 @@ local g_VPTipTable = {
 "CTRL+RCLICK issues a 'Move and Act' order. 'Act' depends on the unit: Workers repair tiles and improve resources, missionaries spread religion, diplomatic units spread influence, archaeologists dig, and combat units go into fortify or alert mode.",
 "When voting for resolutions, right-click to assign all delegates and middle click to assign ten.",
 "SHIFT+LCLICK on the Next Turn button to issue a skip turn order on all idle units. This can be used if you're experiencing the glitch that prevents progressing to the next turn."
+"CTRL+RCLICK on a notification to quickly clear all notifications.",
+"Specialists can be locked in Vox Populi by clicking on an empty specialist slot.",
  }
 
 function getVPTip()
 	math.randomseed(os.time()) -- random initialize
 	math.random(); math.random(); math.random() -- warming up
 
-	value = math.random(26)
+	value = math.random(#g_VPTipTable)
 	return g_VPTipTable[value]
 end
 
