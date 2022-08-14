@@ -68,7 +68,7 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_SPEARMAN' WHERE UnitTyp
 -- Babylon
 ---------------------------
 -- Bowman now a UU composite bowman
-UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CROSSBOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_ARCHER' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
