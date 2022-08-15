@@ -1226,7 +1226,7 @@ int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 	RefreshIfOutdated();
 
 	if (iPlotIndex<0 || iPlotIndex>=(int)m_vPlotZoneID.size())
-		return NULL;
+		return -1;
 
 	return m_vPlotZoneID[iPlotIndex];
 }
@@ -1237,7 +1237,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 	RefreshIfOutdated();
 
 	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
-		return NULL;
+		return false;
 
 	CvTacticalDominanceZone* pZone = GetZoneByID(m_vPlotZoneID[pPlot->GetPlotIndex()]);
 

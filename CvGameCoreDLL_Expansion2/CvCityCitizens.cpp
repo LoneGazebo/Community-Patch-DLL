@@ -1618,7 +1618,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 				break;
 			}
-			else if (eWorstSpecialistBuilding != NULL)
+			else if (eWorstSpecialistBuilding != NO_BUILDING)
 			{
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);

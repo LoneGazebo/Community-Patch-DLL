@@ -31,7 +31,7 @@ CvDangerPlots::CvDangerPlots(void)
 	: m_ePlayer(NO_PLAYER)
 	, m_bDirty(false)
 	, m_iTurnSliceBuilt(0)
-	, m_DangerPlots(NULL)
+	, m_DangerPlots()
 {
 }
 

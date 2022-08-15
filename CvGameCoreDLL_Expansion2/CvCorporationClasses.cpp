@@ -495,7 +495,7 @@ CvPlayerCorporations::CvPlayerCorporations(void):
 	m_iCorporationFreeFranchiseAbovePopular(0),
 	m_bIsNoForeignCorpsInCities(false),
 	m_bIsNoFranchisesInForeignCities(false),
-	m_aiFranchisesPerImprovement(NULL)
+	m_aiFranchisesPerImprovement()
 {
 }
 

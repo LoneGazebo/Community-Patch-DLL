@@ -1679,7 +1679,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							int iDefaultAI;
 							int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
 							int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
-							for(int iJ = 0; iJ < iUnitAttackerClass != NULL; iJ++)
+							for(int iJ = 0; iJ < iUnitAttackerClass; iJ++)
 							{
 								eLoopUnit = kAttackingPlayer.GetSpecificUnitType(eUnitClass);
 								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
@@ -1702,7 +1702,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 									}
 								}
 							}
-							for(int iK = 0; iK < iUnitDefenderClass != NULL; iK++)
+							for(int iK = 0; iK < iUnitDefenderClass; iK++)
 							{
 								eLoopUnit = kDefendingPlayer.GetSpecificUnitType(eUnitClass);
 								iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
@@ -6913,7 +6913,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								eFreeUnit = ((UnitTypes)(GET_PLAYER(eLoopPlayer).GetSpecificUnitType((UnitClassTypes)GC.getTechInfo(eIndex)->GetFirstFreeUnitClass())));
 
-								if (eFreeUnit != NULL)
+								if (eFreeUnit != NO_UNIT)
 								{
 									pCapitalCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
 

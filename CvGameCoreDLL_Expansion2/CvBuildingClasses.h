@@ -133,7 +133,7 @@ public:
 #endif
 	int GetPolicyBranchType() const;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int GetPolicyType() const;
+	PolicyTypes GetPolicyType() const;
 	CivilizationTypes GetCivType() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -634,7 +634,7 @@ private:
 	int m_iPrereqAndTech;
 	int m_iPolicyBranchType;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iPolicyType;
+	PolicyTypes m_iPolicyType;
 	CivilizationTypes m_eCivType;
 #endif
 #if defined(MOD_BALANCE_CORE)
