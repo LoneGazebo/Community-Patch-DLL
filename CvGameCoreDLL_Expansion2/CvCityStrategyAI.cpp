@@ -1005,11 +1005,18 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					break;
 				}
 			case CITY_BUILDABLE_PROCESS:
-				// Don't continue processes.
-				// Recursive has provided two reasons for this:
-				// 1) So the AI doesn't flipflop through production choices without getting anything done.
-				// 2) Because there is randomness to the AI's production choices on lower difficulties - CityProductionNumOptionsConsidered in DifficultyMod.xml.
-				break;
+				{
+					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
+					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
+					if(iNewWeight > 0)
+					{
+						selection.m_iValue = iNewWeight;
+						m_Buildables.push_back(selection, iNewWeight);
+					}
+					else
+						LogInvalidItem(selection, iNewWeight);
+					break;
+				}
 			case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
@@ -1103,7 +1110,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				}
 			
 			case CITY_BUILDABLE_PROCESS:
-				break; // Do nothing for processes. Don't want the AI to get stuck on them.
+				// Don't continue processes.
+				// Recursive has provided two reasons for this:
+				// 1) So the AI doesn't flipflop through production choices without getting anything done.
+				// 2) Because there is randomness to the AI's production choices on lower difficulties - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				break;
 			}
 		}
 
