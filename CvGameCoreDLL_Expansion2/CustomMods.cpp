@@ -559,6 +559,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(ATTRITION);
 		MOD_OPT_CACHE(CIVILIANS_RETREAT_WITH_MILITARY);
 		MOD_OPT_CACHE(LINKED_MOVEMENT);
+		MOD_OPT_CACHE(GP_ERA_SCALING);
 
 		m_bInit = true;
 	}

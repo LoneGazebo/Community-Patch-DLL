@@ -457,7 +457,6 @@
 
 // Enables the experimental AI unit production logic
 #define MOD_AI_UNIT_PRODUCTION						gCustomMods.isAI_UNIT_PRODUCTION()
-
 // Land units blockade undefended adjacent tiles
 #define MOD_ADJACENT_BLOCKADE						gCustomMods.isADJACENT_BLOCKADE()
 // Units take damage in enemy lands
@@ -466,6 +465,8 @@
 #define MOD_CIVILIANS_RETREAT_WITH_MILITARY			gCustomMods.isCIVILIANS_RETREAT_WITH_MILITARY()
 // Linked&Group Movement
 #define MOD_LINKED_MOVEMENT							gCustomMods.isLINKED_MOVEMENT()
+// Era scaling for GE & GM yields
+#define MOD_GP_ERA_SCALING							gCustomMods.isGP_ERA_SCALING()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1538,6 +1539,7 @@ public:
 	MOD_OPT_DECL(ATTRITION);
 	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(LINKED_MOVEMENT);
+	MOD_OPT_DECL(GP_ERA_SCALING);
 
 protected:
 	bool m_bInit;
