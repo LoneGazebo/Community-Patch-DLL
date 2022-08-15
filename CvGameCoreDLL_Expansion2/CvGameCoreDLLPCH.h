@@ -20,7 +20,6 @@
 #define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
 #define OPEN_ENUM __attribute__((enum_extensibility(open)))
 #define FLAG_ENUM __attribute__((flag_enum))
-#define ENUM_META_VALUE [[maybe_unused]]
 #define BUILTIN_UNREACHABLE() __builtin_unreachable()
 #define BUILTIN_TRAP() __builtin_trap()
 #elif defined(_MSC_VER)
@@ -28,12 +27,17 @@
 #define CLOSED_ENUM
 #define OPEN_ENUM
 #define FLAG_ENUM
-#define ENUM_META_VALUE
 #define BUILTIN_UNREACHABLE() __assume(0)
 #define BUILTIN_TRAP() do { __ud2(); __assume(0); } while(0)
 #else
 #error Unrecognized compiler
 #endif // defined(__clang__)
+
+#if __cplusplus >= 201103L
+#define ENUM_META_VALUE [[maybe_unused]]
+#else
+#define ENUM_META_VALUE
+#endif // __cplusplus >= 201103L
 
 /// Informs that a location is unreachable.
 ///
@@ -114,12 +118,12 @@ typedef wchar_t          wchar;
 #endif
 
 // Ensure clang throws errors regarding improper `NULL` usage.
-#ifdef __clang__
+#if __cplusplus >= 201103L
 #ifdef NULL
 #undef NULL
 #endif // NULL
 #define NULL nullptr
-#endif // __clang__
+#endif // __cplusplus >= 201103L
 
 #include <FireWorks/FDefNew.h>
 #include <FireWorks/FFireTypes.h>
