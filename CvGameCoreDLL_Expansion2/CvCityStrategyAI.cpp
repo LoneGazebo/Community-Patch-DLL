@@ -5145,7 +5145,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
 			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-			if(eGP == -1 || eGP == NULL || !eGP)
+			if(eGP == NO_GREATPERSON)
 				continue;
 
 			if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
@@ -5195,7 +5195,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
 					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == -1 || eGP == NULL || !eGP)
+					if(eGP == NO_GREATPERSON)
 						continue;
 
 					if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
@@ -5240,7 +5240,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 			{
 				GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-				if(eGP == -1 || eGP == NULL || !eGP)
+				if(eGP == NO_GREATPERSON)
 					continue;
 				
 				if(kPlayer.getGreatPersonExpendedYield(eGP, yield) > 0)
@@ -5263,7 +5263,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
 					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == -1 || eGP == NULL || !eGP)
+					if(eGP == NO_GREATPERSON)
 						continue;
 
 					for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)

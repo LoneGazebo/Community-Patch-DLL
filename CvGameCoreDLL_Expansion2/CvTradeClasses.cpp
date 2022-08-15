@@ -702,7 +702,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		{
 			int iPlotX = m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iX;
 			int iPlotY = m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iY;
-			if(iPlotX != NULL && iPlotY != NULL)
+			if(iPlotX != -1 && iPlotY != -1)
 			{
 				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 				if(pPlot != NULL)
@@ -5127,7 +5127,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 		{
 			int iPlotX = pTradeConnection->m_aPlotList[ui].m_iX;
 			int iPlotY = pTradeConnection->m_aPlotList[ui].m_iY;
-			if(iPlotX != NULL && iPlotY != NULL)
+			if(iPlotX != -1 && iPlotY != -1)
 			{
 				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
 				if(pPlot != NULL)

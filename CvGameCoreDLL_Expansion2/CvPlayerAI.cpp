@@ -1507,7 +1507,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (eYield == NULL)
+		if (eYield == NO_YIELD)
 			continue;
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
 	}
@@ -1607,7 +1607,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
-			if (eYield == NULL)
+			if (eYield == NO_YIELD)
 				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eAcademy, eYield);
 		}

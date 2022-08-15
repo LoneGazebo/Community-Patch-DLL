@@ -13787,7 +13787,7 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 	if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
 	{
 		PlayerTypes ePlayer2 = GetRandomPlayer(&kPlot);
-		digSite.m_ePlayer2 = ePlayer2 == NULL ? BARBARIAN_PLAYER : ePlayer2;
+		digSite.m_ePlayer2 = ePlayer2 == NO_PLAYER ? BARBARIAN_PLAYER : ePlayer2;
 	}
 
 	kPlot.AddArchaeologicalRecord(digSite.m_eArtifactType, digSite.m_eEra, digSite.m_ePlayer1, digSite.m_ePlayer2);

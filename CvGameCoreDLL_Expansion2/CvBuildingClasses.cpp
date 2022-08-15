@@ -850,7 +850,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	szTextVal = kResults.GetText("PolicyType");
-	m_iPolicyType = GC.getInfoTypeForString(szTextVal, true);
+	m_iPolicyType = static_cast<PolicyTypes>(GC.getInfoTypeForString(szTextVal, true));
 
 	const char* szSpecificCivilizationType = kResults.GetText("CivilizationRequired");
 	m_eCivType = (CivilizationTypes)GC.getInfoTypeForString(szSpecificCivilizationType, true);
@@ -1668,7 +1668,7 @@ int CvBuildingEntry::GetPolicyBranchType() const
 }
 #if defined(MOD_BALANCE_CORE_POLICIES)
 /// Policy required for this building
-int CvBuildingEntry::GetPolicyType() const
+PolicyTypes CvBuildingEntry::GetPolicyType() const
 {
 	return m_iPolicyType;
 }
@@ -5970,7 +5970,7 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 				iRtnValue++;
 			}
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			else if (pkBuilding->GetFaithCost() > 0 && (pkBuilding->GetPolicyType() != NULL) && pkBuilding->GetProductionCost() == -1)
+			else if (pkBuilding->GetFaithCost() > 0 && (pkBuilding->GetPolicyType() != NO_POLICY) && pkBuilding->GetProductionCost() == -1)
 			{
 				iRtnValue++;
 			}

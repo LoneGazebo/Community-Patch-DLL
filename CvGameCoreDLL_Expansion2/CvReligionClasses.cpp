@@ -8189,7 +8189,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 		for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
 			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-			if (eGP == -1 || eGP == NULL || !eGP)
+			if (eGP == NO_GREATPERSON)
 				continue;
 
 			if (pEntry->GetGreatPersonPoints(eGP) > 0)
@@ -9261,7 +9261,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 	{
 		GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-		if (eGP == -1 || eGP == NULL || !eGP)
+		if (eGP == NO_GREATPERSON)
 			continue;
 
 		if (pEntry->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
@@ -9379,7 +9379,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 			{
 				GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-				if (eGP == -1 || eGP == NULL || !eGP)
+				if (eGP == NO_GREATPERSON)
 					continue;
 
 				if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, m_pPlayer->GetID(), pHolyCity) > 0)
@@ -9737,7 +9737,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 					for (int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 					{
 						GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-						if (eGP == -1 || eGP == NULL || !eGP)
+						if (eGP == NO_GREATPERSON)
 							continue;
 
 						if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, m_pPlayer->GetID(), pHolyCity) > 0)

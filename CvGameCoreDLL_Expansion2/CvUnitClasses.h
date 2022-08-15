@@ -228,7 +228,6 @@ public:
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetProductionTraits(int i) const;
 	int GetFlavorValue(int i) const;
-	int GetUnitGroupRequired(int i) const;
 	bool GetUpgradeUnitClass(int i) const;
 	bool GetUnitAIType(int i) const;
 	bool GetNotUnitAIType(int i) const;
@@ -447,7 +446,6 @@ private:
 	int* m_piResourceQuantityExpended;
 	int* m_piProductionTraits;
 	int* m_piFlavorValue;
-	int* m_piUnitGroupRequired;
 	int* m_piProductionModifierBuildings;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;

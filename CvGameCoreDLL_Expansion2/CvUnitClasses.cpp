@@ -185,7 +185,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_piResourceQuantityExpended(NULL),
 	m_piProductionTraits(NULL),
 	m_piFlavorValue(NULL),
-	m_piUnitGroupRequired(NULL),
 	m_pbFreePromotions(NULL),
 	m_paszEarlyArtDefineTags(NULL),
 	m_paszLateArtDefineTags(NULL),
@@ -231,7 +230,6 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_piResourceQuantityExpended);
 	SAFE_DELETE_ARRAY(m_piProductionTraits);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_piUnitGroupRequired);
 	SAFE_DELETE_ARRAY(m_pbFreePromotions);
 	SAFE_DELETE_ARRAY(m_paszEarlyArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszLateArtDefineTags);
@@ -1549,13 +1547,6 @@ int CvUnitEntry::GetFlavorValue(int i) const
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
-}
-
-int CvUnitEntry::GetUnitGroupRequired(int i) const
-{
-	CvAssertMsg(i < GetGroupDefinitions(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piUnitGroupRequired ? m_piUnitGroupRequired[i] : NULL;
 }
 
 /// What can this unit upgrade into?

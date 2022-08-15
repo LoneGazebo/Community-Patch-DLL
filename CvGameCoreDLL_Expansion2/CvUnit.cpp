@@ -20732,7 +20732,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					CvPlot* pAdjacentPlot = plotDirection(pNewPlot->getX(), pNewPlot->getY(), ((DirectionTypes)iI));
 
-					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL)
+					if(pAdjacentPlot != NULL)
 					{
 						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
 						{
