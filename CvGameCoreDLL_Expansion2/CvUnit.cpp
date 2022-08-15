@@ -11967,11 +11967,14 @@ int CvUnit::getMaxHurryProduction(CvCity* pCity) const
 
 	if (MOD_GP_ERA_SCALING)
 	{
-		int EraModifiers[5] = { 200, 250, 400, 475, 575 }; // starts from renaissance
 		int iCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		int iIndex = MAX(0, iCurrentEra - 4);
 
-		iProduction = ((m_pUnitInfo->GetBaseHurry() * EraModifiers[iIndex] / 100) + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
+		if (iCurrentEra >= 3) // starts from renaissance
+		{
+			int EraModifiers[5] = { 200, 250, 400, 475, 575 }; 
+			int iIndex = MAX(0, iCurrentEra - 3);
+			iProduction = ((m_pUnitInfo->GetBaseHurry() * EraModifiers[iIndex] / 100) + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
+		}
 	}
 
 	//Let's make the GE a little more flexible.
@@ -12151,12 +12154,15 @@ int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
 
 	if (MOD_GP_ERA_SCALING)
 	{
-		int EraModifiers[5] = { 160, 190, 260, 290, 330 }; // starts from renaissance
 		int iCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		int iIndex = MAX(0, iCurrentEra - 4);
 
-		iGold *= EraModifiers[iIndex];
-		iGold /= 100;
+		if (iCurrentEra >= 3) // starts from renaissance
+		{
+			int EraModifiers[5] = { 160, 190, 260, 290, 330 }; // starts from renaissance
+			int iIndex = MAX(0, iCurrentEra - 3);
+			iGold *= EraModifiers[iIndex];
+			iGold /= 100;
+		}
 	}
 
 	iGold *= GC.getGame().getGameSpeedInfo().getUnitTradePercent();
