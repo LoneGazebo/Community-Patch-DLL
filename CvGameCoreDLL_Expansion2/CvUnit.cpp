@@ -12154,11 +12154,12 @@ int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
 
 	if (MOD_GP_ERA_SCALING)
 	{
+		iGold = GetScaleAmount(m_pUnitInfo->GetBaseGold()); // scaled from towns
 		int iCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
 
 		if (iCurrentEra >= 3) // starts from renaissance
 		{
-			int EraModifiers[5] = { 160, 190, 260, 290, 330 }; // starts from renaissance
+			int EraModifiers[5] = { 200, 250, 400, 475, 575 };
 			int iIndex = MAX(0, iCurrentEra - 3);
 			iGold *= EraModifiers[iIndex];
 			iGold /= 100;
