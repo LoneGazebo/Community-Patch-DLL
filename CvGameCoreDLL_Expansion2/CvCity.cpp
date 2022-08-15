@@ -28466,7 +28466,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 		if (!noMessage && plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 		{
 			char text[256];
-			text[0] = NULL;
+			text[0] = '\0';
 			int iNewValue = MIN(GetMaxHitPoints(), iValue);
 			int iDiff = iOldValue - iNewValue;
 			if (iNewValue < iOldValue)
@@ -31411,7 +31411,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 					}
 
 					BeliefTypes SpecificBelief = pReligion->m_Beliefs.GetSpecificFaithBuyingEnabledBelief(eUnitType);
-					if (SpecificBelief != NO_BELIEF && SpecificBelief != NULL)
+					if (SpecificBelief != NO_BELIEF)
 					{
 						bSpecificBeliefBlocked = true;
 						TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
@@ -31440,7 +31440,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				if (pkUnitInfo->IsRequiresFaithPurchaseEnabled())
 				{
 
-					if (pkUnitInfo->GetBeliefUnlock() != NULL && pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
+					if (pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
 					{
 						if (!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
 						{
@@ -31499,7 +31499,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				}
 				else
 				{
-					if (pkUnitInfo->GetBeliefUnlock() != NULL && pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
+					if (pkUnitInfo->GetBeliefUnlock() != NO_BELIEF)
 					{
 						if (!HasBelief((BeliefTypes)pkUnitInfo->GetBeliefUnlock()))
 						{
@@ -33796,7 +33796,7 @@ CvUnit* CvCity::getBestRangedStrikeTarget() const
 			{
 				//a bit redundant with the internal of canRangeStrikeAt but that's life
 				CvUnit* pTarget = rangedStrikeTarget(pTargetPlot);
-				int iDamage = rangeCombatDamage(pTarget, NULL, NULL);
+				int iDamage = rangeCombatDamage(pTarget, false, NULL);
 				if (iDamage > iBestScore)
 				{
 					iBestScore = iDamage;

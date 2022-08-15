@@ -15703,7 +15703,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						{
 							GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eBully);
 						}
-						if (GC.getGame().getActivePlayer() != NULL)
+						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 							{
@@ -15745,7 +15745,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 						GET_PLAYER(eBully).changeJONSCulture(iValue);
 						pBullyCapital->ChangeJONSCultureStored(iValue);
-						if (GC.getGame().getActivePlayer() != NULL)
+						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 							{
@@ -15786,7 +15786,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
 
 						pBullyCapital->changeProduction(iValue);
-						if (GC.getGame().getActivePlayer() != NULL)
+						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 							{
@@ -15827,7 +15827,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
 
 						GET_PLAYER(eBully).ChangeFaith(iValue);
-						if (GC.getGame().getActivePlayer() != NULL)
+						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 							{
@@ -15868,7 +15868,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
 
 						pBullyCapital->changeFood(iValue);
-						if (GC.getGame().getActivePlayer() != NULL)
+						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
 							{

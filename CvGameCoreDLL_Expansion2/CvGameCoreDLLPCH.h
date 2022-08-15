@@ -113,6 +113,14 @@ typedef wchar_t          wchar;
 #define AI_PERF_FORMAT_NESTED(perfFileName, FormatValue) ((void)0)
 #endif
 
+// Ensure clang throws errors regarding improper `NULL` usage.
+#ifdef __clang__
+#ifdef NULL
+#undef NULL
+#endif // NULL
+#define NULL nullptr
+#endif // __clang__
+
 #include <FireWorks/FDefNew.h>
 #include <FireWorks/FFireTypes.h>
 #include <FireWorks/FAssert.h>

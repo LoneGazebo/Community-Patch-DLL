@@ -734,18 +734,18 @@ CvPlayer::CvPlayer() :
 	, m_pabHasGlobalMonopoly()
 	, m_pabHasStrategicMonopoly()
 #endif
-	, m_piGoldenAgeGreatPersonRateModifier(NULL)
-	, m_piYieldFromKills(NULL)
-	, m_piYieldFromBarbarianKills(NULL)
-	, m_piYieldChangeTradeRoute(NULL)
-	, m_piYieldChangesNaturalWonder(NULL)
-	, m_piYieldChangesPerReligion(NULL)
-	, m_piYieldChangeWorldWonder(NULL)
-	, m_piYieldFromMinorDemand(NULL)
-	, m_piYieldFromWLTKD(NULL)
-	, m_piCityFeatures(NULL)
-	, m_piNumBuildings(NULL)
-	, m_piNumBuildingsInPuppets(NULL)
+	, m_piGoldenAgeGreatPersonRateModifier()
+	, m_piYieldFromKills()
+	, m_piYieldFromBarbarianKills()
+	, m_piYieldChangeTradeRoute()
+	, m_piYieldChangesNaturalWonder()
+	, m_piYieldChangesPerReligion()
+	, m_piYieldChangeWorldWonder()
+	, m_piYieldFromMinorDemand()
+	, m_piYieldFromWLTKD()
+	, m_piCityFeatures()
+	, m_piNumBuildings()
+	, m_piNumBuildingsInPuppets()
 	, m_ppiBuildingClassYieldChange()
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
@@ -5136,7 +5136,7 @@ void CvPlayer::UpdateCityThreatCriteria()
 					PlayerTypes pNeighborNearby = pLoopNearbyPlot->getOwner();
 					CivOpinionTypes eNeighborOpinion = GetDiplomacyAI()->GetCivOpinion(pNeighborNearby);
 
-					if(pNeighborNearby != NULL)
+					if(pNeighborNearby != NO_PLAYER)
 					{
 						if (eNeighborOpinion == CIV_OPINION_NEUTRAL)
 						{
@@ -27900,7 +27900,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 	{
 		eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_MERCHANT");
 	}
-	if (eBestSpecialist != NULL && pCapital != NULL)
+	if (eBestSpecialist != NO_SPECIALIST && pCapital != NULL)
 	{
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
 		if (pkSpecialistInfo)
@@ -28035,14 +28035,14 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		for (int iGreatPersonTypes = 0; iGreatPersonTypes < GC.getNumGreatPersonInfos(); iGreatPersonTypes++)
 		{
 			GreatPersonTypes eGreatPerson = (GreatPersonTypes)iGreatPersonTypes;
-			if (eGreatPerson == NULL || pCapital == NULL)
+			if (eGreatPerson == NO_GREATPERSON || pCapital == NULL)
 				continue;
 
 			if (ePassGreatPerson != NO_GREATPERSON && ePassGreatPerson != eGreatPerson)
 				continue;
 
 			eSpecialist = (SpecialistTypes)GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType();
-			if (eSpecialist == NULL)
+			if (eSpecialist == NO_SPECIALIST)
 				continue;
 
 			// 1st step: Get the percent to progress towards the next GP
