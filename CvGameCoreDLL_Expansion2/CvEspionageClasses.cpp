@@ -2116,56 +2116,60 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
+	if (!pCity)
+		return 0;
+
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
-	int iBaseDefense = 10;
 	int iChancetoIdentify = 15;
 	int iChancetoKill = 0;
+
+	//Chance to detect increase based on city potency.
+	int iDefensePower = pCity->GetEspionageRanking() / 10;
+
+	bool bCannotDie = !pCity->GetCityEspionage()->HasCounterSpy();
+
+	PlayerTypes eOwner = pCity->getOwner();
+	CvPlayer& kPlayer = GET_PLAYER(eOwner);
 
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo)
 		{
-			iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+			if(!bCannotDie || bPreview)
+				iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+
 			iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
 		}
 	}
 
-	bool bCannotDie = (iChancetoKill <= 0);
+	int iCounterSpy = kPlayer.GetEspionage()->GetSpyIndexInCity(pCity);
+	CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iCounterSpy);
 
-	//Chance to detect decreases based on city potency. More SECURITY = less likely!
-	int iDefensePower = pCity->GetEspionageRanking() / 10;
-	iDefensePower += iBaseDefense;
-
-	PlayerTypes eOwner = pCity->getOwner();
-	CvPlayer& kPlayer = GET_PLAYER(eOwner);
-
-	int iDefModifiers = 0;
-	if (pCity->GetCityEspionage()->HasCounterSpy() && !bPreview)
+	//we only reveal this for the 'real calculation,' not the estimate!
+	if (!bPreview && pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
 	{
-		int iCounterSpy = kPlayer.GetEspionage()->GetSpyIndexInCity(pCity);
-		CvEspionageSpy* pSpy = kPlayer.GetEspionage()->GetSpyByID(iCounterSpy);
-
-		if(!bCannotDie)
-			iChancetoKill = (pSpy->m_eRank+1) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
-		if (pSpy && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
+		if (pkEventChoiceInfo != NULL)
 		{
-			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
-			if (pkEventChoiceInfo != NULL)
-			{
-				if (!bCannotDie)
-					iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+			if (!bCannotDie)
+				iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
 
-				iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
-			}
+			iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
 		}
 	}
+	
+
+	int iDefModifiers = 0;
+	if(!bCannotDie && pSpy)
+		iDefModifiers += pSpy->GetSpyRank(kPlayer.GetID()) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 
 	//and increased again by player potency
-	iDefModifiers = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
+	iDefModifiers += GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
+	
 	iChancetoIdentify += iDefModifiers;
 
-	if (!bCannotDie)
+	if (!bCannotDie || bPreview)
 		iChancetoKill += iDefModifiers;
 
 	switch (eEspionage)
@@ -3383,7 +3387,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 			int iResult = max(iFinalModifier, 1);
 			if (iSpyIndex >= 0)
 			{
-				int iSpyRank = m_aSpyList[iSpyIndex].m_eRank;
+				int iSpyRank = m_aSpyList[iSpyIndex].GetSpyRank(m_pPlayer->GetID());
 				iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 				iResult *= 100 + (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT) * iSpyRank);
 				iResult /= 100;
