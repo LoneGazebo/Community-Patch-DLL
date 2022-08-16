@@ -5085,8 +5085,8 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 	if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
 		return;
 	
-	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
-	if (!IsHasMet(ePlayer))
+	// Don't apply warmongering if we haven't met the attacker or the attacked team (otherwise that's cheating)
+	if (!IsHasMet(ePlayer) || !GET_TEAM(GetTeam()).isHasMet(eAttackedTeam))
 		return;
 
 	// Ignore our master's warmongering
@@ -5142,8 +5142,8 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 	if (GET_TEAM(GetTeam()).isAtWar(eAttackedTeam))
 		return;
 	
-	// Don't apply warmongering if we haven't met the attacker (otherwise that's cheating)
-	if (!IsHasMet(ePlayer))
+	// Don't apply warmongering if we haven't met the attacker or the attacked team (otherwise that's cheating)
+	if (!IsHasMet(ePlayer) || !GET_TEAM(GetTeam()).isHasMet(eAttackedTeam))
 		return;
 
 	// War declarations between humans don't apply warmongering except for the attacked team and their DPs/vassals (prevents exploit)
@@ -56602,6 +56602,10 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 
 			if (!bVoluntary)
 			{
+				// Forget any denouncing
+				SetDenouncedPlayer(eLoopPlayer, false);
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetID(), false);
+
 				// Clear this player's warmongering penalties
 				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetWarmongerThreat(GetID(), THREAT_NONE);
 				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetOtherPlayerWarmongerAmountTimes100(GetID(), 0);
@@ -56641,10 +56645,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 			SetLandDisputeLevel(eOtherTeamPlayer, DISPUTE_LEVEL_NONE);
 			if (!GET_PLAYER(eOtherTeamPlayer).OwnsOurCity(GetID()))
 				GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetLandDisputeLevel(GetID(), DISPUTE_LEVEL_NONE);
-
-			// Forget any denouncing
-			SetDenouncedPlayer(eOtherTeamPlayer, false);
-			GET_PLAYER(eOtherTeamPlayer).GetDiplomacyAI()->SetDenouncedPlayer(GetID(), false);
 
 			// Vassal thought they were a liberator, but Master had other plans...
 			SetMasterLiberatedMeFromVassalage(eOtherTeamPlayer, false);

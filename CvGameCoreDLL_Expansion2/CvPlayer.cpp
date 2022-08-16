@@ -32085,7 +32085,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 				}
 			}
 			// Known player
-			else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+			else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()) || GET_PLAYER(ePlayer).isObserver())
 			{
 				eNotificationType = NOTIFICATION_CAPITAL_LOST;
 				localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_LOST_CAPITAL");
@@ -32093,7 +32093,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 				if (eWinningTeam != NO_TEAM)
 				{
-					if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+					if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()) || GET_PLAYER(ePlayer).isObserver())
 					{
 						if (eWinningPlayer == GetID())
 						{
@@ -32338,14 +32338,14 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 				}
 			}
 			// Known player
-			else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+			else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()) || GET_PLAYER(ePlayer).isObserver())
 			{
 				localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_RECOVERED_CAPITAL");
 				localizedSummary << getCivilizationShortDescriptionKey();
 
 				if (eWinningTeam != NO_TEAM)
 				{
-					if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+					if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()) || GET_PLAYER(ePlayer).isObserver())
 					{
 						if (eWinningPlayer == ePlayer)
 						{
@@ -32423,7 +32423,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 
 				if (eWinningTeam != NO_TEAM)
 				{
-					if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
+					if (GET_TEAM(eWinningTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
 					{
 						if (eWinningPlayer == ePlayer)
 						{
@@ -36800,12 +36800,18 @@ void CvPlayer::DoUpdateProximityToPlayers()
 			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
 			if (pA->getArea() != pB->getArea())
 			{
-				if (eProximity == PLAYER_PROXIMITY_FAR)
-					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_DISTANT);
-				else if (eProximity == PLAYER_PROXIMITY_CLOSE)
-					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_FAR);
-				else if (eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				switch (eProximity)
+				{
+				case PLAYER_PROXIMITY_NEIGHBORS:
 					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_CLOSE);
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_FAR);
+					break;
+				default:
+					GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_DISTANT);
+					break;
+				}
 			}
 			else
 				GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);

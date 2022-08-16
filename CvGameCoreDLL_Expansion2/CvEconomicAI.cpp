@@ -2056,6 +2056,16 @@ void CvEconomicAI::DoReconState()
 		return;
 	}
 
+	// Don't bother scouting if we're losing all wars
+	if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	{
+		m_eReconState = RECON_STATE_ENOUGH;
+		m_eNavalReconState = RECON_STATE_ENOUGH;
+		SetExplorersNeeded(0);
+		SetNavalExplorersNeeded(0);
+		return;
+	}
+
 	// Less desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	bool bWar = (eStrategyAtWar != NO_MILITARYAISTRATEGY) && GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar);

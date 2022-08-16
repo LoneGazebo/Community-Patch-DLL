@@ -581,19 +581,29 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Need Explorers?
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
-			int iExplore = kPlayer.GetEconomicAI()->GetExplorersNeeded();
-			if(iExplore > 0)
+			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetExplorersNeeded();
+			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, false);
+			if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
+				iExplorersHave--;
+
+			int iExploreBonus = iExplorersNeeded - iExplorersHave;
+			if (iExploreBonus > 0)
 			{
-				iBonus += iExplore;
+				iBonus += iExploreBonus * 500;
 			}
 		}
 		//Need Sea Explorers?
 		if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK_SEA)
 		{
-			int iExplore = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded();
-			if(iExplore > 0)
+			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded();
+			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, false);
+			if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
+				iExplorersHave--;
+
+			int iExploreBonus = iExplorersNeeded - iExplorersHave;
+			if (iExploreBonus > 0)
 			{
-				iBonus += iExplore;
+				iBonus += iExploreBonus * 500;
 			}
 		}
 		//Naval Units Critically Needed?
