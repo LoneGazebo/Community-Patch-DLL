@@ -1681,44 +1681,44 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(pFromPlot->getArea() != pToPlot->getArea())
+	//same landmass means there is a path
+	if (pFromPlot->getLandmass() == pToPlot->getLandmass())
+		return TRUE;
+
+	//otherwise need to look more closely
+	bool bAllow = false;
+
+	//cities belong to multiple landmasses
+	if (pFromPlot->isCity())
 	{
-		bool bAllow = false;
-
-		//be a little lenient with cities
-		if (pFromPlot->isCity())
-		{
-			CvCity* pCity = pFromPlot->getPlotCity();
-			if (pCity->HasAccessToArea(pToPlot->getArea()))
-				bAllow = true;
-		}
-
-		if (pToPlot->isCity())
-		{
-			CvCity* pCity = pToPlot->getPlotCity();
-			if (pCity->HasAccessToArea(pFromPlot->getArea()))
-				bAllow = true;
-		}
-
-		if (!bAllow && finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
-		{
-			std::vector<int> vAreas = pToPlot->getAllAdjacentAreas();
-			bAllow = (std::find(vAreas.begin(),vAreas.end(),pFromPlot->getArea()) != vAreas.end());
-			//cities are even more complicated ...
-			if (!bAllow && pFromPlot->isCity())
-			{
-				std::vector<int> cityAreas = pFromPlot->getAllAdjacentAreas();
-				std::vector<int> shared(MAX(vAreas.size(), cityAreas.size()));
-				std::vector<int>::iterator result = std::set_intersection(vAreas.begin(), vAreas.end(), cityAreas.begin(), cityAreas.end(), shared.begin());
-				bAllow = (result != shared.begin());
-			}
-		}
-
-		if (!bAllow)
-			return FALSE;
+		CvCity* pCity = pFromPlot->getPlotCity();
+		if (pCity->HasAccessToLandmass(pToPlot->getLandmass()))
+			bAllow = true;
 	}
 
-	return TRUE;
+	if (pToPlot->isCity())
+	{
+		CvCity* pCity = pToPlot->getPlotCity();
+		if (pCity->HasAccessToLandmass(pFromPlot->getLandmass()))
+			bAllow = true;
+	}
+
+	if (!bAllow && finder->HaveFlag(CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+	{
+		std::vector<int> vLandmasses = pToPlot->getAllAdjacentLandmasses();
+		bAllow = (std::find(vLandmasses.begin(),vLandmasses.end(),pFromPlot->getLandmass()) != vLandmasses.end());
+	
+		//cities are even more complicated ...
+		if (!bAllow && pFromPlot->isCity())
+		{
+			std::vector<int> cityLandmasses = pFromPlot->getAllAdjacentLandmasses();
+			std::vector<int> shared(MAX(vLandmasses.size(), cityLandmasses.size()));
+			std::vector<int>::iterator result = std::set_intersection(vLandmasses.begin(), vLandmasses.end(), cityLandmasses.begin(), cityLandmasses.end(), shared.begin());
+			bAllow = (result != shared.begin());
+		}
+	}
+
+	return bAllow;
 }
 
 //	--------------------------------------------------------------------------------
@@ -1767,25 +1767,25 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 #endif
 
 	//this is the important check here - stay within the same area
-	if(!bAnyArea && pFromPlot->getArea() != pToPlot->getArea())
+	if(!bAnyArea && pFromPlot->getLandmass() != pToPlot->getLandmass())
 	{
 		bool bAllowStep = false;
 
 		//be a little lenient with cities - on the first and last leg!
-		bool bAllowAreaChange = !parent->m_pParent || finder->IsPathDest(node->m_iX, node->m_iY);
-		if (bAllowAreaChange)
+		bool bAllowChange = !parent->m_pParent || finder->IsPathDest(node->m_iX, node->m_iY);
+		if (bAllowChange)
 		{
 			if (pFromPlot->isCity())
 			{
 				CvCity* pCity = pFromPlot->getPlotCity();
-				if (pCity->HasAccessToArea(pToPlot->getArea()))
+				if (pCity->HasAccessToLandmass(pToPlot->getLandmass()))
 					bAllowStep = true;
 			}
 
 			if (pToPlot->isCity())
 			{
 				CvCity* pCity = pToPlot->getPlotCity();
-				if (pCity->HasAccessToArea(pFromPlot->getArea()))
+				if (pCity->HasAccessToLandmass(pFromPlot->getLandmass()))
 					bAllowStep = true;
 			}
 		}

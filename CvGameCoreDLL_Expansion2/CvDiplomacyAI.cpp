@@ -5294,7 +5294,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 				continue;
 
 			// Must be on same land area
-			if (pCityPlot->getArea() != pOurCityPlot->getArea())
+			if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
 				continue;
 
 			// Must be closer to this city than to their capital
@@ -12026,7 +12026,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 					continue;
 
 				// Must be on same land area
-				if (pCityPlot->getArea() != pOurCityPlot->getArea())
+				if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
 					continue;
 
 				// Is this city near them?
