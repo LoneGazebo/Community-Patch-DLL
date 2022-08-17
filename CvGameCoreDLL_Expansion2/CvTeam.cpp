@@ -328,82 +328,82 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		m_BatchData.Alloc(aData);
 
 		//Init the data - it is valid now
-		for(int i = 0; i < numVoteSourceInfos; i++)
+		for(unsigned int i = 0; i < numVoteSourceInfos; i++)
 		{
 			m_aiForceTeamVoteEligibilityCount[i] = 0;
 		}
-		for(int i = 0; i < numVictoryInfos; i++)
+		for(unsigned int i = 0; i < numVictoryInfos; i++)
 		{
 			m_abCanLaunch[i] = false;
 			m_abVictoryAchieved[i] = false;
 			m_aiVictoryCountdown[i] = -1;
 		}
-		for(int i = 0; i < numSmallAwardInfos; i++)
+		for(unsigned int i = 0; i < numSmallAwardInfos; i++)
 		{
 			m_abSmallAwardAchieved[i] = false;
 		}
-		for(int i = 0; i < numRouteInfos; i++)
+		for(unsigned int i = 0; i < numRouteInfos; i++)
 		{
 			m_paiRouteChange[i] = 0;
 		}
-		for (int i = 0; i < numBuildInfos; i++)
+		for (unsigned int i = 0; i < numBuildInfos; i++)
 		{
 			m_paiBuildTimeChange[i] = 0;
 		}
-		for(int i = 0; i < numProjectInfos; i++)
+		for(unsigned int i = 0; i < numProjectInfos; i++)
 		{
 			m_paiProjectCount[i] = 0;
 			m_paiProjectDefaultArtTypes[i] = 0;
 			m_paiProjectMaking[i] = 0;
 		}
-		for(int i = 0; i < numUnitClassInfos; i++)
+		for(unsigned int i = 0; i < numUnitClassInfos; i++)
 		{
 			m_paiUnitClassCount[i] = 0;
 		}
-		for(int i = 0; i < numBuildingClassInfos; i++)
+		for(unsigned int i = 0; i < numBuildingClassInfos; i++)
 		{
 			m_paiBuildingClassCount[i] = 0;
 		}
-		for(int i = 0; i < numBuildingInfos; i++)
+		for(unsigned int i = 0; i < numBuildingInfos; i++)
 		{
 			m_paiObsoleteBuildingCount[i] = 0;
 		}
-		for(int i = 0; i < numTerrainInfos; i++)
+		for(unsigned int i = 0; i < numTerrainInfos; i++)
 		{
 			m_paiTerrainTradeCount[i] = 0;
 		}
-		for(int i = 0; i < numTechInfos; i++)
+		for(unsigned int i = 0; i < numTechInfos; i++)
 		{
 			m_pabTradeTech[i] = false;
 		}
 
-		for(int i = 0; i < MAX_TEAMS; i++)
+		for(unsigned int i = 0; i < MAX_TEAMS; i++)
 		{
 			m_aiTurnTeamMet[i] = -1;
 			m_aiNumTurnsAtWar[i] = 0;
 			m_aiNumTurnsLockedIntoWar[i] = 0;
 		}
 
-		for (int i = 0; i < numDomainInfos; i++)
+		for (unsigned int i = 0; i < numDomainInfos; i++)
 		{
 			m_paiTradeRouteDomainExtraRange[i] = 0;
 		}
-		for(int j = 0; j < NUM_YIELD_TYPES; j++)
+		for(unsigned int j = 0; j < NUM_YIELD_TYPES; j++)
 		{
-			for(int i = 0; i < numFeatureInfos; i++)
+			for(unsigned int i = 0; i < numFeatureInfos; i++)
 			{
 				m_ppaaiFeatureYieldChange[i][j] = 0;
 			}
 
-			for(int i = 0; i < numTerrainInfos; i++)
+			for(unsigned int i = 0; i < numTerrainInfos; i++)
 			{
 				m_ppaaiTerrainYieldChange[i][j] = 0;
 			}
 		}
 
-		for(int i = 0; i < numImprovementInfos; i++)
+		for(unsigned int i = 0; i < numImprovementInfos; i++)
 		{
-			for(int j = 0; j < NUM_YIELD_TYPES; j++)
+			for(unsigned int j = 0; j < NUM_YIELD_TYPES; j++)
 			{
 				m_ppaaiImprovementYieldChange[i][j] = 0;
 				m_ppaaiImprovementNoFreshWaterYieldChange[i][j] = 0;
