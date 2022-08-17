@@ -312,7 +312,7 @@ const std::vector<KnownPlayersBitArray>& GetKnownPlayersTable();
 
 extern const std::vector<TeamTypes>& sr_TeamTypes;
 
-static inline TeamTypes teamType(PlayerTypes p)
+inline TeamTypes teamType(PlayerTypes p)
 {
 	if(p >= 0 && p < MAX_PLAYERS)
 		return sr_TeamTypes[p];
