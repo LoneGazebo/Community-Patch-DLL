@@ -11816,7 +11816,7 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 		{
 			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pLoopUnit->SetTurnProcessed(true);
-		
+
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
@@ -11827,7 +11827,12 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 		}
 		if (MOD_LINKED_MOVEMENT && bLinkedUnitsOnly && pLoopUnit->IsLinked() && !pLoopUnit->IsLinkedLeader())
 		{
-			pLoopUnit->PushMission(CvTypes::getMISSION_SKIP());
+			if (pLoopUnit->canFortify(pLoopUnit->plot())) {
+				pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			}
+			else {
+				pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+			}
 		}
 	}
 }
