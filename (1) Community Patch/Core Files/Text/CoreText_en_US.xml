@@ -7470,7 +7470,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">
-			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Identification Chance: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR][NEWLINE]Chance to be killed: [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+			<Text>Spy Mission Duration: [COLOR_POSITIVE_TEXT]{1_Time}[ENDCOLOR].[NEWLINE]Chance to be [ICON_VIEW_CITY] Identified: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR][NEWLINE]Chance to be [ICON_PIRATE] Killed (if Counterspy present): [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
