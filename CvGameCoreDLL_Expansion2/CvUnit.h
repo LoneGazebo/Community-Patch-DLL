@@ -1045,7 +1045,6 @@ public:
 	bool at(int iX, int iY) const;
 	bool atPlot(const CvPlot& plot) const;
 	CvPlot* plot() const;
-	int getArea() const;
 	bool onMap() const;
 
 #if defined(MOD_BALANCE_CORE)

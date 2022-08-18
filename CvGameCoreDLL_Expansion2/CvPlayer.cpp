@@ -2737,7 +2737,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					{
 						if (pLoopPlot != NULL && pLoopPlot->isWater()) 
 						{
-							if (!pLoopPlot->isImpassable()) 
+							if (!pLoopPlot->isImpassable(getTeam())) 
 							{
 								if (!pLoopPlot->isUnit())
 								{
@@ -2749,13 +2749,13 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 					}
 					else 
 					{
-						if (pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
+						if (pLoopPlot != NULL && pLoopPlot->getLandmass() == pStartingPlot->getLandmass())
 						{
-							if (!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+							if (!pLoopPlot->isImpassable(getTeam()))
 							{
 								if (!pLoopPlot->isUnit())
 								{
-									if (!(pLoopPlot->isGoody()))
+									if (!pLoopPlot->isGoody())
 									{
 										pBestPlot = pLoopPlot;
 										break;
@@ -36791,7 +36791,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		{
 			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-			if (pA->getArea() != pB->getArea())
+			if (pA->getLandmass() != pB->getLandmass())
 			{
 				GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, PLAYER_PROXIMITY_DISTANT);
 			}
@@ -36803,7 +36803,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		{
 			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-			if (pA->getArea() != pB->getArea())
+			if (pA->getLandmass() != pB->getLandmass())
 			{
 				switch (eProximity)
 				{
@@ -36831,7 +36831,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		{
 			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-			if (pA->getArea() != pB->getArea())
+			if (pA->getLandmass() != pB->getLandmass())
 			{
 				eProximity = PLAYER_PROXIMITY_DISTANT;
 			}
@@ -36841,7 +36841,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		{
 			CvPlot* pA = GC.getMap().plotByIndex(closestCities.first);
 			CvPlot* pB = GC.getMap().plotByIndex(closestCities.second);
-			if (pA->getArea() != pB->getArea())
+			if (pA->getLandmass() != pB->getLandmass())
 			{
 				if (eProximity == PLAYER_PROXIMITY_FAR)
 					eProximity = PLAYER_PROXIMITY_DISTANT;
@@ -47663,7 +47663,7 @@ bool CvPlayer::AddKnownAttacker(const CvUnit* pAttacker)
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
-CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea )
+CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameLandmass)
 {
 	if (!pPlot)
 		return NULL;
@@ -47675,7 +47675,7 @@ CvCity* CvPlayer::GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bS
 	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		//need to check area
-		if (bSameArea && !pLoopCity->HasAccessToArea(pPlot->getArea()))
+		if (bSameLandmass && !pLoopCity->HasAccessToLandmass(pPlot->getLandmass()))
 			continue;
 
 		int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
@@ -48250,7 +48250,6 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	updatePlotFoundValues();
@@ -48268,7 +48267,7 @@ bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 
 	return false;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// How long ago did this guy last settle a city?
 int CvPlayer::GetTurnsSinceSettledLastCity() const
@@ -48423,7 +48422,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 			continue;
 		}
 
-		if(pUnit && pPlot->getArea() != pUnit->getArea() && !bCanEmbark)
+		if(pUnit && pPlot->getLandmass() != pUnit->plot()->getLandmass() && !bCanEmbark)
 		{
 			//--------------
 			if (bLogging) 
@@ -48438,16 +48437,16 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//check for new continent
-		const CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
+		const CvLandmass* pLandmass = GC.getMap().getLandmass(pPlot->getLandmass());
 		const CvCity* pCapital = getCapitalCity();
 
 		//if we want offshore expansion, manipulate the distance scaler
-		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
+		bool bOffshore = (pLandmass && pCapital && pLandmass->GetID() != pCapital->plot()->getLandmass());
 		if (bWantOffshore && bOffshore)
 			iScale = max(42, iScale);
 
 		//on a new continent we want to settle along the coast
-		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
+		bool bNewContinent = (pLandmass && pLandmass->getCitiesPerPlayer(GetID()) == 0);
 		if (bNewContinent && getNumCities()>0)
 		{
 			//there may already be other players here, also minors ... 
@@ -49131,7 +49130,7 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 				continue;
 			}
 
-			if(pPlot->getArea() != pLoopUnit->getArea() && !pLoopUnit->CanEverEmbark())
+			if(pPlot->getArea() != pLoopUnit->plot()->getArea() && !pLoopUnit->CanEverEmbark())
 			{
 				continue;
 			}

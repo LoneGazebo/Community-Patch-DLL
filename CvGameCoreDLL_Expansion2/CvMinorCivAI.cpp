@@ -8768,8 +8768,8 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 
 			if(pLoopPlot != NULL)
 			{
-				// Camp must be in the same Area as us
-				if(!pCapital->HasAccessToArea(pLoopPlot->getArea()))
+				// Camp must be in the same landmass
+				if(!pCapital->HasAccessToLandmass(pLoopPlot->getLandmass()))
 				{
 					continue;
 				}
@@ -10332,19 +10332,13 @@ int CvMinorCivAI::GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQue
 			CvPlot* pPlot = GC.getMap().plot(iX, iY);
 			if(pPlot)
 			{
-				CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-				if(pArea)
+				CvLandmass* pLandmass = pPlot->landmass();
+				if(pLandmass)
 				{
-					if(pArea->getNumUnrevealedTiles(eTeam) <= 0)
-					{
+					if(pLandmass->getNumUnrevealedTiles(eTeam) <= 0)
 						return 100;
-					}
-					iPercent = ((100 * pArea->getNumRevealedTiles(eTeam)) / pArea->getNumUnrevealedTiles(eTeam));
-					if(iPercent > 100)
-					{
-						iPercent = 100;
-					}
-					return iPercent;
+					
+					return MIN(100, (100 * pLandmass->getNumRevealedTiles(eTeam)) / pLandmass->getNumUnrevealedTiles(eTeam));
 				}
 			}
 		}

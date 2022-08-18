@@ -2502,7 +2502,7 @@ public:
 	bool IsKnownAttacker(const CvUnit* pAttacker);
 	bool AddKnownAttacker(const CvUnit* pAttacker);
 
-	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameArea);
+	CvCity* GetClosestCity(const CvPlot* pPlot, int iSearchRadius, bool bSameLandmass);
 
 	int GetNumPuppetCities() const;
 	int GetNumRealCities() const;
