@@ -306,7 +306,7 @@ dxPRINTPROC dxPrintHook( dxPRINTPROC newPrinter=0 );    // returns old printer
 	#define REMARK_GROUP( name )
 
 	inline bool Remark( int /*level*/, const wchar_t* /*format=0*/, ... ){return false;}
-	inline bool Remark( int /*level*/, const char */*format=0*/, ... ){return false;}
+	inline bool Remark( int /*level*/, const char* /*format=0*/, ... ){return false;}
 	inline bool RemarkIf( bool /*bExpr*/, int /*level*/, const char* /*format=0*/, ... ){return false;}
 
 	inline void   SetRemarkGroupCutoffLevel( int group, int level ){}
