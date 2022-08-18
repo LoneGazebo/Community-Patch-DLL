@@ -5497,7 +5497,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			for (int iI = 0; iI < (int)LinkedUnits.size(); iI++)
 			{
 				CvUnit* pLinkedUnit = LinkedUnits[iI];
-				pLinkedUnit->move(targetPlot, false);
+				pLinkedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), targetPlot.getX(), targetPlot.getY(), CvUnit::MOVEFLAG_DESTINATION);
 			}
 		}
 	}
@@ -5722,7 +5722,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 						iValue += 6;
 
 					//try to stay within the same area
-					if (pLoopPlot->getArea() != getArea())
+					if (pLoopPlot->getArea() != plot()->getArea())
 						iValue += 5;
 
 					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
@@ -15497,6 +15497,13 @@ void CvUnit::LinkUnits()
 		else {
 			LinkedUnitIDs.push_back(pUnit->GetID());
 			pUnit->SetLinkedLeaderID(pLinkedLeader->GetID());
+
+			if (pLoopUnit->canFortify(pCurrentPlot)) {
+				pLoopUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			}
+			else {
+				pLoopUnit->PushMission(CvTypes::getMISSION_SLEEP());
+			}
 		}
 	}
 	pLinkedLeader->SetLinkedUnits(LinkedUnitIDs);
@@ -15528,7 +15535,7 @@ void CvUnit::MoveLinkedLeader(CvPlot* pDestPlot)
 	VALIDATE_OBJECT
 
 	CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
-	pLinkedLeader->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY());
+	pLinkedLeader->PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED);
 
 }
 //	--------------------------------------------------------------------------------
@@ -15609,7 +15616,7 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 	SetIsGrouped(true); 
 	setMoves(iLowestCurrentMoves);	
 	SetLinkedMaxMoves(iLowestMaxMoves);
-	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY()); // the iterator doesn't include the current plot, so move the ordering unit & and its stack here
+	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED); // the iterator doesn't include the current plot, so move the ordering unit & and its stack here
 }
 //	--------------------------------------------------------------------------------
 int CvUnit::GetRange() const
@@ -20794,14 +20801,6 @@ CvPlot* CvUnit::plot() const
 {
 	VALIDATE_OBJECT
 	return GC.getMap().plotCheckInvalid(getX(), getY());
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getArea() const
-{
-	VALIDATE_OBJECT
-	return GC.getMap().plotCheckInvalid(getX(), getY())->getArea();
 }
 
 //	--------------------------------------------------------------------------------

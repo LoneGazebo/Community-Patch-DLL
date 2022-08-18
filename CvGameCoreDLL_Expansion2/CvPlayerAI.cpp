@@ -1152,7 +1152,6 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
 			bCitySameAsMuster = false;
 
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
@@ -1160,14 +1159,13 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToArea(pMusterPlot->getArea()))
+			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
 				bCitySameAsMuster = true;
 
-			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToArea(pMusterPlot->getArea()))
+			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
 				continue;
-#endif
-			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 
+			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 			if (!thisSlot.IsValid())
 				continue;
 
@@ -2130,7 +2128,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (!pCity->HasAccessToArea(pUnit->getArea()) && !CanEmbark())
+	if (!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !CanEmbark())
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
@@ -2459,7 +2457,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		iDistance *= 3;
 
 	//Let's downplay far/distant minors without full embarkation.
-	if(!pCity->HasAccessToArea(pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
+	if(!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !GET_PLAYER(GetID()).CanCrossOcean())
 		iDistance *= 3;
 
 	//If this is way too far away, let's not penalize it too much.

@@ -414,7 +414,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 	}
 
 	//simple heuristic
-	bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
+	bool bOcean = pTargetPlot->getLandmass() != pMusterPlot->getLandmass();
 
 	ReachablePlots turnsFromMuster; //empty is ok
 	vector<size_t> freeSlots = pThisArmy->GetOpenSlots(false);
@@ -458,7 +458,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 		freeSlotInfo.push_back( make_pair(freeSlots[i],pArmy->GetSlotInfo(freeSlots[i])) );
 
 	//simple heuristic
-	bool bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
+	bool bOcean = pTargetPlot->getLandmass() != pMusterPlot->getLandmass();
 
 	//this is just a rough indication so we don't need to do pathfinding for all our units
 	SPathFinderUserData data(m_eOwner, PT_ARMY_MIXED, m_eEnemy, GetMaximumRecruitTurns()*4);
@@ -483,7 +483,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 			if (pLoopUnit->plot() && pLoopUnit->plot()->getOwner() != m_eOwner)
 				iTurnsToReachCheckpoint++;
 
-			// When in doubt prefer units which don't have to embark ...
+			// When in doubt prefer units which don't have to pass through a chokepoint ...
 			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getArea() != pMusterPlot->getArea())
 				iTurnsToReachCheckpoint++;
 
@@ -2378,7 +2378,7 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 		CvPlot* pCenterPlot = GC.getMap().plot(pTargetZone->GetCenterX(), pTargetZone->GetCenterY());
 
 		//simplification
-		if (pCenterPlot->getArea() != pCurrentPosition->getArea())
+		if (pCenterPlot->getLandmass() != pCurrentPosition->getLandmass())
 			continue;
 
 		int iDistance = plotDistance(*pCenterPlot,*pCurrentPosition);
@@ -3324,7 +3324,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if(pLoopCity->isCoastal() && pLoopCity->HasAccessToArea(pRefPlot->getArea()))
+		if(pLoopCity->isCoastal() && pLoopCity->HasAccessToLandmass(pRefPlot->getLandmass()))
 		{
 			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pRefPlot->getX(), pRefPlot->getY());
 			if(iDistance >= 0 && iDistance < iBestDistance)
@@ -3457,7 +3457,8 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 	ReachablePlots turnsFromMuster;
 	if (pMusterPlot && pTargetPlot)
 	{
-		bOcean = pTargetPlot->getArea() != pMusterPlot->getArea();
+		//simple heuristic
+		bOcean = pTargetPlot->getLandmass() != pMusterPlot->getLandmass();
 
 		//this is just a rough indication so we don't need to do pathfinding for all our units
 		SPathFinderUserData data(m_eOwner, PT_ARMY_MIXED, m_eEnemy, GetMaximumRecruitTurns()*4);

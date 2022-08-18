@@ -204,6 +204,22 @@ int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
 
 	return iResult;
 }
+int CvLandmass::getNumRevealedTiles(TeamTypes eTeam) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumRevealedTiles(eTeam);
+
+	return iResult;
+}
+int CvLandmass::getNumUnrevealedTiles(TeamTypes eTeam) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumUnrevealedTiles(eTeam);
+
+	return iResult;
+}
 int CvLandmass::getNumUnits() const
 {
 	int iResult = 0;
