@@ -13,8 +13,8 @@
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_SHOSHONE_PATHFINDER';
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_WARRIOR';
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_AZTEC_JAGUAR';
-	UPDATE Units SET Cost = '45' , FaithCost = '100' WHERE Type = 'UNIT_VP_SLINGER';
-	UPDATE Units SET Cost = '45' , FaithCost = '100' WHERE Type = 'UNIT_INCAN_SLINGER';
+	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_VP_SLINGER';
+	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_INCAN_SLINGER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_CHARIOT_ARCHER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_SPEARMAN';
