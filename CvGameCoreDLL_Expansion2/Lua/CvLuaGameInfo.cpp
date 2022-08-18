@@ -12,7 +12,7 @@
 //!		This file includes the implementation for exposing game infos to Lua.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "../CvGameCoreDLLPCH.h"
+#include "CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaGameInfo.h"

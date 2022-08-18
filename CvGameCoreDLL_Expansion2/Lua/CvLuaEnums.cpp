@@ -12,7 +12,7 @@
 //!		This file includes the implementation for exposing enums to Lua.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "../CvGameCoreDLLPCH.h"
+#include "CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaEnums.h"

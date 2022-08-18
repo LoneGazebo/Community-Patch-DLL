@@ -12,7 +12,7 @@
 //!		This file includes the implementation for a Lua Player instance.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "../CvGameCoreDLLPCH.h"
+#include "CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaCity.h"

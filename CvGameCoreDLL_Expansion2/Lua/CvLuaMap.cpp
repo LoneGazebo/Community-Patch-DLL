@@ -12,7 +12,7 @@
 //!		This file includes the implementation for a Lua Map singleton.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include "../CvGameCoreDLLPCH.h"
+#include "CvGameCoreDLLPCH.h"
 #include "../CustomMods.h"
 #include "CvLuaSupport.h"
 #include "CvLuaArea.h"
