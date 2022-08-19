@@ -111,10 +111,14 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 
-	if(!bAppend)
+	if (!bAppend)
 	{
 		//keep the path cache if this is a move mission!
-		hUnit->ClearMissionQueue( eMission==CvTypes::getMISSION_MOVE_TO() );
+		hUnit->ClearMissionQueue(eMission == CvTypes::getMISSION_MOVE_TO());
+
+		if (MOD_LINKED_MOVEMENT && hUnit->IsGrouped()) {
+			hUnit->SetIsGrouped(false);
+		}
 	}
 
 	if(bManual)
