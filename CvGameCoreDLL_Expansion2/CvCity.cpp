@@ -34514,7 +34514,7 @@ UnitTypes CvCity::GetUnitForOperation()
 
 		if (pThisArmy && pThisOperation)
 		{
-			if (!HasAccessToArea(pThisOperation->GetMusterPlot()->getArea()))
+			if (!HasAccessToLandmass(pThisOperation->GetMusterPlot()->getLandmass()))
 				return NO_UNIT;
 
 			// figure out the primary and secondary unit type to potentially build

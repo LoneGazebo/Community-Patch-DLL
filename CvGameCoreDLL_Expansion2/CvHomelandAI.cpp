@@ -2258,7 +2258,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						CvPlot* pPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pTestCity->plot());
 						if(pPlot != NULL)
 						{
-							if (pPlot->getArea() != pUnit->getArea())
+							if (pPlot->getLandmass() != pUnit->plot()->getLandmass())
 								continue;
 
 							int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY());

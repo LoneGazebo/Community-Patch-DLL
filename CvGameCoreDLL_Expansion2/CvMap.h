@@ -61,6 +61,8 @@ public:
 	int getEnemyUnits(PlayerTypes eIndex) const;
 	int getCitiesPerPlayer(PlayerTypes eIndex) const;
 	int getPopulationPerPlayer(PlayerTypes eIndex) const;
+	int getNumRevealedTiles(TeamTypes eTeam) const;
+	int getNumUnrevealedTiles(TeamTypes eTeam) const;
 	int getNumUnits() const;
 	int getNumCities() const;
 	int getTotalPopulation() const;

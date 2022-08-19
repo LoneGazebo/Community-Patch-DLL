@@ -2820,7 +2820,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategy
 
 	if (kPlayer.isMajorCiv() && !pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() && kPlayer.getCapitalCity() != NULL)
 	{
-		if(!pCity->HasSharedAreaWith(kPlayer.getCapitalCity(),true,false))
+		if(!pCity->HasSharedLandmassWith(kPlayer.getCapitalCity(),true,false))
 		{
 			//this call is a bit expensive ...
 			if(kPlayer.HaveGoodSettlePlot(pCity->plot()->getArea()))

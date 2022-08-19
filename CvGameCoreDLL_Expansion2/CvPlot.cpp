@@ -14813,23 +14813,19 @@ bool CvPlot::IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const
 		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 		if(pLoopPlot != NULL)
 		{
-			// Must be in same area
-			if(pLoopPlot->getArea() == getArea())
+			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+			while(pUnitNode != NULL)
 			{
-				IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
-				while(pUnitNode != NULL)
+				if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
 				{
-					CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
-
-					if(pLoopUnit && pLoopUnit->getTeam() == eMyTeam)
+					// Combat Unit?
+					if(!bCombatUnit || pLoopUnit->IsCombatUnit())
 					{
-						// Combat Unit?
-						if(!bCombatUnit || pLoopUnit->IsCombatUnit())
-						{
-							return true;
-						}
+						return true;
 					}
 				}
 			}

@@ -5722,7 +5722,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 						iValue += 6;
 
 					//try to stay within the same area
-					if (pLoopPlot->getArea() != getArea())
+					if (pLoopPlot->getArea() != plot()->getArea())
 						iValue += 5;
 
 					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
@@ -20801,14 +20801,6 @@ CvPlot* CvUnit::plot() const
 {
 	VALIDATE_OBJECT
 	return GC.getMap().plotCheckInvalid(getX(), getY());
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getArea() const
-{
-	VALIDATE_OBJECT
-	return GC.getMap().plotCheckInvalid(getX(), getY())->getArea();
 }
 
 //	--------------------------------------------------------------------------------
