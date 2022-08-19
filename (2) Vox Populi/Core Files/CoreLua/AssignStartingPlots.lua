@@ -10322,7 +10322,7 @@ function AssignStartingPlots:PlaceSexyBonusAtCivStarts()
 	local bonus_type_associated_with_region_type = {self.deer_ID, self.banana_ID, 
 	self.deer_ID, self.wheat_ID, self.sheep_ID, self.wheat_ID, self.cow_ID, self.cow_ID,
 	self.sheep_ID, self.deer_ID};
-	local bonus_type_associated_with_tropical_region_type = {self.deer_ID, self_banana_ID,
+	local bonus_type_associated_with_tropical_region_type = {self.deer_ID, self.banana_ID,
 	self.deer_ID, self.maize_ID, self.sheep_ID, self.maize_ID, self.rice_ID, self.cow_ID,
 	self.sheep_ID, self.deer_ID};
 	
