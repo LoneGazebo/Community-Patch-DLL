@@ -11931,7 +11931,7 @@ void CvDiplomacyAI::DoUpdateMilitaryAggressivePostures()
 
 			SetMilitaryAggressivePosture(ePlayer, eAggressivePosture);
 
-			if (eAggressivePosture > eLastPosture && eAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
+			if (GET_PLAYER(ePlayer).isMajorCiv() && eAggressivePosture > eLastPosture && eAggressivePosture >= AGGRESSIVE_POSTURE_MEDIUM)
 				v.push_back(ePlayer);
 		}
 		else
@@ -14203,6 +14203,24 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	// If human or dead, halt here!
 	if (GetPlayer()->isHuman() || !GetPlayer()->isAlive())
 		return;
+
+	// There is an unusual case in which a reevaluation update is requested by another function mid-war declaration
+	// This can happen if a new player (Defensive Pact, CS ally) is met because of a war declaration, for example, which will trigger DoUpdateMilitaryAggressivePostures(), which can call DoReevaluatePlayers()
+	// This can cause undefined behavior, as the AI will not know to update other functions first, since bFromWar == false
+	// We can know that this occurred if bFromWar == false but a player we are currently at war with has NO_WAR_STATE_TYPE
+	// The safest way to handle this edge case is to set bFromWar to true - not great for performance but should occur rarely
+	if (!bFromWar)
+	{
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && IsAtWar(eLoopPlayer) && GetWarState(eLoopPlayer) == NO_WAR_STATE_TYPE)
+			{
+				bFromWar = true;
+				break;
+			}
+		}
+	}
 
 	SlotStateChange();
 	DoTestUntrustworthyFriends();
