@@ -1473,6 +1473,12 @@
 		<Row Tag="TXT_KEY_CITY_PRODUCTION_AUTOMATED">
 			<Text>[ICON_AUTOMATED] Production automated</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC">
+			<Text>Reset Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC_TT">
+			<Text>Click here to have the governor reassign specialists.</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
