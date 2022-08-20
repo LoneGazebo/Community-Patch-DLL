@@ -711,7 +711,7 @@
 			<Text>Shallow Draft</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_OCEAN_HALF_MOVES_HELP">
-			<Text>Half [ICON_MOVES] Movement [COLOR_NEGATIVE_TEXT]through Ocean Tiles[ENDCOLOR] unless ending on a Coast Tile.</Text>
+			<Text>Half [ICON_MOVES] Movement [COLOR_NEGATIVE_TEXT]through Ocean Tiles[ENDCOLOR].</Text>
 		</Row>
 	<!-- Naval Ranged Line -->
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
