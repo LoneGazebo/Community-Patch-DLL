@@ -27429,6 +27429,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_bIsGrouped);
 	visitor(unit.m_iLinkedMaxMoves);
 	visitor(unit.m_iLinkedLeaderID);
+	visitor(unit.m_LinkedUnitIDs);
 	visitor(unit.m_iArmyId);
 	visitor(unit.m_iBaseCombat);
 	visitor(unit.m_iBaseRangedCombat);
