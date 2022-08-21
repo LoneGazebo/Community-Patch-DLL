@@ -6987,7 +6987,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		{
 			int iBonus = pUnit->getMultiAttackBonus() + GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iBonus > 0) //the bonus affects attack strength, so the effect is hard to predict ...
-				iDamageDealt += iDamageDealt / 10;
+				iDamageDealt += (iBonus * (iDamageDealt+iPrevDamage)) / 100;
 		}
 
 		//don't be as aggressive when attacking embarked units
