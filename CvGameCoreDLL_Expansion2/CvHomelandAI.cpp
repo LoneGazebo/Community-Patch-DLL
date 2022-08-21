@@ -3602,9 +3602,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
 		if(!pUnit || !pUnit->canMove())
-		{
 			continue;
-		}
 
 		switch (pUnit->GetGreatPeopleDirective())
 		{
@@ -3613,7 +3611,7 @@ void CvHomelandAI::ExecuteDiplomatMoves()
 		case GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT:
 		{
 			//stupid workaround to call CvPlayerAI method
-			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).ChooseDiplomatTargetPlot(pUnit);
+			CvPlot* pTarget = GET_PLAYER(m_pPlayer->GetID()).FindBestDiplomatTargetPlot(pUnit);
 			if (pTarget)
 			{
 				if (pUnit->plot() != pTarget)
@@ -5948,6 +5946,60 @@ int HomelandAIHelpers::ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool
 
 	return iBaseScore;
 }
+
+CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
+{
+	CvPlayer& kPlayer = GET_PLAYER(pUnit->getOwner());
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+
+	if (!kPlayer.GetDiplomacyAI()->IsHasMet(pCity->getOwner()))
+		return NULL;
+
+	if(atWar(kPlayer.getTeam(), kCityPlayer.getTeam()))
+		return NULL;
+
+	if (!pCity->isCapital())
+		return NULL;
+
+	if(!pCity->plot()->isAdjacentRevealed(kPlayer.getTeam()))
+		return NULL;
+
+	//Danger
+	if(kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(kPlayer.GetID(), MINOR_CIV_QUEST_HORDE) || 
+		kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(kPlayer.GetID(), MINOR_CIV_QUEST_REBELLION) ||
+		kCityPlayer.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(kPlayer.GetID()))
+		return NULL;
+
+	//Are we planning on conquering them?
+	if(kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
+		return NULL;
+
+	// Does somebody already have an embassy here and is there a free spot for us to build on?
+	ImprovementTypes eEmbassyImprovement = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
+	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
+	CvPlot* pEmbassyPlot = NULL;
+
+	for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+	{
+		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+		if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
+		{
+			if (pCityPlot->getImprovementType() == eEmbassyImprovement)
+				return NULL;
+
+			// Don't be captured but allow some fog danger
+			if (pUnit->GetDanger(pCityPlot) > 10)
+				continue;
+
+			//use the first (innermost) plot we find
+			if (!pEmbassyPlot && pUnit->canBuild(pCityPlot, eEmbassyBuild))
+				pEmbassyPlot = pCityPlot;
+		}
+	}
+
+	return pEmbassyPlot;
+}
+
 
 //check all tactical zones to find the one we need to support most
 vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets)

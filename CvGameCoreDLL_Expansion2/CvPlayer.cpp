@@ -45722,7 +45722,7 @@ bool CvPlayer::AddMilitaryEvent(const char* sMessage, CvPlot* pPlot, PlayerTypes
 	if (MOD_WH_MILITARY_LOG)
 	{
 		if (m_pMilitaryLog) {
-			return m_pMilitaryLog->Add(sMessage, eOtherPlayer, pPlot->getX(), pPlot->getY(), iData1, iData2, iData3, iData4);
+			return m_pMilitaryLog->Add(sMessage, eOtherPlayer, pPlot ? pPlot->getX() : -1, pPlot ? pPlot->getY() : -1, iData1, iData2, iData3, iData4);
 		}
 	}
 

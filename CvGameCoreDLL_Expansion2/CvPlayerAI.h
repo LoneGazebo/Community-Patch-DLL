@@ -69,8 +69,7 @@ public:
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pGreatMerchant);
 
 	//For Great Diplomats
-	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
-	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
+	CvPlot* FindBestDiplomatTargetPlot(CvUnit* pUnit);
 	//And for messengers
 	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);
