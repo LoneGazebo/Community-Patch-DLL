@@ -15412,6 +15412,7 @@ bool CvUnit::CanLinkUnits()
 		return false;
 
 	const CvUnit* pThisUnit = this;
+	const bool bIsOnSea = getDomainType() == DOMAIN_SEA || isEmbarked();
 
 	if (pThisUnit == NULL || pThisUnit->isDelayedDeath() || pThisUnit->isTrade() || pThisUnit->getDomainType() == DOMAIN_AIR)
 		return false;
@@ -15428,7 +15429,10 @@ bool CvUnit::CanLinkUnits()
 		{
 			if (pLoopUnit != this)
 			{
-				return true;
+				if ( (bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())) || (!bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->isEmbarked())) )
+				{
+					return true;
+				}
 			}
 		}
 	}
@@ -15442,7 +15446,7 @@ void CvUnit::LinkUnits()
 
 	const CvPlot* pCurrentPlot = plot();
 		
-	if (pCurrentPlot == NULL || !isHuman() || !CanLinkUnits())
+	if (pCurrentPlot == NULL || !isHuman())
 		return;
 
 	const IDInfo* pUnitNode = pCurrentPlot->headUnitNode();
@@ -15453,6 +15457,7 @@ void CvUnit::LinkUnits()
 	int iLowestMaxMoves = (IsGrouped()) ? GetLinkedMaxMoves() : maxMoves();
 	bool bLeaderAssigned = false;
 	CvUnit* pLinkedLeader = this;
+	const bool bIsOnSea = getDomainType() == DOMAIN_SEA || isEmbarked();
 
 	while (pUnitNode != NULL)
 	{
@@ -15461,20 +15466,23 @@ void CvUnit::LinkUnits()
 
 		if (pLoopUnit != NULL && pLoopUnit->getOwner() == getOwner() && !pLoopUnit->isDelayedDeath() && !pLoopUnit->isTrade() && pLoopUnit->getDomainType() != DOMAIN_AIR)
 		{
-			v_unitvector.push_back(pLoopUnit);
-			int iLoopMoves = pLoopUnit->getMoves();
-			int iLoopMaxMoves = pLoopUnit->maxMoves();
+			if ((bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())) || (!bIsOnSea && (pLoopUnit->getDomainType() == DOMAIN_LAND && !pLoopUnit->isEmbarked())))
+			{
+				v_unitvector.push_back(pLoopUnit);
+				int iLoopMoves = pLoopUnit->getMoves();
+				int iLoopMaxMoves = pLoopUnit->maxMoves();
 
-			if (iLoopMoves < iLowestCurrentMoves) {
-				iLowestCurrentMoves = iLoopMoves;
-			}
-			if (iLoopMaxMoves < iLowestMaxMoves) {
-				iLowestMaxMoves = iLoopMaxMoves;
-			}			
-			if (!bLeaderAssigned && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER) { // workers are prioritized, allows them to ask for orders
-				pLoopUnit->SetIsLinkedLeader(true);
-				pLinkedLeader = pLoopUnit;
-				bLeaderAssigned = true;
+				if (iLoopMoves < iLowestCurrentMoves) {
+					iLowestCurrentMoves = iLoopMoves;
+				}
+				if (iLoopMaxMoves < iLowestMaxMoves) {
+					iLowestMaxMoves = iLoopMaxMoves;
+				}
+				if (!bLeaderAssigned && !bIsOnSea && pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER) { // workers are prioritized, allows them to ask for orders
+					pLoopUnit->SetIsLinkedLeader(true);
+					pLinkedLeader = pLoopUnit;
+					bLeaderAssigned = true;
+				}
 			}
 		}
 	}
