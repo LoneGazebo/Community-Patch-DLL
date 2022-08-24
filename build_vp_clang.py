@@ -317,7 +317,7 @@ def build_cl_config_args(config: Config) -> list[str]:
     return args
 
 def build_link_config_args(config: Config) -> list[str]:
-    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:NO', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
+    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:EMBED', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
     if config == Config.Release:
         args += ['/OPT:REF', '/OPT:ICF']
     return args
