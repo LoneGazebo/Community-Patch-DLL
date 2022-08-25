@@ -3756,6 +3756,36 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 				sText = sText.." in "..sFeature;
 			end
 		end
+		-- Pillage Yields
+		local pillageYields = {}
+		for row in DB.Query("SELECT YieldType, Yield, IsEraScaling FROM UnitPromotions_YieldFromPillage WHERE PromotionType = ?", thisPromotion.Type) do
+			local values = pillageYields[row.YieldType];
+			if values == nil then
+				values = { 0, 0 };
+				pillageYields[row.YieldType] = values;
+			end
+			if row.IsEraScaling then
+				values[2] = values[2] + row.Yield;
+			else
+				values[1] = values[1] + row.Yield;
+			end
+			
+		end
+		for yieldType, values in pairs(pillageYields) do
+			local flatValue = values[1]
+			local scalingValue = values[2]
+			if flatValue ~= 0 or scalingValue ~= 0 then
+				local yield = GameInfo.Yields[yieldType];
+				local sYieldDesc = Locale.Lookup(yield.Description);
+				local sYieldIcon = yield.IconString;
+				if flatValue ~= 0 then
+					sText = sText.."[NEWLINE][ICON_BULLET]Pillaging yields "..string.format("%+d", flatValue).." "..sYieldIcon.." "..sYieldDesc;
+				end
+				if scalingValue ~= 0 then
+					sText = sText.."[NEWLINE][ICON_BULLET]Pillaging yields "..string.format("%+d", scalingValue).." "..sYieldIcon.." "..sYieldDesc.." scaling with era";
+				end
+			end
+		end
 		-- Negatives at the end
 		if thisPromotion.CannotBeChosen then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot be chosen[ENDCOLOR]"; end
 		if thisPromotion.LostWithUpgrade then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Lost with Upgrade[ENDCOLOR]"; end

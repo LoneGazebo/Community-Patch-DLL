@@ -1734,6 +1734,9 @@ public:
 	int getUnitClassModifier(UnitClassTypes eIndex) const;
 	void changeUnitClassModifier(UnitClassTypes eIndex, int iChange);
 
+	std::pair<int, int> getYieldFromPillage(YieldTypes eYield) const;
+	void changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> change);
+
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
 	bool isPromotionValid(PromotionTypes ePromotion) const;
@@ -2347,6 +2350,7 @@ protected:
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatAttackMod;
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatDefenseMod;
 #endif
+	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	int m_iMissionTimer;
 	int m_iMissionAIX;
 	int m_iMissionAIY;
@@ -2730,6 +2734,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_unitClassModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatAttackMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatDefenseMod)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::pair<int, int>>), m_yieldFromPillage)
 SYNC_ARCHIVE_VAR(int, m_iMissionTimer)
 SYNC_ARCHIVE_VAR(int, m_iMissionAIX)
 SYNC_ARCHIVE_VAR(int, m_iMissionAIY)

@@ -1167,6 +1167,54 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Reset();
 	}
 
+	//UnitPromotions_YieldFromPillage
+	{
+		std::string sqlKey = "UnitPromotions_YieldFromPillage";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldsID, Yield, IsEraScaling from UnitPromotions_YieldFromPillage inner join Yields on Yields.Type = YieldType where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yield = pResults->GetInt(1);
+			const bool eraScaling = pResults->GetBool(2);
+
+			if (yield != 0)
+			{
+				const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldID);
+				if (it != m_yieldFromPillage.end())
+				{
+					std::pair<int, int>& yieldValues = it->second;
+					if (eraScaling)
+						yieldValues.second += yield;
+					else
+						yieldValues.first += yield;
+
+					if (yieldValues.first == 0 && yieldValues.second == 0)
+					{
+						m_yieldFromPillage.erase(it);
+					}
+				}
+				else
+				{
+					const std::pair<int, int> yieldValues = eraScaling ? std::make_pair(0, yield) : std::make_pair(yield, 0);
+					m_yieldFromPillage.insert(it, std::make_pair(yieldID, yieldValues));
+				}
+			}
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, int>>(m_yieldFromPillage).swap(m_yieldFromPillage);
+	}
+
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	if (MOD_PROMOTIONS_UNIT_NAMING)
 	{
@@ -3000,6 +3048,26 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 	}
 
 	return false;
+}
+
+/// Returns the amount of a given yield to receive when a unit that has this promotion pillages a tile.
+/// 
+/// The first element of the pair is the flat amount, the second element is the era scaling amount.
+std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
+
+	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
+	{
+		std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+		if (it != m_yieldFromPillage.end())
+		{
+			return it->second;
+		}
+	}
+
+	return std::make_pair(0, 0);
 }
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
