@@ -45,7 +45,7 @@
 /// optimizations. Because of this when you write code using this macro you are signing a contract
 /// with the compiler that this line is truly unreachable. Programs where this line is reachable are
 /// thusly ill-formed.
-#define UNREACHABLE_UNCHECKED() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE(); } while(0)
+#define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
 
 /// Weaker variant of UNREACHABLE_UNCHECKED.
 ///
@@ -54,7 +54,29 @@
 /// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
 /// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
 /// well-formed.
-#define UNREACHABLE() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP(); } while(0)
+#define UNREACHABLE() BUILTIN_TRAP()
+
+/// Asserts that the given expression is true.
+///
+/// Failure to assert that the expression is `true` will result in the program trapping.
+/// 
+/// Although it is typically expected that the expression will be evaluated, please do not write code that may
+/// depend on the expression always being evaluated. Doing so makes it more difficult to swap this macro safely
+/// with similar ones which may not evaluate the expression.
+#define ASSERT(expr) if (!(expr)) BUILTIN_TRAP()
+
+/// Similar to `ASSERT` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
+/// When `STRONG_ASSUMPTIONS` is defined, instead of trapping when the expression is `false`, the compiler is
+/// instructed to assume that the given expression will _always_ be `true`. This means that depending on the
+/// compiler configuration the expression may be elided so the side-effects of the expression should **never**
+/// be depended upon. Additionally this means that programs where the assumption is not always `true` will be
+/// ill-formed when `STRONG_ASSUMPTIONS` is defined. For this reason it's often far more desirable to use
+/// `ASSERT` unless there is a considerable cost to evaluating the expression.
+#ifdef STRONG_ASSUMPTIONS
+#define ASSUME(expr) BUILTIN_ASSUME(expr)
+#else
+#define ASSUME(expr) ASSERT(expr)
+#endif // STRONG_ASSUMPTIONS
 
 // Take off iterator security checks
 #if (defined(_MSC_VER) && (_MSC_VER >= 1300))
