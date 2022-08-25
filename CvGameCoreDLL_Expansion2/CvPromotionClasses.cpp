@@ -1173,7 +1173,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if (pResults == NULL)
 		{
-			const char* szSQL = "select Yields.ID as YieldsID, Yield, IsEraScaling from UnitPromotions_YieldFromPillage inner join Yields on Yields.Type = YieldType where PromotionType = ?";
+			const char* szSQL = "select Yields.ID as YieldsID, Yield, YieldNoScale from UnitPromotions_YieldFromPillage inner join Yields on Yields.Type = YieldType where PromotionType = ?";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -1181,20 +1181,27 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 		while (pResults->Step())
 		{
+			// Note:
+			// * yieldFlat: row[2], pair.first
+			// * yieldEraScaled: row[1], pair.second
+			// 
+			// The columns should still be loaded in the order that they appear as it _may_ have an impact on cache performance.
+			// Once the values are on the stack the access order is likely non-impactful since the compiler will re-order things
+			// to the best of its ability and often try to keep the values loaded into registers.
+			// 
+			// This is a nano-optimization but it's still the correct thing to do :P
 			const int yieldID = pResults->GetInt(0);
-			const int yield = pResults->GetInt(1);
-			const bool eraScaling = pResults->GetBool(2);
+			const int yieldEraScaled = pResults->GetInt(1);
+			const int yieldFlat = pResults->GetInt(2);
 
-			if (yield != 0)
+			if (yieldFlat != 0 || yieldEraScaled != 0)
 			{
 				const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldID);
 				if (it != m_yieldFromPillage.end())
 				{
 					std::pair<int, int>& yieldValues = it->second;
-					if (eraScaling)
-						yieldValues.second += yield;
-					else
-						yieldValues.first += yield;
+					yieldValues.first += yieldFlat;
+					yieldValues.second += yieldEraScaled;
 
 					if (yieldValues.first == 0 && yieldValues.second == 0)
 					{
@@ -1203,7 +1210,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 				}
 				else
 				{
-					const std::pair<int, int> yieldValues = eraScaling ? std::make_pair(0, yield) : std::make_pair(yield, 0);
+					const std::pair<int, int> yieldValues = std::make_pair(yieldFlat, yieldEraScaled);
 					m_yieldFromPillage.insert(it, std::make_pair(yieldID, yieldValues));
 				}
 			}
