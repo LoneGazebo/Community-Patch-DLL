@@ -45,7 +45,7 @@
 /// optimizations. Because of this when you write code using this macro you are signing a contract
 /// with the compiler that this line is truly unreachable. Programs where this line is reachable are
 /// thusly ill-formed.
-#define UNREACHABLE_UNCHECKED() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_UNREACHABLE(); } while(0)
+#define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
 
 /// Weaker variant of UNREACHABLE_UNCHECKED.
 ///
@@ -54,7 +54,7 @@
 /// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
 /// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
 /// well-formed.
-#define UNREACHABLE() do { CvAssertMsg(false, "Unreachable code entered"); BUILTIN_TRAP(); } while(0)
+#define UNREACHABLE() BUILTIN_TRAP()
 
 /// Asserts that the given expression is true.
 ///
