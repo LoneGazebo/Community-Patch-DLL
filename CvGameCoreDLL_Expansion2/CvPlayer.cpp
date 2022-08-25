@@ -26448,15 +26448,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(bInternational && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
 					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+						iValue += GetPlayerTraits()->GetTradeRouteEndYield(eYield);
 					}
 					else if(!bInternational && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE))
 					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+						iValue += GetPlayerTraits()->GetTradeRouteEndYield(eYield);
 					}
 					else if(eYield >= YIELD_FAITH)
 					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
+						iValue += GetPlayerTraits()->GetTradeRouteEndYield(eYield);
 					}
 					if (!bInternational)
 					{

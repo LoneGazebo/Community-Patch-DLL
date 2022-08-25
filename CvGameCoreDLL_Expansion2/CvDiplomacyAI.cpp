@@ -19487,7 +19487,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			YieldTypes e = (YieldTypes) i;
-			if (pTraits->GetYieldChangeIncomingTradeRoute(e) > 0 || pTraits->GetTradeRouteStartYield(e) > 0)
+			if (pTraits->GetYieldChangeIncomingTradeRoute(e) > 0 || pTraits->GetTradeRouteEndYield(e) > 0)
 			{
 				iMultiplier += 2; // ditto for Morocco/Ottomans
 				break;
@@ -21404,7 +21404,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 		for (int i = 0; i < NUM_YIELD_TYPES; i++)
 		{
 			YieldTypes e = (YieldTypes) i;
-			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0 || GetPlayer()->GetPlayerTraits()->GetTradeRouteStartYield(e) > 0)
+			if (GetPlayer()->GetPlayerTraits()->GetYieldChangeIncomingTradeRoute(e) > 0 || GetPlayer()->GetPlayerTraits()->GetTradeRouteEndYield(e) > 0)
 			{
 				bTradeBonus = true;
 				break;

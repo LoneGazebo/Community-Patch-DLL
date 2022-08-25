@@ -251,7 +251,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
-	m_piTradeRouteStartYield(NULL),
+	m_piTradeRouteEndYield(NULL),
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
 	m_piYieldFromImport(NULL),
@@ -1114,9 +1114,9 @@ TechTypes CvTraitEntry::GetCapitalFreeBuildingPrereqTech() const
 {
 	return m_eCapitalFreeBuildingPrereqTech;
 }
-int CvTraitEntry::TradeRouteStartYield(int i) const
+int CvTraitEntry::TradeRouteEndYield(int i) const
 {
-	return m_piTradeRouteStartYield ? m_piTradeRouteStartYield[i] : -1;
+	return m_piTradeRouteEndYield ? m_piTradeRouteEndYield[i] : -1;
 }
 int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
@@ -1573,9 +1573,9 @@ int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
 }
-int CvTraitEntry::GetTradeRouteStartYield(int i) const
+int CvTraitEntry::GetTradeRouteEndYield(int i) const
 {
-	return m_piTradeRouteStartYield ? m_piTradeRouteStartYield[i] : -1;
+	return m_piTradeRouteEndYield ? m_piTradeRouteEndYield[i] : -1;
 }
 int CvTraitEntry::GetYieldFromRouteMovement(int i) const
 {
@@ -3246,8 +3246,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromLevelUp, "Trait_YieldFromLevelUp", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
-	//Note name change b/c of function change in DLL!
-	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteEndYield", "TraitType", szTraitType);
+	kUtility.SetYields(m_piTradeRouteEndYield, "Trait_TradeRouteEndYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
@@ -4784,7 +4783,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromLevelUp[iYield] = trait->GetYieldFromLevelUp(iYield);
 				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
-				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
+				m_iTradeRouteEndYield[iYield] = trait->GetTradeRouteEndYield(iYield);
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
@@ -5412,7 +5411,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromLevelUp[iYield] = 0;
 		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
-		m_iTradeRouteStartYield[iYield] = 0;
+		m_iTradeRouteEndYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
 		m_iYieldFromImport[iYield] = 0;
@@ -7581,7 +7580,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromLevelUp);
 	visitor(playerTraits.m_iYieldFromHistoricEvent);
 	visitor(playerTraits.m_iYieldFromOwnPantheon);
-	visitor(playerTraits.m_iTradeRouteStartYield);
+	visitor(playerTraits.m_iTradeRouteEndYield);
 	visitor(playerTraits.m_iYieldFromRouteMovement);
 	visitor(playerTraits.m_iYieldFromExport);
 	visitor(playerTraits.m_iYieldFromImport);

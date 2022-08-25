@@ -280,7 +280,7 @@ public:
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
-	int TradeRouteStartYield(int i) const;
+	int TradeRouteEndYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
 	int YieldFromHistoricEvent(int i) const;
@@ -390,7 +390,7 @@ public:
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
-	int GetTradeRouteStartYield(int i) const;
+	int GetTradeRouteEndYield(int i) const;
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
@@ -743,7 +743,7 @@ protected:
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
-	int* m_piTradeRouteStartYield;
+	int* m_piTradeRouteEndYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
@@ -1810,9 +1810,9 @@ public:
 	{
 		return m_iYieldFromOwnPantheon[(int)eYield];
 	};
-	int GetTradeRouteStartYield(YieldTypes eYield) const
+	int GetTradeRouteEndYield(YieldTypes eYield) const
 	{
-		return m_iTradeRouteStartYield[(int)eYield];
+		return m_iTradeRouteEndYield[(int)eYield];
 	};
 	int GetYieldFromRouteMovement(YieldTypes eYield) const
 	{
@@ -2350,7 +2350,7 @@ private:
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
-	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
+	int m_iTradeRouteEndYield[NUM_YIELD_TYPES];
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
