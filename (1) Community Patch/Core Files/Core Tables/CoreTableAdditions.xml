@@ -1434,11 +1434,12 @@
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
-	<!-- TRAIT: Allows you to define a lump yield that is gained every time you complete an international trade route. Production, Gold, and Science for international ones, Gold and Culture for Local ones -->
+	<!-- TRAIT: Allows you to define a lump yield that is gained every time you complete a trade route. The types of route that must be completed need to be user specified. -->
 	<Table name="Trait_TradeRouteEndYield">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" notnull="true"/>
+		<Column name="YieldDomestic" type="integer" default="0"/>
+		<Column name="YieldInternational" type="integer" default="0"/>
 	</Table>
 	
 	<!-- TRAIT: Allows you to define a yield that is gained if your pantheon or religion is the majority in a city.-->

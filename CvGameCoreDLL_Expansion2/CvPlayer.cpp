@@ -26446,18 +26446,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_TR_END:
 				{
-					if(bInternational && (eYield == YIELD_SCIENCE || eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
-					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
-					}
-					else if(!bInternational && (eYield == YIELD_GOLD || eYield == YIELD_CULTURE))
-					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
-					}
-					else if(eYield >= YIELD_FAITH)
-					{
-						iValue += GetPlayerTraits()->GetTradeRouteStartYield(eYield);
-					}
+					iValue += bInternational ? GetPlayerTraits()->GetTradeRouteEndYieldInternational(eYield) : GetPlayerTraits()->GetTradeRouteEndYieldDomestic(eYield);
 					if (!bInternational)
 					{
 						iValue += pLoopCity->GetYieldFromInternalTREnd(eYield);

@@ -280,7 +280,6 @@ public:
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
-	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
 	int YieldFromHistoricEvent(int i) const;
@@ -390,7 +389,7 @@ public:
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
-	int GetTradeRouteStartYield(int i) const;
+	std::pair<int, int> GetTradeRouteEndYield(YieldTypes eYield) const;
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
@@ -743,7 +742,7 @@ protected:
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
-	int* m_piTradeRouteStartYield;
+	std::map<int, std::pair<int, int>> m_tradeRouteEndYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
@@ -1810,10 +1809,24 @@ public:
 	{
 		return m_iYieldFromOwnPantheon[(int)eYield];
 	};
-	int GetTradeRouteStartYield(YieldTypes eYield) const
+	int GetTradeRouteEndYieldDomestic(YieldTypes eYield) const
 	{
-		return m_iTradeRouteStartYield[(int)eYield];
-	};
+		const std::map<int, int>::const_iterator it = m_tradeRouteEndYieldDomestic.find(static_cast<int>(eYield));
+		if (it != m_tradeRouteEndYieldDomestic.end())
+		{
+			return it->second;
+		}
+		return 0;
+	}
+	int GetTradeRouteEndYieldInternational(YieldTypes eYield) const
+	{
+		const std::map<int, int>::const_iterator it = m_tradeRouteEndYieldInternational.find(static_cast<int>(eYield));
+		if (it != m_tradeRouteEndYieldInternational.end())
+		{
+			return it->second;
+		}
+		return 0;
+	}
 	int GetYieldFromRouteMovement(YieldTypes eYield) const
 	{
 		return m_iYieldFromRouteMovement[(int)eYield];
@@ -2350,7 +2363,8 @@ private:
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
-	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
+	std::map<int, int> m_tradeRouteEndYieldDomestic;
+	std::map<int, int> m_tradeRouteEndYieldInternational;
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
