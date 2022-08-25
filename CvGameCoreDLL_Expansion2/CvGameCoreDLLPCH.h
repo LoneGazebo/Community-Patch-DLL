@@ -62,7 +62,7 @@
 /// 
 /// Although it is typically expected that the expression will be evaluated, please do not write code that may
 /// depend on the expression always being evaluated. Doing so makes it more difficult to swap this macro safely
-/// swap this macro with similar ones which may not evaluate the expression.
+/// with similar ones which may not evaluate the expression.
 #define ASSERT(expr) if (!(expr)) BUILTIN_TRAP()
 
 /// Similar to `ASSERT` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
