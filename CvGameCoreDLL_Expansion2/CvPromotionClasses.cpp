@@ -3053,11 +3053,13 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 /// Returns the amount of a given yield to receive when a unit that has this promotion pillages a tile.
 /// 
 /// The first element of the pair is the flat amount, the second element is the era scaling amount.
-std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const {
+std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const
+{
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
 	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
 
-	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD) {
+	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
+	{
 		std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
 		if (it != m_yieldFromPillage.end())
 		{
