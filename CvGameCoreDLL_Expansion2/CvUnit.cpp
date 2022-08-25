@@ -10394,7 +10394,7 @@ bool CvUnit::pillage()
 					// call one for era scaling, and another for non-era scaling
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
-					// and another for unit provided yields since it hanldes era scaling specially
+					// and another for unit provided yields since it handles era scaling specially
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_UNIT, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater(), true, false, NO_YIELD, this);
 				}
 
