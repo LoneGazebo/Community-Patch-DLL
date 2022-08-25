@@ -26771,6 +26771,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					break;
 				}
+				case INSTANT_YIELD_TYPE_PILLAGE_UNIT:
+				{
+					// Unit pointer must be valid for unit specific pillage yields.
+					// Not passing a unit pointer is a logic error.
+					CvAssert(pUnit != NULL);
+
+					// This yield shoud never have scale with era passed as true.
+					// This would be another logic error since we split the value and scale it ourself.
+					CvAssert(!bEraScale);
+
+					const std::pair<int, int> unitPillageYield = pUnit->getYieldFromPillage(eYield);
+					iValue += unitPillageYield.first;
+					iValue += unitPillageYield.second * iEra;
+				}
 			}
 			//Now, let's apply these yields here as total yields.
 			if(iValue != 0)
@@ -27453,6 +27467,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_PILLAGE:
 			case INSTANT_YIELD_TYPE_PILLAGE_GLOBAL:
+			case INSTANT_YIELD_TYPE_PILLAGE_UNIT:
 			{
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PILLAGE");
 				localizedText << totalyieldString;
@@ -42114,6 +42129,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
 			{
 				instantYieldName = "Holy City Birth";
+				break;
+			}
+	case INSTANT_YIELD_TYPE_PILLAGE_UNIT:
+			{
+				instantYieldName = "Pillage (Unit)";
 				break;
 			}
 	}

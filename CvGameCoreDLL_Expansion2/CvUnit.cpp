@@ -367,6 +367,7 @@ CvUnit::CvUnit() :
 	, m_iCombatModPerAdjacentUnitCombatAttackMod()
 	, m_iCombatModPerAdjacentUnitCombatDefenseMod()
 #endif
+	, m_yieldFromPillage()
 	, m_iMissionTimer()
 	, m_iMissionAIX()
 	, m_iMissionAIY()
@@ -1863,6 +1864,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 			m_unitClassModifier[i] = 0;
 		}
+
+		m_yieldFromPillage.clear();
 
 		// Migrated in from CvSelectionGroup
 		m_iMissionAIX = INVALID_PLOT_COORD;
@@ -10391,6 +10394,8 @@ bool CvUnit::pillage()
 					// call one for era scaling, and another for non-era scaling
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_GLOBAL, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, NULL, pPlot->isWater());
+					// and another for unit provided yields since it hanldes era scaling specially
+					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PILLAGE_UNIT, false, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pOriginCity, pPlot->isWater(), true, false, NO_YIELD, this);
 				}
 
 				if((pPlot->getOwner() != NO_PLAYER && !isBarbarian() && !GET_PLAYER(pPlot->getOwner()).isBarbarian()) && GET_TEAM(getTeam()).isAtWar(GET_PLAYER(pPlot->getOwner()).getTeam()))
@@ -26427,6 +26432,45 @@ void CvUnit::changeUnitClassModifier(UnitClassTypes eIndex, int iChange)
 	m_unitClassModifier[eIndex] =  m_unitClassModifier[eIndex] + iChange;
 }
 
+//	--------------------------------------------------------------------------------
+std::pair<int, int> CvUnit::getYieldFromPillage(YieldTypes eYield) const {
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
+
+	const std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+	if (it != m_yieldFromPillage.end())
+	{
+		return it->second;
+	}
+
+	return std::make_pair(0, 0);
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> change) {
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
+
+	if ((change.first != 0 || change.second != 0) && eYield > NO_YIELD && eYield < NUM_YIELD_TYPES)
+	{
+		const int yieldIndex = static_cast<int>(eYield);
+		const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldIndex);
+		if (it != m_yieldFromPillage.end())
+		{
+			std::pair<int, int>& yieldValues = it->second;
+			yieldValues.first += change.first;
+			yieldValues.second += change.second;
+			if (yieldValues.first == 0 && yieldValues.second == 0)
+			{
+				m_yieldFromPillage.erase(it);
+			}
+		}
+		else
+		{
+			m_yieldFromPillage.insert(it, std::make_pair(yieldIndex, change));
+		}
+	}
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
@@ -27110,13 +27154,20 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			SetYieldModifier(((YieldTypes)iI), (thisPromotion.GetYieldModifier(iI) * iChange));
-			SetYieldChange(((YieldTypes)iI), (thisPromotion.GetYieldChange(iI) * iChange));
-			SetGarrisonYieldChange(((YieldTypes)iI), (thisPromotion.GetGarrisonYield(iI) * iChange));
-			SetFortificationYieldChange(((YieldTypes)iI), (thisPromotion.GetFortificationYield(iI) * iChange));
-			changeYieldFromKills(((YieldTypes)iI), (thisPromotion.GetYieldFromKills(iI) * iChange));
-			changeYieldFromBarbarianKills(((YieldTypes)iI), (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
-			changeYieldFromScouting(((YieldTypes)iI), (thisPromotion.GetYieldFromScouting(iI) * iChange));
+			const YieldTypes eYield = static_cast<YieldTypes>(iI);
+			SetYieldModifier(eYield, (thisPromotion.GetYieldModifier(iI) * iChange));
+			SetYieldChange(eYield, (thisPromotion.GetYieldChange(iI) * iChange));
+			SetGarrisonYieldChange(eYield, (thisPromotion.GetGarrisonYield(iI) * iChange));
+			SetFortificationYieldChange(eYield, (thisPromotion.GetFortificationYield(iI) * iChange));
+			changeYieldFromKills(eYield, (thisPromotion.GetYieldFromKills(iI) * iChange));
+			changeYieldFromBarbarianKills(eYield, (thisPromotion.GetYieldFromBarbarianKills(iI) * iChange));
+			changeYieldFromScouting(eYield, (thisPromotion.GetYieldFromScouting(iI) * iChange));
+			{
+				std::pair<int, int> pillageYields = thisPromotion.GetYieldFromPillage(eYield);
+				pillageYields.first *= iChange;
+				pillageYields.second *= iChange;
+				changeYieldFromPillage(eYield, pillageYields);
+			}
 #if defined(MOD_BALANCE_CORE)
 			if (bNewValue && !IsPromotionEverObtained(eIndex))
 			{
@@ -27125,7 +27176,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 					CvCity* pCity = getOriginCity();
 					if (pCity != NULL)
 					{
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, (YieldTypes)iI, this);
+						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PROMOTION_OBTAINED, false, NO_GREATPERSON, NO_BUILDING, thisPromotion.GetInstantYields(iI).first, thisPromotion.GetInstantYields(iI).second, NO_PLAYER, NULL, false, pCity, false, true, false, eYield, this);
 					}
 				}
 			}
@@ -27711,6 +27762,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatModifier);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatAttackMod);
 	visitor(unit.m_iCombatModPerAdjacentUnitCombatDefenseMod);
+	visitor(unit.m_yieldFromPillage);
 	visitor(unit.m_iMissionTimer);
 	visitor(unit.m_iMissionAIX);
 	visitor(unit.m_iMissionAIY);

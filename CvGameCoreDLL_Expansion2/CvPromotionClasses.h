@@ -345,6 +345,7 @@ public:
 	bool GetFeatureImpassable(int i) const;
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
+	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -661,6 +662,7 @@ protected:
 	bool* m_pbUnitName;
 #endif
 	bool* m_pbPostCombatRandomPromotion;
+	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
