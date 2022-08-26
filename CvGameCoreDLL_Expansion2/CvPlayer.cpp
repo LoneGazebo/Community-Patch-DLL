@@ -26775,11 +26775,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					// Unit pointer must be valid for unit specific pillage yields.
 					// Not passing a unit pointer is a logic error.
-					CvAssert(pUnit != NULL);
+					ASSERT(pUnit != NULL);
 
 					// This yield shoud never have scale with era passed as true.
 					// This would be another logic error since we split the value and scale it ourself.
-					CvAssert(!bEraScale);
+					ASSERT(!bEraScale);
 
 					const std::pair<int, int> unitPillageYield = pUnit->getYieldFromPillage(eYield);
 					iValue += unitPillageYield.first;
