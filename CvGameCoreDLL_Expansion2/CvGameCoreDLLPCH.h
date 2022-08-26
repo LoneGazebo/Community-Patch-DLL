@@ -16,6 +16,21 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
+#include <assert.h>
+
+/// Displays a platform specific assertion related dialogue.
+/// 
+/// This is compiled to a no-op when `NDEBUG` is defined.
+#ifndef NDEBUG
+#if defined(_WIN32)
+#define ASSERT_DIALOGUE(msg) _wassert(_CRT_WIDE(msg), _CRT_WIDE(__FILE__), __LINE__)
+#else
+#define ASSERT_DIALOGUE(msg) assert(!msg)
+#endif // defined(_WIN32)
+#else
+#define ASSERT_DIALOGUE(msg) ((void)0)
+#endif // NDEBUG
+
 #if defined(__clang__)
 #define CLOSED_ENUM __attribute__((enum_extensibility(closed)))
 #define OPEN_ENUM __attribute__((enum_extensibility(open)))
@@ -39,23 +54,6 @@
 #define ENUM_META_VALUE
 #endif // __cplusplus >= 201103L
 
-/// Informs that a location is unreachable.
-///
-/// In release builds the compiler may take advantage of this being unreachable to perform additional
-/// optimizations. Because of this when you write code using this macro you are signing a contract
-/// with the compiler that this line is truly unreachable. Programs where this line is reachable are
-/// thusly ill-formed.
-#define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
-
-/// Weaker variant of UNREACHABLE_UNCHECKED.
-///
-/// This should still be used for branches that aren't expected to be reachable, but it's far preferable
-/// that this be used in the majority of scenarios thanks to the compilers ability to often catch unreachable
-/// code itself. In the scenario that this location is reached, the compiler is expected to emit code which
-/// will terminate the program abnormally which ensures that although the program will be buggy, it is at least
-/// well-formed.
-#define UNREACHABLE() BUILTIN_TRAP()
-
 /// Asserts that the given expression is true.
 ///
 /// Failure to assert that the expression is `true` will result in the program trapping.
@@ -63,9 +61,10 @@
 /// Although it is typically expected that the expression will be evaluated, please do not write code that may
 /// depend on the expression always being evaluated. Doing so makes it more difficult to swap this macro safely
 /// with similar ones which may not evaluate the expression.
-#define ASSERT(expr) if (!(expr)) BUILTIN_TRAP()
+#define ASSERT(expr) if (!(expr)) do { ASSERT_DIALOGUE(#expr); BUILTIN_TRAP(); } while(0)
 
 /// Similar to `ASSERT` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
+/// 
 /// When `STRONG_ASSUMPTIONS` is defined, instead of trapping when the expression is `false`, the compiler is
 /// instructed to assume that the given expression will _always_ be `true`. This means that depending on the
 /// compiler configuration the expression may be elided so the side-effects of the expression should **never**
@@ -76,6 +75,30 @@
 #define ASSUME(expr) BUILTIN_ASSUME(expr)
 #else
 #define ASSUME(expr) ASSERT(expr)
+#endif // STRONG_ASSUMPTIONS
+
+/// Indicates that some location is unreachable.
+///
+/// Reaching this location during execution will result in the program trapping.
+/// 
+/// This is similar to `ASSERT` its primary purpose is to trap when the program is entered but it does not require
+/// that a conditional expression be provided and can more clearly represent what was meant when a code author
+/// placed it at a location. This makes it primarily useful as a statement within a `switch` `case` or `else` branch
+/// when it can be assumed that the location is unreachable.
+#define UNREACHABLE() do { ASSERT_DIALOGUE("UNREACHABLE()"); BUILTIN_TRAP(); } while(0)
+
+/// Similar to `UNREACHABLE` but with the option to disable the runtime overhead by defining `STRONG_ASSUMPTIONS`.
+///
+/// When `STRONG_ASSUMPTIONS` is defined, instead of trapping when this location is reached, the compiler is
+/// instructed to assume that this location will _never_ be reached. This means that depending on the compiler
+/// configuration any state that would lead to this location being reached may be assumed to be impossible.
+/// Additionally this means that programs where this location is actually reachable will be ill-formed when
+/// `STRONG_ASSUMPTIONS` is defined. For this reason it's often far more desirable to use `UNREACHABLE` unless
+/// there is a considerable performance benefit to hinting that this location is unreachable.
+#ifdef STRONG_ASSUMPTIONS
+#define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
+#else
+#define UNREACHABLE_UNCHECKED() do { ASSERT_DIALOGUE("UNREACHABLE_UNCHECKED()"); BUILTIN_TRAP(); } while(0)
 #endif // STRONG_ASSUMPTIONS
 
 // Take off iterator security checks
