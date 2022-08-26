@@ -96,9 +96,9 @@
 /// `STRONG_ASSUMPTIONS` is defined. For this reason it's often far more desirable to use `UNREACHABLE` unless
 /// there is a considerable performance benefit to hinting that this location is unreachable.
 #ifdef STRONG_ASSUMPTIONS
-#define UNREACHABLE_UNCHECKED() do { ASSERT_DIALOGUE("UNREACHABLE_UNCHECKED()"); BUILTIN_TRAP(); } while(0)
-#else
 #define UNREACHABLE_UNCHECKED() BUILTIN_UNREACHABLE()
+#else
+#define UNREACHABLE_UNCHECKED() do { ASSERT_DIALOGUE("UNREACHABLE_UNCHECKED()"); BUILTIN_TRAP(); } while(0)
 #endif // STRONG_ASSUMPTIONS
 
 // Take off iterator security checks
