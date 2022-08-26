@@ -1862,7 +1862,7 @@ void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayer
 
 			sg_auiPlayerSlots[ePlayerSlot] = uiPlayer;
 
-			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!")
+			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!");
 			if(eOldSlot != NO_PLAYER)
 				sg_auiPlayerSlots[eOldSlot] = uiCurrent;
 		}
