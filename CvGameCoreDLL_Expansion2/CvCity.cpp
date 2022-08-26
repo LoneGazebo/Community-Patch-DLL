@@ -28251,15 +28251,18 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 			}
 
-			int iSpyID = GetCityEspionage() != NULL ? GetCityEspionage()->m_aiSpyAssignment[getOwner()] : -1;
-			if (iSpyID != -1)
+			if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
 			{
-				CvEspionageSpy* pSpy = GET_PLAYER(getOwner()).GetEspionage()->GetSpyByID(iSpyID);
-				if (pSpy != NULL && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+				int iSpyID = GetCityEspionage() != NULL ? GetCityEspionage()->m_aiSpyAssignment[getOwner()] : -1;
+				if (iSpyID != -1)
 				{
-					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
-					if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
-						iModifier += pkEventChoiceInfo->getCityDefenseModifier();
+					CvEspionageSpy* pSpy = GET_PLAYER(getOwner()).GetEspionage()->GetSpyByID(iSpyID);
+					if (pSpy != NULL && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+					{
+						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
+						if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
+							iModifier += pkEventChoiceInfo->getCityDefenseModifier();
+					}
 				}
 			}
 
