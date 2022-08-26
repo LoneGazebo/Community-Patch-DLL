@@ -18,6 +18,9 @@
 
 #include <assert.h>
 
+/// Displays a platform specific assertion related dialogue.
+/// 
+/// This is compiled to a no-op when `NDEBUG` is defined.
 #ifndef NDEBUG
 #if defined(_WIN32)
 #define ASSERT_DIALOGUE(msg) _wassert(_CRT_WIDE(msg), _CRT_WIDE(__FILE__), __LINE__)
