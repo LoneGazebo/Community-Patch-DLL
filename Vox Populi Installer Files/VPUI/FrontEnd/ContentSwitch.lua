@@ -9,7 +9,7 @@ local g_VPTipTable = {
 "Tourism is more than a victory condition: it also helps your Trade Routes and preserves the buildings and population of conquered cities.",
 "Internal Trade Routes can be reliable ways to preserve your economy when Barbarians and aggressive neighbors roam around.",
 "Never leave a Settler or Great Person unguarded.",
-"Your recon units are most vulnerable near coastal or mountainous tiles, where Barbarians can often surprise and trap them.",
+"Recon units are most vulnerable near coastal or mountainous tiles, where Barbarians can often surprise and trap them.",
 "Founding a religion isn't crucial if you know you can take the Holy City of your neighbor.",
 "Even if you aren't aiming for a Diplomatic Victory, City-State Embassies will prevent you from being left at the mercy of more influential civilizations after the World Congress is founded.",
 "Offense is often the best defense, particularly against warmongers whose power spikes later in the game.",
