@@ -345,6 +345,20 @@ def build_clang_cpp(cl: str, cl_args: str, build_dir: Path, log: typing.IO):
     end_time = time.time()
     print(f'clang.cpp build finished after {end_time - start_time} seconds')
 
+def update_commit_id(log: typing.IO):
+    print('updating commit id...')
+    start_time = time.time()
+    cp = subprocess.run('update_commit_id.bat', capture_output=True)
+    log.write(str.encode(f'==== update_commit_id.bat ====\n'))
+    log.write(cp.stdout)
+    log.write(cp.stderr)
+    log.flush()
+    if cp.returncode != 0:
+        print('failed to update commit id - see build log')
+        quit()
+    end_time = time.time()
+    print(f'commit id update finished after {end_time - start_time} seconds')
+
 def build_pch(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typing.IO):
     print('building precompiled header...')
     start_time = time.time()
@@ -444,6 +458,7 @@ prepare_dirs(build_dir, out_dir)
 
 log = open(out_dir.joinpath('build.log'), mode='w+b')
 try:
+    update_commit_id(log)
     build_clang_cpp(cl, cl_args, build_dir, log)
     build_pch(cl, cl_args, pch_path, build_dir, log)
     build_cpps(cl, cl_args, pch_path, build_dir, log)
