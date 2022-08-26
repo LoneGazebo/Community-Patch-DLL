@@ -10846,13 +10846,13 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	// Influence bonus from special sources (policies, etc.)
 	if (GET_TEAM(kPlayer.getTeam()).isHasMet(GetPlayer()->getTeam()))
 	{
-		if (MOD_BALANCE_CORE_MINORS && kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE) != 0)
+		int iTradeRouteBonus = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
+		if (MOD_BALANCE_CORE_MINORS && iTradeRouteBonus != 0)
 		{
 			if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(ePlayer, GetPlayer()->GetID()))
 			{
-				int iTradeRouteBonus = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_PROTECTED_MINOR_INFLUENCE);
-				int iNumRoutes = (kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes() - 1) * 100;
-				iShift = min(iTradeRouteBonus*5, iNumRoutes);
+				int iNumRoutes = min(kPlayer.GetTrade()->GetNumberOfCityStateTradeRoutes(), 5);
+				iShift = iTradeRouteBonus * iNumRoutes;
 			}
 		}
 
