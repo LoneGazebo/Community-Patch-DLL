@@ -14200,8 +14200,8 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	DoTestPromises();
 	DoTestBackstabbingPenalties();
 
-	// If human or dead, halt here!
-	if (GetPlayer()->isHuman() || !GetPlayer()->isAlive())
+	// If dead, halt here!
+	if (!GetPlayer()->isAlive())
 		return;
 
 	// There is an unusual case in which a reevaluation update is requested by another function mid-war declaration
@@ -14223,18 +14223,22 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	}
 
 	SlotStateChange();
-	DoTestUntrustworthyFriends();
 
-	if (bFromResurrection)
+	if (!GetPlayer()->isHuman())
 	{
-		DoUpdateCompetingForVictory();
-		DoUpdateRecklessExpanders();
-		DoUpdateWonderSpammers();
-		DoUpdateTechBlockLevels();
-		DoUpdatePolicyBlockLevels();
-		DoUpdateVictoryDisputeLevels();
-		DoUpdateVictoryBlockLevels();
-		DoUpdateOpinions();
+		DoTestUntrustworthyFriends();
+
+		if (bFromResurrection)
+		{
+			DoUpdateCompetingForVictory();
+			DoUpdateRecklessExpanders();
+			DoUpdateWonderSpammers();
+			DoUpdateTechBlockLevels();
+			DoUpdatePolicyBlockLevels();
+			DoUpdateVictoryDisputeLevels();
+			DoUpdateVictoryBlockLevels();
+			DoUpdateOpinions();
+		}
 	}
 
 	// War declaration/major event? We have a lot more reevaluating to do.
@@ -14276,6 +14280,10 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 			}
 		}
 	}
+
+	// Humans halt here!
+	if (GetPlayer()->isHuman())
+		return;
 
 	DoUpdatePrimeLeagueAlly();
 
