@@ -1939,6 +1939,9 @@ bool CvMinorCivQuest::IsExpired()
 					return true;
 				}
 			}
+			//already Allied?
+			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
+				return true;
 		}
 	}
 	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
