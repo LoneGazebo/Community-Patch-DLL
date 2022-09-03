@@ -150,16 +150,16 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
 	if(eProject == NO_PROJECT)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	if(iTempWeight < 1)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
@@ -167,17 +167,18 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if (pkProjectInfo->IsRepeatable())
 	{
 		if (m_pCity->isUnderSiege() || m_pCity->IsResistance())
-			return 0;
+			return SR_STRATEGY;
 	}
 
 	if(kPlayer.isMinorCiv())
 	{
-		return 0;
+		return SR_IMPOSSIBLE;
 	}
 
+	//no projects in puppets unless venice
 	if(CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
-		return 0;
+		return SR_IMPOSSIBLE;
 	}
 
 	if (pkProjectInfo->IsAllowsNukes())
@@ -193,7 +194,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))
 		{
-			return 0;
+			return SR_IMPOSSIBLE;
 		}
 		else
 		{
@@ -206,7 +207,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 					iTempWeight += 1000 + (m_pCity->getSpaceProductionModifier() * 10);
 				else
-					return 0;
+					return SR_STRATEGY;
 			}
 			else
 			{
@@ -215,7 +216,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 					iTempWeight += 1000;
 				else
-					return 0;
+					return SR_STRATEGY;
 			}
 	
 			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
@@ -235,7 +236,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))
 		{
-			return 0;
+			return SR_IMPOSSIBLE;
 		}
 		else
 		{
@@ -244,7 +245,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 				iTempWeight += 5000;
 			else
-				return 0;
+				return SR_STRATEGY;
 
 			return iTempWeight;
 		}
@@ -301,7 +302,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;
 
-	return iTempWeight;
+	return max(1,iTempWeight);
 }
 #endif
 /// Log all potential builds
