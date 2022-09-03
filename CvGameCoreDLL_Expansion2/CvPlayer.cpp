@@ -4653,7 +4653,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				{
 					pNewCity->DoCreatePuppet();
 				}
-				else if (GC.getGame().getActivePlayer() == GetID() && pNotify && (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bMinorCivBuyout))
+				else if (GC.getGame().getActivePlayer() == GetID() && pNotify)
 				{
 					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
 					bool bTemp[2] = { bMinorCivBuyout, bConquest };
@@ -29774,12 +29774,11 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 		{
 			iNumFreeUnits++;
 		}
-#if defined(MOD_BALANCE_CORE_JFD)
+
 		if(MOD_BALANCE_CORE_JFD && pLoopUnit->isContractUnit())
 		{
 			iNumFreeUnits++;
 		}
-#endif
 	}
 
 	return iNumFreeUnits;

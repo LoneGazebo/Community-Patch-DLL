@@ -3624,8 +3624,7 @@ enum CLOSED_ENUM WarmongerTriggerTypes
 #endif
 
 
-#if defined(MOD_BALANCE_CORE_JFD)
-enum CLOSED_ENUM LoyaltyStateTypes
+enum CLOSED_ENUM LoyaltyStateTypes // MOD_BALANCE_CORE_JFD
 {
 	NO_LOYALTY_TYPE = -1,
 	LOYALTY_JFD_NEUTRAL = 0,
@@ -3636,7 +3635,6 @@ enum CLOSED_ENUM LoyaltyStateTypes
 
 	NUM_LOYALTY_TYPES ENUM_META_VALUE
 };
-#endif
 
 enum CLOSED_ENUM AITacticalTargetType
 {

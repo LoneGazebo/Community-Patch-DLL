@@ -19393,7 +19393,6 @@ int CvCity::GetFaithPerTurn() const
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iFaith += GetYieldFromHappiness(YIELD_FAITH);
@@ -19401,7 +19400,6 @@ int CvCity::GetFaithPerTurn() const
 		iFaith += GetYieldFromCrime(YIELD_FAITH);
 		iFaith += GetYieldFromDevelopment(YIELD_FAITH);
 	}
-#endif
 
 	CvPlot* pCityPlot = plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
