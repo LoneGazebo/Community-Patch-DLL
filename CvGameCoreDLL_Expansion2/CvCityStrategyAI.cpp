@@ -946,15 +946,14 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			case NOT_A_CITY_BUILDABLE:
 				UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
 			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+			case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
 					bool bCitySameAsMuster = false;
 					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
 					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 					{
-						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
 						if (iNewWeight > 0)
 						{
 							selection.m_iValue = iNewWeight;
@@ -965,23 +964,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					}
 					break;
 				}
-			case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
-				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
-				}
 			case CITY_BUILDABLE_UNIT: //any unit
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
@@ -1384,9 +1370,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
 					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 					{
-						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), true);
+						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), true);
 						if(iNewWeight > 0)
 						{
 							selection.m_iValue = iNewWeight;
@@ -1398,7 +1382,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), true);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
@@ -1409,7 +1393,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			case CITY_BUILDABLE_UNIT:
 				{
 					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, true);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, true);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;

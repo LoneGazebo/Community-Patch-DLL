@@ -196,7 +196,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesS
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
+int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
 {
 	//value to be added
 	int iBonus = 0;
@@ -366,7 +366,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		CvLandmass* pLM = GC.getMap().getLandmass(m_pCity->plot()->getLandmass());
 		if(pLM != NULL && pLM->getNumTiles() <= 3)
 		{
-			if (eDomain == DOMAIN_LAND && m_pCity->HasGarrison())
+			if (eDomain == DOMAIN_LAND && m_pCity->HasGarrison() && !bForOperation)
 			{
 				return SR_USELESS;
 			}
@@ -477,7 +477,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Sanity check for buildable support units.
-		if (!bFree && pkUnitEntry->IsCityAttackSupport())
+		if (!bFree && pkUnitEntry->IsCityAttackSupport() && !bForOperation)
 		{
 			int iTotalAlready = kPlayer.GetNumUnitsWithUnitAI(pkUnitEntry->GetDefaultUnitAIType());
 			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_BOMBARD, true, false);
@@ -552,7 +552,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.isMinorCiv())
 				return SR_USELESS;
 
-			if (MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(&kPlayer)==false)
+			if (!bForOperation && MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(&kPlayer)==false)
 				return SR_BALANCE;
 		}
 
@@ -1473,13 +1473,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//For an operation? Build it!
 		if(bCombat)
 		{
-			if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
+			if(bForOperation)
 			{
-				iBonus += 300;
-			}
-			else if(bForOperation)
-			{
-				iBonus += 300;
+				iBonus += 500;
 			}
 
 			//slight bump in value for ranged units, to counteract some other elements.
