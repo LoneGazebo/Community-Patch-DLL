@@ -5827,15 +5827,18 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	
 	-- Check for collision with player starts
 	if self.impactData[ImpactLayers.LAYER_NATURAL_WONDER][plotIndex] > 0 then
-		return false
+		return false, false;
 	end
 	
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
-	if self:Plot_GetFertilityInRange(plot, 3) < 28 then
-		return false
+	local fertility = self:Plot_GetFertilityInRange(plot, 3);
+	if fertility < 20 then
+		return false, false;
+	elseif fertility < 28 then
+		return false, true;
 	end
-	return true
+	return true, true;
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:ExamineCandidatePlotForNaturalWondersEligibility(x, y)
@@ -5845,22 +5848,23 @@ function AssignStartingPlots:ExamineCandidatePlotForNaturalWondersEligibility(x,
 	if self:ExaminePlotForNaturalWondersEligibility(x, y) == false then
 		return false
 	end
-	local iW, iH = Map.GetGridSize();
+	-- local iW, iH = Map.GetGridSize();
 	-- Now loop through adjacent plots. Using Map.PlotDirection() in combination with
 	-- direction types, an alternate first-ring hex adjustment method, instead of the
 	-- odd/even tables used elsewhere in this file, which often have to process more rings.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot == nil then
-			return false
-		else
-			local adjX = adjPlot:GetX();
-			local adjY = adjPlot:GetY();
-			if self:ExaminePlotForNaturalWondersEligibility(adjX, adjY) == false then
-				return false
-			end
-		end
-	end
+	-- Updated 2022: Removed. Why bother with adjacent plots?
+	-- for loop, direction in ipairs(self.direction_types) do
+		-- local adjPlot = Map.PlotDirection(x, y, direction)
+		-- if adjPlot == nil then
+			-- return false
+		-- else
+			-- local adjX = adjPlot:GetX();
+			-- local adjY = adjPlot:GetY();
+			-- if self:ExaminePlotForNaturalWondersEligibility(adjX, adjY) == false then
+				-- return false
+			-- end
+		-- end
+	-- end
 	return true
 end
 ------------------------------------------------------------------------------
@@ -6481,10 +6485,16 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 	-- Main Loop
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
-			if self:ExamineCandidatePlotForNaturalWondersEligibility(x, y) == true then
+			local landEligibility, seaEligibility = self:ExaminePlotForNaturalWondersEligibility(x, y);
+			if seaEligibility == true then
 				-- Plot has passed checks applicable to all NW types. Move on to specific checks.
 				for nw_number, row_number in ipairs(self.xml_row_numbers) do
-					self:CanBeThisNaturalWonderType(x, y, nw_number, row_number)
+					if self.wonder_list[nw_number] == "FEATURE_REEF" or
+						self.wonder_list[nw_number] == "FEATURE_GIBRALTAR" or
+						self.wonder_list[nw_number] == "FEATURE_VOLCANO" or
+						landEligibility == true then
+						self:CanBeThisNaturalWonderType(x, y, nw_number, row_number);
+					end
 				end
 			end
 		end
@@ -6520,13 +6530,13 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 		end
 	end
 	
-	--[[ Debug printout of natural wonder candidate plot lists
+	-- Debug printout of natural wonder candidate plot lists
 	print("-"); print("-"); print("--- Number of Candidate Plots on the map for Natural Wonders ---"); print("-");
 	for loop = 1, self.iNumNW do
 		print("-", iCanBeWonder[loop], "candidates for", self.wonder_list[loop]);
 	end
 	print("-"); print("--- End of candidates readout for Natural Wonders ---"); print("-");
-	--]]
+	
 
 	-- Read in from the XML for each eligible wonder, obtaining OccurrenceFrequency data.
 	--
@@ -6638,7 +6648,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			table.insert(self.placed_natural_wonder, wonder_number);
 
 			-- Natural Wonders shouldn't be too close to each other.
-			self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_NATURAL_WONDER, math.floor(iH / 5));
+			self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_NATURAL_WONDER, 11);
 
 			-- Force no resource on Natural Wonders.
 			self:PlaceStrategicResourceImpact(x, y, 0);
@@ -6670,7 +6680,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			end
 			-- MOD.Barathor: End
 			--
-			--print("- Placed ".. self.wonder_list[wonder_number].. " in Plot", x, y);
+			print("- Placed ".. self.wonder_list[wonder_number].. " in Plot", x, y);
 			--
 			return true
 		end
@@ -6687,13 +6697,12 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		return
 	end
 	
-	--[[Debug printout
+	--Debug printout
 	print("-"); print("--- Readout of NW Assignment Priority ---");
 	for print_loop, order in ipairs(NW_eligibility_order) do
 		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
 	end
 	print("-"); print("-");
-	--]]
 	
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
@@ -6715,7 +6724,6 @@ function AssignStartingPlots:PlaceNaturalWonders()
 			table.insert(fallback_NWs, NW);
 		end
 	end
-	--[[
 	print("-");
 	for loop, NW in ipairs(selected_NWs) do
 		print("Natural Wonder #", NW, "has been selected for placement.");
@@ -6725,7 +6733,6 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		print("Natural Wonder #", NW, "has been selected as fallback.");
 	end
 	print("-");
-	]]--
 	
 	print("--- Placing Natural Wonders! ---");
 	-- Place the NWs
