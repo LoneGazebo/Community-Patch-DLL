@@ -16894,7 +16894,7 @@ void CvCity::CheckForOperationUnits()
 			}
 			if (eBestUnit != NO_UNIT)
 			{
-				iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, -1, -1, true);
+				iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, iTempWeight, -1, -1, true);
 				if (iTempWeight > 0)
 				{
 					int iGoldCost = GetPurchaseCost(eBestUnit);
@@ -16958,7 +16958,7 @@ void CvCity::CheckForOperationUnits()
 						return;
 					}
 
-					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, pThisArmy, iTempWeight, -1, -1);
+					iTempWeight = GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eBestUnit, true, iTempWeight, -1, -1);
 					if (iTempWeight > 0)
 					{
 						pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, bAppend, false /*bRush*/);

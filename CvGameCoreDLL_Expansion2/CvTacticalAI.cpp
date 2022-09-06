@@ -675,7 +675,7 @@ void CvTacticalAI::ProcessDominanceZones()
 		{
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
-			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && !pZone->IsWater())
 			{
 				PlotEmergencyPurchases(pZone);
 				PlotDefensiveAirlifts(pZone);

@@ -148,26 +148,25 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
 	int iNumLandConnection, int iNumSeaConnection, bool bNationalWonderCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
-	if(m_pCity == NULL)
-		return 0;
+	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
+		return SR_IMPOSSIBLE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
+	//save the effort for minors
 	if(kPlayer.isMinorCiv())
 		return iValue;
 
-	if(eBuilding == NO_BUILDING)
-		return 0;
-
-	if(iValue < 1)
-		return 0;
+	//do not build any buildings at all when about to be captured
+	if (m_pCity->isInDangerOfFalling())
+		return SR_STRATEGY;
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iValue = sqrti(10 * iValue);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pkBuildingInfo == NULL)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	//Bonus additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
@@ -177,7 +176,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
 		{
-			return 0;
+			return SR_STRATEGY;
 		}
 	}
 
@@ -202,7 +201,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 						if (pkUnitInfo->IsFoundReligion())
 						{
 							if (!bCanFoundReligion)
-								return 0;
+								return SR_IMPOSSIBLE;
 
 							bSpawnsProphet = true;
 							break;
@@ -210,7 +209,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 						// Don't need Missionaries or Inquisitors if we aren't a founder
 						else if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 						{
-							return 0;
+							return SR_STRATEGY;
 						}
 					}
 				}
@@ -219,7 +218,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					// None of this is useful if we don't have a religion.
 					if (pkBuildingInfo->GetExtraMissionaryStrength() > 0 || pkBuildingInfo->GetExtraMissionarySpreads() > 0 || pkBuildingInfo->GetExtraMissionarySpreadsGlobal() > 0 || pkBuildingInfo->IsReformation())
 					{
-						return 0;
+						return SR_USELESS;
 					}
 				}
 			}
@@ -229,7 +228,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			if (!m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 			{
-				return 0;
+				return SR_STRATEGY;
 			}
 		}
 
@@ -419,7 +418,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if(pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
-				if(m_pCity->GetNumResourceLocal(eResource) > 0)
+				if(m_pCity->GetNumResourceLocal(eResource,true) > 0)
 				{
 					iResource++;
 				}
@@ -428,7 +427,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iResource *= 10;
 		if (iResource <= 0 && !bFreeBuilding)
 		{
-			return 0;
+			return SR_USELESS;
 		}
 		else
 		{
@@ -446,7 +445,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			//Building uses resources? Not if we're a puppet or automated, thanks! 
 			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
 			{
-				return 0;
+				return SR_STRATEGY;
 			}
 
 			if(pkBuildingInfo->GetResourceQuantity(eResource) > 0)
@@ -659,13 +658,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (bDesperate)
 		iDefenseMod += 1000;
 
-	//do not build any buildings at all when about to be captured
-	if (m_pCity->isInDangerOfFalling())
-		return 0;
-
 	if (iDefense == 0 && m_pCity->isUnderSiege() && !bIgnoreSituational)
 		//do not build any non-defensive buildings when under siege
-		return 0;
+		return SR_STRATEGY;
 
 	iDefense *= iDefenseMod;
 	iDefense /= 100;
@@ -1046,7 +1041,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		//careful if it would bankrupt us
 		if (kPlayer.getTurnsToBankruptcy(pkBuildingInfo->GetGoldMaintenance()) < 9)
 		{
-			return 0;
+			return SR_MAINTENCANCE;
 		}
 
 		/*
@@ -1054,7 +1049,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		// however yields are not everything (eg growth bonus, resources etc). so it's difficult to write down a good condition ...
 		if (iTotalYield < pkBuildingInfo->GetGoldMaintenance() * 3 && pkBuildingInfo->GetDefenseModifier() == 0)
 		{
-			return 0;
+			return SR_USELESS;
 		}
 		*/
 	}
@@ -1154,9 +1149,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	///WEIGHT
 	//////
 	if (iBonus < 1)
-		return 0;
+		return SR_UNKNOWN;
 
 	//iValue is the compunded value of the items.
-	return iValue + iBonus;
+	return max(1,iValue + iBonus);
 }
 #endif

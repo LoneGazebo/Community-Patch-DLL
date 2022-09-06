@@ -105,10 +105,10 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
 	if(!pProcess)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	if(iTempWeight < 1)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
@@ -165,7 +165,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		{
 			//don't need this if no damage
 			if (m_pCity->getDamage() == 0)
-				return 0;
+				return SR_USELESS;
 
 			if (m_pCity->isInDangerOfFalling())
 			{
@@ -431,7 +431,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 								int iValue = 1500;
 								if(kPlayer.getCapitalCity() != NULL)
 								{
-									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iValue);
+									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iValue);
 								}
 								iModifier += iValue;
 							}
@@ -482,7 +482,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		iTempWeight /= 100;
 	}
 
-	return iTempWeight;
+	return max(1,iTempWeight);
 }
 #endif
 
