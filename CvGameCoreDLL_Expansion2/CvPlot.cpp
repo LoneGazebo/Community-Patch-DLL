@@ -1062,6 +1062,43 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 		}
 	}
 
+	//check for areas of water connected by canals
+	//starting with the plot itself, we loop through all adjacent plots and add them to a list if they are water tiles
+	//or if there is an owned fort, citadel or city on them
+	//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
+	std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
+	unsigned int iNumPlotsChecked = 0;
+	do {
+		const CvPlot* pPlotBeingChecked = vAccessibleWaterPlots[iNumPlotsChecked];
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlotBeingChecked);
+		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+		{
+			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+			if (pAdjacentPlot) {
+				//check for water tiles
+				if (pAdjacentPlot->isWater()) {
+					if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+						continue;
+				}
+				//check for owned forts/citadels/cities (but not if we start from a city)
+				else if (!((pAdjacentPlot->getImprovementType() == (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL") || pAdjacentPlot->getImprovementType() == (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT") || pAdjacentPlot->isCity()) &&
+					(pAdjacentPlot->getOwner() == this->getOwner()) && !pPlotBeingChecked->isCity() && !pAdjacentPlot->IsImprovementPillaged())) {
+						continue;
+				}
+
+				// add the plot to the list if it's not already in it
+				if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) {
+					vAccessibleWaterPlots.push_back(pAdjacentPlot);
+					if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) { // minus 1 because the first element in the list is the plot itself
+						return(true);
+					}
+				}
+			}
+		}
+		iNumPlotsChecked++;
+	}
+	while (iNumPlotsChecked != vAccessibleWaterPlots.size());
+
 	return false;
 }
 
