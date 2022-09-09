@@ -7712,6 +7712,10 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				}
 #endif
 
+		if (pkVictoryInfo)
+		{
+			LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
+		}
 			}
 
 			if((getAIAutoPlay() > 0) || gDLL->GetAutorun())
@@ -7727,6 +7731,43 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 		GC.GetEngineUserInterface()->setDirty(Center_DIRTY_BIT, true);
 
 		GC.GetEngineUserInterface()->setDirty(Soundtrack_DIRTY_BIT, true);
+	}
+}
+
+void CvGame::LogGameResult(const char* victoryTypeText, const char* victoryCivText)
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString header = "Turn, VictoryType, VictoryCiv";
+		CvString rowOutput;
+		CvString strTemp;
+
+		CvString strLogName = "GameResult_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		CvString victoryType = victoryTypeText;
+		CvString victoryCiv = victoryCivText;
+
+		rowOutput.Format("%03d", m_iWinningTurn);
+		rowOutput += ", " + victoryType;
+		rowOutput += ", " + victoryCiv;
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayer& eLoopCvPlayer = GET_PLAYER(eLoopPlayer);
+			if (eLoopPlayer != NO_PLAYER && eLoopCvPlayer.isEverAlive() && !eLoopCvPlayer.isMinorCiv() && !eLoopCvPlayer.isBarbarian())
+			{
+				strTemp = eLoopCvPlayer.getCivilizationShortDescription();
+				header += ", " + strTemp;
+
+				strTemp.Format("%05d", GET_TEAM(eLoopCvPlayer.getTeam()).GetScore());
+				rowOutput += ", " + strTemp;
+			}
+		}
+
+		pLog->Msg(header);
+		pLog->Msg(rowOutput);
 	}
 }
 
