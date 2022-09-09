@@ -108,6 +108,18 @@ enum CLOSED_ENUM CityBuildableType
     CITY_BUILDABLE_UNIT_FOR_ARMY,
 };
 
+//all negative!
+enum ProductionSkipReason
+{
+	SR_UNKNOWN = 0,
+	SR_IMPOSSIBLE = -1,
+	SR_UNITSUPPLY = -2,		//have too many overall
+	SR_MAINTENCANCE = -3,	//cannot afford
+	SR_STRATEGY = -4,		//under siege, ...
+	SR_USELESS = -5,		//no enemies around, etc
+	SR_BALANCE = -6,		//have too many of the given type
+};
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  STRUCT:     CvCityBuildable
 //!  \brief		One item a city can build

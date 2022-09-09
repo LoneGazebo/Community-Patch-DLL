@@ -8103,7 +8103,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	{
 		ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && (pCity->GetNumResourceLocal(eResource) > 0 || pCity->GetNumResourceLocal(eResource) > 0 || pCity->GetNumResourceLocal(eResource) > 0 || m_pPlayer->getNumResourceAvailable(eResource) > 0))
+		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && 
+			(pCity->GetNumResourceLocal(eResource,false) > 0 || pCity->GetNumResourceLocal(eResource,true) > 0 || m_pPlayer->getNumResourceAvailable(eResource) > 0))
 		{
 			iNumLuxuries++;
 		}

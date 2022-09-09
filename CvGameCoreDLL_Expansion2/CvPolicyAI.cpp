@@ -3663,7 +3663,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 					if (pUnitEntry)
 					{
-						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 10, 10, 10, true, true);
+						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, 10, 10, true, true);
 						if (pPlayerTraits->IsReligious())
 						{
 							iValue *= 2;
@@ -3679,7 +3679,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
-					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, 10, 10, 10, true, true);
+					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, 10, 10, true, true);
 					if (pPlayerTraits->IsWarmonger())
 					{
 						iValue *= 2;

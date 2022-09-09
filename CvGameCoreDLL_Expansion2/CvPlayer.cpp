@@ -4628,41 +4628,45 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CapitalChanged, GetID(), pNewCity->GetID(), -1);
 			}
 		}
-		// AI decides what to do with a City
-		else if (!isHuman())
+		// If the city was originally ours, do nothing
+		else if (pNewCity->getOriginalOwner() != m_eID)
 		{
-			AI_conquerCity(pNewCity, ePlayerToLiberate, bGift); // Calling this could delete the pointer...
-
-			// So we will check to see if the plot still contains the city.
-			CvCity* pkCurrentCity = pCityPlot->getPlotCity();
-			if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
+			// AI decides what to do with a City
+			if (!isHuman())
 			{
-				pNewCity = NULL; // The city is gone or is not ours anymore (we gave it away)
-			}
-		}
-		// Human decides what to do with a City
-		else
-		{
-			pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoPuppet and DoAnnex
-			CvNotifications* pNotify = GetNotifications();
+				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift); // Calling this could delete the pointer...
 
-			if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
-			{
-				pNewCity->DoCreatePuppet();
+				// So we will check to see if the plot still contains the city.
+				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
+				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
+				{
+					pNewCity = NULL; // The city is gone or is not ours anymore (we gave it away)
+				}
 			}
-			else if (GC.getGame().getActivePlayer() == GetID() && pNotify && (pNewCity->getOriginalOwner() != GetID() || GetPlayerTraits()->IsNoAnnexing() || bMinorCivBuyout))
-			{
-				int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
-				bool bTemp[2] = { bMinorCivBuyout, bConquest };
-				pNewCity->setCaptureData(iTemp, bTemp);
-
-				CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
-				CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
-				pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
-			}
+			// Human decides what to do with a City
 			else
 			{
-				pNewCity->SetIgnoreCityForHappiness(false);
+				pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
+				CvNotifications* pNotify = GetNotifications();
+
+				if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
+				{
+					pNewCity->DoCreatePuppet();
+				}
+				else if (GC.getGame().getActivePlayer() == GetID() && pNotify)
+				{
+					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
+					bool bTemp[2] = { bMinorCivBuyout, bConquest };
+					pNewCity->setCaptureData(iTemp, bTemp);
+
+					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
+					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
+					pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
+				}
+				else
+				{
+					pNewCity->SetIgnoreCityForHappiness(false);
+				}
 			}
 		}
 	}
@@ -29770,12 +29774,11 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 		{
 			iNumFreeUnits++;
 		}
-#if defined(MOD_BALANCE_CORE_JFD)
+
 		if(MOD_BALANCE_CORE_JFD && pLoopUnit->isContractUnit())
 		{
 			iNumFreeUnits++;
 		}
-#endif
 	}
 
 	return iNumFreeUnits;

@@ -4909,7 +4909,7 @@ void CvDiplomacyAI::SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue)
 			return;
 
 		SetFriendDenouncedUsTurn(ePlayer, GC.getGame().getGameTurn());
-		SetBackstabbedBy(ePlayer, true, false);
+		SetBackstabbedBy(ePlayer, true, true);
 	}
 	else
 	{
@@ -11879,7 +11879,7 @@ int CvDiplomacyAI::CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalve
 				PlayerTypes eLoopOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
 				TeamTypes eLoopOtherTeam = (TeamTypes) GET_PLAYER(eLoopOtherPlayer).getTeam();
 
-				// At war with this player? Slight cheating here in that the AI counts players they haven't met.
+				// At war with this player? Slight "cheating" to the player's advantage here, in that the AI counts players they haven't met.
 				if (GET_PLAYER(eLoopOtherPlayer).isAlive() && kTeam.isAtWar(eLoopOtherTeam))
 				{
 					// Is this an ally of ours? We're not going to ignore it then.
@@ -14200,8 +14200,8 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	DoTestPromises();
 	DoTestBackstabbingPenalties();
 
-	// If human or dead, halt here!
-	if (GetPlayer()->isHuman() || !GetPlayer()->isAlive())
+	// If dead, halt here!
+	if (!GetPlayer()->isAlive())
 		return;
 
 	// There is an unusual case in which a reevaluation update is requested by another function mid-war declaration
@@ -14223,18 +14223,22 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	}
 
 	SlotStateChange();
-	DoTestUntrustworthyFriends();
 
-	if (bFromResurrection)
+	if (!GetPlayer()->isHuman())
 	{
-		DoUpdateCompetingForVictory();
-		DoUpdateRecklessExpanders();
-		DoUpdateWonderSpammers();
-		DoUpdateTechBlockLevels();
-		DoUpdatePolicyBlockLevels();
-		DoUpdateVictoryDisputeLevels();
-		DoUpdateVictoryBlockLevels();
-		DoUpdateOpinions();
+		DoTestUntrustworthyFriends();
+
+		if (bFromResurrection)
+		{
+			DoUpdateCompetingForVictory();
+			DoUpdateRecklessExpanders();
+			DoUpdateWonderSpammers();
+			DoUpdateTechBlockLevels();
+			DoUpdatePolicyBlockLevels();
+			DoUpdateVictoryDisputeLevels();
+			DoUpdateVictoryBlockLevels();
+			DoUpdateOpinions();
+		}
 	}
 
 	// War declaration/major event? We have a lot more reevaluating to do.
@@ -14276,6 +14280,10 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 			}
 		}
 	}
+
+	// Humans halt here!
+	if (GetPlayer()->isHuman())
+		return;
 
 	DoUpdatePrimeLeagueAlly();
 
@@ -53044,7 +53052,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 		iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
 		bHisLossIsOurOwn = true;
 	}
-	// Alliances? Unmet defender?
+	// Alliances?
 	else
 	{
 		// The observing player is in a co-op war with the attacker against the defender - this trumps everything!
@@ -53458,7 +53466,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 		iWarmongerStatusModifier = /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT);
 		bHisGainIsOurOwn = true;
 	}
-	// Alliances? Unmet defender?
+	// Alliances?
 	else
 	{
 		// The observing player has a Defensive Pact/is a teammate - his gain is our own!
@@ -56611,12 +56619,6 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 
 			// Cancel coop wars targeting us
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->CancelCoopWarsAgainstPlayer(GetID(), true);
-
-			// Vassals don't compete for victory
-			SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
-			SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-			SetTechBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-			SetPolicyBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 
 			if (!bVoluntary)
 			{

@@ -90,7 +90,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eUnit, 0);
 		
 		int iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
-		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, NULL, iFlavorWeight, 0, 0, false, false);
+		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iFlavorWeight, 0, 0, false, false);
 
 		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}

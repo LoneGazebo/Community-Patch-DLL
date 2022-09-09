@@ -675,7 +675,7 @@ void CvTacticalAI::ProcessDominanceZones()
 		{
 			CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByIndex(iI);
 
-			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+			if(pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY && !pZone->IsWater())
 			{
 				PlotEmergencyPurchases(pZone);
 				PlotDefensiveAirlifts(pZone);
@@ -6987,7 +6987,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		{
 			int iBonus = pUnit->getMultiAttackBonus() + GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iBonus > 0) //the bonus affects attack strength, so the effect is hard to predict ...
-				iDamageDealt += iDamageDealt / 10;
+				iDamageDealt += (iBonus * (iDamageDealt+iPrevDamage)) / 100;
 		}
 
 		//don't be as aggressive when attacking embarked units

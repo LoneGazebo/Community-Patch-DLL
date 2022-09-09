@@ -8504,12 +8504,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_JFD)
 		if(MOD_BALANCE_CORE_JFD && isHuman())
 		{
 			GC.getGame().GetGameContracts()->DoUpdateContracts();
 		}
-#endif
 
 		if(!isMinorCiv())
 		{
