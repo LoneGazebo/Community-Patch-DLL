@@ -1564,108 +1564,75 @@ void CvMilitaryAI::UpdateBaseData()
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't count civilians or exploration units
-		if (!pLoopUnit->IsCanAttack()/* || pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA*/) //second conditional didn't worked anyway, it should've been or
+		if (!pLoopUnit->IsCanAttack())
 			continue;
 
-		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+/*		if (m_pPlayer->getCivilizationInfo().isCivilizationUnitOverridden(pLoopUnit->getUnitInfo().GetUnitClassType())) //not currently working, hope for the next release
+			m_iNumActiveUniqueUnits++;
+*/
+		if (pLoopUnit->getDomainType() == DOMAIN_LAND)
 		{
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
+			m_iNumLandUnits++;
+
+			if (pLoopUnit->getArmyID() != -1)
+				m_iNumLandUnitsInArmies++;
+
+			if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
 			{
-				m_iNumLandUnits++;
-
-				if (pLoopUnit->getArmyID() != -1)
-					m_iNumLandUnitsInArmies++;
-
-				if (pLoopUnit->IsCanAttackRanged())
-					m_iNumRangedLandUnits++;
-				else if (pLoopUnit->canIntercept())
-					m_iNumAntiAirUnits++;
-				else if (pLoopUnit->getUnitInfo().GetMoves() > 2)
-					m_iNumMobileLandUnits++;
-				else
-					m_iNumMeleeLandUnits++;
+				m_iNumRangedLandUnits++;
+				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted())
+					m_iNumArcherLandUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted())
+					m_iNumSkirmisherLandUnits++;
+				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
+					m_iNumSiegeLandUnits++;
 			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
+			else if (pLoopUnit->canIntercept())
+				m_iNumAntiAirUnits++;
+			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+				m_iNumMobileLandUnits++;
+			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+				m_iNumReconLandUnits++;
+			else
+				m_iNumMeleeLandUnits++;
+		}
+		else if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
+			m_iNumNavalUnits++;
+
+			if (pLoopUnit->getArmyID() != -1)
+				m_iNumNavalUnitsInArmies++;
+
+			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true))
+				m_iNumMeleeNavalUnits++;
+			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true))
+				m_iNumRangedNavalUnits++;
+			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true))
+				m_iNumSubmarineNavalUnits++;
+
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 			{
-				if (pLoopUnit->getArmyID() != -1)
-					m_iNumNavalUnitsInArmies++;
-
-				m_iNumNavalUnits++;
-
+				m_iNumCarrierNavalUnits++;
 				//a carrier is considered free if it is not in a strike group or empty
-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0))
+				if (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0)
 					m_iNumFreeCarriers++;
 			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
-			{
-				m_iNumAirUnits++;
-			}
 		}
-		else
+		else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
 		{
-/*			if (m_pPlayer->getCivilizationInfo().isCivilizationUnitOverridden(pLoopUnit->getUnitInfo().GetUnitClassType())) //not currently working, hope for the next release
-				m_iNumActiveUniqueUnits++;
-*/
-			if (pLoopUnit->getDomainType() == DOMAIN_LAND)
-			{
-				m_iNumLandUnits++;
+			m_iNumAirUnits++;
 
-				if (pLoopUnit->getArmyID() != -1)
-					m_iNumLandUnitsInArmies++;
-
-				if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
-					m_iNumRangedLandUnits++;
-					if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted())
-						m_iNumArcherLandUnits++;
-					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted())
-						m_iNumSkirmisherLandUnits++;
-					else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
-						m_iNumSiegeLandUnits++;
-				else if (pLoopUnit->canIntercept())
-					m_iNumAntiAirUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
-					m_iNumMobileLandUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
-					m_iNumReconLandUnits++;
-				else
-					m_iNumMeleeLandUnits++;
-			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_SEA)
-			{
-				m_iNumNavalUnits++;
-
-				if (pLoopUnit->getArmyID() != -1)
-					m_iNumNavalUnitsInArmies++;
-
-				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true))
-					m_iNumMeleeNavalUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true))
-					m_iNumRangedNavalUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true))
-					m_iNumSubmarineNavalUnits++;
-
-				if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-					m_iNumCarrierNavalUnits++;
-					//a carrier is considered free if it is not in a strike group or empty
-					if (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0)
-							m_iNumFreeCarriers++;
-			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
-			{
-				m_iNumAirUnits++;
-
-				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true))
-					m_iNumBomberAirUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true))
-					m_iNumFighterAirUnits++;
-			}
-			else if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isSuicide()) // missiles&bombs
-			{
-/*				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
-					m_iNumNukeUnits++; //both atomic bomb&nuclear missile, but already counted by CvPlayer */
-				if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MISSILE_AIR)
-					m_iNumMissileUnits++;
-			}
+			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true))
+				m_iNumBomberAirUnits++;
+			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true))
+				m_iNumFighterAirUnits++;
+		}
+		else if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isSuicide()) // missiles&bombs
+		{
+//			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
+//				m_iNumNukeUnits++; //both atomic bomb&nuclear missile, but already counted by CvPlayer
+			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MISSILE_AIR)
+				m_iNumMissileUnits++;
 		}
 	}
 
@@ -2939,14 +2906,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		// Very first update (to write header row?)
 		if(GC.getGame().getElapsedGameTurns() == 0 && m_pPlayer->GetID() == 0)
 		{
-			if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			{
-				strTemp.Format("Turn, Player, Era, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, AirUnits, AntiAirUnits, RecTotal, MilitaryUnits, SupplyLimit, OutOfSupply, NoSupplyUnits, WarCount, MostEndangeredCity, Danger");
-			}
-			else
-			{
-				strTemp.Format("Turn, Player, Era, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, MeleeUnits, MobileUnits, ReconUnits, ArcherUnits, SiegeUnits, SkirmisherUnits, AllLandRanged, AntiAirUnits, MeleeNavalUnits, RangedNavalUnits, Submarines, Carriers, TotalAirUnits, BomberUnits, FighterUnits, Nukes, Missiles, RecTotal, TotalMilitaryUnits, SupplyLimit, OutOfSupply, WarWearinessSupplyReduction, NoSupplyUnits, WarCount, MostEndangeredCity, Danger");
-			}
+			strTemp.Format("Turn, Player, Era, Cities, Settlers, LandUnits, LandArmySize, RecLandOffensive, RecLandDefensive, NavalUnits, NavalArmySize, RecNavyOffensive, MeleeUnits, MobileUnits, ReconUnits, ArcherUnits, SiegeUnits, SkirmisherUnits, AllLandRanged, AntiAirUnits, MeleeNavalUnits, RangedNavalUnits, Submarines, Carriers, TotalAirUnits, BomberUnits, FighterUnits, Nukes, Missiles, RecTotal, TotalMilitaryUnits, SupplyLimit, OutOfSupply, WarWearinessSupplyReduction, NoSupplyUnits, WarCount, MostEndangeredCity, Danger");
 			pLog->Msg(strTemp);
 		}
 
@@ -2959,14 +2919,7 @@ void CvMilitaryAI::LogMilitaryStatus()
 		strOutBuf = strBaseString + strTemp;
 
 		// Military size Info
-		if (!MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-		{
-			strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumAirUnits, m_iNumAntiAirUnits);
-		}
-		else
-		{
-			strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumMeleeLandUnits, m_iNumMobileLandUnits, m_iNumReconLandUnits, m_iNumArcherLandUnits, m_iNumSiegeLandUnits, m_iNumSkirmisherLandUnits, m_iNumRangedLandUnits, m_iNumAntiAirUnits, m_iNumMeleeNavalUnits, m_iNumRangedNavalUnits, m_iNumSubmarineNavalUnits, m_iNumCarrierNavalUnits, m_iNumAirUnits, m_iNumBomberAirUnits, m_iNumFighterAirUnits, m_pPlayer->getNumNukeUnits(), m_iNumMissileUnits);
-		}
+		strTemp.Format("%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ", m_iNumLandUnits, m_iNumLandUnitsInArmies, m_iRecOffensiveLandUnits, m_iRecDefensiveLandUnits, m_iNumNavalUnits, m_iNumNavalUnitsInArmies, m_iRecOffensiveNavalUnits, m_iNumMeleeLandUnits, m_iNumMobileLandUnits, m_iNumReconLandUnits, m_iNumArcherLandUnits, m_iNumSiegeLandUnits, m_iNumSkirmisherLandUnits, m_iNumRangedLandUnits, m_iNumAntiAirUnits, m_iNumMeleeNavalUnits, m_iNumRangedNavalUnits, m_iNumSubmarineNavalUnits, m_iNumCarrierNavalUnits, m_iNumAirUnits, m_iNumBomberAirUnits, m_iNumFighterAirUnits, m_pPlayer->getNumNukeUnits(), m_iNumMissileUnits);
 		strOutBuf += strTemp;
 
 		// Unit supply

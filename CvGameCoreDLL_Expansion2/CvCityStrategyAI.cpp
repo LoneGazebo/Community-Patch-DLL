@@ -2303,7 +2303,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SKIPPED: %s (%d), %s, %s, %d",
+		strTemp.Format("SKIPPED: %s %d, %s, %s, %d",
 			type, buildable.m_iIndex, strDesc.c_str(), reason, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;

@@ -146,7 +146,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-	int iNumLandConnection, int iNumSeaConnection, bool bNationalWonderCheck, bool bFreeBuilding, bool bIgnoreSituational)
+	int iNumLandConnection, int iNumSeaConnection, bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
 	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
 		return SR_IMPOSSIBLE;
@@ -224,12 +224,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			}
 		}
 
-		if (!bNationalWonderCheck)
+		if (!bNoBestWonderCityCheck)
 		{
-			if (!m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
-			{
+			if (m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
+				iBonus += 500;
+			else
 				return SR_STRATEGY;
-			}
 		}
 
 		// we want this? ramp it up!

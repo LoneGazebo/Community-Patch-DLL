@@ -47,7 +47,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
 		int iNumLandConnection = 0, int iNumSeaConnection = 0, 
-		bool bNationalWonderCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
 #endif
 private:
 
