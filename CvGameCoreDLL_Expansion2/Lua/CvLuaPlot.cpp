@@ -567,7 +567,10 @@ int CvLuaPlot::lIsAdjacentToIce(lua_State* L)
 //bool isCoastalLand();
 int CvLuaPlot::lIsCoastalLand(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::isCoastalLand);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const bool bResult = pkPlot->isCoastalLand(-1, true, false);
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

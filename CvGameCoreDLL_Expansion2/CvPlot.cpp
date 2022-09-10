@@ -1032,35 +1032,39 @@ bool CvPlot::isFreshWater(bool bUseCachedValue) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
+bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckCanals) const
 {
 	if (!bUseCachedValue)
 		updateWaterFlags();
 
-	//if the plot is water, this flag will be false by definition!
-	if (!m_bIsAdjacentToWater)
-		return false;
-
-	//no size or trivial size given, we're done
-	if (iMinWaterSize < 2)
-		return true;
-
-	//otherwise check the size of the water body
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	if (m_bIsAdjacentToWater)
 	{
-		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-		if(pAdjacentPlot && pAdjacentPlot->isWater())
-		{
-			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
-				continue;
+		// fast check for ocean or 1-size water bodies
+		if (iMinWaterSize < 2)
+			return true;
 
-			//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
-			CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-				return true;
+		//otherwise check the size of the water body
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+		for (int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+		{
+			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+			if (pAdjacentPlot && pAdjacentPlot->isWater())
+			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+
+				//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
+				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+					return true;
+			}
 		}
 	}
+
+	// Not adjacent to water or not adjacent to enough water? If not checking for canals, abort!
+	// Also, water tiles are not land, so always return false
+	if (!bCheckCanals || !MOD_GLOBAL_PASSABLE_FORTS || isWater())
+		return false;
 
 	//check for areas of water connected by canals
 	//starting with the plot itself, we loop through all adjacent plots and add them to a list if they are water tiles
@@ -1068,31 +1072,39 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
 	//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
 	std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
 	unsigned int iNumPlotsChecked = 0;
-	do {
+	do
+	{
 		const CvPlot* pPlotBeingChecked = vAccessibleWaterPlots[iNumPlotsChecked];
 		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlotBeingChecked);
 		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 		{
 			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if (pAdjacentPlot) {
-				//check for water tiles
-				if (pAdjacentPlot->isWater()) {
-					if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
-						continue;
-				}
-				//check for owned forts/citadels/cities (but not if we start from a city)
-				else if (!((pAdjacentPlot->getImprovementType() == (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL") || pAdjacentPlot->getImprovementType() == (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT") || pAdjacentPlot->isCity()) &&
-					(pAdjacentPlot->getOwner() == this->getOwner()) && !pPlotBeingChecked->isCity() && !pAdjacentPlot->IsImprovementPillaged())) {
-						continue;
-				}
+			if (!pAdjacentPlot)
+				continue;
 
-				// add the plot to the list if it's not already in it
-				if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) {
-					vAccessibleWaterPlots.push_back(pAdjacentPlot);
-					if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) { // minus 1 because the first element in the list is the plot itself
-						return(true);
-					}
-				}
+			// If water, must not be unowned ice
+			if (pAdjacentPlot->isWater())
+			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+			}
+			//If land, must be owned city, fort or citadel
+			else if (pAdjacentPlot->isOwned())
+			{
+				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && pAdjacentPlot->IsImprovementPillaged()))
+					continue;
+
+				// Must be adjacent to water
+				if (!pAdjacentPlot->isAdjacentToWater())
+					continue;
+			}
+
+			// add the plot to the list if it's not already in it
+			if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) 
+			{
+				vAccessibleWaterPlots.push_back(pAdjacentPlot);
+				if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot itself
+					return true;
 			}
 		}
 		iNumPlotsChecked++;
@@ -1109,6 +1121,23 @@ bool CvPlot::isAdjacentToLand(bool bUseCachedValue) const
 		updateWaterFlags();
 
 	return m_bIsAdjacentToLand;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentToWater() const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if (pAdjacentPlot)
+		{
+			if (pAdjacentPlot->isWater())
+				return true;
+		}
+	}
+
+	return false;
 }
 
 void CvPlot::updateWaterFlags() const
@@ -13239,7 +13268,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
+bool CvPlot::canTrain(UnitTypes eUnit) const
 {
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if(pkUnitInfo == NULL)
@@ -13287,12 +13316,12 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 	}
 
-	if(isCity())
+	if (isCity())
 	{
-		if(thisUnitDomain == DOMAIN_SEA)
+		if (thisUnitDomain == DOMAIN_SEA)
 		{
 			//fast check for ocean (-1)
-			if(!isCoastalLand(-1) || !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
+			if (!isCoastalLand(-1, true, true) || !isCoastalLand(thisUnitEntry.GetMinAreaSize(), true, true))
 			{
 				return false;
 			}

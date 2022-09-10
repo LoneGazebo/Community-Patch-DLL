@@ -136,8 +136,9 @@ public:
 
 	bool isLake(bool bUseCachedValue=true) const;
 	bool isFreshWater(bool bUseCachedValue=true) const;
-	bool isCoastalLand(int iMinWaterSize = -1, bool bUseCachedValue = true) const;
+	bool isCoastalLand(int iMinWaterSize = -1, bool bUseCachedValue = true, bool bCheckCanals = false) const;
 	bool isAdjacentToLand(bool bUseCachedValue = true) const;
+	bool isAdjacentToWater() const;
 	void updateWaterFlags() const;
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
@@ -729,7 +730,7 @@ public:
 
 	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
 
-	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
+	bool canTrain(UnitTypes eUnit) const;
 
 	template<typename Plot, typename Visitor>
 	static void Serialize(Plot& plot, Visitor& visitor);

@@ -42843,7 +42843,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 			}
 			else
 			{
-				if(!pPlot->canTrain(eUnit, false, false))
+				if(!pPlot->canTrain(eUnit))
 				{
 					return -1;
 				}
