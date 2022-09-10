@@ -1091,7 +1091,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 			//If land, must be owned city, fort or citadel
 			else if (pAdjacentPlot->isOwned())
 			{
-				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && pAdjacentPlot->IsImprovementPillaged()))
+				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
 					continue;
 
 				// Must be adjacent to water
