@@ -48637,7 +48637,17 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::SetBestWonderCities()
 {
-	map < BuildingClassTypes, vector<pair<int,CvCity*>>> allScores;
+	struct sct
+	{
+		int score;
+		CvCity* city;
+		bool isForWorldWonder;
+
+		sct(int s, CvCity* c, bool w) : score(s), city(c), isForWorldWonder(w) {}
+		bool operator<(const sct& rhs) const { return score < rhs.score; }
+	};
+
+	map<BuildingClassTypes,vector<sct>> allScores;
 
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -48692,23 +48702,24 @@ void CvPlayer::SetBestWonderCities()
 			// alternatively we check if the city already is best for something and downgrade it for other wonders
 			//	but this needs some bookkeeping if we don't want to depend on the order of wonders in the database
 
-			allScores[eClass].push_back(make_pair(iValue,pLoopCity));
+			allScores[eClass].push_back(sct(iValue,pLoopCity,::isWorldWonderClass(kBuildingClassInfo)));
 		}
 
 		//pairs are sorted by their first element by default (ascending)
 		vector<pair<int, BuildingClassTypes>> bestScorePerClass;
-		for (map < BuildingClassTypes, vector<pair<int, CvCity*>>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
 			ASSERT(!it->second.empty())
 			sort(it->second.begin(), it->second.end());
-			bestScorePerClass.push_back(make_pair(it->second.back().first, it->first));
+			bestScorePerClass.push_back(make_pair(it->second.back().score, it->first));
 		}
 		sort(bestScorePerClass.begin(), bestScorePerClass.end());
 
 		//now we starting with the best overall score, find the best city for the type of wonder
 		for (vector<pair<int, BuildingClassTypes>>::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
 		{
-			CvCity* pBestCity = allScores[it->second].back().second;
+			bool bIsWorldWonderClass = allScores[it->second].back().isForWorldWonder;
+			CvCity* pBestCity = allScores[it->second].back().city;
 			pBestCity->SetBestForWonder(it->second, true);
 
 			if ((GC.getLogging() && GC.getAILogging()))
@@ -48726,15 +48737,18 @@ void CvPlayer::SetBestWonderCities()
 			//done with this type
 			allScores.erase(it->second);
 
-			//reduce the best city's score for other wonders
-			for (map < BuildingClassTypes, vector<pair<int, CvCity*>>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+			//reduce the best city's score for other wonders - don't want to lose time in the race with other players
+			if (bIsWorldWonderClass)
 			{
-				for (vector<pair<int, CvCity*>>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
-					if (it2->second == pBestCity)
-						it2->first -= it2->first / 4; //reduce by 25% for every class
+				for (map<BuildingClassTypes, vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+				{
+					for (vector<sct>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+						if (it2->city == pBestCity && it2->isForWorldWonder)
+							it2->score -= it2->score / 4; //reduce by 25% for every other world wonder
 
-				//need to sort again ...
-				sort(it->second.begin(), it->second.end());
+					//need to sort again ...
+					sort(it->second.begin(), it->second.end());
+				}
 			}
 		}
 	}
