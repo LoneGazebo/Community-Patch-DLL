@@ -24865,7 +24865,12 @@ void CvUnit::testPromotionReady()
 bool CvUnit::isDelayedDeath() const
 {
 	VALIDATE_OBJECT
-	return m_bDeathDelay || !m_pUnitInfo; //check m_pUnitInfo as a failsafe ...
+
+	//some failsafes on top ...
+	if (!m_pUnitInfo || !onMap())
+		return true;
+
+	return m_bDeathDelay;
 }
 
 //	--------------------------------------------------------------------------------
