@@ -1074,7 +1074,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			WarPenalty += 50 + m_pCity->getThreatValue();
 
-			if (bDesperate)
+			if (bDanger)
 			{
 				WarPenalty += 25;
 			}

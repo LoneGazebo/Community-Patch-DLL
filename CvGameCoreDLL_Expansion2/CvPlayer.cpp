@@ -48637,12 +48637,10 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 #if defined(MOD_BALANCE_CORE)
 void CvPlayer::SetBestWonderCities()
 {
-	bool bIsCapitalCompetitive = isCapitalCompetitive();
-	
+	map < BuildingClassTypes, vector<pair<int,CvCity*>>> allScores;
+
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
-		int iBestValue = 0;
-		CvCity* pBestCity = NULL;
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -48650,77 +48648,68 @@ void CvPlayer::SetBestWonderCities()
 		if (!pkeBuildingInfo)
 			continue;
 
-		if (!::isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()) && !::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+		BuildingClassTypes eClass = (BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType();
+		const CvBuildingClassInfo& kBuildingClassInfo = pkeBuildingInfo->GetBuildingClassInfo();
+		if (!::isWorldWonderClass(kBuildingClassInfo) && !::isNationalWonderClass(kBuildingClassInfo))
 			continue;
 
-		const CvBuildingClassInfo& kBuildingClassInfo = pkeBuildingInfo->GetBuildingClassInfo();
-
 		bool bCivUnique = kBuildingClassInfo.getDefaultBuildingIndex() != eBuilding;
-
-		bool bCapitalCanConstruct = false;
 		int iLoopCity;
-		CvCity* pLoopCity = NULL;
-		// Look at all of our Cities to see which is the best.
-		for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+
+		// First reset the flag everywhere
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			pLoopCity->SetBestForWonder(eClass, false);
+
+		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
-			if (pLoopCity->IsPuppet())
+			// No wonders in non-venetian puppets
+			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
-			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
-
-			//We've already started? We can bail out here, then.
-			if (pLoopCity->getProductionBuilding() == eBuilding || bAlreadyStarted)
-			{
-				pBestCity = pLoopCity;
-				break;
-			}
-
 			//is this a unique wonder that we can't build? Ignore it.
-			if (bCivUnique && !getCivilizationInfo().isCivilizationBuildingOverridden((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
+			if (bCivUnique && !getCivilizationInfo().isCivilizationBuildingOverridden(eClass))
 				continue;
 
 			if (!pLoopCity->canConstruct(eBuilding))
-			{
-				pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
 				continue;
-			}
-			else if (pLoopCity->isCapital())
-				bCapitalCanConstruct = true;
 
-			//Best? Do it!
-			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, true);
+			//get a score
+			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, true, false, true);
+			if (iValue < 0)
+				continue;
 			
+			// We've already started? Massive bonus!
+			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
+			if (pLoopCity->getProductionBuilding() == eBuilding || bAlreadyStarted)
+				iValue *= 10;
+
 			//duration is also important
 			iValue -= 50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
 
-			//some inertia ... 10% bonus for incumbent
-			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
-				iValue += iValue/10;
+			// we don't necessarily want to one city to be best for all wonders
+			// we could set the bestForWonder flag for all cities with score above a certain threshold, turning it into a goodForWonder flag
+			//	(but there seems to be an assumption that only one city can have the flag for a given wonder, eg in FindBestWonderCity()
+			// alternatively we check if the city already is best for something and downgrade it for other wonders
+			//	but this needs some bookkeeping if we don't want to depend on the order of wonders in the database
 
-			if (iValue > iBestValue)
-			{
-				iBestValue = iValue;
-				pBestCity = pLoopCity;
-			}
+			allScores[eClass].push_back(make_pair(iValue,pLoopCity));
 		}
 
-		//default to capital if no other option (for world wonders only if we have a chance)
-		if (!pBestCity && bCapitalCanConstruct && (bIsCapitalCompetitive || ::isNationalWonderClass(pkeBuildingInfo->GetBuildingClassInfo())))
-			pBestCity = getCapitalCity();
-
-		if (pBestCity)
+		//pairs are sorted by their first element by default (ascending)
+		vector<pair<int, BuildingClassTypes>> bestScorePerClass;
+		for (map < BuildingClassTypes, vector<pair<int, CvCity*>>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
-			pBestCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), true);
+			ASSERT(!it->second.empty())
+			sort(it->second.begin(), it->second.end());
+			bestScorePerClass.push_back(make_pair(it->second.back().first, it->first));
+		}
+		sort(bestScorePerClass.begin(), bestScorePerClass.end());
 
-			int iLoopCity;
-			CvCity* pLoopCity = NULL;
-
-			// Remove from all other cities.
-			for (pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-			{
-				if (pLoopCity != pBestCity)
-					pLoopCity->SetBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType(), false);
-			}
+		//now we starting with the best overall score, find the best city for the type of wonder
+		for (vector<pair<int, BuildingClassTypes>>::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
+		{
+			CvCity* pBestCity = allScores[it->second].back().second;
+			pBestCity->SetBestForWonder(it->second, true);
 
 			if ((GC.getLogging() && GC.getAILogging()))
 			{
@@ -48729,9 +48718,23 @@ void CvPlayer::SetBestWonderCities()
 				CvString strOutBuf;
 				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 				strBaseString += playerName + ", ";
-				strOutBuf.Format("%s is the best city to construct %s", pBestCity->getName().GetCString(), pkeBuildingInfo->GetDescription());
+				strOutBuf.Format("%s is best to construct %s", pBestCity->getName().GetCString(), pkeBuildingInfo->GetDescription());
 				strBaseString += strOutBuf;
 				GetCitySpecializationAI()->LogMsg(strBaseString);
+			}
+
+			//done with this type
+			allScores.erase(it->second);
+
+			//reduce the best city's score for other wonders
+			for (map < BuildingClassTypes, vector<pair<int, CvCity*>>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+			{
+				for (vector<pair<int, CvCity*>>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+					if (it2->second == pBestCity)
+						it2->first -= it2->first / 4; //reduce by 25% for every class
+
+				//need to sort again ...
+				sort(it->second.begin(), it->second.end());
 			}
 		}
 	}
