@@ -114,7 +114,7 @@ function MapGlobals:New()
 	mglobal.atollNorthLatitudeLimit = 40
 	mglobal.atollSouthLatitudeLimit	= 15
 	mglobal.atollMinDeepWaterNeighbors	= 3	-- Minimum of adjacent ocean tiles for an atoll.
-	mglobal.numNaturalWonders		= 2 + GameInfo.Worlds[Map.GetWorldSize()].NumNaturalWonders
+	mglobal.numNaturalWonders		= 2 * (Map.GetWorldSize() + 1)
 
 
 	-- Rain
@@ -579,23 +579,23 @@ function MapGlobals:New()
 		end
 		------------------------------------------------------------------------------
 		function AssignStartingPlots:PlaceNaturalWonders()
-			local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists()
+			-- Determine how many NWs to attempt to place. Target is regulated per map size.
+			-- The final number cannot exceed the number the map has locations to support.
+			local target_number = mg.numNaturalWonders;
+			local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists(target_number)
 			local iNumNWCandidates = table.maxn(NW_eligibility_order);
 			if iNumNWCandidates == 0 then
 				print("No Natural Wonders placed, no eligible sites found for any of them.");
 				return
 			end
 
-			--[[ Debug printout
+			-- Debug printout
 			print("-"); print("--- Readout of wonderID Assignment Priority ---");
 			for loop, wonderID in ipairs(NW_eligibility_order) do
 				print("wonderID Assignment Priority#", loop, "goes to wonderID ", self.wonder_list[wonderID]);
 			end
-			print("-"); print("-"); --]]
+			print("-"); print("-");
 
-			-- Determine how many NWs to attempt to place. Target is regulated per map size.
-			-- The final number cannot exceed the number the map has locations to support.
-			local target_number = mg.numNaturalWonders;
 			local iNumNWtoPlace = math.min(target_number, iNumNWCandidates);
 			local selected_NWs, fallback_NWs = {}, {};
 			for loop, wonderID in ipairs(NW_eligibility_order) do
@@ -1857,8 +1857,8 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.4.0",
-		Description = "Communitas mapscript for Vox Populi",
+		Name = "Communitu_79a v2.5.0",
+		Description = "Communitas mapscript for Vox Populi (version 2.7+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 1,
