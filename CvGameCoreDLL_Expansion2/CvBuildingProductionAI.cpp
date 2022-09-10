@@ -146,7 +146,7 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 #if defined(MOD_BALANCE_CORE)
 /// Do all building sanity stuff here.
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-	int iNumLandConnection, int iNumSeaConnection, bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
+	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
 	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
 		return SR_IMPOSSIBLE;
@@ -330,24 +330,18 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//No Land trade connections?
 	if(pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0 || pkBuildingInfo->GetTradeRouteLandGoldBonus() > 0 || pkBuildingInfo->GetLandTourismEnd() > 0)
 	{	
-		if (!bFreeBuilding && iNumLandConnection <= 0)
+
+		if (!bFreeBuilding && m_pCity->GetTradePriorityLand() <= 0)
 		{
-			if (pkBuildingInfo->GetTradeRouteLandDistanceModifier() > 0)
-			{
-				iBonus -= 50;
-			}
-			else
-			{
-				iBonus -= 10;
-			}
+			iBonus -= 50;
 		}
 		else
 		{
-			//Higher value the higher the number of routes.
-			iBonus += iNumLandConnection;
+			iBonus += m_pCity->GetTradePriorityLand()*5;
+
 			if(kPlayer.GetPlayerTraits()->GetLandTradeRouteRangeBonus() > 0)
 			{
-				iBonus += 10;
+				iBonus += 50;
 			}
 		}
 	}
@@ -359,7 +353,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->AllowsWaterRoutes()) 
 	{
 		CvCity* pCapital = kPlayer.getCapitalCity();
-		if(iNumSeaConnection <= 0 && m_pCity->IsRouteToCapitalConnected())
+		if(m_pCity->GetTradePrioritySea() <= 0 && m_pCity->IsRouteToCapitalConnected())
 		{
 			iBonus -= 50;
 		}
@@ -373,10 +367,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 
 		//Higher value the higher the number of routes.
-		iBonus += iNumSeaConnection;
 		if(kPlayer.GetPlayerTraits()->GetSeaTradeRouteRangeBonus() > 0 || kPlayer.getTradeRouteSeaDistanceModifier() != 0)
 		{
-			iBonus += 5 * max(1, iNumSeaConnection);
+			iBonus += m_pCity->GetTradePrioritySea()*5;
 		}
 
 		int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
@@ -401,7 +394,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0)
 	{
 		//Higher value the higher the number of routes.
-		iBonus += 5 * iNumSeaConnection;
+		iBonus += m_pCity->GetTradePrioritySea()*5;
 	}
 
 	if(pkBuildingInfo->IsAddsFreshWater() && !m_pCity->plot()->isFreshWater())
@@ -654,13 +647,15 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	else if (kPlayer.IsAtWarAnyMajor())
 		iDefenseMod += 150;
 
-	bool bDesperate = !bIgnoreSituational && m_pCity->isUnderSiege();
-	if (bDesperate)
+	bool bDanger = !bIgnoreSituational && m_pCity->isUnderSiege();
+	if (bDanger)
+	{
 		iDefenseMod += 1000;
 
-	if (iDefense == 0 && m_pCity->isUnderSiege() && !bIgnoreSituational)
-		//do not build any non-defensive buildings when under siege
-		return SR_STRATEGY;
+		if (iDefense == 0 && m_pCity->getDamage() > 0)
+			//do not build any non-defensive buildings when under siege
+			return SR_STRATEGY;
+	}
 
 	iDefense *= iDefenseMod;
 	iDefense /= 100;

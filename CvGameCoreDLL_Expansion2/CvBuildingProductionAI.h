@@ -44,11 +44,8 @@ public:
 
 	// Logging
 	void LogPossibleBuilds();
-#if defined(MOD_BALANCE_CORE)
-	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-		int iNumLandConnection = 0, int iNumSeaConnection = 0, 
-		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
-#endif
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+
 private:
 
 	// Private data

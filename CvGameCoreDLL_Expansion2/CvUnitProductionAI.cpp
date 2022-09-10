@@ -196,7 +196,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesS
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, int iWaterRoutes, int iLandRoutes, bool bForPurchase, bool bFree)
+int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, bool bForPurchase, bool bFree)
 {
 	//value to be added
 	int iBonus = 0;
@@ -974,13 +974,14 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				return SR_USELESS;
 			}
+
 			if (pkUnitEntry->GetDomainType() == DOMAIN_LAND)
 			{
-				iBonus += iLandRoutes;
+				iBonus += m_pCity->GetTradePriorityLand()*10;
 			}
 			else
 			{
-				iBonus += iWaterRoutes;
+				iBonus += m_pCity->GetTradePrioritySea()*10;
 			}
 
 			int iUnhappyGold = m_pCity->getUnhappinessFromGold();

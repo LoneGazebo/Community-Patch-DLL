@@ -48687,28 +48687,15 @@ void CvPlayer::SetBestWonderCities()
 			else if (pLoopCity->isCapital())
 				bCapitalCanConstruct = true;
 
-			//stats to decide whether to disband a unit
-			int iWaterPriority = pLoopCity->GetTradePrioritySea();
-			int iLandPriority = pLoopCity->GetTradePriorityLand();
-
-			int iWaterRoutes = -1;
-			int iLandRoutes = -1;
-
-			if (iWaterPriority >= 0)
-			{
-				//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-				iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-			}
-			if (iLandPriority >= 0)
-			{
-				iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-			}
-
 			//Best? Do it!
-			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, iLandRoutes, iWaterRoutes, true);
+			int iValue = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 1000, true);
+			
+			//duration is also important
+			iValue -= 50 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
 
-			int iPenalty = 25 * pLoopCity->getProductionTurnsLeft(eBuilding, 0);
-			iValue -= min((iValue - 1), iPenalty);
+			//some inertia ... 10% bonus for incumbent
+			if (pLoopCity->IsBestForWonder((BuildingClassTypes)pkeBuildingInfo->GetBuildingClassType()))
+				iValue += iValue/10;
 
 			if (iValue > iBestValue)
 			{

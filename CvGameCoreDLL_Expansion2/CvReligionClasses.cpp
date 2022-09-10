@@ -9429,24 +9429,6 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 					if (pBuildingEntry)
 					{
 						////Sanity and AI Optimization Check
-
-						//stats to decide whether to disband a unit
-						int iWaterPriority = m_pPlayer->getCapitalCity()->GetTradePrioritySea();
-						int iLandPriority = m_pPlayer->getCapitalCity()->GetTradePriorityLand();
-
-						int iWaterRoutes = -1;
-						int iLandRoutes = -1;
-
-						if (iWaterPriority >= 0)
-						{
-							//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-							iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-						}
-						if (iLandPriority >= 0)
-						{
-							iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-						}
-
 						int iSanity = pEntry->IsFollowerBelief() ? 6 : 1;
 
 						if (FaithBuildingAvailable(eReligion, pHolyCity == NULL ? m_pPlayer->getCapitalCity() : pHolyCity) == NO_BUILDINGCLASS)
@@ -9456,11 +9438,11 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 						if (pHolyCity != NULL)
 						{
-							iBuildingTemp += pHolyCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, false, true, true);
+							iBuildingTemp += pHolyCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, false, true, true);
 						}
 						else
 						{
-							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, iLandRoutes, iWaterRoutes, true, true, true);
+							iBuildingTemp += m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iSanity, true, true, true);
 						}
 
 						//Do we already have a faith building? Let's not double down.									
@@ -10399,29 +10381,12 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 				int iBest = 0;
 				BuildingClassTypes eBestBuilding = NO_BUILDINGCLASS;
 				////Sanity and AI Optimization Check
-
-				//stats to decide whether to disband a unit
-				int iWaterPriority = m_pPlayer->getCapitalCity()->GetTradePrioritySea();
-				int iLandPriority = m_pPlayer->getCapitalCity()->GetTradePriorityLand();
-
-				int iWaterRoutes = -1;
-				int iLandRoutes = -1;
-
-				if (iWaterPriority >= 0)
-				{
-					//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-					iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-				}
-				if (iLandPriority >= 0)
-				{
-					iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-				}
 				for (unsigned int iI = 0; iI < choices.size(); iI++)
 				{
 					BuildingTypes eBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(choices[iI]);
 					if (eBuilding != NO_BUILDING)
 					{
-						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, iLandRoutes, iWaterRoutes, false, true, true);
+						int iValue = pCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, false, true, true);
 						if (iValue > iBest)
 						{
 							iBest = iValue;
