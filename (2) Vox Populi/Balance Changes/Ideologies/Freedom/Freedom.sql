@@ -1,4 +1,9 @@
--- Finest Hour
+-- Their Finest Hour
+
+UPDATE Policies
+SET
+	MaxAirUnitsChangeGlobal = 1
+WHERE Type = 'POLICY_THEIR_FINEST_HOUR';
 
 INSERT INTO Policy_UnitCombatProductionModifiers
 	(PolicyType, UnitCombatType, ProductionModifier)
@@ -10,19 +15,16 @@ INSERT INTO Policy_UnitClassReplacements
 	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)
 VALUES
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCLASS_BOMBER', 'UNITCLASS_B17');
-	
-UPDATE Policies
-SET MaxAirUnitsChangeGlobal = 1
-WHERE Type = 'POLICY_THEIR_FINEST_HOUR';
+
 
 -- Arsenal of Democracy
-UPDATE Policies
-SET MilitaryUnitGiftExtraInfluence = '40'
-WHERE Type = 'POLICY_ARSENAL_DEMOCRACY';
 
 UPDATE Policies
-SET InfluenceGPExpend = '10'
+SET 
+	MilitaryUnitGiftExtraInfluence = 40,
+	InfluenceGPExpend = 10
 WHERE Type = 'POLICY_ARSENAL_DEMOCRACY';
+
 
 -- Capitalism
 
@@ -30,15 +32,10 @@ DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_CAPITALISM';
 
 UPDATE Policies
-SET NoUnhappfromXSpecialists = '2'
-WHERE Type = 'POLICY_CAPITALISM';
-
-UPDATE Policies
-SET HappfromXSpecialists = '2'
-WHERE Type = 'POLICY_CAPITALISM';
-
-UPDATE Policies
-SET Level = '2'
+SET
+	NoUnhappfromXSpecialists = 2,
+	HappfromXSpecialists = 2,
+	Level = 2
 WHERE Type = 'POLICY_CAPITALISM';
 
 INSERT INTO Policy_SpecialistExtraYields
@@ -46,20 +43,28 @@ INSERT INTO Policy_SpecialistExtraYields
 VALUES
 	('POLICY_CAPITALISM', 'YIELD_GOLD', 1);
 
+
 -- Covert Action
+
 UPDATE Policies
-SET FreeSpy = '1'
+SET
+	FreeSpy = 1
 WHERE Type = 'POLICY_COVERT_ACTION';
 
--- Open Society
+
+-- Open Society (Avant Garde)
+
 UPDATE Policies
-SET GreatPeopleRateModifier = '33'
+SET
+	GreatPeopleRateModifier = 33
 WHERE Type = 'POLICY_OPEN_SOCIETY';
+
 
 -- New Deal
 
 UPDATE Policy_ImprovementYieldChanges
-SET Yield = '6'
+SET
+	Yield = 6
 WHERE PolicyType = 'POLICY_NEW_DEAL';
 
 INSERT INTO Policy_ImprovementYieldChanges
@@ -76,7 +81,15 @@ VALUES
 	('POLICY_NEW_DEAL', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_PRODUCTION', 6),
 	('POLICY_NEW_DEAL', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_TOURISM', 2);
 
+
 -- Civil Society
+
+UPDATE Policies
+SET
+	HalfSpecialistFood = 0,
+	SpecialistFoodChange = -2,
+	Level = 1
+WHERE Type = 'POLICY_CIVIL_SOCIETY';
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
@@ -97,139 +110,22 @@ VALUES
 	('POLICY_CIVIL_SOCIETY', 'IMPROVEMENT_FEITORIA', 			'YIELD_FOOD', 4),
 	('POLICY_CIVIL_SOCIETY', 'IMPROVEMENT_MONGOLIA_ORDO', 		'YIELD_FOOD', 4);
 
-UPDATE Policies
-SET HalfSpecialistFood = '0'
-WHERE Type = 'POLICY_CIVIL_SOCIETY';
-
-UPDATE Policies
-SET SpecialistFoodChange = '-2'
-WHERE Type = 'POLICY_CIVIL_SOCIETY';
-
-UPDATE Policies
-SET Level = '1'
-WHERE Type = 'POLICY_CIVIL_SOCIETY';
 
 -- Treaty Organization
 
 UPDATE Policies
-SET FreeWCVotes = '4'
-WHERE Type = 'POLICY_TREATY_ORGANIZATION';
-
-UPDATE Policies
-SET ProtectedMinorPerTurnInfluence = '200'
+SET
+	FreeWCVotes = 4,
+	ProtectedMinorPerTurnInfluence = 200
 WHERE Type = 'POLICY_TREATY_ORGANIZATION';
 
 
 -- Creative Expression
 
--- Economic Union
-
-UPDATE Policies
-SET FreeTradeRoute = '2'
-WHERE Type = 'POLICY_ECONOMIC_UNION';
-
-UPDATE Policies
-SET SharedIdeologyTradeGoldChange = '6'
-WHERE Type = 'POLICY_ECONOMIC_UNION';
-
--- Media Culture
-
- -- Their Finest Hour
-
- -- Universal Suffrage 
-
-UPDATE Policies
-SET HalfSpecialistUnhappiness = '0'
-WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
-
-UPDATE Policies
-SET ExtraHappinessPerCity = '1'
-WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
-
-UPDATE Policies
-SET GoldenAgeTurns = '10'
-WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
-
-UPDATE Policies
-SET Level = '1'
-WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
-
--- Urbanization (Now Self-Determination)
-DELETE FROM Policy_BuildingClassHappiness
-WHERE PolicyType = 'POLICY_URBANIZATION';
-
-INSERT INTO Policy_YieldForLiberation
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_URBANIZATION', 'YIELD_SCIENCE', 40);
-	
-INSERT INTO Policy_BuildingClassInLiberatedCities
-	(PolicyType, BuildingClassType, Count)
-VALUES
-	('POLICY_URBANIZATION', 'BUILDINGCLASS_ARSENAL', 1);
-
-UPDATE Policies
-SET ExperienceAllUnitsFromLiberation = '15'
-WHERE Type = 'POLICY_URBANIZATION';
-
-UPDATE Policies
-SET InfluenceAllCSFromLiberation = '50'
-WHERE Type = 'POLICY_URBANIZATION';
-
-UPDATE Policies
-SET NumUnitsInLiberatedCities = '6'
-WHERE Type = 'POLICY_URBANIZATION';
-
-UPDATE Policies
-SET Level = '2'
-WHERE Type = 'POLICY_URBANIZATION';
-
---POLICY_UNIVERSAL_HEALTHCARE_F
-
-DELETE FROM Policy_BuildingClassHappiness
-WHERE PolicyType = 'POLICY_UNIVERSAL_HEALTHCARE_F';
-
-UPDATE Policies
-SET Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_F';
-
-UPDATE Policies
-SET Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_F';
-
-UPDATE Policies
-SET Level = '2'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_F';
-
--- Volunteer Army
-
-UPDATE Policies
-SET Level = '1'
-WHERE Type = 'POLICY_VOLUNTEER_ARMY';
-
-UPDATE Policies
-SET BaseFreeUnits = '0'
-WHERE Type = 'POLICY_VOLUNTEER_ARMY';
-
-UPDATE Policies
-SET IncludesOneShotFreeUnits = '0'
-WHERE Type = 'POLICY_VOLUNTEER_ARMY';
-
-UPDATE Policies
-SET NoXPLossUnitPurchase = '1'
-WHERE Type = 'POLICY_VOLUNTEER_ARMY';
-
-DELETE FROM Policy_FreeUnitClasses
-WHERE PolicyType = 'POLICY_VOLUNTEER_ARMY';
-
--- NEW
-
 UPDATE Policy_GreatWorkYieldChanges
-SET Yield = '2'
-WHERE PolicyType = 'POLICY_CREATIVE_EXPRESSION';
-
-UPDATE Policy_GreatWorkYieldChanges
-SET YieldType = 'YIELD_TOURISM'
+SET
+	YieldType = 'YIELD_TOURISM',
+	Yield = 2
 WHERE PolicyType = 'POLICY_CREATIVE_EXPRESSION';
 
 INSERT INTO Policy_BuildingClassYieldChanges
@@ -244,31 +140,109 @@ VALUES
 	('POLICY_CREATIVE_EXPRESSION', 'BUILDINGCLASS_AMPHITHEATER', 'YIELD_GOLDEN_AGE_POINTS', 3),
 	('POLICY_CREATIVE_EXPRESSION', 'BUILDINGCLASS_AMPHITHEATER', 'YIELD_CULTURE', 3);
 
-UPDATE Policy_BuildingClassTourismModifiers
-SET TourismModifier = '25'
-WHERE PolicyType = 'POLICY_MEDIA_CULTURE';
+
+-- Economic Union
+
+UPDATE Policies
+SET
+	FreeTradeRoute = 2,
+	SharedIdeologyTradeGoldChange = 6
+WHERE Type = 'POLICY_ECONOMIC_UNION';
+
+
+-- Media Culture
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
 VALUES
 	('POLICY_MEDIA_CULTURE', 'BUILDINGCLASS_BROADCAST_TOWER', 1);
 
-INSERT INTO Policy_BuildingClassYieldModifiers
-	(PolicyType, BuildingClassType, YieldType, YieldMod)
-VALUES
-	('POLICY_MEDIA_CULTURE', 'BUILDINGCLASS_STADIUM', 'YIELD_CULTURE', 20),
-	('POLICY_SPACE_PROCUREMENTS', 'BUILDINGCLASS_LABORATORY', 'YIELD_SCIENCE', 10);
+
+ -- Universal Suffrage 
 
 UPDATE Policies
-SET AllCityFreeBuilding = 'BUILDINGCLASS_HOSPITAL'
-WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_F';	
-	
+SET
+	HalfSpecialistUnhappiness = 0,
+	ExtraHappinessPerCity = 1,
+	GoldenAgeTurns = 10,
+	Level = 1
+WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
+
+
+-- Urbanization (now Self-Determination)
+
+DELETE FROM Policy_BuildingClassHappiness
+WHERE PolicyType = 'POLICY_URBANIZATION';
+
+UPDATE Policies
+SET
+	ExperienceAllUnitsFromLiberation = 15,
+	InfluenceAllCSFromLiberation = 50,
+	NumUnitsInLiberatedCities = 6,
+	Level = 2
+WHERE Type = 'POLICY_URBANIZATION';
+
+INSERT INTO Policy_BuildingClassInLiberatedCities
+	(PolicyType, BuildingClassType, Count)
+VALUES
+	('POLICY_URBANIZATION', 'BUILDINGCLASS_ARSENAL', 1);
+
+INSERT INTO Policy_YieldForLiberation
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_URBANIZATION', 'YIELD_SCIENCE', 40);
+
+
+-- Universal Healthcare
+
+DELETE FROM Policy_BuildingClassHappiness
+WHERE PolicyType = 'POLICY_UNIVERSAL_HEALTHCARE_F';
+
+UPDATE Policies
+SET
+	Help = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP',
+	Description = 'TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F',
+	AllCityFreeBuilding = 'BUILDINGCLASS_HOSPITAL',
+	Level = 2
+WHERE Type = 'POLICY_UNIVERSAL_HEALTHCARE_F';
+
 INSERT INTO Policy_YieldFromBirth
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_UNIVERSAL_HEALTHCARE_F', 'YIELD_CULTURE', 50);
 
+
+-- Volunteer Army (now Draft Registration)
+
+DELETE FROM Policy_FreeUnitClasses
+WHERE PolicyType = 'POLICY_VOLUNTEER_ARMY';
+
+UPDATE Policies
+SET
+	BaseFreeUnits = 0,
+	IncludesOneShotFreeUnits = 0,
+	NoXPLossUnitPurchase = 1,
+	Level = 1
+WHERE Type = 'POLICY_VOLUNTEER_ARMY';
+
+
+-- Space Procurements
+
 INSERT INTO Policy_BuildingClassProductionModifiers
 	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES
 	('POLICY_SPACE_PROCUREMENTS', 'BUILDINGCLASS_SPACESHIP_FACTORY', 100);
+
+
+
+----------------------
+-- Combined Insertions
+----------------------
+
+-- Building Changes
+
+INSERT INTO Policy_BuildingClassYieldModifiers
+	(PolicyType, BuildingClassType, YieldType, YieldMod)
+VALUES
+	('POLICY_MEDIA_CULTURE', 'BUILDINGCLASS_STADIUM', 'YIELD_CULTURE', 20),
+	('POLICY_SPACE_PROCUREMENTS', 'BUILDINGCLASS_LABORATORY', 'YIELD_SCIENCE', 10);
