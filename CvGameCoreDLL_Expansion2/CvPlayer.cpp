@@ -48663,21 +48663,16 @@ void CvPlayer::SetBestWonderCities()
 		if (!::isWorldWonderClass(kBuildingClassInfo) && !::isNationalWonderClass(kBuildingClassInfo))
 			continue;
 
+		//is this a unique wonder that we can't build? Ignore it.
 		bool bCivUnique = kBuildingClassInfo.getDefaultBuildingIndex() != eBuilding;
+		if (bCivUnique && !getCivilizationInfo().isCivilizationBuildingOverridden(eClass))
+			continue;
+
 		int iLoopCity;
-
-		// First reset the flag everywhere
-		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-			pLoopCity->SetBestForWonder(eClass, false);
-
 		for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
 		{
 			// No wonders in non-venetian puppets
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-				continue;
-
-			//is this a unique wonder that we can't build? Ignore it.
-			if (bCivUnique && !getCivilizationInfo().isCivilizationBuildingOverridden(eClass))
 				continue;
 
 			if (!pLoopCity->canConstruct(eBuilding))
@@ -48720,7 +48715,14 @@ void CvPlayer::SetBestWonderCities()
 		{
 			bool bIsWorldWonderClass = allScores[it->second].back().isForWorldWonder;
 			CvCity* pBestCity = allScores[it->second].back().city;
+
+			// Remember the result after all this effort
 			pBestCity->SetBestForWonder(it->second, true);
+
+			// Reset the flag everywhere else
+			for (CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+				if (pBestCity != pLoopCity)
+					pLoopCity->SetBestForWonder(eClass, false);
 
 			if ((GC.getLogging() && GC.getAILogging()))
 			{

@@ -723,7 +723,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		{
 			eNeighbor = pClosestCity->getOwner();
 		}
-		else if (pPlayer->getStartingPlot()->getArea()==pPlot->getArea()) //early game
+		else if (pPlayer->GetNumCitiesFounded() < 4) //early game
 		{
 			//if we're still inside our sphere of influence, see if we can make a strategic claim to territory
 			DirectionTypes eDirectionFromCapital = directionXY(pPlayer->getCapitalCity()->plot(), pPlot);
