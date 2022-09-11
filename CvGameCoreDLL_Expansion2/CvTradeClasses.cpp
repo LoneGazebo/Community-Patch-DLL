@@ -7546,33 +7546,27 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	CvCity* pOriginLoopCity = NULL;
 	for(pOriginLoopCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginLoopCity != NULL; pOriginLoopCity = m_pPlayer->nextCity(&iOriginCityLoop))
 	{
-		if(pOriginLoopCity != NULL)
-		{
-			pOriginLoopCity->SetTradePrioritySea(-1);
-			pOriginLoopCity->SetTradePriorityLand(-1);
-		}
+		pOriginLoopCity->SetTradePrioritySea(0);
+		pOriginLoopCity->SetTradePriorityLand(0);
 	}
-	//Let's store off values for 'good' trade unit cities to grab elsewhere. Uses the priority model (so 0 = best, 1 = second-best, etc.)
+
+	//Let's store off values for 'good' trade unit cities to grab elsewhere.
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
-		int iX = aTradeConnectionList[ui].m_iOriginX;
-		int iY = aTradeConnectionList[ui].m_iOriginY;
+		CvCity* pCity = m_pPlayer->getCity(aTradeConnectionList[ui].m_iOriginID);
+		if (!pCity)
+			continue;
 
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		if(pPlot != NULL)
+		// 100 is highest prio
+		int iPrioPercent = ((aTradeConnectionList.size() - ui)*100)/aTradeConnectionList.size();
+
+		if(aTradeConnectionList[ui].m_eDomain == DOMAIN_SEA && pCity->GetTradePrioritySea() < iPrioPercent)
 		{
-			CvCity* pCity = pPlot->getPlotCity();
-			if(pCity != NULL && pCity->getOwner() == m_pPlayer->GetID())
-			{
-				if(aTradeConnectionList[ui].m_eDomain == DOMAIN_SEA && pCity->GetTradePrioritySea() == -1)
-				{
-					pCity->SetTradePrioritySea(ui);
-				}
-				else if(pCity->GetTradePriorityLand() == -1)
-				{
-					pCity->SetTradePriorityLand(ui);
-				}
-			}
+			pCity->SetTradePrioritySea(iPrioPercent);
+		}
+		else if(pCity->GetTradePriorityLand() < iPrioPercent)
+		{
+			pCity->SetTradePriorityLand(iPrioPercent);
 		}
 	}
 }

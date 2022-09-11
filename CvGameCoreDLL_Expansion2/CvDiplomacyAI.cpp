@@ -10740,6 +10740,10 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			// Example: If another player has double our Military Strength, the Ratio will be 200
 			int iMilitaryRatio = iOtherPlayerMilitaryStrength * /*100*/ GD_INT_GET(MILITARY_STRENGTH_RATIO_MULTIPLIER) / max(1,iMilitaryStrength);
 
+			// Careful in the early game when the number of units is very low ...
+			if (GET_PLAYER(ePlayer).getNumMilitaryUnits()<6 && m_pPlayer->getNumMilitaryUnits()<6)
+				iMilitaryRatio = 100;
+
 			// Now do the final assessment
 			StrengthTypes eMilitaryStrength = STRENGTH_PATHETIC;
 			if (iMilitaryRatio >= /*300*/ GD_INT_GET(MILITARY_STRENGTH_IMMENSE_THRESHOLD))

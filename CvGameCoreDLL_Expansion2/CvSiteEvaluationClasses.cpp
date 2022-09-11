@@ -716,37 +716,74 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	{
 		//check if this location can be defended (from majors)
 		int iOwnCityDistance = pPlayer->GetCityDistancePathLength(pPlot);
+		PlayerTypes eNeighbor = NO_PLAYER;
+
 		CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pPlot,true);
 		if (pClosestCity && pClosestCity->getOwner() != pPlayer->GetID())
 		{
-			CvPlayer& kNeighbor = GET_PLAYER(pClosestCity->getOwner());
-			int iEnemyDistance = kNeighbor.GetCityDistancePathLength(pPlot);
-			int iEnemyMight = kNeighbor.GetMilitaryMight();
-			int iBoldnessDelta = pPlayer->GetDiplomacyAI()->GetBoldness() - kNeighbor.GetDiplomacyAI()->GetBoldness();
+			eNeighbor = pClosestCity->getOwner();
+		}
+		else if (pPlayer->getStartingPlot()->getArea()==pPlot->getArea()) //early game
+		{
+			//if we're still inside our sphere of influence, see if we can make a strategic claim to territory
+			DirectionTypes eDirectionFromCapital = directionXY(pPlayer->getCapitalCity()->plot(), pPlot);
 
-			int iInvScaler = 0;
+			//go two steps outward
+			CvPlot* pOutwardPlot = pPlot->getNeighboringPlot(eDirectionFromCapital);
+			if (pOutwardPlot)
+				pOutwardPlot = pOutwardPlot->getNeighboringPlot(eDirectionFromCapital);
+
+			if (pOutwardPlot)
+			{
+				CvCity* pClosestCity2 = GC.getGame().GetClosestCityByPathLength(pOutwardPlot, true);
+				if (pClosestCity2 && pClosestCity2->getOwner() != pPlayer->GetID())
+					eNeighbor = pClosestCity2->getOwner();
+			}
+		}
+		
+		//todo: do we want the check the map area as well?
+		if (eNeighbor != NO_PLAYER && pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eNeighbor)!=NO_STRENGTH_VALUE)
+		{
+			int strengthModifiers[NUM_STRENGTH_VALUES] = { 100, 100, 100, 50, -50, -100, -100 };
+			int iModifierPercent = strengthModifiers[pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eNeighbor)];
+
+			CvPlayer& kNeighbor = GET_PLAYER(eNeighbor);
+			int iEnemyDistance = kNeighbor.GetCityDistancePathLength(pPlot);
+			//are we getting *very* close to the enemy?
 			int iThreshold = min(iOwnCityDistance - 1, iBorderlandRange);
 			if (iEnemyDistance < iThreshold)
-				iInvScaler = 1;
-			else if (iEnemyDistance == iThreshold)
-				iInvScaler = 2;
-
-			//todo: do we want the check the map area as well?
-			if (iInvScaler > 0)
 			{
-				//stay away if we are weak
-				if (pPlayer->GetMilitaryMight() < iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
-				{
-					iStratModifier -= (iTotalPlotValue * /*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / iInvScaler / 100;
-					if (pDebug) vQualifiersNegative.push_back("(S) hard to defend");
-				}
+				//don't forward settle if we promised not to
+				if (pPlayer->GetDiplomacyAI()->IsPlayerMadeBorderPromise(eNeighbor))
+					return 0;
 
-				//landgrab if the neighbor is weak
-				if (pPlayer->GetMilitaryMight() > iEnemyMight*(1.4f - iBoldnessDelta*0.05f))
-				{
-					iStratModifier += (iTotalPlotValue * /*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE)) / iInvScaler / 100;
-					if (pDebug) vQualifiersPositive.push_back("(S) landgrab");
-				}
+				//be annoying to our enemies
+				if (pPlayer->GetDiplomacyAI()->GetCivApproach(eNeighbor) <= CIV_APPROACH_GUARDED || pPlayer->GetDiplomacyAI()->GetCivOpinion(eNeighbor) <= CIV_OPINION_COMPETITOR)
+					iModifierPercent += 50;
+			}
+			else if (pPlayer->GetNumCitiesFounded() > 3)
+			{
+				//be nice to our friends, but only once we have our base cities
+				if (pPlayer->GetDiplomacyAI()->GetCivApproach(eNeighbor) == CIV_APPROACH_FRIENDLY || pPlayer->GetDiplomacyAI()->GetCivOpinion(eNeighbor) >= CIV_OPINION_FRIEND)
+					iModifierPercent -= 50;
+			}
+
+			//personality also plays a role
+			if (pPlayer->GetDiplomacyAI()->GetBoldness() > 6)
+				iModifierPercent += 30;
+			if (pPlayer->GetDiplomacyAI()->GetBoldness() < 4)
+				iModifierPercent -= 30;
+
+			//finally
+			int iAdjustedEffect =  (/*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE) * iModifierPercent) / 100;
+			iStratModifier += (iTotalPlotValue * iAdjustedEffect) / 100;
+
+			if (pDebug)
+			{
+				if (iAdjustedEffect > 0)
+					vQualifiersPositive.push_back("(S) landgrab");
+				if (iAdjustedEffect < 0)
+					vQualifiersNegative.push_back("(S) hard to defend");
 			}
 		}
 

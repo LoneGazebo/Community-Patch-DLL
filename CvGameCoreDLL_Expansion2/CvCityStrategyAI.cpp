@@ -919,103 +919,83 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
 
-	if(m_BuildablesPrecheck.size() > 0)
+	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
-		//stats to decide whether to disband a unit
-		int iWaterPriority = m_pCity->GetTradePrioritySea();
-		int iLandPriority = m_pCity->GetTradePriorityLand();
-
-		int iWaterRoutes = -1;
-		int iLandRoutes = -1;
-
-		if(iWaterPriority >= 0)
+		CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
+		switch(selection.m_eBuildableType)
 		{
-			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-		}
-		if(iLandPriority >= 0)
-		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-		}
-
-		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
-		{
-			CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
-			switch(selection.m_eBuildableType)
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+		case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 			{
-			case NOT_A_CITY_BUILDABLE:
-				UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
-			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
-			case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				bool bCitySameAsMuster = false;
+				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
+				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					bool bCitySameAsMuster = false;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
-					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
-					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
-						if (iNewWeight > 0)
-						{
-							selection.m_iValue = iNewWeight;
-							m_Buildables.push_back(selection, iNewWeight);
-						}
-						else
-							LogInvalidItem(selection, iNewWeight);
-					}
-					break;
-				}
-			case CITY_BUILDABLE_UNIT: //any unit
-				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
-					if(iNewWeight > 0)
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), false, false);
+					if (iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
 						m_Buildables.push_back(selection, iNewWeight);
 					}
 					else
 						LogInvalidItem(selection, iNewWeight);
-					break;
 				}
-			case CITY_BUILDABLE_BUILDING:
+				break;
+			}
+		case CITY_BUILDABLE_UNIT: //any unit
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), false, false);
+				if(iNewWeight > 0)
 				{
-					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-			case CITY_BUILDABLE_PROCESS:
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_BUILDING:
+			{
+				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+				if(iNewWeight > 0)
 				{
-					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-			case CITY_BUILDABLE_PROJECT:
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_PROCESS:
+			{
+				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
+				int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
+				if(iNewWeight > 0)
 				{
-					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
-					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_PROJECT:
+			{
+				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
+				int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
+				if(iNewWeight > 0)
+				{
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
+				}
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
 			}
 		}
 	}
@@ -1333,96 +1313,75 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	LogPossibleHurries(m_BuildablesPrecheck,"PRE");
 
-	if(m_BuildablesPrecheck.size() > 0)
+	////Sanity and AI Optimization Check
+	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
-		////Sanity and AI Optimization Check
-	
-		//stats to decide whether to disband a unit
-		int iWaterPriority = m_pCity->GetTradePrioritySea();
-		int iLandPriority = m_pCity->GetTradePriorityLand();
-
-		int iWaterRoutes = -1;
-		int iLandRoutes = -1;
-
-		if (iWaterPriority >= 0)
+		selection = m_BuildablesPrecheck.GetElement(iI);
+		switch(selection.m_eBuildableType)
 		{
-			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-		}
-		if (iLandPriority >= 0)
-		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-		}
-
-		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
-		{
-			selection = m_BuildablesPrecheck.GetElement(iI);
-			switch(selection.m_eBuildableType)
+		case NOT_A_CITY_BUILDABLE:
+		case CITY_BUILDABLE_PROJECT:
+		case CITY_BUILDABLE_PROCESS:
+			UNREACHABLE(); // These items are not expected to be purchasable.
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 			{
-			case NOT_A_CITY_BUILDABLE:
-			case CITY_BUILDABLE_PROJECT:
-			case CITY_BUILDABLE_PROCESS:
-				UNREACHABLE(); // These items are not expected to be purchasable.
-			case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				bool bCitySameAsMuster = false;
+				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
+				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					bool bCitySameAsMuster = false;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
-					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
-					{
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), true);
-						if(iNewWeight > 0)
-						{
-							selection.m_iValue = iNewWeight;
-							m_Buildables.push_back(selection, iNewWeight);
-						}
-					}
-					break;
-				}
-			case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
-				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), true);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
 						m_Buildables.push_back(selection, iNewWeight);
 					}
-					break;
 				}
-			case CITY_BUILDABLE_UNIT:
+				break;
+			}
+		case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
+				if(iNewWeight > 0)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, true);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-			case CITY_BUILDABLE_BUILDING:
+				break;
+			}
+		case CITY_BUILDABLE_UNIT:
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
+				if(iNewWeight > 0)
 				{
-					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
-					int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
-					if (AmountComplete > 0)
-					{
-						int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
-						AmountComplete /= AmountNeeded;
-						if (AmountComplete < 50)
-						{
-							iNewWeight *= (100 + AmountComplete);
-							iNewWeight /= max(1, AmountComplete);
-						}
-					}
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
+				break;
+			}
+		case CITY_BUILDABLE_BUILDING:
+			{
+				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+				int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
+				if (AmountComplete > 0)
+				{
+					int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
+					AmountComplete /= AmountNeeded;
+					if (AmountComplete < 50)
+					{
+						iNewWeight *= (100 + AmountComplete);
+						iNewWeight /= max(1, AmountComplete);
+					}
+				}
+				if(iNewWeight > 0)
+				{
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
+				}
+				break;
 			}
 		}
 	}
@@ -2288,7 +2247,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 			reason = "tooexpensive";
 			break;
 		case SR_STRATEGY:
-			reason = "badstrategy";
+			reason = "badtimeorplace";
 			break;
 		case SR_USELESS:
 			reason = "useless";
@@ -2303,7 +2262,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SKIPPED: %s (%d), %s, %s, %d",
+		strTemp.Format("SKIPPED: %s %d, %s, %s, %d",
 			type, buildable.m_iIndex, strDesc.c_str(), reason, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
@@ -5522,7 +5481,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
 			if (pkBuildingInfo)
 			{
-				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, 10, 10, false, true);
+				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, false, true);
 				if (iFreeValue > 0)
 				{
 					iValue += iFreeValue;
