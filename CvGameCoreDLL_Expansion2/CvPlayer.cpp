@@ -48721,7 +48721,7 @@ void CvPlayer::SetBestWonderCities()
 		vector<pair<int, BuildingClassTypes>> bestScorePerClass;
 		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
-			ASSERT(!it->second.empty())
+			ASSERT(!it->second.empty());
 			sort(it->second.begin(), it->second.end());
 			bestScorePerClass.push_back(make_pair(it->second.back().score, it->first));
 		}
