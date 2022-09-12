@@ -566,7 +566,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_PROPHET] Great P
 WHERE Tag = 'TXT_KEY_WONDER_HAGIA_SOPHIA_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +33% [ICON_PRODUCTION] Production when building Armor Units. 1 Free Social Policy. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
+SET Text = 'Requires [COLOR_MAGENTA]Communism[ENDCOLOR]. +33% [ICON_PRODUCTION] Production when building Armor Units. 1 Free Social Policy. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_HELP';
 
 UPDATE Language_en_US

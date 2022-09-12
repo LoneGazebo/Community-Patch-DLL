@@ -438,11 +438,11 @@ SET Text = 'T-34'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_PANZER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR], [COLOR_POSITIVE_TEXT]Armor Plating II[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Order[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
+SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR], [COLOR_POSITIVE_TEXT]Armor Plating II[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Communism[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PANZER';
 
 UPDATE Language_en_US
-SET Text = 'The T-34 is unique to the Order Ideology. Requires the Patriotic War Tenet to be unlocked. The T-34 is stronger, faster, and has more defense than the tank. It can move after combat, allowing it to blow huge holes in enemy lines and then barrel through before the enemy can repair the gap.'
+SET Text = 'The T-34 is unique to the Communism Ideology. Requires the Patriotic War Tenet to be unlocked. The T-34 is stronger, faster, and has more defense than the tank. It can move after combat, allowing it to blow huge holes in enemy lines and then barrel through before the enemy can repair the gap.'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_PANZER_STRATEGY';
 
 UPDATE Language_en_US

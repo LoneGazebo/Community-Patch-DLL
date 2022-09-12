@@ -3794,7 +3794,7 @@
 			<Text>Hail, citizen! The path of Freedom lies before us, and none shall stand in our path. Let the darkness of the world tremble before the light of liberty!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SAME_POLICIES_ORDER_2">
-			<Text>Let others tremble at our shared belief in Order. We have nothing to lose but our chains. We have a world to win. Workers of the world, unite!</Text>
+			<Text>Let others tremble at our shared belief in Communism. We have nothing to lose but our chains. We have a world to win. Workers of the world, unite!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SAME_POLICIES_AUTOCRACY_2">
 			<Text>Greetings, fellow warlord! Our mutual decision shall decide the future of humanity: it shall be either our view or theirs, as there can be no compromises!</Text>
@@ -3953,7 +3953,7 @@
 			<Text>You have made a wise and noble decision. The message of Freedom is one of compassion and acceptance, virtues that I hope you will embrace and share with others.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SWITCHED_TO_ORDER_2">
-			<Text>You have embraced Order, and will now be a part of our glorious future. It is a good thing, too, as our proletarian revolution shall soon claim the entire world!</Text>
+			<Text>You have embraced Communism, and will now be a part of our glorious future. It is a good thing, too, as our proletarian revolution shall soon claim the entire world!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SWITCHED_TO_AUTOCRACY_2">
 			<Text>The new world order of Autocracy is a force that cannot be denied. Your decision to join our cause was inevitable, and will lead to a great and triumphant future.</Text>
@@ -5806,7 +5806,7 @@
 			<Text>Democracy, a free press, and a free market are the rights of all people. Our nation shall no longer watch while you continue to trample on the hearts of your citizens! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_1">
-			<Text>Your people's voices call out for economic justice and social equality. As long as you deny the righteous path of Order, we will never be able to see eye to eye. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
+			<Text>Your people's voices call out for economic justice and social equality. As long as you deny the righteous path of Communism, we will never be able to see eye to eye. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_BELIEVES_ORDER_2">
 			<Text>Why do you continue to deny the rights of your workers to live without the evils of hunger and poverty? If it takes this denouncement to end their suffering, so be it. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
@@ -5824,10 +5824,10 @@
 			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_1">
-			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this evangelizing of Order at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
+			<Text>I know that you are trying to cause a worker's revolution in my lands. For my nation's stability and yours, cease this evangelizing of Communism at once. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_ORDER_2">
-			<Text>Keep your radical Order beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
+			<Text>Keep your radical Communism beliefs away from my people's ears before I show you what 'better dead than red' really means. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_AUTOCRACY_1" >
 			<Text>Your supposed military might is not enough to hide the cruelty you inflict upon your own people from the world. Cease your tyranny before we are forced to declare war against you! [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us![ENDCOLOR])</Text>
