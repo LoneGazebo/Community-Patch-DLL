@@ -116,7 +116,11 @@ SET Text = 'Allows Research Agreements (if enabled)'
 WHERE Tag = 'TXT_KEY_ABLTY_R_PACT_STRING';
 
 UPDATE Language_en_US
-SET Text = 'A city has a Ranged Combat Strength equal to its full Strength at the start of combat, and it has a range of 1. This range increases as the game progresses based on researched technologies (look for the "ranged strike" icon in the tech tree for these technologies). It may attack any one enemy unit within that range. Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.'
+SET Text = '[COLOR_YELLOW]Cities Firing at Attackers[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'A city has a Ranged Combat Strength equal to its full Strength at the start of combat, and [COLOR_YELLOW]it has a range of 1. This range increases as the game progresses based on researched technologies (look for the "ranged strike" icon in the tech tree for these technologies).[ENDCOLOR] It may attack any one enemy unit within that range. Note that the city''s Ranged Combat Strength doesn''t decline as the city takes damage; it remains equal to the city''s initial Strength until the city is captured.'
 WHERE Tag = 'TXT_KEY_COMBAT_CITYFIRINGATTACKERS_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -173,8 +177,12 @@ SET Text = 'You can change city construction orders on the City Screen. You can 
 WHERE Tag = 'TXT_KEY_BUILDINGS_PURCHASING_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'You can purchase units with gold, or invest gold in buildings to reduce their construction cost, from within your city screen. This can be helpful if you need something in a hurry, like additional units to defend against an invader.'
+SET Text = 'You can purchase units with gold, [COLOR_YELLOW]or invest gold in buildings to reduce their construction cost[ENDCOLOR], from within your city screen. This can be helpful if you need something in a hurry, like additional units to defend against an invader.'
 WHERE Tag = 'TXT_KEY_CITIES_PURCHASINGITEM_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Purchasing an Item[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CITIES_PURCHASINGITEM_HEADING3_TITLE';
 
 UPDATE Language_en_US
 SET Text = ' You can spend gold to purchase units or invest in a building in a city. Click on a unit (if you can afford it!) and it will be immediately trained in the city, and the amount deducted from your treasury. If you click on a building, you will invest in it, reducing the production cost of the building by 50%.[NEWLINE][NEWLINE]Note that "projects" - the Manhattan Project, etc. - cannot be purchased.'

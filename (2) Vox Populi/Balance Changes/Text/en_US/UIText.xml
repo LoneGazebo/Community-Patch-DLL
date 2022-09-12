@@ -60,7 +60,7 @@
 			<Text>What is a Historic Event?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE">
-			<Text>Resistance</Text>
+			<Text>[COLOR_GREEN]Resistance[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_BODY">
 			<Text>Resistance is a mechanic through which Civilizations that have conquered one or more Capitals will find it increasingly difficult to capture additional Capitals. During combat, you may see the modifier [COLOR_POSITIVE_TEXT]Resistance (Domination)[ENDCOLOR] appear for you (a bonus) or for the enemy (a penalty). This modifier only appears after either you or your opponent have captured an enemy Capital. The modifier changes based on the number of foreign (non-City-State) Capitals owned and the number of foreign Capitals in total. The more Capitals captured by one player, the higher this penalty becomes!</Text>
@@ -70,7 +70,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CONCEPT_PARTISANS">
-			<Text>Partisans</Text>
+			<Text>[COLOR_GREEN]Partisans[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_BODY">
 			<Text>If you choose to raze a City, there is a chance each turn that the City will spawn Partisans loyal to the Civilization you conquered this City from. These units will only spawn if you are still at war with the Civilization. If you are no longer at war, any spawned Partisans will be considered Barbarians. Be careful with aggressively razing enemy Cities, as the sudden appearance of Partisans could turn the tide against you!</Text>
