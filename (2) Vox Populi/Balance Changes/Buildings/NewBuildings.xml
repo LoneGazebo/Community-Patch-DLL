@@ -74,6 +74,11 @@
 			<Description>TXT_KEY_BUILDING_GROVE</Description>
 		</Row>
 		<Row>
+			<Type>BUILDINGCLASS_LODGE</Type>
+			<DefaultBuilding>BUILDING_LODGE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_LODGE</Description>
+		</Row>
+		<Row>
 			<Type>BUILDINGCLASS_WELL</Type>
 			<DefaultBuilding>BUILDING_WELL</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WELL</Description>
@@ -115,6 +120,11 @@
 			<Description>TXT_KEY_BUILDING_MINEFIELD</Description>
 		</Row>
 		<Row>
+			<Type>BUILDINGCLASS_INTERPRETIVE_CENTER</Type>
+			<DefaultBuilding>BUILDING_INTERPRETIVE_CENTER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
+		</Row>
+		<Row>
 			<Type>BUILDINGCLASS_TRAINSTATION</Type>
 			<DefaultBuilding>BUILDING_TRAINSTATION</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
@@ -136,6 +146,16 @@
 			<DefaultBuilding>BUILDING_MURANO_GLASSWORKS</DefaultBuilding>
 			<Description>TXT_KEY_MURANO_GLASSWORKS</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_D_FOR_SPAIN_MISSION</Type>
+			<DefaultBuilding>BUILDING_D_FOR_SPAIN_MISSION</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_SPAIN_MISSION</Type>
+			<DefaultBuilding>BUILDING_SPAIN_MISSION</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
 		</Row>
 	</BuildingClasses>
 	<Buildings>
@@ -521,10 +541,10 @@
 		</Row>
 		<Row>
 			<Type>BUILDING_YURT</Type>
-			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_LODGE</BuildingClass>
 			<Cost>65</Cost>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
-			<PrereqTech>TECH_POTTERY</PrereqTech>
+			<PrereqTech>TECH_TRAPPING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_YURT_HELP</Help>
 			<Description>TXT_KEY_BUILDING_YURT</Description>
 			<PlotCultureCostModifier>-25</PlotCultureCostModifier>
@@ -533,12 +553,10 @@
 			<Strategy>TXT_KEY_BUILDING_YURT_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<FoodKept>15</FoodKept>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
-			<AllowsFoodTradeRoutes>true</AllowsFoodTradeRoutes>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
-			<PortraitIndex>9</PortraitIndex>
+			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
@@ -582,33 +600,47 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
-<!--	Mission not currently being used, probably can be deleted
+		<Row>
+			<Type>BUILDING_D_FOR_SPAIN_MISSION</Type>
+			<BuildingClass>BUILDINGCLASS_D_FOR_SPAIN_MISSION</BuildingClass>
+			<Cost>-1</Cost>
+			<FaithCost>-1</FaithCost>
+			<GreatWorkCount>-1</GreatWorkCount>
+			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
+			<GoldMaintenance>0</GoldMaintenance>
+			<MinAreaSize>-1</MinAreaSize>
+			<IconAtlas>CIV_COLOR_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<IsDummy>true</IsDummy>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<NeverCapture>true</NeverCapture>
+			<ConquestProb>0</ConquestProb>
+			<NukeImmune>1</NukeImmune>
+		</Row>
 		<Row>
 			<Type>BUILDING_MISSION</Type>
-			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>275</Cost>
-			<FaithCost>200</FaithCost>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
-			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+			<BuildingClass>BUILDINGCLASS_SPAIN_MISSION</BuildingClass>
+			<Cost>-1</Cost>
+			<FaithCost>100</FaithCost>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
 			<Description>TXT_KEY_BUILDING_MISSION</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
-			<ConversionModifier>15</ConversionModifier>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>1200</Defense>
-			<ExtraCityHitPoints>100</ExtraCityHitPoints>
+			<Defense>200</Defense>
+			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<InstantReligiousPressure>9999</InstantReligiousPressure>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>1</DisplayPosition>
+			<ConquestProb>0</ConquestProb>
 			<NeverCapture>true</NeverCapture>
 		</Row>
--->
+
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
@@ -846,6 +878,24 @@
 			<PortraitIndex>15</PortraitIndex>
 		</Row>
 		<Row>
+			<Type>BUILDING_LODGE</Type>
+			<BuildingClass>BUILDINGCLASS_LODGE</BuildingClass>
+			<Cost>65</Cost>
+			<GoldMaintenance>0</GoldMaintenance>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+			<Description>TXT_KEY_BUILDING_LODGE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_LODGE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_LODGE_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_LODGE_HELP</Help>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
+			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>-20</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
+		</Row>
+		<Row>
 			<Type>BUILDING_GROCER</Type>
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
 			<Cost>500</Cost>
@@ -868,9 +918,9 @@
 		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
-			<Cost>1500</Cost>
-			<GoldMaintenance>6</GoldMaintenance>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<Cost>2250</Cost>
+			<GoldMaintenance>10</GoldMaintenance>
+			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_WIND_PLANT_STRATEGY</Strategy>
@@ -882,6 +932,25 @@
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_TIDAL_PLANT</Type>
+			<BuildingClass>BUILDINGCLASS_TIDAL_PLANT</BuildingClass>
+			<Cost>2250</Cost>
+			<GoldMaintenance>10</GoldMaintenance>
+			<PrereqTech>TECH_ECOLOGY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_TIDAL_PLANT</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TIDAL_PLANT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_TIDAL_PLANT_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_TIDAL_PLANT_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MutuallyExclusiveGroup>1</MutuallyExclusiveGroup>
+			<Water>1</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>-20</HurryCostModifier>
+			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_STOCKYARD</Type>
@@ -938,6 +1007,25 @@
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>18</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_INTERPRETIVE_CENTER</Type>
+			<BuildingClass>BUILDINGCLASS_INTERPRETIVE_CENTER</BuildingClass>
+			<Cost>2250</Cost>
+			<GoldMaintenance>10</GoldMaintenance>
+			<PrereqTech>TECH_TELECOM</PrereqTech>
+			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_INTERPRETIVE_CENTER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_INTERPRETIVE_CENTER_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_INTERPRETIVE_CENTER_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_TOURIST_CENTER</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>EXPANSION2_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+			<LandmarksTourismPercent>50</LandmarksTourismPercent>
+			<Cost>2250</Cost>
 		</Row>
 		<Row>
 			<Type>BUILDING_TRAINSTATION</Type>

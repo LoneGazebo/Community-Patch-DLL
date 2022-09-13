@@ -2408,7 +2408,7 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_BOOGALOO</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<FriendlyLandsModifier>15</FriendlyLandsModifier>
+			<FriendlyLandsModifier>20</FriendlyLandsModifier>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_DESERT_WARRIOR</Type>
