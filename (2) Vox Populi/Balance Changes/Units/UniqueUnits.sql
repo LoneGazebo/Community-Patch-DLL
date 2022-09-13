@@ -530,6 +530,8 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_SPANISH_TERCI
 
 UPDATE Units SET Class = 'UNITCLASS_TERCIO', IconAtlas = 'COMMUNITY_2_ATLAS', PortraitIndex = 23 WHERE Type = 'UNIT_SPANISH_TERCIO';
 
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_EXPLORER' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
+
 UPDATE Units SET 
 	FoundMid = '1', 
 	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
@@ -542,7 +544,7 @@ UPDATE Units SET
 	BaseSightRange = 3,
 	PrereqTech = 'TECH_COMPASS',
 	ObsoleteTech = 'TECH_FLIGHT',
-	CombatClass = 'UNITCOMBAT_RECON',
+	CombatClass = 'UNITCOMBAT_RECON'
 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_COMMANDO' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';

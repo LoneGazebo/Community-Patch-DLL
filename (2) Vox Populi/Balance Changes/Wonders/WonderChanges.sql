@@ -442,7 +442,7 @@ UPDATE Buildings SET
 	LandmarksTourismPercent = 25, 
 	GreatWorksTourismModifier = 25,
 	GlobalLandmarksTourismPercent = 25, 
-	GlobalGreatWorksTourismModifier = 25
+	GlobalGreatWorksTourismModifier = 25,
 	HappinessPerCity = '1', 
 	GlobalPopulationChange = '0'
 WHERE Type = 'BUILDING_CN_TOWER';

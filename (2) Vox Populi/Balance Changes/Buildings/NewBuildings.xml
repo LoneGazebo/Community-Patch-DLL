@@ -77,7 +77,7 @@
 			<Type>BUILDINGCLASS_LODGE</Type>
 			<DefaultBuilding>BUILDING_LODGE</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_LODGE</Description>
-		</Row>
+		</Row>	
 		<Row>
 			<Type>BUILDINGCLASS_WELL</Type>
 			<DefaultBuilding>BUILDING_WELL</DefaultBuilding>
@@ -98,6 +98,11 @@
 			<DefaultBuilding>BUILDING_WIND_PLANT</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
 		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_TIDAL_PLANT</Type>
+			<DefaultBuilding>BUILDING_TIDAL_PLANT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_TIDAL_PLANT</Description>
+		</Row>	
 		<Row>
 			<Type>BUILDINGCLASS_STOCKYARD</Type>
 			<DefaultBuilding>BUILDING_STOCKYARD</DefaultBuilding>
@@ -123,12 +128,12 @@
 			<Type>BUILDINGCLASS_INTERPRETIVE_CENTER</Type>
 			<DefaultBuilding>BUILDING_INTERPRETIVE_CENTER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
-		</Row>
+		</Row>	
 		<Row>
 			<Type>BUILDINGCLASS_TRAINSTATION</Type>
 			<DefaultBuilding>BUILDING_TRAINSTATION</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_TRAINSTATION</Description>
-		</Row>
+		</Row> 
 		<Row>
 			<Type>BUILDINGCLASS_RIALTO_DISTRICT</Type>
 			<DefaultBuilding>BUILDING_RIALTO_DISTRICT</DefaultBuilding>
@@ -156,7 +161,7 @@
 			<Type>BUILDINGCLASS_SPAIN_MISSION</Type>
 			<DefaultBuilding>BUILDING_SPAIN_MISSION</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
-		</Row>
+		</Row> 	
 	</BuildingClasses>
 	<Buildings>
 		<!--Stupa-->
@@ -201,7 +206,7 @@
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
 		
-	</Row>
+		</Row>
 		<!--Mandir-->
 		<Row>
 			<Type>BUILDING_MANDIR</Type>
@@ -387,31 +392,6 @@
 			<PortraitIndex>9</PortraitIndex>
 			<Cost>-1</Cost>
 		</Row>
-<!--		<Row>
-			<Type>BUILDING_MOMA</Type>
-			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
-			<Cost>125</Cost>
-			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
-			<Help>TXT_KEY_BUILDING_MOMA_HELP</Help>
-			<Description>TXT_KEY_BUILDING_MOMA</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_MOMA_STRATEGY</Strategy>
-			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<ThemingBonusHelp>TXT_KEY_MOMA_THEMING_BONUS_HELP</ThemingBonusHelp>
-			<NukeImmune>true</NukeImmune>
-			<NumCityCostMod>10</NumCityCostMod>
-			<NationalPopRequired>50</NationalPopRequired>
-			<HurryCostModifier>-1</HurryCostModifier>
-			<CultureRateModifier>25</CultureRateModifier>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
-			<GreatWorkCount>3</GreatWorkCount>
-			<NeverCapture>true</NeverCapture>
-			<LandmarksTourismPercent>50</LandmarksTourismPercent>
-			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
-			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
-			<PortraitIndex>10</PortraitIndex>
-		</Row>	-->
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>
 			<BuildingClass>BUILDINGCLASS_FORGE</BuildingClass>
@@ -555,9 +535,9 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
-			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
-			<PortraitIndex>1</PortraitIndex>
-		</Row>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row> 
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
@@ -607,18 +587,17 @@
 			<FaithCost>-1</FaithCost>
 			<GreatWorkCount>-1</GreatWorkCount>
 			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
-			<GoldMaintenance>0</GoldMaintenance>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>CIV_COLOR_ATLAS</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
-			<IsDummy>true</IsDummy>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
+			<IsDummy>1</IsDummy>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<NeverCapture>true</NeverCapture>
 			<ConquestProb>0</ConquestProb>
 			<NukeImmune>1</NukeImmune>
 		</Row>
 		<Row>
-			<Type>BUILDING_MISSION</Type>
+			<Type>BUILDING_SPAIN_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_SPAIN_MISSION</BuildingClass>
 			<Cost>-1</Cost>
 			<FaithCost>100</FaithCost>
@@ -639,7 +618,7 @@
 			<DisplayPosition>1</DisplayPosition>
 			<ConquestProb>0</ConquestProb>
 			<NeverCapture>true</NeverCapture>
-		</Row>
+		</Row>  
 
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
@@ -884,7 +863,7 @@
 			<GoldMaintenance>0</GoldMaintenance>
 			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
 			<Description>TXT_KEY_BUILDING_LODGE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_LODGE_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_BUILDING_LODGE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_LODGE_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_LODGE_HELP</Help>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
@@ -892,9 +871,9 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>-20</HurryCostModifier>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>15</PortraitIndex>
-		</Row>
+			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>	
 		<Row>
 			<Type>BUILDING_GROCER</Type>
 			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
@@ -940,7 +919,7 @@
 			<GoldMaintenance>10</GoldMaintenance>
 			<PrereqTech>TECH_ECOLOGY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_TIDAL_PLANT</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_TIDAL_PLANT_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_BUILDING_TIDAL_PLANT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_TIDAL_PLANT_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_TIDAL_PLANT_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
@@ -951,7 +930,7 @@
 			<HurryCostModifier>-20</HurryCostModifier>
 			<IconAtlas>FCOMPANY_ATLAS</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
-		</Row>
+		</Row> 
 		<Row>
 			<Type>BUILDING_STOCKYARD</Type>
 			<BuildingClass>BUILDINGCLASS_STOCKYARD</BuildingClass>
@@ -1015,7 +994,7 @@
 			<GoldMaintenance>10</GoldMaintenance>
 			<PrereqTech>TECH_TELECOM</PrereqTech>
 			<Description>TXT_KEY_BUILDING_INTERPRETIVE_CENTER</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_INTERPRETIVE_CENTER_TEXT</Civilopedia>
+			<Civilopedia>TXT_KEY_BUILDING_INTERPRETIVE_CENTER_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_INTERPRETIVE_CENTER_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_INTERPRETIVE_CENTER_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_TOURIST_CENTER</ArtDefineTag>
@@ -1025,8 +1004,7 @@
 			<IconAtlas>EXPANSION2_WONDER_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
-			<Cost>2250</Cost>
-		</Row>
+		</Row> 	
 		<Row>
 			<Type>BUILDING_TRAINSTATION</Type>
 			<BuildingClass>BUILDINGCLASS_TRAINSTATION</BuildingClass>
@@ -1049,12 +1027,6 @@
 			<PortraitIndex>3</PortraitIndex>
 		</Row>
 	</Buildings>
-	<Building_ClassesNeededInCity>
-		<Row>
-			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
-		</Row>
-	</Building_ClassesNeededInCity>
 	<GreatWorks>
 		<Row>
 			<Type>GREAT_WORK_FLOOD_TABLET</Type>
