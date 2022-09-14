@@ -3426,7 +3426,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->getExperienceTimes100());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->GetID() + pThisUnit->getDamage());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 
