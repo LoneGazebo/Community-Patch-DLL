@@ -13673,8 +13673,6 @@ bool CvUnit::build(BuildTypes eBuild)
 			}
 		}
 
-		// wipe out all build progress also
-		pPlot->SilentlyResetAllBuildProgress();
 #if defined(MOD_CIV6_WORKER)
 		if(!MOD_CIV6_WORKER)
 			bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());

@@ -673,7 +673,7 @@ public:
 	int getBuildProgress(BuildTypes eBuild) const;
 	bool changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer = NO_PLAYER, bool bNewBuild = false);
 	bool getAnyBuildProgress() const;
-	void SilentlyResetAllBuildProgress();
+	void SilentlyResetAllBuildProgress(BuildTypes eBuild = NO_BUILD);
 
 	bool isLayoutDirty() const;							// The plot layout contains resources, routes, and improvements
 	void setLayoutDirty(bool bDirty);
@@ -961,7 +961,6 @@ protected:
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
-	char /*ImprovementTypes*/ m_eImprovementTypeUnderConstruction;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
