@@ -2802,7 +2802,6 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 
 				int iValue = 0;
 
-				ResourceClassTypes eResourceClassBonus = (ResourceClassTypes)GC.getInfoTypeForString("RESOURCECLASS_BONUS");
 				for (int i = 0; i < GC.getNumResourceInfos(); i++)
 				{
 					ResourceTypes eResource = (ResourceTypes)i;
@@ -2817,7 +2816,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 								bMonopoly = true;
 
-							if (eResourceClassBonus == eResourceClassCurrent)
+							if (RESOURCEUSAGE_BONUS == eResourceClassCurrent)
 								bIsBonus = true;
 						}
 						
@@ -2826,7 +2825,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						{		
 							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 							{
-								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 10 in VP*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 5 in VP*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 							}
 						}
 					}
