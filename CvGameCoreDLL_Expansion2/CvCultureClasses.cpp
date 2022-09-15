@@ -5697,7 +5697,8 @@ void CvPlayerCulture::DoPublicOpinion()
 
 		if (iNumCivsNotFollowingOurIdeology > 0)
 		{
-			m_strOpinionTooltip += "Influenced by the number of civilizations not following our Ideology: ";
+			Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_NUMBER_NOT_INFLUENCED");
+			m_strOpinionTooltip += locText.toUTF8();
 			for (int iI = 0; iI < iNumCivsNotFollowingOurIdeology; iI++)
 			{
 				m_strOpinionTooltip += sIdeologyIcon;
@@ -5722,7 +5723,8 @@ void CvPlayerCulture::DoPublicOpinion()
 		iTurnsSinceIdeology = (int)ceil((iTurnLag - iTurnsSinceIdeology) / 10.0);
 		if (iTurnsSinceIdeology > 0)
 		{
-			m_strOpinionTooltip += "Influence due to only recently adopting/switching Ideologies: ";
+			Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_RECENTLY_INFLUENCED");
+			m_strOpinionTooltip += locText.toUTF8();
 			aIdeologyPressure[eOurIdeology] += iTurnsSinceIdeology;
 			for (int iI = 0; iI < iTurnsSinceIdeology; iI++)
 			{

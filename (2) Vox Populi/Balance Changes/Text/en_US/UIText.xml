@@ -1479,6 +1479,21 @@
 		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC_TT">
 			<Text>Click here to have the governor reassign specialists.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VP_VASSALS">
+			<Text>Vassals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_CITYSTATES">
+			<Text>City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_MILITARY">
+			<Text>Military Power</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_OPINION_TT_NUMBER_NOT_INFLUENCED">
+			<Text>Influenced by the number of civilizations not following our Ideology: </Text>
+		</Row>
+		<Row Tag="TXT_KEY_CO_OPINION_TT_RECENTLY_INFLUENCED">
+			<Text>Influence due to only recently adopting/switching Ideologies: </Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
