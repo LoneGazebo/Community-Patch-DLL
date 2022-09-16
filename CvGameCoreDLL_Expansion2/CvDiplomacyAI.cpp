@@ -28791,16 +28791,6 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 	if (GC.getGame().isFinalInitialized())
 	{
 		DoUpdateConquestStats();
-		DoUpdatePlayerMilitaryStrengths();
-		// Update Military Strengths for all Teammates as well because the values are needed for updating the Target Values
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (IsPlayerValid(eLoopPlayer, true) && eLoopPlayer != ePlayer && IsTeammate(eLoopPlayer))
-			{
-				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdatePlayerMilitaryStrengths();
-			}
-		}
 		DoUpdatePlayerEconomicStrengths();
 		DoUpdatePlayerTargetValues();
 		DoUpdateMilitaryAggressivePostures();

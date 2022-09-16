@@ -4137,6 +4137,37 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 				}
 			}
 		}
+		for (int iMyPlayersLoop = 0; iMyPlayersLoop < MAX_CIV_PLAYERS; iMyPlayersLoop++)
+		{
+			PlayerTypes eMyPlayer = (PlayerTypes)iMyPlayersLoop;
+
+			if (GET_PLAYER(eMyPlayer).isAlive())
+			{
+				if (GET_PLAYER(eMyPlayer).getTeam() == GetID())
+				{
+					// Now loop through players on Their team
+					for (int iTheirPlayersLoop = 0; iTheirPlayersLoop < MAX_CIV_PLAYERS; iTheirPlayersLoop++)
+					{
+						PlayerTypes eTheirPlayer = (PlayerTypes)iTheirPlayersLoop;
+
+						// Don't calculate proximity to oneself!
+						if (eMyPlayer != eTheirPlayer)
+						{
+							if (GET_PLAYER(eTheirPlayer).isAlive())
+							{
+								if (GET_PLAYER(eTheirPlayer).getTeam() == eIndex)
+								{
+									if (isMajorCiv())
+									{
+										GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoUpdatePlayerMilitaryStrengths();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 
 		// First Contact in Diplo AI (Civ 5)
 		for(int iMyPlayersLoop = 0; iMyPlayersLoop < MAX_CIV_PLAYERS; iMyPlayersLoop++)
