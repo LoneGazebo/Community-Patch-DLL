@@ -343,26 +343,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 	//Are we alone?
 	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
-	bool bAlone = true;
-	if(kPlayer.isMinorCiv())
+	if (!bFree && bCombat)
 	{
-		bAlone = false;
-	}
-	else if (!bFree && bCombat)
-	{
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-			{
-				if (kPlayer.GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
-				{
-					bAlone = false;
-					break;
-				}
-			}
-		}
 		CvLandmass* pLM = GC.getMap().getLandmass(m_pCity->plot()->getLandmass());
 		if(pLM != NULL && pLM->getNumTiles() <= 3)
 		{
@@ -605,8 +587,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0)
 				{
 					//emphasize navy if there is nobody to attack over land
-					if (bAlone)
+					if (MilitaryAIHelpers::IsTestStrategy_NeedNavalUnitsCritical(&kPlayer))
 						iValue *= 5;
+					else if (MilitaryAIHelpers::IsTestStrategy_NeedNavalUnits(&kPlayer))
+						iValue *= 2;
 
 					int iWarValue = 0;
 					int iNumPlayers = 0;
@@ -669,32 +653,26 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 				if (iValue > 0)
 				{
+					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
+					int iNumPlayers = (int)warPlayers.size();
+
 					int iWarValue = 0;
-					int iNumPlayers = 0;
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (size_t i=0; i<warPlayers.size(); i++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eLoopPlayer = warPlayers[i];
 
-						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID())
+						bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
+
+						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 						{
-							if (!GET_PLAYER(eLoopPlayer).isAlive())
-								continue;
-
-							iNumPlayers++;
-
-							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
-
-							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
-							{
-								if (GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) || bPotentialTargetOrThreat)
-									iWarValue += 4;
-								else
-									iWarValue += 2;
-							}
+							if (GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) || bPotentialTargetOrThreat)
+								iWarValue += 4;
 							else
-							{
-								iWarValue += 1;
-							}
+								iWarValue += 2;
+						}
+						else
+						{
+							iWarValue += 1;
 						}
 					}
 
@@ -772,7 +750,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && (kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
+				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && 
+					(kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
 				{
 					int iTheirAir = GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR) + GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR);
 
@@ -918,10 +897,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (pReligion)
 				{
 					CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
-					const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
-					for (int iI = 0; iI < iNumBeliefs; iI++)
+					for (size_t iI = 0; iI < pReligion->m_Beliefs.GetBeliefList().size(); iI++)
 					{
-						const BeliefTypes eBelief(static_cast<BeliefTypes>(iI));
+						const BeliefTypes eBelief = (BeliefTypes) pReligion->m_Beliefs.GetBeliefList()[iI];
 						CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 						if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pCity->getOwner()))
 						{
