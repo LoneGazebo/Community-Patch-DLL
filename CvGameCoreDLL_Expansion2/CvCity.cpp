@@ -30703,12 +30703,27 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		}
 		else
 		{
+			vector<pair<size_t, size_t>> freeSlotsPerOp;
 			// Check existing armies this unit could fit into if it wasn't automatically added to one.
 			for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
 			{
 				CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
-				if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS && pOp->RecruitUnit(pUnit))
-					break;
+				if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS)
+				{
+					//only look at the first army ...
+					CvArmyAI* pFirstArmy = pOp->GetArmy(0);
+					if (pFirstArmy)
+						freeSlotsPerOp.push_back(make_pair(pFirstArmy->GetOpenSlots(true).size(),i));
+				}
+			}
+			//try the army which is closest to completion first!
+			if (!freeSlotsPerOp.empty())
+			{ 
+				//default sort order is ascending by first pair member 
+				stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
+				for (size_t i=0; i<freeSlotsPerOp.size(); i++)
+					if (GET_PLAYER(m_eOwner).getAIOperationByIndex( freeSlotsPerOp[i].second )->RecruitUnit(pUnit))
+						break;
 			}
 		}
 	}
@@ -34500,8 +34515,8 @@ bool CvCity::AreAllUnitsBuilt()
 UnitTypes CvCity::GetUnitForOperation()
 {
 	VALIDATE_OBJECT
-	UnitTypes eBestUnit;
-	UnitAITypes eUnitAI;
+	UnitTypes eBestUnit = NO_UNIT;
+	UnitAITypes eUnitAI = NO_UNITAI;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 

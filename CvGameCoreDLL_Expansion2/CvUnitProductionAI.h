@@ -39,7 +39,7 @@ public:
 
 	// Recommend highest-weighted unit
 	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, bool bForPurchase = false, bool bFree = false);
-	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
+	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bAllowStrategicResource);
 
 	// Logging
 	void LogPossibleBuilds(UnitAITypes eUnitAIType = NO_UNITAI);

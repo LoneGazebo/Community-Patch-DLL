@@ -2677,6 +2677,9 @@ bool CvMilitaryAI::IsBuildingArmy(ArmyType eType) const
 /// Which unit should be built next for our army
 UnitTypes CvMilitaryAI::GetUnitTypeForArmy(CvCity* pCity) const
 {
+	UnitTypes eBestUnit = NO_UNIT;
+	size_t leastOpenSlots = INT_MAX;
+
 	int iLoop;
 	for (CvArmyAI* pLoopArmyAI = m_pPlayer->firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = m_pPlayer->nextArmyAI(&iLoop))
 	{
@@ -2689,12 +2692,16 @@ UnitTypes CvMilitaryAI::GetUnitTypeForArmy(CvCity* pCity) const
 			if (eType == NO_UNIT)
 				eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(slot.m_secondaryUnitType, true);
 
-			if (eType != NO_UNIT)
-				return eType;
+			//don't be greedy, try to complete the armies with the least amount of missing units first
+			if (eType != NO_UNIT && vOpenSlots.size() < leastOpenSlots)
+			{
+				eBestUnit = eType;
+				leastOpenSlots = vOpenSlots.size();
+			}
 		}
 	}
 
-	return NO_UNIT;
+	return eBestUnit;
 }
 
 /// Assess nearby enemy air assets

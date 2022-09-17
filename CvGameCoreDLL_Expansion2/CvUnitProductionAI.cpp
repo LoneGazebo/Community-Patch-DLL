@@ -105,7 +105,7 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 }
 
 /// Recommend highest-weighted unit
-UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource)
+UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllowStrategicResource)
 {
 	if(eUnitAIType <= NO_UNITAI)
 	{
@@ -122,59 +122,31 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesS
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if(pkUnitInfo)
 		{
-#if defined(MOD_BALANCE_CORE)
-			bool bBad = false;
-			if(!bUsesStrategicResource)
-			{
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-					int iNumResource = pkUnitInfo->GetResourceQuantityRequirement(eResource);
-					if (iNumResource > 0)
-					{
-						bBad = true;
-						break;
-					}
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					{
-						iNumResource = pkUnitInfo->GetResourceQuantityTotal(eResource);
-						if (iNumResource > 0)
-						{
-							bBad = true;
-							break;
-						}
-					}
-#endif
-				}
-			}
-			if(bBad)
-			{
+			// Make sure it matches the requested unit AI type
+			if (eUnitAIType != NO_UNITAI && !pkUnitInfo->GetUnitAIType(eUnitAIType))
 				continue;
-			}
-#endif
+
+			if (!bAllowStrategicResource && pkUnitInfo->GetResourceType() != NO_RESOURCE)
+				continue;
+
 			// Make sure this unit can be built now
 			if(m_pCity->canTrain(eUnit, (m_pCity->isProductionUnit() && eUnit == m_pCity->getProductionUnit())))
 			{
-				// Make sure it matches the requested unit AI type
-				if(eUnitAIType == NO_UNITAI || pkUnitInfo->GetUnitAIType(eUnitAIType))
+				// Update weight based on turns to construct
+				int iTurnsLeft = m_pCity->getProductionTurnsLeft(eUnit, 0);
+				int iTempWeight = m_UnitAIWeights.GetWeight(eUnit);
+				if (iTempWeight == 0)
 				{
-					// Update weight based on turns to construct
-					int iTurnsLeft = m_pCity->getProductionTurnsLeft(eUnit, 0);
-					int iTempWeight = m_UnitAIWeights.GetWeight(eUnit);
-					if (iTempWeight == 0)
+					const int iNumFlavors = GC.getNumFlavorTypes();
+					for (int iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
 					{
-						const int iNumFlavors = GC.getNumFlavorTypes();
-						for (int iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
-						{
-							iTempWeight += pkUnitInfo->GetFlavorValue(iFlavorLoop);
-						}
+						iTempWeight += pkUnitInfo->GetFlavorValue(iFlavorLoop);
 					}
-
-					int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsLeft);
-					if(iWeight > 0)
-						m_Buildables.push_back(iUnitLoop, iWeight);
 				}
+
+				int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsLeft);
+				if(iWeight > 0)
+					m_Buildables.push_back(iUnitLoop, iWeight);
 			}
 		}
 
