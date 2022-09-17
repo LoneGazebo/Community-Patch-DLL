@@ -5,7 +5,7 @@ on:
     - master
 jobs:
   analysis:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     
     - name: Checkout
@@ -15,9 +15,23 @@ jobs:
       run: >
         mkdir build-dir
 
-    - name: Pull docker # Cppcheck docker image
-      run: >
-        docker pull ghcr.io/facthunder/cppcheck:latest
+    # - name: Install latest cppcheck for distro # 2.7 for 22.04 https://packages.ubuntu.com/search?keywords=cppcheck
+      # run: |
+        # sudo apt-get update
+        # sudo apt-get --yes install cppcheck
+        # cppcheck --version
+    
+    - name: Build cppcheck 2.9 # https://stackoverflow.com/a/72307265
+      run: |
+        cd /tmp
+        git clone https://github.com/danmar/cppcheck.git
+        cd cppcheck 
+        git checkout 2.9
+        sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
+        cd /tmp
+        sudo rm -rf /tmp/cppcheck
+        sudo ldconfig
+        cppcheck --version
 
     - uses: actions/cache@v2
       id: cache-build-dir  # Name to potentially check the cache hit-or-not
@@ -28,8 +42,7 @@ jobs:
           build-dir-
           
     - name: Run cppcheck analysis
-      run: >
-        docker run --rm -v ${PWD}:/src ghcr.io/facthunder/cppcheck:latest cppcheck -j 4 --project=VoxPopuli_vs2013.sln --max-ctu-depth=2 --max-configs=2 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --suppress=uninitMemberVar --suppress=useInitializationList --suppress=postfixOperator --suppress=nullPointerRedundantCheck --suppress=identicalInnerCondition --suppress=constStatement --verbose --xml 2> cppcheck.xml
+      run: cppcheck -j 4 --project=VoxPopuli_vs2013.sln --max-ctu-depth=1 --max-configs=1 --cppcheck-build-dir=build-dir --enable=all --std=c++03 --suppress=uninitMemberVar --suppress=useInitializationList --suppress=postfixOperator --suppress=nullPointerRedundantCheck --suppress=identicalInnerCondition --suppress=constStatement --verbose --xml 2> cppcheck.xml
 
     - name: Upload cppcheck xml
       uses: actions/upload-artifact@v2.3.1
