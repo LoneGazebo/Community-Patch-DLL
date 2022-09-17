@@ -1648,8 +1648,8 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				}
 			}
 
-			//only get here if ExecuteMoveToPlot() failed
-			if(GC.getLogging() && GC.getAILogging())
+			//only get here if ExecuteMoveToPlot() failed 
+			if(GC.getLogging() && GC.getAILogging() && !pGarrison)
 			{
 				CvString strLogString;
 				strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -2192,7 +2192,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				pUnit->setTacticalMove(AI_TACTICAL_UNASSIGNED);
 
 			//there shouldn't be any danger but just in case
-			CvPlot* pSafePlot = pUnit->GetDanger()>0 ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
+			CvPlot* pSafePlot = pUnit->GetDanger()>pUnit->healRate(NULL) ? TacticalAIHelpers::FindSafestPlotInReach(pUnit, true) : NULL;
 			if (pSafePlot)
 			{
 				if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
@@ -2583,13 +2583,14 @@ void CvTacticalAI::PlotArmyMovesCombat(CvArmyAI* pThisArmy)
 		return;
 	}
 
+	//this may force detours, but whatever
+	if (CheckForEnemiesNearArmy(pThisArmy))
+		pOperation->LogOperationSpecialMessage("Contact with enemy!");
+
 	// RECRUITING
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE || 
 		pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
-		if (CheckForEnemiesNearArmy(pThisArmy))
-			pOperation->LogOperationSpecialMessage("Contact with enemy!");
-
 		// This is where we try to gather. Don't use the center of mass here, it may drift anywhere 
 		ExecuteGatherMoves(pThisArmy,pThisTurnTarget,pOperation->GetMusterPlot());
 	}
@@ -3660,7 +3661,11 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pUnit->TurnProcessed() || pUnit->getArmyID() == -1)
 			continue;
 
-		ExecuteMovesToSafestPlot(pUnit);
+		//only flee if we're in danger
+		if (pUnit->GetDanger() > pUnit->healRate(NULL) || (!pUnit->IsCombatUnit() && pUnit->plot()->getNumDefenders(pUnit->getOwner()) == 0))
+			ExecuteMovesToSafestPlot(pUnit);
+		else
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 	}
 
 	return bSuccess;
@@ -8808,9 +8813,15 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 bool CvTacticalPosition::isImprovedPosition() const
 {
 	//if we made an attack, that is always good
+	size_t iFirstFinish = assignedMoves.size();
 	for (size_t i = 0; i < assignedMoves.size(); i++)
+	{
 		if (assignedMoves[i].isOffensive())
 			return true;
+		//need this later
+		if (i < iFirstFinish && assignedMoves[i].eAssignmentType == A_FINISH)
+			iFirstFinish = i;
+	}
 
 	//find the original position to look up the unit move strategies
 	const CvTacticalPosition* root = this;
@@ -8820,14 +8831,15 @@ bool CvTacticalPosition::isImprovedPosition() const
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
 	int iPositive = 0, iNegative = 0;
-	for (vector<STacticalAssignment>::const_reverse_iterator it = assignedMoves.rbegin(); it != assignedMoves.rbegin(); it++)
+	for (size_t i = iFirstFinish; i < assignedMoves.size(); i++)
 	{
 		//compare final to initial and see whether we came closer to the ideal distance
-		if (it->eAssignmentType == A_FINISH)
+		const STacticalAssignment& final = assignedMoves[i];
+		if (final.eAssignmentType == A_FINISH)
 		{
-			const STacticalAssignment* initial = getInitialAssignment(it->iUnitID);
-			const SUnitStats* unit = root->getUnitStats(it->iUnitID);
-			const CvTacticalPlot& finalPlot = getTactPlot(it->iFromPlotIndex);
+			const STacticalAssignment* initial = getInitialAssignment(final.iUnitID);
+			const SUnitStats* unit = root->getUnitStats(final.iUnitID);
+			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
 
 			int iInitialDistance = root->getTactPlot(initial->iFromPlotIndex).getEnemyDistance();
 			int iFinalDistance = finalPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);

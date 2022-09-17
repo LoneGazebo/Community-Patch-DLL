@@ -7716,7 +7716,10 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
 //	--------------------------------------------------------------------------------
 int CvUnit::healRate(const CvPlot* pPlot) const
 {
-	VALIDATE_OBJECT
+	if (isDelayedDeath())
+		return 0;
+	if (!pPlot)
+		pPlot = plot();
 
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
