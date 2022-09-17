@@ -402,33 +402,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus += 25;
 	}
 
-	if(pkBuildingInfo->IsExtraLuxuries())
-	{
-		int iResource = 0;
-		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if(pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-			{
-				if(m_pCity->GetNumResourceLocal(eResource,true) > 0)
-				{
-					iResource++;
-				}
-			}
-		}
-		iResource *= 10;
-		if (iResource <= 0 && !bFreeBuilding)
-		{
-			return SR_USELESS;
-		}
-		else
-		{
-			iBonus += iResource;
-		}
-	}
-
-	///Free Resources
+	///Resources check
+	int iLuxuries = 0;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -448,7 +423,24 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				iNumOwned = (100 - (iNumOwned * 5));
 				iBonus += max(0, iNumOwned);
 			}
+
+			if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				//count both improved and unimproved
+				iLuxuries += m_pCity->GetNumResourceLocal(eResource, true);
+				iLuxuries += m_pCity->GetNumResourceLocal(eResource, false);
+			}
 		}
+	}
+
+	//we would extra copies but there is nothing to copy? bad
+	if (pkBuildingInfo->IsExtraLuxuries() && iLuxuries <= 0 && !bFreeBuilding)
+	{
+		return SR_USELESS;
+	}
+	else
+	{
+		iBonus += iLuxuries*20;
 	}
 
 	
