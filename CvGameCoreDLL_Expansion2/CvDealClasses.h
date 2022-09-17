@@ -304,7 +304,7 @@ public:
 	template<typename GameDeals, typename Visitor>
 	static void Serialize(GameDeals& gameDeals, Visitor& visitor);
 
-	void AddProposedDeal(CvDeal kDeal);
+	void AddProposedDeal(const CvDeal& kDeal);
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	bool RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest);
 	bool FinalizeMPDeal(CvDeal kDeal, bool bAccepted);

@@ -27774,7 +27774,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		}
 	}
 }
-void CvPlayer::addInstantYieldText(InstantYieldType iType, CvString strInstantYield)
+void CvPlayer::addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -27782,7 +27782,7 @@ void CvPlayer::addInstantYieldText(InstantYieldType iType, CvString strInstantYi
 
 	m_aistrInstantYield[iType] = m_aistrInstantYield[iType] + strInstantYield;
 }
-void CvPlayer::setInstantYieldText(InstantYieldType iType, CvString strInstantYield)
+void CvPlayer::setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -27796,7 +27796,7 @@ CvString CvPlayer::getInstantYieldText(InstantYieldType iType) const
 	CvAssertMsg(iType < NUM_INSTANT_YIELD_TYPES, "iType expected to be < NUM_INSTANT_YIELD_TYPES");
 	return m_aistrInstantYield[iType];
 }
-void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strName, bool bConquest)
+void CvPlayer::doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strName, bool bConquest)
 {
 	CvCity* pCapital = getCapitalCity();
 	int iEventGP = 0;
@@ -28276,7 +28276,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield)
+void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -28292,7 +28292,7 @@ void CvPlayer::addInstantGreatPersonProgressText(InstantYieldType iType, CvStrin
 		m_aistrInstantGreatPersonProgress.insert(std::make_pair((int)iType, strInstantYield));
 	}
 }
-void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield)
+void CvPlayer::setInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(iType >= 0, "iType expected to be >= 0");
@@ -42193,7 +42193,7 @@ std::string CvPlayer::getScriptData() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::setScriptData(std::string strNewValue)
+void CvPlayer::setScriptData(const std::string& strNewValue)
 {
 	m_strScriptData = strNewValue;
 }

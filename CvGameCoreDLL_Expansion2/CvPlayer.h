@@ -1122,14 +1122,14 @@ public:
 	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
 #if defined(MOD_BALANCE_CORE)
 	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
-	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
-	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
+	void addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
+	void setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
-	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
 	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING, int iPassValue = 0, GreatPersonTypes ePassGreatPerson = NO_GREATPERSON);
-	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
-	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	void addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield);
+	void setInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
@@ -2422,7 +2422,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(std::string szNewValue);
+	void setScriptData(const std::string& szNewValue);
 
 	const CvString& getPbemEmailAddress() const;
 	void setPbemEmailAddress(const char* szAddress);

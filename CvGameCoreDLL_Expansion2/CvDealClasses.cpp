@@ -4103,7 +4103,7 @@ void CvGameDeals::Init()
 }
 
 /// Save off a new deal that has been agreed to
-void CvGameDeals::AddProposedDeal(CvDeal kDeal)
+void CvGameDeals::AddProposedDeal(const CvDeal& kDeal)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)

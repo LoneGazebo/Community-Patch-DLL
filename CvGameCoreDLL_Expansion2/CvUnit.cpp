@@ -15356,7 +15356,7 @@ void CvUnit::SetIsGrouped(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::SetLinkedUnits(UnitIdContainer LinkedUnits)
+void CvUnit::SetLinkedUnits(const UnitIdContainer& LinkedUnits)
 {
 	VALIDATE_OBJECT
 		m_LinkedUnitIDs = LinkedUnits;
@@ -25426,7 +25426,7 @@ const CvString CvUnit::getUnitName() const
 	return m_strUnitName.GetCString();
 }
 //	--------------------------------------------------------------------------------
-void CvUnit::setUnitName(const CvString strNewValue)
+void CvUnit::setUnitName(const CvString& strNewValue)
 {
 	VALIDATE_OBJECT
 
@@ -25461,7 +25461,7 @@ const CvString CvUnit::getGreatName() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setGreatName(CvString strName)
+void CvUnit::setGreatName(const CvString& strName)
 {
 	VALIDATE_OBJECT
 	m_strGreatName = strName;
@@ -25632,7 +25632,7 @@ std::string CvUnit::getScriptData() const
 }
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setScriptData(std::string strNewValue)
+void CvUnit::setScriptData(const std::string& strNewValue)
 {
 	VALIDATE_OBJECT
 	m_strScriptData = strNewValue;

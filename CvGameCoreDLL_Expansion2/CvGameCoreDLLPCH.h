@@ -117,7 +117,7 @@
 #endif
 
 // Silences warnings about an unused variable.
-#define UNUSED_VARIABLE(x) ((void)x)
+#define UNUSED_VARIABLE(x) ((void)(x))
 
 // Similar to UNUSED_VARIABLE, but implies that the variable IS used in debug builds.
 #define DEBUG_VARIABLE(x) UNUSED_VARIABLE(x)
@@ -143,7 +143,7 @@ typedef unsigned char    byte;
 typedef unsigned int     uint;
 typedef wchar_t          wchar;
 
-#define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
+#define LIMIT_RANGE(low, value, high) value = ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)));
 #define M_PI       3.14159265358979323846
 #define fM_PI		3.141592654f		//!< Pi (float)
 

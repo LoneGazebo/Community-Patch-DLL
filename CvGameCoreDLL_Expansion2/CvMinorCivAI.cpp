@@ -5532,7 +5532,7 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 }
 
 /// Notifications
-void CvMinorCivAI::AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX, int iY)
+void CvMinorCivAI::AddNotification(const CvString& sString, const CvString& sSummaryString, PlayerTypes ePlayer, int iX, int iY)
 {
 	if(iX == -1 && iY == -1)
 	{
@@ -5553,7 +5553,7 @@ void CvMinorCivAI::AddNotification(CvString sString, CvString sSummaryString, Pl
 }
 
 /// Quest Notifications
-void CvMinorCivAI::AddQuestNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX, int iY, bool bNewQuest)
+void CvMinorCivAI::AddQuestNotification(CvString sString, const CvString& sSummaryString, PlayerTypes ePlayer, int iX, int iY, bool bNewQuest)
 {
 	CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
 	if(pNotifications)

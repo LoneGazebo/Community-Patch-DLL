@@ -7031,7 +7031,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 
 					//Victory on Map Types
-					CvString winnerMapName = CvPreGame::mapScriptName();
+					const CvString& winnerMapName = CvPreGame::mapScriptName();
 					//OutputDebugString(winnerMapName);
 					//OutputDebugString("\n");
 
