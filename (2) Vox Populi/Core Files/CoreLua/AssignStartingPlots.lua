@@ -6459,7 +6459,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	self.wonder_list = table.fill(-1, self.iNumNW);
 	local next_wonder_number = 1;
 	for row in GameInfo.Features() do
-		if (row.NaturalWonder == true) then
+		if (row.NaturalWonder == true or row.PseudoNaturalWonder == 1) then
 			self.wonder_list[next_wonder_number] = row.Type;
 			next_wonder_number = next_wonder_number + 1;
 		end
@@ -6514,6 +6514,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	for loop = 1, self.iNumNW do
 		table.insert(NW_frequency, GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency);
 		table.insert(isNWPicked, false);
+		print("Occurrence for:", self.wonder_list[loop], "is:", GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency)
 	end
 
 	for pickLoop = 1, target_number do
@@ -6528,19 +6529,19 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 			end
 			iOccurrenceSum = iOccurrenceSum + iFrequency;
 			table.insert(occurrence_threshold, iOccurrenceSum);
-			-- print(self.wonder_list[loop], iOccurrenceSum);
+			--print(self.wonder_list[loop], iOccurrenceSum);
 		end
 
 		-- End early if no NW left to pick
 		if iOccurrenceSum == 0 then
 			break;
 		end
-
+		
 		-- Pick the NW
 		local diceroll = Map.Rand(iOccurrenceSum, "Picking NW");
 		for loop = 1, self.iNumNW do
 			if diceroll < occurrence_threshold[loop] then
-				-- print("Picked:", self.wonder_list[loop], "diceroll = ", diceroll);
+				print("Picked:", self.wonder_list[loop], "diceroll = ", diceroll);
 				isNWPicked[loop] = true;
 				break;
 			end
@@ -6553,7 +6554,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 		if isNWPicked[loop] then
 			table.insert(chosen_NW, loop);
 			print("Chosen:", self.wonder_list[loop]);
-		else
+		elseif iCanBeWonder[loop] > 0 and NW_frequency[loop] > 0 then
 			table.insert(fallback_NW, loop);
 			print("Fallback:", self.wonder_list[loop]);
 		end
