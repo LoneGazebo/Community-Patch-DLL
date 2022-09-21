@@ -320,7 +320,7 @@ int CvStartPositioner::GetRegion(int iX, int iY)
 // PRIVATE METHODS
 
 /// Compute the fertility of each tile on the map
-void CvStartPositioner::DivideContinentIntoRegions(CvContinent continent)
+void CvStartPositioner::DivideContinentIntoRegions(const CvContinent& continent)
 {
 	// Create a start region out of the entire continent
 	CvStartRegion region;
@@ -629,7 +629,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 }
 
 /// Pick a start position for a civ within a specific region
-bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, bool bRelaxFoodReq)
+bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& region, bool bRelaxFoodReq)
 {
 	CvString strString;
 	int uiBestFoundValue = 0;
@@ -826,7 +826,7 @@ int CvStartPositioner::StartingPlotRange() const
 }
 
 /// Log current status of the operation
-void CvStartPositioner::LogStartPositionMessage(CvString strMsg)
+void CvStartPositioner::LogStartPositionMessage(const CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

@@ -218,7 +218,7 @@ int CustomMods::getOption(const char* szOption, int defValue) {
 	return getOption(string(szOption), defValue);
 }
 
-int CustomMods::getOption(string sOption, int defValue) {
+int CustomMods::getOption(const string& sOption, int defValue) {
 	if (!m_bInit) {
 		const char* szBadPrefix = "MOD_";
 

@@ -832,7 +832,7 @@ CvCity* CvEconomicAI::GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGr
 	return pBestCity;
 }
 
-void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue)
+void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -840,7 +840,7 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += ",";
 }
 
-void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue)
+void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -849,7 +849,7 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += str;
 }
 
-void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
+void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";

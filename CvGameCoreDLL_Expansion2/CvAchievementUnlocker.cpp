@@ -24,7 +24,7 @@
 #define DEBUG_RELEASE_VALUE(a, b) (a)
 #endif
 
-#define UNDEFINED_TYPE -999
+#define UNDEFINED_TYPE (-999)
 
 int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	---------------------------------------------------------------------------

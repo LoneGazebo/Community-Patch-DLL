@@ -115,7 +115,7 @@ void CvEspionageSpy::ResetSiphonHistory()
 {
 	m_sSiphonHistory = "";
 }
-void CvEspionageSpy::SetSiphonHistory(CvString string)
+void CvEspionageSpy::SetSiphonHistory(const CvString& string)
 {
 	m_sSiphonHistory = string;
 }

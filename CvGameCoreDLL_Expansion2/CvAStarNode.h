@@ -258,7 +258,7 @@ public:
 
 protected:
 	vector<pair<int,size_t>> lookup;
-	vector<SMovePlot> storage;
+	std::vector<SMovePlot> storage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -615,7 +615,7 @@ public:
 	void SetLinkedLeaderID(int iLinkedLeaderID);
 	bool IsGrouped() const;
 	void SetIsGrouped(bool bValue);
-	void SetLinkedUnits(UnitIdContainer LinkedUnits);
+	void SetLinkedUnits(const UnitIdContainer& LinkedUnits);
 	UnitIdContainer GetLinkedUnits();
 	int GetLinkedMaxMoves() const;
 	void SetLinkedMaxMoves(int iValue);
@@ -1596,13 +1596,13 @@ public:
 	const char* getNameKey() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	const CvString getUnitName() const;
-	void setUnitName(const CvString strNewValue);
+	void setUnitName(const CvString& strNewValue);
 #endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
-	void setGreatName(CvString strName);
+	void setGreatName(const CvString& strName);
 #endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
@@ -1635,7 +1635,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(std::string szNewValue);
+	void setScriptData(const std::string& szNewValue);
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 

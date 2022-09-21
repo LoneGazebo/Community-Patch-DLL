@@ -49,7 +49,7 @@ public:
 	// Offer deal to this AI player and see what his response is
 
 	DealOfferResponseTypes DoHumanOfferDealToThisAI(CvDeal* pDeal);
-	void DoAcceptedDeal(PlayerTypes eFromPlayer, CvDeal kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
+	void DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering);
 
 	DemandResponseTypes DoHumanDemand(CvDeal* pDeal);
 	void DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal);

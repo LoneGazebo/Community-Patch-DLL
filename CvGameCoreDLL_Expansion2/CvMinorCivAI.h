@@ -373,8 +373,8 @@ public:
 
 	void DoAddStartingResources(CvPlot* pCityPlot);
 
-	void AddNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
-	void AddQuestNotification(CvString sString, CvString sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1, bool bNewQuest = false);
+	void AddNotification(const CvString& sString, const CvString& sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1);
+	void AddQuestNotification(CvString sString, const CvString& sSummaryString, PlayerTypes ePlayer, int iX = -1, int iY = -1, bool bNewQuest = false);
 
 	// ******************************
 	// Threatened by Barbarians event

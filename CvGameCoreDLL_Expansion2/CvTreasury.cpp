@@ -850,7 +850,7 @@ int CvTreasury::AverageIncome100(int iTurns)
 	return 0;
 }
 
-void CvTreasury::LogExpenditure(CvString strExpenditure, int iAmount, int iColumn)
+void CvTreasury::LogExpenditure(const CvString& strExpenditure, int iAmount, int iColumn)
 {
 	if(!(GC.getLogging() && GC.getAILogging()))
 	{
@@ -1043,7 +1043,7 @@ FDataStream& operator<<(FDataStream& stream, const CvTreasury& treasury)
 	return stream;
 }
 
-void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue)
+void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -1051,7 +1051,7 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += ",";
 }
 
-void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue)
+void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -1060,7 +1060,7 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += str;
 }
 
-void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
+void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
