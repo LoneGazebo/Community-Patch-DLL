@@ -4196,7 +4196,7 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 				//disband (captured) missionaries with the wrong religion
-				if (pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canScrap() && pUnit->GetReligionData()->GetReligion() != m_pPlayer->GetReligionAI()->GetReligionToSpread())
+				if (pUnit->plot()->getOwner()==pUnit->getOwner() && pUnit->canScrap() && pUnit->GetReligionData()->GetReligion() != m_pPlayer->GetReligionAI()->GetReligionToSpread(true))
 					pUnit->scrap();
 				else
 					UnitProcessed(pUnit->GetID());

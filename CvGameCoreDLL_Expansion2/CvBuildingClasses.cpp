@@ -4229,6 +4229,18 @@ CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
 	}
 }
 
+void CvBuildingEntry::UpdateUnitTypesUnlocked()
+{
+	m_vUnitTypesUnlocked.clear();
+	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	{
+		const UnitTypes eUnit = static_cast<UnitTypes>(i);
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+		if (pkUnitInfo && pkUnitInfo->GetBuildingClassRequireds(GetBuildingClassType()))
+			m_vUnitTypesUnlocked.push_back(eUnit);
+	}
+}
+
 //=====================================
 // CvBuildingXMLEntries
 //=====================================

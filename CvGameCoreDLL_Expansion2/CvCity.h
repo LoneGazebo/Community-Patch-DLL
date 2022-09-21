@@ -465,6 +465,7 @@ public:
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields = true);
+	void UpdateReligiousYieldFromSpecialist(bool bFirstOneAdded);
 
 #if defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus(ReligionTypes eReligion) const;

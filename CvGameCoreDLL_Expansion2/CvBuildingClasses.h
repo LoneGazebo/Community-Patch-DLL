@@ -614,7 +614,9 @@ public:
 #endif
 
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
-	int GetNumThemingBonuses() const {return m_iNumThemingBonuses;};
+	int GetNumThemingBonuses() const { return m_iNumThemingBonuses; }
+	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
+	void UpdateUnitTypesUnlocked();
 
 private:
 	int m_iBuildingClassType;
@@ -1028,6 +1030,7 @@ private:
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
 	int m_iNumThemingBonuses;
+	vector<UnitTypes> m_vUnitTypesUnlocked; //not serialized
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

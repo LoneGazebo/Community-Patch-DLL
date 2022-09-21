@@ -16137,6 +16137,25 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 		UpdateAllNonPlotYields(false);
 }
 
+//very reduced version of UpdateReligion() which assumes only the number of specialists changed
+void CvCity::UpdateReligiousYieldFromSpecialist(bool bFirstOneAdded)
+{
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion( GetCityReligions()->GetReligiousMajority(), getOwner() );
+	if (pReligion)
+	{
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			int iChange = pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this);
+
+			//surgically add or remove some yields but don't recalculate from scratch
+			if (bFirstOneAdded)
+				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, +iChange);
+			else
+				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, -iChange);
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 /// Process the majority religion changing for a city
 void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)

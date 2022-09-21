@@ -454,15 +454,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus += kPlayer.GetUnhappiness() * 10;
 		bGoodforHappiness = true;
 	}
-	if (kPlayer.IsEmpireUnhappy())
-	{
-		int iNumBuildingInfos = GC.getNumBuildingInfos();
-		for(int iI = 0; iI < iNumBuildingInfos; iI++)
-		{
-			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-			if(eBuildingLoop == NO_BUILDING)
-				continue;
 
+	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding(eBuildingLoop, pkBuildingInfo->GetBuildingClassType());
+		//need in all?
+		if (iNumNeeded > 0)
+		{
+			int iNumHave = kPlayer.getNumBuildings(eBuilding);
+			iBonus += iNumNeeded * max(1, iNumHave) * 100;
+		}
+
+		if (kPlayer.IsEmpireUnhappy())
+		{
 			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 			if(pkLoopBuilding)
 			{
@@ -705,25 +711,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-
-	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, pkBuildingInfo->GetBuildingClassType());
-		//need in all?
-		if (iNumNeeded > 0)
-		{
-			int iNumHave = kPlayer.getNumBuildings(eBuilding);
-			iBonus += iNumNeeded * max(1, iNumHave) * 100;
-		}
-	}
-
 	//unlocks a unit?
-	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	const vector<UnitTypes>& vUnits = pkBuildingInfo->GetUnitsUnlocked();
+	for (size_t i = 0; i < vUnits.size(); i++)
 	{
-		const UnitTypes eUnit = static_cast<UnitTypes>(i);
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if (pkUnitInfo && pkUnitInfo->GetBuildingClassRequireds(pkBuildingInfo->GetBuildingClassType()))
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(vUnits[i]);
+		if (pkUnitInfo)
 		{
 			if (pkUnitInfo->GetPrereqAndTech() == NO_TECH)
 				iBonus += 1000;
@@ -1066,20 +1059,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			WarPenalty += 50 + m_pCity->getThreatValue();
 
-			if (bDanger)
-			{
-				WarPenalty += 25;
-			}
-
-			int iCityLoop;
-			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
-			{
-				if (pLoopCity->isUnderSiege())
-				{
-					WarPenalty += 25;
-				}
-			}
-
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -1088,7 +1067,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 					{
-						WarPenalty += 25;
+						WarPenalty += 50;
 					}
 				}
 			}
