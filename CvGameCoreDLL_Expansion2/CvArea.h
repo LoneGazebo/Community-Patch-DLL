@@ -150,7 +150,7 @@ protected:
 	map<PlayerTypes,int> m_aiFreeSpecialist;
 	map<TeamTypes,int> m_aiNumRevealedTiles;
 	map<PlayerTypes,IDInfo> m_aTargetCities;
-	map<PlayerTypes,vector<int>> m_aaiYieldRateModifier;
+	map<PlayerTypes,vector<int> > m_aaiYieldRateModifier;
 
 	map<ResourceTypes,int> m_aiNumResources;
 	map<ImprovementTypes, int> m_aiNumImprovements;

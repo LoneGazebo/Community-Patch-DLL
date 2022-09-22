@@ -257,7 +257,7 @@ public:
 	bool operator!=(const ReachablePlots& rhs) const { return storage != rhs.storage || lookup != rhs.lookup; }
 
 protected:
-	vector<pair<int,size_t>> lookup;
+	vector<pair<int,size_t> > lookup;
 	std::vector<SMovePlot> storage;
 };
 

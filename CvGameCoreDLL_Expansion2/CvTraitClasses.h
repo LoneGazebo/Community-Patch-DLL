@@ -733,7 +733,7 @@ protected:
 	int** m_ppiYieldFromTileStealCultureBomb;
 	int** m_ppiYieldFromTileSettle;
 	int** m_ppiYieldChangePerImprovementBuilt;
-	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromBarbarianCampClear;
 #endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
@@ -742,7 +742,7 @@ protected:
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
-	std::map<int, std::pair<int, int>> m_tradeRouteEndYield;
+	std::map<int, std::pair<int, int> > m_tradeRouteEndYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;

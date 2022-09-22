@@ -2663,7 +2663,7 @@ protected:
 	CvPolicyXMLEntries* m_pPolicies;
 	CvTechXMLEntries* m_pTechs;
 	CvBuildingXMLEntries* m_pBuildings;
-	std::map<BuildingTypes, std::vector<BuildingTypes>> m_buildingInteractionLookup;
+	std::map<BuildingTypes, std::vector<BuildingTypes> > m_buildingInteractionLookup;
 	CvUnitXMLEntries* m_pUnits;
 	CvProjectXMLEntries* m_pProjects;
 	CvPromotionXMLEntries* m_pPromotions;

@@ -933,15 +933,15 @@ protected:
 #endif
 
 	//can add extra yield from lua. no overhead if unused!
-	vector<pair<YieldTypes, int>> m_vExtraYields;
+	vector<pair<YieldTypes, int> > m_vExtraYields;
 
 	char* m_szScriptData;
 	map<BuildTypes,int> m_buildProgress;
 	CvUnit* m_pCenterUnit;
 
 	//this is totally f'd ... don't waste memory on it
-	vector<pair<TeamTypes,int>> m_vInvisibleVisibilityUnitCount;
-	vector<pair<TeamTypes,vector<int>>> m_vInvisibleVisibilityCount;
+	vector<pair<TeamTypes,int> > m_vInvisibleVisibilityUnitCount;
+	vector<pair<TeamTypes,vector<int> > > m_vInvisibleVisibilityCount;
 
 	short m_iArea;
 	short m_iLandmass;

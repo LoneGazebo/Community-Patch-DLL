@@ -26,7 +26,7 @@ typedef int(*CvAHeuristic)(int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, CvAStarNodeAddOp, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst1Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst2Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, const CvAStar*);
-typedef int(*CvAGetExtraChildren)(const CvAStarNode*, const CvAStar*, vector<pair<int,int>>&);
+typedef int(*CvAGetExtraChildren)(const CvAStarNode*, const CvAStar*, vector<pair<int,int> >&);
 typedef void(*CvABegin)(const SPathFinderUserData&, CvAStar*);
 typedef void(*CvAEnd)(const SPathFinderUserData&, CvAStar*);
 
@@ -140,7 +140,7 @@ public:
 		return m_iCurrentGenerationID;
 	}
 
-	int GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const;
+	int GetExtraChildren(const CvAStarNode* node, vector<pair<int,int> >& out) const;
 
 	void AddToOpen(CvAStarNode* addnode);
 
@@ -323,7 +323,7 @@ int StepValidWide(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 int StepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
 
 int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
-int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out);
+int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int> >& out);
 int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
@@ -337,7 +337,7 @@ int BuildRouteCost(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
 
 int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);
-int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out);
+int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int> >& out);
 
 int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar* finder);
 int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder);

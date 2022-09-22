@@ -636,7 +636,7 @@ protected:
 	int* m_piCombatModPerAdjacentUnitCombatModifierPercent;
 	int* m_piCombatModPerAdjacentUnitCombatAttackModifier;
 	int* m_piCombatModPerAdjacentUnitCombatDefenseModifier;
-	std::map<int, std::pair<int, bool>> m_piInstantYields;
+	std::map<int, std::pair<int, bool> > m_piInstantYields;
 #endif
 
 	int* m_piTerrainPassableTech;
@@ -662,7 +662,7 @@ protected:
 	bool* m_pbUnitName;
 #endif
 	bool* m_pbPostCombatRandomPromotion;
-	std::map<int, std::pair<int, int>> m_yieldFromPillage;
+	std::map<int, std::pair<int, int> > m_yieldFromPillage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -735,8 +735,8 @@ private:
 	void UpdateCache();
 	bool m_bTerrainPassable;
 	bool m_bFeaturePassable;
-	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
-	std::vector<std::vector<TechTypes>> m_featurePassableCache;
+	std::vector<std::vector<TechTypes> > m_terrainPassableCache;
+	std::vector<std::vector<TechTypes> > m_featurePassableCache;
 	std::vector<int> m_unitClassDefenseMod;
 	std::vector<int> m_unitClassAttackMod;
 

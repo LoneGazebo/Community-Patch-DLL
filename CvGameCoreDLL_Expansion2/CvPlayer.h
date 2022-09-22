@@ -3578,8 +3578,8 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateModifierFromMonopoly;
-	std::map<GreatPersonTypes, std::map<MonopolyTypes, int>> m_ppiSpecificGreatPersonRateChangeFromMonopoly;
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int> > m_ppiSpecificGreatPersonRateModifierFromMonopoly;
+	std::map<GreatPersonTypes, std::map<MonopolyTypes, int> > m_ppiSpecificGreatPersonRateChangeFromMonopoly;
 #endif
 
 	CvUnitCycler	m_UnitCycle;	
