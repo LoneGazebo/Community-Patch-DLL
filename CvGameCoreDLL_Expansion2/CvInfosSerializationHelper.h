@@ -20,7 +20,7 @@ namespace CvInfosSerializationHelper
 {
 /// Read an array of T values and assume that the index in the array is the V0 index
 template<typename TData>
-void ReadV0DataArray(FDataStream& kStream, TData* paArray, int iArraySize, const char** ppszV0Tags, uint uiV0TagCount)
+void ReadV0DataArray(FDataStream& kStream, TData* paArray, int iArraySize, const char** ppszV0Tags, unsigned int uiV0TagCount)
 {
 	for(uint iI = 0; iI < uiV0TagCount; iI++)
 	{
@@ -44,7 +44,7 @@ void ReadV0DataArray(FDataStream& kStream, TData* paArray, int iArraySize, const
 
 /// Read an array of T values and assume that the index in the array is the V0 index
 template<typename TData>
-void ReadV0DataArray(FDataStream& kStream, std::vector<TData>& aiArray, uint uiMaxSize, const char** ppszV0Tags, uint uiV0TagCount)
+void ReadV0DataArray(FDataStream& kStream, std::vector<TData>& aiArray, unsigned int uiMaxSize, const char** ppszV0Tags, unsigned int uiV0TagCount)
 {
 	if(aiArray.size() < uiMaxSize)
 		aiArray.resize(uiMaxSize);
@@ -73,7 +73,7 @@ void ReadV0DataArray(FDataStream& kStream, std::vector<TData>& aiArray, uint uiM
 
 /// Read a 2 dimensional array of T values and assume that the primary index in the array is the V0 type index
 template<typename TData>
-void ReadV0DataArray(FDataStream& kStream, TData** ppaArray, int iSubArraySize, int iArraySize, const char** ppszV0Tags, uint uiV0TagCount)
+void ReadV0DataArray(FDataStream& kStream, TData** ppaArray, int iSubArraySize, int iArraySize, const char** ppszV0Tags, unsigned int uiV0TagCount)
 {
 	for(uint iI = 0; iI < uiV0TagCount; iI++)
 	{

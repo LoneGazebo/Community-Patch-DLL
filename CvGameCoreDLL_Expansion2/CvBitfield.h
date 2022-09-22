@@ -21,7 +21,7 @@ public:
 	{
 	}
 
-	CvBitfield(uint uiSize)
+	CvBitfield(unsigned int uiSize)
 		: m_pBits(NULL)
 		, m_uiByteSize(0)
 	{
@@ -48,9 +48,9 @@ public:
 	}
 
 	/// Get a bit
-	bool GetBit(uint uiIndex) const
+	bool GetBit(unsigned int uiIndex) const
 	{
-		uint uiByteIndex = uiIndex >> 3;
+		unsigned int uiByteIndex = uiIndex >> 3;
 		if (uiByteIndex < m_uiByteSize)
 		{
 			return (m_pBits[uiByteIndex] & (1 << (uiIndex&0x7))) != 0;
@@ -59,9 +59,9 @@ public:
 	}
 
 	/// Set a bit on/off
-	void SetBit(uint uiIndex, bool bValue)
+	void SetBit(unsigned int uiIndex, bool bValue)
 	{
-		uint uiByteIndex = uiIndex >> 3;
+		unsigned int uiByteIndex = uiIndex >> 3;
 		if (uiByteIndex < m_uiByteSize)
 		{
 			if (bValue)
@@ -82,19 +82,19 @@ public:
 	}
 	/// Get the bit capacity. Please note that internally this will be rounded up to to the nearest 8 bits
 	/// Do not expect the exact number that was given to SetSize.  e.g.  if SetSize(12) then GetSize() == 16
-	uint GetSize() const
+	unsigned int GetSize() const
 	{
 		return m_uiByteSize << 3;
 	}
 	/// Set the bit capacity.  Please note that internally this will be rounded up to to the nearest 8 bits.
-	void SetSize(uint uiSize)
+	void SetSize(unsigned int uiSize)
 	{
-		uint uiByteSize = (uiSize >> 3) + ((uiSize&0x07)?1:0);
+		unsigned int uiByteSize = (uiSize >> 3) + ((uiSize&0x07)?1:0);
 		resizeBytes(uiByteSize);
 	}
 
 private:
-	void resizeBytes(uint uiByteSize)
+	void resizeBytes(unsigned int uiByteSize)
 	{
 		if (uiByteSize == 0)
 		{
@@ -117,7 +117,7 @@ private:
 		}
 	}
 
-	uint m_uiByteSize;
+	unsigned int m_uiByteSize;
 	byte* m_pBits;
 
 	friend FDataStream& operator<<(FDataStream&, const CvBitfield&);

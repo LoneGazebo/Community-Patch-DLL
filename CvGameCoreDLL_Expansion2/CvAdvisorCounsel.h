@@ -23,7 +23,7 @@ public:
 	void Reset();
 
 	void BuildCounselList(PlayerTypes ePlayer);
-	bool SetCounselEntry(uint uiIndex, AdvisorTypes eAdvisor, const char* strAdvisorCounsel, int iValue);
+	bool SetCounselEntry(unsigned int uiIndex, AdvisorTypes eAdvisor, const char* strAdvisorCounsel, int iValue);
 
 	struct Counsel
 	{

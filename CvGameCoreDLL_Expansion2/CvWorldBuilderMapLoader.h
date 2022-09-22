@@ -44,12 +44,12 @@ public:
 	
 	// Player slot mapping utilities
 	static void ResetPlayerSlots();
-	static void MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayerSlot);
-	static PlayerTypes GetMapPlayerSlot(uint uiPlayer);
+	static void MapPlayerToSlot(unsigned int uiPlayer, PlayerTypes ePlayerSlot);
+	static PlayerTypes GetMapPlayerSlot(unsigned int uiPlayer);
 	static int GetMapPlayerCount();
 
 	// Map Preview Functions
-	static uint PreviewPlayableCivCount(_In_z_ const wchar_t* wszFilename);
+	static unsigned int PreviewPlayableCivCount(_In_z_ const wchar_t* wszFilename);
 	static int GetMapPreview(lua_State* L);
 	static int GetMapPlayers(lua_State* L);
 

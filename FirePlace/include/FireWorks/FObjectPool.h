@@ -33,7 +33,7 @@ class FObjectPool {
 public:
 	/* Constructors */
 	// Default constructor
-	FObjectPool( uint uiSize = DEFAULT_FOBJECT_POOL_SIZE, bool bGrow = true );
+	FObjectPool(unsigned int uiSize = DEFAULT_FOBJECT_POOL_SIZE, bool bGrow = true );
 
 	// Copy constructor
 	FObjectPool(const FObjectPool<T>& source);
@@ -53,7 +53,7 @@ public:
 protected:
 
 	// Advance the free object pointer
-	uint GetNextFreeIndex();
+	unsigned int GetNextFreeIndex();
 	
 	// Thread safety
 	void Lock()
@@ -75,14 +75,14 @@ protected:
 	FCriticalSection m_Locker;
 
 	// Initialization parameters
-	uint m_uiSize;
+	unsigned int m_uiSize;
 	bool m_bGrow;
 
 	// Flag indicating a full array
 	bool m_bFull;
 
 	// First free pointer's index in storage
-	uint m_uiFirstFreeIndex;
+	unsigned int m_uiFirstFreeIndex;
 };
 
 //---------------------------------------------------------------------------------------
@@ -91,7 +91,7 @@ protected:
 //  DESC:       The default constructor, accepts optional initial size
 //---------------------------------------------------------------------------------------
 template<class T> 
-FObjectPool<T>::FObjectPool( uint uiSize, bool bGrow )
+FObjectPool<T>::FObjectPool(unsigned int uiSize, bool bGrow )
 {
 	// Allocate the array memory
 	m_pStorage = FNEW( FPoolNode[uiSize], c_eMPoolTypeContainer, 0 );
@@ -318,7 +318,7 @@ void FObjectPool<T>::Release( T* pObject )
 //	RETURN:		Index to free object, or array-size if full
 //---------------------------------------------------------------------------------------
 template<class T>
-uint FObjectPool<T>::GetNextFreeIndex( )
+unsigned int FObjectPool<T>::GetNextFreeIndex( )
 {
 	// Find the next free index
 	m_bFull = true;

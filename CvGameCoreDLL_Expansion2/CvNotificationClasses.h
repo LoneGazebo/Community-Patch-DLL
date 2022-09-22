@@ -65,7 +65,7 @@ public:
 
 private:
 	EntryArray m_paNotificationEntries;
-	typedef std::map<uint, int> EntryHashTable;
+	typedef std::map<unsigned int, int> EntryHashTable;
 	EntryHashTable m_mEntries;
 
 };

@@ -180,10 +180,10 @@ namespace FMemHooks
 #define FMEMORY_VALIDATE_ON_ALLOCATION		0x00000002
 #define FMEMORY_VALIDATE_ON_DEALLOCATION	0x00000004
 
-bool FMemoryManagerValidate(uint uiOptions = 0);
-uint FGetMemoryManagerValidateOptions();
-uint FSetMemoryManagerValidateOptions(uint uiOptions);
-uint FSetMemoryManagerValidateFrequency(uint uiValidateFrequency);
+bool FMemoryManagerValidate(unsigned int uiOptions = 0);
+unsigned int FGetMemoryManagerValidateOptions();
+unsigned int FSetMemoryManagerValidateOptions(unsigned int uiOptions);
+unsigned int FSetMemoryManagerValidateFrequency(unsigned int uiValidateFrequency);
 
 
 extern bool g_bDisableSmallObjectAllocator; 

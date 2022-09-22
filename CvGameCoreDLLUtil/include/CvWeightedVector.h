@@ -126,13 +126,13 @@ public:
 	};
 
 	/// Resize the vector
-	void resize (uint uiNewSize)
+	void resize (unsigned int uiNewSize)
 	{
 		m_items.resize(uiNewSize);
 	};
 
 	/// Set the vector reserve
-	void reserve (uint uiNewSize)
+	void reserve (unsigned int uiNewSize)
 	{
 		m_items.reserve(uiNewSize);
 	};
