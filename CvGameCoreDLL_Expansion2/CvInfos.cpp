@@ -5475,7 +5475,7 @@ int CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eU
 	int iUnitEra = (int)eUnitEra;
 	int iMod = 0;
 
-	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator itMap = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	std::map<int, std::vector<ProductionCostModifiers> >::const_iterator itMap = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
 	if (itMap != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
 	{
 		for (std::vector<ProductionCostModifiers>::const_iterator itVector = itMap->second.begin(); itVector != itMap->second.end(); ++itVector)
@@ -5512,7 +5512,7 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getUnitCombatProductionCost
 
 	int iUnitCombat = (int)eUnitCombat;
 
-	std::map<int, std::vector<ProductionCostModifiers>>::const_iterator it = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
+	std::map<int, std::vector<ProductionCostModifiers> >::const_iterator it = m_piiiUnitCombatProductionCostModifiersLocal.find(iUnitCombat);
 	if (it != m_piiiUnitCombatProductionCostModifiersLocal.end()) // find returns the iterator to map::end if the key iUnitCombat is not present in the map
 	{
 		return it->second;
@@ -5877,7 +5877,7 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::vector<ProductionCostModifiers>>(m_piiiUnitCombatProductionCostModifiersLocal).swap(m_piiiUnitCombatProductionCostModifiersLocal);
+		std::map<int, std::vector<ProductionCostModifiers> >(m_piiiUnitCombatProductionCostModifiersLocal).swap(m_piiiUnitCombatProductionCostModifiersLocal);
 	}
 
 	//Resource_BuildingProductionCostModifiersLocal

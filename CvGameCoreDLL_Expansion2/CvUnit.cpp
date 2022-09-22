@@ -23260,8 +23260,8 @@ int CvUnit::GetHealFriendlyTerritoryFromNearbyUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23301,8 +23301,8 @@ bool CvUnit::IsHiddenByNearbyUnit(const CvPlot* pAtPlot) const
 	if (!IsCombatUnit())
 		return false;
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(it->first);
 		if (pUnit && pUnit->isGiveInvisibility() && pUnit != this)
@@ -23332,8 +23332,8 @@ int CvUnit::GetGiveOutsideFriendlyLandsModifierToUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23369,8 +23369,8 @@ int CvUnit::GetGiveExtraAttacksToUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23406,8 +23406,8 @@ int CvUnit::GetGiveHPIfEnemyKilledToUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23566,8 +23566,8 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 	for(std::vector<PlayerTypes>::const_iterator it=vEnemies.begin(); it!=vEnemies.end(); ++it)
 	{
 		CvPlayer& kLoopPlayer = GET_PLAYER(*it);
-		const std::vector<std::pair<int,int>>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
-		for(std::vector<std::pair<int,int>>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+		const std::vector<std::pair<int,int> >& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
+		for(std::vector<std::pair<int,int> >::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 		{
 			//performance: very rough distance check first without looking up the unit pointer ...
 			//do not reuse the plot below
@@ -26443,7 +26443,7 @@ std::pair<int, int> CvUnit::getYieldFromPillage(YieldTypes eYield) const {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
 	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
 
-	const std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+	const std::map<int, std::pair<int, int> >::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
 	if (it != m_yieldFromPillage.end())
 	{
 		return it->second;
@@ -26460,7 +26460,7 @@ void CvUnit::changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> chang
 	if ((change.first != 0 || change.second != 0) && eYield > NO_YIELD && eYield < NUM_YIELD_TYPES)
 	{
 		const int yieldIndex = static_cast<int>(eYield);
-		const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldIndex);
+		const std::map<int, std::pair<int, int> >::iterator it = m_yieldFromPillage.find(yieldIndex);
 		if (it != m_yieldFromPillage.end())
 		{
 			std::pair<int, int>& yieldValues = it->second;

@@ -384,8 +384,8 @@ private:
 template<> inline const containerType& CvSyncArchive<containerType>::getContainer() const { \
 	return *reinterpret_cast<const containerType*>(reinterpret_cast<const char*>(this) - offsetof(containerType, m_syncArchive)); \
 } \
-template<> inline containerType& CvSyncArchive<containerType>::getContainer() { \
-	return const_cast<containerType&>(const_cast<const CvSyncArchive<containerType>*>(this)->getContainer()); \
+template<> inline (containerType)& CvSyncArchive<containerType>::getContainer() { \
+	return const_cast<(containerType)&>(const_cast<const CvSyncArchive<containerType>*>(this)->getContainer()); \
 } \
 template<> class CvSyncArchive<containerType>::SyncVars { \
 	enum { INIT_VAR_INDEX_ = (__COUNTER__ + 1) }; \
@@ -414,7 +414,7 @@ public:
 			return const_cast<SyncVarsType&>(GetStorage(const_cast<const CvSyncVar<memberName##_Traits>&>(var))); \
 		} \
 	}; \
-	CvSyncVar<memberName##_Traits> memberName;
+	CvSyncVar<memberName##_Traits> (memberName);
 
 // Automagically ends a CvSyncArchive specialization
 #define SYNC_ARCHIVE_END() };
