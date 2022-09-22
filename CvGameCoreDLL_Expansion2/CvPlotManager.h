@@ -1,5 +1,5 @@
 #ifndef _CVPLOTMANAGER_H_
-#define _CVPLOTMANAGER_H_
+#define CVPLOTMANAGER_H_
 
 #pragma once
 

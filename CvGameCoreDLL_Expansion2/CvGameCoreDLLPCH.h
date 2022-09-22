@@ -132,7 +132,7 @@
 #include <tchar.h>
 #include <assert.h>
 #include <map>
-#define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
+#define SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 #include <hash_map>
 #include <limits>
 #include <unordered_set>

@@ -11,7 +11,7 @@
 ***/
 
 #ifndef _INC_BANNED
-#	define _INC_BANNED
+#	define INC_BANNED
 #endif
 
 #ifdef _MSC_VER

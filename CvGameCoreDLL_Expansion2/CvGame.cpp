@@ -82,12 +82,12 @@ struct stringHash
 	//taken from std::tr1::hash<string> but modified to look at all characters
 	size_t operator()(const std::string& key) const
 	{
-		size_t _Val = 2166136261U;
-		size_t _First = 0;
-		size_t _Last = key.size();
-		for(; _First < _Last; _First++)
-			_Val = 16777619U * _Val ^ (size_t)key[_First];
-		return (_Val);
+		size_t Val = 2166136261U;
+		size_t First = 0;
+		size_t Last = key.size();
+		for(; First < Last; First++)
+			Val = 16777619U * Val ^ (size_t)key[First];
+		return (Val);
 	}
 };
 
