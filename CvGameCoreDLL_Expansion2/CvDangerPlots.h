@@ -15,9 +15,9 @@
 #include "CvEnums.h"
 
 // Stores all possible damage sources on a tile (terrain, improvements, cities, units)
-typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
-typedef std::vector<std::pair<PlayerTypes,int>> DangerCityVector;
-typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
+typedef std::vector<std::pair<PlayerTypes,int> > DangerUnitVector;
+typedef std::vector<std::pair<PlayerTypes,int> > DangerCityVector;
+typedef std::set<std::pair<PlayerTypes,int> > UnitSet;
 
 struct SUnitInfo
 {

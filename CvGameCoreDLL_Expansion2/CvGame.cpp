@@ -1054,7 +1054,7 @@ void CvGame::uninit()
 #if defined(MOD_BALANCE_CORE_JFD)
 	if(m_ppaiContractUnits.valid())
 	{
-		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
+		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int> >::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{
 			it->uninit();
 		}
@@ -1259,7 +1259,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 		}
 #if defined(MOD_BALANCE_CORE_JFD)
 		m_ppaiContractUnits.init();
-		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>>::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
+		for(CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int> >::Iterator it = m_ppaiContractUnits.begin(); it != m_ppaiContractUnits.end(); ++it)
 		{
 			it->init(0);
 		}
@@ -9260,7 +9260,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	vector<OptionWithScore<UnitTypes>> veUnitRankings;
+	vector<OptionWithScore<UnitTypes> > veUnitRankings;
 
 	// Loop through all Unit Classes
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++) {
@@ -9508,7 +9508,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		}
 	}
 	
-	vector<OptionWithScore<UnitTypes>> veUnitRankings;
+	vector<OptionWithScore<UnitTypes> > veUnitRankings;
 	// Loop through all Unit Classes twice; once to find UUs that won't exist in game,
 	// but if our list of candidates is empty, include all possible UUs the second time around
 	for(int iTrialLoop = 0; iTrialLoop < 2; iTrialLoop++)

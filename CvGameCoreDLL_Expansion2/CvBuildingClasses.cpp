@@ -1108,7 +1108,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<int, int>>(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
+		std::map<int, std::map<int, int> >(m_ppiResourceYieldChangeGlobal).swap(m_ppiResourceYieldChangeGlobal);
 	}
 
 	//Building_YieldChangesPerPopInEmpire
@@ -1480,7 +1480,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<int, int>>(m_ppiResourcePlotsToPlace).swap(m_ppiResourcePlotsToPlace);
+		std::map<int, std::map<int, int> >(m_ppiResourcePlotsToPlace).swap(m_ppiResourcePlotsToPlace);
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1507,7 +1507,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::multimap<int, std::pair<int, int>>(m_piiGreatPersonProgressFromConstruction).swap(m_piiGreatPersonProgressFromConstruction);
+		std::multimap<int, std::pair<int, int> >(m_piiGreatPersonProgressFromConstruction).swap(m_piiGreatPersonProgressFromConstruction);
 	}
 #endif
 	{
@@ -3699,7 +3699,7 @@ std::map<int, int> CvBuildingEntry::GetResourcePlotsToPlace(int i) const
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	std::map<int, std::map<int, int>>::const_iterator it = m_ppiResourcePlotsToPlace.find(i);
+	std::map<int, std::map<int, int> >::const_iterator it = m_ppiResourcePlotsToPlace.find(i);
 	if (it != m_ppiResourcePlotsToPlace.end()) // find returns the iterator to map::end if the key bInternationalOnly is not present
 	{
 		return it->second;
@@ -3837,7 +3837,7 @@ int CvBuildingEntry::GetResourceYieldChangeGlobal(int iResource, int iYieldType)
 	CvAssertMsg(iResource > -1, "Index out of bounds");
 	CvAssertMsg(iYieldType < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(iYieldType > -1, "Index out of bounds");
-	std::map<int, std::map<int, int>>::const_iterator itResource = m_ppiResourceYieldChangeGlobal.find(iResource);
+	std::map<int, std::map<int, int> >::const_iterator itResource = m_ppiResourceYieldChangeGlobal.find(iResource);
 	if (itResource != m_ppiResourceYieldChangeGlobal.end()) // find returns the iterator to map::end if the key iResource is not present in the map
 	{
 		std::map<int, int>::const_iterator itYield = itResource->second.find(iYieldType);
@@ -4087,7 +4087,7 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
 #if defined(MOD_BALANCE_CORE)
-std::multimap<int, std::pair<int, int>> CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
+std::multimap<int, std::pair<int, int> > CvBuildingEntry::GetGreatPersonProgressFromConstructionArray() const
 {
 	return m_piiGreatPersonProgressFromConstruction;
 }

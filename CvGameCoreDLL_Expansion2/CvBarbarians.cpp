@@ -833,7 +833,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
 	CvGame &kGame = GC.getGame();
 
-	vector<OptionWithScore<UnitTypes>> candidates;
+	vector<OptionWithScore<UnitTypes> > candidates;
 	for(int iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 	{
 		bool bValid = false;

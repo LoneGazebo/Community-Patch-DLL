@@ -3040,8 +3040,8 @@ bool CvPlot::HasAirCover(PlayerTypes eDefendingPlayer) const
 		return false;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(eDefendingPlayer);
-	const std::vector<std::pair<int, int>>& possibleUnits = kPlayer.GetPossibleInterceptors();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = kPlayer.GetPossibleInterceptors();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
 		CvUnit* pInterceptorUnit = kPlayer.getUnit(it->first);
@@ -3096,8 +3096,8 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 		if(pAttackingUnit && pAttackingUnit->isInvisible(eLoopTeam, false, false))
 			continue;
 
-		const std::vector<std::pair<int, int>>& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
-		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+		const std::vector<std::pair<int, int> >& possibleUnits = kLoopPlayer.GetPossibleInterceptors();
+		for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
 			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);

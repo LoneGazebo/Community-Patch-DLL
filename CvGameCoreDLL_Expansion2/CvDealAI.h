@@ -186,7 +186,7 @@ protected:
 	int m_iCachedValueOfPeaceWithHuman;		// NOT SERIALIZED
 
 	//player to (turn,value)
-	std::vector<std::pair<int,int>> m_vResearchRates;
+	std::vector<std::pair<int,int> > m_vResearchRates;
 
 	//some magic to enable memoization of calls to GetTradeItemValue
 	struct SDealItemValueParams

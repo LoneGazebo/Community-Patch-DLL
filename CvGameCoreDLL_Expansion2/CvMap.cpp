@@ -1690,8 +1690,8 @@ void CvMap::calculateAreas()
 	//need to do a projection of the areas onto the x/y axis to find the size (with wrapping!)
 	vector<bool> rows(getGridHeight(),false);
 	vector<bool> cols(getGridWidth());
-	vector<vector<bool>> rp(m_areas.GetCount(), rows);
-	vector<vector<bool>> cp(m_areas.GetCount(), cols);
+	vector<vector<bool> > rp(m_areas.GetCount(), rows);
+	vector<vector<bool> > cp(m_areas.GetCount(), cols);
 
 	//last pass, set boundaries
 	for (int iI = 0; iI < numPlots(); iI++)

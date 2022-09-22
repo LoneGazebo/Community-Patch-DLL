@@ -571,7 +571,7 @@ int CvBeliefEntry::GetYieldPerBorderGrowth (YieldTypes eYield, bool bEraScaling)
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldPerBorderGrowth.find((int)eYield);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldPerBorderGrowth.find((int)eYield);
 	if (itYield != m_pbiYieldPerBorderGrowth.end())
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -662,7 +662,7 @@ int CvBeliefEntry::GetYieldFromTechUnlock(YieldTypes eYield, bool bEraScaling) c
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromTechUnlock.find((int)eYield);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromTechUnlock.find((int)eYield);
 	if (itYield != m_pbiYieldFromTechUnlock.end())
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -1098,7 +1098,7 @@ int CvBeliefEntry::GetYieldFromImprovementBuild(YieldTypes eYield, bool bEraScal
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromImprovementBuild.find((int)eYield);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromImprovementBuild.find((int)eYield);
 	if (itYield != m_pbiYieldFromImprovementBuild.end())
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -1116,7 +1116,7 @@ int CvBeliefEntry::GetYieldFromPillageGlobal(YieldTypes eYield, bool bEraScaling
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromPillageGlobal.find((int)eYield);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromPillageGlobal.find((int)eYield);
 	if (itYield != m_pbiYieldFromPillageGlobal.end())
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -1389,7 +1389,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<bool, int>>(m_pbiYieldPerBorderGrowth).swap(m_pbiYieldPerBorderGrowth);
+		std::map<int, std::map<bool, int> >(m_pbiYieldPerBorderGrowth).swap(m_pbiYieldPerBorderGrowth);
 	}
 
 	//YieldFromTechUnlock
@@ -1413,7 +1413,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<bool, int>>(m_pbiYieldFromTechUnlock).swap(m_pbiYieldFromTechUnlock);
+		std::map<int, std::map<bool, int> >(m_pbiYieldFromTechUnlock).swap(m_pbiYieldFromTechUnlock);
 	}
 #endif
 
@@ -1767,7 +1767,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			}
 
 			//Trim extra memory off container since this is mostly read-only.
-			std::map<int, std::map<bool, int>>(m_pbiYieldFromImprovementBuild).swap(m_pbiYieldFromImprovementBuild);
+			std::map<int, std::map<bool, int> >(m_pbiYieldFromImprovementBuild).swap(m_pbiYieldFromImprovementBuild);
 		}
 
 		//YieldFromPillageGlobal
@@ -1791,7 +1791,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			}
 
 			//Trim extra memory off container since this is mostly read-only.
-			std::map<int, std::map<bool, int>>(m_pbiYieldFromPillageGlobal).swap(m_pbiYieldFromPillageGlobal);
+			std::map<int, std::map<bool, int> >(m_pbiYieldFromPillageGlobal).swap(m_pbiYieldFromPillageGlobal);
 		}
 	}
 #endif

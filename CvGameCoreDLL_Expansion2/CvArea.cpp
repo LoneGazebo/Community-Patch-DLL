@@ -649,7 +649,7 @@ void CvArea::setTargetCity(PlayerTypes eIndex, CvCity* pNewValue)
 //	--------------------------------------------------------------------------------
 int CvArea::getYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2) const
 {
-	map<PlayerTypes, vector<int>>::const_iterator it = m_aaiYieldRateModifier.find(eIndex1);
+	map<PlayerTypes, vector<int> >::const_iterator it = m_aaiYieldRateModifier.find(eIndex1);
 	if (it != m_aaiYieldRateModifier.end())
 		return it->second[eIndex2];
 
@@ -663,7 +663,7 @@ void CvArea::changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, in
 	if (iChange == 0)
 		return;
 
-	map<PlayerTypes,vector<int>>::iterator it = m_aaiYieldRateModifier.find(eIndex1);
+	map<PlayerTypes,vector<int> >::iterator it = m_aaiYieldRateModifier.find(eIndex1);
 	if (it != m_aaiYieldRateModifier.end())
 	{
 		it->second[eIndex2] += iChange;

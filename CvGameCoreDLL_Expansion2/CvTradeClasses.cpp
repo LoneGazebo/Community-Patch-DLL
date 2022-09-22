@@ -69,7 +69,7 @@ void CvGameTrade::Uninit (void)
 void CvGameTrade::Reset (void)
 {
 	m_aTradeConnections.clear();
-	m_routesPerPlayer = vector<vector<int>>(MAX_PLAYERS);
+	m_routesPerPlayer = vector<vector<int> >(MAX_PLAYERS);
 	m_iNextID = 0;
 	m_CurrentTemporaryPopupRoute.iPlotX = 0;
 	m_CurrentTemporaryPopupRoute.iPlotY = 0;

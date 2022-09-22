@@ -54,7 +54,7 @@ void CvDealAI::Uninit()
 void CvDealAI::Reset()
 {
 	m_iCachedValueOfPeaceWithHuman = 0;
-	m_vResearchRates = std::vector<std::pair<int,int>>(MAX_PLAYERS, std::make_pair(0,0));
+	m_vResearchRates = std::vector<std::pair<int,int> >(MAX_PLAYERS, std::make_pair(0,0));
 }
 
 ///
@@ -4331,7 +4331,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Them, but them is us.  Please show Jon");
 
 	typedef pair<ResourceTypes, int> TradeItem;
-	vector<OptionWithScore<TradeItem>> vOptions;
+	vector<OptionWithScore<TradeItem> > vOptions;
 
 	if (iTotalValue < 1)
 		return;
@@ -4430,7 +4430,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Resource to Us, but them is us.  Please show Jon");
 
 	typedef pair<ResourceTypes, int> TradeItem;
-	vector<OptionWithScore<TradeItem>> vOptions;
+	vector<OptionWithScore<TradeItem> > vOptions;
 
 	if (iTotalValue < 1)
 		return;

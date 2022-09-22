@@ -567,7 +567,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	//wormholes, eg harbors
 	if(udGetExtraChildrenFunc)
 	{
-		vector<pair<int, int>> extraChildren;
+		vector<pair<int, int> > extraChildren;
 		GetExtraChildren(node,extraChildren);
 		for(size_t i = 0; i < extraChildren.size(); i++)
 		{
@@ -661,7 +661,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 }
 
 //  --------------------------------------------------------------------------------
-int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const
+int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int> >& out) const
 {
 	if (udGetExtraChildrenFunc)
 	{
@@ -1653,7 +1653,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		//non local neighbors
 		if (udGetExtraChildrenFunc)
 		{
-			vector<pair<int, int>> extraChildren;
+			vector<pair<int, int> > extraChildren;
 			GetExtraChildren(node, extraChildren);
 			for (size_t i = 0; i < extraChildren.size(); i++)
 			{
@@ -2008,7 +2008,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 }
 
 //	--------------------------------------------------------------------------------
-int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int> >& out)
 {
 	out.clear();
 
@@ -2983,7 +2983,7 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 }
 
 //	---------------------------------------------------------------------------
-int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int>>& out)
+int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vector<pair<int,int> >& out)
 {
 	out.clear();
 	CvPlayer& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
@@ -3619,7 +3619,7 @@ struct EqualRangeComparison
 
 ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 {
-	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	typedef pair<vector<pair<int, size_t> >::iterator, vector<pair<int, size_t> >::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;
@@ -3629,7 +3629,7 @@ ReachablePlots::iterator ReachablePlots::find(int iPlotIndex)
 
 ReachablePlots::const_iterator ReachablePlots::find(int iPlotIndex) const
 {
-	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	typedef pair<vector<pair<int, size_t> >::const_iterator, vector<pair<int, size_t> >::const_iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(lookup.begin(), lookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != lookup.end() && it2.first != it2.second)
 		return storage.begin() + it2.first->second;

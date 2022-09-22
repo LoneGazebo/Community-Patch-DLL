@@ -5666,7 +5666,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	s = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_VOTE_OPINIONS").toUTF8();
 
 	// Discover what choices we can of the other players
-	vector<pair<PlayerTypes, int>> vMemberOpinions;
+	vector<pair<PlayerTypes, int> > vMemberOpinions;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 	{
 		if (it->ePlayer != eObserver && CanEverVote(it->ePlayer))
@@ -5835,7 +5835,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 
 	// Display the score for each civ
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<pair<int, PlayerTypes> > vScores;
 	if (bEnact)
 	{
 		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -5871,7 +5871,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<pair<int, PlayerTypes> >::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
@@ -5956,7 +5956,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 {
 	CvString s = "";
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<pair<int, PlayerTypes> > vScores;
 
 
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -5973,7 +5973,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<pair<int, PlayerTypes> >::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");
@@ -6058,7 +6058,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 {
 	CvString s = "";
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
-	std::vector<pair<int, PlayerTypes>> vScores;
+	std::vector<pair<int, PlayerTypes> > vScores;
 
 	ActiveResolutionList vActiveResolutions = this->GetActiveResolutions();
 	for (ActiveResolutionList::iterator itRes = vActiveResolutions.begin(); itRes != vActiveResolutions.end(); ++itRes)
@@ -6081,7 +6081,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 	bool bNegativeDone = false;
 	bool bNeutralDone = false;
 
-	for (std::vector<pair<int, PlayerTypes>>::iterator it = vScores.begin(); it != vScores.end(); it++)
+	for (std::vector<pair<int, PlayerTypes> >::iterator it = vScores.begin(); it != vScores.end(); it++)
 	{
 		CvString strOut = "";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_PROPOSAL_OPINION");

@@ -3930,7 +3930,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 	{
 		//We didn't found a religion, or we lost our holy city? Okay, let's see if we've conquered any holy cities
 		const ReligionList& allReligions = GC.getGame().GetGameReligions()->m_CurrentReligions;
-		vector<OptionWithScore<ReligionTypes>> vHolyReligions;
+		vector<OptionWithScore<ReligionTypes> > vHolyReligions;
 		for (ReligionList::const_iterator it = allReligions.begin(); it != allReligions.end(); it++)
 		{
 			//We own this holy city? It is ours to work with now.
@@ -6402,7 +6402,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 }
 
 /// Find the city where a missionary should next spread his religion
-CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
+CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int> >& vIgnoreTargets, int* piTurns) const
 {
 	ReligionTypes eOwnedReligion = m_pPlayer->GetReligions()->GetOwnedReligion();
 	ReligionTypes eSpreadReligion = GetReligionToSpread();
@@ -6434,7 +6434,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 					continue;
 
 				//we often have multiple missionaries active at the same time, don't all go to the same target
-				vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+				vector<pair<int, int> >::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
 				if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 					continue;
 
@@ -6469,7 +6469,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 }
 
 /// Find the city where an inquisitor should next remove heresy
-CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns) const
+CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int> >& vIgnoreTargets, int* piTurns) const
 {
 	ReligionTypes eMyReligion = GetReligionToSpread();
 	if(eMyReligion <= RELIGION_PANTHEON)
@@ -6485,7 +6485,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 			continue;
 
 		//we often have multiple inquisitors active at the same time, don't all go to the same target
-		vector<pair<int, int>>::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
+		vector<pair<int, int> >::const_iterator it = std::find_if(vIgnoreTargets.begin(), vIgnoreTargets.end(), CompareSecond(pLoopCity->plot()->GetPlotIndex()));
 		if (it != vIgnoreTargets.end() && it->first != pUnit->GetID())
 			continue;
 

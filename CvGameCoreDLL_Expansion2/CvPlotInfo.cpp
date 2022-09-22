@@ -48,13 +48,13 @@ int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes 
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
 
-	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
+	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> > >::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	int iYieldChange = 0;
 	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
 	{
 		if (bNaturalWonderPlot)
 		{
-			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> >::const_iterator itBool = itFeature->second.find(false);
 			if (itBool != itFeature->second.end())
 			{
 				std::map<YieldTypes, int>::const_iterator itYield = itBool->second.find(eYield);
@@ -66,7 +66,7 @@ int CvPlotInfo::GetAdjacentFeatureYieldChange(FeatureTypes eFeature, YieldTypes 
 		}
 		else
 		{
-			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool;
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> >::const_iterator itBool;
 			for(itBool = itFeature->second.begin(); itBool != itFeature->second.end(); ++itBool)
 			{
 				std::map<YieldTypes, int>::const_iterator itYield = itBool->second.find(eYield);
@@ -86,10 +86,10 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(bool bNaturalWonderPlot) const
 {
 	if (bNaturalWonderPlot)
 	{
-		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature;
+		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> > >::const_iterator itFeature;
 		for (itFeature = m_pppiAdjacentFeatureYieldChange.begin(); itFeature != m_pppiAdjacentFeatureYieldChange.end(); ++itFeature)
 		{
-			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> >::const_iterator itBool = itFeature->second.find(false);
 			if (itBool != itFeature->second.end())
 			{
 				return true;
@@ -106,12 +106,12 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNatur
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(eFeature > -1, "Index out of bounds");
 
-	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
+	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> > >::const_iterator itFeature = m_pppiAdjacentFeatureYieldChange.find(eFeature);
 	if (itFeature != m_pppiAdjacentFeatureYieldChange.end())
 	{
 		if (bNaturalWonderPlot)
 		{
-			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>::const_iterator itBool = itFeature->second.find(false);
+			std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> >::const_iterator itBool = itFeature->second.find(false);
 			if (itBool != itFeature->second.end())
 			{
 				return true;
@@ -167,7 +167,7 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>>(m_pppiAdjacentFeatureYieldChange).swap(m_pppiAdjacentFeatureYieldChange);
+		std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> > >(m_pppiAdjacentFeatureYieldChange).swap(m_pppiAdjacentFeatureYieldChange);
 	}
 #endif
 

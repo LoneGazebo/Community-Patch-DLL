@@ -112,9 +112,9 @@ namespace FSerialization
 
 //helper function for managing extra yields
 template <typename T>
-bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int value, bool modifyExisting)
+bool ModifierUpdateInsertRemove(vector<pair<T, int> >& container, T key, int value, bool modifyExisting)
 {
-	for (typename vector<pair<T, int>>::iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int> >::iterator it = container.begin(); it != container.end(); ++it)
 	{
 		if (it->first == key)
 		{
@@ -149,9 +149,9 @@ bool ModifierUpdateInsertRemove(vector<pair<T, int>>& container, T key, int valu
 }
 
 template <typename T>
-int ModifierLookup(const vector<pair<T, int>>& container, T key)
+int ModifierLookup(const vector<pair<T, int> >& container, T key)
 {
-	for (typename vector<pair<T, int>>::const_iterator it = container.begin(); it != container.end(); ++it)
+	for (typename vector<pair<T, int> >::const_iterator it = container.begin(); it != container.end(); ++it)
 		if (it->first == key)
 			return it->second;
 
@@ -15444,10 +15444,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 #if defined(MOD_BALANCE_CORE)
-		std::multimap<int, std::pair<int, int>> piiGreatPersonProgressFromConstruction = pBuildingInfo->GetGreatPersonProgressFromConstructionArray();
+		std::multimap<int, std::pair<int, int> > piiGreatPersonProgressFromConstruction = pBuildingInfo->GetGreatPersonProgressFromConstructionArray();
 		if (piiGreatPersonProgressFromConstruction.empty() == false)
 		{
-			for (std::multimap<int, std::pair<int, int>>::const_iterator it = piiGreatPersonProgressFromConstruction.begin(); it != piiGreatPersonProgressFromConstruction.end(); ++it)
+			for (std::multimap<int, std::pair<int, int> >::const_iterator it = piiGreatPersonProgressFromConstruction.begin(); it != piiGreatPersonProgressFromConstruction.end(); ++it)
 			{
 				if (it->first >= 0 && it->first < GC.getNumGreatPersonInfos() && it->second.first >= 0 && it->second.first < GC.getNumEraInfos())
 				{
@@ -26332,9 +26332,9 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
 
 	const SCityExtraYields& y = GetYieldChanges(eIndex);
-	for (vector<pair<TerrainTypes, int>>::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
+	for (vector<pair<TerrainTypes, int> >::const_iterator it = y.forTerrainFromReligion.begin(); it != y.forTerrainFromReligion.end(); ++it)
 		iBaseYield += it->second;
-	for (vector<pair<FeatureTypes, int>>::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
+	for (vector<pair<FeatureTypes, int> >::const_iterator it = y.forFeatureFromReligion.begin(); it != y.forFeatureFromReligion.end(); ++it)
 		iBaseYield += it->second;
 
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromOwnPantheon(eIndex) > 0)
@@ -30704,7 +30704,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		}
 		else
 		{
-			vector<pair<size_t, size_t>> freeSlotsPerOp;
+			vector<pair<size_t, size_t> > freeSlotsPerOp;
 			// Check existing armies this unit could fit into if it wasn't automatically added to one.
 			for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
 			{

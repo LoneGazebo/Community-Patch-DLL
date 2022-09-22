@@ -3584,7 +3584,7 @@ const vector<BuildingTypes>& CvGlobals::getBuildingInteractions(BuildingTypes eR
 {
 	static vector<BuildingTypes> emptyResult;
 
-	map<BuildingTypes, vector<BuildingTypes>>::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
+	map<BuildingTypes, vector<BuildingTypes> >::const_iterator it = m_buildingInteractionLookup.find(eRefBuilding);
 	if (it != m_buildingInteractionLookup.end())
 		return it->second;
 	else

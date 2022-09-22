@@ -5795,7 +5795,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 			CvUnit* pUnit = GET_PLAYER(m_eOwner).getUnit(GetID());
 			if(pUnit)
 			{
-				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,vector<pair<int,int>>());
+				CvCity* pTarget = GET_PLAYER(m_eOwner).GetReligionAI()->ChooseMissionaryTargetCity(pUnit,vector<pair<int,int> >());
 				if(pTarget == NULL)
 				{
 					return false;
@@ -23051,8 +23051,8 @@ int CvUnit::GetGoldenAgeGeneralExpPercent() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23084,8 +23084,8 @@ int CvUnit::GetGiveExperiencePercentToUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23122,8 +23122,8 @@ int CvUnit::GetGiveCombatModToUnit(const CvPlot* pAtPlot) const
 			return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23158,8 +23158,8 @@ int CvUnit::GetGiveDefenseModToUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23194,8 +23194,8 @@ int CvUnit::GetHealEnemyTerritoryFromNearbyUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);
@@ -23227,8 +23227,8 @@ int CvUnit::GetHealNeutralTerritoryFromNearbyUnit() const
 		return 0;
 	}
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPromotionUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//first quick check with a large, fixed distance
 		CvPlot* pUnitPlot = GC.getMap().plotByIndexUnchecked(it->second);

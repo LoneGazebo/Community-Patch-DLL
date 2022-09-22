@@ -775,8 +775,8 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 	m_potentialAttackTargets.clear();
 	m_exposedCities.clear();
 
-	vector<OptionWithScore<CvAttackTarget>> vAttackOptions;
-	vector<OptionWithScore<CvAttackTarget>> vDefenseOptions;
+	vector<OptionWithScore<CvAttackTarget> > vAttackOptions;
+	vector<OptionWithScore<CvAttackTarget> > vDefenseOptions;
 
 	int iCityLoop = 0;
 	for (CvCity* pMusterCity = m_pPlayer->firstCity(&iCityLoop); pMusterCity != NULL; pMusterCity = m_pPlayer->nextCity(&iCityLoop))

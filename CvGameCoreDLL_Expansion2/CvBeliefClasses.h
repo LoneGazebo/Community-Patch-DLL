@@ -303,8 +303,8 @@ protected:
 	int** m_ppiPlotYieldChange;
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> m_aiFreePromotions;
-	std::map<int, std::map<bool, int>> m_pbiYieldFromImprovementBuild;
-	std::map<int, std::map<bool, int>> m_pbiYieldFromPillageGlobal;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromImprovementBuild;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromPillageGlobal;
 #endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
@@ -329,7 +329,7 @@ protected:
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
-	std::map<int, std::map<bool, int>> m_pbiYieldPerBorderGrowth;
+	std::map<int, std::map<bool, int> > m_pbiYieldPerBorderGrowth;
 	int* m_piYieldPerHeal;
 	int* m_piYieldPerBirth;
 	int* m_piYieldPerHolyCityBirth;
@@ -341,7 +341,7 @@ protected:
 	int* m_piYieldFromConquest;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromEraUnlock;
-	std::map<int, std::map<bool, int>> m_pbiYieldFromTechUnlock;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromTechUnlock;
 	int* m_piYieldFromConversion;
 	int* m_piYieldFromConversionExpo;
 	int* m_piYieldFromWLTKD;

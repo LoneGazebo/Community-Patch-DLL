@@ -327,7 +327,7 @@ private:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	vector<CvAttackTarget> m_potentialAttackTargets; //enemy cities we might want to attack
-	vector<pair<PlayerTypes,int>> m_exposedCities; //those of our cities which might be tempting to the enemies
+	vector<pair<PlayerTypes,int> > m_exposedCities; //those of our cities which might be tempting to the enemies
 #endif
 
 	// Data recomputed each turn (no need to serialize)

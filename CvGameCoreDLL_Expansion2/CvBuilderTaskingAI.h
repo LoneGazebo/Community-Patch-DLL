@@ -132,7 +132,7 @@ protected:
 	vector<OptionWithScore<BuilderDirective> > m_aDirectives;
 
 	//plotindex,type,value
-	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
+	typedef std::tr1::unordered_map<int, pair<RouteTypes, int> > RoutePlotContainer;
 	RoutePlotContainer m_routeWantedPlots; //create route here. serialized
 	RoutePlotContainer m_routeNeededPlots; //do not remove route here. serialized
 	set<int> m_canalWantedPlots; //serialized

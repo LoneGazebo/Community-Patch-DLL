@@ -677,7 +677,7 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 /// Assign specializations to cities
 void CvCitySpecializationAI::AssignSpecializations()
 {
-	map<int, vector<int>> citiesWithoutSpecialization;
+	map<int, vector<int> > citiesWithoutSpecialization;
 	CitySpecializationTypes eWonderSpecialization = GetWonderSpecialization();
 	vector<CitySpecializationTypes> specializationsNeeded =	SelectSpecializations();
 	vector<CitySpecializationTypes>::iterator it;
@@ -743,7 +743,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		// Pick best existing city based on a better computation of existing city's value for a yield type
 		int iBestValue = 1;
 		int iBestCityID = -1;
-		for (map<int, vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
+		for (map<int, vector<int> >::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 		{
 			CvCity* pCity = m_pPlayer->getCity(itCity->first);
 			if (bCoastal && !pCity->isCoastal())
@@ -782,7 +782,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 	}
 
 	//set all remaining cities to default
-	for(map<int,vector<int>>::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
+	for(map<int,vector<int> >::iterator itCity = citiesWithoutSpecialization.begin(); itCity != citiesWithoutSpecialization.end(); ++itCity)
 	{
 		CvCity* pCity = m_pPlayer->getCity(itCity->first);
 		pCity->GetCityStrategyAI()->SetSpecialization(GetEconomicDefaultSpecialization());

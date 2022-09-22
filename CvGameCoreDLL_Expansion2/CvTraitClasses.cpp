@@ -1530,7 +1530,7 @@ int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraSc
 {
 	CvAssertMsg(eIndex1 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eIndex1);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eIndex1);
 	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -1571,7 +1571,7 @@ int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 }
 std::pair<int, int> CvTraitEntry::GetTradeRouteEndYield(YieldTypes eYield) const
 {
-	const std::map<int, std::pair<int, int>>::const_iterator it = m_tradeRouteEndYield.find(static_cast<int>(eYield));
+	const std::map<int, std::pair<int, int> >::const_iterator it = m_tradeRouteEndYield.find(static_cast<int>(eYield));
 	if (it != m_tradeRouteEndYield.end())
 	{
 		return it->second;
@@ -1669,7 +1669,7 @@ int CvTraitEntry::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex,
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
 	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
@@ -2102,7 +2102,7 @@ std::pair <int, bool> CvTraitEntry::GetUnitCombatProductionCostModifier(const in
 	CvAssertMsg(unitCombatID >= 0, "unitCombatID expected to be >= 0");
 	CvAssertMsg(unitCombatID < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
 
-	std::map<int, std::pair<int, bool>>::const_iterator it = m_pibUnitCombatProductionCostModifier.find(unitCombatID);
+	std::map<int, std::pair<int, bool> >::const_iterator it = m_pibUnitCombatProductionCostModifier.find(unitCombatID);
 	if (it != m_pibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key iYield is not present in the map
 	{
 		return it->second;
@@ -2924,7 +2924,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<bool, int>>(m_pbiYieldFromBarbarianCampClear).swap(m_pbiYieldFromBarbarianCampClear);
+		std::map<int, std::map<bool, int> >(m_pbiYieldFromBarbarianCampClear).swap(m_pbiYieldFromBarbarianCampClear);
 	}
 	//Populate m_MovesChangeUnitClass
 	{
@@ -3045,13 +3045,13 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			const int iCostModifier = pResults->GetInt(1);
 			const bool bGoldenAgeOnly = pResults->GetBool(2);
 
-			m_pibUnitCombatProductionCostModifier.insert(std::pair<int, std::pair<int, bool>>(iUnitCombat, std::make_pair(iCostModifier, bGoldenAgeOnly)));
+			m_pibUnitCombatProductionCostModifier.insert(std::pair<int, std::pair<int, bool> >(iUnitCombat, std::make_pair(iCostModifier, bGoldenAgeOnly)));
 		}
 
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::pair<int, bool>>(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
+		std::map<int, std::pair<int, bool> >(m_pibUnitCombatProductionCostModifier).swap(m_pibUnitCombatProductionCostModifier);
 	}
 
 	//Populate m_aiNoBuilds
@@ -3136,7 +3136,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::map<bool, int>>(m_pbiYieldFromRouteMovementInForeignTerritory).swap(m_pbiYieldFromRouteMovementInForeignTerritory);
+		std::map<int, std::map<bool, int> >(m_pbiYieldFromRouteMovementInForeignTerritory).swap(m_pbiYieldFromRouteMovementInForeignTerritory);
 	}
 #endif
 
@@ -3267,7 +3267,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 			if (yieldDomestic != 0 || yieldInternational != 0)
 			{
-				const std::map<int, std::pair<int, int>>::iterator it = m_tradeRouteEndYield.find(yieldID);
+				const std::map<int, std::pair<int, int> >::iterator it = m_tradeRouteEndYield.find(yieldID);
 				if (it != m_tradeRouteEndYield.end())
 				{
 					std::pair<int, int>& yieldValues = it->second;
@@ -5968,7 +5968,7 @@ int CvPlayerTraits::GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraS
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Invalid eYield parameter in call to CvPlayerTraits::GetYieldFromBarbarianCampClear()");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eYield);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromBarbarianCampClear.find((int)eYield);
 	if (itYield != m_pbiYieldFromBarbarianCampClear.end()) // find returns the iterator to map::end if the key eYield is not present in the map
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bEraScaling);
@@ -5989,7 +5989,7 @@ int CvPlayerTraits::GetYieldFromRouteMovementInForeignTerritory(YieldTypes eInde
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex > -1, "Index out of bounds");
 
-	std::map<int, std::map<bool, int>>::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
+	std::map<int, std::map<bool, int> >::const_iterator itYield = m_pbiYieldFromRouteMovementInForeignTerritory.find((int)eIndex);
 	if (itYield != m_pbiYieldFromRouteMovementInForeignTerritory.end()) // find returns the iterator to map::end if the key eYield is not present in the map
 	{
 		std::map<bool, int>::const_iterator itBool = itYield->second.find(bTradePartner);
@@ -6258,7 +6258,7 @@ std::pair<int, bool> CvPlayerTraits::GetUnitCombatProductionCostModifier(UnitCom
 	CvAssertMsg(eUnitCombat >= 0, "unitCombatID expected to be >= 0");
 	CvAssertMsg(eUnitCombat < GC.getNumUnitCombatClassInfos(), "unitCombatID expected to be < GC.getNumUnitCombatInfos()");
 
-	std::map<int, std::pair<int, bool>>::const_iterator it = m_aibUnitCombatProductionCostModifier.find((int)eUnitCombat);
+	std::map<int, std::pair<int, bool> >::const_iterator it = m_aibUnitCombatProductionCostModifier.find((int)eUnitCombat);
 	if (it != m_aibUnitCombatProductionCostModifier.end()) // find returns the iterator to map::end if the key is not present
 	{
 		return it->second;

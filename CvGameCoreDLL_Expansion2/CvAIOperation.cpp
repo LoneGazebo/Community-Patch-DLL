@@ -418,7 +418,7 @@ bool CvAIOperation::RecruitUnit(CvUnit* pUnit)
 
 	ReachablePlots turnsFromMuster; //empty is ok
 	vector<size_t> freeSlots = pThisArmy->GetOpenSlots(false);
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
+	vector<pair<size_t,CvFormationSlotEntry> > freeSlotInfo;
 	for (size_t i = 0; i < freeSlots.size(); i++)
 		freeSlotInfo.push_back( make_pair(freeSlots[i],pThisArmy->GetSlotInfo(freeSlots[i])) );
 
@@ -453,7 +453,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	if (freeSlots.empty())
 		return 0;
 
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlotInfo;
+	vector<pair<size_t,CvFormationSlotEntry> > freeSlotInfo;
 	for (size_t i = 0; i < freeSlots.size(); i++)
 		freeSlotInfo.push_back( make_pair(freeSlots[i],pArmy->GetSlotInfo(freeSlots[i])) );
 
@@ -466,7 +466,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
-	vector<OptionWithScore<int>> choices;
+	vector<OptionWithScore<int> > choices;
 	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
@@ -1327,7 +1327,7 @@ CvArmyAI* CvAIOperation::AddArmy(MultiunitFormationTypes eFormation)
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>& choices)
+bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int> >& choices)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 	CvArmyAI* pThisArmy = ownerPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
@@ -2847,7 +2847,7 @@ AIOperationAbortReason CvAIOperationNukeAttack::VerifyOrAdjustTarget(CvArmyAI* /
 }
 
 /// Find a unit from our reserves that could serve in this operation
-bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int>>&)
+bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperationSlot, vector<OptionWithScore<int> >&)
 {
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 
@@ -3148,7 +3148,7 @@ bool OperationalAIHelpers::IsSlotRequired(PlayerTypes ePlayer, const OperationSl
 	return false;
 }
 
-int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots)
+int OperationalAIHelpers::IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget, bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry> >& availableSlots)
 {
 	//otherwise engaged?
 	if (!pLoopUnit->canUseForAIOperation())
@@ -3444,7 +3444,7 @@ bool CvAIOperation::PreconditionsAreMet(CvPlot* pMusterPlot, CvPlot* pTargetPlot
 	//we check existance of suitable target in subclassed implementations
 
 	//use all slots, not only required slots
-	vector<pair<size_t,CvFormationSlotEntry>> freeSlots;
+	vector<pair<size_t,CvFormationSlotEntry> > freeSlots;
 	vector<CvArmyFormationSlot> fakeStatus;
 	CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(OperationalAIHelpers::GetArmyFormationForOpType(m_eType));
 	for (size_t i = 0; i < thisFormation->getNumFormationSlotEntries(); i++)

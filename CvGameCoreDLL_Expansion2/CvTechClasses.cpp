@@ -1274,7 +1274,7 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	//preparation
-	map<TechTypes, vector<UnitTypes>> unitPrereqTechs;
+	map<TechTypes, vector<UnitTypes> > unitPrereqTechs;
 	for (int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
 	{
 		UnitTypes eUnit = (UnitTypes)iUnitLoop;
@@ -1285,7 +1285,7 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	//preparation pt2
-	map<TechTypes, vector<BuildingTypes>> buildingPrereqTechs;
+	map<TechTypes, vector<BuildingTypes> > buildingPrereqTechs;
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);

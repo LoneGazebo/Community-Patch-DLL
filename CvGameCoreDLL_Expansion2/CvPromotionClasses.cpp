@@ -1048,7 +1048,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::pair<int, bool>>(m_piInstantYields).swap(m_piInstantYields);
+		std::map<int, std::pair<int, bool> >(m_piInstantYields).swap(m_piInstantYields);
 	}
 #endif
 
@@ -1196,7 +1196,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 			if (yieldFlat != 0 || yieldEraScaled != 0)
 			{
-				const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldID);
+				const std::map<int, std::pair<int, int> >::iterator it = m_yieldFromPillage.find(yieldID);
 				if (it != m_yieldFromPillage.end())
 				{
 					std::pair<int, int>& yieldValues = it->second;
@@ -1219,7 +1219,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Reset();
 
 		//Trim extra memory off container since this is mostly read-only.
-		std::map<int, std::pair<int, int>>(m_yieldFromPillage).swap(m_yieldFromPillage);
+		std::map<int, std::pair<int, int> >(m_yieldFromPillage).swap(m_yieldFromPillage);
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -2848,7 +2848,7 @@ std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 
 	if (i > -1 && i < NUM_YIELD_TYPES && m_piInstantYields.empty() == false)
 	{
-		std::map<int, std::pair<int, bool>>::const_iterator it = m_piInstantYields.find(i);
+		std::map<int, std::pair<int, bool> >::const_iterator it = m_piInstantYields.find(i);
 		if (it != m_piInstantYields.end()) // find returns the iterator to map::end if the key iYield is not present in the map
 		{
 			return it->second;
@@ -3067,7 +3067,7 @@ std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) con
 
 	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
 	{
-		std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+		std::map<int, std::pair<int, int> >::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
 		if (it != m_yieldFromPillage.end())
 		{
 			return it->second;

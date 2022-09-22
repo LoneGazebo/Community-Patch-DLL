@@ -3487,7 +3487,7 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 		}
 	}
 
-	vector<OptionWithScore<pair<CvUnit*, CvPlot*>>> vOptions;
+	vector<OptionWithScore<pair<CvUnit*, CvPlot*> > > vOptions;
 
 	for (size_t i = 0; i < vCandidates.size(); i++)
 	{
@@ -3510,7 +3510,7 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 				if (pPathPlot->canSeePlot(pTargetPlot, pUnit->getTeam(), pUnit->visibilityRange(), NO_DIRECTION))
 				{
 					//or should we use danger as the sorting criterion?
-					vOptions.push_back(OptionWithScore<pair<CvUnit*, CvPlot*>>(make_pair(pUnit,pPathPlot),path[i].m_iMoves));
+					vOptions.push_back(OptionWithScore<pair<CvUnit*, CvPlot*> >(make_pair(pUnit,pPathPlot),path[i].m_iMoves));
 				}
 			}
 		}
@@ -5538,7 +5538,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffen
 	if (pUnit == NULL)
 		return NULL;
 
-	vector<OptionWithScore<CvPlot*>> candidates;
+	vector<OptionWithScore<CvPlot*> > candidates;
 
 	// Loop through all appropriate targets to find the closest
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
@@ -6127,10 +6127,10 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 
 CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush)
 {
-	vector<OptionWithScore<CvPlot*>> aCityList;
-	vector<OptionWithScore<CvPlot*>> aZeroDangerList;
-	vector<OptionWithScore<CvPlot*>> aCoverList;
-	vector<OptionWithScore<CvPlot*>> aDangerList;
+	vector<OptionWithScore<CvPlot*> > aCityList;
+	vector<OptionWithScore<CvPlot*> > aZeroDangerList;
+	vector<OptionWithScore<CvPlot*> > aCoverList;
+	vector<OptionWithScore<CvPlot*> > aDangerList;
 
 	//special behavior for cities and citadels - don't run even if there is a "safe" plot somewhere else
 	CvPlot* pCurrentPlot = pUnit->plot();
@@ -8505,7 +8505,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 	vector<STacticalAssignment> overAllChoices;
 	overAllChoices.reserve(iMaxBranches*iMaxChoicesPerUnit);
-	map<int,vector<STacticalAssignment>> choicePerUnit;
+	map<int,vector<STacticalAssignment> > choicePerUnit;
 
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
@@ -9551,7 +9551,7 @@ struct EqualRangeComparison
 
 vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex)
 {
-	typedef pair<vector<pair<int, size_t>>::iterator, vector<pair<int, size_t>>::iterator>  IteratorPair;
+	typedef pair<vector<pair<int, size_t> >::iterator, vector<pair<int, size_t> >::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
 		return tactPlots.begin() + it2.first->second;
@@ -9561,7 +9561,7 @@ vector<CvTacticalPlot>::iterator CvTacticalPosition::findTactPlot(int iPlotIndex
 
 vector<CvTacticalPlot>::const_iterator CvTacticalPosition::findTactPlot(int iPlotIndex) const
 {
-	typedef pair<vector<pair<int, size_t>>::const_iterator, vector<pair<int, size_t>>::const_iterator>  IteratorPair;
+	typedef pair<vector<pair<int, size_t> >::const_iterator, vector<pair<int, size_t> >::const_iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(tactPlotLookup.begin(), tactPlotLookup.end(), iPlotIndex, EqualRangeComparison());
 	if (it2.first != tactPlotLookup.end() && it2.first != it2.second)
 		return tactPlots.begin() + it2.first->second;
@@ -10552,7 +10552,7 @@ const char* assignmentTypeNames[] =
 
 void SAssignmentSummary::addAttack(int iPlotIndex, int iDamage)
 {
-	typedef pair<vector<pair<int, int>>::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
+	typedef pair<vector<pair<int, int> >::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(attackedPlots.begin(), attackedPlots.end(), iPlotIndex, EqualRangeComparison());
 
 	//if we have it already
