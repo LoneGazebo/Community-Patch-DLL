@@ -573,8 +573,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCitiesWithReligionCalculator(ReligionTypes eReligion = NO_RELIGION, bool bForPantheon = false) const;
 #endif
-	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
-	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int>>& vIgnoreTargets, int* piTurns = NULL) const;
+	CvCity* ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pair<int,int> >& vIgnoreTargets, int* piTurns = NULL) const;
+	CvCity* ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pair<int,int> >& vIgnoreTargets, int* piTurns = NULL) const;
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread() const;
 	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;

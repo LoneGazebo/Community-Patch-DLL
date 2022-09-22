@@ -770,7 +770,7 @@ protected:
 	int* m_piFreeUnitClassesDOW;
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piCapitalYieldChanges;
@@ -809,7 +809,7 @@ protected:
 	std::vector<bool> m_abTerrainClaimBoost;
 	std::multimap<int, int> m_piUpgradeUnitClass;
 	std::map<int, int> m_piGoldenAgeYieldModifier;
-	std::map<int, std::pair<int, bool>> m_pibUnitCombatProductionCostModifier;
+	std::map<int, std::pair<int, bool> > m_pibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_piDomainProductionModifiersPerSpecialist;
@@ -2354,7 +2354,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiYieldFromTileSettle;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 	vector<ImprovementTypes> m_vYieldChangeImprovementTypes; //not serialized, built on the fly
-	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromBarbarianCampClear;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
@@ -2375,7 +2375,7 @@ private:
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iYieldFromConquest[NUM_YIELD_TYPES];
 	std::map<int, int> m_aiGoldenAgeYieldModifier;
-	std::map<int, std::pair<int, bool>> m_aibUnitCombatProductionCostModifier;
+	std::map<int, std::pair<int, bool> > m_aibUnitCombatProductionCostModifier;
 	int m_iNonSpecialistFoodChange;
 	std::vector<int> m_aiNoBuilds;
 	std::map<int, int> m_aiDomainProductionModifiersPerSpecialist;
@@ -2393,7 +2393,7 @@ private:
 	int m_iProductionBonusModifierConquest;
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	std::map<int, std::map<bool, int>> m_pbiYieldFromRouteMovementInForeignTerritory;
+	std::map<int, std::map<bool, int> > m_pbiYieldFromRouteMovementInForeignTerritory;
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	std::map<bool, TradeRouteProductionSiphon> m_aiiTradeRouteProductionSiphon;

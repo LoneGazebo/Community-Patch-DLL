@@ -1189,7 +1189,7 @@ private:
 	PolicyBranchTypes m_eBranchPicked3;
 
 	//cache for repeated calls
-	typedef std::map<PolicyModifierType,std::pair<int,int>> ModifierMap;
+	typedef std::map<PolicyModifierType,std::pair<int,int> > ModifierMap;
 	ModifierMap mModifierLookup;
 
 	//these are used so often, make an even faster cache

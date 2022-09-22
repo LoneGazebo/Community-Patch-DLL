@@ -362,7 +362,7 @@ private:
 
 	CvPlayer *m_pPlayer;
 
-	mutable map<PlayerTypes, pair<int, InfluenceLevelTrend>> m_influenceTrendCache;
+	mutable map<PlayerTypes, pair<int, InfluenceLevelTrend> > m_influenceTrendCache;
 };
 
 FDataStream& operator>>(FDataStream&, CvPlayerCulture&);

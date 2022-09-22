@@ -129,7 +129,7 @@ protected:
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
-	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
+	vector<OptionWithScore<BuilderDirective> > m_aDirectives;
 
 	//plotindex,type,value
 	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;

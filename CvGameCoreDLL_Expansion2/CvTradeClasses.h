@@ -111,7 +111,7 @@ FDataStream& operator>>(FDataStream&, TradeConnection&);
 typedef std::vector<TradeConnection> TradeConnectionList;
 
 //org plot index -> dst plot index -> path
-typedef std::map<int,std::map<int,SPath>> TradePathLookup;
+typedef std::map<int,std::map<int,SPath> > TradePathLookup;
 
 class CvGameTrade
 {
@@ -221,7 +221,7 @@ protected:
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
 	std::map<PlayerTypes,int> m_lastTradePathUpdate;
-	std::vector<vector<int>> m_routesPerPlayer;
+	std::vector<vector<int> > m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 
 	int m_iNextID; // used to assign IDs to trade routes to avoid confusion when some are disrupted in multiplayer
