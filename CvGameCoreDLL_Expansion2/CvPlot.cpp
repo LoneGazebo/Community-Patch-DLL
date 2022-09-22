@@ -9721,7 +9721,7 @@ int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, Yie
 	}
 	if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
 	{
-		if (bRequiresResource && (getResourceType(kPlayer.getTeam()) != NO_RESOURCE && pImprovement->IsImprovementResourceMakesValid(getResourceType(kPlayer.getTeam()))))
+		if ( (getResourceType(kPlayer.getTeam()) != NO_RESOURCE && pImprovement->IsImprovementResourceMakesValid(getResourceType(kPlayer.getTeam()))))
 		{
 			iReligionChange += pSecondaryPantheon->GetImprovementYieldChange(eImprovement, eYield);
 		}
