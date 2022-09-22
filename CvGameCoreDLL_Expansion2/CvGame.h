@@ -883,7 +883,7 @@ protected:
 
 	CvEnumMap<VictoryTypes, TeamTypes*> m_ppaaiTeamVictoryRank;
 #if defined(MOD_BALANCE_CORE_JFD)
-	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>> m_ppaiContractUnits;
+	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int> > m_ppaiContractUnits;
 #endif
 
 	Database::Results* m_pDiploResponseQuery;

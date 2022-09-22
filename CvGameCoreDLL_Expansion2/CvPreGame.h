@@ -14,7 +14,7 @@ class FIGameIniParser;
 // pre-game data active at once.
 namespace CvPreGame
 {
-typedef std::list<GUID> PackageIDList;
+typedef std::list<_GUID> PackageIDList;
 
 enum Version
 {

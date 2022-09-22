@@ -46,63 +46,63 @@
 //------------------------------------------------------------------------------
 
 // {D89BA82F-9FA3-4696-B3F4-52BDB101CFB2}
-static const GUID guidICvUnknown =
+static const _GUID guidICvUnknown =
 {0xd89ba82f, 0x9fa3, 0x4696, 0xb3, 0xf4, 0x52, 0xbd, 0xb1, 0x1, 0xcf, 0xb2};
 
 // {579A12E9-3C70-4276-8460-C941A5F9585F}
-static const GUID guidICvEnumerator = 
+static const _GUID guidICvEnumerator = 
 { 0x579a12e9, 0x3c70, 0x4276, { 0x84, 0x60, 0xc9, 0x41, 0xa5, 0xf9, 0x58, 0x5f } };
 
 // {AE87F7BD-8510-444f-9D54-983D776485A6}
-static const GUID guidICvDLLDatabaseUtility1 = 
+static const _GUID guidICvDLLDatabaseUtility1 = 
 { 0xae87f7bd, 0x8510, 0x444f, { 0x9d, 0x54, 0x98, 0x3d, 0x77, 0x64, 0x85, 0xa6 } };
 
 // {C004434C-878E-4bcd-BAB2-4CEE341D711B}
-static const GUID guidICvScriptSystemUtility1 = 
+static const _GUID guidICvScriptSystemUtility1 = 
 { 0xc004434c, 0x878e, 0x4bcd, { 0xba, 0xb2, 0x4c, 0xee, 0x34, 0x1d, 0x71, 0x1b } };
 
 // {A309FA38-CF60-4239-A162-8586C0D1C7D3}
-static const GUID guidICvGameContext1 =
+static const _GUID guidICvGameContext1 =
 { 0xa309fa38, 0xcf60, 0x4239, 0xa1, 0x62, 0x85, 0x86, 0xc0, 0xd1, 0xc7, 0xd3};
 
 // {E75BA944-05DB-4D6C-96A6-A07B71CDBE77}
-static const GUID guidICvCity1 =
+static const _GUID guidICvCity1 =
 { 0xe75ba944, 0x5db, 0x4d6c, { 0x96, 0xa6, 0xa0, 0x7b, 0x71, 0xcd, 0xbe, 0x77 } };
 
 // {DA81A0DC-30B3-4773-8786-35D470E0EF64}
-static const GUID guidICvCombatInfo1 = 
+static const _GUID guidICvCombatInfo1 = 
 { 0xda81a0dc, 0x30b3, 0x4773, { 0x87, 0x86, 0x35, 0xd4, 0x70, 0xe0, 0xef, 0x64 } };
 
 // {61CA9E15-59FA-4980-AD88-27A71AC425A5}
-static const GUID guidICvDeal1 = 
+static const _GUID guidICvDeal1 = 
 { 0x61ca9e15, 0x59fa, 0x4980, { 0xad, 0x88, 0x27, 0xa7, 0x1a, 0xc4, 0x25, 0xa5 } };
 
 // {33320CC0-47FD-4b67-A024-FFF3AA4F66C1}
-static const GUID guidICvDealAI1 = 
+static const _GUID guidICvDealAI1 = 
 { 0x33320cc0, 0x47fd, 0x4b67, { 0xa0, 0x24, 0xff, 0xf3, 0xaa, 0x4f, 0x66, 0xc1 } };
 
 // {5215A1C1-5649-46a7-A0D2-5819536A62F1}
-static const GUID guidICvDiplomacyAI1 = 
+static const _GUID guidICvDiplomacyAI1 = 
 { 0x5215a1c1, 0x5649, 0x46a7, { 0xa0, 0xd2, 0x58, 0x19, 0x53, 0x6a, 0x62, 0xf1 } };
 
 // {DC39D22C-12AE-4395-8A20-EEF145A77DD0}
-static const GUID guidICvGame1 = 
+static const _GUID guidICvGame1 = 
 { 0xdc39d22c, 0x12ae, 0x4395, { 0x8a, 0x20, 0xee, 0xf1, 0x45, 0xa7, 0x7d, 0xd0 } };
 
 // {637E8AEC-5B31-49d5-9814-76DCE305A29B}
-static const GUID guidICvGameAsynch1 = 
+static const _GUID guidICvGameAsynch1 = 
 { 0x637e8aec, 0x5b31, 0x49d5, { 0x98, 0x14, 0x76, 0xdc, 0xe3, 0x5, 0xa2, 0x9b } };
 
 // {8B71D2B1-3673-41a2-B663-C67C02E16F57}
-static const GUID guidICvMap1 = 
+static const _GUID guidICvMap1 = 
 { 0x8b71d2b1, 0x3673, 0x41a2, { 0xb6, 0x63, 0xc6, 0x7c, 0x2, 0xe1, 0x6f, 0x57 } };
 
 // {D97F1045-472F-48e7-8C61-5993DECC2677}
-static const GUID guidICvMissionData1 = 
+static const _GUID guidICvMissionData1 = 
 { 0xd97f1045, 0x472f, 0x48e7, { 0x8c, 0x61, 0x59, 0x93, 0xde, 0xcc, 0x26, 0x77 } };
 
 // {55B80DA7-D175-4ea7-B555-B98845DDDC8E}
-static const GUID guidICvNetMessageHandler1 = 
+static const _GUID guidICvNetMessageHandler1 = 
 { 0x55b80da7, 0xd175, 0x4ea7, { 0xb5, 0x55, 0xb9, 0x88, 0x45, 0xdd, 0xdc, 0x8e } };
 
 // {A8D76617-571D-40a5-B82C-FF0C51497C13}

@@ -14,7 +14,7 @@
 // Use the Visual Studio Create GUID option in the Tools menu to create a new GUID.
 #if !defined(CUSTOM_MODS_H)
 // {BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-static const GUID CIV5_XP2_DLL_GUID = 
+static const _GUID CIV5_XP2_DLL_GUID = 
 { 0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b } };
 #else
 static const GUID CIV5_XP2_DLL_GUID = MOD_DLL_GUID;

@@ -38,24 +38,24 @@ class CvPlayer;
 
 struct SCityExtraYields
 {
-	vector<pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
-	vector<pair<FeatureTypes, int>> forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
-	vector<pair<ImprovementTypes, int>> forImprovement;
-	vector<pair<SpecialistTypes, int>> forSpecialist;
-	vector<pair<ResourceTypes, int>> forResource;
-	vector<pair<PlotTypes, int>> forPlot;
-	vector<pair<YieldTypes, int>> forYield, forActualYield;
-	vector<pair<BuildingClassTypes, int>> forLocalBuilding, forReligionBuilding;
+	vector<pair<TerrainTypes, int> > forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
+	vector<pair<FeatureTypes, int> > forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
+	vector<pair<ImprovementTypes, int> > forImprovement;
+	vector<pair<SpecialistTypes, int> > forSpecialist;
+	vector<pair<ResourceTypes, int> > forResource;
+	vector<pair<PlotTypes, int> > forPlot;
+	vector<pair<YieldTypes, int> > forYield, forActualYield;
+	vector<pair<BuildingClassTypes, int> > forLocalBuilding, forReligionBuilding;
 };
 
 struct SCityEventYields
 {
-	vector<pair<BuildingClassTypes, int>> forBuilding, forBuildingModifier;
-	vector<pair<ImprovementTypes, int>> forImprovement;
-	vector<pair<ResourceTypes, int>> forResource;
-	vector<pair<SpecialistTypes, int>> forSpecialist;
-	vector<pair<TerrainTypes, int>> forTerrain;
-	vector<pair<FeatureTypes, int>> forFeature;
+	vector<pair<BuildingClassTypes, int> > forBuilding, forBuildingModifier;
+	vector<pair<ImprovementTypes, int> > forImprovement;
+	vector<pair<ResourceTypes, int> > forResource;
+	vector<pair<SpecialistTypes, int> > forSpecialist;
+	vector<pair<TerrainTypes, int> > forTerrain;
+	vector<pair<FeatureTypes, int> > forFeature;
 };
 
 class CvCity

@@ -26,7 +26,7 @@ typedef int(*CvAHeuristic)(int, int, int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, CvAStarNodeAddOp, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst1Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, CvAStar*);
 typedef int(*CvAStarConst2Func)(const CvAStarNode*, const CvAStarNode*, const SPathFinderUserData&, const CvAStar*);
-typedef int(*CvAGetExtraChildren)(const CvAStarNode*, const CvAStar*, vector<pair<int,int>>&);
+typedef int(*CvAGetExtraChildren)(const CvAStarNode*, const CvAStar*, vector<pair<int,int> >&);
 typedef void(*CvABegin)(const SPathFinderUserData&, CvAStar*);
 typedef void(*CvAEnd)(const SPathFinderUserData&, CvAStar*);
 
@@ -140,7 +140,7 @@ public:
 		return m_iCurrentGenerationID;
 	}
 
-	int GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const;
+	int GetExtraChildren(const CvAStarNode* node, vector<pair<int,int> >& out) const;
 
 	void AddToOpen(CvAStarNode* addnode);
 
