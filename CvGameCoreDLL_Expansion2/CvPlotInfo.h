@@ -36,7 +36,7 @@ protected:
 
 	// Arrays
 #if defined(MOD_PLOTS_EXTENSIONS)
-	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int>>> m_pppiAdjacentFeatureYieldChange;
+	std::map<FeatureTypes, std::map<IgnoreNaturalWonders, std::map<YieldTypes, int> > > m_pppiAdjacentFeatureYieldChange;
 #endif
 	int* m_piYields;
 

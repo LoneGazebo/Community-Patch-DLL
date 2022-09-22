@@ -610,7 +610,7 @@ public:
 	int GetBuildingClassHappiness(int i) const;
 
 #if defined(MOD_BALANCE_CORE)
-	std::multimap<int, std::pair<int, int>> GetGreatPersonProgressFromConstructionArray() const;
+	std::multimap<int, std::pair<int, int> > GetGreatPersonProgressFromConstructionArray() const;
 #endif
 
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
@@ -985,7 +985,7 @@ private:
 	bool* m_pbBuildingClassNeededAnywhere;
 	bool* m_pbBuildingClassNeededNowhere;
 	int* m_piNumSpecFreeUnits;
-	std::map<int, std::map<int, int>> m_ppiResourcePlotsToPlace;
+	std::map<int, std::map<int, int> > m_ppiResourcePlotsToPlace;
 	int* m_piYieldPerFriend;
 	int* m_piYieldPerAlly;
 	int* m_piYieldChangeWorldWonder;
@@ -996,7 +996,7 @@ private:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 #if defined(MOD_BALANCE_CORE)
-	std::map<int, std::map<int, int>> m_ppiResourceYieldChangeGlobal;
+	std::map<int, std::map<int, int> > m_ppiResourceYieldChangeGlobal;
 	CvDoubleYieldInfo* m_paYieldFromYield;
 	CvDoubleYieldInfo* m_paYieldFromYieldGlobal;
 	int** m_ppaiImprovementYieldChange;
@@ -1023,7 +1023,7 @@ private:
 	int m_iInstantReligionPressure;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;
+	std::multimap<int, std::pair<int, int> > m_piiGreatPersonProgressFromConstruction;
 #endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;

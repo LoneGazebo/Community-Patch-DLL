@@ -553,8 +553,8 @@ struct STacticalAssignment
 
 struct SAssignmentSummary
 {
-	vector<pair<int,int>> attackedPlots; //plot and damage done 
-	vector<pair<int,int>> unitPlots; //unitid and plot
+	vector<pair<int,int> > attackedPlots; //plot and damage done 
+	vector<pair<int,int> > unitPlots; //unitid and plot
 
 	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
 	void clear() { attackedPlots.clear(); unitPlots.clear(); }
@@ -785,7 +785,7 @@ public:
 	bool findAttack(int iAttackerId, int iAttackerPlot, int iDefenderId, int iPrevDamage, int& iDamageDealt, int& iDamageTaken) const;
 protected:
 	//key is attacker id
-	vector<pair<int, vector<SAttackStats>>> attackStats;
+	vector<pair<int, vector<SAttackStats> > > attackStats;
 };
 
 class CvTacticalPosition
@@ -809,7 +809,7 @@ protected:
 	vector<SUnitStats> availableUnits; //units which still need an assignment
 	vector<SUnitStats> notQuiteFinishedUnits; //unit which have no moves left and we need to do a deferred check if it's ok to stay in the plot
 	vector<CvTacticalPlot> tactPlots; //storage for tactical plots (complete, mostly redundant with parent)
-	vector<pair<int, size_t>> tactPlotLookup; //map from plot index to storage index
+	vector<pair<int, size_t> > tactPlotLookup; //map from plot index to storage index
 	PlotIndexContainer freedPlots; //plot indices for killed enemy units, to be ignored for ZOC
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units

@@ -111,7 +111,7 @@ inline int coordRange(int iCoord, int iRange, bool bWrap)
 
 class CvPlotManager;
 typedef std::set<CvPlot*> DeferredFogPlots;
-typedef std::map<PlayerTypes, std::map<int, int>> UnitKillCount;
+typedef std::map<PlayerTypes, std::map<int, int> > UnitKillCount;
 
 //
 // CvMap
@@ -401,7 +401,7 @@ protected:
 	TContainer<CvLandmass> m_landmasses;
 
 	//store non-zero values outside of CvPlot because it will be zero almost all the time
-	typedef map<int, vector<unsigned char>> PlotInvisibleVisibilityLookup;
+	typedef map<int, vector<unsigned char> > PlotInvisibleVisibilityLookup;
 	map<TeamTypes, PlotInvisibleVisibilityLookup> m_invisibleVisibilityCount;
 
 	GUID m_guid;
@@ -411,7 +411,7 @@ protected:
 	DeferredFogPlots m_vDeferredFogPlots; // don't serialize me
 
 	//caching some semi-static data, not serialized
-	typedef vector<vector<CvPlot*>> PlotNeighborLookup;
+	typedef vector<vector<CvPlot*> > PlotNeighborLookup;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot2;
 	PlotNeighborLookup m_vPlotsWithLineOfSightFromPlot3;
 	PlotNeighborLookup m_vPlotsWithLineOfSightToPlot2;

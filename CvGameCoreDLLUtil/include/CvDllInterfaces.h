@@ -106,11 +106,11 @@ static const _GUID guidICvNetMessageHandler1 =
 { 0x55b80da7, 0xd175, 0x4ea7, { 0xb5, 0x55, 0xb9, 0x88, 0x45, 0xdd, 0xdc, 0x8e } };
 
 // {A8D76617-571D-40a5-B82C-FF0C51497C13}
-static const GUID guidICvNetMessageHandler2 = 
+static const _GUID guidICvNetMessageHandler2 = 
 { 0xa8d76617, 0x571d, 0x40a5, { 0xb8, 0x2c, 0xff, 0xc, 0x51, 0x49, 0x7c, 0x13 } };
 
 // {113A2A5B-907F-4a99-9756-9B76425D161D}
-static const GUID guidICvNetworkSyncronization1 = 
+static const _GUID guidICvNetworkSyncronization1 = 
 { 0x113a2a5b, 0x907f, 0x4a99, { 0x97, 0x56, 0x9b, 0x76, 0x42, 0x5d, 0x16, 0x1d } };
 
 // {AE4C09EB-A092-45EB-9CA7-F4A5D2F88602}

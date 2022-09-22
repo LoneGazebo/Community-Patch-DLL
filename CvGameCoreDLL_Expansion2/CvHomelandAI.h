@@ -326,7 +326,7 @@ private:
 	// Class data
 	CvPlayer* m_pPlayer;
 	std::list<int> m_CurrentTurnUnits;
-	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
+	std::map<UnitAITypes,std::vector<std::pair<int,int> > > m_automatedTargetPlots; //for human units
 
 	CHomelandUnitArray m_CurrentMoveUnits;
 
