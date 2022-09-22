@@ -4439,7 +4439,7 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) const
 {
 	//looking up average yields is expensive, so we cache the last result
-	map<PlayerTypes, pair<int, InfluenceLevelTrend>>::const_iterator it = m_influenceTrendCache.find(ePlayer);
+	map<PlayerTypes, pair<int, InfluenceLevelTrend> >::const_iterator it = m_influenceTrendCache.find(ePlayer);
 	if (it != m_influenceTrendCache.end() && it->second.first == GC.getGame().getTurnSlice())
 		return it->second.second;
 

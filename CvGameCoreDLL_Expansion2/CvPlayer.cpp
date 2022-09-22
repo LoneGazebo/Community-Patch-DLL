@@ -30841,7 +30841,7 @@ void CvPlayer::SetActiveContract(ContractTypes eContract, bool bValue)
 void CvPlayer::DoUnitDiversity()
 {
 	//find out which types we can build
-	map<DomainTypes, map<UnitAITypes, int>> countByType;
+	map<DomainTypes, map<UnitAITypes, int> > countByType;
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		const UnitTypes eLoopUnit = static_cast<UnitTypes>(iI);
@@ -30870,7 +30870,7 @@ void CvPlayer::DoUnitDiversity()
 	}
 
 	m_neededUnitAITypes.clear();
-	for (map<DomainTypes, map<UnitAITypes, int>>::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
+	for (map<DomainTypes, map<UnitAITypes, int> >::iterator itDomain = countByType.begin(); itDomain != countByType.end(); ++itDomain)
 	{
 		int minCount = INT_MAX;
 		int maxCount = 0;
@@ -40284,7 +40284,7 @@ int CvPlayer::getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eG
 
 	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
-		std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.find(eGreatPerson);
+		std::map<GreatPersonTypes, std::map<MonopolyTypes, int> >::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateModifierFromMonopoly.find(eGreatPerson);
 		if (itGreatPerson != m_ppiSpecificGreatPersonRateModifierFromMonopoly.end())
 		{
 			std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.find(eMonopoly);
@@ -40354,7 +40354,7 @@ int CvPlayer::getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGre
 
 	if (eGreatPerson != NO_GREATPERSON && eMonopoly != NO_MONOPOLY)
 	{
-		std::map<GreatPersonTypes, std::map<MonopolyTypes, int>>::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.find(eGreatPerson);
+		std::map<GreatPersonTypes, std::map<MonopolyTypes, int> >::const_iterator itGreatPerson = m_ppiSpecificGreatPersonRateChangeFromMonopoly.find(eGreatPerson);
 		if (itGreatPerson != m_ppiSpecificGreatPersonRateChangeFromMonopoly.end())
 		{
 			std::map<MonopolyTypes, int>::const_iterator itMonopoly = itGreatPerson->second.find(eMonopoly);
@@ -47972,21 +47972,21 @@ void CvPlayer::UpdateAreaEffectPlots()
 		}
 	}
 }
-const std::vector<std::pair<int, int>>& CvPlayer::GetAreaEffectPromotionUnits() const
+const std::vector<std::pair<int, int> >& CvPlayer::GetAreaEffectPromotionUnits() const
 {
 	return m_unitsAreaEffectPromotion;
 }
-const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectPositiveUnits() const
+const std::vector<std::pair<int,int> >& CvPlayer::GetAreaEffectPositiveUnits() const
 {
 	return m_unitsAreaEffectPositive;
 }
 
-const std::vector<std::pair<int,int>>& CvPlayer::GetAreaEffectNegativeUnits() const
+const std::vector<std::pair<int,int> >& CvPlayer::GetAreaEffectNegativeUnits() const
 {
 	return m_unitsAreaEffectNegative;
 }
 
-const std::vector<std::pair<int, int>>& CvPlayer::GetPossibleInterceptors() const
+const std::vector<std::pair<int, int> >& CvPlayer::GetPossibleInterceptors() const
 {
 	return m_unitsWhichCanIntercept;
 }
@@ -48002,8 +48002,8 @@ int CvPlayer::GetAreaEffectModifier(AreaEffectType eType, DomainTypes eDomain, c
 	if (pTestPlot == NULL)
 		return 0;
 
-	const std::vector<std::pair<int, int>>& possibleUnits = GetAreaEffectPositiveUnits();
-	for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
+	const std::vector<std::pair<int, int> >& possibleUnits = GetAreaEffectPositiveUnits();
+	for (std::vector<std::pair<int, int> >::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 	{
 		//performance: very rough distance check first without looking up the unit pointer ...
 		//do not reuse the plot below
@@ -48659,7 +48659,7 @@ void CvPlayer::SetBestWonderCities()
 		bool operator<(const sct& rhs) const { return score < rhs.score; }
 	};
 
-	map<BuildingClassTypes,vector<sct>> allScores;
+	map<BuildingClassTypes,vector<sct> > allScores;
 
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -48713,8 +48713,8 @@ void CvPlayer::SetBestWonderCities()
 		}
 
 		//pairs are sorted by their first element by default (ascending)
-		vector<pair<int, BuildingClassTypes>> bestScorePerClass;
-		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+		vector<pair<int, BuildingClassTypes> > bestScorePerClass;
+		for (map<BuildingClassTypes,vector<sct> >::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
 			ASSERT(!it->second.empty());
 			sort(it->second.begin(), it->second.end());
@@ -48723,7 +48723,7 @@ void CvPlayer::SetBestWonderCities()
 		sort(bestScorePerClass.begin(), bestScorePerClass.end());
 
 		//now we starting with the best overall score, find the best city for the type of wonder
-		for (vector<pair<int, BuildingClassTypes>>::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
+		for (vector<pair<int, BuildingClassTypes> >::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
 		{
 			bool bIsWorldWonderClass = allScores[it->second].back().isForWorldWonder;
 			CvCity* pBestCity = allScores[it->second].back().city;
@@ -48754,7 +48754,7 @@ void CvPlayer::SetBestWonderCities()
 			//reduce the best city's score for other wonders - don't want to lose time in the race with other players
 			if (bIsWorldWonderClass)
 			{
-				for (map<BuildingClassTypes, vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
+				for (map<BuildingClassTypes, vector<sct> >::iterator it = allScores.begin(); it != allScores.end(); ++it)
 				{
 					for (vector<sct>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 						if (it2->city == pBestCity && it2->isForWorldWonder)

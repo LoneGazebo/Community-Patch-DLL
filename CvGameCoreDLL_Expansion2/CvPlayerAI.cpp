@@ -681,7 +681,7 @@ void CvPlayerAI::AI_considerAnnex()
 	//Need this later
 	ReligionTypes eOurReligion = GetReligions()->GetStateReligion(false);
 
-	vector<OptionWithScore<CvCity*>> options;
+	vector<OptionWithScore<CvCity*> > options;
 	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities

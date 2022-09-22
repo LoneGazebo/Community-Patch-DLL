@@ -10552,7 +10552,7 @@ const char* assignmentTypeNames[] =
 
 void SAssignmentSummary::addAttack(int iPlotIndex, int iDamage)
 {
-	typedef pair<vector<pair<int, int> >::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
+	typedef pair<vector<pair<int, int> >::iterator, vector<pair<int, int> >::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(attackedPlots.begin(), attackedPlots.end(), iPlotIndex, EqualRangeComparison());
 
 	//if we have it already
@@ -10564,7 +10564,7 @@ void SAssignmentSummary::addAttack(int iPlotIndex, int iDamage)
 
 void SAssignmentSummary::setUnitPlot(int iUnitId, int iPlotIndex)
 {
-	typedef pair<vector<pair<int, int>>::iterator, vector<pair<int, int>>::iterator>  IteratorPair;
+	typedef pair<vector<pair<int, int> >::iterator, vector<pair<int, int> >::iterator>  IteratorPair;
 	IteratorPair it2 = equal_range(unitPlots.begin(), unitPlots.end(), iUnitId, EqualRangeComparison());
 
 	//if we have it already
