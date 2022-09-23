@@ -72,7 +72,7 @@ typedef wchar* LPWSTR;
 typedef const wchar* LPCWSTR;
 #endif	//	LPCWSTR
 
-typedef uint FStringHashType;
+typedef unsigned int FStringHashType;
 //---------------------------------------------------------------------------------------
 // Constants
 //
