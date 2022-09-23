@@ -66,10 +66,10 @@ typedef char* LPSTR;
 typedef const char* LPCSTR;
 #endif	//	LPCSTR
 #ifndef		LPWSTR
-typedef wchar* LPWSTR;
+typedef wchar_t* LPWSTR;
 #endif	//	LPWSTR
 #ifndef		LPCWSTR
-typedef const wchar* LPCWSTR;
+typedef const wchar_t* LPCWSTR;
 #endif	//	LPCWSTR
 
 typedef unsigned int FStringHashType;
