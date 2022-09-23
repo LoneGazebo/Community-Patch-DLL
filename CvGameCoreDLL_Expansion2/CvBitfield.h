@@ -108,7 +108,7 @@ private:
 			memset(pNewBits, 0, uiByteSize);
 			if (m_uiByteSize)
 			{
-				const uint retainSize = uiByteSize > m_uiByteSize ? m_uiByteSize : uiByteSize;
+				const unsigned int retainSize = uiByteSize > m_uiByteSize ? m_uiByteSize : uiByteSize;
 				memcpy(pNewBits, m_pBits, retainSize);
 				delete[]m_pBits;
 			}
@@ -133,7 +133,7 @@ inline FDataStream& operator<<(FDataStream& saveTo, const CvBitfield& readFrom)
 }
 inline FDataStream& operator>>(FDataStream& loadFrom, CvBitfield& writeTo)
 {
-	uint uiByteSize;
+	unsigned int uiByteSize;
 	loadFrom >> uiByteSize;
 	writeTo.resizeBytes(uiByteSize);
 	if (uiByteSize > 0)

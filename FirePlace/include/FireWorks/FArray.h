@@ -132,14 +132,14 @@ namespace Firaxis
 	//////////////////////////////////////////////////////////////////////////
     // Static (fixed-size) array
 	//////////////////////////////////////////////////////////////////////////
-    template < class T, uint ARRAY_SIZE >
+    template < class T, unsigned int ARRAY_SIZE >
     class Array
     {
 		typedef Array< T, ARRAY_SIZE > THIS_TYPE;
     public:
 	    // Operators:
 	    //----------
-	    const T& operator []( uint i ) const
+	    const T& operator []( unsigned int i ) const
 	    {
 #		ifdef _MSC_VER
 #			pragma warning ( push )
@@ -152,7 +152,7 @@ namespace Firaxis
 #		pragma warning ( pop )
 #		endif//_MSC_VER
 	    }
-	    T& operator []( uint i )
+	    T& operator []( unsigned int i )
 	    {
 #		ifdef _MSC_VER
 #			pragma warning ( push )
@@ -182,7 +182,7 @@ namespace Firaxis
 
 	    const Array< T, ARRAY_SIZE >& operator =( const Array< T, ARRAY_SIZE >& akItems )
 	    {
-		    for ( uint i = 0; i < ARRAY_SIZE; i++ )
+		    for ( unsigned int i = 0; i < ARRAY_SIZE; i++ )
 		    {
 			    m_akItems[ i ] = akItems.m_akItems[ i ];
 		    }
@@ -237,21 +237,21 @@ class FArray: public std::vector< T, FSTL_Tagged_Allocator<T, 16, pool_type> >
 public:
 	// Constructors:
 	//-------------
-	FArray( uint uiMaxSize = 0, uint uiGrowBy = 0 );
+	FArray( unsigned int uiMaxSize = 0, unsigned int uiGrowBy = 0 );
 
 	// Methods:
 	//--------
-	uint GetGrowBy( void ) const;
-	void SetGrowBy( uint uiGrowBy );
+	unsigned int GetGrowBy( void ) const;
+	void SetGrowBy( unsigned int uiGrowBy );
 
 	bool AddExclusive( const T& kElement );
-	uint Add( const T& kElement );
-	void SetAt( uint uiIndex, const T& kElement );
+	unsigned int Add( const T& kElement );
+	void SetAt( unsigned int uiIndex, const T& kElement );
 
-	T Remove( uint uiIndex );
+	T Remove( unsigned int uiIndex );
 	T RemoveEnd( void );
 	
-	uint Find( const T& kElement, uint uiStart = 0 ) const;
+	unsigned int Find( const T& kElement, unsigned int uiStart = 0 ) const;
 		
 	template< class Predicate >
 	void Sort( Predicate pred );		
@@ -259,12 +259,12 @@ public:
 private:
 	// Members:
 	//--------
-	uint m_uiGrowBy;	// Number of slots to grow array when full
+	unsigned int m_uiGrowBy;	// Number of slots to grow array when full
 };
 
 //---------------------------------------------------------------------------
 template < class T, eMPoolType pool_type >
-inline FArray< T, pool_type >::FArray( uint uiMaxSize, uint uiGrowBy )
+inline FArray< T, pool_type >::FArray( unsigned int uiMaxSize, unsigned int uiGrowBy )
 {
 	FArray<T, pool_type>::reserve( uiMaxSize );
 	SetGrowBy( uiGrowBy );
@@ -274,13 +274,13 @@ inline FArray< T, pool_type >::FArray( uint uiMaxSize, uint uiGrowBy )
 // Set/Get number of slots to grow array when full
 
 template < class T, eMPoolType pool_type >
-inline uint FArray< T, pool_type >::GetGrowBy( void ) const
+inline unsigned int FArray< T, pool_type >::GetGrowBy( void ) const
 {
 	return ( m_uiGrowBy );
 }
 
 template < class T, eMPoolType pool_type >
-inline void FArray< T, pool_type >::SetGrowBy( uint uiGrowBy )
+inline void FArray< T, pool_type >::SetGrowBy( unsigned int uiGrowBy )
 {
 	m_uiGrowBy = uiGrowBy;
 }
@@ -289,7 +289,7 @@ inline void FArray< T, pool_type >::SetGrowBy( uint uiGrowBy )
 
 // Add to the array, growing if necessary
 template < class T, eMPoolType pool_type >
-inline uint FArray< T, pool_type >::Add( const T& kElement )
+inline unsigned int FArray< T, pool_type >::Add( const T& kElement )
 {
 	if ( GetGrowBy() && ( FArray<T, pool_type>::capacity() == FArray<T,pool_type>::size() ) )
 	{
@@ -304,7 +304,7 @@ inline uint FArray< T, pool_type >::Add( const T& kElement )
 template < class T, eMPoolType pool_type >
 inline bool FArray< T, pool_type >::AddExclusive( const T& kElement )
 {
-	if ( Find( kElement ) != ( uint )-1 )
+	if ( Find( kElement ) != ( unsigned int )-1 )
 	{
 		// nothing was added
 		return ( false );
@@ -319,7 +319,7 @@ inline bool FArray< T, pool_type >::AddExclusive( const T& kElement )
 
 // Assign the element at the specified index
 template < class T, eMPoolType pool_type >
-inline void FArray< T, pool_type >::SetAt( uint uiIndex, const T& kElement )
+inline void FArray< T, pool_type >::SetAt( unsigned int uiIndex, const T& kElement )
 {
 	assert( uiIndex < (FArray<T, pool_type >::size()) );
 	FArray<T,pool_type>::at( uiIndex ) = kElement;
@@ -329,7 +329,7 @@ inline void FArray< T, pool_type >::SetAt( uint uiIndex, const T& kElement )
 // Remove the element at the specified position
 
 template < class T, eMPoolType pool_type >
-inline T FArray< T, pool_type >::Remove( uint uiIndex )
+inline T FArray< T, pool_type >::Remove( unsigned int uiIndex )
 {
 	T kElement;	// Element to return
 
@@ -358,7 +358,7 @@ inline T FArray< T,pool_type >::RemoveEnd( void )
 // Find this element in the array
 // If element is not found, will return -1
 template < class T, eMPoolType pool_type >
-inline uint FArray< T,pool_type >::Find( const T& kElement, uint uiStart ) const
+inline unsigned int FArray< T,pool_type >::Find( const T& kElement, unsigned int uiStart ) const
 {
 	if ( uiStart >= FArray<T, pool_type>::size() )
 	{
@@ -368,7 +368,7 @@ inline uint FArray< T,pool_type >::Find( const T& kElement, uint uiStart ) const
 	typename FArray<T,pool_type>::const_iterator it = std::find( FArray<T, pool_type>::begin() + uiStart, FArray<T,pool_type>::end(), kElement );
 	if ( it != FArray<T,pool_type>::end() )
 	{
-		return ( static_cast< uint >( it - FArray<T, pool_type>::begin() ) );
+		return ( static_cast< unsigned int >( it - FArray<T, pool_type>::begin() ) );
 	}
 	else
 	{
