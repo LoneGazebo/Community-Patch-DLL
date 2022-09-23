@@ -861,7 +861,7 @@
 			<BuildingClass>BUILDINGCLASS_LODGE</BuildingClass>
 			<Cost>65</Cost>
 			<GoldMaintenance>0</GoldMaintenance>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+			<PrereqTech>TECH_TRAPPING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_LODGE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_LODGE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_LODGE_STRATEGY</Strategy>
