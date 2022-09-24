@@ -6532,6 +6532,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 	int iCheapest = MAX_INT;
 	GreatWorkSlotType eRtnValue = NO_GREAT_WORK_SLOT;
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
+	std::vector<int> allBuildingCount = kCityPlayer.GetTotalBuildingCount();
 
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
@@ -6550,7 +6551,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 				int iNumSlots = pkBuilding->GetGreatWorkCount();
 				if (iNumSlots > 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) == 0)
 				{
-					if (m_pCity->canConstruct(eBuilding))
+					if (m_pCity->canConstruct(eBuilding,allBuildingCount))
 					{
 						int iCost = pkBuilding->GetProductionCost();
 						if (iCost < iCheapest)

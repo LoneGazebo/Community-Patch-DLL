@@ -609,6 +609,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 /// Spend money to quickly add a defensive building to a city
 bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 {
+	std::vector<int> allBuildingCount = m_pPlayer->GetTotalBuildingCount();
 	// Loop through adding the available buildings
 	for(int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 	{
@@ -617,7 +618,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 		if(pkBuildingInfo)
 		{
 			// Make sure this building can be built now
-			if(pCity->canConstruct(eBldg) && pkBuildingInfo->GetDefenseModifier() > 0)
+			if(pCity->canConstruct(eBldg,allBuildingCount) && pkBuildingInfo->GetDefenseModifier() > 0)
 			{
 				if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBldg, NO_PROJECT, YIELD_GOLD))
 				{

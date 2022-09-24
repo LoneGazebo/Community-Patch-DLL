@@ -792,15 +792,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		}
 	}
 
-	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
-	int iLoop;
-	for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-	{
-		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
-		for (size_t i=0; i<vBuildings.size(); i++)
-			vTotalBuildingCount[ vBuildings[i] ]++;
-	}
-	
+	std::vector<int> vTotalBuildingCount = kPlayer.GetTotalBuildingCount();
+
 	// Loop through adding the available buildings
 	for(int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 	{
@@ -918,6 +911,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	m_BuildablesPrecheck.SortItems();
 
 	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
+	SPlotStats plotStats = m_pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(m_pCity->getOwner()).GetTotalBuildingCount();
 
 	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
@@ -961,7 +956,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		case CITY_BUILDABLE_BUILDING:
 			{
 				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
 				if(iNewWeight > 0)
 				{
 					selection.m_iValue = iNewWeight;
@@ -1313,6 +1308,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	LogPossibleHurries(m_BuildablesPrecheck,"PRE");
 
+	SPlotStats plotStats = m_pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(m_pCity->getOwner()).GetTotalBuildingCount();
+
 	////Sanity and AI Optimization Check
 	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
@@ -1364,7 +1362,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		case CITY_BUILDABLE_BUILDING:
 			{
 				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI));
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
 				int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
 				if (AmountComplete > 0)
 				{
@@ -3773,7 +3771,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity
 	}
 	return false;
 }
-int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iFlatYield)
+int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+	YieldTypes eYield, int& iFlatYield)
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -3898,58 +3897,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eTerrain == NO_TERRAIN)
 			continue;
 
-		if (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) == 0 && pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) == 0)
-			continue;
-
-		int iNumTerrain = pCity->CountTerrain(eTerrain);
-
-		if (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) > 0)
-		{
-			if (eTerrain == TERRAIN_MOUNTAIN)
-			{
-				if (pCity->GetNearbyMountains() > 0)
-				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * pCity->GetNearbyMountains() / 100);
-				}
-			}
-			else
-			{
-				if (iNumTerrain > 0)
-				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * iNumTerrain / 100);
-				}
-			}
-		}
-		if (pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) > 0)
-		{
-			if (iNumTerrain > 0)
-			{
-				iFlatYield += (iNumTerrain * pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield));
-			}
-		}
+		int iCount = plotStats.vTerrainCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield)) / 100;
 	}
+
 	int iNumFeatureInfos = GC.getNumFeatureInfos();
 	for (int iI = 0; iI < iNumFeatureInfos; iI++)
 	{
 		FeatureTypes eFeature = (FeatureTypes)iI;
 		if (eFeature == NO_FEATURE)
 			continue;
-
-		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) == 0 && pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) == 0)
-			continue;
-
-		int iCount = pCity->CountFeature(eFeature);
-		if (iCount <= 0)
-			continue;
 		
-		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) > 0)
-		{	
-			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
-		}
-		if (pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) > 0)
-		{
-			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) * iCount / 100);
-		}
+		int iCount = plotStats.vFeatureCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield)) / 100;
 	}
 
 	int iNumResourceInfos = GC.getNumResourceInfos();
@@ -3981,12 +3943,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			if (!pCity->isCoastal())
 				continue;
 		}
-		
+
+		//a bit redundant, resource count should be zero anyway
 		if (!kPlayer.IsResourceRevealed(eResource))
 			continue;
 
-		//expensive
-		int iNumResource = pCity->CountResource(eResource);
+		int iNumResource = plotStats.vResourceCount[iI];
 
 		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) > 0)
 		{
@@ -4027,31 +3989,17 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
-		if (pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield) == 0 && pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) == 0)
-			continue;
-
-		int iNumImprovement = pCity->CountImprovement(eImprovement);
-		if (pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield) > 0)
-		{
-			if (iNumImprovement > 0)
-			{
-				iFlatYield += (iNumImprovement * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield));
-			}
-		}
-		if (pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) > 0)
-		{
-			if (iNumImprovement > 0)
-			{
-				iFlatYield += (iNumImprovement * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
-			}
-		}
+		int iCount = plotStats.vImprovementCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
 	}
+
 	if (pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
 		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
 	}
 
-	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield);
+	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield, allExistingBuildings) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield);
 	if (iYieldPolicyBonus > 0)
 	{
 		iFlatYield += iYieldPolicyBonus;

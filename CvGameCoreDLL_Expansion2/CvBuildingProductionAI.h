@@ -44,7 +44,12 @@ public:
 
 	// Logging
 	void LogPossibleBuilds();
-	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+	// Fast version with precomputed stats
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+	// Slow version
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, 
+		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
 
 private:
 

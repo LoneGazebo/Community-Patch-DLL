@@ -14510,6 +14510,7 @@ void CvPlayer::foundCity(int iX, int iY)
 		}
 	}
 #endif
+	std::vector<int> allBuildingCount = GetTotalBuildingCount();
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
@@ -14526,7 +14527,7 @@ void CvPlayer::foundCity(int iX, int iY)
 					{
 						if(GC.getGame().getStartEra() >= pkBuildingInfo->GetFreeStartEra())
 						{
-							if(pCity->canConstruct(eLoopBuilding))
+							if(pCity->canConstruct(eLoopBuilding,allBuildingCount))
 							{
 								pCity->GetCityBuildings()->SetNumRealBuilding(eLoopBuilding, 1);
 
@@ -17236,6 +17237,18 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 /// Get yield change from buildings for a specific building class
 int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
 {
+	return GetBuildingClassYieldChange(eBuildingClass, eYieldType, GetTotalBuildingCount());
+}
+
+//	--------------------------------------------------------------------------------
+/// Get yield change from buildings for a specific building class
+int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+{
+	return GetBuildingClassYieldModifier(eBuildingClass, eYieldType, GetTotalBuildingCount());
+}
+
+int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount)
+{
 	int rtnValue = 0;
 
 	CvBuildingXMLEntries* pBuildings = GC.GetGameBuildings();
@@ -17245,7 +17258,7 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 		for(int i = 0; i < pBuildings->GetNumBuildings(); i++)
 		{
 			// Do we have this building anywhere in empire?
-			int iNum = countNumBuildings((BuildingTypes)i);
+			int iNum = preexistingBuildingsCount[i];
 
 			if(iNum > 0)
 			{
@@ -17273,9 +17286,7 @@ int CvPlayer::GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, Yie
 	return rtnValue;
 }
 
-//	--------------------------------------------------------------------------------
-/// Get yield change from buildings for a specific building class
-int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount)
 {
 	int rtnValue = 0;
 
@@ -17286,8 +17297,7 @@ int CvPlayer::GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, Y
 		for (int i = 0; i < pBuildings->GetNumBuildings(); i++)
 		{
 			// Do we have this building anywhere in empire?
-			int iNum = countNumBuildings((BuildingTypes)i);
-
+			int iNum = preexistingBuildingsCount[i];
 			if (iNum > 0)
 			{
 				CvBuildingEntry* pEntry = pBuildings->GetEntry(i);
@@ -48547,24 +48557,45 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 
 	//maybe our old favorite is no longer available?
 	CvPlot* pPreviousFavorite = GC.getMap().plotByIndex(m_iPreviousBestSettlePlot);
-	//looking up the best settle plot is expensive so do this only if we really want to expand
+
+	//did somebody else settle close?
+	PlayerTypes eStressor = NO_PLAYER;
+	if (pPreviousFavorite)
+	{
+		//search from the inside out
+		//don't use GetClosestCityByPlots() because that might trigger lots of updates
+		for (int i = 0; i < RING5_PLOTS; i++)
+		{
+			CvPlot* pTestPlot = iterateRingPlots(pPreviousFavorite,i);
+			if (pTestPlot && pTestPlot->isCity() && pTestPlot->getOwner() != GetID())
+			{
+				eStressor = pTestPlot->getOwner();
+				break;
+			}
+		}
+
+		//assume our favorite is still good
+		if (eStressor == NO_PLAYER)
+			return NO_PLAYER;
+	}
+
+	//looking up the best settle plot is expensive so do this only if we really need it
 	CvPlot* pCurrentFavorite = GetBestSettlePlot(NULL);
 
-	//no problem, spot is still free
+	//no problem, spot is still the best
 	if (pCurrentFavorite == pPreviousFavorite)
 		return NO_PLAYER;
 
 	//update
 	m_iPreviousBestSettlePlot = pCurrentFavorite ? pCurrentFavorite->GetPlotIndex() : -1;
 
-	//did somebody else settle there?
-	if (pPreviousFavorite && GC.getGame().GetClosestCityDistanceInPlots(pPreviousFavorite, true) < 5)
+	//did somebody else settle close?
+	if (pPreviousFavorite && eStressor != NO_PLAYER)
 	{
-		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPreviousFavorite, true);
 		//get triggered if the settle spot was close to one of our cities
 		int iTriggerDistance = GetDiplomacyAI()->GetBoldness() + /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
-		if (pCity->getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
-			return pCity->getOwner();
+		if (GET_PLAYER(eStressor).getTeam() != getTeam() && GetCityDistancePathLength(pPreviousFavorite) < iTriggerDistance)
+			return eStressor;
 	}
 
 	return NO_PLAYER;
@@ -48634,7 +48665,25 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 		m_iNumGreatPeople += iValue;
 	}
 }
+
 #if defined(MOD_BALANCE_CORE)
+std::vector<int> CvPlayer::GetTotalBuildingCount(bool bIncludePuppets) const
+{
+	std::vector<int> vTotalBuildingCount(GC.getNumBuildingInfos(), 0);
+	int iLoop;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (bIncludePuppets || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+		{
+			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+			for (size_t i = 0; i < vBuildings.size(); i++)
+				vTotalBuildingCount[vBuildings[i]]++;
+		}
+	}
+
+	return vTotalBuildingCount;
+}
+
 void CvPlayer::SetBestWonderCities()
 {
 	struct sct
@@ -48648,6 +48697,7 @@ void CvPlayer::SetBestWonderCities()
 	};
 
 	map<BuildingClassTypes,vector<sct>> allScores;
+	std::vector<int> allBuildingCount = GetTotalBuildingCount();
 
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -48675,7 +48725,7 @@ void CvPlayer::SetBestWonderCities()
 			if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 				continue;
 
-			if (!pLoopCity->canConstruct(eBuilding))
+			if (!pLoopCity->canConstruct(eBuilding, allBuildingCount))
 				continue;
 
 			//get a score
