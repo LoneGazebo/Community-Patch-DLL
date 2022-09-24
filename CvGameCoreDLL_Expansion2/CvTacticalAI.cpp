@@ -36,10 +36,14 @@ int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
 int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
+
+//global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(7000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
+vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
 
+//just some statistics
 int gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
 int gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
 int gAttackCacheHit = 0, gAttackCacheMiss = 0;
@@ -8909,32 +8913,32 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 	//important, we are going to modify them all
 	cacheAllTactPlotsLocally();
 
-	vector<int> landEnemies;
-	vector<int> seaEnemies;
-	vector<int> citadels;
+	gLandEnemies.clear();
+	gSeaEnemies.clear();
+	gCitadels.clear();
 
 	for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 	{
 		if (it->getEnemyDistance(CvTacticalPlot::TD_LAND) == 0)
-			landEnemies.push_back( it->getPlotIndex() );
+			gLandEnemies.push_back( it->getPlotIndex() );
 		if (it->getEnemyDistance(CvTacticalPlot::TD_SEA) == 0)
-			seaEnemies.push_back( it->getPlotIndex() );
+			gSeaEnemies.push_back( it->getPlotIndex() );
 
 		it->resetVolatileProperties();
 
 		//include plots with enemies if they are just outside of the simulation range
 		//we won't attack them but we won't ignore them either
-		it->checkEdgePlotsForSurprises(*this,landEnemies,seaEnemies);
+		it->checkEdgePlotsForSurprises(*this,gLandEnemies,gSeaEnemies);
 
 		if (TacticalAIHelpers::IsOtherPlayerCitadel(it->getPlot(), getPlayer(), true) && !plotHasAssignmentOfType(it->getPlotIndex(), A_PILLAGE))
-			citadels.push_back(it->getPlotIndex());
+			gCitadels.push_back(it->getPlotIndex());
 	}
 
 	//distance transform pt1
-	for (size_t i=0; i<landEnemies.size(); i++)
+	for (size_t i=0; i<gLandEnemies.size(); i++)
 		for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 		{
-			int iDistance = plotDistance(*GC.getMap().plotByIndexUnchecked(landEnemies[i]), *it->getPlot());
+			int iDistance = plotDistance(*GC.getMap().plotByIndexUnchecked(gLandEnemies[i]), *it->getPlot());
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_LAND))
@@ -8947,10 +8951,10 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 		}
 
 	//pt2
-	for (size_t i=0; i<seaEnemies.size(); i++)
+	for (size_t i=0; i<gSeaEnemies.size(); i++)
 		for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 		{
-			int iDistance = plotDistance(*GC.getMap().plotByIndexUnchecked(seaEnemies[i]), *it->getPlot());
+			int iDistance = plotDistance(*GC.getMap().plotByIndexUnchecked(gSeaEnemies[i]), *it->getPlot());
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_BOTH))
 				it->setEnemyDistance(CvTacticalPlot::TD_BOTH, iDistance);
 			if (iDistance < it->getEnemyDistance(CvTacticalPlot::TD_SEA))
@@ -8963,10 +8967,10 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 		}
 
 	//citadels
-	for (size_t i=0; i<citadels.size(); i++)
+	for (size_t i=0; i<gCitadels.size(); i++)
 	{
 		//iterate neighbors
-		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GC.getMap().plotByIndexUnchecked(citadels[i]));
+		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GC.getMap().plotByIndexUnchecked(gCitadels[i]));
 		for (int i = 0; i < 6; i++)
 		{
 			CvPlot* pNeighbor = aNeighbors[i];
@@ -9268,16 +9272,15 @@ bool CvTacticalPosition::isEquivalent(const CvTacticalPosition & rhs) const
 
 pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& newAssignment)
 {
-	vector<int> newlyVisiblePlots;
 	int nNewEnemies = 0;
 
 	//may need to add some new tactical plots - ideally we should reconsider all queued assignments afterwards
 	//the next round of assignments will take into account the new plots in any case
-	getPlotsWithChangedVisibility(newAssignment, newlyVisiblePlots);
-	for (size_t i=0; i<newlyVisiblePlots.size(); i++)
+	getPlotsWithChangedVisibility(newAssignment, gNewlyVisiblePlots);
+	for (size_t i=0; i<gNewlyVisiblePlots.size(); i++)
 	{
 		//since it was invisible before, we know there are no friendly units around
-		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(newlyVisiblePlots[i]);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(gNewlyVisiblePlots[i]);
 		if (pPlot) //also create plots for neutral units - otherwise edgeOfTheKnownWorld is not correct
 		{
 			//can pass empty set of units - the plot was invisible before so we know there is none of our units there
@@ -9292,7 +9295,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 	if (nNewEnemies>0)
 		refreshVolatilePlotProperties();
 
-	return make_pair<int, int>( (int)newlyVisiblePlots.size(), nNewEnemies);
+	return make_pair<int, int>( (int)gNewlyVisiblePlots.size(), nNewEnemies);
 }
 
 bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID) const
