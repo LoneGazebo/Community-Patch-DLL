@@ -275,6 +275,9 @@
 		<Row Tag="TXT_KEY_BUILDING_GROVE">
 			<Text>Council</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE">
+			<Text>Lodge</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST">
 			<Text>Herbalist</Text>
 		</Row>
@@ -283,6 +286,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
 			<Text>Wind Power</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT">
+			<Text>Tidal Power</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD">
 			<Text>Agribusiness</Text>
@@ -293,8 +299,14 @@
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD">
 			<Text>Mine Field</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER">
+			<Text>Interpretive Center</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_STRATEGY">
 			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_STRATEGY">
+			<Text>The Lodge boosts production from Camps and camp resources, and provides food to your city whenever it claims new tiles. Build Lodges throughout your empire to boost local yields from camps.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
@@ -306,7 +318,10 @@
 			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Production based on the city's population, but less efficiently than the Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>Wind Power is a modern electrical system. Wind Power increases the Production, Science, and Gold output of land tiles the city works. [NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron to be built.</Text>
+			<Text>The Wind Plant increases the Production and Culture output of all workable tiles near the city and increases the efficiency of working processes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_STRATEGY">
+			<Text>The Tidal Plant is an Atomic-era building which can only be constructed in a coastal city. The Tidal Plant increases the [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold output of every Ocean tile the city works and increases the efficiency of working processes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, combats Poverty, and improves the tile yield of Bananas.</Text>
@@ -320,14 +335,20 @@
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
 			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. With the Minefield in place, enemy ships are stopped immediately after entering the city's territory and are no longer safe to sit back on local ocean tiles outside of range from retaliation from land. Due to their resource requirement, Minefields are best limited to locations particularly vulnerable to naval sieges. Use Minefields to blunt a naval invasion, and then outmaneuver it with your own navy.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_STRATEGY">
+			<Text>The Interpretive Centre greatly increases the power of Landmark improvements, and converts Culture from tiles into Tourism, greatly aiding a Cultural Victory.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_HELP">
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
-			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations and Camps.</Text>
+			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Can only be built in a City next to fresh water.</Text>
@@ -336,7 +357,10 @@
 			<Text>+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold on all Land Tiles (except Mountains).[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron to be built. City must not contain another energy-producing Plant.</Text>
+			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold on every Tile.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_HELP">
+			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold on every Sea Tile.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must be built on the coast. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
 			<Text>+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Farms and Pastures worked by the City. 10% of [ICON_FOOD] Food created by the City counts as [ICON_GOLD] Gold Per Turn.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
@@ -347,8 +371,14 @@
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending their turn in deep (non-coastal) water tiles owned by this city take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast with a Harbor.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_HELP">
+			<Text>50% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of the City. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism to all Landmarks on Empire.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_TEXT">
+			<Text>A lodge is a small dwelling set apart from a main dwelling, used for recreation. The term has become associated with recreational hunting, especially in relation to nobility and the recreational sportsmen in modern times. In many cultures, wild preserves were set aside for kings and their entourages to engage in hunting for pleausre.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
@@ -365,6 +395,9 @@
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT">
 			<Text>Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_TEXT">
+			<Text>A Tidal Power Plant is renewable energy source which harnesses the energy of tides to produce usable electric energy. Tidal energy can take many forms, including stationary or tethered turbines similar to undersea wind turbines, or tidal barrages that mimic traditional hydroelectric stations. Tidal energy solutions are especially attractive in comparison to wind and solar because of their consistency and predictability.[NEWLINE][NEWLINE]Of the various renewable energy solutions available, tidal energy is the youngest and still the most problematic. Corrosion and wear are costly hurdles to wide deployment of tidal power, as well as the limited number of potential sites with high flow velocities. Today, tidal power contributes less than 1% of total global power generation, with facilities in France, the UK, South Korea, and Canada.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_STOCKYARD_TEXT">
 			<Text>Agribusiness is the business of agricultural production. The term was coined in 1957 by Goldberg and Davis. It includes agrichemicals, breeding, crop production (farming and contract farming), distribution, farm machinery, processing, and seed supply, as well as marketing and retail sales. All agents of the food and fiber value chain and those institutions that influence it are part of the agribusiness system. Within the agriculture industry, "agribusiness" is used simply as a portmanteau of agriculture and business, referring to the range of activities and disciplines encompassed by modern food production. There are academic degrees in and departments of agribusiness, agribusiness trade associations, agribusiness publications, and so forth, worldwide. Examples of agribusinesses include seed and agrichemical producers like Dow AgroSciences, DuPont, Monsanto, and Syngenta; AB Agri (part of Associated British Foods) animal feeds, biofuels, and micro-ingredients, ADM, grain transport and processing; John Deere, farm machinery producer; Ocean Spray, farmer's cooperative; and Purina Farms, agritourism farm.</Text>
 		</Row>
@@ -373,6 +406,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT">
 			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_TEXT">
+			<Text>An interpretive centre is an institution for public education about a nearby cultural, historic, or natural sites. Unlike museums, interpretive centers rarely contain artifacts or collections, but mainly exist to give visitors background information for understanding the history or relevance of something on the landscape. Because preservation and protection is not part of an interpretive center''s job, they can often be more interactive and make better use of modern media than traditional museums.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN">
@@ -616,7 +652,7 @@
 			<Text>An acropolis is a settlement, especially a citadel, built upon an area of elevated ground—frequently a hill with precipitous sides, chosen for purposes of defense. In many parts of the world, acropoleis became the nuclei of large cities of classical antiquity, such as ancient Rome, and for this reason they are sometimes prominent landmarks in modern cities with ancient pasts, such as modern Rome. The word acropolis literally means in Greek "upper city," and though associated primarily with the Greek cities Athens, Argos ( with Larissa), Thebes (with Cadmea), and Corinth (with its Acrocorinth), may be applied generically to all such citadels, including Rome, Jerusalem, Celtic Bratislava, many in Asia Minor, or even Castle Rock in Edinburgh. An example in Ireland is the Rock of Cashel. Acropolis is also the term used by archaeologists and historians for the urban Castro culture settlements located in Northwestern Iberian hilltops.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]When a unit defeats an enemy unit in battle, receive +5 [ICON_CULTURE_LOCAL] Border Growth in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive 25 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if Themed.</Text>
+			<Text>+3 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]When a unit defeats an enemy unit in battle, receive +5 [ICON_CULTURE_LOCAL] Border Growth in this City, scaling with Era; if the Unit was [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR], also receive 25 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dyes: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if Themed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
 			<Text>Unique Greek replacement for the Amphitheater. Build Acropoli to boost your city's Defense, Culture, and Tourism, especially while at war for the latter two. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Produces +3 [ICON_TOURISM] Tourism.</Text>
@@ -673,20 +709,19 @@
 		<Row Tag="TXT_KEY_AMPHITHEATER_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Writings either from your own Civilization, or from Civilizations other than your own.</Text>
 		</Row>
-		<!--
+
 		<Row Tag="TXT_KEY_BUILDING_MISSION">
 			<Text>Mission</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT">
-			<Text>The history of Spain's missions in the American South and Southwest reveals much about Spain's strategy, contributions, and failures in these regions. The expeditions of Francisco Vázquez de Coronado (1540 42) and Juan de Oñate (1598) convinced Spanish authorities that no wealthy Indian empires like that of the Aztecs were to be found north of Mexico. Consequently the Spanish came to view the northern frontier of their empire as a defensive barrier and as a place where pagan souls might be saved. In what are now the states of Florida, Texas, New Mexico, Arizona, and California, missions were founded to propagate the doctrines of the Roman Catholic church. To protect these missions as well as the mines and ranches of Mexico from attack from the north, the Spanish established presidios fortified garrisons of troops. Franciscan priests founded a series of missions in Florida after 1573, mainly along the Atlantic and Gulf coasts. The first missions in New Mexico were established by friars accompanying Oñate's expedition of 1598; during the next 100 years Franciscan priests founded more than 40 additional missions, most of them along the Rio Grande. Especially influential was Father Alonso de Benavides, who directed the founding of 10 missions between 1625 and 1629 and thereafter promoted them ably in Spain. By 1680 missions had been established among most of the New Mexican Indians.</Text>
+			<Text>According to the Catholic Church, Missions are religious communities devoted to teaching, tending, and helping the local populace, thus supporting Christ’s ideals. In practice, however, the missions were devoted to converting the locals and then “civilizing” them through cultural assimilation. The Spanish missions serve as the traditional template, self-supporting enclaves with churches, dormitories, workrooms, and schools. In places these were even fortified, ready to defend themselves from opposition. Most of the missions in the Americas, Asia, and Africa were administered by religious orders such as the Franciscans, Jesuits, Dominicans, and Augustinians rather than the Church itself, but the effects were the same. Missions often served as a nucleus around which Spanish, French, and Portuguese colonizing efforts could coalesce.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>Gain 3x the [ICON_PEACE] Faith and [ICON_GOLD] Gold output of the City as an [COLOR_POSITIVE_TEXT]Instant Boost[ENDCOLOR] every time a [ICON_CITIZEN] Citizen is born in this City. +1 [ICON_PRODUCTION] Production from Quarries.[NEWLINE][NEWLINE]Boosts [ICON_RELIGION] Religious Pressure and Resistance of this city by 15%. Does not require Walls in order to be built, and can be purchased with [ICON_PEACE] Faith. Military Units Supplied by this City's population increased by 10%. Contains 1 slot for a Great Work of Art or Artifact.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.</Text>
+			<Text>Defensive Religious Building. Can only be Faith purchased in cities settled by a Spanish Conquistador.[NEWLINE][NEWLINE]+1 [ICON_PEACE] Faith to nearby Haciendas. When built, Instantly converts this city to the Majority Religion in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, does not require Walls in order to be built, and can be purchased with Faith. Grants a bunch of Faith and Gold when Citizens are born in City (based on the current yields of the city when the new citizen is born). Increases Military Units supplied by this City's population by 10%. Boosts the city's religious pressure by 15% and resistance to foreign conversion by 15%, thus making the city more effective at converting nearby cities. Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion. Also helps with managing the Empire Needs Modifier in this City.</Text>
+			<Text>A Mission is only available for purchase in cities settled by a Spanish Conquistador. They give a small amount of Faith and Defense and boost the yields of nearby Haciendas. The Mission performs a missionary spread action when it is built, converting it to the Majority Religion in your Capital.</Text>
 		</Row>
-	-->
 	
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
 			<Text>Runestone</Text>
@@ -719,10 +754,10 @@
 			<Text>A yurt, called a 'Ger' by Mongolians, is a portable, bent dwelling structure traditionally used by nomads in the steppes of Central Asia as their home. The structure comprises a crown or compression wheel, usually steam bent, supported by roof ribs which are bent down at the end where they meet the lattice wall (again, steam bent). The top of the wall is prevented from spreading by means of a tension band which opposes the force of the roof ribs. The structure is usually covered by layers of fabric and sheep's wool felt for insulation and weatherproofing. The traditional decoration within a yurt is primarily pattern based. These patterns are generally not according to taste, but are derived from sacred ornaments with certain symbolism. Symbols representing strength are among the most common, including the khas (swastika) and four powerful beasts (lion, tiger, garuda and dragon), as well as stylized representations of the five elements (fire, water, earth, metal, and wood), considered to be the fundamental, unchanging elements of the cosmos. Such patterns are commonly used in the home with the belief that they will bring strength and offer protection.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
-			<Text>+25 [ICON_FOOD] Food when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. [ICON_GOLD] Gold and [ICON_CULTURE] Cost of acquiring new tiles reduced by 25% in this city.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_COW] Cows: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_WHEAT] Wheat: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_MAIZE] Maize: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_RICE] Rice: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production from Camps. [ICON_GOLD] Gold and [ICON_CULTURE] Cost of acquiring new tiles reduced by 25% in this city and gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_COW] Cows: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Granary. In addition to the Granary's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Lodge. In addition to the Lodge's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">

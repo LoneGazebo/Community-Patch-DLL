@@ -253,11 +253,11 @@ INSERT INTO ArtDefine_StrategicView(StrategicViewType, TileType, Asset)
 
 INSERT INTO IconTextureAtlases 
 			(Atlas, 					IconSize, 	Filename, 						IconsPerRow, 	IconsPerColumn)
-VALUES		('FCOMPANY_ATLAS', 			256, 		'FCOMPANY_ATLAS_256.dds',		1,				1),
-			('FCOMPANY_ATLAS', 			128, 		'FCOMPANY_ATLAS_128.dds',		1, 				1),
-			('FCOMPANY_ATLAS', 			80, 		'FCOMPANY_ATLAS_080.dds',		1, 				1),
-			('FCOMPANY_ATLAS', 			64, 		'FCOMPANY_ATLAS_064.dds',		1, 				1),
-			('FCOMPANY_ATLAS', 			45, 		'FCOMPANY_ATLAS_045.dds',		1, 				1),
+VALUES		('FCOMPANY_ATLAS', 			256, 		'FCOMPANY_ATLAS_256.dds',		3,				1),
+			('FCOMPANY_ATLAS', 			128, 		'FCOMPANY_ATLAS_128.dds',		3, 				1),
+			('FCOMPANY_ATLAS', 			80, 		'FCOMPANY_ATLAS_080.dds',		3, 				1),
+			('FCOMPANY_ATLAS', 			64, 		'FCOMPANY_ATLAS_064.dds',		3, 				1),
+			('FCOMPANY_ATLAS', 			45, 		'FCOMPANY_ATLAS_045.dds',		3, 				1),
 			('FCOMPANY_FLAG_ATLAS', 	32, 		'FCompany_Flag_Atlas_032.dds',	1, 				1);
 
 INSERT INTO ArtDefine_StrategicView 

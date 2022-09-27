@@ -93,9 +93,14 @@
 	SET Text = '+25% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_HELP';
 
+	-- updated Full Moon Striker
+	UPDATE Language_en_US
+	SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] when pillaging tiles.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
+	
 	-- updated Pride of the Ancestors
 	UPDATE Language_en_US
-	SET Text = '+15% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
+	SET Text = '+20% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_BOOGALOO_HELP';
 
 	-- added Near Capital Bonus
