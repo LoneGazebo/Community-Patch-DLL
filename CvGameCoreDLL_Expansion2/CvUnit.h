@@ -1622,6 +1622,9 @@ public:
 	int GetHurryStrength() const;
 	void SetHurryStrength(int iValue);
 
+	int GetGoldBlastStrength() const;
+	void SetGoldBlastStrength(int iValue);
+
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
 
@@ -2382,6 +2385,7 @@ protected:
 	int m_iTourismBlastLength;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHurryStrength;
+	int m_iGoldBlastStrength;
 	int m_iScienceBlastStrength;
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
@@ -2758,6 +2762,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastLength)
 SYNC_ARCHIVE_VAR(int, m_iHurryStrength)
+SYNC_ARCHIVE_VAR(int, m_iGoldBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)

@@ -482,6 +482,7 @@ CvUnit::CvUnit() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iHurryStrength()
+	, m_iGoldBlastStrength()
 	, m_iScienceBlastStrength()
 	, m_iCultureBlastStrength()
 	, m_iGAPBlastStrength()
@@ -1160,9 +1161,13 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetScienceBlastStrength(getDiscoverAmount());
 	}
-	if (getUnitInfo().GetBaseHurry() > 0)
+	if (getUnitInfo().GetBaseHurry() > 0 || getUnitInfo().GetBaseProductionTurnsToCount() > 0)
 	{
 		SetHurryStrength(getHurryProduction(plot()));
+	}
+	if (getUnitInfo().GetBaseGold() > 0 || getUnitInfo().GetBaseGoldTurnsToCount() > 0)
+	{
+		SetGoldBlastStrength(getTradeGold());
 	}
 	if (getUnitInfo().GetBaseCultureTurnsToCount() > 0)
 	{
@@ -1724,6 +1729,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 #if defined(MOD_BALANCE_CORE)
 	m_iHurryStrength = 0;
+	m_iGoldBlastStrength = 0;
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
 	m_iGAPBlastStrength = 0;
@@ -2123,6 +2129,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 		if (iTheirProduction > GetHurryStrength())
 			SetHurryStrength(iTheirProduction);
 
+		int iTheirGold = pUnit->GetGoldBlastStrength();
+		if (iTheirGold > GetGoldBlastStrength())
+			SetGoldBlastStrength(iTheirGold);
 
 		int iTheirScience = pUnit->GetScienceBlastStrength();
 		if (iTheirScience > GetScienceBlastStrength())
@@ -11906,63 +11915,6 @@ bool CvUnit::DoRushBuilding()
 	return true;
 }
 
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getMaxHurryProduction(CvCity* pCity) const
-{
-	int iProduction;
-
-	iProduction = (m_pUnitInfo->GetBaseHurry() + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
-
-	if (MOD_GP_ERA_SCALING)
-	{
-		int iCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
-
-		if (iCurrentEra >= 3) // starts from renaissance
-		{
-			int EraModifiers[5] = { 200, 250, 400, 475, 575 }; 
-			int iIndex = MAX(0, iCurrentEra - 3);
-			iProduction = ((m_pUnitInfo->GetBaseHurry() * EraModifiers[iIndex] / 100) + (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation()));
-		}
-	}
-
-	//Let's make the GE a little more flexible.
-	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		//scale up our value
-		iProduction = GetScaleAmount(iProduction);
-	}
-
-	iProduction *= GC.getGame().getGameSpeedInfo().getUnitHurryPercent();
-	iProduction /= 100;
-
-	return std::max(0, iProduction);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getHurryProduction(const CvPlot* pPlot) const
-{
-	CvCity* pCity = GET_PLAYER(getOwner()).getCity(m_iOriginCity);
-	
-	if (pCity == NULL)
-		pCity = pPlot->getEffectiveOwningCity();
-
-	if(pCity == NULL)
-		return 0;
-
-	int iProduction = getMaxHurryProduction(pCity);
-
-	if (GET_PLAYER(getOwner()).GetGreatEngineerHurryMod() != 0)
-	{
-		iProduction += (iProduction * GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
-		iProduction = MAX(iProduction, 0); // Cannot be negative
-	}
-
-	return std::max(0, iProduction);
-}
-
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::canHurry(const CvPlot* pPlot, bool bTestVisible) const
 {
@@ -12015,6 +11967,56 @@ bool CvUnit::canHurry(const CvPlot* pPlot, bool bTestVisible) const
 	return true;
 }
 
+//	--------------------------------------------------------------------------------
+int CvUnit::getMaxHurryProduction(CvCity* pCity) const
+{
+	int iProduction;
+
+	// Get base value from unit
+	iProduction = m_pUnitInfo->GetBaseHurry();
+	// Scale it by the Era Scaler (starts at Renaissance)
+	if (MOD_GP_ERA_SCALING)
+	{
+		int EraModifiers[6] = { 100, 200, 250, 400, 475, 575 };
+		int iIndex = MAX(0, GET_PLAYER(getOwner()).GetCurrentEra() - 2);
+		iProduction = iProduction * EraModifiers[iIndex] / 100;
+	}
+	// Add production from population (does not scale with era)
+	iProduction += (m_pUnitInfo->GetHurryMultiplier() * pCity->getPopulation());
+
+	// Add production from average empire city production (does not scale with era)
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	if (pPlayer)
+		iProduction += pPlayer->getYieldPerTurnHistory(YIELD_PRODUCTION, m_pUnitInfo->GetBaseProductionTurnsToCount());
+
+	if (iProduction == 0)
+		return 0;
+
+	// Scale production with number of manufactories
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		iProduction = GetScaleAmount(iProduction);
+
+	// scale with game speed
+	iProduction = iProduction * GC.getGame().getGameSpeedInfo().getUnitHurryPercent() / 100;
+	// scale with player traits/policies etc.
+	iProduction = iProduction * (100 + GET_PLAYER(getOwner()).GetGreatEngineerHurryMod()) / 100;
+	
+	return MAX(0, iProduction);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getHurryProduction(const CvPlot* pPlot) const
+{
+	CvCity* pCity = GET_PLAYER(getOwner()).getCity(m_iOriginCity);
+	
+	if (pCity == NULL)
+		pCity = pPlot->getEffectiveOwningCity();
+
+	if(pCity == NULL)
+		return 0;
+
+	return MAX(0, getMaxHurryProduction(pCity));
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::hurry()
@@ -12089,73 +12091,7 @@ bool CvUnit::hurry()
 }
 
 
-//	--------------------------------------------------------------------------------
-int CvUnit::getTradeGold(const CvPlot* /*pPlot*/) const
-{
-	VALIDATE_OBJECT
-	int iGold;
-
-	// Seed the gold Value with some cash
-	iGold = m_pUnitInfo->GetBaseGold();
-
-	// Amount of Gold also increases with how far into the game we are
-	iGold += (m_pUnitInfo->GetNumGoldPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
-
-	if (MOD_GP_ERA_SCALING)
-	{
-		iGold = GetScaleAmount(m_pUnitInfo->GetBaseGold()); // scaled from towns
-		int iCurrentEra = GET_PLAYER(getOwner()).GetCurrentEra();
-
-		if (iCurrentEra >= 3) // starts from renaissance
-		{
-			int EraModifiers[5] = { 200, 250, 400, 475, 575 };
-			int iIndex = MAX(0, iCurrentEra - 3);
-			iGold *= EraModifiers[iIndex];
-			iGold /= 100;
-		}
-	}
-
-	iGold *= GC.getGame().getGameSpeedInfo().getUnitTradePercent();
-	iGold /= 100;
-
-	iGold *= (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MISSION_GOLD_MODIFIER));
-	iGold /= 100;
-
-	iGold *= (100 + GetTradeMissionGoldModifier());
-	iGold /= 100;
-
-	return std::max(0, iGold);
-}
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
-{
-	VALIDATE_OBJECT
-	int iInf = 0;
-	if (pPlot && canTrade(pPlot))
-	{
-		PlayerTypes eMinor = pPlot->getOwner();
-		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-		if (eMinor != NO_PLAYER)
-		{
-			if (GetDiploMissionInfluence() != 0)
-				iInf = GetDiploMissionInfluence();
-			else
-				iInf = /*30 in CP, 0 in CSD*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
-
-			iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
-
-			int iInfTimes100 = iInf * (100 + GetTradeMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
-
-			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
-			
-		}
-	}
-	return iInf;
-}
-
+/// Great Merchant / Diplomat Functions
 //	--------------------------------------------------------------------------------
 bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 {
@@ -12191,6 +12127,79 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getTradeGold() const
+{
+	VALIDATE_OBJECT
+	int iGold;
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	
+	// Seed the gold value with some cash from the unit
+	iGold = m_pUnitInfo->GetBaseGold();
+
+	// Amount of Gold also increases with how far into the game we are
+	if (pPlayer)
+	{
+		int iCurrentEra = pPlayer->GetCurrentEra();
+		if (MOD_GP_ERA_SCALING)
+		{
+			int EraModifiers[6] = { 100, 200, 250, 400, 475, 575 };
+			int iIndex = MAX(0, iCurrentEra - 2); // starts from renaissance
+			iGold = iGold * EraModifiers[iIndex] / 100;
+		}
+		else
+			iGold += (m_pUnitInfo->GetNumGoldPerEra() * iCurrentEra);
+
+		// Add gold from empire gold per turn (does not scale with era)
+		iGold += pPlayer->getYieldPerTurnHistory(YIELD_GOLD, m_pUnitInfo->GetBaseGoldTurnsToCount());
+	}
+
+	if (iGold == 0)
+		return 0;
+
+	// scale gold with the number of towns.
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+		iGold = GetScaleAmount(iGold);
+
+	// scale with game speed
+	iGold = iGold * GC.getGame().getGameSpeedInfo().getUnitTradePercent() / 100;
+	// scale player policies
+	iGold = iGold * (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_MISSION_GOLD_MODIFIER)) / 100;
+	// scale with extra unit promotion etc.
+	iGold = iGold * (100 + GetTradeMissionGoldModifier()) / 100;
+
+	return MAX(0, iGold);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
+{
+	VALIDATE_OBJECT
+	int iInf = 0;
+	if (pPlot && canTrade(pPlot))
+	{
+		PlayerTypes eMinor = pPlot->getOwner();
+		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+		if (eMinor != NO_PLAYER)
+		{
+			if (GetDiploMissionInfluence() != 0)
+				iInf = GetDiploMissionInfluence();
+			else
+				iInf = /*30 in CP, 0 in CSD*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
+
+			iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
+
+			int iInfTimes100 = iInf * (100 + GetTradeMissionInfluenceModifier());
+			iInf = iInfTimes100 / 100;
+
+			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
+			iInf = iInfTimes100 / 100;
+			
+		}
+	}
+	return iInf;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::trade()
 {
 	VALIDATE_OBJECT
@@ -12206,7 +12215,7 @@ bool CvUnit::trade()
 		return false;
 
 	// Acquire Gold
-	int iTradeGold = getTradeGold(pPlot);
+	int iTradeGold = GetGoldBlastStrength();
 	GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iTradeGold);
 
 	// Acquire Influence
@@ -12256,9 +12265,9 @@ bool CvUnit::trade()
 	}
 
 	// Great Merchant WLTKD bonus
-	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && m_pUnitInfo->GetNumGoldPerEra() > 0)
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && m_pUnitInfo->GetBaseWLTKDTurns() > 0)
 	{
-		int iCap = 5;
+		int iCap = m_pUnitInfo->GetBaseWLTKDTurns();
 
 		//Let's make the GM a little more flexible.
 		iCap = GetScaleAmount(iCap);
@@ -25590,6 +25599,18 @@ void CvUnit::SetHurryStrength(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetGoldBlastStrength() const
+{
+	return m_iGoldBlastStrength;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetGoldBlastStrength(int iValue)
+{
+	m_iGoldBlastStrength = iValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetCultureBlastStrength() const
 {
 	return m_iCultureBlastStrength;
@@ -27795,6 +27816,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iTourismBlastStrength);
 	visitor(unit.m_iTourismBlastLength);
 	visitor(unit.m_iHurryStrength);
+	visitor(unit.m_iGoldBlastStrength);
 	visitor(unit.m_iScienceBlastStrength);
 	visitor(unit.m_iCultureBlastStrength);
 	visitor(unit.m_iGAPBlastStrength);

@@ -30,14 +30,14 @@
 	-- Admiral movement buff, ability addition
 	UPDATE Units SET Moves = '5', NumFreeLux = '2' WHERE Type = 'UNIT_GREAT_ADMIRAL';
 
-	-- Merchant gold boosted, CS ability buff
-	UPDATE Units SET NumGoldPerEra = '150' WHERE Type = 'UNIT_MERCHANT';
+	-- Merchant gold boost switched to gold history
+	UPDATE Units SET BaseGold = '0', NumGoldPerEra = '0', BaseGoldTurnsToCount = '5', BaseWLTKDTurns = '5' WHERE Type = 'UNIT_MERCHANT';
 
 	-- Reduced base golden age turns of artist, added scaling bonus for num themed GWs
 	UPDATE Units SET GoldenAgeTurns = '0', BaseTurnsForGAPToCount = '10', ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST';
 
-	-- Engineer production boost nerfed slightly.
-	UPDATE Units SET BaseHurry = '100', HurryMultiplier = '20' WHERE Type = 'UNIT_ENGINEER';
+	-- Engineer production boost switched to average city production
+	UPDATE Units SET BaseHurry = '0', HurryMultiplier = '0', BaseProductionTurnsToCount = '10' WHERE Type = 'UNIT_ENGINEER';
 
 	-- Musician changes
 	UPDATE Units SET OneShotTourismPercentOthers = '0', OneShotTourism = '0', TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';

@@ -1063,8 +1063,14 @@ ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
--- Replacement for free GA on Artists, etc.
+-- Gain Production from best X cities from previous turns - Replacement for Population-based Hurry Production on Great Engineers, etc.
+ALTER TABLE Units ADD COLUMN 'BaseProductionTurnsToCount' INTEGER DEFAULT 0;
+-- Gain Gold from previous turns - Replacement for Era-based Gold Trade Missions on Great Merchants, etc.
+ALTER TABLE Units ADD COLUMN 'BaseGoldTurnsToCount' INTEGER DEFAULT 0;
+-- Gain GAP from previous turns - Replacement for free GA on Great Artists, etc.
 ALTER TABLE Units ADD COLUMN 'BaseTurnsForGAPToCount' INTEGER DEFAULT 0;
+-- Gain turns of WLTKD - Replacement for Influence from Trade Missions on Great Merchants, etc.
+ALTER TABLE Units ADD Column 'BaseWLTKDTurns' INTEGER DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;

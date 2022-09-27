@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -42,7 +42,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumFreeTechs(0),
 	m_iBaseBeakersTurnsToCount(0),
 	m_iBaseCultureTurnsToCount(0),
+	m_iBaseGoldTurnsToCount(0),
+	m_iBaseProductionTurnsToCount(0),
 	m_iBaseTurnsForGAPToCount(0),
+	m_iBaseWLTKDTurns(0),
 	m_iBaseHurry(0),
 	m_iHurryMultiplier(0),
 	m_bRushBuilding(false),
@@ -289,7 +292,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumFreeTechs = kResults.GetInt("NumFreeTechs");
 	m_iBaseBeakersTurnsToCount = kResults.GetInt("BaseBeakersTurnsToCount");
 	m_iBaseCultureTurnsToCount = kResults.GetInt("BaseCultureTurnsToCount");
+	m_iBaseGoldTurnsToCount = kResults.GetInt("BaseGoldTurnsToCount");
+	m_iBaseProductionTurnsToCount = kResults.GetInt("BaseProductionTurnsToCount");
 	m_iBaseTurnsForGAPToCount = kResults.GetInt("BaseTurnsForGAPToCount");
+	m_iBaseWLTKDTurns = kResults.GetInt("BaseWLTKDTurns");
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
 	m_bRushBuilding= kResults.GetInt("RushBuilding")>0;
@@ -870,10 +876,28 @@ int CvUnitEntry::GetBaseCultureTurnsToCount() const
 	return m_iBaseCultureTurnsToCount;
 }
 
+/// How many previous turns worth of gold does this Unit give us?
+int CvUnitEntry::GetBaseGoldTurnsToCount() const
+{
+	return m_iBaseGoldTurnsToCount;
+}
+
+/// How many previous turns worth of production (across NUM_HURRY_PRODUCTION_CITIES cities) does this Unit give us?
+int CvUnitEntry::GetBaseProductionTurnsToCount() const
+{
+	return m_iBaseProductionTurnsToCount;
+}
+
 /// How many previous turns worth of culture does this Unit give us?
 int CvUnitEntry::GetBaseTurnsForGAPToCount() const
 {
 	return m_iBaseTurnsForGAPToCount;
+}
+
+/// How many turns of WLTKD does this Unit give us?
+int CvUnitEntry::GetBaseWLTKDTurns() const
+{
+	return m_iBaseWLTKDTurns;
 }
 
 /// What is the base amount of production provided by this unit?
@@ -900,12 +924,12 @@ int CvUnitEntry::GetBaseGold() const
 	return m_iBaseGold;
 }
 
-/// Era boost to gold (for great people)
+/// How much does this great person's instant yield scale with each great work?
 int CvUnitEntry::GetScaleFromNumGWs() const
 {
 	return m_iScaleFromNumGWs;
 }
-/// Era boost to gold (for great people)
+/// How much does this great person's instant yield scale with each theme?
 int CvUnitEntry::GetScaleFromNumThemes() const
 {
 	return m_iScaleFromNumThemes;
