@@ -6508,15 +6508,20 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	end
 
 	-- Randomly pick NWs from the list based on occurrence
+	print("-")
+	print("List of OccurrenceFrequency values for each Natural Wonder in the database:")
 	local NW_frequency = {};
 	local isNWPicked = {};
 	local chosen_NW, fallback_NW = {}, {};
 	for loop = 1, self.iNumNW do
 		table.insert(NW_frequency, GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency);
 		table.insert(isNWPicked, false);
-		print("Occurrence for:", self.wonder_list[loop], "is:", GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency)
+		print("Occurrence for: #", loop, " ", self.wonder_list[loop], "is:", GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency)
 	end
 
+	
+	--print("-");
+	--print("List of picked Natural Wonders and their chances:");
 	for pickLoop = 1, target_number do
 		local occurrence_threshold = {};
 		local iOccurrenceSum = 0;
@@ -6541,7 +6546,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 		local diceroll = Map.Rand(iOccurrenceSum, "Picking NW");
 		for loop = 1, self.iNumNW do
 			if diceroll < occurrence_threshold[loop] then
-				print("Picked:", self.wonder_list[loop], "diceroll = ", diceroll);
+				--print("Picked:", self.wonder_list[loop], "diceroll = ", diceroll);
 				isNWPicked[loop] = true;
 				break;
 			end
@@ -6549,17 +6554,16 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	end
 
 	print("-");
-	print("List of chosen and fallback NWs");
+	print("List of chosen and fallback NWs:");
 	for loop = 1, self.iNumNW do
 		if isNWPicked[loop] then
 			table.insert(chosen_NW, loop);
-			print("Chosen:", self.wonder_list[loop]);
+			--print("Chosen:", self.wonder_list[loop]);
 		elseif iCanBeWonder[loop] > 0 and NW_frequency[loop] > 0 then
 			table.insert(fallback_NW, loop);
-			print("Fallback:", self.wonder_list[loop]);
+			--print("Fallback:", self.wonder_list[loop]);
 		end
 	end
-	print("-");
 
 	-- Sort the chosen NWs with fewest candidates first
 	table.sort(chosen_NW, function (a, b) return iCanBeWonder[a] < iCanBeWonder[b] end);
@@ -6578,6 +6582,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	if NW_final_selections ~= nil then
 		return NW_final_selections;
 	else
+		print("-");
 		print("ERROR: Failed to produce final selection list of NWs!");
 	end
 end
@@ -6700,11 +6705,11 @@ function AssignStartingPlots:PlaceNaturalWonders()
 	end
 	
 	--Debug printout
-	print("-"); print("--- Readout of NW Assignment Priority ---");
+	--[[print("-"); print("--- Readout of NW Assignment Priority ---");
 	for print_loop, order in ipairs(NW_eligibility_order) do
 		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
 	end
-	print("-"); print("-");
+	print("-"); print("-");--]]
 
 	local iNumNWtoPlace = math.min(target_number, iNumNWCandidates);
 	local selected_NWs, fallback_NWs = {}, {};
@@ -6715,7 +6720,7 @@ function AssignStartingPlots:PlaceNaturalWonders()
 			table.insert(fallback_NWs, NW);
 		end
 	end
-	print("-");
+	--print("-");
 	for loop, NW in ipairs(selected_NWs) do
 		print("Natural Wonder #", NW, "has been selected for placement.");
 	end
