@@ -3480,40 +3480,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 
-	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
-	{
-		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));
-	}
-	if (newUnit->getUnitInfo().GetTourismBonusTurns() > 0)
-	{
-		int iNumTurns = newUnit->getUnitInfo().GetTourismBonusTurns();
-		CvCity *pLoopCity;
-		int iLoop;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumTurns /= 100;
-
-		newUnit->SetTourismBlastLength(iNumTurns);
-	}
-#if defined(MOD_BALANCE_CORE)
-	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
-	{
-		newUnit->SetScienceBlastStrength(newUnit->getDiscoverAmount());
-	}
-	if (newUnit->getUnitInfo().GetBaseHurry() > 0)
-	{
-		newUnit->SetHurryStrength(newUnit->getHurryProduction(newUnit->plot()));
-	}
-	if (newUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
-	{
-		newUnit->SetCultureBlastStrength(newUnit->getGivePoliciesCulture());
-	}
-#endif
-
 	// Notification
 	if (GET_PLAYER(GetOwner()).GetNotifications())
 	{

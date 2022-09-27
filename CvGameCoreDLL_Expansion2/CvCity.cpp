@@ -31628,45 +31628,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
 
-			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
-			{
-				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
-			}
-			if (pUnit->getUnitInfo().GetTourismBonusTurns() > 0)
-			{
-				int iNumTurns = pUnit->getUnitInfo().GetTourismBonusTurns();
-				CvCity* pLoopCity;
-				int iLoop;
-				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-				{
-					iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-				}
-
-				iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iNumTurns /= 100;
-
-				pUnit->SetTourismBlastLength(iNumTurns);
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
-			{
-				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
-			}
-			if (pUnit->getUnitInfo().GetBaseHurry() > 0)
-			{
-				pUnit->SetHurryStrength(pUnit->getHurryProduction(pUnit->plot()));
-			}
-			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
-			{
-				pUnit->SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
-			}
-
-			if (pUnit->getUnitInfo().GetBaseTurnsForGAPToCount() > 0)
-			{
-				pUnit->SetGAPBlastStrength(pUnit->getGAPBlast());
-			}
-#endif
-
 			kPlayer.ChangeFaith(-iFaithCost);
 
 			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
