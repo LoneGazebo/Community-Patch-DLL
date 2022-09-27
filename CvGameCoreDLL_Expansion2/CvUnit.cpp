@@ -642,9 +642,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		std::vector<int> vfPossibleUnits;
 #endif
-#if !defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-	if(iUnitName < iNumNames)
-#endif
 	{
 		if(iNameOffset == -1)
 		{
@@ -672,13 +669,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			setName(strName);
 			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 			GC.getGame().addGreatPersonBornName(strName);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+
 			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
 			{
 				// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 				setGreatName(strName);
 			}
-#endif
 		}
 		//None? Let's look to the next era.
 		else
@@ -702,13 +698,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
 				GC.getGame().addGreatPersonBornName(strName);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+
 				if (MOD_GLOBAL_NO_LOST_GREATWORKS)
 				{
 					// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 					setGreatName(strName);
 				}
-#endif
 			}
 		}
 		//If still no valid GPs, do the old random method.
@@ -720,7 +715,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				int iIndex = (iNameOffset + iI) % iNumNames;
 				CvString strName = getUnitInfo().GetUnitNames(iIndex);
 
-#if defined(MOD_EVENTS_UNIT_DATA)
 				if (MOD_EVENTS_UNIT_DATA)
 				{
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveName, getOwner(), GetID(), iIndex) == GAMEEVENTRETURN_FALSE)
@@ -728,11 +722,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 						continue;
 					}
 				}
-#endif
 
 				if (!GC.getGame().isGreatPersonBorn(strName))
 				{
-#if defined(MOD_EVENTS_UNIT_DATA)
 					if (MOD_EVENTS_UNIT_DATA)
 					{
 						if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_UnitCanHaveGreatWork, getOwner(), GetID(), getUnitInfo().GetGreatWorks(iIndex)) == GAMEEVENTRETURN_FALSE)
@@ -740,17 +732,17 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 							continue;
 						}
 					}
-#endif			
+
 					setName(strName);
 					SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
 					GC.getGame().addGreatPersonBornName(strName);
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
+
 					if (MOD_GLOBAL_NO_LOST_GREATWORKS)
 					{
 						// setName strips undesirable characters, but we stored those into the list of GPs born, so we need to keep the original name
 						setGreatName(strName);
 					}
-#endif
+
 					break;
 				}
 			}
@@ -774,7 +766,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		kPlayer.ChangeNumBuilders(1);
 	}
-#if defined(MOD_CIV6_WORKER)
+
 	//get builder strength
 	if (getUnitInfo().GetBuilderStrength() > 0)
 	{
@@ -794,12 +786,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 		setBuilderStrength(ibuildercharges);
 	}
-#endif
+
 	if (getUnitInfo().GetNumberOfCultureBombs() > 0)
 	{
 		setNumberOfCultureBombs(getUnitInfo().GetNumberOfCultureBombs());
 	}
-#if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
+
 	if(MOD_BALANCE_CORE_SETTLER_RESET_FOOD && getUnitInfo().IsFound())
 	{
 		CvCity* pCity = plot()->getPlotCity();
@@ -824,7 +816,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
-#endif
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
@@ -882,11 +873,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(getUnitInfo().IsMilitarySupport())
 	{
-#if defined(MOD_BATTLE_ROYALE)
 		kPlayer.changeNumMilitaryUnits(1, (DomainTypes)getUnitInfo().GetDomainType());
-#else
-		kPlayer.changeNumMilitaryUnits(1);
-#endif
 	}
 
 	// Free Promotions from Unit XML
@@ -1012,7 +999,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if(bGivePromotion)
 			setHasPromotion(ePromotionEmbarkation, true);
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
+
 	// These get done in SetXY, but if the unit doesn't have the promotion, the variable doesn't get stored.
 	kPlayer.UpdateAreaEffectUnit(this);
 	if (isGiveInvisibility())
@@ -1029,14 +1016,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
-#endif
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+
 	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
 	if (IsEmbarkDeepWater()) {
 		setHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_DEEPWATER_EMBARKATION), false);
 		setHasPromotion(kPlayer.GetDeepWaterEmbarkationPromotion(), true);
 	}
-#endif
 
 	// Strip off Water Impeding promotions with the correct trait
 	if(kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
@@ -1102,7 +1087,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
 		}
 	}
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
@@ -1132,8 +1116,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 		m_Religion.SetReligion(eReligion);
 	}
-#endif
-#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad()))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
@@ -1162,34 +1145,21 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 
 		m_Religion.SetReligion(eReligion);
-#endif
 	}
+
+	// Instant Yields/Bonuses on Expend
 	if (getUnitInfo().GetOneShotTourism() > 0)
 	{
-		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
+		SetTourismBlastStrength(getBlastTourism());
 	}
-
 	if (getUnitInfo().GetTourismBonusTurns() > 0)
 	{
-		int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
-		CvCity *pLoopCity;
-		int iLoop;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumTurns /= 100;
-
-		SetTourismBlastLength(iNumTurns);
+		SetTourismBlastLength(getBlastTourismTurns());
 	}
-#if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
 	{
 		SetScienceBlastStrength(getDiscoverAmount());
 	}
-
 	if (getUnitInfo().GetBaseHurry() > 0)
 	{
 		SetHurryStrength(getHurryProduction(plot()));
@@ -1198,12 +1168,11 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		SetCultureBlastStrength(getGivePoliciesCulture());
 	}
-
 	if (getUnitInfo().GetBaseTurnsForGAPToCount() > 0)
 	{
 		SetGAPBlastStrength(getGAPBlast());
 	}
-#endif
+
 	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
 	if (iTourism > 0)
 	{
@@ -2053,11 +2022,11 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	int iLostPromotions = 0;
 
 	// Transfer Promotions over
-	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
+		if (pkPromotionInfo)
 		{
 			bool bGivePromotion = false;
 			bool bFree = false;
@@ -2068,35 +2037,35 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			}
 
 			// Old unit has the promotion
-			if(pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
+			if (pUnit->isHasPromotion(ePromotion) && !pkPromotionInfo->IsLostWithUpgrade())
 			{
 				bGivePromotion = true;
 			}
 
 			// New unit gets promotion for free (as per XML)
-			else if(getUnitInfo().GetFreePromotions(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsNotWithUpgrade()))
+			else if (getUnitInfo().GetFreePromotions(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsNotWithUpgrade()))
 			{
 				bFree = true;
 				bGivePromotion = true;
 			}
 
 			// if we get this due to a policy or wonder
-			else if(GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
-			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
+			else if (GET_PLAYER(getOwner()).IsFreePromotion(ePromotion) && (
+						::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
 				bFree = true;
 				bGivePromotion = true;
 			}
-			if(pUnit->getUnitCombatType() != getUnitCombatType())
+			if (pUnit->getUnitCombatType() != getUnitCombatType())
 			{
 				bool bMelee = false;
 				bool bRanged = false;
-				if((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
+				if ((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0) || (pkPromotionInfo->GetExtraAttacks() > 0))
 				{
 					bRanged = true;
 				}
 				// Note: might be more Promotions than this for melee but these are the essentials of Drill and Shock. Things like Attack wounded, etc. can apply to ranged units on conversion from melee.
-				if((pkPromotionInfo->GetRoughAttackPercent() > 0) || (pkPromotionInfo->GetRoughDefensePercent() > 0) || (pkPromotionInfo->GetOpenAttackPercent() > 0) || (pkPromotionInfo->GetOpenDefensePercent()))
+				if ((pkPromotionInfo->GetRoughAttackPercent() > 0) || (pkPromotionInfo->GetRoughDefensePercent() > 0) || (pkPromotionInfo->GetOpenAttackPercent() > 0) || (pkPromotionInfo->GetOpenDefensePercent()))
 				{
 					bMelee = true;
 				}
@@ -2111,13 +2080,13 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 				//Naval Misfire Promotion Catch (sorry for hardcode)
-				else if(!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
+				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
 				}
 				// Siege Tower / Battering Ram Upgrade? Now becomes a UNITCOMBAT_SIEGE and a ranged unit
-				else if(IsCanAttackRanged() && !pUnit->IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && bMelee && !bFree)
+				else if (IsCanAttackRanged() && !pUnit->IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && bMelee && !bFree)
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -2134,54 +2103,39 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
-	setDamage(min(pUnit->getDamage(), GetMaxHitPoints()-1));
+	setDamage(min(pUnit->getDamage(), GetMaxHitPoints() - 1));
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
-	if (pUnit->GetTourismBlastStrength() > GetTourismBlastStrength())
-		SetTourismBlastStrength(pUnit->GetTourismBlastStrength());
-	else if (GetTourismBlastStrength() > 0)
-		SetTourismBlastStrength(GET_PLAYER(getOwner()).GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
 
-	if (pUnit->getUnitInfo().GetTourismBonusTurns() > getUnitInfo().GetTourismBonusTurns())
+	// Instant Yields/Bonuses on Expend
 	{
-		SetTourismBlastLength(pUnit->GetTourismBlastStrength());
+		int iTheirTourism = pUnit->GetTourismBlastStrength();
+		if (iTheirTourism > GetTourismBlastStrength())
+			SetTourismBlastStrength(iTheirTourism);
+
+		int iTheirTourismTurns = pUnit->GetTourismBlastLength();
+		if (iTheirTourismTurns > GetTourismBlastLength())
+			SetTourismBlastLength(iTheirTourismTurns);
+
+		int iTheirProduction = pUnit->GetHurryStrength();
+		if (iTheirProduction > GetHurryStrength())
+			SetHurryStrength(iTheirProduction);
+
+
+		int iTheirScience = pUnit->GetScienceBlastStrength();
+		if (iTheirScience > GetScienceBlastStrength())
+			SetScienceBlastStrength(iTheirScience);
+
+		int iTheirCulture = pUnit->GetCultureBlastStrength();
+		if (iTheirCulture > GetCultureBlastStrength())
+			SetCultureBlastStrength(iTheirCulture);
+
+		int iTheirGAP = pUnit->GetGAPBlastStrength();
+		if (iTheirGAP > GetGAPBlastStrength())
+			SetGAPBlastStrength(iTheirGAP);
 	}
-	else if (getUnitInfo().GetTourismBonusTurns() > 0)
-	{
-		int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
-		CvCity *pLoopCity;
-		int iLoop;
-		for (pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-		{
-			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumTurns /= 100;
-
-		SetTourismBlastLength(iNumTurns);
-	}
-
-	if (pUnit->getDiscoverAmount() > getDiscoverAmount())
-		SetScienceBlastStrength(pUnit->getDiscoverAmount());
-	else if (getDiscoverAmount() > 0)
-		SetScienceBlastStrength(getDiscoverAmount());
-
-	if (pUnit->getHurryProduction(plot()) > getHurryProduction(plot()))
-		SetHurryStrength(pUnit->getHurryProduction(plot()));
-	else if (getHurryProduction(plot()) > 0)
-		SetHurryStrength(getHurryProduction(plot()));
-
-	if (pUnit->getGivePoliciesCulture() > getGivePoliciesCulture())
-		SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
-	else if (getGivePoliciesCulture())
-		SetCultureBlastStrength(getGivePoliciesCulture());
-
-	if (pUnit->getGAPBlast() > getGAPBlast())
-		SetGAPBlastStrength(pUnit->getGAPBlast());
-	else if (getGAPBlast() > 0)
-		SetCultureBlastStrength(getGAPBlast());
 
 	if (pUnit->getOriginCity() == NULL)
 	{
@@ -2198,7 +2152,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
 	}
-	if(pUnit->getUnitCombatType() != getUnitCombatType() && (iLostPromotions > 0))
+	if (pUnit->getUnitCombatType() != getUnitCombatType() && (iLostPromotions > 0))
 	{
 		setLevel(1);
 	}
@@ -2215,15 +2169,14 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 
 	pTransportUnit = pUnit->getTransportUnit();
 
-	if(pTransportUnit != NULL)
+	if (pTransportUnit != NULL)
 	{
 		pUnit->setTransportUnit(NULL);
 		setTransportUnit(pTransportUnit);
 	}
 
 	pUnitNode = pPlot->headUnitNode();
-
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 		pUnitNode = pPlot->nextUnitNode(pUnitNode);
@@ -6191,7 +6144,6 @@ void CvUnit::gift(bool bTestTransport)
 	pPlot = plot();
 
 	pUnitNode = pPlot->headUnitNode();
-
 	while (pUnitNode != NULL)
 	{
 		pLoopUnit = ::GetPlayerUnit(*pUnitNode);
@@ -11708,96 +11660,6 @@ int CvUnit::GetConversionStrength(const CvCity* pCity) const
 	return iReligiousStrength;
 }
 
-//	--------------------------------------------------------------------------------
-bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
-{
-	VALIDATE_OBJECT
-	if(getUnitInfo().GetNumFreeTechs() == 0 && getUnitInfo().GetBaseBeakersTurnsToCount() == 0)
-	{
-		return false;
-	}
-
-	if(isDelayedDeath())
-	{
-		return false;
-	}
-
-	if(!bTestVisible)
-	{
-		if(GET_PLAYER(getOwner()).getNumCities() == 0)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
-int CvUnit::GetScaleAmount(int iAmountToScale) const
-{
-	int iScaleTotal = iAmountToScale;
-	int iExtra = 0;
-	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
-	{
-		iExtra = 0;
-		ImprovementTypes eImprovement = (ImprovementTypes)i;
-		if (eImprovement == NO_IMPROVEMENT)
-			continue;
-
-		int iScaleAmount = getUnitInfo().GetScalingFromOwnedImprovements(eImprovement);
-		if (iScaleAmount <= 0)
-			continue;
-
-		int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement, true);
-		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
-		iExtra /= 100;
-
-		iScaleTotal += iExtra;
-	}
-
-	return iScaleTotal;
-}
-
-//	--------------------------------------------------------------------------------
-int CvUnit::getDiscoverAmount()
-{
-	int iValue = 0;
-#if !defined(MOD_BALANCE_CORE)
-	CvPlot* pPlot = plot();
-	if(canDiscover(pPlot))
-#endif
-	{
-		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-		CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
-		if (pPlayer)
-		{
-			// Beakers boost based on previous turns
-			int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
-			iValue = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
-
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			//Let's make the GS a little more flexible.
-			if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-			{
-				//scale up our value
-				iValue = GetScaleAmount(iValue);
-			}
-#endif
-
-			if (pPlayer->GetGreatScientistBeakerMod() != 0)
-			{
-				iValue += (iValue * pPlayer->GetGreatScientistBeakerMod()) / 100;
-				iValue = MAX(iValue, 0); // Cannot be negative
-			}
-
-			// Modify based on game speed
-			iValue *= GC.getGame().getGameSpeedInfo().getResearchPercent();
-			iValue /= 100;
-		}
-	}
-	return iValue;
-}
-#if defined(MOD_BALANCE_CORE)
 bool CvUnit::greatperson()
 {
 	VALIDATE_OBJECT
@@ -11828,7 +11690,85 @@ bool CvUnit::greatperson()
 
 	return true;
 }
-#endif
+
+int CvUnit::GetScaleAmount(int iAmountToScale) const
+{
+	int iScaleTotal = iAmountToScale;
+	int iExtra = 0;
+	for (int i = 0; i < GC.getNumImprovementInfos(); i++)
+	{
+		iExtra = 0;
+		ImprovementTypes eImprovement = (ImprovementTypes)i;
+		if (eImprovement == NO_IMPROVEMENT)
+			continue;
+
+		int iScaleAmount = getUnitInfo().GetScalingFromOwnedImprovements(eImprovement);
+		if (iScaleAmount <= 0)
+			continue;
+
+		int iOwned = GET_PLAYER(getOwner()).getImprovementCount(eImprovement, true);
+		iExtra = (iOwned * iScaleAmount) * iAmountToScale;
+		iExtra /= 100;
+
+		iScaleTotal += iExtra;
+	}
+
+	return iScaleTotal;
+}
+
+/// Great Scientist Functions
+//	--------------------------------------------------------------------------------
+bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
+{
+	VALIDATE_OBJECT
+	if(getUnitInfo().GetNumFreeTechs() == 0 && getUnitInfo().GetBaseBeakersTurnsToCount() == 0)
+	{
+		return false;
+	}
+
+	if(isDelayedDeath())
+	{
+		return false;
+	}
+
+	if(!bTestVisible)
+	{
+		if(GET_PLAYER(getOwner()).getNumCities() == 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getDiscoverAmount()
+{
+	int iScience = 0;
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	if (pPlayer)
+	{
+		// Beakers boost based on previous turns (no base value)
+		int iPreviousTurnsToCount = m_pUnitInfo->GetBaseBeakersTurnsToCount();
+		if (iPreviousTurnsToCount == 0)
+			return 0;
+		
+		iScience = pPlayer->getYieldPerTurnHistory(YIELD_SCIENCE, iPreviousTurnsToCount);
+
+		// scale science by the number of academies
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+			iScience = GetScaleAmount(iScience);
+
+		// scale with game speed
+		iScience = iScience * GC.getGame().getGameSpeedInfo().getResearchPercent() / 100;
+		// scale with player traits/policies etc.
+		iScience = iScience * (100 + pPlayer->GetGreatScientistBeakerMod()) / 100;
+	}
+	return MAX(0, iScience);
+}
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::discover()
 {
@@ -11899,6 +11839,7 @@ bool CvUnit::discover()
 	return true;
 }
 
+/// Great Engineer Functions
 //	--------------------------------------------------------------------------------
 /// Can this Unit rush a Building in pCity?
 bool CvUnit::IsCanRushBuilding(CvCity* pCity, bool bTestVisible) const
@@ -12460,6 +12401,8 @@ bool CvUnit::buyCityState()
 	return true;
 }
 
+
+/// Great Admiral Functions
 //	--------------------------------------------------------------------------------
 bool CvUnit::canRepairFleet(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) const
 {
@@ -12551,6 +12494,8 @@ bool CvUnit::repairFleet()
 	return true;
 }
 
+
+/// Some Functions that let a unit create a spaceship part??
 //	--------------------------------------------------------------------------------
 /// Can this Unit build a spaceship part at pPlot??
 bool CvUnit::CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const
@@ -12590,7 +12535,6 @@ bool CvUnit::CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const
 	return true;
 }
 
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::DoBuildSpaceship()
 {
@@ -12619,6 +12563,8 @@ bool CvUnit::DoBuildSpaceship()
 	return true;
 }
 
+
+/// Great General Functions (old Great Artist function)
 //	--------------------------------------------------------------------------------
 bool CvUnit::CanCultureBomb(const CvPlot* pPlot, bool bTestVisible) const
 {
@@ -13045,6 +12991,20 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	}
 }
 
+int CvUnit::getNumberOfCultureBombs() const
+{
+	return m_iNumberOfCultureBombs;
+}
+void CvUnit::setNumberOfCultureBombs(const int iBombs)
+{
+	m_iNumberOfCultureBombs = iBombs;
+
+	if (m_iNumberOfCultureBombs < 0)
+		m_iNumberOfCultureBombs = 0;
+}
+
+
+/// Great Artist Functions
 //	--------------------------------------------------------------------------------
 bool CvUnit::canGoldenAge(const CvPlot* pPlot, bool bTestVisible) const
 {
@@ -13071,6 +13031,98 @@ bool CvUnit::canGoldenAge(const CvPlot* pPlot, bool bTestVisible) const
 	return true;
 }
 
+int CvUnit::getGAPBlast()
+{
+	int iValue = 0;
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
+	if (pPlayer)
+	{
+		// boost based on previous turns
+		int iPreviousTurnsToCount = m_pUnitInfo->GetBaseTurnsForGAPToCount();
+		if (iPreviousTurnsToCount == 0)
+			return 0;
+
+		iValue = pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
+		iValue += pPlayer->getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iPreviousTurnsToCount);
+
+		//GA Mod
+		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
+		{
+			int iTotalThemes = 0;
+			int iCityLoop;
+			// Loop through owner's cities.
+			for (CvCity* pLoopCity = pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iCityLoop))
+			{
+				if (pLoopCity != NULL)
+				{
+					iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+				}
+			}
+
+			iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
+			iValue *= (iTotalThemes + 100);
+			iValue /= 100;
+		}
+
+		if (iValue <= /*250 in CP, 200 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) /2)
+			iValue = GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) / 2;
+
+		// Modify based on game speed
+		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
+		iValue /= 100;
+	}
+	return iValue;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getGoldenAgeTurns() const
+{
+	int iGoldenAgeTurns = m_pUnitInfo->GetGoldenAgeTurns();
+
+	// Unit cannot perform a GA
+	if(iGoldenAgeTurns == 0)
+		return 0;
+
+	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+
+	int iMinTurns = /*3*/ GD_INT_GET(MIN_UNIT_GOLDEN_AGE_TURNS);
+	if(iGoldenAgeTurns < iMinTurns)
+		iGoldenAgeTurns = iMinTurns;
+
+	// Player mod
+	int iLengthModifier = kPlayer.getGoldenAgeModifier();
+
+	if(iLengthModifier > 0)
+		iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
+
+	//GA Mod
+	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
+	{
+		int iTotalThemes = 0;
+		int iCityLoop;
+		// Loop through owner's cities.
+		for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+		{
+			if (pLoopCity != NULL)
+			{
+				iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
+			}
+		}
+
+		iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
+		iGoldenAgeTurns *= (iTotalThemes + 100);
+		iGoldenAgeTurns /= 100;
+	}
+
+	// Game Speed mod
+	iGoldenAgeTurns = GC.getGame().goldenAgeLength(iGoldenAgeTurns);
+
+	if(iGoldenAgeTurns < 1)
+		iGoldenAgeTurns = 1;
+
+	return iGoldenAgeTurns;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::goldenAge()
@@ -13092,7 +13144,7 @@ bool CvUnit::goldenAge()
 	}
 
 
-	int iGoldenAgeTurns = GetGoldenAgeTurns();
+	int iGoldenAgeTurns = getGoldenAgeTurns();
 	if (iGoldenAgeTurns > 0)
 	{
 		kPlayer.changeGoldenAgeTurns(iGoldenAgeTurns, true);
@@ -13107,11 +13159,7 @@ bool CvUnit::goldenAge()
 
 	if(IsGreatPerson())
 	{
-#if defined(MOD_EVENTS_GREAT_PEOPLE)
 		kPlayer.DoGreatPersonExpended(getUnitType(), this);
-#else
-		kPlayer.DoGreatPersonExpended(getUnitType());
-#endif
 	}
 
 	kill(true);
@@ -13119,56 +13167,8 @@ bool CvUnit::goldenAge()
 	return true;
 }
 
-//	--------------------------------------------------------------------------------
-int CvUnit::GetGoldenAgeTurns() const
-{
-	int iGoldenAgeTurns = m_pUnitInfo->GetGoldenAgeTurns();
 
-	// Unit cannot perform a GA
-	if(iGoldenAgeTurns == 0)
-		return 0;
-
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
-	int iMinTurns = /*3*/ GD_INT_GET(MIN_UNIT_GOLDEN_AGE_TURNS);
-	if(iGoldenAgeTurns < iMinTurns)
-		iGoldenAgeTurns = iMinTurns;
-
-	// Player mod
-	int iLengthModifier = kPlayer.getGoldenAgeModifier();
-
-	if(iLengthModifier > 0)
-		iGoldenAgeTurns = iGoldenAgeTurns * (100 + iLengthModifier) / 100;
-
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	//GA Mod
-	if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
-	{
-		int iTotalThemes = 0;
-		int iCityLoop;
-		// Loop through owner's cities.
-		for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-		{
-			if (pLoopCity != NULL)
-			{
-				iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
-			}
-		}
-
-		iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
-		iGoldenAgeTurns *= (iTotalThemes + 100);
-		iGoldenAgeTurns /= 100;
-	}
-#endif
-	// Game Speed mod
-	iGoldenAgeTurns = GC.getGame().goldenAgeLength(iGoldenAgeTurns);
-
-	if(iGoldenAgeTurns < 1)
-		iGoldenAgeTurns = 1;
-
-	return iGoldenAgeTurns;
-}
-
+/// Great Writer Functions
 //	--------------------------------------------------------------------------------
 bool CvUnit::canGivePolicies(const CvPlot* /*pPlot*/, bool /*bTestVisible*/) const
 {
@@ -13206,7 +13206,6 @@ int CvUnit::getGivePoliciesCulture()
 			iValue = kPlayer.getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount);
 		}
 
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
 		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumGWs() > 0)
 		{
 			int iNumGreatWorks = kPlayer.GetCulture()->GetNumGreatWorks();
@@ -13214,7 +13213,6 @@ int CvUnit::getGivePoliciesCulture()
 			iValue *= (iNumGreatWorks + 100);
 			iValue /= 100;
 		}
-#endif
 
 		// Modify based on game speed
 		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
@@ -13278,6 +13276,8 @@ bool CvUnit::givePolicies()
 	return true;
 }
 
+
+/// Great Musician Functions
 //	--------------------------------------------------------------------------------
 bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 {
@@ -13327,14 +13327,71 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 //	--------------------------------------------------------------------------------
 int CvUnit::getBlastTourism()
 {
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	if (!pPlayer)
+		return 0;
+
 	if (!canBlastTourism(plot()))
 	{
 		return 0;
 	}
 
-	return GetTourismBlastStrength();
+	// Get base multiplier from unit
+	int iMultiplier = getUnitInfo().GetOneShotTourism();
+
+	if (iMultiplier <= 0)
+		return 0;
+
+	int iTourism;
+	
+	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
+	{
+		// Tourism boost based on previous turns (no base value)
+		iTourism = pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iMultiplier);
+
+		// scale with number of great works
+		CvCity *pLoopCity;
+		int iLoop;
+		for(pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+		{
+			iMultiplier += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+	}
+	else
+	{
+		iTourism = iMultiplier * pPlayer->GetCulture()->GetTourism() / 100;
+	}
+
+	// Scale by game speed
+	iTourism *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+	iTourism /= 100;
+
+	return max(iTourism, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
 }
 
+int CvUnit::getBlastTourismTurns()
+{
+	// Get Base number of turns from unit
+	int iNumTurns = m_pUnitInfo->GetTourismBonusTurns();
+
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+	if (pPlayer)
+	{
+		// scale with number of great works of music
+		CvCity* pLoopCity;
+		int iLoop;
+		for (pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+		{
+			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
+		}
+	}
+
+	// scale with game speed
+	iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iNumTurns /= 100;
+
+	return iNumTurns;
+}
 //	--------------------------------------------------------------------------------
 bool CvUnit::blastTourism()
 {
@@ -13368,7 +13425,6 @@ bool CvUnit::blastTourism()
 				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 			}
 		}
-		
 
 		// Send notifications
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -13394,7 +13450,7 @@ bool CvUnit::blastTourism()
 		}
 	}
 
-	int iTourismBlast = getBlastTourism();
+	int iTourismBlast = GetTourismBlastStrength();
 	if (iTourismBlast > 0)
 	{
 		int iTourismBlastPercentOthers = m_pUnitInfo->GetOneShotTourismPercentOthers();
@@ -13527,6 +13583,7 @@ bool CvUnit::blastTourism()
 #endif
 	return true;
 }
+
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible, bool bTestGold) const
@@ -14069,19 +14126,8 @@ void CvUnit::setBuilderStrength(const int newPower)
 	if (m_iBuilderStrength < 0) m_iBuilderStrength = 0;
 
 }
-#if defined(MOD_BALANCE_CORE)
-int CvUnit::getNumberOfCultureBombs() const
-{
-	return m_iNumberOfCultureBombs;
-}
-void CvUnit::setNumberOfCultureBombs(const int iBombs)
-{
-	m_iNumberOfCultureBombs = iBombs;
 
-	if (m_iNumberOfCultureBombs < 0)
-		m_iNumberOfCultureBombs = 0;
-}
-#endif
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const
 {
@@ -25495,18 +25541,17 @@ bool CvUnit::HasUnusedGreatWork() const
 {
 	return (HasGreatWork() && !GC.getGame().GetGameCulture()->IsGreatWorkCreated(m_eGreatWork));
 }
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetTourismBlastStrength() const
 {
 	return m_iTourismBlastStrength;
 }
-
 //	--------------------------------------------------------------------------------
 void CvUnit::SetTourismBlastStrength(int iValue)
 {
 	m_iTourismBlastStrength = iValue;
 }
-
 
 int CvUnit::GetTourismBlastLength() const
 {
@@ -25566,50 +25611,6 @@ int CvUnit::GetGAPBlastStrength() const
 void CvUnit::SetGAPBlastStrength(int iValue)
 {
 	m_iGAPBlastStrength = iValue;
-}
-int CvUnit::getGAPBlast()
-{
-	int iValue = 0;
-	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-	CvAssertMsg(pPlayer, "Owner of unit not expected to be NULL. Please send Anton your save file and version.");
-	if (pPlayer)
-	{
-		// Beakers boost based on previous turns
-		int iPreviousTurnsToCount = m_pUnitInfo->GetBaseTurnsForGAPToCount();
-		if (iPreviousTurnsToCount == 0)
-			return 0;
-
-		iValue = pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
-		iValue += pPlayer->getYieldPerTurnHistory(YIELD_GOLDEN_AGE_POINTS, iPreviousTurnsToCount);
-
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-		//GA Mod
-		if (MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES && getUnitInfo().GetScaleFromNumThemes() > 0)
-		{
-			int iTotalThemes = 0;
-			int iCityLoop;
-			// Loop through owner's cities.
-			for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-			{
-				if (pLoopCity != NULL)
-				{
-					iTotalThemes += pLoopCity->GetCityBuildings()->GetTotalNumThemedBuildings();
-				}
-			}
-
-			iTotalThemes = (iTotalThemes * getUnitInfo().GetScaleFromNumThemes());
-			iValue *= (iTotalThemes + 100);
-			iValue /= 100;
-		}
-#endif
-		if (iValue <= /*250 in CP, 200 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) /2)
-			iValue = GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS) / 2;
-
-		// Modify based on game speed
-		iValue *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iValue /= 100;
-	}
-	return iValue;
 }
 
 //	--------------------------------------------------------------------------------

@@ -300,7 +300,6 @@ public:
 	void SetTurnIdeologySwitch(int iTurn);
 	int GetTurnIdeologyAdopted() const;
 	void SetTurnIdeologyAdopted(int iTurn);
-	int GetTourismBlastStrength(int iMultiplier);
 	void AddTourismAllKnownCivs(int iTourism);
 	void AddTourismAllKnownCivsWithModifiers(int iTourism);
 	void AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eOtherPlayer, int iTourism);

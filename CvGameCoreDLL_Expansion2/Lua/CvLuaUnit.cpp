@@ -1953,7 +1953,7 @@ int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 		iResult = pkUnit->GetGAPBlastStrength();
 	}
 	else
-		iResult = pkUnit->GetGoldenAgeTurns();
+		iResult = pkUnit->getGoldenAgeTurns();
 
 	lua_pushinteger(L, iResult);
 	return 1;
