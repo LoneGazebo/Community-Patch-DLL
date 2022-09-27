@@ -6387,8 +6387,9 @@ bool CvPlot::isBlockaded(PlayerTypes eForPlayer)
 		//landmass change is equivalent to domain change
 		if (pNeighbor && pNeighbor->getLandmass() == getLandmass())
 		{
+			CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, eForPlayer, NULL, true, true);
 			//no halo around embarked units
-			if (pNeighbor->isEnemyUnit(eForPlayer, true, false, false, true))
+			if (pEnemy && pEnemy->isNativeDomain(pNeighbor) && pEnemy->canEndTurnAtPlot(this))
 				return true;
 		}
 	}

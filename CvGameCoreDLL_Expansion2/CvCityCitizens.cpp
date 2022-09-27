@@ -2595,7 +2595,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		//we added the first specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 1)
 		{
-			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
+			GetCity()->UpdateReligiousYieldFromSpecialist(true);
 			GetCity()->UpdateAllNonPlotYields(updateMode==CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
@@ -2641,16 +2641,11 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
+		GetCity()->processSpecialist(eSpecialist, -1, updateMode);
+
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 0)
-		{
-			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
-			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
-		}
-		else
-		{
-			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
-		}
+			GetCity()->UpdateReligiousYieldFromSpecialist(false);
 
 		if (updateMode==CvCity::YIELD_UPDATE_GLOBAL)
 		{
@@ -2709,6 +2704,10 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
+
+	//we removed the last specialist, this may have religious effects
+	if (iNumSpecialists>0 && GetTotalSpecialistCount() == 0)
+		GetCity()->UpdateReligiousYieldFromSpecialist(false);
 
 	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 	GetCity()->updateNetHappiness();

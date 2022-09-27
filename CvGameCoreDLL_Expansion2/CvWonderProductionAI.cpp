@@ -169,17 +169,12 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
 
 			int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
-
-#if defined(MOD_BALANCE_CORE)
-			if(iWeight > 0)
-			{
-				iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
-			}
-#endif
 			if (iWeight <= 0)
 				continue;
 
-			m_Buildables.push_back(iBldgLoop, iWeight);
+			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
+			if(iWeight > 0)
+				m_Buildables.push_back(iBldgLoop, iWeight);
 		}
 	}
 
@@ -289,11 +284,13 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 /// Check to make sure some city can build this wonder
 bool CvWonderProductionAI::HaveCityToBuild(BuildingTypes eBuilding) const
 {
+	std::vector<int> allBuildingCount = m_pPlayer->GetTotalBuildingCount();
+
 	CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity->canConstruct(eBuilding))
+		if(pLoopCity->canConstruct(eBuilding,allBuildingCount))
 		{
 			return true;
 		}

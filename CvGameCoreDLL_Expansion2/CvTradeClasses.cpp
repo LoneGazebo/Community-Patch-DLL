@@ -5396,44 +5396,27 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 		}
 	}
 
-	const CvCivilizationInfo& kCivInfo = m_pPlayer->getCivilizationInfo();
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
+		for (size_t i = 0; i < vBuildings.size(); i++)
 		{
-			BuildingTypes eBuilding = NO_BUILDING;
-
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(vBuildings[i]);
+			if (pBuildingEntry)
 			{
-				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
-			}
-			else
-			{
-				eBuilding = (BuildingTypes)kCivInfo.getCivilizationBuildings((BuildingClassTypes)iI);
-			}
-			if(eBuilding != NO_BUILDING)
-			{
-				CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-				if (!pBuildingEntry)
+				if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
 				{
-					continue;
-				}
-
-				if (pBuildingEntry)
-				{
-					if (pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
+					int iNumRouteBonus = pBuildingEntry->GetNumTradeRouteBonus();
+					if (iNumRouteBonus != 0)
 					{
-						int iNumRouteBonus = pBuildingEntry->GetNumTradeRouteBonus();
-						if (iNumRouteBonus != 0)
-						{
-							iNumRoutes += (iNumRouteBonus * pLoopCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()));
-						}
+						iNumRoutes += iNumRouteBonus * pLoopCity->GetCityBuildings()->GetNumBuilding(vBuildings[i]);
 					}
 				}
 			}
 		}
 	}
+
 #if defined(MOD_BALANCE_CORE)
 	CorporationTypes eCorporation = m_pPlayer->GetCorporations()->GetFoundedCorporation();
 	if (eCorporation != NO_CORPORATION)

@@ -867,34 +867,9 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 			else
 				continue; //no civilians!
 
-			// Resource Requirements
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			if (GC.getUnitInfo(eLoopUnit)->GetResourceType() != NO_RESOURCE)
 			{
-				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if (pkResourceInfo)
-				{
-					const int iNumResource = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityRequirement(eResource);
-
-					if (iNumResource > 0)
-					{
-						iValue += 100;
-						break;
-					}
-
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					{
-						int iNumResourceTotal = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityTotal(eResource);
-
-						if (iNumResourceTotal > 0)
-						{
-							iValue += 100;
-							break;
-						}
-					}
-#endif
-				}
+				iValue += 100;
 			}
 
 			if(kUnit.GetUnitAIType(eUnitAI))

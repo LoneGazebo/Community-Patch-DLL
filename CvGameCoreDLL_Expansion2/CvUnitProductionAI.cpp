@@ -388,37 +388,26 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Check for specific resource usage by units.
 		if(pkUnitEntry->GetSpaceshipProject() == NO_PROJECT)
 		{
-			int iResourceBonus = 0;
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			if(kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if (eResourceLoop != NO_RESOURCE)
+				//Aluminum Check
+				ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
+				if(pkUnitEntry->GetResourceQuantityRequirement(eAluminumResource) > 0)
 				{
-					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResourceLoop);
-					if(pkResourceInfo != NULL)
-					{	
-						//Aluminum Check
-						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
-						if(eResourceLoop == eAluminumResource && kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
-						{
-							if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
-							{
-								//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
-								if(kPlayer.getNumResourceAvailable(eResourceLoop, false) <= 5)
-								{
-									return SR_STRATEGY;
-								}
-							}
-						}
-						//we should really be building as many resource units as we can ... they are usually good!
-						if(pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
-						{
-							iResourceBonus += max(40, (kPlayer.getNumResourceAvailable(eResourceLoop, false) - pkUnitEntry->GetResourceQuantityRequirement(iResourceLoop)) * 40);
-						}
+					//We need at least 4 aluminum to get off the planet, so let's save that much if we've got the Apollo.
+					if(kPlayer.getNumResourceAvailable(eAluminumResource, false) <= 5)
+					{
+						return SR_STRATEGY;
 					}
 				}
 			}
-			iBonus += iResourceBonus;
+
+			ResourceTypes eNeededResource = (ResourceTypes)pkUnitEntry->GetResourceType();
+			if (eNeededResource != NO_RESOURCE)
+			{	
+				//if we have a lot of the resource, we should spend it ... the units are usually good
+				iBonus += max(40, (kPlayer.getNumResourceAvailable(eNeededResource, false) - pkUnitEntry->GetResourceQuantityRequirement(eNeededResource)) * 40);
+			}
 		}
 
 		///////////////
@@ -1221,6 +1210,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				}
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
+					//Simplification - errata yields not worth considering.
+					if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+						break;
+
 					const YieldTypes eYield = static_cast<YieldTypes>(iI);
 					if(eYield != NO_YIELD)
 					{
@@ -1368,7 +1361,11 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 		}
+
 		//Promotion Bonus
+		//disabled for performance, bonus is very small, doesn't matter in the end
+
+		/*
 		int iPromotionBonus = 0;
 		for(int iI = 0; iI < GC.getNumPromotionInfos() && bCombat; iI++)
 		{
@@ -1411,6 +1408,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iBonus += iPromotionBonus;
 		}
+		*/
 	
 		//Uniques? They're generally good enough to spam.
 		if(kPlayer.getCivilizationInfo().isCivilizationUnitOverridden(pkUnitEntry->GetUnitClassType()))

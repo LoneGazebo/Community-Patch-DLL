@@ -969,11 +969,6 @@ void CvGame::regenerateMap()
 //	--------------------------------------------------------------------------------
 void CvGame::DoGameStarted()
 {
-	// Are features clearable?
-	BuildTypes eBuild;
-	int iBuildLoop;
-	bool bTempClearable;
-
 	//consistency check for map
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -981,17 +976,15 @@ void CvGame::DoGameStarted()
 		pLoopPlot->Validate( GC.getMap() );
 	}
 
-	FeatureTypes eFeature;
 	for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
 	{
-		eFeature = (FeatureTypes) iFeatureLoop;
-
-		bTempClearable = false;
+		FeatureTypes eFeature = (FeatureTypes) iFeatureLoop;
+		bool bTempClearable = false;
 
 		// Check unit build actions to see if any of them clear this feature
-		for(iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
+		for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
 		{
-			eBuild = (BuildTypes) iBuildLoop;
+			BuildTypes eBuild = (BuildTypes) iBuildLoop;
 			CvBuildInfo* pBuildInfo = GC.getBuildInfo(eBuild);
 
 			// Feature can be removed by this build
@@ -1006,6 +999,16 @@ void CvGame::DoGameStarted()
 			if(bTempClearable)
 				break;
 		}
+	}
+
+	//performance optimization for city production AI
+	int iNumBuildingInfos = GC.getNumBuildingInfos();
+	for (int iI = 0; iI < iNumBuildingInfos; iI++)
+	{
+		BuildingTypes eBuilding = (BuildingTypes)iI;
+		CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
+		if (pBuilding)
+			pBuilding->UpdateUnitTypesUnlocked();
 	}
 
 #if defined(MOD_BALANCE_CORE)

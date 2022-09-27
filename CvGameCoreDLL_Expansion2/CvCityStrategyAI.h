@@ -325,7 +325,9 @@ bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
 
 
-int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iFlatYield);
+int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, 
+	const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+	YieldTypes eYield, int& iFlatYield);
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);

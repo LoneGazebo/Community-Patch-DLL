@@ -87,9 +87,17 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 	for(int iTech = 0; iTech < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTech++)
 	{
 		const TechTypes eTech = static_cast<TechTypes>(iTech);
+
+		if (m_pCurrentTechs->GetPlayer()->HasTech(eTech))
+			continue;
+
 		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
 		if(entry)
 		{			
+			// Ignore techs in the far future
+			if (entry->GetEra() - m_pCurrentTechs->GetPlayer()->GetCurrentEra() > GD_INT_GET(NUM_OR_TECH_PREREQS))
+				continue;
+
 			// Set its weight by looking at tech's weight for this flavor and using iWeight multiplier passed in
 			int iTechWeight = entry->GetFlavorValue(eFlavor) * iWeight;
 
@@ -295,7 +303,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		return;
 
 	// Loop through all prerequisites
-	vector<int> prereqTechs;
+	int iPrereqCount = 0;
 	for(int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
 	{
 		// Did we find a prereq?
@@ -303,21 +311,26 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		if (iPrereq == NO_TECH)
 			break;
 
-		prereqTechs.push_back(iPrereq);
+		iPrereqCount++;
 	}
 
 	//nothing to do
-	if (prereqTechs.empty())
+	if (iPrereqCount==0)
 		return;
 
 	//split it evenly
 	int iPropagatedWeight = (iWeight * iPropagationPercent) / 100;
 	if (!pkTechInfo->IsRepeat())
-		iPropagatedWeight /= prereqTechs.size();
+		iPropagatedWeight /= iPrereqCount;
 
 	//next level of recursion
-	for (size_t i = 0; i < prereqTechs.size(); i++)
-		PropagateWeights(prereqTechs[i], iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
+	for (int iI = 0; iI < /*6*/ GD_INT_GET(NUM_AND_TECH_PREREQS); iI++)
+	{
+		// Did we find a prereq?
+		int iPrereq = pkTechInfo->GetPrereqAndTechs(iI);
+		if (iPrereq != NO_TECH)
+			PropagateWeights(iPrereq, iPropagatedWeight, iPropagationPercent, iPropagationLevel++);
+	}
 }
 
 /// Recompute weights taking into account tech cost

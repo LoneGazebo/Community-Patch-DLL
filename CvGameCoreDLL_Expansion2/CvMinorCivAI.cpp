@@ -8780,7 +8780,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 			if(pLoopPlot != NULL)
 			{
 				// Camp must be in the same landmass
-				if(!pCapital->HasAccessToLandmass(pLoopPlot->getLandmass()))
+				if(pCapital->plot()->getLandmass() != pLoopPlot->getLandmass())
 				{
 					continue;
 				}
@@ -9336,6 +9336,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 	int iCompletionThreshold = /*25*/ GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD);
 	bool bFoundWonderTooFarAlong;
 
+	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 	// Loop through all Buildings and see if they're useful
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -9355,7 +9356,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 		}
 
 		// Must be able to build it
-		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding))
+		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding,allBuildingCount))
 		{
 			continue;
 		}
@@ -9414,6 +9415,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 
 	int iWorldPlayerLoop;
 	PlayerTypes eWorldPlayer;
+	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 
 	// Loop through all Buildings and see if they're useful
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -9457,7 +9459,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 #endif
 
 		// Must be able to build it
-		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding))
+		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding,allBuildingCount))
 		{
 			continue;
 		}
@@ -9938,6 +9940,8 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		return NO_BUILDING;
 	}
 
+	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
+
 	// Loop through all Buildings and see if they're useful
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
@@ -9966,13 +9970,10 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		bool bBad = false;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity, true))
 		{
-			if(pLoopCity != NULL)
+			if(!pLoopCity->canConstruct(eBuilding,allBuildingCount))
 			{
-				if(!pLoopCity->canConstruct(eBuilding))
-				{
-					bBad = true;
-					break;
-				}
+				bBad = true;
+				break;
 			}
 		}
 		// Must be able to build it in all cities.

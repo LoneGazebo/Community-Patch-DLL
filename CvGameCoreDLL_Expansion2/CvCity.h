@@ -58,6 +58,16 @@ struct SCityEventYields
 	vector<pair<FeatureTypes, int>> forFeature;
 };
 
+struct SPlotStats
+{
+	SPlotStats();
+
+	vector<int> vTerrainCount;
+	vector<int> vFeatureCount;
+	vector<int> vResourceCount;
+	vector<int> vImprovementCount;
+};
+
 class CvCity
 {
 
@@ -453,6 +463,7 @@ public:
 	bool canConscript() const;
 	void conscript();
 
+	SPlotStats getPlotStats() const;
 	int getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const;
 
 	void processResource(ResourceTypes eResource, int iChange);
@@ -465,6 +476,7 @@ public:
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange, eUpdateMode updateMode);
 
 	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields = true);
+	void UpdateReligiousYieldFromSpecialist(bool bFirstOneAdded);
 
 #if defined(MOD_BALANCE_CORE)
 	bool HasPaidAdoptionBonus(ReligionTypes eReligion) const;

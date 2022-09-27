@@ -8922,23 +8922,13 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 
 
 //	--------------------------------------------------------------------------------
+// slow version to call for a single building in a single city
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
 {
-	std::vector<int> vTotalBuildingCount(GC.getNumBuildingInfos(), 0);
-	int iLoop;
-	for (const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if (pLoopCity && !pLoopCity->IsPuppet())
-		{
-			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
-			for (size_t i = 0; i < vBuildings.size(); i++)
-				vTotalBuildingCount[vBuildings[i]]++;
-		}
-	}
-
-	return canConstruct(eBuilding, vTotalBuildingCount, bContinue, bTestVisible, bIgnoreCost, bWillPurchase, toolTipSink);
+	return canConstruct(eBuilding, GET_PLAYER(m_eOwner).GetTotalBuildingCount(), bContinue, bTestVisible, bIgnoreCost, bWillPurchase, toolTipSink);
 }
 
+//fast version to call in loops over building types / cities
 bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreExistingBuildings, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
 {
 	if (eBuilding == NO_BUILDING)
@@ -14057,6 +14047,42 @@ void CvCity::conscript()
 	}
 }
 
+SPlotStats::SPlotStats():
+	vTerrainCount( GC.getNumTerrainInfos(), 0 ),
+	vFeatureCount( GC.getNumFeatureInfos(), 0 ),
+	vResourceCount( GC.getNumResourceInfos(), 0 ),
+	vImprovementCount( GC.getNumImprovementInfos(), 0 )
+{
+}
+
+SPlotStats CvCity::getPlotStats() const
+{
+	SPlotStats result;
+
+	for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
+
+		// Invalid plot or not owned by this city
+		if (pLoopPlot == NULL || pLoopPlot->getOwningCityID() != GetID())
+			continue;
+
+		if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			result.vImprovementCount[pLoopPlot->getImprovementType()]++;
+
+		if (pLoopPlot->getTerrainType() != NO_TERRAIN)
+			result.vTerrainCount[pLoopPlot->getTerrainType()]++;
+
+		if (pLoopPlot->getFeatureType() != NO_FEATURE)
+			result.vFeatureCount[pLoopPlot->getFeatureType()]++;
+
+		if (pLoopPlot->getResourceType()!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+			result.vResourceCount[pLoopPlot->getResourceType(getTeam())]++;
+	}
+
+	return result;
+}
+
 //	--------------------------------------------------------------------------------
 int CvCity::getResourceYieldRateModifier(YieldTypes eIndex, ResourceTypes eResource) const
 {
@@ -16135,6 +16161,25 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 		UpdateAllNonPlotYields(true);
 	else if (updateMode == CvCity::YIELD_UPDATE_LOCAL)
 		UpdateAllNonPlotYields(false);
+}
+
+//very reduced version of UpdateReligion() which assumes only the number of specialists changed
+void CvCity::UpdateReligiousYieldFromSpecialist(bool bFirstOneAdded)
+{
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion( GetCityReligions()->GetReligiousMajority(), getOwner() );
+	if (pReligion)
+	{
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			int iChange = pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield, getOwner(), this);
+
+			//surgically add or remove some yields but don't recalculate from scratch
+			if (bFirstOneAdded)
+				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, +iChange);
+			else
+				ChangeBaseYieldRateFromReligion((YieldTypes)iYield, -iChange);
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -25146,14 +25191,9 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
 
-	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
-	{
-		FeatureTypes eFeature = (FeatureTypes)iI;
-		if (eFeature != NO_FEATURE)
-		{
-			iValue += GetYieldPerTurnFromUnimprovedFeatures(eFeature, eIndex);
-		}
-	}
+	const SCityExtraYields& yieldChanges = GetYieldChanges(eIndex);
+	for (size_t iI = 0; iI < yieldChanges.forFeature.size(); iI++)
+		iValue += yieldChanges.forFeature[iI].second;
 
 	iValue += GetBaseYieldRateFromBuildings(eIndex);
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
@@ -25165,8 +25205,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetYieldFromMinors(eIndex);
 	iValue += GetYieldPerTurnFromTraits(eIndex);
 	iValue += GetYieldChangeFromCorporationFranchises(eIndex);
-#endif
-#if defined(MOD_BALANCE_CORE)
 	iValue += GetEventCityYield(eIndex);
 #endif
 

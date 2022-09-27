@@ -144,8 +144,16 @@ void CvBuildingProductionAI::LogPossibleBuilds()
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-/// Do all building sanity stuff here.
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
+	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
+{
+	SPlotStats plotStats = m_pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(m_pCity->getOwner()).GetTotalBuildingCount();
+	return CheckBuildingBuildSanity(eBuilding, iValue, plotStats, allExistingBuildings, bNoBestWonderCityCheck, bFreeBuilding, bIgnoreSituational);
+}
+
+/// Do all building sanity stuff here.
+int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
 	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
@@ -454,15 +462,21 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		iBonus += kPlayer.GetUnhappiness() * 10;
 		bGoodforHappiness = true;
 	}
-	if (kPlayer.IsEmpireUnhappy())
-	{
-		int iNumBuildingInfos = GC.getNumBuildingInfos();
-		for(int iI = 0; iI < iNumBuildingInfos; iI++)
-		{
-			const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-			if(eBuildingLoop == NO_BUILDING)
-				continue;
 
+	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+	{
+		const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
+		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding(eBuildingLoop, pkBuildingInfo->GetBuildingClassType());
+		//need in all?
+		if (iNumNeeded > 0)
+		{
+			int iNumHave = kPlayer.getNumBuildings(eBuilding);
+			iBonus += iNumNeeded * max(1, iNumHave) * 100;
+		}
+
+		if (kPlayer.IsEmpireUnhappy())
+		{
 			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 			if(pkLoopBuilding)
 			{
@@ -705,25 +719,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-
-	//unfortunately we have to loop through all buildings in the game to do this. Sigh...
-	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
-	{
-		int iNumNeeded = kPlayer.getBuildingClassPrereqBuilding((BuildingTypes)iI, pkBuildingInfo->GetBuildingClassType());
-		//need in all?
-		if (iNumNeeded > 0)
-		{
-			int iNumHave = kPlayer.getNumBuildings(eBuilding);
-			iBonus += iNumNeeded * max(1, iNumHave) * 100;
-		}
-	}
-
 	//unlocks a unit?
-	for (int i = 0; i < GC.getNumUnitInfos(); i++)
+	const vector<UnitTypes>& vUnits = pkBuildingInfo->GetUnitsUnlocked();
+	for (size_t i = 0; i < vUnits.size(); i++)
 	{
-		const UnitTypes eUnit = static_cast<UnitTypes>(i);
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if (pkUnitInfo && pkUnitInfo->GetBuildingClassRequireds(pkBuildingInfo->GetBuildingClassType()))
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(vUnits[i]);
+		if (pkUnitInfo)
 		{
 			if (pkUnitInfo->GetPrereqAndTech() == NO_TECH)
 				iBonus += 1000;
@@ -877,7 +878,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iAvgGPT = kPlayer.GetTreasury()->AverageIncome100(10) / 100;
 	YieldTypes eFocusYield = m_pCity->GetCityCitizens()->GetFocusTypeYield(m_pCity->GetCityCitizens()->GetFocusType());
 
-	int iTotalYield = 0;
 	bool bSmall = m_pCity->getPopulation() <= 10;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -894,10 +894,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
 			continue;
 
-		int iFlatYield = 0;
-		int iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, eYield, iFlatYield);
-		iTotalYield += iFlatYield;
-
+		int iDummyFlatYield = 0;
+		int iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, plotStats, allExistingBuildings, eYield, iDummyFlatYield);
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding, iYieldValue);
 		int iHappinessReduction = pkBuildingInfo->GetUnhappinessNeedsFlatReduction(eYield);
 
@@ -1031,14 +1029,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			return SR_MAINTENCANCE;
 		}
 
-		/*
 		// it would be useful to have a check whether a building is worth building at all (eg skip hotel in a city without culture)
 		// however yields are not everything (eg growth bonus, resources etc). so it's difficult to write down a good condition ...
-		if (iTotalYield < pkBuildingInfo->GetGoldMaintenance() * 3 && pkBuildingInfo->GetDefenseModifier() == 0)
-		{
-			return SR_USELESS;
-		}
-		*/
 	}
 
 	/////////
@@ -1066,20 +1058,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			WarPenalty += 50 + m_pCity->getThreatValue();
 
-			if (bDanger)
-			{
-				WarPenalty += 25;
-			}
-
-			int iCityLoop;
-			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
-			{
-				if (pLoopCity->isUnderSiege())
-				{
-					WarPenalty += 25;
-				}
-			}
-
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -1088,7 +1066,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					if (kPlayer.GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_STALEMATE)
 					{
-						WarPenalty += 25;
+						WarPenalty += 50;
 					}
 				}
 			}
