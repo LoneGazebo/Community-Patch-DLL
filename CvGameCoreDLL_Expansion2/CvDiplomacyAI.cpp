@@ -28821,7 +28821,6 @@ void CvDiplomacyAI::DoFirstContactInitRelationship(PlayerTypes ePlayer)
 	if (GC.getGame().isFinalInitialized())
 	{
 		DoUpdateConquestStats();
-		DoUpdatePlayerMilitaryStrengths();
 		DoUpdatePlayerEconomicStrengths();
 		DoUpdatePlayerTargetValues();
 		DoUpdateMilitaryAggressivePostures();
