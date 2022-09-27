@@ -210,7 +210,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Policies/Rationalism/RationalismChanges.sql</FileName>
+        <FileName>Balance Changes/Policies/Rationalism/Rationalism.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -2659,7 +2659,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Policies\Rationalism\RationalismChanges.sql">
+    <Content Include="Balance Changes\Policies\Rationalism\Rationalism.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
