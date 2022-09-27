@@ -5805,9 +5805,9 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 
 		// Don't go out of our way to buy luxuries unless we have a reason to desire them.
 		int iEra = GC.getGame().getCurrentEra();
-		int OneGPT = GC.getGame().getDealDuration();
+		int OneGPT = GC.getGame().GetDealDuration();
 		int OneGPTScaled = OneGPT * max(iEra, 1);
-		if (iBestValue < (OneGPTScaled + OneGPT))
+		if (iBestValue < (OneGPTScaled + OneGPT + OneGPT))
 			return false;
 
 		// Seed the deal with the item we want

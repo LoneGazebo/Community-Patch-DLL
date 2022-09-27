@@ -370,7 +370,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Ideologies/Order/OrderChanges.sql</FileName>
+        <FileName>Balance Changes/Ideologies/Order/Order.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -655,267 +655,267 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Gameplay/CSDTable.sql</Filename>
+        <FileName>CSD/Gameplay/CSDTable.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Options.sql</Filename>
+        <FileName>CSD/Options.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Art/XML/Icons.xml</Filename>
+        <FileName>CSD/Art/XML/Icons.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Art/ArtInfo.sql</Filename>
+        <FileName>CSD/Art/ArtInfo.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Buildings/BuildingRules.sql</Filename>
+        <FileName>CSD/Buildings/BuildingRules.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Buildings/DiploBuildingText.sql</Filename>
+        <FileName>CSD/Buildings/DiploBuildingText.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Gameplay/Gameplay.sql</Filename>
+        <FileName>CSD/Gameplay/Gameplay.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Gameplay/GameplayText.sql</Filename>
+        <FileName>CSD/Gameplay/GameplayText.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Gameplay/GoldGifts.sql</Filename>
+        <FileName>CSD/Gameplay/GoldGifts.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Units/CSD_UnitGoldCost.sql</Filename>
+        <FileName>CSD/Units/CSD_UnitGoldCost.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/World Congress/CongressTurns.sql</Filename>
+        <FileName>CSD/World Congress/CongressTurns.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/World Congress/IdeologyChanges.sql</Filename>
+        <FileName>CSD/World Congress/IdeologyChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Buildings/BuildingText.xml</Filename>
+        <FileName>CSD/Buildings/BuildingText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Buildings/CSDBuildings.xml</Filename>
+        <FileName>CSD/Buildings/CSDBuildings.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Buildings/BuildingGrowthYield.xml</Filename>
+        <FileName>CSD/Buildings/BuildingGrowthYield.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Improvements/Build.xml</Filename>
+        <FileName>CSD/Improvements/Build.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Improvements/Improvements.xml</Filename>
+        <FileName>CSD/Improvements/Improvements.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Improvements/ImprovementText.xml</Filename>
+        <FileName>CSD/Improvements/ImprovementText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Units/GreatDiplomats.xml</Filename>
+        <FileName>CSD/Units/GreatDiplomats.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Units/CSD_Units.xml</Filename>
+        <FileName>CSD/Units/CSD_Units.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Units/CSD_AI.xml</Filename>
+        <FileName>CSD/Units/CSD_AI.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Units/CSD_UnitText.xml</Filename>
+        <FileName>CSD/Units/CSD_UnitText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Promotions/Promotions.xml</Filename>
+        <FileName>CSD/Promotions/Promotions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Promotions/PromotionText.xml</Filename>
+        <FileName>CSD/Promotions/PromotionText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Quests/CityStateQuest.xml</Filename>
+        <FileName>CSD/Quests/CityStateQuest.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Resource/Paper.xml</Filename>
+        <FileName>CSD/Resource/Paper.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Specialist/CivilServant.xml</Filename>
+        <FileName>CSD/Specialist/CivilServant.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/World Congress/Congress.xml</Filename>
+        <FileName>CSD/World Congress/Congress.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/World Congress/Projects.xml</Filename>
+        <FileName>CSD/World Congress/Projects.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>CSD/Gameplay/UpdateDefines.sql</Filename>
+        <FileName>CSD/Gameplay/UpdateDefines.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/SQL/NewColumns.sql</Filename>
+        <FileName>C4DF/SQL/NewColumns.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Gameplay/C4DFConcepts.xml</Filename>
+        <FileName>C4DF/XML/Gameplay/C4DFConcepts.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Gameplay/C4DFDiplomacyResponses.xml</Filename>
+        <FileName>C4DF/XML/Gameplay/C4DFDiplomacyResponses.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Gameplay/C4DFGameOptions.xml</Filename>
+        <FileName>C4DF/XML/Gameplay/C4DFGameOptions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Gameplay/C4DFResolutions.xml</Filename>
+        <FileName>C4DF/XML/Gameplay/C4DFResolutions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Text/en_US_Text_CivilopediaC4DF.xml</Filename>
+        <FileName>C4DF/XML/Text/en_US_Text_CivilopediaC4DF.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Text/en_US_Text_Generic_DiplomacyC4DF.xml</Filename>
+        <FileName>C4DF/XML/Text/en_US_Text_Generic_DiplomacyC4DF.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>C4DF/XML/Text/en_US_Text_UIC4DF.xml</Filename>
+        <FileName>C4DF/XML/Text/en_US_Text_UIC4DF.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Art/Resources/NewLuxuries_Art_Icons.xml</Filename>
+        <FileName>Art/Resources/NewLuxuries_Art_Icons.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Art/Resources/NewLuxuries_Art_Terrain.xml</Filename>
+        <FileName>Art/Resources/NewLuxuries_Art_Terrain.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Balance Changes/Terrain/NewLuxuries_Resources.xml</Filename>
+        <FileName>Balance Changes/Terrain/NewLuxuries_Resources.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Balance Changes/Terrain/NewLuxuries_Text.xml</Filename>
+        <FileName>Balance Changes/Terrain/NewLuxuries_Text.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Balance Changes/Terrain/NewFarmResources.sql</Filename>
+        <FileName>Balance Changes/Terrain/NewFarmResources.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Balance Changes/Terrain/NewFarmResources_Text.xml</Filename>
+        <FileName>Balance Changes/Terrain/NewFarmResources_Text.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/CSD/CSDCompatibility.sql</Filename>
+        <FileName>Compatibility/CSD/CSDCompatibility.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/Corporations/Corporations.sql</Filename>
+        <FileName>Compatibility/Corporations/Corporations.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/C4DFCompatibility/C4DFCompatibility.sql</Filename>
+        <FileName>Compatibility/C4DFCompatibility/C4DFCompatibility.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/MoreLuxuries/MoreLuxuries.sql</Filename>
+        <FileName>Compatibility/MoreLuxuries/MoreLuxuries.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/Corporations/Text/CorpText_en_US.sql</Filename>
+        <FileName>Compatibility/Corporations/Text/CorpText_en_US.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/Corporations/Text/CorpText_en_US.xml</Filename>
+        <FileName>Compatibility/Corporations/Text/CorpText_en_US.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</Filename>
+        <FileName>Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</Filename>
+        <FileName>Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <Filename>Compatibility/MoreLuxuries/Text/Text_en_US.sql</Filename>
+        <FileName>Compatibility/MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
     </ModActions>
     <ModReferences />
@@ -2583,7 +2583,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Ideologies\Order\OrderChanges.sql">
+    <Content Include="Balance Changes\Ideologies\Order\Order.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
