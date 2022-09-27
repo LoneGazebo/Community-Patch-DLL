@@ -10247,8 +10247,8 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
 				continue;
 
-			if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
-				continue;
+			//if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
+				//continue;
 
 			if (bCurrentResourceInvalid && ePreviousResource == eResource)
 				continue;
@@ -10359,7 +10359,7 @@ void CvCity::DoTestResourceDemanded()
 			// Do we have the right Resource?
 			if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
 			{
-				int iWLTKD = /*20*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
+				int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
 

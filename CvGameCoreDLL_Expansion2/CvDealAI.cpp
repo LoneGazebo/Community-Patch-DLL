@@ -1489,18 +1489,16 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	// VP calculation
 	if (MOD_BALANCE_VP)
 	{
-		// When a luxury is not needed (for WLTKD or CS quest) and civ is happy, a new lux is only worth 2-3 global happiness = 2-3 golden age points and 2% growth in 2-3 cities...
-		// at the cost of potentially making future luxury requests more difficult compared to buying the lux when needed. The aim of this rework is to only let REQUIRED luxury trades go through
-		// at a reasonable price, and unneeded trades rejected due to low price AND the potential of a high price if the seller waits.
 		int iEra = GC.getGame().getCurrentEra();
 		int OneGPT = iNumTurns;
 		int OneGPTScaled = iNumTurns * max(iEra, 1);
 
+		// Base value
+		int iItemValue = OneGPTScaled + OneGPT;
+
 		// We are selling!
 		if (bFromMe)
 		{
-			int iItemValue = (iBaseHappiness + max(iEra, 0)) * OneGPT;
-
 			if (iNumAvailableToUs == 1)
 			{
 				// Don't sell our last copy if already unhappy
@@ -1520,83 +1518,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				}
 
 				// Extra value for the last copy
-				iItemValue += OneGPTScaled * 2;
-
-				int iWLTKD = /*20*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
-				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iWLTKD /= 100;
-
-				// Plus add additional value based on any extra bonuses we get from WLTKD
-				if (iWLTKD > 0)
-				{
-					// First, check how long it would take us to regain this luxury if we traded it away.
-					int iTurnsUntilRegained = GC.getGame().GetGameDeals().GetTurnsBeforeRegainingLuxury(GetPlayer()->GetID(), eResource);
-					double dN = iTurnsUntilRegained / iWLTKD; // n = Estimated number of times each city will ask for this resource
-
-					// Second, tally up how many resources there are in the world.
-					int iNumResourcesInWorld = 0;
-					int iNumResourcesWeHave = 0;
-					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-					for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						ResourceTypes eLoopResource = (ResourceTypes)iResourceLoop;
-
-						// Is this a Luxury Resource?
-						CvResourceInfo* pkResource = GC.getResourceInfo(eLoopResource);
-						if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-						{
-							// Is the Resource actually on the map?
-							if (GC.getMap().getNumResources(eLoopResource) <= 0)
-								continue;
-
-							if (pLeague && pLeague->IsLuxuryHappinessBanned(eLoopResource))
-								continue;
-
-							iNumResourcesInWorld++;
-
-							if (GetPlayer()->getNumResourceAvailable(eLoopResource, true) > 0)
-								iNumResourcesWeHave++;
-						}
-					}
-					double dP = iNumResourcesWeHave / iNumResourcesInWorld;
-
-					// Third, tally up the total modifiers each city gets.
-					int iTotalModifier = 0;
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
-					for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-					{
-						YieldTypes eYield = (YieldTypes) iYieldLoop;
-
-						//Simplification - errata yields not worth considering.
-						if (eYield > YIELD_GOLDEN_AGE_POINTS)
-							continue;
-
-						// Do we have any WLTKD modifiers at the player level?
-						int iPlayerModifier = GetPlayer()->GetYieldFromWLTKD(eYield);
-						if (eYield == YIELD_CULTURE)
-							iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetWLTKDCulture();
-						else if (eYield == YIELD_FOOD)
-							iPlayerModifier += GetPlayer()->GetPlayerTraits()->GetGrowthBoon();
-
-						// Do we have any WLTKD modifiers at the city level?
-						int iLoop;
-						for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
-						{
-							if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-								continue;
-
-							int iCityModifier = iPlayerModifier; // Add the player modifier for each city
-							iCityModifier += pLoopCity->GetYieldFromWLTKD(eYield);
-							if (pReligion)
-								iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
-
-							iTotalModifier += iCityModifier * iEra;
-						}
-					}
-
-					double dModifierValue = (iTotalModifier * OneGPT * (1 - (pow((1 - dP), dN)))) / 10;
-					iItemValue += (int)dModifierValue;
-				}
+				iItemValue += OneGPTScaled * (iBaseHappiness + 2);
 			}
 
 			// Netherlands sells resources more cheaply
@@ -1669,8 +1591,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		// We are buying!
 		else
 		{
-			int iItemValue = 0; // Base value is 0 - there has to be some reason for the AI to buy this resource
-
 			// Goddess of Festivals bonus
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
 			if (pReligion)
@@ -1854,16 +1774,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						}
 					}
 				}
-			}
-
-			// Worth nothing? The AI doesn't want it, then!
-			if (iItemValue <= 0)
-			{
-				// Still somewhat valuable to the Netherlands
-				if (GetPlayer()->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
-					return OneGPTScaled;
-				else
-					return INT_MAX;
 			}
 
 			//How much is THEIR stuff worth?
@@ -5893,14 +5803,12 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 			return false;
 		}
 
-		// Don't send humans low value requests.
-		if (GET_PLAYER(eOtherPlayer).isHuman())
-		{
-			int iEra = GC.getGame().getCurrentEra();
-			int OneGPTScaled = GC.getGame().GetDealDuration() * max(iEra, 1);
-			if (iBestValue < (OneGPTScaled * 2))
-				return false;
-		}
+		// Don't go out of our way to buy luxuries unless we have a reason to desire them.
+		int iEra = GC.getGame().getCurrentEra();
+		int OneGPT = GC.getGame().getDealDuration();
+		int OneGPTScaled = OneGPT * max(iEra, 1);
+		if (iBestValue < (OneGPTScaled + OneGPT))
+			return false;
 
 		// Seed the deal with the item we want
 		pDeal->AddResourceTrade(eOtherPlayer, eLuxuryFromThem, 1, GC.getGame().GetDealDuration());
