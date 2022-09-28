@@ -2674,7 +2674,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 						{
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
 							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
-							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationAdjectiveKey();
 							strBuffer << pInterceptionCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
 						}
@@ -2896,7 +2896,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED_S");
 				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED");
-				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationAdjectiveKey();
 				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
 			}
 		}

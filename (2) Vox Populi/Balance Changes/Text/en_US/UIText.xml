@@ -780,7 +780,7 @@
 			<Text>Tour of {1_PlayerAdj} lands completed!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET">
-			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {1_PlayerAdj} gains +[COLOR_NEGATIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with you for [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] Turns.</Text>
+			<Text>{1_PlayerAdj} musicians recently toured your empire, and were warmly received. {2_Player} gains +[COLOR_NEGATIVE_TEXT]100%[ENDCOLOR] [ICON_TOURISM] Tourism with you for [COLOR_NEGATIVE_TEXT]{3_Num}[ENDCOLOR] Turns.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S">
 			<Text>{1_PlayerName} Musicians arrive!</Text>

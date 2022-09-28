@@ -13386,6 +13386,7 @@ bool CvUnit::blastTourism()
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET");
 			localizedText << kUnitOwner.getCivilizationAdjectiveKey();
+			localizedText << kUnitOwner.getCivilizationShortDescriptionKey();
 			localizedText << GetTourismBlastLength();
 			Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_MUSICIAN_TOUR_TURNS_TARGET_S");
 			localizedSummary << kUnitOwner.getCivilizationAdjectiveKey();
