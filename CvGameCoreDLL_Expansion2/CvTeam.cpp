@@ -3218,9 +3218,6 @@ bool CvTeam::addPlayer(PlayerTypes eID)
 	if (eID==NO_PLAYER)
 		return false;
 
-	if (!GET_PLAYER(eID).isAlive())
-		return false;
-
 	bool bPlayerAdded = false;
 
 	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
