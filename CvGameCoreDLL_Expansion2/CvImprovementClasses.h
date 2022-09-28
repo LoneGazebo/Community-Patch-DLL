@@ -378,7 +378,7 @@ public:
 	std::vector<CvImprovementEntry*>& GetImprovementEntries();
 	int GetNumImprovements();
 	_Ret_maybenull_ CvImprovementEntry* GetEntry(int index);
-	CvImprovementEntry* GetImprovementForResource(int eResource);
+	class CvImprovementEntry* GetImprovementForResource(int eResource);
 
 	// Binary cache functions
 	void DeleteArray();
