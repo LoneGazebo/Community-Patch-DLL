@@ -269,7 +269,7 @@ public:
 	};
 
 private:
-	vector<WeightedElement> m_items;
+	std::vector<WeightedElement> m_items;
 };
 
 //-------------------------------
