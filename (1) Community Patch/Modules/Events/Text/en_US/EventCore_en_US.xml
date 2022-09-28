@@ -104,10 +104,10 @@
 		</Row>
 		<!-- Espionage Version FAILURE -->
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {5_CivAdj}} spies [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
+			<Text>{5_CivAdj} spies [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_CivAdj}} Operatives Thwarted in {1_City}!</Text>
+			<Text>{2_CivAdj} Operatives Thwarted in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE_UNKNOWN">
 			<Text>Unknown foreign operatives [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Action in {4_City}: '{3_Event}'.[NEWLINE][NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
@@ -128,13 +128,13 @@
 			<Text>{4_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE] {1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE">
-			<Text>{2_CivAdj} Operatives Succeed in {1_City}!</Text>
+			<Text>{2_CivAdj} Operatives Succeeded in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
 			<Text>Unknown foreign operatives [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN">
-			<Text>Unknown Foreign Operatives Succeed in {1_City}!</Text>
+			<Text>Unknown Foreign Operatives Succeeded in {1_City}!</Text>
 		</Row>
 		
 
