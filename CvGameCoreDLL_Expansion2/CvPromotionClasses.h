@@ -95,8 +95,9 @@ public:
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
 	int  GetAttackFullyHealedMod() const;
-	int GetAttackAboveHealthMod() const;
-	int GetAttackBelowHealthMod() const;
+	int  GetAttackAboveHealthMod() const;
+	int  GetAttackBelowHealthMod() const;
+	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
@@ -105,10 +106,10 @@ public:
 	int  GetExtraAttacks() const;
 	bool IsGreatGeneral() const;
 	bool IsGreatAdmiral() const;
-	int GetAuraRangeChange() const;
-	int GetAuraEffectChange() const;
-	int GetNumRepairCharges() const;
-	int GetMilitaryCapChange() const;
+	int  GetAuraRangeChange() const;
+	int  GetAuraEffectChange() const;
+	int  GetNumRepairCharges() const;
+	int  GetMilitaryCapChange() const;
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
 	int  GetGreatGeneralCombatModifier() const;
@@ -412,6 +413,7 @@ protected:
 	int m_iAttackFullyHealedMod;
 	int m_iAttackAboveHealthMod;
 	int m_iAttackBelowHealthMod;
+	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;

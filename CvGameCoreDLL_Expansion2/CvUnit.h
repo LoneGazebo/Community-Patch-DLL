@@ -1335,12 +1335,14 @@ public:
 	int getExtraAttackFullyHealedMod() const;
 	void changeExtraAttackFullyHealedMod(int iChange);
 
-
 	int getExtraAttackAboveHealthMod() const;
 	void changeExtraAttackAboveHealthMod(int iChange);
 
 	int getExtraAttackBelowHealthMod() const;
 	void changeExtraAttackBelowHealthMod(int iChange);
+
+	int GetFlankPower() const;
+	void ChangeFlankPower(int iChange);
 
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
@@ -2125,6 +2127,7 @@ protected:
 	int m_iExtraFullyHealedMod;
 	int m_iExtraAttackAboveHealthMod;
 	int m_iExtraAttackBelowHealthMod;
+	int m_iFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iExtraOpenDefensePercent;
 	int m_iExtraRoughDefensePercent;
@@ -2563,6 +2566,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraAttackWoundedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraFullyHealedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackAboveHealthMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackBelowHealthMod)
+SYNC_ARCHIVE_VAR(int, m_iFlankPower)
 SYNC_ARCHIVE_VAR(int, m_iFlankAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraRoughDefensePercent)

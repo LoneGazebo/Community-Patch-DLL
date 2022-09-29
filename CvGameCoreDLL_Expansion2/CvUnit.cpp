@@ -243,6 +243,7 @@ CvUnit::CvUnit() :
 	, m_iExtraFullyHealedMod()
 	, m_iExtraAttackAboveHealthMod()
 	, m_iExtraAttackBelowHealthMod()
+	, m_iFlankPower()
 	, m_iFlankAttackModifier()
 	, m_iExtraOpenDefensePercent()
 	, m_iExtraRoughDefensePercent()
@@ -1523,7 +1524,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraFullyHealedMod = 0;
 	m_iExtraAttackAboveHealthMod = 0;
 	m_iExtraAttackBelowHealthMod = 0;
-	m_iFlankAttackModifier=0;
+	m_iFlankPower = 1;
+	m_iFlankAttackModifier = 0;
 	m_iExtraOpenDefensePercent = 0;
 	m_iExtraRoughDefensePercent = 0;
 	m_iExtraOpenFromPercent = 0;
@@ -22814,11 +22816,12 @@ void CvUnit::changeExtraAttackWoundedMod(int iChange)
 	}
 }
 
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraAttackFullyHealedMod() const
 {
 	VALIDATE_OBJECT
-		return m_iExtraFullyHealedMod;
+	return m_iExtraFullyHealedMod;
 }
 
 
@@ -22826,19 +22829,20 @@ int CvUnit::getExtraAttackFullyHealedMod() const
 void CvUnit::changeExtraAttackFullyHealedMod(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			m_iExtraFullyHealedMod = (m_iExtraFullyHealedMod + iChange);
+	if (iChange != 0)
+	{
+		m_iExtraFullyHealedMod = (m_iExtraFullyHealedMod + iChange);
 
-			setInfoBarDirty(true);
-		}
+		setInfoBarDirty(true);
+	}
 }
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraAttackAboveHealthMod() const
 {
 	VALIDATE_OBJECT
-		return m_iExtraAttackAboveHealthMod;
+	return m_iExtraAttackAboveHealthMod;
 }
 
 
@@ -22846,19 +22850,20 @@ int CvUnit::getExtraAttackAboveHealthMod() const
 void CvUnit::changeExtraAttackAboveHealthMod(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			m_iExtraAttackAboveHealthMod = (m_iExtraAttackAboveHealthMod + iChange);
+	if (iChange != 0)
+	{
+		m_iExtraAttackAboveHealthMod = (m_iExtraAttackAboveHealthMod + iChange);
 
-			setInfoBarDirty(true);
-		}
+		setInfoBarDirty(true);
+	}
 }
-\
+
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraAttackBelowHealthMod() const
 {
 	VALIDATE_OBJECT
-		return m_iExtraAttackBelowHealthMod;
+	return m_iExtraAttackBelowHealthMod;
 }
 
 
@@ -22866,14 +22871,35 @@ int CvUnit::getExtraAttackBelowHealthMod() const
 void CvUnit::changeExtraAttackBelowHealthMod(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			m_iExtraAttackBelowHealthMod = (m_iExtraAttackBelowHealthMod + iChange);
+	if (iChange != 0)
+	{
+		m_iExtraAttackBelowHealthMod = (m_iExtraAttackBelowHealthMod + iChange);
 
-			setInfoBarDirty(true);
-		}
+		setInfoBarDirty(true);
+	}
 }
 
+
+//	--------------------------------------------------------------------------------
+//	How many units does this unit count as when supporting a flank?
+int CvUnit::GetFlankPower() const
+{
+	VALIDATE_OBJECT
+	return m_iFlankPower;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeFlankPower(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iFlankPower = (m_iFlankPower + iChange);
+
+		setInfoBarDirty(true);
+	}
+}
 
 
 //	--------------------------------------------------------------------------------
@@ -22896,6 +22922,7 @@ void CvUnit::ChangeFlankAttackModifier(int iChange)
 	}
 }
 
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraOpenDefensePercent() const
 {
@@ -22915,6 +22942,7 @@ void CvUnit::changeExtraOpenDefensePercent(int iChange)
 		setInfoBarDirty(true);
 	}
 }
+
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraOpenFromPercent() const
@@ -22957,6 +22985,7 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 	}
 }
 
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getExtraRoughFromPercent() const
 {
@@ -22976,6 +23005,8 @@ void CvUnit::changeExtraRoughFromPercent(int iChange)
 			setInfoBarDirty(true);
 		}
 }
+
+
 //	--------------------------------------------------------------------------------
 int CvUnit::getNumAttacks() const
 {
@@ -27080,6 +27111,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
 		changeExtraAttackAboveHealthMod(thisPromotion.GetAttackAboveHealthMod() * iChange);
 		changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);	
+		ChangeFlankPower(thisPromotion.GetExtraFlankPower() * iChange);
 		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
 		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
 		changeExtraRoughDefensePercent(thisPromotion.GetRoughDefensePercent() * iChange);
@@ -27598,6 +27630,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraFullyHealedMod);
 	visitor(unit.m_iExtraAttackAboveHealthMod);
 	visitor(unit.m_iExtraAttackBelowHealthMod);
+	visitor(unit.m_iFlankPower);
 	visitor(unit.m_iFlankAttackModifier);
 	visitor(unit.m_iExtraOpenDefensePercent);
 	visitor(unit.m_iExtraRoughDefensePercent);
@@ -31214,7 +31247,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	
 	}
 
-	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && IsCanAttackRanged())
+	if(pkPromotionInfo->IsRangeAttackIgnoreLOS() && IsCanAttackRanged() && !IsRangeAttackIgnoreLOS())
 	// R + S: Indirect Fire.
 	{
 		iExtra = (iFlavorRanged * 2 + iFlavorOffense);
@@ -31252,7 +31285,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	iTemp = pkPromotionInfo->IsIgnoreZOC();
 	// Scout: Trailblazer (woodland trailblazer) 2.		nM: Pincer (boarding party 4).
 	// mR: Skirmisher Doctrine (skirmisher mobility).
-	if (iTemp != 0)
+	if (iTemp != 0 && !IsIgnoreZOC())
 	{
 		iExtra =  iTemp * (2 * iFlavorMobile + iFlavorOffense);
 		iExtra *= 10;
@@ -31261,7 +31294,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	}
 
-	if(pkPromotionInfo->IsBlitz())
+	if(pkPromotionInfo->IsBlitz() && !isBlitz())
 	// M + mM + nM: Blitz.
 	{
 		// This should be covered in extra attacks
@@ -31272,7 +31305,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 
 
-	if(pkPromotionInfo->IsCanMoveAfterAttacking())
+	if(pkPromotionInfo->IsCanMoveAfterAttacking() && !canMoveAfterAttacking())
 	// M + mM + nM: Blitz.	
 	{
 		iExtra = (2 * iFlavorMobile + iFlavorOffense);
@@ -31346,7 +31379,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 
 
-	if(pkPromotionInfo->IsAlwaysHeal())
+	if(pkPromotionInfo->IsAlwaysHeal() && !isAlwaysHeal())
 	// aF: Air repair.	Scout: Survivalism 3.	mR: March (skirmisher march).
 	// M + mM: March.			
 	{
@@ -31355,12 +31388,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra *= iFlavorOffense + 2 * iFlavorMobile;
 		iExtra *= 4;
 		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
-		if (isAlwaysHeal())
-			iExtra *= 0;
 		iValue += iExtra;
 	}
 
-	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA)
+	if (pkPromotionInfo->IsHealOutsideFriendly() && getDomainType() == DOMAIN_SEA && !isHealOutsideFriendly())
 	// nM + nR: Supply.	nM: Naval Siege.
 	{
 		iExtra = 10 + getSameTileHeal();
@@ -31372,15 +31403,13 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iExtra *= 2;
 		if (isAlwaysHeal())
 			iExtra *= 5;
-		if (isHealOutsideFriendly())
-			iExtra *= 0;
 		iValue += iExtra;
 	}
 
 	
 	iTemp = pkPromotionInfo->IsFreePillageMoves();
 	// nM: +1 Press Gangs.
-	if (iTemp != 0)
+	if (iTemp != 0 && !hasFreePillageMove())
 	{	
 		iExtra = iTemp * (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= 0.7 + 0.3 * getDamage() / max(1,GetMaxHitPoints());
@@ -31392,7 +31421,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->IsHealOnPillage();
 	// nM: +1 Press Gangs.
-	if (iTemp != 0)
+	if (iTemp != 0 && !hasHealOnPillage())
 	{
 		iExtra = iTemp * (2 * iFlavorOffense + iFlavorMobile);
 		iExtra *= 0.2 + 0.8 * getDamage() / max(1,GetMaxHitPoints());
@@ -31425,25 +31454,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 
 
-	if(pkPromotionInfo->IsAmphib())     
+	if(pkPromotionInfo->IsAmphib() && !isAmphibious())
 	// M: Amphibious.
 	{
 		iExtra = (iFlavorNaval * 2 + iFlavorOffense);
 		iExtra *= 6;
-		if (isAmphibious())
-			iExtra *= 0;
 		iValue += iExtra;
 	}
 
-	if(pkPromotionInfo->IsRiver())
+	if(pkPromotionInfo->IsRiver() && !(isRiverCrossingNoPenalty() || ignoreTerrainCost()))
 	// M: Amphibious.
 	{
 		iExtra = (iFlavorMobile * 2 + iFlavorOffense);
 		iExtra *= 15;
-		if (isRiverCrossingNoPenalty())
-			iExtra *= 0;
-		if (ignoreTerrainCost())
-			iExtra *= 0;
 		iValue += iExtra;	
 	}
 
@@ -31615,7 +31638,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 			
 
-			if(pkPromotionInfo->GetTerrainDoubleMove(iI))
+			if(pkPromotionInfo->GetTerrainDoubleMove(iI) && !isTerrainDoubleMove(eTerrain))
 				// Scout: Snow/Desert Woodland Trailblazer 2.
 			{
 				iExtra = (iFlavorMobile * 2 + iFlavorRecon);
@@ -31628,7 +31651,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			}
 
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-			if(pkPromotionInfo->GetTerrainHalfMove(iI))
+			if(pkPromotionInfo->GetTerrainHalfMove(iI) && !isTerrainHalfMove(eTerrain))
 			{
 				iExtra = (iFlavorMobile * 3);
 				iExtra *= -8;
@@ -31637,10 +31660,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			if (pkPromotionInfo->GetTerrainExtraMove(iI))
+			if (pkPromotionInfo->GetTerrainExtraMove(iI) && !isTerrainExtraMove(eTerrain))
 			{
 				iExtra = (iFlavorMobile * 3);
-				iExtra *= 5;
+				iExtra *= -5;
 				if (IsGainsXPFromScouting())
 					iExtra *= 1.8;
 				iValue += iExtra;
@@ -31689,7 +31712,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				
 			}
 
-			if(pkPromotionInfo->GetFeatureDoubleMove(iI))
+			if(pkPromotionInfo->GetFeatureDoubleMove(iI) && !isFeatureDoubleMove(eFeature))
 			// Scout: Forest/Jungle Woodland Trailblazer 1.		M: Forest/Junlge Woodsman.
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
@@ -31702,7 +31725,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			}
 
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
-			if(pkPromotionInfo->GetFeatureHalfMove(iI))
+			if(pkPromotionInfo->GetFeatureHalfMove(iI) && !isFeatureHalfMove(eFeature))
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
 				iExtra *= -5;
@@ -31712,10 +31735,10 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				iValue += iExtra;
 			}
 
-			if (pkPromotionInfo->GetFeatureExtraMove(iI))
+			if (pkPromotionInfo->GetFeatureExtraMove(iI) && !isFeatureExtraMove(eFeature))
 			{
 				iExtra = (2 * iFlavorMobile + iFlavorRecon);
-				iExtra *= 5;
+				iExtra *= -5;
 				iExtra *= max(1,getNumAttacks());
 				if (IsGainsXPFromScouting())
 					iExtra *= 1.8;
@@ -31866,7 +31889,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 
-	if (pkPromotionInfo->IsNoSupply())
+	if (pkPromotionInfo->IsNoSupply() && !isNoSupply())
 	{
 		iExtra = iFlavorNaval + 2 * iFlavorOffense;
 		iExtra *= 5;
@@ -31901,7 +31924,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-	if (pkPromotionInfo->IsGainsXPFromSpotting())
+	if (pkPromotionInfo->IsGainsXPFromSpotting() && !IsGainsXPFromSpotting())
 	{
 		iExtra = visibilityRange() + baseMoves(false);
 		iExtra = iExtra * (3 * iFlavorRecon);
@@ -31911,7 +31934,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 
 
-	if (pkPromotionInfo->IsGainsXPFromPillaging())
+	if (pkPromotionInfo->IsGainsXPFromPillaging() && !IsGainsXPFromPillaging())
 	{
 		iExtra = (iFlavorOffense + 2 * iFlavorMobile);
 		iExtra *= 5;
