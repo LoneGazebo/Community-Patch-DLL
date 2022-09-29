@@ -85,11 +85,11 @@
 	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_CUSTOMSHOUSE_HEADING4_TITLE';
 
 	UPDATE Language_en_US
-	SET Text = 'Specialist Yields'
+	SET Text = '[COLOR_GREEN]Specialist Yields[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_HEADING1_TITLE';
 
 	UPDATE Language_en_US
-	SET Text = 'Great People Improvement Yields'
+	SET Text = '[COLOR_GREEN]Great People Improvement Yields[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_BUILDINGS_SPECIALISTS_HEADING2_TITLE';
 
 	UPDATE Language_en_US
