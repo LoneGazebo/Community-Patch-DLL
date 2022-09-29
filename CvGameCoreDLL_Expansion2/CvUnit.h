@@ -1341,6 +1341,9 @@ public:
 	int getExtraAttackBelowHealthMod() const;
 	void changeExtraAttackBelowHealthMod(int iChange);
 
+	bool IsRangedFlankAttack() const;
+	void ChangeRangedFlankAttackCount(int iChange);
+
 	int GetFlankPower() const;
 	void ChangeFlankPower(int iChange);
 
@@ -2127,6 +2130,7 @@ protected:
 	int m_iExtraFullyHealedMod;
 	int m_iExtraAttackAboveHealthMod;
 	int m_iExtraAttackBelowHealthMod;
+	int m_iRangedFlankAttack;
 	int m_iFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iExtraOpenDefensePercent;
@@ -2566,6 +2570,7 @@ SYNC_ARCHIVE_VAR(int, m_iExtraAttackWoundedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraFullyHealedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackAboveHealthMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackBelowHealthMod)
+SYNC_ARCHIVE_VAR(int, m_iRangedFlankAttack)
 SYNC_ARCHIVE_VAR(int, m_iFlankPower)
 SYNC_ARCHIVE_VAR(int, m_iFlankAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenDefensePercent)

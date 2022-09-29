@@ -362,6 +362,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackFullyHealedModifier);
 	Method(AttackAbove50Modifier);
 	Method(AttackBelow50Modifier);
+	Method(IsRangedFlankAttack);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
 	Method(RoughFromModifier);
@@ -3974,7 +3975,17 @@ int CvLuaUnit::lAttackBelow50Modifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int FlankAttackModifier();
+//int IsRangedFlankAttack();
+int CvLuaUnit::lIsRangedFlankAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->IsRangedFlankAttack();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetFlankAttackModifier();
 int CvLuaUnit::lFlankAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);

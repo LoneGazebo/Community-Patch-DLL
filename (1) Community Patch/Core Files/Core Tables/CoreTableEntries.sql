@@ -1129,6 +1129,8 @@ ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackBelowEqual50HealthMod' INTEGER DEFAULT 0;
 
+-- ranged attacks benefit from other units flanking the target
+ALTER TABLE UnitPromotions ADD 'RangedFlankAttack' INTEGER DEFAULT 0;
 -- counts as extra units when supporting a flank
 ALTER TABLE UnitPromotions ADD 'ExtraFlankPower' INTEGER DEFAULT 0;
 

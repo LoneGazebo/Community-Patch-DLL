@@ -97,6 +97,7 @@ public:
 	int  GetAttackFullyHealedMod() const;
 	int  GetAttackAboveHealthMod() const;
 	int  GetAttackBelowHealthMod() const;
+	bool IsRangedFlankAttack() const;
 	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
@@ -413,6 +414,7 @@ protected:
 	int m_iAttackFullyHealedMod;
 	int m_iAttackAboveHealthMod;
 	int m_iAttackBelowHealthMod;
+	bool m_bRangedFlankAttack;
 	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;

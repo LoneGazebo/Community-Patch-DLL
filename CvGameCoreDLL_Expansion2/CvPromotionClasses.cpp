@@ -71,6 +71,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAttackFullyHealedMod(0),
 	m_iAttackAboveHealthMod(0),
 	m_iAttackBelowHealthMod(0),
+	m_bRangedFlankAttack(false),
 	m_iExtraFlankPower(0),
 	m_iFlankAttackModifier(0),
 	m_iNearbyEnemyCombatMod(0),
@@ -583,6 +584,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
 	m_iAttackAboveHealthMod = kResults.GetInt("AttackAbove50HealthMod");
 	m_iAttackBelowHealthMod = kResults.GetInt("AttackBelowEqual50HealthMod");
+	m_bRangedFlankAttack = kResults.GetBool("RangedFlankAttack");
 	m_iExtraFlankPower = kResults.GetInt("ExtraFlankPower");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
@@ -1628,6 +1630,12 @@ int CvPromotionEntry::GetAttackAboveHealthMod() const
 int CvPromotionEntry::GetAttackBelowHealthMod() const
 {
 	return m_iAttackBelowHealthMod;
+}
+
+/// Accessor: Ranged unit attacks benefit from units flanking target
+bool CvPromotionEntry::IsRangedFlankAttack() const
+{
+	return m_bRangedFlankAttack;
 }
 
 /// Accessor: Counts as additional units when supporting a flank

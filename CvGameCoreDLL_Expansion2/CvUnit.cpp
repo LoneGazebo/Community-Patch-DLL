@@ -243,6 +243,7 @@ CvUnit::CvUnit() :
 	, m_iExtraFullyHealedMod()
 	, m_iExtraAttackAboveHealthMod()
 	, m_iExtraAttackBelowHealthMod()
+	, m_iRangedFlankAttack()
 	, m_iFlankPower()
 	, m_iFlankAttackModifier()
 	, m_iExtraOpenDefensePercent()
@@ -1524,6 +1525,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraFullyHealedMod = 0;
 	m_iExtraAttackAboveHealthMod = 0;
 	m_iExtraAttackBelowHealthMod = 0;
+	m_iRangedFlankAttack = 0;
 	m_iFlankPower = 1;
 	m_iFlankAttackModifier = 0;
 	m_iExtraOpenDefensePercent = 0;
@@ -17044,6 +17046,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			// Rough Ground
 			else if (pTargetPlot->isRoughGround())
 				iModifier += roughRangedAttackModifier();
+
+			// Flanking
+			if(IsRangedFlankAttack() && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
+			{
+				iModifier += pTargetPlot->GetEffectiveFlankingBonusAtRange(this, pOtherUnit);
+			}
 		}
 
 		// Bonus for fighting in one's lands
@@ -22881,6 +22889,27 @@ void CvUnit::changeExtraAttackBelowHealthMod(int iChange)
 
 
 //	--------------------------------------------------------------------------------
+//	Can this ranged unit benefit from flanking?
+bool CvUnit::IsRangedFlankAttack() const
+{
+	return m_iRangedFlankAttack > 0;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeRangedFlankAttackCount(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iRangedFlankAttack = (m_iRangedFlankAttack + iChange);
+
+		setInfoBarDirty(true);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
 //	How many units does this unit count as when supporting a flank?
 int CvUnit::GetFlankPower() const
 {
@@ -27110,7 +27139,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeExtraAttackWoundedMod(thisPromotion.GetAttackWoundedMod() * iChange);
 		changeExtraAttackFullyHealedMod(thisPromotion.GetAttackFullyHealedMod() * iChange);
 		changeExtraAttackAboveHealthMod(thisPromotion.GetAttackAboveHealthMod() * iChange);
-		changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);	
+		changeExtraAttackBelowHealthMod(thisPromotion.GetAttackBelowHealthMod() * iChange);
+		ChangeRangedFlankAttackCount(thisPromotion.IsRangedFlankAttack() ? iChange : 0);
 		ChangeFlankPower(thisPromotion.GetExtraFlankPower() * iChange);
 		ChangeFlankAttackModifier(thisPromotion.GetFlankAttackModifier() * iChange);
 		changeExtraOpenDefensePercent(thisPromotion.GetOpenDefensePercent() * iChange);
@@ -27630,6 +27660,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraFullyHealedMod);
 	visitor(unit.m_iExtraAttackAboveHealthMod);
 	visitor(unit.m_iExtraAttackBelowHealthMod);
+	visitor(unit.m_iRangedFlankAttack);
 	visitor(unit.m_iFlankPower);
 	visitor(unit.m_iFlankAttackModifier);
 	visitor(unit.m_iExtraOpenDefensePercent);

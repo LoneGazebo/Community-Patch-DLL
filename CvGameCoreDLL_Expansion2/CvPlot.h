@@ -184,6 +184,7 @@ public:
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
+	int GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 

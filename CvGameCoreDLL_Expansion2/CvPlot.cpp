@@ -3237,6 +3237,19 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	return 0;
 }
 
+int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const
+{
+	// note that this plot is the plot that the ranged unit is ATTACKING, not the plot that the ranged unit is located
+	
+	if (!pAttackingUnit || !pDefendingUnit)
+		return 0;
+
+	// ranged units can't get flanked when they attack, but their target can be
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true);
+
+	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToHere);
+}
+
 
 bool CvPlot::isRevealedFortification(TeamTypes eTeam) const
 {
