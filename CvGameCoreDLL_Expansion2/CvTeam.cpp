@@ -4148,7 +4148,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 	for (size_t i=0; i<vMyTeam.size(); i++)
 	{
 		PlayerTypes eMyPlayer = vMyTeam[i];
-		if (!GET_PLAYER(eMyPlayer).isAlive())
+		if (!GET_PLAYER(eMyPlayer).isAlive() || !GET_PLAYER(eMyPlayer).isMajorCiv())
 			continue;
 
 		for (size_t j=0; j<vTheirTeam.size(); j++)
