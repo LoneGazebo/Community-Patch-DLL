@@ -32,7 +32,11 @@ INSERT INTO Improvement_ResourceTypes (ImprovementType, ResourceType) VALUES
 ( 'IMPROVEMENT_FARM', 'RESOURCE_MAIZE'),
 ( 'IMPROVEMENT_FARM', 'RESOURCE_RICE');
 
+DELETE FROM Building_ResourceYieldChanges WHERE BuildingType = 'BUILDING_GRANARY';
+
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield) VALUES
+( 'BUILDING_GRANARY', 'RESOURCE_WHEAT', 'YIELD_FOOD', 1),
+( 'BUILDING_GRANARY', 'RESOURCE_BANANA', 'YIELD_FOOD', 1),
 ( 'BUILDING_GRANARY', 'RESOURCE_MAIZE', 'YIELD_FOOD', 1),
 ( 'BUILDING_GRANARY', 'RESOURCE_RICE', 'YIELD_FOOD', 1);
 
