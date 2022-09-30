@@ -364,10 +364,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
 		while (pAdjUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = NULL;
-			if ((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
-				pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+			if (pAdjUnitNode->eOwner == pUnit->getOwner())
+			{
+				pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
+				continue;
+			}
 
+			//this is relatively expensive, so do this only after some basic checks
+			CvUnit* pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
 			if (!pLoopUnit)
