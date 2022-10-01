@@ -3726,19 +3726,22 @@ int CvLuaPlayer::lGetBeliefsInPantheon(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	// If this player has created a (local) religion, we need to use that instead!
+	ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer(true);
+
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-	// If this player has created a (local) religion, we need to use that instead!
-	ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer(true);
-
-	CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkPlayer->GetID())->m_Beliefs;
-	for(int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+	if (eReligion != NO_RELIGION)
 	{
-		const BeliefTypes eBelief = beliefs.GetBelief(iI);
-		lua_pushinteger(L, eBelief);
-		lua_rawseti(L, t, idx++);
+		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkPlayer->GetID())->m_Beliefs;
+		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+		{
+			const BeliefTypes eBelief = beliefs.GetBelief(iI);
+			lua_pushinteger(L, eBelief);
+			lua_rawseti(L, t, idx++);
+		}
 	}
 
 	return 1;

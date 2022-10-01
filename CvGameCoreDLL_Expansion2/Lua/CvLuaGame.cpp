@@ -2815,19 +2815,22 @@ int CvLuaGame::lGetNumCitiesFollowing(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 {
-	ReligionTypes eReligion;
-	eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-	CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_Beliefs;
-	for(int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+	if (pReligion != NULL)
 	{
-		const BeliefTypes eBelief = beliefs.GetBelief(iI);
-		lua_pushinteger(L, eBelief);
-		lua_rawseti(L, t, idx++);
+		CvReligionBeliefs beliefs = pReligion->m_Beliefs;
+		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+		{
+			const BeliefTypes eBelief = beliefs.GetBelief(iI);
+			lua_pushinteger(L, eBelief);
+			lua_rawseti(L, t, idx++);
+		}
 	}
 
 	return 1;
@@ -2835,8 +2838,7 @@ int CvLuaGame::lGetBeliefsInReligion(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaGame::lBeliefIsInReligion(lua_State* L)
 {
-	ReligionTypes eReligion;
-	eReligion = (ReligionTypes)lua_tointeger(L, 1);
+	ReligionTypes eReligion = (ReligionTypes)lua_tointeger(L, 1);
 	BeliefTypes eBelief = (BeliefTypes)lua_tointeger(L, 2);
 	CvGameReligions *pGameReligions = GC.getGame().GetGameReligions();
 	const CvReligion *pReligion = pGameReligions->GetReligion(eReligion, NO_PLAYER);

@@ -4482,6 +4482,13 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 	{
 		do
 		{
+			//performance optimization, avoid unit lookup if same player
+			if (pUnitNode->eOwner == ePlayer)
+			{
+				pUnitNode = m_units.next(pUnitNode);
+				continue;
+			}
+
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
@@ -4515,6 +4522,13 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 
 		do
 		{
+			//performance optimization, avoid unit lookup if same player
+			if (pUnitNode->eOwner == pUnit->getOwner())
+			{
+				pUnitNode = m_units.next(pUnitNode);
+				continue;
+			}
+
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
