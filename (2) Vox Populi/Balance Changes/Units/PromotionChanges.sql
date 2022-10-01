@@ -126,24 +126,22 @@ VALUES
 	('PROMOTION_ANTI_HELICOPTER', 'UNITCLASS_HELICOPTER_GUNSHIP', 150);
 
 INSERT INTO UnitPromotions_Features
-	(PromotionType, FeatureType, DoubleMove)
+	(PromotionType, FeatureType, DoubleMove, ExtraMove)
 VALUES
-	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_JUNGLE', 1),
-	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_FOREST', 1);
---INSERT INTO UnitPromotions_Features
---	(PromotionType, FeatureType, ExtraMove)
---VALUES
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FOREST', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_JUNGLE', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_MARSH', '1'),
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FLOOD_PLAINS', '1');
+	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_JUNGLE', 1, 0),
+	('PROMOTION_WOODLAND_TRAILBLAZER_I', 'FEATURE_FOREST', 1, 0),
+	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_FOREST', 0, 1),
+	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_JUNGLE', 0, 1),
+	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'FEATURE_MARSH', 0, 1);
 
 INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, DoubleMove, HalfMove)
+	(PromotionType, TerrainType, DoubleMove, HalfMove, ExtraMove, Attack, Defense, DoubleHeal)
 VALUES
-	('PROMOTION_WOODLAND_TRAILBLAZER_II', 'TERRAIN_DESERT', 1, 0),
-	('PROMOTION_WOODLAND_TRAILBLAZER_II', 'TERRAIN_SNOW', 1, 0),
-	('PROMOTION_OCEAN_HALF_MOVES', 'TERRAIN_OCEAN', 0, 1);
+	('PROMOTION_WOODLAND_TRAILBLAZER_II', 'TERRAIN_DESERT', 1, 0, 0, 0, 0, 0),
+	('PROMOTION_WOODLAND_TRAILBLAZER_II', 'TERRAIN_SNOW', 1, 0, 0, 0, 0, 0),
+	('PROMOTION_OCEAN_HALF_MOVES', 'TERRAIN_OCEAN', 0, 1, 0, 0, 0, 0),
+	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'TERRAIN_HILL', 0, 0, 1, 0, 0, 0),
+	('PROMOTION_LONGBOAT', 'TERRAIN_COAST', 0, 0, 0, 15, 15, 1);
 
 INSERT INTO UnitPromotions_PostCombatRandomPromotion
 	(PromotionType, NewPromotion)
@@ -313,15 +311,6 @@ VALUES
 	('PROMOTION_EVERLASTING_YOUTH', 'UNITCOMBAT_RECON');
 -- Change all helicopter promotions to Archer (because helicopters are now archers)
 UPDATE UnitPromotions_UnitCombats SET UnitCombatType = 'UNITCOMBAT_ARCHER' WHERE UnitCombatType = 'UNITCOMBAT_HELICOPTER';
-
-INSERT INTO UnitPromotions_Terrains
-	(PromotionType, TerrainType, Attack, Defense, DoubleHeal)
-VALUES
-	('PROMOTION_LONGBOAT', 'TERRAIN_COAST', '15', '15', '1');
---INSERT INTO UnitPromotions_Terrains
---	(PromotionType, TerrainType, ExtraMove)
---VALUES
---	('PROMOTION_ROUGH_TERRAIN_HALF_TURN', 'TERRAIN_HILL', '1');
 
 INSERT INTO UnitPromotions_Domains
 	(PromotionType, DomainType, Modifier)

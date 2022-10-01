@@ -4350,12 +4350,23 @@
 			<Help>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LostWithUpgrade>true</LostWithUpgrade>
-			<OpenFromMod>40</OpenFromMod>
-			<RoughFromMod>-20</RoughFromMod>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MOUNTED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SKIRMISHER_DOCTRINE</Type>
+			<Description>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE</Description>
+			<Help>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<RangedDefenseMod>50</RangedDefenseMod>
+			<ExtraFlankPower>1</ExtraFlankPower>
+			<PortraitIndex>45</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_MOUNTED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_ALHAMBRA</Type>

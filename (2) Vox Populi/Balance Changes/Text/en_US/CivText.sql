@@ -45,7 +45,7 @@ SET Text = 'Fast Medieval ranged Unit, weak to Pikemen. Only the Arabians may bu
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CAMEL_ARCHER';
 
 UPDATE Language_en_US
-SET Text = 'The Camel Archer is the Arabian unique unit, replacing the Heavy Skirmisher. The Camel Archer is a powerful ranged attack unit that starts with Splash Damage I, allowing it to do damage to groups of enemies 1 hex away. It can move after combat, retreats from melee combat, and does not require [ICON_RES_HORSE] Horses to be constructed. As a mounted unit, the Camel Archer is vulnerable to Pikemen.'
+SET Text = 'The Camel Archer is the Arabian unique unit, replacing the Heavy Skirmisher. The Camel Archer is a powerful ranged attack unit that starts with Splash Damage I, allowing it to do damage to groups of enemies 1 hex away. It retreats from melee combat and does not require [ICON_RES_HORSE] Horses to be constructed. As a mounted unit, the Camel Archer is still vulnerable to Pikemen.'
 WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 
 --------------------
@@ -95,11 +95,11 @@ SET Text = 'The Coffee House is a Renaissance-era building unique to Austria, re
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'A fast Mounted Unit used for scouting and hit-and-run attacks. Ignores Zone of Control. Only the Austrians may build it.'
+SET Text = 'A fast Mounted Unit used for scouting, flanking, and hit-and-run attacks. Ignores Zone of Control. Only the Austrians may build it.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_AUSTRIAN_HUSSAR';
 
 UPDATE Language_en_US
-SET Text = 'Hussars are great scouts and flank attackers. They are slightly faster than Cuirassier which they replace. They start with Promotions that give them +1 Sight and allows them to ignore Zone of Control.'
+SET Text = 'Hussars are great scouts and flank attackers. They are slightly faster than Cuirassier which they replace. They start with Promotions improving their sight range and allow them to ignore Zone of Control.'
 WHERE Tag = 'TXT_KEY_UNIT_AUSTRIAN_HUSSAR_STRATEGY';
 
 --------------------
@@ -564,7 +564,7 @@ SET Text = 'The barbarians in this Encampment have joined your army! All hail gl
 WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS';
 
 UPDATE Language_en_US
-SET Text = 'Horse Archers are fast ranged units, deadly on open terrain. They start with the Accuracy I promotion. As a mounted unit, the Horse Archer is vulnerable to Spearmen. Unlike the Skirmisher, the Horse Archer does not require Horses.'
+SET Text = 'Horse Archers are fast ranged units that do not require Horses. They start with the Accuracy I promotion and are strong flankers. As a mounted unit, the Horse Archer is vulnerable to Spearmen.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 
 --------------------
@@ -751,7 +751,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted Ranged Units gain +2 [ICON_MOVES] Movement and ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR]. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
+SET Text = 'Mounted Ranged Units benefit from Flanking [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and gain a +10% Flanking bonus. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -762,11 +762,11 @@ SET Text = 'In the 12th century, nomadic tribes came boiling out of Central Asia
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Skirmishers possess a strong ranged attack and an increased movement rate, allowing them to perform hit and run attacks.'
+SET Text = 'Skirmishers possess a ranged attack, an increased movement rate, and increased flanking potential, allowing them to perform hit and run attacks or support the main force.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike the Chariot before them, they can move through rough terrain without a movement penalty. As a mounted unit, the Skirmisher is vulnerable to units equipped with spears.'
+SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike the Chariot before them, they can move through rough terrain without a movement penalty and can strengthen the attacks of flanking units. As a mounted unit, the Skirmisher is vulnerable to units equipped with spears.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_STRATEGY';
 
 UPDATE Language_en_US
@@ -914,7 +914,7 @@ SET Text = '+1 Sight when Embarked, can always Embark and move over Oceans. +2 [
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
-SET Text = 'Powerful mid-game unit that strikes fear into nearby enemies, making them less effective in combat. It is available at Chivalry, unlike the Longswordsman which it replaces, and doesn''t [ICON_RES_IRON] Iron to be built. Only Polynesia may build it.'
+SET Text = 'Powerful mid-game unit that strikes fear into nearby enemies, making them less effective in combat. It is available at Chivalry, unlike the Longswordsman which it replaces, and doesn''t require [ICON_RES_IRON] Iron. Only Polynesia may build it.'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP';
 
 UPDATE Language_en_US
@@ -1026,7 +1026,7 @@ SET Text = 'This Tercio represents the advent of early gunpowder (''Pike and Sho
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_TERCIO_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land and at sea. It also has the ability to found new cities, but only on a foreign continent that does not contain the Spanish capital. When founded, cities built by Conquistadors start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Mission[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Conquistadores! The Mission is a special religious and defensive building only granted by settling Conquistadores.[NEWLINE][NEWLINE]Conquistador is much stronger than the Explorer it replaces, with much higher Combat Strength, and large bonuses to Flanking and attacking Cities. Combined with its great mobility, the Conquistador is a formidable unit, able to augment or replace your existing Medieval military.'
+SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land and at sea. It also has the ability to found new cities, but only on a foreign continent that does not contain the Spanish capital. When founded, cities built by Conquistadors start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Mission[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Conquistadores! The Mission is a special religious and defensive building only granted by settling Conquistadores.[NEWLINE][NEWLINE]The Conquistador is much stronger than the Explorer it replaces, with much higher Combat Strength, and large bonuses to Flanking and attacking Cities. Combined with its great mobility, the Conquistador is a formidable unit, able to augment or replace your existing Medieval military.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
  
 UPDATE Language_en_US

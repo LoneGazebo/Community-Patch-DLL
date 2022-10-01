@@ -160,7 +160,7 @@
 			<Text>Steppe Nomads</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+2 [ICON_MOVES] Movement.</Text>
+			<Text>Benefits from Flanking when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
 		</Row>
 	<!-- Sweden -->
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
@@ -478,11 +478,17 @@
 		</Row>
 	<!-- Ranged Mounted Line -->
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">
-			<Text>Skirmisher Doctrine</Text>
+			<Text>Beam Axle</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-      		<Text>-20% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+40% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>Rough Terrain (Forest, Jungle, Hills) costs an additional movement point to cross.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE">
+			<Text>Skirmisher Doctrine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE_HELP">
+			<Text>Counted twice for Flanking bonuses.[NEWLINE]+50% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
+	  </Row>
 
 	<!-- Civilian -->
 		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST">
