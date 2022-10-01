@@ -22803,7 +22803,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	if (iDistressRaw > 0)
 	{
 		// Reduced By
-		int iReduction = iDistressRaw - iDistress;
+		int iReduction = GetFlatNeedsReduction(YIELD_PRODUCTION);
 
 		// Total Deficit
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
@@ -22834,7 +22834,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	if (iPovertyRaw > 0)
 	{
 		// Reduced By
-		int iReduction = iPovertyRaw - iPoverty;
+		int iReduction = GetFlatNeedsReduction(YIELD_GOLD);
 
 		// Total Deficit
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
@@ -22865,7 +22865,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	if (iIlliteracyRaw > 0)
 	{
 		// Reduced By
-		int iReduction = iIlliteracyRaw - iIlliteracy;
+		int iReduction = GetFlatNeedsReduction(YIELD_SCIENCE);
 
 		// Total Deficit
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
@@ -22896,7 +22896,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	if (iBoredomRaw > 0)
 	{
 		// Reduced By
-		int iReduction = iBoredomRaw - iBoredom;
+		int iReduction = GetFlatNeedsReduction(YIELD_CULTURE);
 
 		// Total Deficit
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
