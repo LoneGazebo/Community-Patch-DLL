@@ -770,9 +770,6 @@ function HappinessTipHandler( control )
 			strText = strText .. "[COLOR:150:255:150:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[/COLOR]";
 		end
 
-
-		local empireUnhappiness = pPlayer:GetEmpireUnhappinessForCity();
-
 		-- Unhappiness
 		local iUnhappinessFromPupetCities = pPlayer:GetUnhappinessFromPuppetCityPopulation() * 100;
 		local unhappinessFromSpecialists = pPlayer:GetUnhappinessFromCitySpecialists();
@@ -801,11 +798,11 @@ function HappinessTipHandler( control )
 
 		-- Empire Unhappiness
 		
-		if(empireUnhappiness ~= 0) then
+		if(totalUnhappiness ~= 0) then
 
 			strText = strText .. "[NEWLINE][NEWLINE]";
 			strText = strText .. "[COLOR:255:150:150:255]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", empireUnhappiness, totalunhappiness);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", totalunhappiness);
 
 -- COMMUNITY PATCH CHANGES BELOW
 			if (iUnhappinessFromPop > "0") then
@@ -825,13 +822,9 @@ function HappinessTipHandler( control )
 		end
 
 		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR:150:255:150:255]";
+
 		--Empire Happiness
-
-		local empireHappiness = pPlayer:GetEmpireHappinessForCity();
-
-		local religionHappiness = 0;
-		religionhappiness = pPlayer:GetHappinessFromReligion();
-
+		local religionhappiness = pPlayer:GetHappinessFromReligion();
 		local naturalwonderhappiness = pPlayer:GetHappinessFromNaturalWonders();
 		local minorcivhappiness = pPlayer:GetHappinessFromMinorCivs();
 		local leaguehappiness = pPlayer:GetHappinessFromLeagues();
@@ -844,7 +837,7 @@ function HappinessTipHandler( control )
 		local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness + resourcehappiness + handicaphappiness;
 
 		if(htotal ~= 0) then
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", htotal, empireHappiness );
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", htotal);
 		end
 
 		if(handicaphappiness ~= 0) then

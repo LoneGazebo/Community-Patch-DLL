@@ -261,7 +261,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if (pkProjectInfo->GetEmpireMod() < 0)
 	{
 		bGoodforHappiness = true;
-		iTempWeight += ((m_pCity->getEmpireSizeMod()/2) * (pkProjectInfo->GetEmpireMod() * -1));
+		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireMod() * -1));
 	}
 
 	if (pkProjectInfo->GetEspionageMod() < 0)
@@ -276,25 +276,35 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		if (iMod == 0)
 			continue;
 
-		if (i == YIELD_GOLD && m_pCity->getUnhappinessFromGold() > 0)
+		if (i == YIELD_GOLD)
 		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromGold() * m_pCity->getUnhappinessFromGold();
+			int iPoverty = m_pCity->GetPoverty(false);
+			if (iPoverty > 0)
+				iTempWeight += 5 * iMod * iPoverty * iPoverty;
 		}
-		else if (i == YIELD_PRODUCTION && m_pCity->getUnhappinessFromDefense() > 0)
+		else if (i == YIELD_PRODUCTION)
 		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromDefense() * m_pCity->getUnhappinessFromDefense();
+			int iDistress = m_pCity->GetDistress(false);
+			if (iDistress > 0)
+				iTempWeight += 5 * iMod * iDistress * iDistress;
 		}
-		else if (i == YIELD_CULTURE && m_pCity->getUnhappinessFromCulture() > 0)
+		else if (i == YIELD_CULTURE)
 		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromCulture() * m_pCity->getUnhappinessFromCulture();
+			int iBoredom = m_pCity->GetBoredom(false);
+			if (iBoredom > 0)
+				iTempWeight += 5 * iMod * iBoredom * iBoredom;
 		}
-		else if (i == YIELD_SCIENCE && m_pCity->getUnhappinessFromScience() > 0)
+		else if (i == YIELD_SCIENCE)
 		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromScience() * m_pCity->getUnhappinessFromScience();
+			int iIlliteracy = m_pCity->GetIlliteracy(false);
+			if (iIlliteracy > 0)
+				iTempWeight += 5 * iMod * iIlliteracy * iIlliteracy;
 		}
-		else if (i == YIELD_FAITH && m_pCity->getUnhappinessFromReligion() > 0)
+		else if (i == YIELD_FAITH)
 		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromReligion() * m_pCity->getUnhappinessFromReligion();
+			int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
+			if (iReligiousUnrest > 0)
+				iTempWeight += 5 * iMod * iReligiousUnrest * iReligiousUnrest;
 		}
 		bGoodforHappiness = true;
 	}

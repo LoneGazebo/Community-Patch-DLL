@@ -3694,7 +3694,7 @@ void CvPlayerCulture::DoTurn()
 		m_aiLastTurnCulturalIPT[iLoopPlayer] = m_aiCulturalInfluence[iLoopPlayer] - m_aiLastTurnCulturalInfluence[iLoopPlayer];
 	}
 
-	SetBoredomCache(m_pPlayer->getUnhappinessFromCityCulture());
+	SetBoredomCache(m_pPlayer->GetUnhappinessFromCityCulture());
 	
 	DoPublicOpinion();
 #if defined(MOD_BALANCE_CORE_HAPPINESS)

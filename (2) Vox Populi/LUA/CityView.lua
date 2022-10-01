@@ -1997,7 +1997,7 @@ function OnCityViewUpdate()
 		-- END
 	
 		-- CBP
-		local iUnhappinessPerTurn = pCity:getUnhappinessAggregated();
+		local iUnhappinessPerTurn = pCity:GetUnhappinessAggregated();
 		Controls.UnhappinessPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn) );
 		-- END
 

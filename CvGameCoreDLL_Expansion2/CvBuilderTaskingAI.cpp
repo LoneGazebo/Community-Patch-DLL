@@ -357,7 +357,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iSideBenefits += 20000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
-		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
+		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
 		if(bIndustrialRoute)
 		{

@@ -12,8 +12,8 @@
 			<PortraitIndex>0</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>20</StartingLocPercent>
-			<HappinessDefault>12</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>10</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-20</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -50,7 +50,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -95,8 +95,8 @@
 			<PortraitIndex>1</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>30</StartingLocPercent>
-			<HappinessDefault>11</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-15</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -133,7 +133,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -178,8 +178,8 @@
 			<PortraitIndex>2</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>40</StartingLocPercent>
-			<HappinessDefault>10</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-10</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -216,7 +216,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -261,8 +261,8 @@
 			<PortraitIndex>3</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>9</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-10</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -299,7 +299,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -344,8 +344,8 @@
 			<PortraitIndex>4</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>8</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>7</HappinessDefault>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-5</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -382,7 +382,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -428,7 +428,7 @@
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -465,7 +465,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -511,7 +511,7 @@
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -548,7 +548,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -593,8 +593,8 @@
 			<PortraitIndex>7</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefault>5</HappinessDefault>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -631,7 +631,7 @@
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -677,7 +677,7 @@
 			<!-- These bonuses are applied in addition to any bonuses the AI gets above. -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -687,8 +687,8 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
-			<StartingDefenseUnits>0</StartingDefenseUnits>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
+			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<RouteCostPercent>100</RouteCostPercent>

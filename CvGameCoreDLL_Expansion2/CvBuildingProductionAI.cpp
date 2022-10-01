@@ -380,7 +380,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += m_pCity->GetTradePrioritySea()*5;
 		}
 
-		int iUnhappyConnection = m_pCity->getUnhappinessFromConnection();
+		int iUnhappyConnection = m_pCity->GetUnhappinessFromIsolation();
 		if (iUnhappyConnection > 0)
 		{
 			iBonus += (iUnhappyConnection * 10);
@@ -508,7 +508,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		if (iEmpire < 0)
 		{
-			int iUnhappyEmpire = m_pCity->getEmpireSizeMod();
+			int iUnhappyEmpire = m_pCity->GetReducedEmpireSizeModifier(true,false);
 			if (iUnhappyEmpire > 0)
 			{
 				iEmpire *= -1;
@@ -518,7 +518,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if (iPoverty < 0)
 		{
-			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
+			int iUnhappyGold = m_pCity->GetPoverty(false);
 			if (iUnhappyGold > 0)
 			{
 				iPoverty *= -1;
@@ -530,7 +530,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if (!bTested && (iCrime < 0))
 		{
-			int iUnhappyDefense = m_pCity->getUnhappinessFromDefense();
+			int iUnhappyDefense = m_pCity->GetDistress(false);
 			if (iUnhappyDefense > 0)
 			{
 				iCrime *= -1;
@@ -541,7 +541,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if (!bTested && (iReligion < 0))
 		{
-			int iUnhappyReligion = m_pCity->getUnhappinessFromReligion();
+			int iUnhappyReligion = m_pCity->GetUnhappinessFromReligiousUnrest();
 			if (iUnhappyReligion > 0)
 			{
 				iReligion *= -1;
@@ -552,7 +552,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if (!bTested && (iBoredom < 0))
 		{
-			int iUnhappyCulture = m_pCity->getUnhappinessFromCulture();
+			int iUnhappyCulture = m_pCity->GetBoredom(false);
 			if (iUnhappyCulture > 0)
 			{
 				iBoredom *= -1;
@@ -563,7 +563,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 		else if (!bTested && (iIlliteracy < 0))
 		{
-			int iUnhappyScience = m_pCity->getUnhappinessFromScience();
+			int iUnhappyScience = m_pCity->GetIlliteracy(false);
 			if (iUnhappyScience > 0)
 			{
 				iIlliteracy *= -1;

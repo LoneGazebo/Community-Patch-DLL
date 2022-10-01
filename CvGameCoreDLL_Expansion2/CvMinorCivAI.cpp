@@ -6074,7 +6074,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// There are valid quests, so pick one at random
-	int iRandSeed = GetNumActiveGlobalQuests() + m_pPlayer->getGlobalAverage(YIELD_CULTURE) + m_pPlayer->getGlobalAverage(YIELD_SCIENCE);
+	int iRandSeed = GetNumActiveGlobalQuests() + GC.getGame().GetCultureMedian() + GC.getGame().GetScienceMedian();
 	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 

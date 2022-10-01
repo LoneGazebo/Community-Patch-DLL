@@ -206,7 +206,7 @@ public:
 	int GetEventGP() const;
 	int GetWLTKDCulture() const;
 	int GetWLTKDGATimer() const;
-	int GetGAUnhappinesNeedMod() const;
+	int GetWLTKDUnhappinessNeedsMod() const;
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
 	int GetSpyMoveRateBonus() const;
@@ -643,7 +643,7 @@ protected:
 	int m_iNumFreeBuildings;
 	int m_iWLTKDCulture;
 	int m_iWLTKDGATimer;
-	int m_iGAUnhappinesNeedMod;
+	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;
@@ -1273,9 +1273,9 @@ public:
 	{
 		return m_iWLTKDGATimer;
 	};
-	int GetGAUnhappinesNeedMod() const
+	int GetWLTKDUnhappinessNeedsMod() const
 	{
-		return m_iGAUnhappinesNeedMod;
+		return m_iWLTKDUnhappinessNeedsMod;
 	};
 	int GetStartingSpies() const
 	{
@@ -2188,7 +2188,7 @@ private:
 	int m_iEventGP;
 	int m_iWLTKDCulture;
 	int m_iWLTKDGATimer;
-	int m_iGAUnhappinesNeedMod;
+	int m_iWLTKDUnhappinessNeedsMod;
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;

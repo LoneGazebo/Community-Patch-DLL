@@ -495,7 +495,7 @@ SET Text = 'Your approval rating is less than 50%! Because of this, all Cities w
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is equal or higher than 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, however [ICON_HAPPINESS_3] Unhappy Cities will still suffer penalties to [ICON_FOOD] Growth and the cost of Settlers.'
+SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, but [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth and the cost of Settlers.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS';
 
 -- TOOLTIPS FOR TOP BAR
@@ -647,11 +647,11 @@ WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
 -- Happiness
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {2_Num} (average per City: {1_Num})[NEWLINE]Unhappiness Totals:'
+SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {2_Num}[NEWLINE]Unhappiness Totals:'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {2_Num} (average per City: {1_Num})[NEWLINE]Happiness Totals:'
+SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {2_Num}[NEWLINE]Happiness Totals:'
 WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
 
 UPDATE Language_en_US

@@ -17,13 +17,11 @@ SET PovertyHappinessMod = '-15'
 WHERE Type = 'POLICY_CARAVANS';
 
 -- Imperialism
-
 UPDATE Policies
 SET NeedsModifierFromAirUnits = '3'
 WHERE Type = 'POLICY_EXPLORATION_FINISHER';
 
 -- Rationalism
-
 UPDATE Policies
 SET PovertyHappinessMod = '-5', DefenseHappinessMod = '-5', IlliteracyHappinessMod = '-5', UnculturedHappinessMod = '-5'
 WHERE Type = 'POLICY_RATIONALISM';

@@ -157,7 +157,7 @@ function UpdateScreen()
     Controls.CityUnhappinessStack:DestroyAllChildren();
     for pCity in pPlayer:Cities() do
 	    
-	    local iUnhappiness = pCity:getUnhappinessAggregated();
+	    local iUnhappiness = pCity:GetUnhappinessAggregated();
 		local instance = {};
 		ContextPtr:BuildInstanceForControl( "TradeEntry", instance, Controls.CityUnhappinessStack );
         

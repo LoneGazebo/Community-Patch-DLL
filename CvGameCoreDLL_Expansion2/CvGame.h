@@ -530,22 +530,24 @@ public:
 	int CalculateMedianNumCities();
 	int CalculateMedianNumPlots();
 	int CalculateMedianNumWondersConstructed();
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	void updateEconomicTotal();
-	void updateGlobalAverage();
-	int GetCultureAverage() const;
-	void SetCultureAverage(int iValue);
-	int GetScienceAverage() const;
-	void SetScienceAverage(int iValue);
-	int GetDefenseAverage() const;
-	void SetDefenseAverage(int iValue);
-	int GetGoldAverage() const;
-	void SetGoldAverage(int iValue);
-	int GetGlobalPopulation() const;
-	int GetGlobalTechAvg() const;
+
+	// Median Yield Per Pop Calculations
+	void updateGlobalMedians();
 	void SetGlobalPopulation(int iValue);
-	void DoGlobalAvgLogging();
-#endif
+	void SetBasicNeedsMedian(int iValue);
+	void SetGoldMedian(int iValue);
+	void SetScienceMedian(int iValue);
+	void SetCultureMedian(int iValue);
+	void DoGlobalMedianLogging();
+
+	int GetGlobalPopulation() const;
+	int GetBasicNeedsMedian() const;
+	int GetGoldMedian() const;
+	int GetScienceMedian() const;
+	int GetCultureMedian() const;
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestSpyPotential();
 #endif
@@ -847,17 +849,16 @@ protected:
 
 	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	bool m_bVictoryRandomization;
-	int m_iCultureAverage;
-	int m_iScienceAverage;
-	int m_iDefenseAverage;
-	int m_iGoldAverage;
+
 	int m_iGlobalPopulation;
-	int m_iGlobalTechAvg;
+	int m_iBasicNeedsMedian;
+	int m_iGoldMedian;
+	int m_iScienceMedian;
+	int m_iCultureMedian;
+
 	int m_iLastTurnCSSurrendered;
 	CvEnumMap<ResourceTypes, PlayerTypes> m_aiGreatestMonopolyPlayer;
-#endif
 
 	CvString m_strScriptData;
 

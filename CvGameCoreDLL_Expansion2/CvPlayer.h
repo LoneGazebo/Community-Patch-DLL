@@ -582,8 +582,6 @@ public:
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
 	void DoUpdateTotalHappiness();
 	void DoUpdateLuxuryHappiness();
-	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
-	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
 	int GetEmpireHappinessFromCities() const;
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
@@ -591,7 +589,7 @@ public:
 	int GetUnhappiness() const;
 	void CalculateNetHappiness();
 	int GetHappinessRatioRawPercent();
-	void DistributeHappinessToCities(int iTotal, int iLux);
+	void DistributeHappinessToCities();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	void ChangeEmpireNeedsModifierGlobal(int iChange);
@@ -682,9 +680,7 @@ public:
 	int GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport = true) const;
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int getGlobalAverage(YieldTypes eYield) const;
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
 	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
@@ -712,17 +708,17 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int getHappinessFromCitizenNeeds() const;
-	int getUnhappinessFromCitizenNeeds() const;
-	int getUnhappinessFromCityCulture() const;
-	int getUnhappinessFromCityScience() const;
-	int getUnhappinessFromCityDefense() const;
-	int getUnhappinessFromCityGold() const;
-	int getUnhappinessFromCityConnection() const;
-	int getUnhappinessFromCityPillaged() const;
-	int getUnhappinessFromCityStarving() const;
-	int getUnhappinessFromCityMinority() const;
-	int getUnhappinessFromCityJFDSpecial() const;
+	int GetHappinessFromCitizenNeeds() const;
+	int GetUnhappinessFromCitizenNeeds() const;
+	int GetUnhappinessFromCityCulture() const;
+	int GetUnhappinessFromCityScience() const;
+	int GetUnhappinessFromCityDefense() const;
+	int GetUnhappinessFromCityGold() const;
+	int GetUnhappinessFromCityConnection() const;
+	int GetUnhappinessFromCityPillaged() const;
+	int GetUnhappinessFromCityStarving() const;
+	int GetUnhappinessFromCityMinority() const;
+	int GetUnhappinessFromCityJFDSpecial() const;
 #endif
 
 	int GetCityCountUnhappinessMod() const;
@@ -1578,12 +1574,10 @@ public:
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
-	int GetPuppetUnhappinessMod() const;
-	void ChangePuppetUnhappinessMod(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
-	int GetTechDeviation() const;
+	int GetTechNeedModifier() const;
 
 	int GetHappfromXSpecialists() const;
 	void ChangeHappfromXSpecialists(int iChange);
@@ -3136,14 +3130,12 @@ protected:
 	int m_iUnculturedUnhappinessModCapital;
 	int m_iIlliteracyUnhappinessModCapital;
 	int m_iMinorityUnhappinessModCapital;
-	int m_iPuppetUnhappinessMod;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhapppinessMod;
@@ -3950,7 +3942,6 @@ SYNC_ARCHIVE_VAR(int, m_iDefenseUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iUnculturedUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iIlliteracyUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iMinorityUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iPuppetUnhappinessMod)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)

@@ -274,7 +274,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
 	LUAAPIEXTN(GetFractionOriginalCapitalsUnderControl, int);
-	LUAAPIEXTN(GetTechDeviation, int);
+	LUAAPIEXTN(GetTechNeedModifier, int);
 	LUAAPIEXTN(GetTourismPenalty, int);
 	LUAAPIEXTN(GetTechsToFreePolicy, int);
 #endif
@@ -334,8 +334,6 @@ protected:
 	static int lGetHappiness(lua_State* L);
 	static int lSetHappiness(lua_State* L);
 
-	static int lGetEmpireHappinessForCity(lua_State* L);
-	static int lGetEmpireUnhappinessForCity(lua_State* L);
 	static int lGetEmpireHappinessFromCities(lua_State* L);
 	static int lGetHappinessForGAP(lua_State* L);
 
@@ -776,7 +774,6 @@ protected:
 	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	LUAAPIEXTN(GetPuppetUnhappinessMod, int);
 	LUAAPIEXTN(GetCapitalUnhappinessModCBP, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);

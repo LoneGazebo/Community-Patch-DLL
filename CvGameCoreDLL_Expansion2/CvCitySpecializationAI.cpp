@@ -1005,44 +1005,44 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 {
 	int iRtnValue = iInitialValue;
 
-	if(eYield == YIELD_GOLD)
+	if (eYield == YIELD_GOLD)
 	{
-		int iMod = (pCity->getUnhappinessFromGold() * 20);
+		int iMod = pCity->GetPoverty(false) * 20;
 		int iGPT = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
 		if (iGPT < 0)
 			iMod -= iGPT;
 
 		iRtnValue = iInitialValue * (100 + iMod) / 100;
 	}
-	else if(eYield == YIELD_FOOD)
+	else if (eYield == YIELD_FOOD)
 	{
-		int iBonus = (pCity->getUnhappinessFromStarving() * 20);
+		int iBonus = pCity->GetUnhappinessFromFamine() * 20;
 		int iMalus = pCity->getGrowthMods(); //if we're unhappy don't grow further
 
 		iRtnValue = iInitialValue * (100 + iBonus + iMalus) / 100;
 	}
-	else if(eYield == YIELD_CULTURE)
+	else if (eYield == YIELD_CULTURE)
 	{
-		int iValue = (pCity->getUnhappinessFromCulture() * 20);
-		if(iValue > 0)
+		int iValue = pCity->GetBoredom(false) * 20;
+		if (iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
 		}
 	}
-	else if(eYield == YIELD_SCIENCE)
+	else if (eYield == YIELD_SCIENCE)
 	{
-		int iValue = (pCity->getUnhappinessFromScience() * 20);
-		if(iValue > 0)
+		int iValue = pCity->GetIlliteracy(false) * 20;
+		if (iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
 		}
 	}
-	else if(eYield == YIELD_FAITH)
+	else if (eYield == YIELD_FAITH)
 	{
 		//cannot really heal religious unhappiness by faith
 		//but maybe we can buy an inquisitor eventually
-		int iValue = (pCity->getUnhappinessFromReligion() * 10);
-		if(iValue > 0)
+		int iValue = pCity->GetUnhappinessFromReligiousUnrest() * 10;
+		if (iValue > 0)
 		{
 			iRtnValue = iInitialValue * (100 + iValue) / 100;
 		}

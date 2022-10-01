@@ -28,7 +28,7 @@ SET IgnoreBullyPenalties = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
-SET CSBullyValueModifier = '100'
+SET CSBullyValueModifier = '50'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits

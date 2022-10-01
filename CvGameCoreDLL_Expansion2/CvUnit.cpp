@@ -820,7 +820,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
-				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
 			}
 		}
 	}
@@ -2837,7 +2837,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			
 			if (GET_PLAYER(eUnitOwner).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
-				GET_PLAYER(eUnitOwner).DoUpdateTotalUnhappiness();
+				GET_PLAYER(eUnitOwner).CalculateNetHappiness();
 			}
 		}
 
@@ -10097,7 +10097,7 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 
 			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
-				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
 			}
 		}
 	}
@@ -10119,7 +10119,7 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 
 			if (GET_PLAYER(getOwner()).GetNeedsModifierFromAirUnits() != 0 && getUnitInfo().GetAirUnitCap() != 0)
 			{
-				GET_PLAYER(getOwner()).DoUpdateTotalUnhappiness();
+				GET_PLAYER(getOwner()).CalculateNetHappiness();
 			}
 		}
 	}

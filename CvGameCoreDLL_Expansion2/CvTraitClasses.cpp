@@ -122,7 +122,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iEventGP(0),
 	m_iWLTKDCulture(0),
 	m_iWLTKDGATimer(0),
-	m_iGAUnhappinesNeedMod(0),
+	m_iWLTKDUnhappinessNeedsMod(0),
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
 	m_iSpyMoveRateBonus(0),
@@ -827,9 +827,9 @@ int CvTraitEntry::GetWLTKDGATimer() const
 {
 	return m_iWLTKDGATimer;
 }
-int CvTraitEntry::GetGAUnhappinesNeedMod() const
+int CvTraitEntry::GetWLTKDUnhappinessNeedsMod() const
 {
-	return m_iGAUnhappinesNeedMod;
+	return m_iWLTKDUnhappinessNeedsMod;
 }
 int CvTraitEntry::GetStartingSpies() const
 {
@@ -2388,7 +2388,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
 	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
-	m_iGAUnhappinesNeedMod					= kResults.GetInt("GAUnhappinesNeedMod");
+	m_iWLTKDUnhappinessNeedsMod				= kResults.GetInt("WLTKDUnhappinessNeedsMod");
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 	m_iSpyMoveRateBonus						= kResults.GetInt("SpyMoveRateModifier");
@@ -4160,7 +4160,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		GetNaturalWonderYieldModifier() != 0 ||
 		GetNaturalWonderHappinessModifier() != 0 ||
 		GetGrowthBoon() > 0 ||
-		GetGAUnhappinesNeedMod() != 0 ||
+		GetWLTKDUnhappinessNeedsMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
 		GetPolicyGEorGM() != 0 ||
@@ -4491,7 +4491,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iEventGP += trait->GetEventGP();
 			m_iWLTKDCulture += trait->GetWLTKDCulture();
 			m_iWLTKDGATimer += trait->GetWLTKDGATimer();
-			m_iGAUnhappinesNeedMod += trait->GetGAUnhappinesNeedMod();
+			m_iWLTKDUnhappinessNeedsMod += trait->GetWLTKDUnhappinessNeedsMod();
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
 			m_iSpyMoveRateBonus += trait->GetSpyMoveRateBonus();
@@ -5267,7 +5267,7 @@ void CvPlayerTraits::Reset()
 	m_iEventGP = 0;
 	m_iWLTKDCulture = 0;
 	m_iWLTKDGATimer = 0;
-	m_iGAUnhappinesNeedMod = 0;
+	m_iWLTKDUnhappinessNeedsMod = 0;
 	m_iStartingSpies = 0;
 	m_iStartingSpyRank = 0;
 	m_iSpyMoveRateBonus = 0;
@@ -6441,7 +6441,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return false;
 
 	//choose one
-	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage() );
+	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureMedian() );
 	ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 		
 	//first round. place on owned non-city, non-resource plots without improvement
@@ -7509,7 +7509,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iEventGP);
 	visitor(playerTraits.m_iWLTKDCulture);
 	visitor(playerTraits.m_iWLTKDGATimer);
-	visitor(playerTraits.m_iGAUnhappinesNeedMod);
+	visitor(playerTraits.m_iWLTKDUnhappinessNeedsMod);
 	visitor(playerTraits.m_iStartingSpies);
 	visitor(playerTraits.m_iStartingSpyRank);
 	visitor(playerTraits.m_iSpyMoveRateBonus);

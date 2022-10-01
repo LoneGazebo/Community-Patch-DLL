@@ -114,6 +114,12 @@ UPDATE Defines SET Value = '2' WHERE Name = 'MINOR_APPROACH_IGNORE_DEFAULT';
 UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
 
 
+-- Approach Shift Rate
+-- The rate at which AI approach scores shift from turn to turn. Valid values are between 0.01 and 1.00, default value is 0.30. Higher values make the AI more responsive to changing circumstances, while lower values make AI behavior more consistent.
+-- It should be noted that regardless of the value here, there are many triggers (such as a war declaration) which cause the AI to instantly reevaluate its current approach scores, assigning those as the new ones immediately.
+INSERT INTO Defines (Name, Value) SELECT 'APPROACH_SHIFT_PERCENT', '0.30';
+
+
 -- Approach Randomness
 -- If set to a non-zero value, multiplies the weight for each *major civ* approach by (100 +/- n%), where n is a random number between 0 and APPROACH_RANDOM_PERCENT, then divides by 100.
 -- Default value is 5. Valid values are between 0 and 100. Higher values make the AI more erratic.

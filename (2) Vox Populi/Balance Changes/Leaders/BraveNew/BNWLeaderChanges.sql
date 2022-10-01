@@ -280,7 +280,7 @@ SET WLTKDFromGATurns = '10'
 WHERE Type = 'TRAIT_CARNIVAL';
 
 UPDATE Traits
-SET GAUnhappinesNeedMod = '-50'
+SET WLTKDUnhappinessNeedsMod = '-50'
 WHERE Type = 'TRAIT_CARNIVAL';
 
 UPDATE Builds

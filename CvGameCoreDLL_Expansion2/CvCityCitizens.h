@@ -18,11 +18,12 @@ struct SPrecomputedExpensiveNumbers
 {
 	int iExcessFoodTimes100;
 	int iFoodCorpMod;
-	int iUnhappinessFromGold;
-	int iUnhappinessFromScience;
-	int iUnhappinessFromCulture;
-	int iUnhappinessFromReligion;
-	int iUnhappinessFromDistress;
+	int iFamine;
+	int iDistress;
+	int iPoverty;
+	int iIlliteracy;
+	int iBoredom;
+	int iReligiousUnrest;
 
 	vector<vector<int>> bonusForXTerrain;
 	vector<vector<int>> bonusForXFeature;

@@ -249,7 +249,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iUnculturedHappinessChangePolicyCapital(0),
 	m_iIlliteracyHappinessChangePolicyCapital(0),
 	m_iMinorityHappinessChangePolicyCapital(0),
-	m_iPuppetUnhappinessModPolicy(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
@@ -716,7 +715,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iUnculturedHappinessChangePolicyCapital = kResults.GetInt("UnculturedHappinessModCapital");
 	m_iIlliteracyHappinessChangePolicyCapital = kResults.GetInt("IlliteracyHappinessModCapital");
 	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
-	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
@@ -2547,10 +2545,6 @@ int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
 int CvPolicyEntry::GetMinorityHappinessChangePolicyCapital() const
 {
 	return m_iMinorityHappinessChangePolicyCapital;
-}
-int CvPolicyEntry::GetPuppetUnhappinessMod() const
-{
-	return m_iPuppetUnhappinessModPolicy;
 }
 int CvPolicyEntry::GetNoUnhappfromXSpecialists() const
 {
@@ -4628,7 +4622,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExperienceForLiberation();
 				break;
 			case POLICYMOD_PUPPET_BONUS:
-				rtnValue -= m_pPolicies->GetPolicyEntry(i)->GetPuppetUnhappinessMod();//negative values are better, so -=
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetProdMod();
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPuppetYieldPenaltyMod();
 				break;

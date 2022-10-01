@@ -391,12 +391,8 @@ void CvGame::init(HandicapTypes eHandicap)
 
 	doUpdateCacheOnTurn();
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		updateGlobalAverage();
-	}
-#endif
+	updateGlobalMedians();
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 	SetHighestSpyPotential();
 #endif
@@ -1167,16 +1163,15 @@ void CvGame::uninit()
 	m_eIndustrialRoute = NO_ROUTE;
 	m_eGameEra = NO_ERA;
 	m_eTeamThatCircumnavigated = NO_TEAM;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_bVictoryRandomization = false;
-	m_iCultureAverage = 0;
-	m_iScienceAverage = 0;
-	m_iDefenseAverage = 0;
-	m_iGoldAverage = 0;
-	m_iGlobalTechAvg = 0;
+
 	m_iGlobalPopulation = 0;
+	m_iBasicNeedsMedian = 0;
+	m_iGoldMedian = 0;
+	m_iScienceMedian = 0;
+	m_iCultureMedian = 0;
+
 	m_iLastTurnCSSurrendered = 0;
-#endif
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -8770,13 +8765,10 @@ void CvGame::doTurn()
 	UpdateGreatestPlayerResourceMonopoly();
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		updateGlobalAverage();
-	}
+
+	updateGlobalMedians();
 	updateEconomicTotal();
-#endif
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 	SetHighestSpyPotential();
 #endif
@@ -10980,17 +10972,10 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 int CvGame::calculateSyncChecksum()
 {
 	CvUnit* pLoopUnit;
-#if defined(MOD_BALANCE_CORE)
 	unsigned int iMultiplier;
 	unsigned long long iValue;
 	int iLoop;
 	int iI, iJ;
-#else
-	int iMultiplier;
-	int iValue;
-	int iLoop;
-	int iI, iJ;
-#endif
 
 	iValue = 0;
 
@@ -11285,7 +11270,6 @@ int CvGame::CalculateMedianNumWondersConstructed()
 
 //	--------------------------------------------------------------------------------
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 void CvGame::updateEconomicTotal()
 {
 	CvCity* pLoopCity;
@@ -11326,161 +11310,116 @@ void CvGame::updateEconomicTotal()
 	setMedianEconomicValue(viEconValues[n]);
 }
 //	--------------------------------------------------------------------------------
-void CvGame::updateGlobalAverage()
+/// Updates global medians for yields. Also updates global population (counting only citizens in non-puppet/razing/resistance cities).
+void CvGame::updateGlobalMedians()
 {
-	CvCity* pLoopCity;
 	int iCityLoop;
-	PlayerTypes eLoopPlayer;
-	int iPopulation, iTotalPopulation = 0;
-	int iCultureYield = 0;
-	int iScienceYield = 0;
-	int iDefenseYield = 0;
-	int iGoldYield = 0;
-
-	std::vector<float> vfCultureYield;
-	std::vector<float> vfScienceYield;
-	std::vector<float> vfDefenseYield;
+	int iGlobalPopulation = 0;
+	std::vector<float> vfBasicNeedsYield;
 	std::vector<float> vfGoldYield;
+	std::vector<float> vfScienceYield;
+	std::vector<float> vfCultureYield;
 
-	std::vector<int> viTechMedian;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+			continue;
+
+		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 		{
-			if (GET_PLAYER(eLoopPlayer).getNumCities() > 0)
-			{
-				int iTechProgress = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+			if (pLoopCity->IsPuppet() || pLoopCity->IsRazing() || pLoopCity->IsResistance())
+				continue;
 
-				viTechMedian.push_back(iTechProgress);
-			}
+			int iPopulation = pLoopCity->getPopulation();
+			iGlobalPopulation += iPopulation;
 
-			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
-			{
-				if(pLoopCity != NULL)
-				{
-					if (pLoopCity->IsPuppet() || pLoopCity->IsRazing() || pLoopCity->IsResistance())
-						continue;
+			if (iPopulation < /*3*/ GD_INT_GET(UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT))
+				continue;
 
-					iPopulation = pLoopCity->getPopulation();
-					
-					iTotalPopulation += iPopulation;
+			float fPopulation = (float)iPopulation;
 
-					//Uncultured
-					iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
-					float iCultureAvg = iCultureYield / (float)iPopulation;
-					vfCultureYield.push_back((float)iCultureAvg);
+			// Distress
+			int iBasicNeedsYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true, false) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true, false);
+			float fBasicNeedsAvg = iBasicNeedsYield / fPopulation;
+			vfBasicNeedsYield.push_back(fBasicNeedsAvg);
 
-					//Illiteracy
-					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
-					float iScienceAvg = iScienceYield / (float)iPopulation;
-					vfScienceYield.push_back((float)iScienceAvg);
-					
-					//Disorder
-					iDefenseYield = pLoopCity->getYieldRateTimes100(YIELD_FOOD, true) + pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, true);
-					float iDefenseAvg = iDefenseYield / (float)iPopulation;
-					vfDefenseYield.push_back((float)iDefenseAvg);
+			// Poverty
+			int iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true, false);
+			float fGoldAvg = iGoldYield / fPopulation;
+			vfGoldYield.push_back(fGoldAvg);
 
-					//Poverty
-					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
-					float iGoldAvg = iGoldYield / (float)iPopulation;
-					vfGoldYield.push_back((float)iGoldAvg);
-				}		
-			}
+			// Illiteracy
+			int iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true, false);
+			float fScienceAvg = iScienceYield / fPopulation;
+			vfScienceYield.push_back(fScienceAvg);
+
+			// Boredom
+			int iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100; // why is Culture different? >_>
+			float fCultureAvg = iCultureYield / fPopulation;
+			vfCultureYield.push_back(fCultureAvg);
 		}
 	}
-	//Cannot define median if calculations are at zero.
-	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty() || viTechMedian.empty())
-	{	
+
+	// Cannot define median if calculations are at zero.
+	if (vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty())
 		return;
-	}
+
+	// Set the global population (in non-puppeted/razing/resistance cities)
+	SetGlobalPopulation(iGlobalPopulation);
 	
 	//Select n-th percentile of each category
 	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
-	
-	size_t nt = (viTechMedian.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 
 	//Find it ...
-	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
-	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
-	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
+	std::nth_element(vfBasicNeedsYield.begin(), vfBasicNeedsYield.begin()+n, vfBasicNeedsYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
-	std::nth_element(viTechMedian.begin(), viTechMedian.begin() + nt, viTechMedian.end());
-	
-	//And set it.
-	SetCultureAverage((int)vfCultureYield[n]);
-	SetScienceAverage((int)vfScienceYield[n]);
-	SetDefenseAverage((int)vfDefenseYield[n]);
-	SetGoldAverage((int)vfGoldYield[n]);
-	SetGlobalPopulation(iTotalPopulation);
+	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
+	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 
-	DoGlobalAvgLogging();
+	// Exponential smoothing so the medians increase gradually
+	float fAlpha = /*0.65f*/ GD_FLOAT_GET(DISTRESS_MEDIAN_RATE_CHANGE);
+	int iNewMedian = int(0.5f + ((int)vfBasicNeedsYield[n] * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
+	SetBasicNeedsMedian(iNewMedian);
 
-	if ((int)viTechMedian[nt] > m_iGlobalTechAvg)
-		m_iGlobalTechAvg = (int)viTechMedian[nt];
-}
-//	--------------------------------------------------------------------------------
-void CvGame::SetCultureAverage(int iValue)
-{
-	float fAlpha = 0.65f;
-	int iAverage = int(0.5f + (iValue * fAlpha) + (GetCultureAverage() * ( 1 - fAlpha)));
-	m_iCultureAverage = iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvGame::SetScienceAverage(int iValue)
-{
-	float fAlpha = 0.65f;
-	int iAverage = int(0.5f + (iValue * fAlpha) + (GetScienceAverage() * ( 1 - fAlpha)));
-	m_iScienceAverage = iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvGame::SetDefenseAverage(int iValue)
-{
-	float fAlpha = 0.65f;
-	int iAverage = int(0.5f + (iValue * fAlpha) + (GetDefenseAverage() * ( 1 - fAlpha)));
-	m_iDefenseAverage = iAverage;
-}
-//	--------------------------------------------------------------------------------
-void CvGame::SetGoldAverage(int iValue)
-{
-	float fAlpha = 0.75f;
-	int iAverage = int(0.5f + (iValue * fAlpha) + (GetGoldAverage() * ( 1 - fAlpha)));
-	m_iGoldAverage = iAverage;
+	fAlpha = /*0.65f*/ GD_FLOAT_GET(POVERTY_MEDIAN_RATE_CHANGE);
+	iNewMedian = int(0.5f + ((int)vfGoldYield[n] * fAlpha) + (GetGoldMedian() * (1 - fAlpha)));
+	SetGoldMedian(iNewMedian);
+
+	fAlpha = /*0.65f*/ GD_FLOAT_GET(ILLITERACY_MEDIAN_RATE_CHANGE);
+	iNewMedian = int(0.5f + ((int)vfScienceYield[n] * fAlpha) + (GetScienceMedian() * (1 - fAlpha)));
+	SetScienceMedian(iNewMedian);
+
+	fAlpha = /*0.65f*/ GD_FLOAT_GET(BOREDOM_MEDIAN_RATE_CHANGE);
+	iNewMedian = int(0.5f + ((int)vfCultureYield[n] * fAlpha) + (GetCultureMedian() * (1 - fAlpha)));
+	SetCultureMedian(iNewMedian);
+
+	DoGlobalMedianLogging();
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGlobalPopulation(int iValue)
 {
-	if(GetGlobalPopulation() != iValue)
 	m_iGlobalPopulation = iValue;
 }
+void CvGame::SetBasicNeedsMedian(int iValue)
+{
+	m_iBasicNeedsMedian = iValue;
+}
+void CvGame::SetGoldMedian(int iValue)
+{
+	m_iGoldMedian = iValue;
+}
+void CvGame::SetScienceMedian(int iValue)
+{
+	m_iScienceMedian = iValue;
+}
+void CvGame::SetCultureMedian(int iValue)
+{
+	m_iCultureMedian = iValue;
+}
 //	--------------------------------------------------------------------------------
-int CvGame::GetCultureAverage() const
-{
-	return m_iCultureAverage;
-}
-int CvGame::GetScienceAverage() const
-{
-	return m_iScienceAverage;
-}
-int CvGame::GetDefenseAverage() const
-{
-	return m_iDefenseAverage;
-}	
-int CvGame::GetGoldAverage() const
-{
-	return m_iGoldAverage;
-}
-int CvGame::GetGlobalPopulation() const
-{
-	return m_iGlobalPopulation;
-}
-int CvGame::GetGlobalTechAvg() const
-{
-	return m_iGlobalTechAvg;
-}
-
-void CvGame::DoGlobalAvgLogging()
+void CvGame::DoGlobalMedianLogging()
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -11491,22 +11430,44 @@ void CvGame::DoGlobalAvgLogging()
 		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		strOutput.Format("Turn: %03d", GC.getGame().getElapsedGameTurns());
-		strTemp.Format("Food/Production: %d", m_iDefenseAverage);
+		strTemp.Format("Food/Production: %d", GetBasicNeedsMedian());
 		strOutput += ", " + strTemp;
 
-		strTemp.Format("Gold: %d", m_iGoldAverage);
+		strTemp.Format("Gold: %d", GetGoldMedian());
 		strOutput += ", " + strTemp;
 
-		strTemp.Format("Science: %d", m_iScienceAverage);
+		strTemp.Format("Science: %d", GetScienceMedian());
 		strOutput += ", " + strTemp;
 
-		strTemp.Format("Culture: %d", m_iCultureAverage);
+		strTemp.Format("Culture: %d", GetCultureMedian());
 		strOutput += ", " + strTemp;
 		
 		pLog->Msg(strOutput);
 	}
 }
-#endif
+//	--------------------------------------------------------------------------------
+int CvGame::GetGlobalPopulation() const
+{
+	return m_iGlobalPopulation;
+}
+int CvGame::GetBasicNeedsMedian() const
+{
+	return m_iBasicNeedsMedian;
+}
+int CvGame::GetGoldMedian() const
+{
+	return m_iGoldMedian;
+}
+int CvGame::GetScienceMedian() const
+{
+	return m_iScienceMedian;
+}
+int CvGame::GetCultureMedian() const
+{
+	return m_iCultureMedian;
+}
+//	--------------------------------------------------------------------------------
+
 #if defined(MOD_BALANCE_CORE_SPIES)
 void CvGame::SetHighestSpyPotential()
 {	
@@ -11747,12 +11708,13 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 
 	visitor(game.m_eTeamThatCircumnavigated);
 	visitor(game.m_bVictoryRandomization);
-	visitor(game.m_iCultureAverage);
-	visitor(game.m_iScienceAverage);
-	visitor(game.m_iDefenseAverage);
-	visitor(game.m_iGoldAverage);
-	visitor(game.m_iGlobalTechAvg);
+
 	visitor(game.m_iGlobalPopulation);
+	visitor(game.m_iBasicNeedsMedian);
+	visitor(game.m_iGoldMedian);
+	visitor(game.m_iScienceMedian);
+	visitor(game.m_iCultureMedian);
+
 	visitor(game.m_iLastTurnCSSurrendered);
 
 	visitor(game.m_aiGreatestMonopolyPlayer);
@@ -13469,29 +13431,25 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strOutput += ", " + strTemp;
 		}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		// Global Yield Averages
+		if (bFirstTurn)
 		{
-			if(bFirstTurn)
-			{
-				strOutput += ", CultureAvg";
-				strOutput += ", ScienceAvg";
-				strOutput += ", DefenseAvg";
-				strOutput += ", GoldAvg";
-			}
-			else
-			{
-				strTemp.Format("%d", GC.getGame().GetCultureAverage());
-				strOutput += ", " + strTemp;
-				strTemp.Format("%d", GC.getGame().GetScienceAverage());
-				strOutput += ", " + strTemp;
-				strTemp.Format("%d", GC.getGame().GetDefenseAverage());
-				strOutput += ", " + strTemp;
-				strTemp.Format("%d", GC.getGame().GetGoldAverage());
-				strOutput += ", " + strTemp;
-			}
+			strOutput += ", BasicNeedsMedian";
+			strOutput += ", GoldMedian";
+			strOutput += ", ScienceMedian";
+			strOutput += ", CultureMedian";
 		}
-#endif
+		else
+		{
+			strTemp.Format("%d", GC.getGame().GetBasicNeedsMedian());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetGoldMedian());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetScienceMedian());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetCultureMedian());
+			strOutput += ", " + strTemp;
+		}
 
 		pLog->Msg(strOutput);
 	}

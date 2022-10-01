@@ -1506,10 +1506,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					return INT_MAX;
 
 				// Don't sell our last copy if it would make us unhappy
-				int iUnhappyCitizens = GetPlayer()->getUnhappinessFromCitizenNeeds();
+				int iUnhappyCitizens = GetPlayer()->GetUnhappinessFromCitizenNeeds();
 				if (iUnhappyCitizens > 0)
 				{
-					int iHappyCitizens = GetPlayer()->getHappinessFromCitizenNeeds() - iBaseHappiness;
+					int iHappyCitizens = GetPlayer()->GetHappinessFromCitizenNeeds() - iBaseHappiness;
 					int iPercent = min(200, (iHappyCitizens * 100) / max(1, iUnhappyCitizens));
 					iPercent /= 2;
 

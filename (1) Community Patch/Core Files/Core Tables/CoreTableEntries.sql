@@ -831,7 +831,7 @@ ALTER TABLE Policies ADD COLUMN 'XPopulationConscription' INTEGER DEFAULT 0;
 -- No Unhappiness from Expansion
 ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
 
--- No Unhapppiness from Isolation
+-- No Unhappiness from Isolation
 ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT 0;
 
 -- Double City Border Growth During GA (does not stack with WLTKD)
@@ -1338,8 +1338,8 @@ ALTER TABLE Traits ADD COLUMN 'WLTKDCultureBoost' INTEGER DEFAULT 0;
 -- Cities gain x turns of WLTKD because of a GA trigger!
 ALTER TABLE Traits ADD COLUMN 'WLTKDFromGATurns' INTEGER DEFAULT 0;
 
--- Unhappienss modifier during GAs - more negative the better!
-ALTER TABLE Traits ADD COLUMN 'GAUnhappinesNeedMod' INTEGER DEFAULT 0;
+-- Unhappiness modifier during WLTKD - more negative the better!
+ALTER TABLE Traits ADD COLUMN 'WLTKDUnhappinessNeedsMod' INTEGER DEFAULT 0;
 
 -- Start game with x number of spies
 ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;

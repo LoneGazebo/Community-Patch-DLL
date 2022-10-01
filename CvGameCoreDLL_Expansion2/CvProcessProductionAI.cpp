@@ -186,9 +186,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 			iModifier -= 100;
 		}
 
-		if (m_pCity->getUnhappinessFromDefense() > 0)
+		if (m_pCity->GetDistress(false) > 0)
 		{
-			iModifier += (m_pCity->getUnhappinessFromDefense() * 5);
+			iModifier += (m_pCity->GetDistress(false) * 5);
 		}
 
 		iModifier *= (pProcess->getDefenseValue() + 100);
@@ -229,14 +229,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				UNREACHABLE();
 				case YIELD_GOLD:
 				{
-					if(MOD_BALANCE_CORE_HAPPINESS)
+					if (MOD_BALANCE_VP)
 					{
-						if(m_pCity->getUnhappinessFromGold() > 0)
+						int iPoverty = m_pCity->GetPoverty(false);
+						if (iPoverty > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromGold() * 3);
+							iModifier += iPoverty * 3;
 						}
 					}
-					if(eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
+					if (eStrategyLosingMoney != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 					{
 						iModifier += 50;
 					}
@@ -244,14 +245,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_CULTURE:
 				{
-					if(MOD_BALANCE_CORE_HAPPINESS)
+					if (MOD_BALANCE_VP)
 					{
-						if(m_pCity->getUnhappinessFromCulture() > 0)
+						int iBoredom = m_pCity->GetBoredom(false);
+						if (iBoredom > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromCulture() * 3);
+							iModifier += iBoredom * 3;
 						}
 					}
-					if(eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
+					if (eStrategyCultureGS != NO_ECONOMICAISTRATEGY && kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyCultureGS))
 					{
 						iModifier += 30;
 					}
@@ -259,14 +261,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_SCIENCE:
 				{
-					if(MOD_BALANCE_CORE_HAPPINESS)
+					if (MOD_BALANCE_VP)
 					{
-						if(m_pCity->getUnhappinessFromScience() > 0)
+						int iIlliteracy = m_pCity->GetIlliteracy(false);
+						if (iIlliteracy > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromScience() * 3);
+							iModifier += iIlliteracy * 3;
 						}
 					}
-					if(eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
+					if (eScienceCap != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eScienceCap))
 					{
 						iModifier += 30;
 					}
@@ -274,7 +277,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_FOOD:
 				{
-					if(m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
+					if (m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
 						return 0;
 
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
@@ -282,18 +285,19 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						iModifier += 30;
 					}
-					if(MOD_BALANCE_CORE_HAPPINESS)
+					if (MOD_BALANCE_VP)
 					{
-						if(m_pCity->getUnhappinessFromStarving() > 0)
+						int iFamine = m_pCity->GetUnhappinessFromFamine();
+						if (iFamine > 0)
 						{
-							iModifier += (m_pCity->getUnhappinessFromStarving() * 10);
+							iModifier += iFamine * 10;
 						}
 					}
-					if(eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
+					if (eNeedFood != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFood))
 					{
 						iModifier += 20;
 					}
-					if(eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
+					if (eNeedFoodNaval != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedFoodNaval))
 					{
 						iModifier += 20;
 					}
