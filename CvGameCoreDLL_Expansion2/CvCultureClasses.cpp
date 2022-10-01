@@ -5253,39 +5253,6 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 	m_iTurnIdeologyAdopted = iValue;
 }
 
-/// How strong will a concert tour be right now?
-int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
-{
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	if (iMultiplier <= 0)
-		return 0;
-
-	int iStrength = 0;
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		CvCity *pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			iMultiplier += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-		iStrength = m_pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iMultiplier);
-	}
-	else
-	{
-#endif
-	iStrength = iMultiplier * GetTourism() / 100;
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	}
-#endif
-	
-	// Scale by game speed
-	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-	iStrength /= 100;
-
-	return max(iStrength, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
-}
-
 /// Add tourism with all known civs
 void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 {

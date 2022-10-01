@@ -490,10 +490,10 @@ public:
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;
 	int GetConversionStrength(const CvCity* pCity) const;
-#if defined(MOD_BALANCE_CORE)
+
 	bool greatperson();
-#endif
 	int GetScaleAmount(int iAmountToScale) const;
+
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getDiscoverAmount();
 	bool discover();
@@ -501,14 +501,14 @@ public:
 	bool IsCanRushBuilding(CvCity* pCity, bool bTestVisible) const;
 	bool DoRushBuilding();
 
+	bool canHurry(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getMaxHurryProduction(CvCity* pCity) const;
 	int getHurryProduction(const CvPlot* pPlot) const;
-	bool canHurry(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool hurry();
 
-	int getTradeGold(const CvPlot* pPlot) const;
-	int getTradeInfluence(const CvPlot* pPlot) const;
 	bool canTrade(const CvPlot* pPlot, bool bTestVisible = false) const;
+	int getTradeGold() const;
+	int getTradeInfluence(const CvPlot* pPlot) const;
 	bool trade();
 
 	bool canBuyCityState(const CvPlot* pPlot, bool bTestVisible = false) const;
@@ -524,10 +524,13 @@ public:
 	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
+	int getNumberOfCultureBombs() const;
+	void setNumberOfCultureBombs(const int iBombs);
 
 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;
+	int getGAPBlast();
+	int getGoldenAgeTurns() const;
 	bool goldenAge();
-	int GetGoldenAgeTurns() const;
 
 	bool canGivePolicies(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getGivePoliciesCulture();
@@ -535,6 +538,7 @@ public:
 
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getBlastTourism();
+	int getBlastTourismTurns();
 	bool blastTourism();
 
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
@@ -544,10 +548,7 @@ public:
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int getNumberOfCultureBombs() const;
-	void setNumberOfCultureBombs(const int iBombs);
-#endif
+
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -1621,13 +1622,14 @@ public:
 	int GetHurryStrength() const;
 	void SetHurryStrength(int iValue);
 
+	int GetGoldBlastStrength() const;
+	void SetGoldBlastStrength(int iValue);
+
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
 
 	int GetGAPBlastStrength() const;
 	void SetGAPBlastStrength(int iValue);
-
-	int getGAPBlast();
 
 	bool IsPromotionEverObtained(PromotionTypes eIndex) const;
 	void SetPromotionEverObtained(PromotionTypes eIndex, bool bValue);
@@ -2383,6 +2385,7 @@ protected:
 	int m_iTourismBlastLength;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHurryStrength;
+	int m_iGoldBlastStrength;
 	int m_iScienceBlastStrength;
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
@@ -2759,6 +2762,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastLength)
 SYNC_ARCHIVE_VAR(int, m_iHurryStrength)
+SYNC_ARCHIVE_VAR(int, m_iGoldBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)

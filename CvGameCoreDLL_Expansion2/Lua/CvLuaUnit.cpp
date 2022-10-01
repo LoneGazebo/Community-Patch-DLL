@@ -1853,9 +1853,9 @@ int CvLuaUnit::lGetHurryProduction(lua_State* L)
 int CvLuaUnit::lGetTradeGold(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2); // not used anymore
 
-	const int iResult = pkUnit->getTradeGold(pkPlot);
+	const int iResult = pkUnit->getTradeGold();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1953,7 +1953,7 @@ int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 		iResult = pkUnit->GetGAPBlastStrength();
 	}
 	else
-		iResult = pkUnit->GetGoldenAgeTurns();
+		iResult = pkUnit->getGoldenAgeTurns();
 
 	lua_pushinteger(L, iResult);
 	return 1;

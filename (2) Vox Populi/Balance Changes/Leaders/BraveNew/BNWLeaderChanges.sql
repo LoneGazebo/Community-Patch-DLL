@@ -135,9 +135,9 @@ UPDATE Traits
 SET ReducePuppetPenalties = '30'
 WHERE Type = 'TRAIT_SUPER_CITY_STATE';
 
-UPDATE Units SET Found = '1' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
-UPDATE Units SET FoundColony = '3' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
-UPDATE Units SET Moves = '4' WHERE Type = 'UNIT_VENETIAN_MERCHANT';
+UPDATE Units
+SET Found = '1', FoundColony = '99', Moves = '4', BaseGold = '0', NumGoldPerEra = '0', BaseWLTKDTurns = '5', BaseGoldTurnsToCount = '5'
+WHERE Type = 'UNIT_VENETIAN_MERCHANT';
 
 -- Gajah Mada -- Boost Candi, No Isolation Unhappiness
 

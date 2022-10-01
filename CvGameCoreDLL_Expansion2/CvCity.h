@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
 	All other marks and trademarks are the property of their respective owners.
@@ -1036,6 +1036,11 @@ public:
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 	void setEconomicValue(PlayerTypes ePossibleNewOwner, int iValue);
+
+	// Instant Yield History
+	void ChangeInstantYieldTotal(YieldTypes eYield, int iValue);
+	int GetInstantYieldTotal(YieldTypes eYield);
+
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
@@ -1934,6 +1939,7 @@ protected:
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iNukeInterceptionChance;
 	std::vector<int> m_aiEconomicValue;
+	std::tr1::unordered_map<YieldTypes, int> m_miInstantYieldsTotal;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
@@ -2313,6 +2319,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)

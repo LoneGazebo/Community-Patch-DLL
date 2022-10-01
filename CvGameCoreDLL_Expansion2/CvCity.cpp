@@ -276,6 +276,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	, m_aiGreatWorkYieldChange()
 	, m_aiEconomicValue()
+	, m_miInstantYieldsTotal()
 	, m_aiEventChoiceDuration()
 	, m_aiEventIncrement()
 	, m_abEventActive()
@@ -1490,6 +1491,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiLongestPotentialTradeRoute[iI] = 0;
 	}
 #endif
+	m_miInstantYieldsTotal.clear();
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
 	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES);
@@ -7920,6 +7922,18 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	CvAssertMsg(ePossibleOwner < MAX_CIV_PLAYERS, "ePossibleOwner expected to be < MAX_CIV_PLAYERS");
 	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
+
+ /// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
+ void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
+ {
+	 VALIDATE_OBJECT;
+	 m_miInstantYieldsTotal[eYield] += iValue;
+ }
+ 
+ int CvCity::GetInstantYieldTotal(YieldTypes eYield)
+ {
+	 return m_miInstantYieldsTotal[eYield];
+ }
 
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer) const
 {
@@ -31628,45 +31642,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
 
-			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
-			{
-				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
-			}
-			if (pUnit->getUnitInfo().GetTourismBonusTurns() > 0)
-			{
-				int iNumTurns = pUnit->getUnitInfo().GetTourismBonusTurns();
-				CvCity* pLoopCity;
-				int iLoop;
-				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-				{
-					iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-				}
-
-				iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iNumTurns /= 100;
-
-				pUnit->SetTourismBlastLength(iNumTurns);
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
-			{
-				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
-			}
-			if (pUnit->getUnitInfo().GetBaseHurry() > 0)
-			{
-				pUnit->SetHurryStrength(pUnit->getHurryProduction(pUnit->plot()));
-			}
-			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
-			{
-				pUnit->SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
-			}
-
-			if (pUnit->getUnitInfo().GetBaseTurnsForGAPToCount() > 0)
-			{
-				pUnit->SetGAPBlastStrength(pUnit->getGAPBlast());
-			}
-#endif
-
 			kPlayer.ChangeFaith(-iFaithCost);
 
 			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
@@ -32646,6 +32621,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTradeRouteLandDistanceModifier);
 	visitor(city.m_iNukeInterceptionChance);
 	visitor(city.m_aiEconomicValue);
+	visitor(city.m_miInstantYieldsTotal);
 	visitor(city.m_aiBaseYieldRateFromReligion);
 	visitor(city.m_aiBaseYieldRateFromCSAlliance);
 	visitor(city.m_aiBaseYieldRateFromCSFriendship);

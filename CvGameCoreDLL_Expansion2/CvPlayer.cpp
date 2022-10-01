@@ -482,10 +482,8 @@ CvPlayer::CvPlayer() :
 	, m_bIsReformation()
 	, m_iSupplyFreeUnits()
 	, m_viInstantYieldsTotal()
-	, m_viTourismHistory()
-	, m_viGAPHistory()
-	, m_viCultureHistory()
-	, m_viScienceHistory()
+	, m_miLocalInstantYieldsTotal()
+	, m_aiYieldHistory()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_iHappinessPerXPopulationGlobal()
@@ -1889,10 +1887,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_viInstantYieldsTotal.clear();
 	m_viInstantYieldsTotal.resize(NUM_YIELD_TYPES, 0);
 
-	m_viTourismHistory.clear();
-	m_viGAPHistory.clear();
-	m_viCultureHistory.clear();
-	m_viScienceHistory.clear();
+	m_miLocalInstantYieldsTotal.clear();
+	m_aiYieldHistory.clear();
 
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -18109,7 +18105,7 @@ int CvPlayer::getAvgGoldRate() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::cacheAvgGoldRate()
 {
-	m_iCachedGoldRate = calculateGoldRate() + GetTreasury()->AverageIncome100(10)/100;
+	m_iCachedGoldRate = calculateGoldRate() + GetTreasury()->AverageIncome100(/*10*/ GD_INT_GET(HISTORY_NUM_TURNS_TO_AVERAGE))/100;
 }
 
 int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
@@ -18121,6 +18117,81 @@ int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
 		return INT_MAX;
 
 	return -iGold/max(1,iAvgGPT);
+}
+
+/// What is the average production produced by our cities?
+int CvPlayer::GetAverageProduction() const
+{
+	return GetAverageProductionTimes100() / 100;
+}
+/// What is the average production produced by our cities (with decimals)?
+int CvPlayer::GetAverageProductionTimes100() const
+{
+	vector<int> viCityProduction;
+	int iNumBestCities = /*4*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
+
+	int iProduction = 0;
+
+	const CvCity* pLoopCity;
+
+	int iLoop;
+	// Collect production from each city
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		viCityProduction.push_back(pLoopCity->getYieldRateTimes100(YIELD_PRODUCTION, false));
+	}
+	int iNumCities = max((int)viCityProduction.size(), 1);
+	// Sort production from lowest to highest
+	sort(viCityProduction.begin(), viCityProduction.end());
+
+	// Add the X highest city production together
+	int iCurrentCity = 0;
+	for (vector<int>::reverse_iterator it = viCityProduction.rbegin(); it != viCityProduction.rend(); ++it)
+	{
+		iProduction += *it;
+		if (++iCurrentCity >= iNumBestCities)
+			break;
+	}
+
+	return iProduction / min(iNumBestCities, iNumCities);
+}
+
+/// What is the average instant production produced by our cities?
+int CvPlayer::GetAverageInstantProduction()
+{
+	return GetAverageInstantProductionTimes100() / 100;
+}
+/// What is the average production produced by our cities (with decimals)?
+int CvPlayer::GetAverageInstantProductionTimes100()
+{
+	vector<int> viCityProduction;
+	int iNumBestCities = /*4*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
+
+	int iProduction = 0;
+
+	CvCity* pLoopCity;
+
+	int iLoop;
+	// Collect average instant production from each city since the time of founding
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		int iTurnsExisted = max(GC.getGame().getElapsedGameTurns() - pLoopCity->getGameTurnFounded(), 1);
+		viCityProduction.push_back(pLoopCity->GetInstantYieldTotal(YIELD_PRODUCTION) * 100 / iTurnsExisted);
+	}
+	int iNumCities = max((int)viCityProduction.size(), 1);
+	// Sort production from lowest to highest
+	sort(viCityProduction.begin(), viCityProduction.end());
+
+	// Add the X highest city production together
+	int iCurrentCity = 0;
+	for (vector<int>::reverse_iterator it = viCityProduction.rbegin(); it != viCityProduction.rend(); ++it)
+	{
+		iProduction += *it;
+		if (++iCurrentCity >= iNumBestCities)
+			break;
+	}
+
+	return iProduction / min(iNumBestCities, iNumCities);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26770,6 +26841,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							pLoopCity->setFood(0);
 						}
+						// keep track of local yields in city
+						pLoopCity->ChangeInstantYieldTotal(eYield, iValue);
 					}
 					break;
 					case YIELD_PRODUCTION:
@@ -26786,6 +26859,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						{
 							pLoopCity->setProduction(0);
 						}
+						// keep track of local yields in city
+						pLoopCity->ChangeInstantYieldTotal(eYield, iValue);
 					}
 					break;
 					case YIELD_GOLD:
@@ -26940,6 +27015,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 								pLoopCity->SetJONSCultureStored(0);
 							}
 						}
+						// keep track of local yields in city
+						pLoopCity->ChangeInstantYieldTotal(eYield, iValue);
 					}
 					break;
 					case YIELD_JFD_HEALTH:
@@ -26954,7 +27031,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 
 				//keep track of what we're doing
-				m_viInstantYieldsTotal[eYield] = m_viInstantYieldsTotal[eYield] + iValue;
+				m_viInstantYieldsTotal[eYield] += iValue;
 
 
 				//And now notifications.
@@ -41565,7 +41642,7 @@ void CvPlayer::setReplayDataValue(const CvString& strDataset, unsigned int uiTur
 	it->second[uiTurn] = iValue;
 }
 
-int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
+int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant)
 {
 	if (iNumTurns == 0)
 		return 0;
@@ -41575,64 +41652,54 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns)
 
 	int iYield = 0;
 	int iLoop = 0;
-	switch (eYield)
+
+	// Average over X turns unles iNumTurns is larger
+	int iNumHistory = /*10*/ GD_INT_GET(HISTORY_NUM_TURNS_TO_AVERAGE);
+	if (!MOD_BALANCE_VP || iNumTurns > iNumHistory)
+		iNumHistory = iNumTurns;
+
+	std::vector<int>& viYieldHistory = m_aiYieldHistory[eYield];
+
+	for (int i = viYieldHistory.size()-1; i >= 0; i--)
 	{
-		case YIELD_TOURISM:
-		{
-			for (int i = m_viTourismHistory.size()-1; i >= 0; i--)
-			{
-				iYield += m_viTourismHistory[i];
-				iLoop++;
-				if (iLoop >= iNumTurns)
-					break;
-			}
+		iYield += viYieldHistory[i];
+		if (++iLoop >= iNumHistory)
 			break;
-		}
-		case YIELD_CULTURE:
-		{
-			for (int i = m_viCultureHistory.size()-1; i >= 0; i--)
-			{
-				iYield += m_viCultureHistory[i];
-				iLoop++;
-				if (iLoop >= iNumTurns)
-					break;
-			}
-			break;
-		}
-		case YIELD_GOLDEN_AGE_POINTS:
-		{
-			for (int i = m_viGAPHistory.size()-1; i >= 0; i--)
-			{
-				iYield += m_viGAPHistory[i];
-				iLoop++;
-				if (iLoop >= iNumTurns)
-					break;
-			}
-			break;
-		}
-		case YIELD_SCIENCE:
-		{
-			for (int i = m_viScienceHistory.size()-1; i >= 0; i--)
-			{
-				iYield += m_viScienceHistory[i];
-				iLoop++;
-				if (iLoop >= iNumTurns)
-					break;
-			}
-			break;
-		}
-		default:
-		UNREACHABLE(); // Other yield types are untracked.
 	}
+
+	if (iNumHistory != iNumTurns)
+		iYield = iNumTurns * iYield / iNumHistory;
+
+	// Include average accumulated instant yields over elapsed turns
+	if (!bIgnoreInstant)
+	{
+		switch (eYield)
+		{
+
+			case YIELD_PRODUCTION:
+			case YIELD_FOOD:
+			{
+				iYield += iNumTurns * m_miLocalInstantYieldsTotal[eYield] / (GC.getGame().getElapsedGameTurns() + 1);
+				break;
+			}
+			default:
+				iYield += iNumTurns * m_viInstantYieldsTotal[eYield] / (GC.getGame().getElapsedGameTurns() + 1);
+		}
+	}
+
 	return iYield;
 }
 
 void CvPlayer::updateYieldPerTurnHistory()
 {
-	m_viTourismHistory.push_back(GetCulture()->GetTourism() / 100);
-	m_viCultureHistory.push_back(GetTotalJONSCulturePerTurn());
-	m_viGAPHistory.push_back(GetGoldenAgePointsFromEmpire());
-	m_viScienceHistory.push_back(calculateTotalYield(YIELD_SCIENCE));
+	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
+	m_aiYieldHistory[YIELD_GOLD].push_back(calculateGoldRate());
+	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
+	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurn());
+	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
+	m_aiYieldHistory[YIELD_GOLDEN_AGE_POINTS].push_back(GetGoldenAgePointsFromEmpire());
+	
+	m_miLocalInstantYieldsTotal[YIELD_PRODUCTION] += GetAverageInstantProduction();
 }
 
 //	--------------------------------------------------------------------------------
@@ -45779,10 +45846,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iReformationFollowerReduction);
 	visitor(player.m_bIsReformation);
 	visitor(player.m_viInstantYieldsTotal);
-	visitor(player.m_viTourismHistory);
-	visitor(player.m_viGAPHistory);
-	visitor(player.m_viCultureHistory);
-	visitor(player.m_viScienceHistory);
+	visitor(player.m_miLocalInstantYieldsTotal);
+	visitor(player.m_aiYieldHistory);
 	visitor(player.m_iUprisingCounter);
 	visitor(player.m_iExtraHappinessPerLuxury);
 	visitor(player.m_iUnhappinessFromUnits);

@@ -405,6 +405,11 @@ public:
 	void cacheAvgGoldRate();
 	int getTurnsToBankruptcy(int iAssumedExtraExpense) const;
 
+	int GetAverageProduction() const;
+	int GetAverageProductionTimes100() const;
+	int GetAverageInstantProduction();
+	int GetAverageInstantProductionTimes100();
+
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;
 	int unitsGoldenAgeReady() const;
@@ -2401,7 +2406,7 @@ public:
 	int getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const;
 	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
-	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
+	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant = false);
 	void updateYieldPerTurnHistory();
 
 	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
@@ -2969,10 +2974,8 @@ protected:
 	int m_iReformationFollowerReduction;
 	bool m_bIsReformation;
 	std::vector<int> m_viInstantYieldsTotal;
-	std::vector<int> m_viTourismHistory;
-	std::vector<int> m_viGAPHistory;
-	std::vector<int> m_viCultureHistory;
-	std::vector<int> m_viScienceHistory;
+	std::tr1::unordered_map<YieldTypes, int> m_miLocalInstantYieldsTotal;
+	std::tr1::unordered_map<YieldTypes, std::vector<int>> m_aiYieldHistory;
 #endif
 	int m_iUprisingCounter;
 	int m_iExtraHappinessPerLuxury;
@@ -3797,10 +3800,8 @@ SYNC_ARCHIVE_VAR(int, m_iReferenceFoundValue)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viTourismHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viGAPHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viCultureHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viScienceHistory)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miLocalInstantYieldsTotal)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, std::vector<int>>), m_aiYieldHistory)
 SYNC_ARCHIVE_VAR(int, m_iUprisingCounter)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerLuxury)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromUnits)
