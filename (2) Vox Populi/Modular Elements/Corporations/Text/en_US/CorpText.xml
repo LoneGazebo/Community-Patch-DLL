@@ -60,7 +60,7 @@
 			<Text>Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MONOPOLY_TITLE">
-			<Text>{TXT_KEY_TOPIC_MONOPOLY}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_MONOPOLY}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MONOPOLY_BODY">
 			<Text>[COLOR_POSITIVE_TEXT]Monopolies[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Overhaul.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Luxury Global Monopolies[ENDCOLOR]: the essence of the Monopoly system is expansion: as your empire expands throughout the game (either through combat or settlement), be on the lookout for Luxury resources that you already have copies of. AS you collect more and more copies of the same Luxury Resources, the percentage of global resources you control goes up. If this value goes over 50% (i.e. you control more than 50% of the world's supply of any resource), you gain a Global Monopoly over that Resource. Each Global Monopoly has a unique bonus - some grant additional yields to your tiles, whereas others boost City yields by a set percentage (see the Resource section of the Civilopedia for details).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Global Monopolies[ENDCOLOR]: Strategic Resources operate the same way as Luxury Resources with regards to Monopolies, with one major exception. Due to the vast abundance of these resources, a true 50% Monopoly can be quite difficult. As a result, Strategic Resources have two tiers: 'Strategic' Monopolies and 'True' Monopolies. Strategic Monopolies occur at 25%, and generate special combat bonuses (such as increased health regeneration or increase defense). True Monopolies occur at 50% and, like Luxury Monopolies, they generate bonuses to City and/or tile yields.</Text>
@@ -77,7 +77,7 @@
 			<Text>Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_BODY">
 			<Text>[COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Overhaul. They can have a great impact on your empire's economic development, especially in the later part of a game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Founding Corporations[ENDCOLOR]: There are seven distinct Corporations in the game, each of which becomes available once you have researched the Corporations Technology during the Modern Age. Each Corporation has a specific set of Resource Monopolies that it relies upon - if you do not have at least one of these Resource Monopolies, you will not be able to found the Corporation. Once these two requirements are met, you need to construct the 'Headquarters' of the Corporation in one of your Cities. These buildings are World Wonders, so only one player in the world may found each Corporation! Furthermore, once you have founded a Corporation, you cannot found another one, so make sure you like the one you pick![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Building Corporate Offices[ENDCOLOR]: Once you have founded your Corporation, you can begin establishing Corporate Offices in each of your Cities. These buildings come with special bonuses similar to your Corporation's Headquarters, and are thus worthwhile to construct on their own. Most bonuses from Corporations scale with the number of Cities you own, so larger empires benefit greatly from founding a Corporation and building as many Offices as possible!</Text>
@@ -90,7 +90,7 @@
 			<Text>Spreading Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREADING}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_SPREADING}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_BODY">
 			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. There is also a random chance (~5%) that a Franchise will be created in a nearby Foreign city each turn, if you are currently trading with that Civilization. You can only spread your Corporation to each foreign City once, and you cannot have more Franchises than the maximum number of Trade Routes you can support.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
@@ -103,7 +103,7 @@
 			<Text>Corporation Types</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TYPES_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_TYPES}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_TYPES}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY">
 			<Text>[COLOR_POSITIVE_TEXT]Corporation Types[ENDCOLOR]: there are seven Corporations available in the Community Balance Overhaul. Each of these can only be constructed once (and only one per player), so choose wisely! For more on this, see the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] Tab of the Civilopedia.</Text>
@@ -163,14 +163,14 @@
 			<Text>Monopoly Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_26">
-			<Text>Corporations &amp; Monopolies</Text>
+			<Text>[COLOR_GREEN]Corporations &amp; Monopolies[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOPIC_CORPORATION_FOUNDING">
 			<Text>Founding Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FOUNDING_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_FOUNDING}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_FOUNDING}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FOUNDING_BODY">
 			<Text>In order to establish a Corporation, you need to construct its associated Headquarters in one of your cities, and the Corporation must not be actively founded by another civilization. Headquarters may only be established after you have a Global Monopoly on one of its required Monopoly Resources. Once you've constructed the Headquarters, you will automatically found the Corporation and immediately receive its Corporation benefits. You also receive a free Office in the city that constructed it. You can only establish one Corporation at a time, so choose carefully!</Text>
@@ -183,7 +183,7 @@
 			<Text>Destroying Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_DESTROYING_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_DESTROYING}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_DESTROYING}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_DESTROYING_BODY">
 			<Text>When a city that has constructed a Corporation Headquarters is acquired or destroyed through any means by another civilization, that Corporation is immediately destroyed. All Offices and Franchises around the world are immediately closed, and the founding Civilization immediately loses all benefits from that Corporation. It is extremely important to protect your Corporation, as you will lose all of your progress in spreading that Corporation![NEWLINE][NEWLINE]A destroyed Corporation immediately becomes available to be founded again by any civilization in the world. There is no restriction in the number of times a Corporation may be established in a game.</Text>
@@ -196,7 +196,7 @@
 			<Text>Offices</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICES_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_OFFICES}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_OFFICES}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICES_BODY">
 			<Text>Offices can be established in any of your empire's cities after you've established a Corporation. Offices allow you to spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes. Each [ICON_INTERNATIONAL_TRADE] Trade Route you establish from a city with an Office to a foreign city without your Corporation's Franchise will spread your Corporation's Franchise to that city at the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route. In addition to a base effect, each Office has a benefit that stacks based on the number of Franchises you've established in foreign cities. The more Offices you own in the empire, the faster your Corporation can spread. Spread your Corporation to enhance its benefit to your Civilization!</Text>
@@ -209,7 +209,7 @@
 			<Text>Franchises</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FRANCHISES_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_FRANCHISES}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_FRANCHISES}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_FRANCHISES_BODY">
 			<Text>Franchises cannot be constructed in any city. Instead they are created after a [ICON_INTERNATIONAL_TRADE] Trade Route from a city you own with an Office to a foreign city that does not already contain your Corporation's Franchise is completed. Franchises increase the Empire's overall Office benefit, so use them to strengthen your Corporation's effect. You can only build a maximum number of Franchises, determined by the size of the map, the number of [ICON_INTERNATIONAL_TRADE] Trade Routes you can establish, and any bonuses from any [ICON_CULTURE] Social Policies you have unlocked.</Text>
@@ -222,7 +222,7 @@
 			<Text>Monopolies</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_MONOPOLIES_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_MONOPOLIES}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_MONOPOLIES}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_MONOPOLIES_BODY">
 			<Text>Monopolies represent the amount of a particular Luxury or Strategic Resource you own vs. the amount of that resource on the map. As you obtain more copies of a resource, your Monopoly Percentage will increase. If you obtain 50% or more of a Monopoly over a resource, you obtain a [COLOR_POSITIVE_TEXT]Global Monopoly[ENDCOLOR] over that resource. Obtaining a Global Monopoly grants a unique bonus per resource, so you should make it a priority to obtain Monopolies over as many Resources as possible.[NEWLINE][NEWLINE]Due to the vast abundance of Strategic Resources, it can be difficult to obtain a 50% Monopoly over a Strategic Resource. Because of this, you can also obtain a [COLOR_POSITIVE_TEXT] Strategic Monopoly[ENDCOLOR] at 25% Monopoly, which grants a special combat bonus (different for each resource). You can still achieve a Global Monopoly at 50% Monopoly for a Strategic Resource.</Text>
@@ -235,7 +235,7 @@
 			<Text>Spreading your Corporation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREAD}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_SPREAD}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREAD_BODY">
 			<Text>You can spread your Corporation through [ICON_INTERNATIONAL_TRADE] Trade Routes from a city with your Corporation's Office built to a foreign city without a Corporation Franchise built. At the completion of the [ICON_INTERNATIONAL_TRADE] Trade Route, a Franchise will be constructed. There is also a random chance every turn (around 5%) that a Franchise will be constructed in a nearby foreign City, if you are trading with that Civilization already.</Text>
@@ -248,7 +248,7 @@
 			<Text>Resource Bonus</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_RESOURCE_BONUS}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_RESOURCE_BONUS}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_RESOURCE_BONUS_BODY">
 			<Text>Most Corporations have a resource bonus which applies to all Cities with a Corporation Franchise. Each resource bonus provides a bonus to a specific yield, such as [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_RESEARCH] Science.</Text>
@@ -261,7 +261,7 @@
 			<Text>Office Bonus</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_OFFICE_BONUS}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_OFFICE_BONUS}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_BODY">
 			<Text>Your Corporation Offices receive incremental affects the more Franchises you establish in foreign cities, so be sure to keep spreading your Corporation to reap its benefits!</Text>
@@ -274,7 +274,7 @@
 			<Text>Trade Route Bonus</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TITLE">
-			<Text>{TXT_KEY_TOPIC_CORPORATION_TRADE_ROUTE_BONUS}</Text>
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_TRADE_ROUTE_BONUS}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_BODY">
 			<Text>All Corporations provide some benefit to your [ICON_INTERNATIONAL_TRADE] Trade Routes. These bonuses generally affect your [ICON_INTERNATIONAL_TRADE] Trade benefits to cities that have your Corporation Franchise already established, but they may also grant some sort of special benefit (like increase trade distance, or invulnerable trade units).</Text>

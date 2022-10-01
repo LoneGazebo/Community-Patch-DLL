@@ -4,7 +4,7 @@
 	<Language_en_US>
 		<!-- Civil Servant Text -->
 		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE">
-			<Text>Civil Servant</Text>
+			<Text>[COLOR_GREEN]Civil Servant[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY">
 			<Text>Civil Servants generate a variety of yields as well as points towards Great Diplomats. These units are essential if you are trying to win a Diplomatic Victory, or would like to earn a few more City-State alliances.</Text>

@@ -51,7 +51,7 @@
 	</Concepts>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
-			<Text>Historic Events</Text>
+			<Text>[COLOR_GREEN]Historic Events[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
 			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War (Warscore 25+)[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Trade with a [ICON_CITY_STATE] City-State ('Cultural Diplomacy' Policy Only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
@@ -60,7 +60,7 @@
 			<Text>What is a Historic Event?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE">
-			<Text>Resistance</Text>
+			<Text>[COLOR_GREEN]Resistance[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_BODY">
 			<Text>Resistance is a mechanic through which Civilizations that have conquered one or more Capitals will find it increasingly difficult to capture additional Capitals. During combat, you may see the modifier [COLOR_POSITIVE_TEXT]Resistance (Domination)[ENDCOLOR] appear for you (a bonus) or for the enemy (a penalty). This modifier only appears after either you or your opponent have captured an enemy Capital. The modifier changes based on the number of foreign (non-City-State) Capitals owned and the number of foreign Capitals in total. The more Capitals captured by one player, the higher this penalty becomes!</Text>
@@ -70,7 +70,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_CONCEPT_PARTISANS">
-			<Text>Partisans</Text>
+			<Text>[COLOR_GREEN]Partisans[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_BODY">
 			<Text>If you choose to raze a City, there is a chance each turn that the City will spawn Partisans loyal to the Civilization you conquered this City from. These units will only spawn if you are still at war with the Civilization. If you are no longer at war, any spawned Partisans will be considered Barbarians. Be careful with aggressively razing enemy Cities, as the sudden appearance of Partisans could turn the tide against you!</Text>
@@ -80,7 +80,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE">
-			<Text>War Weariness</Text>
+			<Text>[COLOR_GREEN]War Weariness[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY">
 			<Text>War, war never changes. Well, actually, it does. As the game progresses, the citizens of your empire will become more and more aware of the dangers of prolonged conflict, and will begin to develop [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]. War Weariness is calculated based on two factors: the length of your longest current war (however long that may be), and the largest amount of damage your cities and armies have sustained in a single combat against an opponent you are currently fighting. Every City lost or unit destroyed will increase your War Weariness, leading to three major effects:[NEWLINE][ICON_BULLET] Unhappiness from War Weariness[NEWLINE][ICON_BULLET] Increased Production and Gold costs for Military Units[NEWLINE][ICON_BULLET] Reduced maximum Military Unit Supply Cap.[NEWLINE]The latter two cap at 75%. Be careful of overextending during a single conflict!</Text>
@@ -90,7 +90,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE">
-			<Text>Military Supply</Text>
+			<Text>[COLOR_GREEN]Military Supply[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_BODY">
 			<Text>The maximum number of Military Units you can field at any one time is called your Military Unit Supply Cap. This number, indicated on the Top Panel next to the [ICON_WAR] Symbol, increases based on two factors: the total population of all of your cities, and the number of buildings or policies you have that increase your Military Unit Supply Cap. Some buildings, such as the Barracks, increase your Supply Cap by a fixed amount. Others, like Walls, increase your Supply cap by a percentage of the city's population.[NEWLINE][NEWLINE]Military Unit Supply Cap increases from static elements, like Barracks, and percentage bonuses from population decline over time based on your empire's technological level. You will need more and more percentage bonuses to overcome this and field large armies![NEWLINE][NEWLINE]If, for any reason, you exceed your Military Unit Supply Cap, you will be penalized 5% Production and Food in all Cities (per unit over the cap).</Text>

@@ -138,28 +138,28 @@
 			<Text>A tribe that gives you land around your nearest City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE">
-			<Text>Golden Age Points</Text>
+			<Text>[COLOR_GREEN]Golden Age Points[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_BODY">
-			<Text>The ruin contains relics, that grant Golden Age Points.</Text>
+			<Text>The ruin contains relics that grant Golden Age Points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_ADV_QUEST">
 			<Text>Golden Age Points?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_TITLE">
-			<Text>Production</Text>
+			<Text>[COLOR_GREEN]Production[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_BODY">
-			<Text>The ruin contains supplies, that grant Production to your nearest city.</Text>
+			<Text>The ruin contains supplies that grant Production to your nearest city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_ADV_QUEST">
 			<Text>Production?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_TITLE">
-			<Text>Tiles</Text>
+			<Text>[COLOR_GREEN]Tiles[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_BODY">
-			<Text>The ruin contains settlers, that grant free Tiles to your nearest city.</Text>
+			<Text>The ruin contains settlers that grant free Tiles to your nearest city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_TILES_ADV_QUEST">
 			<Text>Tiles?</Text>

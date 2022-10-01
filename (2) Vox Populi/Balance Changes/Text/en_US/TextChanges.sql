@@ -45,6 +45,15 @@
 	SET Text = 'The Most Dazzling Cities'
 	WHERE Tag = 'TXT_KEY_PROGRESS_SCREEN_CITY_TOURISM';
 	
+	UPDATE Language_en_US
+	SET Text = 'Welcome to the Civilopedia! Here you will find detailed descriptions of all aspects of the game. Use the "Search" field to search for articles on any specific subject. Clicking on the tabs on the top edge of the screen will take you to the various major sections of the Civilopedia. The Navigation Bar on the left side of the screen will display the various entries within a section. Click on an entry to go directly there.[NEWLINE][NEWLINE]In the upper left-hand portion of the screen you will find the forward and back buttons which will help you navigate between pages. Click on the "X" on the upper right portion of the screen to return to the game.[NEWLINE][NEWLINE]Welcome to Vox Populi, a mod that completely overhauls the game by rebalancing policies, leaders, buildings, wonders, and more![COLOR_YELLOW] Game Concepts that have been changed in Vox Populi are highlighted in yellow in the Civilopedia.[ENDCOLOR][COLOR_GREEN] Entirely new Game Concepts are highlighted in green[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PEDIA_HOME_PAGE_HELP_TEXT';
+
+	UPDATE Language_en_US
+	SET Text = 'Civilization V examines all of human history - from the deep past to the day after tomorrow. The "Game Concepts" portion of the Civilopedia explains some of the more important parts of the game - how to build and manage cities, how to fight wars, how to research technology, and so forth. The left Navigation Bar displays the major concepts; click on an entry to see the subsections within the concepts. [NEWLINE][NEWLINE][COLOR_YELLOW]Game Concepts that have been changed in Vox Populi are highlighted in yellow.[ENDCOLOR][COLOR_GREEN] Entirely new Game Concepts are highlighted in green[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_PEDIA_GAME_CONCEPT_HELP_TEXT';
+
+
 -- Spy Stuff
 
 	UPDATE Language_en_US
