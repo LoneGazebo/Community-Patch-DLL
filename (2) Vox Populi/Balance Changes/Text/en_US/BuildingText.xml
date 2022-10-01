@@ -285,10 +285,10 @@
 			<Text>Well</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
-			<Text>Wind Power</Text>
+			<Text>Wind Farm</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT">
-			<Text>Tidal Power</Text>
+			<Text>Tidal Power Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD">
 			<Text>Agribusiness</Text>

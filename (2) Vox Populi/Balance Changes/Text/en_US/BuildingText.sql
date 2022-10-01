@@ -228,7 +228,7 @@ SET Text = 'Hydroelectric Power is a power system that greatly improves the yiel
 WHERE Tag = 'TXT_KEY_BUILDING_HYDRO_PLANT_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Hydroelectric Power'
+SET Text = 'Hydroelectric Power Plant'
 WHERE Tag = 'TXT_KEY_BUILDING_HYDRO_PLANT';
 
 UPDATE Language_en_US
@@ -236,7 +236,7 @@ SET Text = 'All City Processes are 10% more efficient at converting [ICON_PRODUC
 WHERE Tag = 'TXT_KEY_BUILDING_NUCLEAR_PLANT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Nuclear Power'
+SET Text = 'Nuclear Power Plant'
 WHERE Tag = 'TXT_KEY_BUILDING_NUCLEAR_PLANT';
 
 UPDATE Language_en_US
@@ -248,7 +248,7 @@ SET Text = 'Solar Power is an Atomic-era electrical system which can only be con
 WHERE Tag = 'TXT_KEY_BUILDING_SOLAR_PLANT_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Solar Power'
+SET Text = 'Solar Farm'
 WHERE Tag = 'TXT_KEY_BUILDING_SOLAR_PLANT';
 
 UPDATE Language_en_US
