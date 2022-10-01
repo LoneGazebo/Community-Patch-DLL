@@ -36700,7 +36700,7 @@ void CvPlayer::DoUpdateProximityToPlayers()
 		{
 			SetProximityToPlayer(eLoopPlayer, eProximity);
 			GET_PLAYER(eLoopPlayer).SetProximityToPlayer(m_eID, eProximity);
-			return;
+			continue;
 		}
 
 		// Closest Cities must be within a certain range
