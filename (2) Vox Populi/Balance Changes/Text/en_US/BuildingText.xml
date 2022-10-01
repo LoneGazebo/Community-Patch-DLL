@@ -303,7 +303,7 @@
 			<Text>Interpretive Center</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE_STRATEGY">
-			<Text>The Council generates Science every time city grows, and is availble very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
+			<Text>The Council generates Science every time a city grows, and is available very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the city becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_STRATEGY">
 			<Text>The Lodge boosts production from Camps and camp resources, and provides food to your city whenever it claims new tiles. Build Lodges throughout your empire to boost local yields from camps.</Text>

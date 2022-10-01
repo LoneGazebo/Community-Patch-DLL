@@ -155,12 +155,12 @@
 		<Row>
 			<Type>BUILDINGCLASS_D_FOR_SPAIN_MISSION</Type>
 			<DefaultBuilding>BUILDING_D_FOR_SPAIN_MISSION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
+			<Description>TXT_KEY_BUILDING_MISSION</Description>
 		</Row>
 		<Row>
 			<Type>BUILDINGCLASS_SPAIN_MISSION</Type>
 			<DefaultBuilding>BUILDING_SPAIN_MISSION</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
+			<Description>TXT_KEY_BUILDING_MISSION</Description>
 		</Row> 	
 	</BuildingClasses>
 	<Buildings>
@@ -586,7 +586,7 @@
 			<Cost>-1</Cost>
 			<FaithCost>-1</FaithCost>
 			<GreatWorkCount>-1</GreatWorkCount>
-			<Description>TXT_KEY_BUILDING_SPAIN_MISSION</Description>
+			<Description>TXT_KEY_BUILDING_MISSION</Description>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
@@ -608,8 +608,8 @@
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>200</Defense>
-			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<Defense>300</Defense>
+			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<InstantReligiousPressure>9999</InstantReligiousPressure>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -618,7 +618,7 @@
 			<DisplayPosition>1</DisplayPosition>
 			<ConquestProb>0</ConquestProb>
 			<NeverCapture>true</NeverCapture>
-		</Row>  
+		</Row>
 
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
@@ -1003,6 +1003,7 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_WONDER_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
+			<Happiness>2</Happiness>
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 		</Row> 	
 		<Row>

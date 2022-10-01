@@ -439,20 +439,6 @@ INSERT INTO Trait_YieldFromTileStealCultureBomb (TraitType, TerrainType, YieldTy
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
 
--- NEW DLC Leader Data and Yields
-
---UPDATE Buildings
---SET CitySupplyModifier = '10'
---WHERE Type = 'BUILDING_MISSION';
-
---UPDATE Buildings
---SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
---WHERE Type = 'BUILDING_MISSION';
-
---UPDATE Buildings
---SET GreatWorkCount = '1'
---WHERE Type = 'BUILDING_MISSION';
-
 
 UPDATE Buildings
 SET CitySupplyModifier = '10'

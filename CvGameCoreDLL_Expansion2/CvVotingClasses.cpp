@@ -10908,7 +10908,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	// Teammates or Debug Mode
-	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
+	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GET_PLAYER(eToPlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
 
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();

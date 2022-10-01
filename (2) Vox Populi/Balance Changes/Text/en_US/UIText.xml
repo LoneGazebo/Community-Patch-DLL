@@ -1031,16 +1031,16 @@
 
 		<!-- Surplus Threshold -->
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num:number "#.##"}[ENDCOLOR] above [ICON_CULTURE] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_RESEARCH] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num:number "#.##"}[ENDCOLOR] above [ICON_RESEARCH] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_FOOD]/[ICON_PRODUCTION] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num:number "#.##"}[ENDCOLOR] above [ICON_FOOD]/[ICON_PRODUCTION] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num:number "#.##"}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_PUPPET">

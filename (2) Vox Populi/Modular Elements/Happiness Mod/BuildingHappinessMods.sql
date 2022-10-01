@@ -78,10 +78,6 @@ UPDATE Buildings
 SET EmpireNeedsModifier = '-5'
 WHERE Type = 'BUILDING_CASTLE';
 
---UPDATE Buildings
---SET EmpireNeedsModifier = '-5'
---WHERE Type = 'BUILDING_MISSION';
-
 UPDATE Buildings
 SET EmpireNeedsModifier = '-5'
 WHERE Type = 'BUILDING_ARSENAL';

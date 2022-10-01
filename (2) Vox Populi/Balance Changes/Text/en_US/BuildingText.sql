@@ -446,10 +446,6 @@ UPDATE Language_en_US
 SET Text = 'An important building for a civilization trying to spread their religion world-wide from an empire with few, populous cities. A city must have a Temple before it can construct the Grand Temple.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_STRATEGY';
 
-UPDATE Language_en_US
-SET Text = 'With its massive boost to [ICON_TOURISM] Tourism, the National Visitor Center is an excellent choice for civilizations that are trying to achieve a Culture victory, or attempting to increase your ideological impact on other civilizations. Build it in your top [ICON_TOURISM] Tourism city that has a Hotel.'
-WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_STRATEGY';
-
 -- Help Text
 
 UPDATE Language_en_US
@@ -492,10 +488,6 @@ WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 UPDATE Language_en_US
 SET Text = 'All Temples gain +2 [ICON_PEACE] Faith and +1 [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and -10% [ICON_HAPPINESS_3] Unhappiness Needs Modifier for Religious Unrest in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
-
-UPDATE Language_en_US
-SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Tiles is added to the [ICON_TOURISM] Tourism output of all Cities, and an additional 25% to this City. [ICON_TOURISM] Tourism output from [ICON_GREAT_WORK] Great Works in all Cities increased by +25%, and an additional 25% in this City.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
-WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_HELP';
 
 UPDATE Language_en_US
 SET Text = 'Can only be constructed in a coastal City. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cargo Ship in the City in which it is built. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.'

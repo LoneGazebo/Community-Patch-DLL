@@ -488,7 +488,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE_HELP">
 			<Text>Counted twice for Flanking bonuses.[NEWLINE]+50% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
-	  </Row>
+		</Row>
 
 	<!-- Civilian -->
 		<Row Tag="TXT_KEY_PROMOTION_SUPPLY_BOOST">

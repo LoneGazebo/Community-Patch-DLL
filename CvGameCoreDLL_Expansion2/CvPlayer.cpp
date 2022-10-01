@@ -45744,7 +45744,7 @@ CvTreasury* CvPlayer::GetTreasury() const
 int CvPlayer::GetPseudoRandomSeed() const
 {
 	//this should return a different number for each turn (each call would be even better ...)
-	return static_cast<int>(GetID()) + getNumUnits() + GC.getGame().getGameTurn() + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
+	return (static_cast<int>(GetID()) * getNumUnits()) + GC.getGame().getGameTurn() + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
 }
 
 //	--------------------------------------------------------------------------------

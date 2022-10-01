@@ -272,10 +272,6 @@ SET GoldenAgeGreatWriterRateModifier = '0'
 WHERE Type = 'TRAIT_CARNIVAL';
 
 UPDATE Traits
-SET WLTKDCultureBoost = '0'
-WHERE Type = 'TRAIT_CARNIVAL';
-
-UPDATE Traits
 SET WLTKDFromGATurns = '10'
 WHERE Type = 'TRAIT_CARNIVAL';
 

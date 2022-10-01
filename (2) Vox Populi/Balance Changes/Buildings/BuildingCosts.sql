@@ -105,9 +105,6 @@ UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_COURTHOUSE';
 UPDATE Buildings SET FaithCost = '200' WHERE Type = 'BUILDING_AMPHITHEATER';
 UPDATE Buildings SET FaithCost = '200' WHERE Type = 'BUILDING_ODEON';
 
--- MEDIEVAL
---UPDATE Buildings SET Cost = '275' WHERE Type = 'BUILDING_MISSION';
-
 UPDATE Buildings SET Cost = '300' WHERE Type IN 
 ('BUILDING_ARMORY',
 'BUILDING_DOJO',
@@ -149,8 +146,6 @@ UPDATE Buildings SET GoldMaintenance = '2' WHERE Type IN
 'BUILDING_WAT');
 
 UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_GARDEN';
-
---UPDATE Buildings SET GoldMaintenance = '0' WHERE Type = 'BUILDING_MISSION';
 
 UPDATE Buildings SET FaithCost = '0' WHERE Type = 'BUILDING_CEILIDH_HALL';
 UPDATE Buildings SET FaithCost = '0' WHERE Type = 'BUILDING_WAT';

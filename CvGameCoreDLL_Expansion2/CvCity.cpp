@@ -22463,7 +22463,7 @@ int CvCity::GetReducedEmpireSizeModifier(bool bForceRecalc, bool bCityOnly) cons
 	if (!bCityOnly)
 		iReduction += GET_PLAYER(getOwner()).GetEmpireNeedsModifierGlobal(); // negative
 
-	return std::max(iEmpireMod + iReduction, 0);
+	return range(iEmpireMod + iReduction, 0, iEmpireMod);
 }
 
 /// Sum up modifier increases/decreases which are specific to a particular yield
@@ -22556,7 +22556,7 @@ int CvCity::GetCityNeedModifierForYield(YieldTypes eYield) const
 	iModifier += GetCitySizeModifier();
 
 	// Local decrease of empire size modifier
-	iModifier += GetEmpireSizeModifier() - GetReducedEmpireSizeModifier(false, true);
+	iModifier -= GetEmpireSizeModifier() - GetReducedEmpireSizeModifier(false, true);
 
 	// Decrease from Carnival (Brazil UA)
 	if (GetWeLoveTheKingDayCounter() > 0)
