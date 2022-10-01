@@ -95,7 +95,7 @@
 
 	-- updated Full Moon Striker
 	UPDATE Language_en_US
-	SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] when pillaging tiles.'
+	SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when pillaging tiles.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
 	
 	-- updated Pride of the Ancestors

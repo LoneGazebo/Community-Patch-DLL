@@ -119,16 +119,16 @@ UPDATE Units SET RangedCombat = '9' WHERE Type = 'UNIT_ARCHER';
 UPDATE Units SET RangedCombat = '9' WHERE Type = 'UNIT_BARBARIAN_ARCHER';
 UPDATE Units SET RangedCombat = '10' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Units SET RangedCombat = '5' WHERE Type = 'UNIT_CHARIOT_ARCHER';
-UPDATE Units SET RangedCombat = '5' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
+UPDATE Units SET RangedCombat = '8' WHERE Type = 'UNIT_CHARIOT_ARCHER';
+UPDATE Units SET RangedCombat = '9' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
 UPDATE Units SET RangedCombat = '7' WHERE Type = 'UNIT_BARBARIAN_AXMAN';
 	
 -- Classical --
 UPDATE Units SET RangedCombat = '14' WHERE Type = 'UNIT_COMPOSITE_BOWMAN';
 UPDATE Units SET RangedCombat = '14' WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 
-UPDATE Units SET RangedCombat = '10' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
-UPDATE Units SET RangedCombat = '11' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
+UPDATE Units SET RangedCombat = '7' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
+UPDATE Units SET RangedCombat = '9' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 
 UPDATE Units SET RangedCombat = '13' WHERE Type = 'UNIT_CATAPULT';
 UPDATE Units SET RangedCombat = '14' WHERE Type = 'UNIT_ROMAN_BALLISTA';
@@ -141,13 +141,13 @@ UPDATE Units SET RangedCombat = '20' WHERE Type = 'UNIT_CHINESE_CHUKONU';
 UPDATE Units SET RangedCombat = '20' WHERE Type = 'UNIT_TREBUCHET';
 UPDATE Units SET RangedCombat = '21' WHERE Type = 'UNIT_KOREAN_HWACHA';
 
-UPDATE Units SET RangedCombat = '18' WHERE Type = 'UNIT_MOUNTED_BOWMAN';
-UPDATE Units SET RangedCombat = '19' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
+UPDATE Units SET RangedCombat = '14' WHERE Type = 'UNIT_MOUNTED_BOWMAN';
+UPDATE Units SET RangedCombat = '16' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 	
 --Renaissance --
-UPDATE Units SET RangedCombat = '27' WHERE Type = 'UNIT_CUIRASSIER';
-UPDATE Units SET RangedCombat = '27' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
-UPDATE Units SET RangedCombat = '27' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET RangedCombat = '22' WHERE Type = 'UNIT_CUIRASSIER';
+UPDATE Units SET RangedCombat = '23' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET RangedCombat = '30' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
 
 UPDATE Units SET RangedCombat = '29' WHERE Type = 'UNIT_CANNON';
 
@@ -158,10 +158,10 @@ UPDATE Units SET RangedCombat = '31' WHERE Type = 'UNIT_OTTOMAN_JANISSARY';
 -- Industrial --
 UPDATE Units SET RangedCombat = '44' WHERE Type = 'UNIT_GATLINGGUN';
 
-UPDATE Units SET RangedCombat = '41' WHERE Type = 'UNIT_CAVALRY';
-UPDATE Units SET RangedCombat = '42' WHERE Type = 'UNIT_BERBER_CAVALRY';
-UPDATE Units SET RangedCombat = '42' WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS';
-UPDATE Units SET RangedCombat = '44' WHERE Type = 'UNIT_RUSSIAN_COSSACK';
+UPDATE Units SET RangedCombat = '31' WHERE Type = 'UNIT_CAVALRY';
+UPDATE Units SET RangedCombat = '34' WHERE Type = 'UNIT_BERBER_CAVALRY';
+UPDATE Units SET RangedCombat = '35' WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS';
+UPDATE Units SET RangedCombat = '37' WHERE Type = 'UNIT_RUSSIAN_COSSACK';
 
 UPDATE Units SET RangedCombat = '40' WHERE Type = 'UNIT_FIELD_GUN';
 
@@ -175,7 +175,7 @@ UPDATE Units SET RangedCombat = '70' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
 UPDATE Units SET RangedCombat = '75' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
-UPDATE Units SET RangedCombat = '75' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
+UPDATE Units SET RangedCombat = '70' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 
 
 -----------------
@@ -262,8 +262,8 @@ UPDATE Units SET Combat = '15' WHERE Type = 'UNIT_CROSSBOWMAN';
 UPDATE Units SET Combat = '15' WHERE Type = 'UNIT_CHINESE_CHUKONU';
 UPDATE Units SET Combat = '16' WHERE Type = 'UNIT_ENGLISH_LONGBOWMAN';
 
-UPDATE Units SET Combat = '15' WHERE Type = 'UNIT_MOUNTED_BOWMAN';
-UPDATE Units SET Combat = '17' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
+UPDATE Units SET Combat = '18' WHERE Type = 'UNIT_MOUNTED_BOWMAN';
+UPDATE Units SET Combat = '20' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 
 -- Renaissance --
 -- Melee 
@@ -279,9 +279,9 @@ UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_POLISH_WINGED_HUSSAR';
 -- Ranged
 UPDATE Units SET Combat = '16' WHERE Type = 'UNIT_CANNON';
 
-UPDATE Units SET Combat = '25' WHERE Type = 'UNIT_CUIRASSIER';
-UPDATE Units SET Combat = '25' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
-UPDATE Units SET Combat = '26' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Combat = '27' WHERE Type = 'UNIT_CUIRASSIER';
+UPDATE Units SET Combat = '28' WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
+UPDATE Units SET Combat = '30' WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
 
 UPDATE Units SET Combat = '22' WHERE Type = 'UNIT_MUSKETMAN';
 UPDATE Units SET Combat = '23' WHERE Type = 'UNIT_AMERICAN_MINUTEMAN';
@@ -301,10 +301,10 @@ UPDATE Units SET Combat = '25' WHERE Type = 'UNIT_FIELD_GUN';
 
 UPDATE Units SET Combat = '32' WHERE Type = 'UNIT_GATLINGGUN';
 
-UPDATE Units SET Combat = '33' WHERE Type = 'UNIT_CAVALRY';
-UPDATE Units SET Combat = '34' WHERE Type = 'UNIT_BERBER_CAVALRY';
-UPDATE Units SET Combat = '34' WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS';
-UPDATE Units SET Combat = '35' WHERE Type = 'UNIT_RUSSIAN_COSSACK';
+UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_CAVALRY';
+UPDATE Units SET Combat = '41' WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS';
+UPDATE Units SET Combat = '42' WHERE Type = 'UNIT_BERBER_CAVALRY';
+UPDATE Units SET Combat = '44' WHERE Type = 'UNIT_RUSSIAN_COSSACK';
 
 -- Modern --
 -- Melee
@@ -315,7 +315,7 @@ UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_WWI_TANK';
 -- Ranged
 UPDATE Units SET Combat = '45' WHERE Type = 'UNIT_MACHINE_GUN';
 UPDATE Units SET Combat = '40' WHERE Type = 'UNIT_ARTILLERY';
-UPDATE Units SET Combat = '52' WHERE Type = 'UNIT_ANTI_TANK_GUN';
+UPDATE Units SET Combat = '58' WHERE Type = 'UNIT_ANTI_TANK_GUN';
 
 -- Atomic --
 -- Melee
@@ -338,7 +338,7 @@ UPDATE Units SET Combat = '100' WHERE Type = 'UNIT_MODERN_ARMOR';
 UPDATE Units SET Combat = '125' WHERE Type = 'UNIT_MECH';
 -- Ranged
 UPDATE Units SET Combat = '55' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
-UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
+UPDATE Units SET Combat = '70' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 
 
 -----------------

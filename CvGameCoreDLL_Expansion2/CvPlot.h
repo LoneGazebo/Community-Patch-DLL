@@ -184,6 +184,7 @@ public:
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
+	int GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
@@ -827,11 +828,11 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
-	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false) const;
 	vector<CvUnit*> GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
 
-	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 

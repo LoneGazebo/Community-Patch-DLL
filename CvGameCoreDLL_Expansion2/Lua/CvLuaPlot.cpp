@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -359,6 +359,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(IsAdjacentToTerrain);
 	Method(IsWithinDistanceOfTerrain);
 	Method(GetEffectiveFlankingBonus);
+	Method(GetEffectiveFlankingBonusAtRange);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlot::HandleMissingInstance(lua_State* L)
@@ -771,6 +772,19 @@ int CvLuaPlot::lGetEffectiveFlankingBonus(lua_State* L)
 	return 1;
 
 	//return BasicLuaMethod<int,const CvUnit*,const CvUnit*,const CvPlot*>(L, &CvPlot::GetEffectiveFlankingBonus);
+}
+
+//int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const
+int CvLuaPlot::lGetEffectiveFlankingBonusAtRange(lua_State* L)
+{
+	CvPlot* pkTargetPlot = GetInstance(L);
+	CvUnit* pkAttackingUnit = CvLuaUnit::GetInstance(L,2);
+	CvUnit* pkDefendingUnit = CvLuaUnit::GetInstance(L,3);
+	
+	int iResult = pkTargetPlot->GetEffectiveFlankingBonusAtRange(pkAttackingUnit, pkDefendingUnit);
+
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 
 //------------------------------------------------------------------------------

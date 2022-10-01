@@ -1135,6 +1135,11 @@ ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackBelowEqual50HealthMod' INTEGER DEFAULT 0;
 
+-- ranged attacks benefit from other units flanking the target
+ALTER TABLE UnitPromotions ADD 'RangedFlankAttack' INTEGER DEFAULT 0;
+-- counts as extra units when supporting a flank
+ALTER TABLE UnitPromotions ADD 'ExtraFlankPower' INTEGER DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
@@ -1148,7 +1153,6 @@ ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'PromotionDuration' INTEGER DEFAULT 0;
 
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
-
 ALTER TABLE UnitPromotions ADD COLUMN 'IsLostOnMove' BOOLEAN DEFAULT 0;
 
 -- Put the name of the Promotion in this row in order to negate it with another promotion - currently only works with the terrain/feature related promotion functions above!

@@ -1334,7 +1334,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			-- NearbyPromotion Unit Bonus
 			iModifier = pMyUnit:GetGiveCombatModToUnit();
-			if (pMyUnit:GetGiveCombatModToUnit() ~= 0 and bonusCount < maxBonusDisplay) then				
+			if (pMyUnit:GetGiveCombatModToUnit() ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1345,7 +1345,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			--NearbyPromotion Unit that gets a bonus near cities?
 			iModifier = pMyUnit:GetNearbyCityBonusCombatMod();
-			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then				
+			if (pMyUnit:GetNearbyCityBonusCombatMod() ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NEARBYPROMOTION_CITY_COMBAT_BONUS" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1358,7 +1358,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			-- Nearby improvement modifier
 			iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
-			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0 and bonusCount < maxBonusDisplay) then				
+			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1369,7 +1369,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			-- Nearby UnitClass modifier
 			iModifier = pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot);
-			if (pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot) ~= 0 and bonusCount < maxBonusDisplay) then				
+			if (pMyUnit:GetNearbyUnitClassModifierFromUnitClass(pFromPlot) ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_UNITCLASS_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1381,17 +1381,20 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			
 			
 			-- Flanking bonus
+			iModifier = 0;
 			if (not bRanged) then
 				iModifier = pFromPlot:GetEffectiveFlankingBonus(pMyUnit,pTheirUnit,pToPlot);
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_MyCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FLANKING_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
-				end
+			elseif (bRanged and pMyUnit:IsRangedFlankAttack()) then
+				iModifier = pToPlot:GetEffectiveFlankingBonusAtRange(pMyUnit,pTheirUnit);
+			end
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FLANKING_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+				bonusCount = bonusCount + 1;
+			elseif (iModifier ~= 0) then
+				bonusSum = bonusSum + iModifier;
+				bonusCount = bonusCount + 1;
 			end
 
 			-- if (not bRanged) then
