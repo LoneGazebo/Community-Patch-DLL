@@ -4756,7 +4756,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 		if (!bConquest)
 			return true;
 
-		int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GC.getGame().GetCultureMedian());
+		int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetPseudoRandomSeed() + GC.getGame().GetGoldMedian());
 
 		return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
 	}
@@ -45677,7 +45677,7 @@ CvTreasury* CvPlayer::GetTreasury() const
 int CvPlayer::GetPseudoRandomSeed() const
 {
 	//this should return a different number for each turn (each call would be even better ...)
-	return static_cast<int>(GetID()) + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
+	return static_cast<int>(GetID()) + getNumUnits() + GC.getGame().getGameTurn() + (m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
 }
 
 //	--------------------------------------------------------------------------------
@@ -50082,7 +50082,7 @@ void CvPlayer::DoVassalLevy()
 			int iTotal = GetNumVassals() * 2;
 			for (int iK = 0; iK < iTotal; iK++)
 			{
-				int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), GC.getGame().GetCultureMedian() + iK);
+				int iUnit = GC.getGame().getSmallFakeRandNum(aExtraUnits.size(), GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() + iK);
 				CvUnit* pNewUnit = initUnit(aExtraUnits[iUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[iUnit]);
 				bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 				if (bJumpSuccess)

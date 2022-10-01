@@ -339,8 +339,8 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	{
 		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 		{
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType + 1) * 2;
-			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType - 1) * 2;
+			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType) * 2;
+			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), pMinor->GetPseudoRandomSeed() + m_eType) * 2;
 		}
 		else
 		{
@@ -6074,7 +6074,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	}
 
 	// There are valid quests, so pick one at random
-	int iRandSeed = GetNumActiveGlobalQuests() + GC.getGame().GetCultureMedian() + GC.getGame().GetScienceMedian();
+	int iRandSeed = GetNumActiveGlobalQuests() + m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() + GC.getGame().GetScienceMedian();
 	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
 	eQuest = veValidQuests[iRandIndex];
 

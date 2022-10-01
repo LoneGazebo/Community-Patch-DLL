@@ -6441,7 +6441,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return false;
 
 	//choose one
-	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureMedian() );
+	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() );
 	ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 		
 	//first round. place on owned non-city, non-resource plots without improvement

@@ -6795,7 +6795,7 @@ void CvEspionageAI::AttemptCoups()
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
 		if (iChanceOfSuccess >= 50)
 		{
-			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + uiSpy);
+			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + uiSpy);
 			if (iRoll < iChanceOfSuccess)
 			{
 				pEspionage->AttemptCoup(uiSpy);
