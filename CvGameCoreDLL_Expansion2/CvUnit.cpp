@@ -20810,7 +20810,7 @@ CvPlot* CvUnit::plot() const
 bool CvUnit::onMap() const
 {
 	VALIDATE_OBJECT
-	return (plot() != NULL);
+	return (m_iX != INVALID_PLOT_COORD && m_iY != INVALID_PLOT_COORD && m_iX != -1 && m_iY != -1);
 }
 
 //	--------------------------------------------------------------------------------
