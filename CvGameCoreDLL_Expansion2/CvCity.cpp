@@ -10238,8 +10238,8 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
 				continue;
 
-			//if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
-				//continue;
+			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
+				continue;
 
 			if (bCurrentResourceInvalid && ePreviousResource == eResource)
 				continue;
