@@ -108,7 +108,7 @@ public:
 
 	// Methods to query financial history
 	int AverageIncome100(int iTurns);
-	void LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
+	void LogExpenditure(const CvString& strExpenditure, int iAmount, int iColumn);
 
 	int GetVassalGoldMaintenance() const;
 
@@ -154,9 +154,9 @@ FDataStream& operator<<(FDataStream&, const CvTreasury&);
 
 namespace TreasuryHelpers
 {
-	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
-	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);
-	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue);
+	void AppendToLog (CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue);
+	void AppendToLog (CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue);
+	void AppendToLog (CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue);
 }
 
 #endif // CV_TREASURY_H

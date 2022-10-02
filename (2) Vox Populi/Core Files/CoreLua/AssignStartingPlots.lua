@@ -5827,15 +5827,18 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	
 	-- Check for collision with player starts
 	if self.impactData[ImpactLayers.LAYER_NATURAL_WONDER][plotIndex] > 0 then
-		return false
+		return false, false;
 	end
 	
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
-	if self:Plot_GetFertilityInRange(plot, 3) < 28 then
-		return false
+	local fertility = self:Plot_GetFertilityInRange(plot, 3);
+	if fertility < 20 then
+		return false, false;
+	elseif fertility < 28 then
+		return false, true;
 	end
-	return true
+	return true, true;
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:ExamineCandidatePlotForNaturalWondersEligibility(x, y)
@@ -5845,22 +5848,23 @@ function AssignStartingPlots:ExamineCandidatePlotForNaturalWondersEligibility(x,
 	if self:ExaminePlotForNaturalWondersEligibility(x, y) == false then
 		return false
 	end
-	local iW, iH = Map.GetGridSize();
+	-- local iW, iH = Map.GetGridSize();
 	-- Now loop through adjacent plots. Using Map.PlotDirection() in combination with
 	-- direction types, an alternate first-ring hex adjustment method, instead of the
 	-- odd/even tables used elsewhere in this file, which often have to process more rings.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot == nil then
-			return false
-		else
-			local adjX = adjPlot:GetX();
-			local adjY = adjPlot:GetY();
-			if self:ExaminePlotForNaturalWondersEligibility(adjX, adjY) == false then
-				return false
-			end
-		end
-	end
+	-- Updated 2022: Removed. Why bother with adjacent plots?
+	-- for loop, direction in ipairs(self.direction_types) do
+		-- local adjPlot = Map.PlotDirection(x, y, direction)
+		-- if adjPlot == nil then
+			-- return false
+		-- else
+			-- local adjX = adjPlot:GetX();
+			-- local adjY = adjPlot:GetY();
+			-- if self:ExaminePlotForNaturalWondersEligibility(adjX, adjY) == false then
+				-- return false
+			-- end
+		-- end
+	-- end
 	return true
 end
 ------------------------------------------------------------------------------
@@ -6417,7 +6421,7 @@ function AssignStartingPlots:GenerateLocalVersionsOfDataFromXML()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
+function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_number)
 	-- This function scans the map for eligible sites for all "Natural Wonders" Features.
 
 	local iW, iH = Map.GetGridSize();
@@ -6455,7 +6459,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 	self.wonder_list = table.fill(-1, self.iNumNW);
 	local next_wonder_number = 1;
 	for row in GameInfo.Features() do
-		if (row.NaturalWonder == true) then
+		if (row.NaturalWonder == true or row.PseudoNaturalWonder == 1) then
 			self.wonder_list[next_wonder_number] = row.Type;
 			next_wonder_number = next_wonder_number + 1;
 		end
@@ -6481,10 +6485,16 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 	-- Main Loop
 	for y = 0, iH - 1 do
 		for x = 0, iW - 1 do
-			if self:ExamineCandidatePlotForNaturalWondersEligibility(x, y) == true then
+			local landEligibility, seaEligibility = self:ExaminePlotForNaturalWondersEligibility(x, y);
+			if seaEligibility == true then
 				-- Plot has passed checks applicable to all NW types. Move on to specific checks.
 				for nw_number, row_number in ipairs(self.xml_row_numbers) do
-					self:CanBeThisNaturalWonderType(x, y, nw_number, row_number)
+					if self.wonder_list[nw_number] == "FEATURE_REEF" or
+						self.wonder_list[nw_number] == "FEATURE_GIBRALTAR" or
+						self.wonder_list[nw_number] == "FEATURE_VOLCANO" or
+						landEligibility == true then
+						self:CanBeThisNaturalWonderType(x, y, nw_number, row_number);
+					end
 				end
 			end
 		end
@@ -6494,90 +6504,85 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists()
 	local iCanBeWonder = {};
 	for loop = 1, self.iNumNW do
 		table.insert(iCanBeWonder, table.maxn(self.eligibility_lists[loop]));
-		--print("Wonder #", loop, "has", iCanBeWonder[loop], "candidate plots.");
+		print("Wonder #", loop, "has", iCanBeWonder[loop], "candidate plots.");
 	end
-	-- Sort the wonders with fewest candidates listed first.
-	local NW_eligibility_order, NW_eligibility_unsorted, NW_eligibility_sorted, NW_remaining_to_sort_by_occurrence = {}, {}, {}, {}; 
+
+	-- Randomly pick NWs from the list based on occurrence
+	print("-")
+	print("List of OccurrenceFrequency values for each Natural Wonder in the database:")
+	local NW_frequency = {};
+	local isNWPicked = {};
+	local chosen_NW, fallback_NW = {}, {};
 	for loop = 1, self.iNumNW do
-		if iCanBeWonder[loop] > 0 then -- This wonder has eligible sites.
-			table.insert(NW_eligibility_unsorted, {loop, iCanBeWonder[loop]});
-			table.insert(NW_eligibility_sorted, iCanBeWonder[loop]);
-		end
+		table.insert(NW_frequency, GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency);
+		table.insert(isNWPicked, false);
+		print("Occurrence for: #", loop, " ", self.wonder_list[loop], "is:", GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency)
 	end
-	table.sort(NW_eligibility_sorted);
+
 	
-	-- Match each sorted eligibility count to the matching unsorted NW number and record in sequence.
-	for NW_order = 1, self.iNumNW do
-		for loop, data_pair in ipairs(NW_eligibility_unsorted) do
-			local unsorted_count = data_pair[2];
-			if NW_eligibility_sorted[NW_order] == unsorted_count then
-				local unsorted_NW_num = data_pair[1];
-				table.insert(NW_eligibility_order, unsorted_NW_num);
-				table.insert(NW_remaining_to_sort_by_occurrence, unsorted_NW_num);
-				table.remove(NW_eligibility_unsorted, loop);
-				break
+	--print("-");
+	--print("List of picked Natural Wonders and their chances:");
+	for pickLoop = 1, target_number do
+		local occurrence_threshold = {};
+		local iOccurrenceSum = 0;
+
+		-- Populate threshold table
+		for loop = 1, self.iNumNW do
+			local iFrequency = 0;
+			if not isNWPicked[loop] and iCanBeWonder[loop] > 0 then
+				iFrequency = GameInfo.Natural_Wonder_Placement[self.xml_row_numbers[loop]].OccurrenceFrequency;
+			end
+			iOccurrenceSum = iOccurrenceSum + iFrequency;
+			table.insert(occurrence_threshold, iOccurrenceSum);
+			--print(self.wonder_list[loop], iOccurrenceSum);
+		end
+
+		-- End early if no NW left to pick
+		if iOccurrenceSum == 0 then
+			break;
+		end
+		
+		-- Pick the NW
+		local diceroll = Map.Rand(iOccurrenceSum, "Picking NW");
+		for loop = 1, self.iNumNW do
+			if diceroll < occurrence_threshold[loop] then
+				--print("Picked:", self.wonder_list[loop], "diceroll = ", diceroll);
+				isNWPicked[loop] = true;
+				break;
 			end
 		end
 	end
-	
-	--[[ Debug printout of natural wonder candidate plot lists
-	print("-"); print("-"); print("--- Number of Candidate Plots on the map for Natural Wonders ---"); print("-");
+
+	print("-");
+	print("List of chosen and fallback NWs:");
 	for loop = 1, self.iNumNW do
-		print("-", iCanBeWonder[loop], "candidates for", self.wonder_list[loop]);
-	end
-	print("-"); print("--- End of candidates readout for Natural Wonders ---"); print("-");
-	--]]
-
-	-- Read in from the XML for each eligible wonder, obtaining OccurrenceFrequency data.
-	--
-	-- Set up pool of entries and enter an entry for each level of OccurrenceFrequency for each eligible NW.
-	local NW_candidate_pool_entries, NW_final_selections = {}, {};
-	for loop, iNaturalWonderNumber in ipairs(NW_eligibility_order) do
-		local nw_type = self.wonder_list[iNaturalWonderNumber];
-		local row_number;
-		for row in GameInfo.Natural_Wonder_Placement() do
-			if row.NaturalWonderType == nw_type then
-				row_number = row.ID;
-			end
-		end
-		local iFrequency = GameInfo.Natural_Wonder_Placement[row_number].OccurrenceFrequency;
-
-		--print("-"); print("NW#", iNaturalWonderNumber, "of ID#", row_number, "has OccurrenceFrequency of:", iFrequency);
-
-		for entry = 1, iFrequency do
-			table.insert(NW_candidate_pool_entries, iNaturalWonderNumber);
+		if isNWPicked[loop] then
+			table.insert(chosen_NW, loop);
+			--print("Chosen:", self.wonder_list[loop]);
+		elseif iCanBeWonder[loop] > 0 and NW_frequency[loop] > 0 then
+			table.insert(fallback_NW, loop);
+			--print("Fallback:", self.wonder_list[loop]);
 		end
 	end
-	--PrintContentsOfTable(NW_candidate_pool_entries)
-	local iNumNWtoProcess = table.maxn(NW_remaining_to_sort_by_occurrence)
-	if iNumNWtoProcess > 0 then
-		-- Choose at random from the entry pool to select the final order of operations for NW placement.
-		local entry_count = table.maxn(NW_candidate_pool_entries)
-		for loop = 1, iNumNWtoProcess do
-			local current_NW_selected = false;
-			local current_attempt_to_select = 0;
-			while current_NW_selected == false do
-				if current_attempt_to_select > 1000 then
-					break
-				end
-				current_attempt_to_select = current_attempt_to_select + 1;
-				--print("Selection for #", loop, "NW to be assigned -- ATTEMPT #", current_attempt_to_select);
-				local diceroll = 1 + Map.Rand(entry_count, "Checking a random pool entry for NW assignment - Lua");
-				local possible_selection = NW_candidate_pool_entries[diceroll];
-				local bFoundValue, iNumTimesFoundValue, table_of_indices = IdentifyTableIndex(NW_remaining_to_sort_by_occurrence, possible_selection)
-				if bFoundValue then
-					table.insert(NW_final_selections, possible_selection)
-					table.remove(NW_remaining_to_sort_by_occurrence, table_of_indices[1])
-					--print("NW#", possible_selection, "chosen.");
-					current_NW_selected = true;
-				end
-			end
-		end
+
+	-- Sort the chosen NWs with fewest candidates first
+	table.sort(chosen_NW, function (a, b) return iCanBeWonder[a] < iCanBeWonder[b] end);
+
+	-- Shuffle the fallback NWs
+	local shuffled_fallback_NW = GetShuffledCopyOfTable(fallback_NW);
+
+	local NW_final_selections = {};
+	for loop = 1, #chosen_NW do
+		table.insert(NW_final_selections, chosen_NW[loop]);
 	end
-	
+	for loop = 1, #shuffled_fallback_NW do
+		table.insert(NW_final_selections, shuffled_fallback_NW[loop]);
+	end
+
 	if NW_final_selections ~= nil then
 		return NW_final_selections;
 	else
+		print("-");
 		print("ERROR: Failed to produce final selection list of NWs!");
 	end
 end
@@ -6638,7 +6643,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			table.insert(self.placed_natural_wonder, wonder_number);
 
 			-- Natural Wonders shouldn't be too close to each other.
-			self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_NATURAL_WONDER, math.floor(iH / 5));
+			self:PlaceResourceImpact(x, y, ImpactLayers.LAYER_NATURAL_WONDER, 11);
 
 			-- Force no resource on Natural Wonders.
 			self:PlaceStrategicResourceImpact(x, y, 0);
@@ -6670,7 +6675,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 			end
 			-- MOD.Barathor: End
 			--
-			--print("- Placed ".. self.wonder_list[wonder_number].. " in Plot", x, y);
+			print("- Placed ".. self.wonder_list[wonder_number].. " in Plot", x, y);
 			--
 			return true
 		end
@@ -6679,22 +6684,7 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 	return false
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceNaturalWonders()
-	local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists()
-	local iNumNWCandidates = table.maxn(NW_eligibility_order);
-	if iNumNWCandidates == 0 then
-		print("No Natural Wonders placed, no eligible sites found for any of them.");
-		return
-	end
-	
-	--[[Debug printout
-	print("-"); print("--- Readout of NW Assignment Priority ---");
-	for print_loop, order in ipairs(NW_eligibility_order) do
-		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
-	end
-	print("-"); print("-");
-	--]]
-	
+function AssignStartingPlots:PlaceNaturalWonders()	
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
 	local worldsizes = {
@@ -6706,6 +6696,21 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 7
 		}
 	local target_number = worldsizes[Map.GetWorldSize()];
+
+	local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists(target_number)
+	local iNumNWCandidates = table.maxn(NW_eligibility_order);
+	if iNumNWCandidates == 0 then
+		print("No Natural Wonders placed, no eligible sites found for any of them.");
+		return
+	end
+	
+	--Debug printout
+	--[[print("-"); print("--- Readout of NW Assignment Priority ---");
+	for print_loop, order in ipairs(NW_eligibility_order) do
+		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
+	end
+	print("-"); print("-");--]]
+
 	local iNumNWtoPlace = math.min(target_number, iNumNWCandidates);
 	local selected_NWs, fallback_NWs = {}, {};
 	for loop, NW in ipairs(NW_eligibility_order) do
@@ -6715,8 +6720,7 @@ function AssignStartingPlots:PlaceNaturalWonders()
 			table.insert(fallback_NWs, NW);
 		end
 	end
-	--[[
-	print("-");
+	--print("-");
 	for loop, NW in ipairs(selected_NWs) do
 		print("Natural Wonder #", NW, "has been selected for placement.");
 	end
@@ -6725,7 +6729,6 @@ function AssignStartingPlots:PlaceNaturalWonders()
 		print("Natural Wonder #", NW, "has been selected as fallback.");
 	end
 	print("-");
-	]]--
 	
 	print("--- Placing Natural Wonders! ---");
 	-- Place the NWs

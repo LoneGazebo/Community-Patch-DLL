@@ -82,7 +82,7 @@ function UpdateDisplay()
 		m_SortTable[ tostring( instance.Root ) ] = sortEntry;
 
 -- COMMUNITY PATCH
-		local iTotalUnhappiness = pCity:getUnhappinessAggregated();
+		local iTotalUnhappiness = pCity:GetUnhappinessAggregated();
 
 		sortEntry.Strength = math.floor(iTotalUnhappiness);
         instance.Defense:SetText( sortEntry.Strength );

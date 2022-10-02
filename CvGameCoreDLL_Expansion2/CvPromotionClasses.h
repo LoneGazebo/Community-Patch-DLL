@@ -95,8 +95,10 @@ public:
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
 	int  GetAttackFullyHealedMod() const;
-	int GetAttackAboveHealthMod() const;
-	int GetAttackBelowHealthMod() const;
+	int  GetAttackAboveHealthMod() const;
+	int  GetAttackBelowHealthMod() const;
+	bool IsRangedFlankAttack() const;
+	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
@@ -105,10 +107,10 @@ public:
 	int  GetExtraAttacks() const;
 	bool IsGreatGeneral() const;
 	bool IsGreatAdmiral() const;
-	int GetAuraRangeChange() const;
-	int GetAuraEffectChange() const;
-	int GetNumRepairCharges() const;
-	int GetMilitaryCapChange() const;
+	int  GetAuraRangeChange() const;
+	int  GetAuraEffectChange() const;
+	int  GetNumRepairCharges() const;
+	int  GetMilitaryCapChange() const;
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
 	int  GetGreatGeneralCombatModifier() const;
@@ -345,6 +347,7 @@ public:
 	bool GetFeatureImpassable(int i) const;
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
+	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -411,6 +414,8 @@ protected:
 	int m_iAttackFullyHealedMod;
 	int m_iAttackAboveHealthMod;
 	int m_iAttackBelowHealthMod;
+	bool m_bRangedFlankAttack;
+	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;
@@ -661,6 +666,7 @@ protected:
 	bool* m_pbUnitName;
 #endif
 	bool* m_pbPostCombatRandomPromotion;
+	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

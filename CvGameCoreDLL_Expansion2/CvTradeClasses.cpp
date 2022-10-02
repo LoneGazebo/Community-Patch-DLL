@@ -2802,7 +2802,6 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 
 				int iValue = 0;
 
-				ResourceClassTypes eResourceClassBonus = (ResourceClassTypes)GC.getInfoTypeForString("RESOURCECLASS_BONUS");
 				for (int i = 0; i < GC.getNumResourceInfos(); i++)
 				{
 					ResourceTypes eResource = (ResourceTypes)i;
@@ -2817,7 +2816,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 							if (GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 								bMonopoly = true;
 
-							if (eResourceClassBonus == eResourceClassCurrent)
+							if (RESOURCEUSAGE_BONUS == eResourceClassCurrent)
 								bIsBonus = true;
 						}
 						
@@ -2826,7 +2825,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						{		
 							if (pOriginCity->IsHasResourceLocal(eResource, true) != pDestCity->IsHasResourceLocal(eResource, true))
 							{
-								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 10 in VP*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+								iValue += (bMonopoly ? 2 : 1 ) * /*50 in CP, 5 in VP*/ GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 							}
 						}
 					}
@@ -6090,20 +6089,18 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE)
 	//emphasize gold if we're in the red
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
 	if(iGPT < -1)
 		iGoldAmount *= (int)sqrt((float)-iGPT);
-#endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is impoverished, let's send trade routes from there
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{		
-		if(pFromCity->getUnhappinessFromGold() > 0)
+	// if a city is impoverished, let's send trade routes from there
+	if (MOD_BALANCE_VP)
+	{
+		int iPoverty = pFromCity->GetPoverty(false);
+		if (iPoverty > 0)
 		{
-			iGoldAmount += (pFromCity->getUnhappinessFromGold() * 10);
+			iGoldAmount += iPoverty * 10;
 		}
 	}
 
@@ -6159,9 +6156,9 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			}
 		}
 	}
-#endif
+
 	int iOtherGoldAmount = pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 	if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 	{
 		int iTraitGold = 0;
@@ -6172,7 +6169,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 		iOtherGoldAmount += iTraitGold / 2;
 	}
-#endif
 
 	if (GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 	{
@@ -6207,7 +6203,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		int iCeilTechDifference = iTechDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
 		iAdjustedTechDifferenceP1fromP2 = max(iCeilTechDifference, 1);
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
@@ -6220,7 +6216,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 			iAdjustedTechDifferenceP1fromP2 += iTraitScience / 2;
 		}
-#endif
 
 		if (iAdjustedTechDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6232,16 +6227,17 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 
 		iAdjustedTechDifferenceP1fromP2 += iPolicyBump;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
-		if(pFromCity->getUnhappinessFromScience() > 0)
+		int iIlliteracy = pFromCity->GetIlliteracy(false);
+		if (iIlliteracy > 0)
 		{
-			iAdjustedTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
+			iAdjustedTechDifferenceP1fromP2 += iIlliteracy;
 		}
 	}
-#endif
+
 	int iTechDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner,   kTradeConnection.m_eOriginOwner);
 	int iAdjustedTechDifferenceP2fromP1 = 0;
 	if (iTechDifferenceP2fromP1 > 0)
@@ -6249,7 +6245,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		int iCeilTechDifference = iTechDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
 
 		iAdjustedTechDifferenceP2fromP1 = max(iCeilTechDifference, 1);
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
 			int iTraitScience = 0;
@@ -6260,7 +6256,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 			iAdjustedTechDifferenceP2fromP1 += iTraitScience / 2;
 		}
-#endif
 
 		if (iTechDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra() > 0))
 		{
@@ -6293,7 +6288,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	{
 		int iCeilCultureDifference = iCultureDifferenceP1fromP2 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP1fromP2 = max(iCeilCultureDifference, 1);
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 		//if we get extra yields from sending trade routes to foreign territory, let's consider that
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
@@ -6306,7 +6301,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 			iAdjustedCultureDifferenceP1fromP2 += iTraitCulture / 2;
 		}
-#endif
 
 		if (iAdjustedCultureDifferenceP1fromP2 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6319,23 +6313,23 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		iAdjustedCultureDifferenceP1fromP2 += iPolicyBump;
 	}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	//if a city is bored, let's send trade routes from there (add based on amount of unhappiness).
+	if (MOD_BALANCE_VP)
 	{
-		if (pFromCity->getUnhappinessFromCulture() > 0)
+		int iBoredom = pFromCity->GetBoredom(false);
+		if (iBoredom > 0)
 		{
-			iAdjustedCultureDifferenceP1fromP2 += pFromCity->getUnhappinessFromCulture();
+			iAdjustedCultureDifferenceP1fromP2 += iBoredom;
 		}
 	}
-#endif
+
 	int iCultureDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetPolicyDifference(kTradeConnection.m_eDestOwner, kTradeConnection.m_eOriginOwner);
 	int iAdjustedCultureDifferenceP2fromP1 = 0;
 	if (iCultureDifferenceP2fromP1 > 0)
 	{
 		int iCeilCultureDifference = iCultureDifferenceP2fromP1 * 100 / /*200 in CP, 125 in VP*/ GD_INT_GET(TRADE_ROUTE_CULTURE_DIVISOR_TIMES100);
 		iAdjustedCultureDifferenceP2fromP1 = max(iCeilCultureDifference, 1);
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
 			int iTraitCulture = 0;
@@ -6346,7 +6340,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			// We divide by 2 here, because the trade unit spends half of its time in foreign territory (rough estimate)
 			iAdjustedCultureDifferenceP2fromP1 += iTraitCulture / 2;
 		}
-#endif
 
 		if (iAdjustedCultureDifferenceP2fromP1 > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
 		{
@@ -6449,7 +6442,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 			}
 			iScore += (m_pPlayer->GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), ((YieldTypes)iJ)) * 10);
 		}
-#if defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
+
 		//If we get a bonus from sending trade routes to foreign territory, let's send an international route!
 		if (MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
 		{
@@ -6465,9 +6458,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 				iScore += iTempScore * iPlayerEra / 2;
 			}
 		}
-#endif
 	}
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
+
 	//Check if we can siphon production from the target city
 	if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && m_pPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
 	{
@@ -6479,7 +6471,6 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		//Multiply with 2 for a bit more weight here
 		iScore += pToCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
 	}
-#endif
 
 	int iDangerSum = 1; // can't be zero because we divide by it!
 	for (uint uiPlotList = 0; uiPlotList < kTradeConnection.m_aPlotList.size(); uiPlotList++)
@@ -6508,13 +6499,12 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 	int iEra = max(1, (int)m_pPlayer->GetCurrentEra()); // More international trade late game, please.
 	iScore = (iScore * iEra) / iDangerSum;
 
-#if defined(MOD_BALANCE_CORE)
 	//Let's encourage TRs to feitorias.
 	if (MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv() && GET_PLAYER(kTradeConnection.m_eDestOwner).GetMinorCivAI()->IsSiphoned(m_pPlayer->GetID()))
 	{
 		iScore *= 10;
 	}
-#endif
+
 	// if we have any tourism and the destination owner is not a minor civ
 	if (bHaveTourism && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 	{
@@ -6774,24 +6764,21 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 	}
 
 	//direct connection to capital via TR
-	if(pDestCity->getUnhappinessFromConnection() > 0 && pOriginCity->isCapital())
+	if (pDestCity->GetUnhappinessFromIsolation() > 0 && pOriginCity->isCapital())
 	{
 		iScore *= 2;
 	}
-	if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+	if (pOriginCity->GetUnhappinessFromIsolation() > 0 && pDestCity->isCapital())
 	{
 		iScore *= 2;
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	int iGPT = m_pPlayer->GetTreasury()->CalculateBaseNetGold();
-	if(iGPT <= 0)
+	if (iGPT <= 0)
 	{
-		iScore += (iGPT * 10);
+		iScore += iGPT * 10;
 	}
-#endif
 
-#if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	//Check if we can siphon production from the target city
 	if (MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON && m_pPlayer->GetPlayerTraits()->IsTradeRouteProductionSiphon())
 	{
@@ -6801,7 +6788,6 @@ int CvTradeAI::ScoreInternalTR(const TradeConnection& kTradeConnection, const st
 		//Multiply with 2 for a bit more weight here
 		iScore += pDestCity->getBaseYieldRate(YIELD_PRODUCTION) * 2 * iSiphonPercent / 100;
 	}
-#endif
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
@@ -6941,16 +6927,16 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 		iGoldAmount *= (iGPT * -2);
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
-	if (MOD_BALANCE_CORE_HAPPINESS)
+
+	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness).
+	if (MOD_BALANCE_VP)
 	{
-		if (pFromCity->getUnhappinessFromGold() > 0)
+		int iPoverty = pFromCity->GetPoverty(false);
+		if (iPoverty > 0)
 		{
-			iGoldAmount *= (pFromCity->getUnhappinessFromGold() * 10);
+			iGoldAmount *= iPoverty * 10;
 		}
 	}
-#endif
 
 	// science
 	int iAdjustedScienceAmount = 0;
@@ -6969,16 +6955,16 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			iAdjustedScienceAmount *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
-		if (pFromCity->getUnhappinessFromScience() > 0)
+		int iIlliteracy = pFromCity->GetIlliteracy(false);
+		if (iIlliteracy > 0)
 		{
-			iAdjustedScienceAmount *= (pFromCity->getUnhappinessFromScience() * 10);
+			iAdjustedScienceAmount *= iIlliteracy * 10;
 		}
 	}
-#endif
 
 	// culture
 	int iAdjustedCultureAmount = 0;
@@ -6996,16 +6982,16 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& k
 			iAdjustedCultureAmount *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	//if a city is bored, let's send trade routes from there (add based on amount of unhappiness).
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
-		if (pFromCity->getUnhappinessFromCulture() > 0)
+		int iBoredom = pFromCity->GetBoredom(false);
+		if (iBoredom > 0)
 		{
-			iAdjustedCultureAmount *= (pFromCity->getUnhappinessFromCulture() * 10);
+			iAdjustedCultureAmount *= iBoredom * 10;
 		}
 	}
-#endif
 
 	// religion
 	ReligionTypes eOwnerStateReligion = m_pPlayer->GetReligions()->GetStateReligion();
@@ -7161,7 +7147,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	// FOOD FOOD FOOD FOOD
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	std::vector<CvCity*> apFoodTargetCities;
-	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->getUnhappinessFromCityStarving() >= 0)
+	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromCityStarving() >= 0)
 #else
 	if (m_pPlayer->GetHappiness() >= 0)
 #endif

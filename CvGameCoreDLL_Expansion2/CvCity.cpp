@@ -276,6 +276,7 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	, m_aiGreatWorkYieldChange()
 	, m_aiEconomicValue()
+	, m_miInstantYieldsTotal()
 	, m_aiEventChoiceDuration()
 	, m_aiEventIncrement()
 	, m_abEventActive()
@@ -339,10 +340,15 @@ CvCity::CvCity() :
 	, m_bAllowsProductionTradeRoutes()
 	, m_bAllowsFoodTradeRoutes()
 	, m_bAllowPuppetPurchase()
-	, m_iStaticTechDeviation()
 	, m_iHappinessFromEmpire()
-	, m_iHappinessFromLuxuries()
 	, m_iUnhappinessFromEmpire()
+	, m_iCachedBasicNeedsMedian()
+	, m_iCachedGoldMedian()
+	, m_iCachedScienceMedian()
+	, m_iCachedCultureMedian()
+	, m_iCachedTechNeedModifier()
+	, m_iCachedEmpireSizeModifier()
+	, m_iYieldMediansCachedTurn()
 #endif
 #if defined(MOD_BUILDINGS_CITY_AUTOMATON_WORKERS)
 	, m_iCityAutomatonWorkersChange()
@@ -388,8 +394,6 @@ CvCity::CvCity() :
 	, m_aiNumTimesAttackedThisTurn()
 	, m_aiLongestPotentialTradeRoute()
 	, m_aiNumProjects()
-	, m_aiStaticGlobalYield()
-	, m_aiStaticNeedAdditives()
 	, m_aiYieldFromKnownPantheons()
 	, m_aiGoldenAgeYieldMod()
 	, m_aiYieldFromWLTKD()
@@ -425,7 +429,6 @@ CvCity::CvCity() :
 	, m_iAlwaysHeal()
 	, m_iResourceDiversityModifier()
 	, m_iNoUnhappfromXSpecialists()
-	, m_aiStaticNeedsUpdateTurn()
 	, m_bNoWarmonger()
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1214,7 +1217,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		updateEconomicValue();
 	}
 
-	UpdateGlobalStaticYields();
+	UpdateCachedYieldMedians();
 
 	AI_init();
 
@@ -1387,10 +1390,16 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iTotalScienceyAid = 0;
 	m_iTotalArtsyAid = 0;
 	m_iTotalGreatWorkAid = 0;
-	m_iStaticTechDeviation = 0;
+	m_iCachedTechNeedModifier = 0;
 	m_iHappinessFromEmpire = 0;
-	m_iHappinessFromLuxuries = 0;
 	m_iUnhappinessFromEmpire = 0;
+	m_iCachedBasicNeedsMedian = 0;
+	m_iCachedGoldMedian = 0;
+	m_iCachedScienceMedian = 0;
+	m_iCachedCultureMedian = 0;
+	m_iCachedTechNeedModifier = 0;
+	m_iCachedEmpireSizeModifier = 0;
+	m_iYieldMediansCachedTurn = GC.getGame().getGameTurn();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iEmpireNeedsModifier = 0;
 	m_iChangePovertyUnhappiness = 0;
@@ -1428,8 +1437,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
 	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
-	m_aiStaticGlobalYield.resize(NUM_YIELD_TYPES);
-	m_aiStaticNeedAdditives.resize(NUM_YIELD_TYPES);
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobal.resize(NUM_YIELD_TYPES);
@@ -1484,6 +1491,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiLongestPotentialTradeRoute[iI] = 0;
 	}
 #endif
+	m_miInstantYieldsTotal.clear();
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)	
 	m_aiYieldFromMinors.resize(NUM_YIELD_TYPES);
@@ -1503,11 +1511,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiProductionToYieldModifier.resize(NUM_YIELD_TYPES);
 	m_aiEventCityYield.resize(NUM_YIELD_TYPES);
 	m_aiEventCityYieldModifier.resize(NUM_YIELD_TYPES);
-	m_aiStaticNeedsUpdateTurn = GC.getGame().getGameTurn();
 	for (iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
-		m_aiStaticGlobalYield[iI] = 0;
-		m_aiStaticNeedAdditives[iI] = 0;
 		m_aiSeaPlotYield[iI] = 0;
 		m_aiRiverPlotYield[iI] = 0;
 		m_aiLakePlotYield[iI] = 0;
@@ -2930,10 +2935,7 @@ int CvCity::GetStaticYield(YieldTypes eYield) const
 
 void CvCity::SetTradePriorityLand(int iValue)
 {
-	if (iValue != m_iTradePriorityLand)
-	{
-		m_iTradePriorityLand = iValue;
-	}
+	m_iTradePriorityLand = iValue;
 }
 int CvCity::GetTradePriorityLand() const
 {
@@ -2943,10 +2945,7 @@ int CvCity::GetTradePriorityLand() const
 
 void CvCity::SetTradePrioritySea(int iValue)
 {
-	if (iValue != m_iTradePrioritySea)
-	{
-		m_iTradePrioritySea = iValue;
-	}
+	m_iTradePrioritySea = iValue;
 }
 int CvCity::GetTradePrioritySea() const
 {
@@ -3019,58 +3018,78 @@ bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
 	return false;
 }
 
-void CvCity::UpdateGlobalStaticYields()
+//	--------------------------------------------------------------------------------
+void CvCity::UpdateCachedYieldMedians()
 {
-	SetGlobalStaticYield(YIELD_GOLD, GC.getGame().GetGoldAverage());
-	SetGlobalStaticYield(YIELD_CULTURE, GC.getGame().GetCultureAverage());
-	SetGlobalStaticYield(YIELD_SCIENCE, GC.getGame().GetScienceAverage());
-	SetGlobalStaticYield(YIELD_PRODUCTION, GC.getGame().GetDefenseAverage());
+	SetCachedBasicNeedsMedian(GC.getGame().GetBasicNeedsMedian());
+	SetCachedGoldMedian(GC.getGame().GetGoldMedian());
+	SetCachedScienceMedian(GC.getGame().GetScienceMedian());
+	SetCachedCultureMedian(GC.getGame().GetCultureMedian());
 
-	UpdateStaticTechDeviation(GET_PLAYER(getOwner()).GetTechDeviation());
+	SetCachedTechNeedModifier(GET_PLAYER(getOwner()).GetTechNeedModifier());
+	SetCachedEmpireSizeModifier(GetEmpireSizeModifier());
 
-	int iStaticNeeds = getThresholdAdditions();
-	SetStaticNeedAdditives(YIELD_GOLD, iStaticNeeds);
-	SetStaticNeedAdditives(YIELD_CULTURE, iStaticNeeds);
-	SetStaticNeedAdditives(YIELD_SCIENCE, iStaticNeeds);
-	SetStaticNeedAdditives(YIELD_PRODUCTION, iStaticNeeds);
-
-	m_aiStaticNeedsUpdateTurn = GC.getGame().getGameTurn();
+	SetYieldMediansCachedTurn(GC.getGame().getGameTurn());
 }
-void CvCity::SetGlobalStaticYield(YieldTypes eYield, int iValue)
+//	--------------------------------------------------------------------------------
+void CvCity::SetCachedBasicNeedsMedian(int iValue)
 {
-	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
-	m_aiStaticGlobalYield[eYield] = iValue;
+	m_iCachedBasicNeedsMedian = iValue;
 }
-int CvCity::GetGlobalStaticYield(YieldTypes eYield) const
+void CvCity::SetCachedGoldMedian(int iValue)
 {
-	VALIDATE_OBJECT
-	return m_aiStaticGlobalYield[eYield];
+	m_iCachedGoldMedian = iValue;
 }
-
-void CvCity::SetStaticNeedAdditives(YieldTypes eYield, int iValue)
+void CvCity::SetCachedScienceMedian(int iValue)
 {
-	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
-	m_aiStaticNeedAdditives[eYield] = iValue;
+	m_iCachedScienceMedian = iValue;
 }
-int CvCity::GetStaticNeedAdditives(YieldTypes eYield) const
+void CvCity::SetCachedCultureMedian(int iValue)
 {
-	VALIDATE_OBJECT
-	return m_aiStaticNeedAdditives[eYield];
+	m_iCachedCultureMedian = iValue;
 }
-
-void CvCity::UpdateStaticTechDeviation(int iValue)
+void CvCity::SetCachedTechNeedModifier(int iValue)
 {
-	m_iStaticTechDeviation = iValue;
+	m_iCachedTechNeedModifier = iValue;
 }
-int CvCity::GetStaticTechDeviation() const
+void CvCity::SetCachedEmpireSizeModifier(int iValue)
 {
-	VALIDATE_OBJECT
-	return m_iStaticTechDeviation;
+	m_iCachedEmpireSizeModifier = iValue;
 }
+void CvCity::SetYieldMediansCachedTurn(int iTurn)
+{
+	m_iYieldMediansCachedTurn = iTurn;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetCachedBasicNeedsMedian() const
+{
+	return m_iCachedBasicNeedsMedian;
+}
+int CvCity::GetCachedGoldMedian() const
+{
+	return m_iCachedGoldMedian;
+}
+int CvCity::GetCachedScienceMedian() const
+{
+	return m_iCachedScienceMedian;
+}
+int CvCity::GetCachedCultureMedian() const
+{
+	return m_iCachedCultureMedian;
+}
+int CvCity::GetCachedTechNeedModifier() const
+{
+	return m_iCachedTechNeedModifier;
+}
+int CvCity::GetCachedEmpireSizeModifier() const
+{
+	return m_iCachedEmpireSizeModifier;
+}
+int CvCity::GetYieldMediansCachedTurn() const
+{
+	return m_iYieldMediansCachedTurn;
+}
+//	--------------------------------------------------------------------------------
 
 int CvCity::GetHappinessFromEmpire() const
 {
@@ -3079,27 +3098,11 @@ int CvCity::GetHappinessFromEmpire() const
 }
 void CvCity::ChangeHappinessFromEmpire(int iValue)
 {
-	if (iValue != 0)
-		m_iHappinessFromEmpire += iValue;
+	m_iHappinessFromEmpire += iValue;
 }
 void CvCity::ResetHappinessFromEmpire()
 {
 	m_iHappinessFromEmpire = 0;
-}
-
-int CvCity::GetLuxuryHappinessFromEmpire() const
-{
-	VALIDATE_OBJECT
-	return m_iHappinessFromLuxuries;
-}
-void CvCity::ChangeHappinessFromLuxuries(int iValue)
-{
-	if (iValue != 0)
-		m_iHappinessFromLuxuries += iValue;
-}
-void CvCity::ResetHappinessFromLuxuries()
-{
-	m_iHappinessFromLuxuries = 0;
 }
 
 void CvCity::UpdateUnhappinessFromEmpire()
@@ -3119,7 +3122,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 
 	int iCities = max(1, kPlayer.GetNumRealCities());
 	int iRemainder = kPlayer.GetUnhappiness() % iCities;
-	int iUnappiness = kPlayer.GetUnhappiness() / iCities;
+	int iUnhappiness = kPlayer.GetUnhappiness() / iCities;
 
 	int iThisCityUnhappiness = 0;
 	const CvCity* pLoopCity;
@@ -3140,7 +3143,7 @@ void CvCity::UpdateUnhappinessFromEmpire()
 		}
 	}
 
-	m_iUnhappinessFromEmpire = iUnappiness + iThisCityUnhappiness;
+	m_iUnhappinessFromEmpire = iUnhappiness + iThisCityUnhappiness;
 }
 int CvCity::GetUnhappinessFromEmpire() const
 {
@@ -7920,6 +7923,18 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
 	m_aiEconomicValue[ePossibleOwner] = iValue;
 }
 
+ /// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
+ void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
+ {
+	 VALIDATE_OBJECT;
+	 m_miInstantYieldsTotal[eYield] += iValue;
+ }
+ 
+ int CvCity::GetInstantYieldTotal(YieldTypes eYield)
+ {
+	 return m_miInstantYieldsTotal[eYield];
+ }
+
 int CvCity::GetContestedPlotScore(PlayerTypes eOtherPlayer) const
 {
 	TeamTypes eOtherTeam = (eOtherPlayer == NO_PLAYER) ? NO_TEAM : GET_PLAYER(eOtherPlayer).getTeam();
@@ -8868,7 +8883,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		}
 	}
 
-	if (!plot()->canTrain(eUnit, bContinue, bTestVisible))
+	if (!plot()->canTrain(eUnit))
 	{
 		return false;
 	}
@@ -10237,7 +10252,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
 				continue;
 
-			if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
+			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 				continue;
 
 			if (bCurrentResourceInvalid && ePreviousResource == eResource)
@@ -10349,7 +10364,7 @@ void CvCity::DoTestResourceDemanded()
 			// Do we have the right Resource?
 			if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
 			{
-				int iWLTKD = /*20*/ GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
+				int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 				iWLTKD /= 100;
 
@@ -17741,7 +17756,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		//Less unhappiness from specialists....
 		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		{
-			iUnhappinessPerPop = (float)/*25*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
 			int iNoHappinessSpecialists = 0;
 			if (iPopulation > 0)
 			{
@@ -18561,8 +18576,9 @@ void CvCity::changePopulation(int iChange, bool bReassignPop, bool bIgnoreStatic
 	VALIDATE_OBJECT
 	setPopulation(getPopulation() + iChange, bReassignPop);
 
+	// When the population changes (for most reasons), fetch the current global yield medians (for Needs Unhappiness) and cache them
 	if (iChange != 0 && !bIgnoreStaticUpdate)
-		UpdateGlobalStaticYields();
+		UpdateCachedYieldMedians();
 
 	// Update the religious system
 	GetCityReligions()->DoPopulationChange(iChange);
@@ -19438,7 +19454,6 @@ int CvCity::GetFaithPerTurn() const
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_JFD)
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		iFaith += GetYieldFromHappiness(YIELD_FAITH);
@@ -19446,7 +19461,6 @@ int CvCity::GetFaithPerTurn() const
 		iFaith += GetYieldFromCrime(YIELD_FAITH);
 		iFaith += GetYieldFromDevelopment(YIELD_FAITH);
 	}
-#endif
 
 	CvPlot* pCityPlot = plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
@@ -21543,6 +21557,9 @@ void CvCity::DoCreatePuppet()
 
 	UpdateAllNonPlotYields(true);
 
+	ResetHappinessFromEmpire();
+	GET_PLAYER(getOwner()).CalculateNetHappiness();
+
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
@@ -21577,11 +21594,6 @@ void CvCity::DoAnnex(bool bRaze)
 			SetNoWarmonger(false);
 		}
 	}
-
-	// Update happiness
-	SetIgnoreCityForHappiness(false);
-	if (!bRaze)
-		GET_PLAYER(getOwner()).CalculateNetHappiness();
 
 	//Immediate Annex? Bonus for Courthouse
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !IsPuppet() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing())
@@ -21623,6 +21635,11 @@ void CvCity::DoAnnex(bool bRaze)
 			gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ANNEX);
 		}
 	}
+
+	// Update happiness
+	SetIgnoreCityForHappiness(false);
+	if (!bRaze)
+		GET_PLAYER(getOwner()).CalculateNetHappiness();
 
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
@@ -21697,7 +21714,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount();
 		if (iSpecialistPopulation > 0)
 		{
-			int iHappinessPerPop = /*25*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+			int iHappinessPerPop = /*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
 			int iHappinessSpecialists = GET_PLAYER(getOwner()).GetHappfromXSpecialists();
 
 			//Can't give more free happiness than specialists.
@@ -21963,107 +21980,138 @@ int CvCity::GetHappinessFromBuildingClasses() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) const
 {
-	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-	bool bPuppetIgnore = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && ((IsPuppet() && !bPuppetIgnore) || IsRazing() || IsResistance() || (IsOccupied() && !IsNoOccupiedUnhappiness())))
-		return 0;
-
-	int iLocalHappiness = isCapital() ? kPlayer.getHandicapInfo().getHappinessDefaultCapital() : 0;
-
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
-		iLocalHappiness *= 2;
-
-	//these two are guaranteed not to exceed the population cap
-	//see DistributeHappinessToCities()
-	if (!bExcludeEmpireContributions)
+	if (MOD_BALANCE_VP)
 	{
-		iLocalHappiness += GetHappinessFromEmpire();
-		iLocalHappiness += GetLuxuryHappinessFromEmpire();
+		// Puppets produce no Happiness (except Venice)
+		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+			return 0;
+
+		if (IsRazing() || IsResistance() || (IsOccupied() && !IsNoOccupiedUnhappiness()))
+			return 0;
 	}
 
-	iLocalHappiness += GetBaseHappinessFromBuildings();
+	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+	int iLocalHappiness = 0;
+
+	if (!bExcludeEmpireContributions)
+		iLocalHappiness += GetHappinessFromEmpire();
+
+	iLocalHappiness += GetBaseHappinessFromBuildings() + GetHappinessFromBuildingClasses();
 	iLocalHappiness += GetHappinessFromPolicies(iPopMod);
 	iLocalHappiness += GetHappinessFromReligion();
-	iLocalHappiness += GetHappinessFromBuildingClasses();
+	iLocalHappiness += GetUnmoddedHappinessFromBuildings(); // misc. happiness
 
-	int iUnmoddedHappiness = GetUnmoddedHappinessFromBuildings();
-	//if (MOD_BALANCE_CORE_HAPPINESS)
-	//	iLocalHappiness += iUnmoddedHappiness;
+	if (isCapital())
+	{
+		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
+			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital() * 2;
+		else
+			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital();
+	}
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
 		int iCrime = GetYieldFromCrime(YIELD_JFD_CRIME);
 		int iDevelopment = GetYieldFromDevelopment(YIELD_JFD_CRIME);
-
 		iLocalHappiness += iCrime + iDevelopment;
 	}
 
+	return iLocalHappiness;
+}
 
-	// India has unique way to compute local happiness cap
-	//int iLocalHappinessCap = getPopulation() + iPopMod;
-	//if(kPlayer.GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
-	//{
-		// 0.67 per population, rounded up
-	//	iLocalHappinessCap = (iLocalHappinessCap * 20) + 15;
-	//	iLocalHappinessCap /= 30;
-	//}
+CvString CvCity::GetCityHappinessBreakdown()
+{
+	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 
-	//if(iLocalHappinessCap < iLocalHappiness)
-	//{
-	//	if (MOD_BALANCE_CORE_HAPPINESS)
-	//		return iLocalHappinessCap;
+	// Puppets produce no Happiness (except Venice)
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this))
+		return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION_PUPPET");
 
-	//	return iLocalHappinessCap + iUnmoddedHappiness;
-	//}
-	//else
-	//{
-	//if (MOD_BALANCE_CORE_HAPPINESS)
-	//	return iLocalHappiness;
+	if (IsRazing() || IsResistance() || (IsOccupied() && !IsNoOccupiedUnhappiness()))
+		return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION_PUPPET");
 
-	return iLocalHappiness + iUnmoddedHappiness;
-	//}
+	int iEmpire = GetHappinessFromEmpire();
+	int iBuildings = GetBaseHappinessFromBuildings() + GetHappinessFromBuildingClasses();
+	int iPolicies = GetHappinessFromPolicies();
+	int iReligion = GetHappinessFromReligion();
+	int iOther = GetUnmoddedHappinessFromBuildings(); // misc. happiness
+	int iHandicap = isCapital() ? kPlayer.getHandicapInfo().getHappinessDefaultCapital() : 0;
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
+		iHandicap *= 2;
+
+	int iTotal = iEmpire + iBuildings + iPolicies + iReligion + iOther + iHandicap;
+
+	CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION");
+	strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS", iTotal);
+
+	if (iEmpire != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_EMPIRE_CBO", iEmpire);
+	if (iBuildings != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_BUILDINGS_CBO", iBuildings);
+	if (iPolicies != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_POLICY_CBO", iPolicies);
+	if (iReligion != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_RELIGION_CBO", iReligion);
+	if (iOther != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_OTHER_CBO", iOther);
+	if (iHandicap != 0)
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_HANDICAP_CBO", iHandicap);
+
+	strTooltip += GetPotentialHappinessWithGrowth();
+	return strTooltip;
+}
+
+CvString CvCity::GetPotentialHappinessWithGrowth()
+{
+	int GrowthHappiness = GetPotentialHappinessWithGrowthVal();
+
+	if (GrowthHappiness == 0)
+		return "";
+
+	return GetLocalizedText("TXT_KEY_POTENTIAL_HAPPINESS_GROWTH", GrowthHappiness);
+}
+
+int CvCity::GetPotentialHappinessWithGrowthVal() const
+{
+	return GetLocalHappiness(1) - GetLocalHappiness();
 }
 
 int CvCity::updateNetHappiness()
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	if (kPlayer.isMinorCiv())
+	if (!kPlayer.isMajorCiv())
 	{
 		m_iHappinessDelta = 0;
 		return 0;
 	}
 
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
+	if (MOD_BALANCE_VP)
 	{
 		if (IsRazing() || IsResistance())
 		{
-			m_iHappinessDelta = int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION)) * -1;
+			m_iHappinessDelta = -getPopulation();
 			return m_iHappinessDelta;
 		}
-		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+		else if (IsPuppet())
 		{
-			m_iHappinessDelta = int(getPopulation() * -1 * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-			return m_iHappinessDelta;
+			m_iHappinessDelta = 0;
+			return 0;
 		}
 	}
 
 	int iPositiveHappiness = GetLocalHappiness();
-	int iNegativeHappiness = getUnhappinessAggregated();
+	int iNegativeHappiness = GetUnhappinessAggregated();
 
-	if (!MOD_BALANCE_CORE_PUPPET_CHANGES)
+	if (IsRazing() || IsResistance())
 	{
-		if (IsRazing() || IsResistance())
-		{
-			iNegativeHappiness += int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-		}
-		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-		{
-			iNegativeHappiness += int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-		}
+		iNegativeHappiness += int(getPopulation() * /*1.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
+	}
+	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		iNegativeHappiness += int(getPopulation() * /*1.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
 	}
 
-	m_iHappinessDelta = (iPositiveHappiness - iNegativeHappiness);
+	m_iHappinessDelta = iPositiveHappiness - iNegativeHappiness;
 	return m_iHappinessDelta;
 }
 
@@ -22071,12 +22119,11 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	float iUnhappinessPerPop = 0;
 	//Less unhappiness from specialists....
-	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS || MOD_BALANCE_CORE_JFD)
+	if (MOD_BALANCE_VP)
 	{
-		iUnhappinessPerPop = (float)/*25*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+		iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
 		int iNoHappinessSpecialists = 0;
 		if (iSpecialists > 0)
 		{
@@ -22098,7 +22145,6 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 			iSpecialists -= iNoHappinessSpecialists;
 		}
 	}
-#endif
 
 	// No Unhappiness from Specialist Pop? (Policies, etc.)
 	if (kPlayer.isHalfSpecialistUnhappiness())
@@ -22109,141 +22155,156 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 
 	return (int)(iSpecialists * iUnhappinessPerPop) / 100;
 }
-int CvCity::getUnhappinessAggregated() const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES)
-	{
-		if (IsRazing() || IsResistance())
-		{
-			return int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-		}
-		else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-		{
-			return int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-		}
-		else if (IsPuppet())
-		{
-			int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 
-			return getUnhappinessFromSpecialists(iSpecialists) + (getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD)));
-		}
+int CvCity::GetUnhappinessAggregated() const
+{
+	int iUnhappiness = 0;
+	int iPopulation = getPopulation();
+
+	if (IsRazing() || IsResistance())
+	{
+		return iPopulation;
+	}
+	else if (IsPuppet())
+	{
+		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		return getUnhappinessFromSpecialists(iSpecialists) + (iPopulation / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD)));
+	}
+	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		iUnhappiness += range(int(iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION)), 0, iPopulation);
 	}
 
-	int iNegativeHappiness = 0;
-	int iLimit = getPopulation();
-	int iContribution;
-	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+	// Some of these calls are expensive, so avoid doing them if we've already reached the cap
+	// Order is also nonstandard to save on performance
+	int iSource = 0;
 
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromReligionRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromScienceRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromCultureRaw(iLimit);
-	iNegativeHappiness += iContribution;
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromSpecialists(iSpecialists);
-	iNegativeHappiness += iContribution;
+	if (iUnhappiness < iPopulation)
+	{
+		iSource = GetUnhappinessFromEmpire();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
 
-	return iNegativeHappiness;
-}
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetUnhappinessFromIsolation();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
 
-CvString CvCity::getPotentialHappinessWithGrowth()
-{
-	int growthHappiness = getPotentialHappinessWithGrowthVal();
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetUnhappinessFromReligiousUnrest();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
 
-	if (growthHappiness == 0)
-		return "";
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetUnhappinessFromPillagedTiles();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
 
-	return GetLocalizedText("TXT_KEY_POTENTIAL_HAPPINESS_GROWTH", growthHappiness);
-}
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetPoverty(false);
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
 
-int CvCity::getPotentialHappinessWithGrowthVal() const
-{
-	return GetLocalHappiness(1) - GetLocalHappiness();
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetIlliteracy(false);
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
+
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetBoredom(false);
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
+
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetUnhappinessFromFamine();
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
+
+	if (iUnhappiness < iPopulation)
+	{
+		iUnhappiness += GetDistress(false);
+		if (iSource > 0)
+			iUnhappiness += iSource;
+	}
+
+	// Unhappiness caps at city population (except specialists)
+	if (iUnhappiness > getPopulation())
+		iUnhappiness = getPopulation();
+
+	iSource = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+	if (iSource > 0)
+		iUnhappiness += iSource;
+
+	return iUnhappiness;
 }
 
 CvString CvCity::getPotentialUnhappinessWithGrowth()
 {
-	int curGoldUnhappy = getUnhappinessFromGold();
-	int curSciUnhappy = getUnhappinessFromScience();
-	int curCulUnhappy = getUnhappinessFromCulture();
-	int curDefUnhappy = getUnhappinessFromDefense();
+	int Distress = GetDistress(true) - GetDistress(false);
+	int Poverty = GetPoverty(true) - GetPoverty(false);
+	int Illiteracy = GetIlliteracy(true) - GetIlliteracy(false);
+	int Boredom = GetBoredom(true) - GetBoredom(false);
 
-	int potGoldUnhappy = getUnhappinessFromGold(1, true) - curGoldUnhappy;
-	int potSciUnhappy = getUnhappinessFromScience(1, true) - curSciUnhappy;
-	int potCulUnhappy = getUnhappinessFromCulture(1, true) - curCulUnhappy;
-	int potDefUnhappy = getUnhappinessFromDefense(1, true) - curDefUnhappy;
-
-	if (potGoldUnhappy == 0 && potSciUnhappy == 0 && potCulUnhappy == 0 && potDefUnhappy == 0)
+	if (Distress == 0 && Poverty == 0 && Illiteracy == 0 && Boredom == 0)
 		return "";
 
-	CvString strPotential = GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH");
+	CvString strTooltip = GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH");
 
-	if (potDefUnhappy != 0)
+	if (Distress != 0)
 	{
-		if (potDefUnhappy > 0)
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", potDefUnhappy);
+		if (Distress > 0)
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE", Distress);
 		else
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS", potDefUnhappy);
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS", Distress);
 	}
-	if (potGoldUnhappy != 0)
+	if (Poverty != 0)
 	{
-		if (potGoldUnhappy > 0)
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", potGoldUnhappy);
+		if (Poverty > 0)
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD", Poverty);
 		else
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS", potGoldUnhappy);
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS", Poverty);
 	}
-	if (potSciUnhappy != 0)
+	if (Illiteracy != 0)
 	{
-		if (potSciUnhappy > 0)
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", potSciUnhappy);
+		if (Illiteracy > 0)
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE", Illiteracy);
 		else
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS", potSciUnhappy);
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS", Illiteracy);
 	}
-	if (potCulUnhappy != 0)
+	if (Boredom != 0)
 	{
-		if (potCulUnhappy > 0)
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", potCulUnhappy);
+		if (Boredom > 0)
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE", Boredom);
 		else
-			strPotential = strPotential + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS", potCulUnhappy);
+			strTooltip = strTooltip + GetLocalizedText("TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS", Boredom);
 	}
 
-	return strPotential;
+	return strTooltip;
 }
 
 int CvCity::getPotentialUnhappinessWithGrowthVal() const
 {
-	int curGoldUnhappy = getUnhappinessFromGold();
-	int curSciUnhappy = getUnhappinessFromScience();
-	int curCulUnhappy = getUnhappinessFromCulture();
-	int curDefUnhappy = getUnhappinessFromDefense();
+	int Distress = GetDistress(true) - GetDistress(false);
+	int Poverty = GetPoverty(true) - GetPoverty(false);
+	int Illiteracy = GetIlliteracy(true) - GetIlliteracy(false);
+	int Boredom = GetBoredom(true) - GetBoredom(false);
 
-	int potGoldUnhappy = getUnhappinessFromGold(1, true) - curGoldUnhappy;
-	int potSciUnhappy = getUnhappinessFromScience(1, true) - curSciUnhappy;
-	int potCulUnhappy = getUnhappinessFromCulture(1, true) - curCulUnhappy;
-	int potDefUnhappy = getUnhappinessFromDefense(1, true) - curDefUnhappy;
-
-	return potGoldUnhappy + potSciUnhappy + potCulUnhappy + potDefUnhappy;
+	return Distress + Poverty + Illiteracy + Boredom;
 }
 
 int CvCity::GetNumPillagedPlots() const
@@ -22341,702 +22402,686 @@ int CvCity::getHappinessDelta() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getThresholdAdditions(/*YieldTypes eYield*/) const
-{
-	int iModifier = 0;
-
-	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-	iModifier += kPlayer.GetTechDeviation();
-
-	if (isCapital())
-	{
-		iModifier += /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER);
-	}
-
-	iModifier += getPopThresholdMod();
-	iModifier += getEmpireSizeMod();
-
-	return iModifier;
-}
-int CvCity::getHappinessThresholdMod(YieldTypes eYield, int iMod, bool bForceGlobal) const
-{
-	int iPositiveModifier = !bForceGlobal ? GetStaticNeedAdditives(eYield) : getThresholdAdditions();
-
-	int iNegativeModifier = getThresholdSubtractions(eYield);
-	iNegativeModifier += iMod;
-
-	return iPositiveModifier + iNegativeModifier;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getThresholdSubtractions(YieldTypes eYield) const
+/// Sum up modifier increases/decreases which apply to all yields
+/// Use bForceRecalc when estimating needs after city growth
+int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 {
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	int iModifier = 0;
-	if (IsPuppet())
-	{
-		iModifier += kPlayer.GetPuppetUnhappinessMod();
-	}
+	// Increase from being the capital
+	int iModifier = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+
+	// Increase from tech
+	iModifier += bForceRecalc ? kPlayer.GetTechNeedModifier() : GetCachedTechNeedModifier();
+
+	// Decrease from city size
+	iModifier += GetCitySizeModifier();
+
+	// Increase from empire size
+	iModifier += GetReducedEmpireSizeModifier(bForceRecalc, false);
+
+	// Modifier from difficulty level
+	iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
+	if (!kPlayer.isHuman())
+		iModifier += GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
+
+	// Decrease from Carnival (Brazil UA)
 	if (GetWeLoveTheKingDayCounter() > 0)
-	{
-		iModifier += kPlayer.GetPlayerTraits()->GetGAUnhappinesNeedMod();
-	}
+		iModifier += kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod();
+
+	// Decrease from air units that are based here (policy)
 	if (kPlayer.GetNeedsModifierFromAirUnits() != 0)
-	{
 		iModifier += plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1;
-	}
 
-	// Handicap mod
-	if (kPlayer.isHuman())
-		iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
-	else
-		iModifier += GC.getGame().getHandicapInfo().getAIUnhappinessPercent() + kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
-
-	if (eYield == YIELD_FAITH)
-	{
-		//Buildings decrease this by a percentage.
-		if (GetMinorityUnhappiness() != 0)
-		{
-			iModifier += GetMinorityUnhappiness();
-		}
-		//Mod from global unhappiness building modifier.
-		if (kPlayer.GetMinorityUnhappinessGlobal() != 0)
-		{
-			iModifier += kPlayer.GetMinorityUnhappinessGlobal();
-		}
-		//Trait adds % boost to this value (higher trait = smaller minority population).
-		if (kPlayer.GetPlayerTraits()->GetMinorityHappinessChange() != 0)
-		{
-			iModifier += kPlayer.GetPlayerTraits()->GetMinorityHappinessChange();
-		}
-		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetMinorityUnhappinessMod() != 0)
-		{
-			iModifier += kPlayer.GetMinorityUnhappinessMod();
-		}
-		if (isCapital())
-		{
-			iModifier += kPlayer.GetMinorityUnhappinessModCapital();
-		}
-
-		if (getProductionProcess() != NO_PROCESS)
-		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo)
-			{
-				iModifier += (pkProcessInfo->getProductionToYieldModifier(YIELD_FAITH) + GetYieldFromProcessModifier(YIELD_FAITH)) * -1;
-			}
-		}
-	}
-	if (eYield == YIELD_CULTURE)
-	{
-		//Trait is % reduction to this value (bigger negative trait = lower threshold).
-		if (kPlayer.GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
-		{
-			iModifier += kPlayer.GetPlayerTraits()->GetUnculturedHappinessChange();
-		}
-		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetUnculturedUnhappinessMod() != 0)
-		{
-			iModifier += kPlayer.GetUnculturedUnhappinessMod();
-		}
-		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetUnculturedUnhappinessModCapital() != 0)
-		{
-			if (isCapital())
-			{
-				iModifier += kPlayer.GetUnculturedUnhappinessModCapital();
-			}
-		}
-		//Buildings decrease this by a flat integer.
-		if (GetUnculturedUnhappiness() != 0)
-		{
-			iModifier += GetUnculturedUnhappiness();
-		}
-		if (kPlayer.GetUnculturedUnhappinessGlobal() != 0)
-		{
-			iModifier += kPlayer.GetUnculturedUnhappinessGlobal();
-		}
-
-		if (getProductionProcess() != NO_PROCESS)
-		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo)
-			{
-				iModifier += (pkProcessInfo->getProductionToYieldModifier(YIELD_CULTURE) + GetYieldFromProcessModifier(YIELD_CULTURE)) * -1;
-			}
-		}
-	}
-	else if (eYield == YIELD_GOLD)
-	{
-		//Trait is % reduction of this value (higher trait = lower threshold).
-		if (kPlayer.GetPlayerTraits()->GetPovertyHappinessChange() != 0)
-		{
-			iModifier += kPlayer.GetPlayerTraits()->GetPovertyHappinessChange();
-		}
-		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetPovertyUnhappinessMod() != 0)
-		{
-			iModifier += kPlayer.GetPovertyUnhappinessMod();
-		}
-		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetPovertyUnhappinessModCapital() != 0)
-		{
-			if (isCapital())
-			{
-				iModifier += kPlayer.GetPovertyUnhappinessModCapital();
-			}
-		}
-		//Buildings decrease this by a flat integer.
-		if (GetPovertyUnhappiness() != 0)
-		{
-			iModifier += GetPovertyUnhappiness();
-		}
-		if (kPlayer.GetPovertyUnhappinessGlobal() != 0)
-		{
-			iModifier += kPlayer.GetPovertyUnhappinessGlobal();
-		}
-
-		if (getProductionProcess() != NO_PROCESS)
-		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo)
-			{
-				iModifier += (pkProcessInfo->getProductionToYieldModifier(YIELD_GOLD) + GetYieldFromProcessModifier(YIELD_GOLD)) * -1;
-			}
-		}
-	}
-	else if (eYield == YIELD_SCIENCE)
-	{
-		//Trait is % reduction to this value (higher trait = lower threshold).
-		if (kPlayer.GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
-		{
-			iModifier += kPlayer.GetPlayerTraits()->GetIlliteracyHappinessChange();
-		}
-		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetIlliteracyUnhappinessMod() != 0)
-		{
-			iModifier += kPlayer.GetIlliteracyUnhappinessMod();
-		}
-		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetIlliteracyUnhappinessModCapital() != 0)
-		{
-			if (isCapital())
-			{
-				iModifier += kPlayer.GetIlliteracyUnhappinessModCapital();
-			}
-		}
-		//Buildings decrease this by a flat integer.
-		if (GetIlliteracyUnhappiness() != 0)
-		{
-			iModifier += GetIlliteracyUnhappiness();
-		}
-		if (kPlayer.GetIlliteracyUnhappinessGlobal() != 0)
-		{
-			iModifier += kPlayer.GetIlliteracyUnhappinessGlobal();
-		}
-
-		if (getProductionProcess() != NO_PROCESS)
-		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo)
-			{
-				iModifier += (pkProcessInfo->getProductionToYieldModifier(YIELD_SCIENCE) + GetYieldFromProcessModifier(YIELD_SCIENCE)) * -1;
-			}
-		}
-	}
-	else if (eYield == YIELD_PRODUCTION)
-	{
-		//Trait is % reduction of this value (higher trait = lower threshold).
-		if (kPlayer.GetPlayerTraits()->GetDefenseHappinessChange() != 0)
-		{
-			iModifier += kPlayer.GetPlayerTraits()->GetDefenseHappinessChange();
-		}
-		//Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetDefenseUnhappinessMod() != 0)
-		{
-			iModifier += kPlayer.GetDefenseUnhappinessMod();
-		}
-		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-		if (kPlayer.GetDefenseUnhappinessModCapital() != 0)
-		{
-			if (isCapital())
-			{
-				iModifier += kPlayer.GetDefenseUnhappinessModCapital();
-			}
-		}
-		//Buildings decrease this by a flat integer.
-		if (GetDefenseUnhappiness() != 0)
-		{
-			iModifier += GetDefenseUnhappiness();
-		}
-		if (kPlayer.GetDefenseUnhappinessGlobal() != 0)
-		{
-			iModifier += kPlayer.GetDefenseUnhappinessGlobal();
-		}
-
-		if (getProductionProcess() != NO_PROCESS)
-		{
-			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-			if (pkProcessInfo)
-			{
-				iModifier += (pkProcessInfo->getProductionToYieldModifier(YIELD_FOOD) + GetYieldFromProcessModifier(YIELD_FOOD)) * -1;
-			}
-		}
-	}
 	return iModifier;
 }
 
-int CvCity::getPopThresholdMod() const
+int CvCity::GetCitySizeModifier() const
 {
 	int iPop = getPopulation();
 	iPop *= /*-50*/ GD_INT_GET(BALANCE_HAPPINESS_POP_MULTIPLIER);
 	iPop /= 100;
-
 	return iPop;
 }
 
-int CvCity::getEmpireSizeMod() const
+int CvCity::GetEmpireSizeModifier() const
 {
-	int iNumPuppets = GET_PLAYER(getOwner()).GetNumPuppetCities();
-	//-1 for capital
-	int iBase = (GET_PLAYER(getOwner()).getNumCities() - iNumPuppets - 1) * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_EMPIRE_MULTIPLIER);
+	// -1 (exclude the capital)
+	int iEmpireMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_EMPIRE_MULTIPLIER);
 
-	iBase *= min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
-	iBase /= 100;
+	// Scale with map size
+	iEmpireMod *= std::min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+	iEmpireMod /= 100;
 
-	iBase += GetEmpireNeedsModifier() + GET_PLAYER(getOwner()).GetEmpireNeedsModifierGlobal();
-	if (iBase <= 0)
-		return 0;
-
-	return iBase;
+	return std::max(iEmpireMod, 0);
 }
 
-CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bFlavorText)
+int CvCity::GetReducedEmpireSizeModifier(bool bForceRecalc, bool bCityOnly) const
 {
-	int iPuppetUnhappy = 0;
-	int iResistanceUnhappy = 0;
+	int iEmpireMod = bForceRecalc ? GetEmpireSizeModifier() : GetCachedEmpireSizeModifier();
+	int iReduction = GetEmpireNeedsModifier(); // negative
+	if (!bCityOnly)
+		iReduction += GET_PLAYER(getOwner()).GetEmpireNeedsModifierGlobal(); // negative
+
+	return range(iEmpireMod + iReduction, 0, iEmpireMod);
+}
+
+/// Sum up modifier increases/decreases which are specific to a particular yield
+int CvCity::GetNeedModifierForYield(YieldTypes eYield) const
+{
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	int iModifier = 0;
+
+	// Distress = Production + Food, but because Food has a process (Farming), change eYield here for compatibility below
+	if (eYield == YIELD_PRODUCTION)
+		eYield = YIELD_FOOD;
+
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+	{
+		iModifier += GetDefenseUnhappiness(); // Local reduction from buildings
+		iModifier += kPlayer.GetDefenseUnhappinessGlobal(); // Global reduction from buildings
+		iModifier += kPlayer.GetDefenseUnhappinessMod(); // Reduction from policies, etc.
+		iModifier += isCapital() ? kPlayer.GetDefenseUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		iModifier += kPlayer.GetPlayerTraits()->GetDefenseHappinessChange(); // Reduction from UA
+		break;
+	}
+	case YIELD_GOLD:
+	{
+		iModifier += GetPovertyUnhappiness(); // Local reduction from buildings
+		iModifier += kPlayer.GetPovertyUnhappinessGlobal(); // Global reduction from buildings
+		iModifier += kPlayer.GetPovertyUnhappinessMod(); // Reduction from policies, etc.
+		iModifier += isCapital() ? kPlayer.GetPovertyUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		iModifier += kPlayer.GetPlayerTraits()->GetPovertyHappinessChange(); // Reduction from UA
+	}
+	case YIELD_SCIENCE:
+	{
+		iModifier += GetIlliteracyUnhappiness(); // Local reduction from buildings
+		iModifier += kPlayer.GetIlliteracyUnhappinessGlobal(); // Global reduction from buildings
+		iModifier += kPlayer.GetIlliteracyUnhappinessMod(); // Reduction from policies, etc.
+		iModifier += isCapital() ? kPlayer.GetIlliteracyUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		iModifier += kPlayer.GetPlayerTraits()->GetIlliteracyHappinessChange(); // Reduction from UA
+		break;
+	}
+	case YIELD_CULTURE:
+	{
+		iModifier += GetUnculturedUnhappiness(); // Local reduction from buildings
+		iModifier += kPlayer.GetUnculturedUnhappinessGlobal(); // Global reduction from buildings
+		iModifier += kPlayer.GetUnculturedUnhappinessMod(); // Reduction from policies, etc.
+		iModifier += isCapital() ? kPlayer.GetUnculturedUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		iModifier += kPlayer.GetPlayerTraits()->GetUnculturedHappinessChange(); // Reduction from UA
+		break;
+	}
+	case YIELD_FAITH:
+	{
+		iModifier += GetMinorityUnhappiness(); // Local reduction from buildings
+		iModifier += kPlayer.GetMinorityUnhappinessGlobal(); // Global reduction from buildings
+		iModifier += kPlayer.GetMinorityUnhappinessMod(); // Reduction from policies, etc.
+		iModifier += isCapital() ? kPlayer.GetMinorityUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		iModifier += kPlayer.GetPlayerTraits()->GetMinorityHappinessChange(); // Reduction from UA
+		break;
+	}
+	default: // Invalid input
+		return 0;
+	}
+
+	// Is there a process running which reduces unhappiness for this need?
+	if (getProductionProcess() != NO_PROCESS)
+	{
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+		if (pkProcessInfo)
+		{
+			iModifier += (pkProcessInfo->getProductionToYieldModifier(eYield) + GetYieldFromProcessModifier(eYield)) * -1;
+		}
+	}
+
+	return iModifier;
+}
+
+int CvCity::GetTotalNeedModifierForYield(YieldTypes eYield, bool bForceRecalc) const
+{
+	return GetAllNeedsModifier(bForceRecalc) + GetNeedModifierForYield(eYield);
+}
+
+/// Sum up modifier increases/decreases that are local to this city
+int CvCity::GetCityNeedModifierForYield(YieldTypes eYield) const
+{
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	// Increase from being the capital
+	int iModifier = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+
+	// Decrease from city size
+	iModifier += GetCitySizeModifier();
+
+	// Local decrease of empire size modifier
+	iModifier -= GetEmpireSizeModifier() - GetReducedEmpireSizeModifier(false, true);
+
+	// Decrease from Carnival (Brazil UA)
+	if (GetWeLoveTheKingDayCounter() > 0)
+		iModifier += kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod();
+
+	// Decrease from air units that are based here (policy)
+	if (kPlayer.GetNeedsModifierFromAirUnits() != 0)
+		iModifier += plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1;
+
+	// Distress = Production + Food, but because Food has a process (Farming), change eYield here for compatibility below
+	if (eYield == YIELD_PRODUCTION)
+		eYield = YIELD_FOOD;
+
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+	{
+		iModifier += GetDefenseUnhappiness(); // Local reduction from buildings
+		iModifier += isCapital() ? kPlayer.GetDefenseUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		break;
+	}
+	case YIELD_GOLD:
+	{
+		iModifier += GetPovertyUnhappiness(); // Local reduction from buildings
+		iModifier += isCapital() ? kPlayer.GetPovertyUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+	}
+	case YIELD_SCIENCE:
+	{
+		iModifier += GetIlliteracyUnhappiness(); // Local reduction from buildings
+		iModifier += isCapital() ? kPlayer.GetIlliteracyUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		break;
+	}
+	case YIELD_CULTURE:
+	{
+		iModifier += GetUnculturedUnhappiness(); // Local reduction from buildings
+		iModifier += isCapital() ? kPlayer.GetUnculturedUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		break;
+	}
+	case YIELD_FAITH:
+	{
+		iModifier += GetMinorityUnhappiness(); // Local reduction from buildings
+		iModifier += isCapital() ? kPlayer.GetMinorityUnhappinessModCapital() : 0; // Reduction from policies, etc. in the capital
+		break;
+	}
+	default: // Invalid input
+		return 0;
+	}
+
+	// Is there a process running which reduces unhappiness for this need?
+	if (getProductionProcess() != NO_PROCESS)
+	{
+		CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+		if (pkProcessInfo)
+		{
+			iModifier += (pkProcessInfo->getProductionToYieldModifier(eYield) + GetYieldFromProcessModifier(eYield)) * -1;
+		}
+	}
+
+	return iModifier;
+}
+
+CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBanner)
+{
+	int iPopulation = getPopulation();
 
 	if (IsRazing() || IsResistance())
 	{
-		iResistanceUnhappy = int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
-		if (!bFlavorText)
-			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy, GC.getGame().getGameTurn()) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappy);
+		CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iPopulation, GC.getGame().getGameTurn());
+
+		if (bCityBanner)
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RESISTANCE", iPopulation);
+		else
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESISTANCE_UNHAPPINESS", iPopulation);
+
+		return strTooltip;
 	}
 	else if (IsPuppet())
 	{
-		iPuppetUnhappy = getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
-	}
-	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		iResistanceUnhappy = int(getPopulation() * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
+		int iPuppetUnhappiness = iPopulation / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
+		int iSpecialistUnhappiness = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+		int iTotalUnhappiness = iPuppetUnhappiness + iSpecialistUnhappiness;
+		CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness, GC.getGame().getGameTurn());
 
-		if (!bFlavorText)
-			return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iResistanceUnhappy, GC.getGame().getGameTurn()) + "[NEWLINE]" + GetLocalizedText("TXT_KEY_OCCUPATION_UNHAPPINESS", iResistanceUnhappy);
-	}
-
-	int iPop = getPopulation();
-	int iNegativeHappiness = iPuppetUnhappy;
-	int iLimit = getPopulation();
-	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
-
-	int iEmpireUnhappy = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iNegativeHappiness += iEmpireUnhappy;
-	iLimit -= iEmpireUnhappy;
-	int iStarvingUnhappy = getUnhappinessFromStarvingRaw(iLimit);
-	iNegativeHappiness += iStarvingUnhappy;
-	iLimit -= iStarvingUnhappy;
-	int iPillagedUnhappy = getUnhappinessFromPillagedRaw(iLimit);
-	iNegativeHappiness += iPillagedUnhappy;
-	iLimit -= iPillagedUnhappy;
-	int iDefUnhappy = getUnhappinessFromDefenseRaw(iLimit);
-	iNegativeHappiness += iDefUnhappy;
-	iLimit -= iDefUnhappy;
-	int iGoldUnhappy = getUnhappinessFromGoldRaw(iLimit);
-	iNegativeHappiness += iGoldUnhappy;
-	iLimit -= iGoldUnhappy;
-	int iConnectionUnhappy = getUnhappinessFromConnectionRaw(iLimit);
-	iNegativeHappiness += iConnectionUnhappy;
-	iLimit -= iConnectionUnhappy;
-	int iMinorityUnhappy = getUnhappinessFromReligionRaw(iLimit);
-	iNegativeHappiness += iMinorityUnhappy;
-	iLimit -= iMinorityUnhappy;
-	int iSciUnhappy = getUnhappinessFromScienceRaw(iLimit);
-	iNegativeHappiness += iSciUnhappy;
-	iLimit -= iSciUnhappy;
-	int iCulUnhappy = getUnhappinessFromCultureRaw(iLimit);
-	iNegativeHappiness += iCulUnhappy;
-	iLimit -= iCulUnhappy;
-	int iSpecialistUnhappy = getUnhappinessFromSpecialists(iSpecialists);
-	iNegativeHappiness += iSpecialistUnhappy;
-
-
-	CvString strPotential = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iNegativeHappiness, m_aiStaticNeedsUpdateTurn);
-	CvString strReligionIcon = "";
-	if (iMinorityUnhappy != 0)
-	{
-		// Minority tooltip
-		ReligionTypes ePlayerReligion = GetCityReligions()->GetReligiousMajority();
-		if (ePlayerReligion != NO_RELIGION)
+		if (bCityBanner)
 		{
-			strReligionIcon = GC.getReligionInfo(ePlayerReligion)->GetIconString();
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappiness);
+			if (iSpecialistUnhappiness != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iSpecialistUnhappiness);
 		}
-	}
-	if (bFlavorText)
-	{
-		//Resistance tooltip
-		if (iResistanceUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappy);
-		//Puppet tooltip
-		else if (iPuppetUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PUPPET", iPuppetUnhappy);
-		//Occupation tooltip
-		else if (iResistanceUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_OCCUPATION", iResistanceUnhappy);
-
-		//Empire tooltip
-		if (iEmpireUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_EMPIRE", iEmpireUnhappy);
-
-		//Starving tooltip
-		if (iStarvingUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappy);
-
-		// Pillaged tooltip
-		if (iPillagedUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappy);
-
-		//Needs
-		if (iDefUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNDEFENDED", iDefUnhappy);
-
-		if (iGoldUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_POOR", iGoldUnhappy);
-
-		// Connection tooltip
-		if (iConnectionUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappy);
-
-		if (iMinorityUnhappy != 0 && strReligionIcon != "")
-		{
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappy, strReligionIcon);
-		}
-
-		if (iSciUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNEDUCATED", iSciUnhappy);
-
-		if (iCulUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCULTURED", iCulUnhappy);
-
-		//Specialist tooltip
-		if (iSpecialistUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iSpecialistUnhappy);
-
-		strPotential = strPotential + getPotentialUnhappinessWithGrowth();
-
-		return strPotential;
-	}
-	int iPopMod = getPopThresholdMod();
-	int iEmpireMod = getEmpireSizeMod();
-	int iTech = GetStaticTechDeviation();
-	int iCapitalMod = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
-
-	int iThresholdGoldMod = getHappinessThresholdMod(YIELD_GOLD);
-	int iThresholdDefMod = getHappinessThresholdMod(YIELD_PRODUCTION);
-	int iThresholdSciMod = getHappinessThresholdMod(YIELD_SCIENCE);
-	int iThresholdCulMod = getHappinessThresholdMod(YIELD_CULTURE);
-	int iThresholdFaithMod = getHappinessThresholdMod(YIELD_FAITH);
-
-	int iYieldGold = getUnhappinessFromGoldYield();
-	int iYieldDef = getUnhappinessFromDefenseYield();
-	int iYieldSci = getUnhappinessFromScienceYield();
-	int iYieldCul = getUnhappinessFromCultureYield();
-
-	int iNeedGold = getUnhappinessFromGoldNeeded();
-	int iNeedDef = getUnhappinessFromDefenseNeeded();
-	int iNeedSci = getUnhappinessFromScienceNeeded();
-	int iNeedCul = getUnhappinessFromCultureNeeded();
-
-	float iGoldDef = 0.f;
-	float iDefDef = 0.f;
-	float iSciDef = 0.f;
-	float iCulDef = 0.f;
-
-	if (iNeedGold >= iYieldGold)
-		iGoldDef = ((iNeedGold - iYieldGold) * iPop) / 100.0f;
-	else
-		iGoldDef = ((iYieldGold - iNeedGold) * iPop) / 100.0f;
-
-
-	if (iNeedDef >= iYieldDef)
-		iDefDef = ((iNeedDef - iYieldDef) * iPop) / 100.0f;
-	else
-		iDefDef = ((iYieldDef - iNeedDef) * iPop) / 100.0f;
-
-
-	if (iNeedSci >= iYieldSci)
-		iSciDef = ((iNeedSci - iYieldSci) * iPop) / 100.0f;
-	else
-		iSciDef = ((iYieldSci - iNeedSci) * iPop) / 100.0f;
-
-
-	if (iNeedCul >= iYieldCul)
-		iCulDef = ((iNeedCul - iYieldCul) * iPop) / 100.0f;
-	else
-		iCulDef = ((iYieldCul - iNeedCul) * iPop) / 100.0f;
-
-	int iReductionGold = GetFlatNeedsReduction(YIELD_GOLD);
-	int iReductionDef = GetFlatNeedsReduction(YIELD_PRODUCTION);
-	int iReductionCulture = GetFlatNeedsReduction(YIELD_CULTURE);
-	int iReductionScience = GetFlatNeedsReduction(YIELD_SCIENCE);
-	int iReductionFaith = GetFlatNeedsReduction(YIELD_FAITH);
-
-	if (iPuppetUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappy);
-
-	if (iEmpireUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_WIDE_UNHAPPINESS", iEmpireUnhappy);
-
-	if (iPuppetUnhappy != 0)
-	{
-		if (iSpecialistUnhappy != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
-
-		return strPotential;
-	}
-
-	if (iStarvingUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappy);
-
-	if (iPillagedUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappy);
-
-	/*Distress*/
-	if (iYieldDef >= iNeedDef)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", max(1.0f, iDefDef));
-	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS", iDefUnhappy, max(1.0f, iDefDef), getUnhappinessFromDefenseRaw() + iReductionDef, iReductionDef, GetMinYieldNeededToReduceUnhappiness(iYieldDef, iNeedDef, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER)));
-
-	/*Poverty*/
-	if (iYieldGold >= iNeedGold)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", max(1.0f, iGoldDef));
-	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappy, max(1.0f, iGoldDef), getUnhappinessFromGoldRaw() + iReductionGold, iReductionGold, GetMinYieldNeededToReduceUnhappiness(iYieldGold, iNeedGold, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY)));
-
-	if (iConnectionUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappy);
-
-	if (iMinorityUnhappy != 0)
-	{
-		if (strReligionIcon != "")
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, strReligionIcon, iReductionFaith);
 		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappy, "[ICON_RELIGION]", iReductionFaith);
+		{
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PUPPET_UNHAPPINESS", iPuppetUnhappiness);
+			if (iSpecialistUnhappiness != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappiness);
+		}
+
+		return strTooltip;
 	}
 
-	/*Illiteracy*/
-	if (iYieldSci >= iNeedSci)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", max(1.0f, iSciDef));
-	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iSciUnhappy, max(1.0f, iSciDef), getUnhappinessFromScienceRaw() + iReductionScience, iReductionScience, GetMinYieldNeededToReduceUnhappiness(iYieldSci, iNeedSci, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY)));
+	CvWeightedVector<UnhappyReasons> vReasons;
+	int iTotalUnhappiness = 0;
+	int iSource = 0;
 
-	/*Boredom*/
-	if (iYieldCul >= iNeedCul)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", max(1.0f, iCulDef));
-	else
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iCulUnhappy, max(1.0f, iCulDef), getUnhappinessFromCultureRaw() + iReductionCulture, iReductionCulture, GetMinYieldNeededToReduceUnhappiness(iYieldCul, iNeedCul, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM)));
+	iSource = (IsOccupied() && !IsNoOccupiedUnhappiness()) ? range(int(iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION)), 0, iPopulation) : 0;
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_OCCUPIED, iSource);
+	}
 
-	if (iSpecialistUnhappy != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iSpecialistUnhappy);
+	iSource = GetUnhappinessFromEmpire();
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_EMPIRE, iSource);
+	}
+
+	iSource = GetUnhappinessFromFamine();
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_FAMINE, iSource);
+	}
+
+	iSource = GetUnhappinessFromPillagedTiles();
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_PILLAGED_TILES, iSource);
+	}
+
+	int iDistress = GetDistress(false);
+	if (iDistress > 0)
+	{
+		iTotalUnhappiness += iDistress;
+		vReasons.push_back(UNHAPPY_REASON_DISTRESS, iDistress);
+	}
+
+	int iPoverty = GetPoverty(false);
+	if (iPoverty > 0)
+	{
+		iTotalUnhappiness += iPoverty;
+		vReasons.push_back(UNHAPPY_REASON_POVERTY, iPoverty);
+	}
+
+	int iIlliteracy = GetIlliteracy(false);
+	if (iIlliteracy > 0)
+	{
+		iTotalUnhappiness += iIlliteracy;
+		vReasons.push_back(UNHAPPY_REASON_ILLITERACY, iIlliteracy);
+	}
+
+	int iBoredom = GetBoredom(false);
+	if (iBoredom > 0)
+	{
+		iTotalUnhappiness += iBoredom;
+		vReasons.push_back(UNHAPPY_REASON_BOREDOM, iBoredom);
+	}
+
+	int iReligiousUnrest = GetUnhappinessFromReligiousUnrest();
+	if (iReligiousUnrest > 0)
+	{
+		iTotalUnhappiness += iReligiousUnrest;
+		vReasons.push_back(UNHAPPY_REASON_RELIGIOUS_UNREST, iReligiousUnrest);
+	}
+
+	iSource = GetUnhappinessFromIsolation();
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_ISOLATION, iSource);
+	}
+
+	// Unhappiness is capped at city population (except specialists)
+	if (iTotalUnhappiness > iPopulation)
+		iTotalUnhappiness = iPopulation;
+
+	iSource = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
+	if (iSource > 0)
+	{
+		iTotalUnhappiness += iSource;
+		vReasons.push_back(UNHAPPY_REASON_URBANIZATION, iSource);
+	}
+
+	// Sort sources of Unhappiness from highest to lowest
+	vReasons.SortItems();
+
+	CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness, GetYieldMediansCachedTurn());
+
+	// City Banner Tooltip - Provide only the quick overview
+	if (bCityBanner)
+	{
+		for (int i = 0; i < vReasons.size(); i++)
+		{
+			UnhappyReasons eReason = vReasons.GetElement(i);
+			int iUnhappyCitizens = vReasons.GetWeight(i);
+
+			switch (eReason)
+			{
+			case UNHAPPY_REASON_RESISTANCE:
+				UNREACHABLE(); // Resistance is handled at the start of the function.
+			case UNHAPPY_REASON_OCCUPIED:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_OCCUPATION", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_EMPIRE:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_EMPIRE", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_FAMINE:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_STARVING", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_PILLAGED_TILES:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PILLAGED", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_DISTRESS:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNDEFENDED", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_POVERTY:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_POOR", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_ILLITERACY:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNEDUCATED", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_BOREDOM:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCULTURED", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_RELIGIOUS_UNREST:
+			{
+				CvString strIcon = "";
+				ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+				if (eMajority > RELIGION_PANTHEON)
+				{
+					strIcon = GC.getReligionInfo(eMajority)->GetIconString();
+				}
+				if (strIcon != "")
+				{
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RELIGION", iUnhappyCitizens, strIcon);
+				}
+				break;
+			}
+			case UNHAPPY_REASON_ISOLATION:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCONNECTED", iUnhappyCitizens);
+				break;
+			case UNHAPPY_REASON_URBANIZATION:
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iUnhappyCitizens);
+				break;
+			}
+		}
+
+		strTooltip += getPotentialUnhappinessWithGrowth();
+		return strTooltip;
+	}
+
+	// City View Tooltip - Provide detailed information
+	// Always sort as follows: Distress / Poverty / Illiteracy / Boredom / Religious Unrest / Highest Score
+	int iDistressRaw = GetDistressRaw(false);
+
+	// Below Basic Needs requirement
+	if (iDistressRaw > 0)
+	{
+		// Reduced By
+		int iReduction = GetFlatNeedsReduction(YIELD_PRODUCTION);
+
+		// Total Deficit
+		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		fMedian += GetBasicNeedsMedian(false, 0) / 100;
+		fAmountNeeded += fMedian * iPopulation;
+		fAmountHave += ((float)getYieldRateTimes100(YIELD_FOOD, true, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, true, false)) / 100;
+		fDeficit += fAmountNeeded - fAmountHave;
+
+		// Increase by X for -1 Unhappiness
+		fAmountForNextReduction += fMedian * (iPopulation - iDistressRaw + 1) - fAmountHave;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS", iDistress, fDeficit, iDistressRaw, iReduction, fAmountForNextReduction);
+	}
+	// Above Basic Needs requirement
+	else
+	{
+		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		fAmountNeeded += (GetBasicNeedsMedian(false, 0) * iPopulation) / 100;
+		fSurplus += (((float)getYieldRateTimes100(YIELD_FOOD, true, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, true, false)) / 100) - fAmountNeeded;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", fSurplus);
+	}
+
+
+	int iPovertyRaw = GetPovertyRaw(false);
+
+	// Below Gold requirement
+	if (iPovertyRaw > 0)
+	{
+		// Reduced By
+		int iReduction = GetFlatNeedsReduction(YIELD_GOLD);
+
+		// Total Deficit
+		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		fMedian += GetGoldMedian(false, 0) / 100;
+		fAmountNeeded += fMedian * iPopulation;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD, true, false) / 100;
+		fDeficit += fAmountNeeded - fAmountHave;
+
+		// Increase by X for -1 Unhappiness
+		fAmountForNextReduction += fMedian * (iPopulation - iPovertyRaw + 1) - fAmountHave;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS", iPoverty, fDeficit, iPovertyRaw, iReduction, fAmountForNextReduction);
+	}
+	// Above Gold requirement
+	else
+	{
+		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		fAmountNeeded += (GetGoldMedian(false, 0) * iPopulation) / 100;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD, true, false) / 100) - fAmountNeeded;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", fSurplus);
+	}
+
+
+	int iIlliteracyRaw = GetIlliteracyRaw(false);
+
+	// Below Science requirement
+	if (iIlliteracyRaw > 0)
+	{
+		// Reduced By
+		int iReduction = GetFlatNeedsReduction(YIELD_SCIENCE);
+
+		// Total Deficit
+		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		fMedian += GetScienceMedian(false, 0) / 100;
+		fAmountNeeded += fMedian * iPopulation;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE, true, false) / 100;
+		fDeficit += fAmountNeeded - fAmountHave;
+
+		// Increase by X for -1 Unhappiness
+		fAmountForNextReduction += fMedian * (iPopulation - iIlliteracyRaw + 1) - fAmountHave;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS", iIlliteracy, fDeficit, iIlliteracyRaw, iReduction, fAmountForNextReduction);
+	}
+	// Above Science requirement
+	else
+	{
+		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		fAmountNeeded += (GetScienceMedian(false, 0) * iPopulation) / 100;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE, true, false) / 100) - fAmountNeeded;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", fSurplus);
+	}
+
+
+	int iBoredomRaw = GetBoredomRaw(false);
+
+	// Below Culture requirement
+	if (iBoredomRaw > 0)
+	{
+		// Reduced By
+		int iReduction = GetFlatNeedsReduction(YIELD_CULTURE);
+
+		// Total Deficit
+		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		fMedian += GetCultureMedian(false, 0) / 100;
+		fAmountNeeded += fMedian * iPopulation;
+		fAmountHave += (float)getJONSCulturePerTurn(false);
+		fDeficit += fAmountNeeded - fAmountHave;
+
+		// Increase by X for -1 Unhappiness
+		fAmountForNextReduction += fMedian * (iPopulation - iBoredomRaw + 1) - fAmountHave;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS", iBoredom, fDeficit, iBoredomRaw, iReduction, fAmountForNextReduction);
+	}
+	// Above Culture requirement
+	else
+	{
+		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		fAmountNeeded += (GetCultureMedian(false, 0) * iPopulation) / 100;
+		fSurplus += (float)getJONSCulturePerTurn(false) - fAmountNeeded;
+
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", fSurplus);
+	}
+
+
+	// Religious Unrest
+	CvString strIcon = "";
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority > RELIGION_PANTHEON)
+	{
+		strIcon = GC.getReligionInfo(eMajority)->GetIconString();
+	}
+	if (iReligiousUnrest != 0 && strIcon != "")
+	{
+		int iReduction = GetFlatNeedsReduction(YIELD_FAITH);
+		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MINORITY_UNHAPPINESS", iReligiousUnrest, strIcon, iReduction);
+	}
+
+	// Other Stuff (sort by highest to lowest # of unhappy citizens)
+	for (int i = 0; i < vReasons.size(); i++)
+	{
+		UnhappyReasons eReason = vReasons.GetElement(i);
+		int iUnhappyCitizens = vReasons.GetWeight(i);
+
+		switch (eReason)
+		{
+		case UNHAPPY_REASON_RESISTANCE:
+			UNREACHABLE(); // Resistance is handled at the start of the function.
+		case UNHAPPY_REASON_DISTRESS:
+		case UNHAPPY_REASON_POVERTY:
+		case UNHAPPY_REASON_ILLITERACY:
+		case UNHAPPY_REASON_BOREDOM:
+		case UNHAPPY_REASON_RELIGIOUS_UNREST:
+			break; // Already handled above!
+		case UNHAPPY_REASON_OCCUPIED:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_OCCUPATION", iUnhappyCitizens);
+			break;
+		case UNHAPPY_REASON_EMPIRE:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_EMPIRE", iUnhappyCitizens);
+			break;
+		case UNHAPPY_REASON_FAMINE:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_STARVING", iUnhappyCitizens);
+			break;
+		case UNHAPPY_REASON_PILLAGED_TILES:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PILLAGED", iUnhappyCitizens);
+			break;
+		case UNHAPPY_REASON_ISOLATION:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCONNECTED", iUnhappyCitizens);
+			break;
+		case UNHAPPY_REASON_URBANIZATION:
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iUnhappyCitizens);
+			break;
+		}
+	}
 
 	if (bIncludeMedian)
 	{
-		strPotential = strPotential + "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN");
+		// Needs Factors
+		strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN");
+
+		int iCapitalMod = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+		int iTechMod = GetCachedTechNeedModifier();
+		int iCitySize = GetCitySizeModifier();
+		int iEmpireSize = GetReducedEmpireSizeModifier(false,false);
+		int iDifficultyMod = GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod();
+		if (!GET_PLAYER(getOwner()).isHuman())
+			iDifficultyMod += GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
 
 		if (iCapitalMod != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
 
-		if (iTech != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTech);
+		if (iTechMod != 0)
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DEVIATION_UNHAPPINESS_MOD", iTechMod);
 
-		if (iPopMod != 0)
+		if (iCitySize != 0)
 		{
-			if (iPopMod > 0)
-				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iPopMod);
+			if (iCitySize > 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD_POS", iCitySize);
 			else
-				strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iPopMod);
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_POP_UNHAPPINESS_MOD", iCitySize);
 		}
 
-		if (iEmpireMod != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireMod);
+		if (iEmpireSize != 0)
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_EMPIRE_UNHAPPINESS_MOD", iEmpireSize);
 
-		int iDefRed = getThresholdSubtractions(YIELD_PRODUCTION);
-		int iGoldRed = getThresholdSubtractions(YIELD_GOLD);
-		int iFaithRed = getThresholdSubtractions(YIELD_FAITH);
-		int iSciRed = getThresholdSubtractions(YIELD_SCIENCE);
-		int iCulRed = getThresholdSubtractions(YIELD_CULTURE);
-		/*
-		strPotential = strPotential + "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_REDUCTION_AVERAGE_MODS_BREAKDOWN");
-
-
-		if (iDefRed != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iDefRed);
+		if (iDifficultyMod != 0)
+		{
+			if (iDifficultyMod > 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DIFFICULTY_UNHAPPINESS_MOD_POS", iDifficultyMod);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_DIFFICULTY_UNHAPPINESS_MOD", iDifficultyMod);
+		}
 
 
-		if (iGoldRed != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iGoldRed);
+		// Total Need Modifiers [City % Modifiers]
+		strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS");
 
+		int iTotalDistressModifier = GetTotalNeedModifierForYield(YIELD_FOOD, false);
+		int iTotalPovertyModifier = GetTotalNeedModifierForYield(YIELD_GOLD, false);
+		int iTotalIlliteracyModifier = GetTotalNeedModifierForYield(YIELD_SCIENCE, false);
+		int iTotalBoredomModifier = GetTotalNeedModifierForYield(YIELD_CULTURE, false);
+		int iTotalReligiousUnrestModifier = GetTotalNeedModifierForYield(YIELD_FAITH, false);
 
-		if (iFaithRed != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH", iFaithRed);
+		int iCityDistressModifier = GetCityNeedModifierForYield(YIELD_FOOD);
+		int iCityPovertyModifier = GetCityNeedModifierForYield(YIELD_GOLD);
+		int iCityIlliteracyModifier = GetCityNeedModifierForYield(YIELD_SCIENCE);
+		int iCityBoredomModifier = GetCityNeedModifierForYield(YIELD_CULTURE);
+		int iCityReligiousUnrestModifier = GetCityNeedModifierForYield(YIELD_FAITH);
 
+		if (iTotalDistressModifier != 0 || iCityDistressModifier != 0)
+		{
+			if (iTotalDistressModifier >= 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iTotalDistressModifier, iCityDistressModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iTotalDistressModifier, iCityDistressModifier);
+		}
 
-		if (iSciRed != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iSciRed);
+		if (iTotalPovertyModifier != 0 || iCityPovertyModifier != 0)
+		{
+			if (iTotalPovertyModifier >= 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iTotalPovertyModifier, iCityPovertyModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iTotalPovertyModifier, iCityPovertyModifier);
+		}
 
+		if (iTotalIlliteracyModifier != 0 || iCityIlliteracyModifier != 0)
+		{
+			if (iTotalIlliteracyModifier >= 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iTotalIlliteracyModifier, iCityIlliteracyModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iTotalIlliteracyModifier, iCityIlliteracyModifier);
+		}
 
-		if (iCulRed != 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iCulRed);
+		if (iTotalBoredomModifier != 0 || iCityBoredomModifier != 0)
+		{
+			if (iTotalBoredomModifier >= 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iTotalBoredomModifier, iCityBoredomModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iTotalBoredomModifier, iCityBoredomModifier);
+		}
 
-		*/
-
-		strPotential = strPotential + "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS");
-
-		if (iThresholdDefMod > 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE", iThresholdDefMod, iDefRed);
-		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE", iThresholdDefMod, iDefRed);
-
-		if (iThresholdGoldMod > 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE", iThresholdGoldMod, iGoldRed);
-		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD", iThresholdGoldMod, iGoldRed);
-
-		if (iThresholdFaithMod > 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH_POSITIVE", iThresholdFaithMod, iFaithRed);
-		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH", iThresholdFaithMod, iFaithRed);
-
-		if (iThresholdSciMod > 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE", iThresholdSciMod, iSciRed);
-		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE", iThresholdSciMod, iSciRed);
-
-		if (iThresholdCulMod > 0)
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE", iThresholdCulMod, iCulRed);
-		else
-			strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE", iThresholdCulMod, iCulRed);
+		if (iTotalReligiousUnrestModifier != 0 || iCityReligiousUnrestModifier != 0)
+		{
+			if (iTotalReligiousUnrestModifier >= 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH_POSITIVE", iTotalReligiousUnrestModifier, iCityReligiousUnrestModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_AVERAGE_MOD_FAITH", iTotalReligiousUnrestModifier, iCityReligiousUnrestModifier);
+		}
 	}
 
-	strPotential = strPotential + getPotentialUnhappinessWithGrowth();
-
-	return strPotential;
-}
-
-float CvCity::GetMinYieldNeededToReduceUnhappiness(int iCreated, int iNeeded, int iFactor) const
-{
-	int iPop = getPopulation();
-	if (iPop <= 0)
-		return 0;
-
-	int iTotal = (iNeeded - iCreated);
-
-	if (iFactor == 0)
-		return iTotal / 100.0f;
-
-	float fUnhappy = (float)(iTotal * 100) / iFactor;
-	float fRemainder = (float)((int)fUnhappy % 100);
-
-	fUnhappy /= 100.0f;
-
-	if (fUnhappy <= 1.0f)
-		return (iTotal * iPop) / 100.0f;
-
-	fRemainder = max(.01f, fRemainder / 100.0f);
-
-	float fNewFactor = fRemainder * iFactor;
-	fNewFactor += 0.1f;
-
-	fNewFactor = fNewFactor;
-	fNewFactor /= 100.0f;
-	fNewFactor *= iPop;
-
-	return fNewFactor;
-}
-
-float CvCity::GetMinYieldNeededToIncreaseUnhappiness(int iCreated, int iNeeded, int iFactor) const
-{
-	int iPop = getPopulation();
-	if (iPop <= 0)
-		return 0;
-
-	int iTotal = (iNeeded - iCreated);
-
-	if (iFactor == 0)
-		return iTotal / 100.0f;
-
-	float fUnhappy = (float)(iTotal * 100) / iFactor;
-	float fRemainder = (float)((int)fUnhappy % 100);
-
-	fUnhappy /= 100.0f;
-
-	if (fUnhappy <= 1.0f)
-		return (iTotal * iPop) / 100.0f;
-
-	fRemainder = max(.01f, fRemainder / 100.0f);
-
-	float fNewFactor = fRemainder * iFactor;
-	fNewFactor += 0.1f;
-	fNewFactor = (iFactor - fNewFactor);
-
-	fNewFactor = fNewFactor;
-	fNewFactor /= 100.0f;
-	fNewFactor *= iPop;
-
-	return fNewFactor;
-}
-
-CvString CvCity::GetCityHappinessBreakdown()
-{
-	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-	bool bPuppetIgnore = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-
-	if ((IsPuppet() && !bPuppetIgnore) || IsRazing() || IsResistance() || (IsOccupied() && !IsNoOccupiedUnhappiness()))
-		return GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION_PUPPET");
-
-	int iHandicap = isCapital() ? kPlayer.getHandicapInfo().getHappinessDefaultCapital() : 0;
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
-		iHandicap *= 2;
-	int iBuildings = GetBaseHappinessFromBuildings() + GetHappinessFromBuildingClasses();
-	int iOther = GetUnmoddedHappinessFromBuildings();
-	int iEmpire = GetHappinessFromEmpire();
-	int iLuxury = GetLuxuryHappinessFromEmpire();
-	int iPolicies = GetHappinessFromPolicies();
-	int iReligion = GetHappinessFromReligion();
-
-	int iTotal = iHandicap + iBuildings + iOther + iEmpire + iLuxury + iPolicies + iReligion;
-
-	CvString strPotential = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION");
-	strPotential = strPotential + "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_HAPPINESS", iTotal);
-
-	if (iEmpire != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_EMPIRE_CBO", iEmpire);
-	if (iLuxury != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_LUXURY_CBO", iLuxury);
-	if (iHandicap != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_HANDICAP_CBO", iHandicap);
-	if (iBuildings != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_BUILDINGS_CBO", iBuildings);
-	if (iOther != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_OTHER_CBO", iOther);
-	if (iPolicies != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_POLICY_CBO", iPolicies);
-	if (iReligion != 0)
-		strPotential = strPotential + "[NEWLINE]" + GetLocalizedText("TXT_KEY_HAPPY_RELIGION_CBO", iReligion);
-
-	strPotential = strPotential + getPotentialHappinessWithGrowth();
-
-	return strPotential;
+	strTooltip += getPotentialUnhappinessWithGrowth();
+	return strTooltip;
 }
 
 //	--------------------------------------------------------------------------------
@@ -23048,437 +23093,284 @@ int CvCity::getUnhappyCitizenCount() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCultureYield(int iModPop) const
+/// How much Unhappiness is this city generating from Distress?
+/// bForceRecalc computes the amount of Distress generated after this city's next growth
+int CvCity::GetDistress(bool bForceRecalc) const
 {
-	int iCityCulture = getJONSCulturePerTurn() * 100;
+	if (IsPuppet() || IsResistance() || IsRazing())
+		return 0;
 
-	//Per Pop Yield
-	if (getPopulation() != 0)
-	{
-		iCityCulture = (iCityCulture / (getPopulation() + iModPop));
-	}
-
-	//This is for LUA.
-	return iCityCulture;
+	int iDistress = GetDistressRaw(bForceRecalc) - GetFlatNeedsReduction(YIELD_PRODUCTION);
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	return range(iDistress, 0, iPopulation);
 }
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCultureNeeded(int iMod, bool bForceGlobal) const
+
+int CvCity::GetDistressRaw(bool bForceRecalc) const
 {
-	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_CULTURE) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
+	// First, calculate the total yield
+	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
+	int iTotalYield = getYieldRateTimes100(YIELD_FOOD, false, false) + getYieldRateTimes100(YIELD_PRODUCTION, false, false);
 
-	int iModifier = getHappinessThresholdMod(YIELD_CULTURE, iMod, bForceGlobal);
+	// Second, calculate the median (with need modifiers)
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += GetBasicNeedsMedian(bForceRecalc, 0);
 
-	iThreshold *= (iModifier + 100);
-	iThreshold /= 100;
+	// Unhappiness = Population - (Total Yield / Modified Median)
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	float fDistress = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
 
-	//This is for LUA.
-	return iThreshold;
+	return range((int)fDistress, 0, iPopulation);
 }
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCultureRaw(int iLimit, int iPopMod, bool bForceGlobal) const
+
+float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const
 {
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetBasicNeedsMedian() : (float)GetCachedBasicNeedsMedian();
+	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_PRODUCTION, bForceRecalc) + iAdditionalModifier);
+	fMedianYieldPerPop /= 100;
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISTRESS), 0);
+	fMedianYieldPerPop /= 100;
+
+	if (fMedianYieldPerPop <= 0.00f)
+		return 0.00f;
+
+	return fMedianYieldPerPop;
+}
+
+//	--------------------------------------------------------------------------------
+/// How much Unhappiness is this city generating from Poverty?
+/// bForceRecalc computes the amount of Poverty generated after this city's next growth
+int CvCity::GetPoverty(bool bForceRecalc) const
+{
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
+	int iPoverty = GetPovertyRaw(bForceRecalc) - GetFlatNeedsReduction(YIELD_GOLD);
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	return range(iPoverty, 0, iPopulation);
+}
+
+int CvCity::GetPovertyRaw(bool bForceRecalc) const
+{
+	// First, calculate the total yield
+	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
+	int iTotalYield = getYieldRateTimes100(YIELD_GOLD, false, false);
+
+	// Second, calculate the median (with need modifiers)
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += GetGoldMedian(bForceRecalc, 0);
+
+	// Unhappiness = Population - (Total Yield / Modified Median)
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	float fPoverty = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
+
+	return range((int)fPoverty, 0, iPopulation);
+}
+
+float CvCity::GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const
+{
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetGoldMedian() : (float)GetCachedGoldMedian();
+	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_GOLD, bForceRecalc) + iAdditionalModifier);
+	fMedianYieldPerPop /= 100;
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY), 0);
+	fMedianYieldPerPop /= 100;
+
+	if (fMedianYieldPerPop <= 0.00f)
+		return 0.00f;
+
+	return fMedianYieldPerPop;
+}
+
+//	--------------------------------------------------------------------------------
+/// How much Unhappiness is this city generating from Illiteracy?
+/// bForceRecalc computes the amount of Illiteracy generated after this city's next growth
+int CvCity::GetIlliteracy(bool bForceRecalc) const
+{
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
-	}
-	if (IsResistance())
-	{
+
+	int iIlliteracy = GetIlliteracyRaw(bForceRecalc) - GetFlatNeedsReduction(YIELD_SCIENCE);
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	return range(iIlliteracy, 0, iPopulation);
+}
+
+int CvCity::GetIlliteracyRaw(bool bForceRecalc) const
+{
+	// First, calculate the total yield
+	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
+	int iTotalYield = getYieldRateTimes100(YIELD_SCIENCE, false, false);
+
+	// Second, calculate the median (with need modifiers)
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += GetScienceMedian(bForceRecalc, 0);
+
+	// Unhappiness = Population - (Total Yield / Modified Median)
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	float fIlliteracy = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
+
+	return range((int)fIlliteracy, 0, iPopulation);
+}
+
+float CvCity::GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const
+{
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetScienceMedian() : (float)GetCachedScienceMedian();
+	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_SCIENCE, bForceRecalc) + iAdditionalModifier);
+	fMedianYieldPerPop /= 100;
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY), 0);
+	fMedianYieldPerPop /= 100;
+
+	if (fMedianYieldPerPop <= 0.00f)
+		return 0.00f;
+
+	return fMedianYieldPerPop;
+}
+
+//	--------------------------------------------------------------------------------
+/// How much Unhappiness is this city generating from Boredom?
+/// bForceRecalc computes the amount of Boredom generated after this city's next growth
+int CvCity::GetBoredom(bool bForceRecalc) const
+{
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
-	}
-	if (iLimit < 1)
-	{
+
+	int iBoredom = GetBoredomRaw(bForceRecalc) - GetFlatNeedsReduction(YIELD_CULTURE);
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	return range(iBoredom, 0, iPopulation);
+}
+
+int CvCity::GetBoredomRaw(bool bForceRecalc) const
+{
+	// First, calculate the total yield
+	// Include yields from trade routes in the yield, but not the median, to make unhappiness management easier
+	int iTotalYield = getJONSCulturePerTurn(false) * 100;
+
+	// Second, calculate the median (with need modifiers)
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += GetCultureMedian(bForceRecalc, 0);
+
+	// Unhappiness = Population - (Total Yield / Modified Median)
+	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
+	float fBoredom = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
+
+	return range((int)fBoredom, 0, iPopulation);
+}
+
+float CvCity::GetCultureMedian(bool bForceRecalc, int iAdditionalModifier) const
+{
+	float fMedianYieldPerPop = 0.00f;
+	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetCultureMedian() : (float)GetCachedCultureMedian();
+	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_CULTURE, bForceRecalc) + iAdditionalModifier);
+	fMedianYieldPerPop /= 100;
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY), 0);
+	fMedianYieldPerPop /= 100;
+
+	if (fMedianYieldPerPop <= 0.00f)
+		return 0.00f;
+
+	return fMedianYieldPerPop;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetUnhappinessFromPillagedTiles() const
+{
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
-	}
 
-	if (iLimit > getPopulation())
-		iLimit = getPopulation();
-
-	int iUnhappiness = 0;
-	int iThreshold = getUnhappinessFromCultureNeeded(0, bForceGlobal);
-	int iCityCulture = getUnhappinessFromCultureYield(iPopMod);
-
-	if (iThreshold > iCityCulture)
+	int iPillagedTiles = GetNumPillagedPlots();
+	if (iPillagedTiles > 0)
 	{
-		iUnhappiness = iThreshold - iCityCulture;
-		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM));
-
-		int iReduction = GetFlatNeedsReduction(YIELD_CULTURE);
-		if (iReduction != 0)
-		{
-			iUnhappiness -= iReduction;
-			if (iUnhappiness < 0)
-				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
-		}
-
-		return range(iUnhappiness, 1, iLimit);
+		float fUnhappiness = 0.0f;
+		float fUnhappyPerTile = /*0.50f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_PILLAGED);
+		fUnhappiness += (float)iPillagedTiles * fUnhappyPerTile;
+		return range((int)fUnhappiness, 0, getPopulation());
 	}
 
 	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCulture(int iPopMod, bool bForceGlobal) const
+int CvCity::GetUnhappinessFromFamine() const
 {
-	//according to the hierarchy of needs
-	int iLimit = getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromReligionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromCultureRaw(iLimit, iPopMod, bForceGlobal);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScienceYield(int iModPop) const
-{
-	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false, true);
-
-	//Per Pop Yield
-	if (getPopulation() != 0)
-	{
-		iCityResearch = (iCityResearch / (getPopulation() + iModPop));
-	}
-
-	//This is for LUA.
-	return iCityResearch;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScienceNeeded(int iMod, bool bForceGlobal) const
-{
-	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_SCIENCE) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
-
-	int iModifier = getHappinessThresholdMod(YIELD_SCIENCE, iMod, bForceGlobal);
-
-	iThreshold *= (iModifier + 100);
-	iThreshold /= 100;
-
-	//This is for LUA.
-	return iThreshold;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScienceRaw(int iLimit, int iPopMod, bool bForceGlobal) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
+	int iDiff = foodDifference(true, true);
+	if (iDiff < 0 && !isFoodProduction())
 	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
+		iDiff = (iDiff * -1);
 
-	if (iLimit > getPopulation())
-		iLimit = getPopulation();
+		float fUnhappiness = 0.0f;
+		float fUnhappyPerDeficit = /*1.0f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP);
+		fUnhappiness += (float)iDiff * fUnhappyPerDeficit;
 
-	int iUnhappiness = 0;
-	int iThreshold = getUnhappinessFromScienceNeeded(0, bForceGlobal);
-	int iCityResearch = getUnhappinessFromScienceYield(iPopMod);
-
-	if (iThreshold > iCityResearch)
-	{
-		iUnhappiness = iThreshold - iCityResearch;
-		iUnhappiness /= max(1, /*100*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY));
-
-		int iReduction = GetFlatNeedsReduction(YIELD_SCIENCE);
-		if (iReduction != 0)
-		{
-			iUnhappiness -= iReduction;
-			if (iUnhappiness < 0)
-				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
-		}
-
-		return range(iUnhappiness, 1, iLimit);
+		return range((int)fUnhappiness, 0, getPopulation());
 	}
 
 	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromScience(int iPopMod, bool bForceGlobal) const
+int CvCity::GetUnhappinessFromReligiousUnrest() const
 {
-	//according to the hierarchy of needs
-	int iLimit = getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromReligionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromScienceRaw(iLimit, iPopMod, bForceGlobal);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefenseYield(int iModPop) const
-{
-	int iDefenseYield = getYieldRateTimes100(YIELD_FOOD, false, true) + getYieldRateTimes100(YIELD_PRODUCTION, false, false);
-
-	//Per Pop Yield
-	if (getPopulation() != 0)
-	{
-		iDefenseYield = (iDefenseYield / (getPopulation() + iModPop));
-	}
-
-	return iDefenseYield;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefenseNeeded(int iMod, bool bForceGlobal) const
-{
-	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_PRODUCTION) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
-	int iModifier = getHappinessThresholdMod(YIELD_PRODUCTION, iMod, bForceGlobal);
-
-	iThreshold *= (iModifier + 100);
-	iThreshold /= 100;
-
-	//This is for LUA.
-	return iThreshold;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefenseRaw(int iLimit, int iPopMod, bool bForceGlobal) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
+	//Trait takes away unhappiness from religious strife.
+	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoReligiousStrife())
 		return 0;
-	}
-	if (IsResistance())
+
+	const CvReligion* pReligion = NULL;
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if (eMajority > RELIGION_PANTHEON)
 	{
-		return 0;
+		pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 	}
-	if (iLimit < 1)
+	if (pReligion)
 	{
-		return 0;
-	}
+		float fUnhappiness = 0.0f;
+		int iMajorityReligionFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+		int iReligiousMinorities = getPopulation() - iMajorityReligionFollowers;
 
-	if (iLimit > getPopulation())
-		iLimit = getPopulation();
-
-	int iUnhappiness = 0;
-	int iThreshold = getUnhappinessFromDefenseNeeded(0, bForceGlobal);
-	int iBuildingDefense = getUnhappinessFromDefenseYield(iPopMod);
-
-	if (iThreshold > iBuildingDefense)
-	{
-		iUnhappiness = iThreshold - iBuildingDefense;
-		iUnhappiness /= max(1, /*200*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER));
-
-		int iReduction = GetFlatNeedsReduction(YIELD_PRODUCTION);
-		if (iReduction != 0)
+		if (iReligiousMinorities > 0)
 		{
-			iUnhappiness -= iReduction;
-			if (iUnhappiness < 0)
-				iUnhappiness = 0;
+			fUnhappiness += iReligiousMinorities * /*0.5f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_MINORITY_POP);
+			int iModifier = GetTotalNeedModifierForYield(YIELD_FAITH, false);
 
-			return min(iUnhappiness, iLimit);
+			fUnhappiness *= (100 + iModifier);
+			fUnhappiness /= 100;
+
+			int iUnhappiness = (int)fUnhappiness - GetFlatNeedsReduction(YIELD_FAITH);
+			return range(iUnhappiness, 0, getPopulation());
 		}
-
-		return range(iUnhappiness, 1, iLimit);
 	}
 
 	return 0;
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromDefense(int iPopMod, bool bForceGlobal) const
+int CvCity::GetUnhappinessFromIsolation() const
 {
-	//according to the hierarchy of needs
-	int iLimit = getPopulation();
-	int iContribution;
-	//order is very important
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGoldYield(int iModPop) const
-{
-	int iGold = getYieldRateTimes100(YIELD_GOLD, false, true);
-
-	//Per Pop Yield
-	if (getPopulation() != 0)
-	{
-		iGold = (iGold / (getPopulation() + iModPop));
-	}
-
-	//This is for LUA.
-	return iGold;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGoldNeeded(int iMod, bool bForceGlobal) const
-{
-	int iThreshold = !bForceGlobal ? GetGlobalStaticYield(YIELD_GOLD) : GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
-
-	int iModifier = getHappinessThresholdMod(YIELD_GOLD, iMod, bForceGlobal);
-
-	iThreshold *= (iModifier + 100);
-	iThreshold /= 100;
-
-	return iThreshold;
-}
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGoldRaw(int iLimit, int iPopMod, bool bForceGlobal) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
-
-	if (iLimit > getPopulation())
-		iLimit = getPopulation();
-
-	int iUnhappiness = 0;
-	int iThreshold = getUnhappinessFromGoldNeeded(0, bForceGlobal);
-	int iGold = getUnhappinessFromGoldYield(iPopMod);
-
-	if (iThreshold > iGold)
-	{
-		iUnhappiness = iThreshold - iGold;
-		iUnhappiness /= max(1, /*150*/ GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY));
-
-		int iReduction = GetFlatNeedsReduction(YIELD_GOLD);
-		if (iReduction != 0)
-		{
-			iUnhappiness -= iReduction;
-			if (iUnhappiness < 0)
-				iUnhappiness = 0;
-			return min(iUnhappiness, iLimit);
-		}
-
-		return range(iUnhappiness, 1, iLimit);
-	}
-
-	return 0;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromGold(int iPopMod, bool bForceGlobal) const
-{
-	//according to the hierarchy of needs
-	int iLimit = getPopulation() + iPopMod;
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit, iPopMod, bForceGlobal);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit, iPopMod, bForceGlobal);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
+	// No Isolation in the capital
+	if (isCapital())
 		return 0;
 
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
-
-	if (isCapital() && !IsBlockadedWaterAndLand())
-	{
-		return 0;
-	}
-	if (GET_PLAYER(getOwner()).getCapitalCity() == NULL)
-	{
-		return 0;
-	}
-	if (GET_PLAYER(getOwner()).getCapitalCity() == this)
-	{
-		return 0;
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait takes away unhappiness from lack of connection.
+	//Trait takes away unhappiness from Isolation.
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoConnectionUnhappiness())
-	{
 		return 0;
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	//Policy takes away unhappiness from lack of connection.
+	//Policy takes away unhappiness from Isolation.
 	if (GET_PLAYER(getOwner()).IsNoUnhappyIsolation())
-	{
 		return 0;
-	}
-#endif
 
 	//note: it's only connected to the capital if it's not blockaded
 	if (IsRouteToCapitalConnected())
-	{
 		return 0;
-	}
 
-	//if we have a traderoute to our capital or to another city which has a route to the capital, it's just as good as a route
+	//if we have a trade route to our capital or to another city which has a route to the capital, it's just as good as a route
 	int iLoop = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 	{
@@ -23488,256 +23380,25 @@ int CvCity::getUnhappinessFromConnectionRaw(int iLimit) const
 		if (pLoopCity->isCapital() || pLoopCity->IsRouteToCapitalConnected())
 		{
 			if (HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
-			{
 				return 0;
-			}
 		}
 	}
 
 	//ok, how much unhappiness do we generate?
-	float fUnhappiness = 0.0f;
+	float fUnhappiness = 0.00f;
 	if (GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP) > 0)
 	{
-		int iRealCityPop = getPopulation();
-		fUnhappiness += (float)iRealCityPop * /*0.34f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP);
-
-		if (IsPuppet())
-		{
-			fUnhappiness += (float)((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
-		}
+		fUnhappiness += ceil((float)getPopulation() * /*0.34f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP));
 	}
 
-	return range((int)fUnhappiness, 1, iLimit);
+	return range((int)fUnhappiness, 0, getPopulation());
 }
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromConnection() const
-{
-	//according to the hierarchy of needs
-	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromPillagedRaw(int iLimit) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
-		return 0;
-
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
-
-	int iPillaged = GetNumPillagedPlots();
-
-	float fUnhappiness = 0.0f;
-	if (iPillaged > 0)
-	{
-		float fExponent = /*0.50f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_PILLAGED);
-
-		fUnhappiness += (float)iPillaged * (float)fExponent;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		if (IsPuppet())
-		{
-			fUnhappiness += (float)((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
-		}
-#endif
-	}
-
-	return range((int)fUnhappiness, 0, iLimit);
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromPillaged() const
-{
-	//according to the hierarchy of needs
-	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromStarvingRaw(int iLimit) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
-		return 0;
-
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
-
-	int iDiff = foodDifference(true, true);
-	if (iDiff < 0 && !isFoodProduction())
-	{
-		iDiff = (iDiff * -1);
-
-		float fUnhappiness = 0.0f;
-		float fExponent = /*1.0f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP);
-		fUnhappiness += (float)iDiff * fExponent;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		if (IsPuppet())
-		{
-			fUnhappiness += (float)((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
-		}
-#endif
-		return range((int)fUnhappiness, 0, iLimit);
-	}
-
-	return 0;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromStarving() const
-{
-	//according to the hierarchy of needs
-	int iLimit = MOD_BALANCE_CORE_JFD ? MAX_INT : getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-
-	return iContribution;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromReligionRaw(int iLimit) const
-{
-	if (MOD_BALANCE_CORE_PUPPET_CHANGES && IsPuppet())
-		return 0;
-
-	if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		return 0;
-	}
-	if (IsResistance())
-	{
-		return 0;
-	}
-	if (iLimit < 1)
-	{
-		return 0;
-	}
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait takes away unhappiness from religious strife.
-	if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoReligiousStrife())
-	{
-		return 0;
-	}
-#endif
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	const CvReligion* pReligion = NULL;
-	float fUnhappiness = 0.0f;
-
-	float fExponent = /*0.5f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_MINORITY_POP);
-	int iCityPop = getPopulation();
-
-	if (eMajority != NO_RELIGION && eMajority != RELIGION_PANTHEON)
-	{
-		pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-	}
-	if (pReligion != NULL)
-	{
-		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-
-		int iMinority = iCityPop - iFollowers;
-
-		if (iMinority > 0)
-		{
-			fUnhappiness = (float)iMinority * fExponent;
-			int iModifiers = getHappinessThresholdMod(YIELD_FAITH, 0, false);
-
-			//reverse the modifier
-			iModifiers *= -1;
-
-			fUnhappiness *= 100;
-			fUnhappiness /= 100 + iModifiers;
-
-			int iReduction = GetFlatNeedsReduction(YIELD_FAITH);
-			if (iReduction != 0)
-			{
-				fUnhappiness -= iReduction;
-
-				if (fUnhappiness < 0)
-					fUnhappiness = 0;
-
-				return min((int)fUnhappiness, iLimit);
-			}
-
-			return range((int)fUnhappiness, 0, iLimit);
-		}
-	}
-
-	return 0;
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromReligion() const
-{
-	//according to the hierarchy of needs
-	int iLimit = getPopulation();
-	int iContribution;
-	iContribution = GET_PLAYER(getOwner()).GetEmpireUnhappinessForCity(GET_PLAYER(getOwner()).getCity(GetID()));
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromStarvingRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromPillagedRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromDefenseRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromGoldRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromConnectionRaw(iLimit);
-	iLimit -= iContribution;
-	iContribution = getUnhappinessFromReligionRaw(iLimit);
-
-	return iContribution;
-}
-
 
 int CvCity::getJFDSpecialUnhappinessSources() const
 {
-	int iContribution = getUnhappinessFromStarvingRaw();
-	iContribution += getUnhappinessFromPillagedRaw();
-	iContribution += getUnhappinessFromConnectionRaw();
+	int iContribution = GetUnhappinessFromFamine();
+	iContribution += GetUnhappinessFromPillagedTiles();
+	iContribution += GetUnhappinessFromIsolation();
 
 	return iContribution;
 }
@@ -25009,12 +24670,11 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 	int iModifier = 0;
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		return iModifier;
 	}
-#endif
+
 	if (kPlayer.IsEmpireUnhappy())
 	{
 		int iUnhappy = -1 * kPlayer.GetExcessHappiness();
@@ -25035,35 +24695,26 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 	return iModifier;
 }
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic) const
-#else
-int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
-#endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
+
 	if (bStatic && !bIgnoreTrade)
 	{
 		return (GetStaticYield(eIndex) / 100);
 	}
-#endif
+
 	return (getYieldRateTimes100(eIndex, bIgnoreTrade) / 100);
 }
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic) const
-#else
-int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
-#endif
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
+
 	if (bStatic && !bIgnoreTrade)
 	{
 		return GetStaticYield(eIndex);
 	}
-#endif
 
 	// Anarchy, Resistance or Razing - no Science, Gold or Production (Prod handled in ProductionDifference)
 	if (GET_PLAYER(getOwner()).IsAnarchy() || IsResistance() || IsRazing())
@@ -25083,7 +24734,6 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 			return 0;
 		}
 
-#if defined(MOD_BALANCE_CORE)
 		if (eIndex == YIELD_GREAT_GENERAL_POINTS)
 		{
 			return 0;
@@ -25100,21 +24750,14 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		{
 			return 0;
 		}
-#endif
 	}
 
 	int iPostModifierYield = 0;
 
 	if (getProductionToYieldModifier(eIndex) != 0)
 	{
-#if defined(MOD_PROCESS_STOCKPILE)
 		// We want to process production to production and call it stockpiling!
-		iPostModifierYield += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 100;
-#else
-		CvAssertMsg(eIndex != YIELD_PRODUCTION, "GAMEPLAY: should not be trying to convert Production into Production via process.");
-
-		iPostModifierYield += getYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
-#endif
+		iPostModifierYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 100;
 	}
 
 	if (!bIgnoreTrade)
@@ -25122,19 +24765,15 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		iPostModifierYield += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, eIndex);
 	}
 
-#if defined(MOD_PROCESS_STOCKPILE)
 	return getBasicYieldRateTimes100(eIndex) + iPostModifierYield;
 }
 
 int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 {
-#endif
 	// Sum up yield rate
 	int iBaseYield = getBaseYieldRate(eIndex) * 100;
 	iBaseYield += (GetYieldPerPopTimes100(eIndex) * getPopulation());
-#if defined(MOD_BALANCE_CORE)
 	iBaseYield += (GetYieldPerPopInEmpireTimes100(eIndex) * GET_PLAYER(m_eOwner).getTotalPopulation());
-#endif
 	iBaseYield += (GetYieldPerReligionTimes100(eIndex) * GetCityReligions()->GetNumReligionsWithFollowers());
 
 	// Player-level yield per religion
@@ -25150,13 +24789,9 @@ int CvCity::getBasicYieldRateTimes100(YieldTypes eIndex) const
 	int iModifiedYield = iBaseYield * getBaseYieldRateModifier(eIndex, 0, NULL);
 	iModifiedYield /= 100;
 
-#if !defined(MOD_PROCESS_STOCKPILE)
-	iModifiedYield += iProcessYield;
-#endif
-
 	return iModifiedYield;
 }
-#if defined(MOD_BALANCE_CORE)
+
 void CvCity::UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, int iModifiedYield)
 {
 	if (iModifiedYield > 0)
@@ -25180,7 +24815,6 @@ void CvCity::UpdateCityYieldFromYield(YieldTypes eIndex1, YieldTypes eIndex2, in
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getBaseYieldRate(YieldTypes eIndex) const
@@ -28289,15 +27923,18 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
 			}
 
-			int iSpyID = GetCityEspionage() != NULL ? GetCityEspionage()->m_aiSpyAssignment[getOwner()] : -1;
-			if (iSpyID != -1)
+			if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
 			{
-				CvEspionageSpy* pSpy = GET_PLAYER(getOwner()).GetEspionage()->GetSpyByID(iSpyID);
-				if (pSpy != NULL && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+				int iSpyID = GetCityEspionage() != NULL ? GetCityEspionage()->m_aiSpyAssignment[getOwner()] : -1;
+				if (iSpyID != -1)
 				{
-					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
-					if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
-						iModifier += pkEventChoiceInfo->getCityDefenseModifier();
+					CvEspionageSpy* pSpy = GET_PLAYER(getOwner()).GetEspionage()->GetSpyByID(iSpyID);
+					if (pSpy != NULL && pSpy->m_eSpyFocus != NO_EVENT_CHOICE_CITY)
+					{
+						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
+						if (pkEventChoiceInfo != NULL && pkEventChoiceInfo->getCityDefenseModifier() != 0)
+							iModifier += pkEventChoiceInfo->getCityDefenseModifier();
+					}
 				}
 			}
 
@@ -32005,45 +31642,6 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
 
-			if (pUnit->getUnitInfo().GetOneShotTourism() > 0)
-			{
-				pUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(pUnit->getUnitInfo().GetOneShotTourism()));
-			}
-			if (pUnit->getUnitInfo().GetTourismBonusTurns() > 0)
-			{
-				int iNumTurns = pUnit->getUnitInfo().GetTourismBonusTurns();
-				CvCity* pLoopCity;
-				int iLoop;
-				for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-				{
-					iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-				}
-
-				iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iNumTurns /= 100;
-
-				pUnit->SetTourismBlastLength(iNumTurns);
-			}
-#if defined(MOD_BALANCE_CORE)
-			if (pUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
-			{
-				pUnit->SetScienceBlastStrength(pUnit->getDiscoverAmount());
-			}
-			if (pUnit->getUnitInfo().GetBaseHurry() > 0)
-			{
-				pUnit->SetHurryStrength(pUnit->getHurryProduction(pUnit->plot()));
-			}
-			if (pUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
-			{
-				pUnit->SetCultureBlastStrength(pUnit->getGivePoliciesCulture());
-			}
-
-			if (pUnit->getUnitInfo().GetBaseTurnsForGAPToCount() > 0)
-			{
-				pUnit->SetGAPBlastStrength(pUnit->getGAPBlast());
-			}
-#endif
-
 			kPlayer.ChangeFaith(-iFaithCost);
 
 			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
@@ -32953,12 +32551,15 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTotalGreatWorkAid);
 	visitor(city.m_aiChangeGrowthExtraYield);
 	visitor(city.m_iHappinessFromEmpire);
-	visitor(city.m_iHappinessFromLuxuries);
 	visitor(city.m_iUnhappinessFromEmpire);
-	visitor(city.m_iStaticTechDeviation);
+	visitor(city.m_iCachedBasicNeedsMedian);
+	visitor(city.m_iCachedGoldMedian);
+	visitor(city.m_iCachedScienceMedian);
+	visitor(city.m_iCachedCultureMedian);
+	visitor(city.m_iCachedTechNeedModifier);
+	visitor(city.m_iCachedEmpireSizeModifier);
+	visitor(city.m_iYieldMediansCachedTurn);
 	visitor(city.m_aiNumProjects);
-	visitor(city.m_aiStaticGlobalYield);
-	visitor(city.m_aiStaticNeedAdditives);
 	visitor(city.m_aiLongestPotentialTradeRoute);
 	visitor(city.m_aiNumTimesAttackedThisTurn);
 	visitor(city.m_aiYieldFromKnownPantheons);
@@ -33020,6 +32621,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iTradeRouteLandDistanceModifier);
 	visitor(city.m_iNukeInterceptionChance);
 	visitor(city.m_aiEconomicValue);
+	visitor(city.m_miInstantYieldsTotal);
 	visitor(city.m_aiBaseYieldRateFromReligion);
 	visitor(city.m_aiBaseYieldRateFromCSAlliance);
 	visitor(city.m_aiBaseYieldRateFromCSFriendship);
@@ -33033,7 +32635,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iAlwaysHeal);
 	visitor(city.m_iResourceDiversityModifier);
 	visitor(city.m_iNoUnhappfromXSpecialists);
-	visitor(city.m_aiStaticNeedsUpdateTurn);
 	visitor(city.m_aiGreatWorkYieldChange);
 	visitor(city.m_aiYieldRateModifier);
 	visitor(city.m_aiYieldPerPop);

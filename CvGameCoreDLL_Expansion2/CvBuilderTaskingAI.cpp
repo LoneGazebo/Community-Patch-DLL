@@ -357,7 +357,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iSideBenefits += 20000;
 
 		//assume one unhappiness is worth .5 gold per turn per city
-		iSideBenefits += pTargetCity->getUnhappinessFromConnection() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
+		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
 		if(bIndustrialRoute)
 		{
@@ -2627,7 +2627,7 @@ BuildTypes CvBuilderTaskingAI::GetBuildRoute(void)
 }
 
 /// Central logging repository!
-void CvBuilderTaskingAI::LogInfo(CvString strNewLogStr, CvPlayer* pPlayer, bool /*bWriteToOutput*/)
+void CvBuilderTaskingAI::LogInfo(const CvString& strNewLogStr, CvPlayer* pPlayer, bool /*bWriteToOutput*/)
 {
 	if(!(GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging()))
 	{
@@ -2653,7 +2653,7 @@ void CvBuilderTaskingAI::LogInfo(CvString strNewLogStr, CvPlayer* pPlayer, bool 
 	pLog->Msg(strLog);
 }
 
-void CvBuilderTaskingAI::LogYieldInfo(CvString strNewLogStr, CvPlayer* pPlayer)
+void CvBuilderTaskingAI::LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer)
 {
 	if(!(GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging()))
 	{

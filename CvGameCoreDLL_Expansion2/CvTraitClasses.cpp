@@ -122,7 +122,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iEventGP(0),
 	m_iWLTKDCulture(0),
 	m_iWLTKDGATimer(0),
-	m_iGAUnhappinesNeedMod(0),
+	m_iWLTKDUnhappinessNeedsMod(0),
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
 	m_iSpyMoveRateBonus(0),
@@ -251,7 +251,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
-	m_piTradeRouteStartYield(NULL),
+	m_tradeRouteEndYield(),
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
 	m_piYieldFromImport(NULL),
@@ -827,9 +827,9 @@ int CvTraitEntry::GetWLTKDGATimer() const
 {
 	return m_iWLTKDGATimer;
 }
-int CvTraitEntry::GetGAUnhappinesNeedMod() const
+int CvTraitEntry::GetWLTKDUnhappinessNeedsMod() const
 {
-	return m_iGAUnhappinesNeedMod;
+	return m_iWLTKDUnhappinessNeedsMod;
 }
 int CvTraitEntry::GetStartingSpies() const
 {
@@ -1113,10 +1113,6 @@ TechTypes CvTraitEntry::GetFreeBuildingPrereqTech() const
 TechTypes CvTraitEntry::GetCapitalFreeBuildingPrereqTech() const
 {
 	return m_eCapitalFreeBuildingPrereqTech;
-}
-int CvTraitEntry::TradeRouteStartYield(int i) const
-{
-	return m_piTradeRouteStartYield ? m_piTradeRouteStartYield[i] : -1;
 }
 int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
@@ -1573,9 +1569,14 @@ int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
 	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
 }
-int CvTraitEntry::GetTradeRouteStartYield(int i) const
+std::pair<int, int> CvTraitEntry::GetTradeRouteEndYield(YieldTypes eYield) const
 {
-	return m_piTradeRouteStartYield ? m_piTradeRouteStartYield[i] : -1;
+	const std::map<int, std::pair<int, int>>::const_iterator it = m_tradeRouteEndYield.find(static_cast<int>(eYield));
+	if (it != m_tradeRouteEndYield.end())
+	{
+		return it->second;
+	}
+	return std::make_pair(0, 0);
 }
 int CvTraitEntry::GetYieldFromRouteMovement(int i) const
 {
@@ -2387,7 +2388,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iEventGP								= kResults.GetInt("EventGP");
 	m_iWLTKDCulture							= kResults.GetInt("WLTKDCultureBoost");
 	m_iWLTKDGATimer							= kResults.GetInt("WLTKDFromGATurns");
-	m_iGAUnhappinesNeedMod					= kResults.GetInt("GAUnhappinesNeedMod");
+	m_iWLTKDUnhappinessNeedsMod				= kResults.GetInt("WLTKDUnhappinessNeedsMod");
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 	m_iSpyMoveRateBonus						= kResults.GetInt("SpyMoveRateModifier");
@@ -3246,8 +3247,48 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromLevelUp, "Trait_YieldFromLevelUp", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
-	//Note name change b/c of function change in DLL!
-	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteEndYield", "TraitType", szTraitType);
+	// Trait_TradeRouteEndYield
+	{
+		const std::string sqlKey = "Trait_TradeRouteEndYield";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldsID, YieldDomestic, YieldInternational from Trait_TradeRouteEndYield inner join Yields on Yields.Type = YieldType where TraitType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while (pResults->Step())
+		{
+			const int yieldID = pResults->GetInt(0);
+			const int yieldDomestic = pResults->GetInt(1);
+			const int yieldInternational = pResults->GetInt(2);
+
+			if (yieldDomestic != 0 || yieldInternational != 0)
+			{
+				const std::map<int, std::pair<int, int>>::iterator it = m_tradeRouteEndYield.find(yieldID);
+				if (it != m_tradeRouteEndYield.end())
+				{
+					std::pair<int, int>& yieldValues = it->second;
+					yieldValues.first += yieldDomestic;
+					yieldValues.second += yieldInternational;
+
+					if (yieldValues.first == 0 && yieldValues.second == 0)
+					{
+						m_tradeRouteEndYield.erase(it);
+					}
+				}
+				else
+				{
+					const std::pair<int, int> yieldValues = std::make_pair(yieldDomestic, yieldInternational);
+					m_tradeRouteEndYield.insert(it, std::make_pair(yieldID, yieldValues));
+				}
+			}
+		}
+
+		pResults->Reset();
+	}
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
@@ -4119,7 +4160,7 @@ void CvPlayerTraits::SetIsExpansionist()
 		GetNaturalWonderYieldModifier() != 0 ||
 		GetNaturalWonderHappinessModifier() != 0 ||
 		GetGrowthBoon() > 0 ||
-		GetGAUnhappinesNeedMod() != 0 ||
+		GetWLTKDUnhappinessNeedsMod() != 0 ||
 		GetUniqueLuxuryCities() != 0 ||
 		GetExtraFoundedCityTerritoryClaimRange() != 0 ||
 		GetPolicyGEorGM() != 0 ||
@@ -4450,7 +4491,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iEventGP += trait->GetEventGP();
 			m_iWLTKDCulture += trait->GetWLTKDCulture();
 			m_iWLTKDGATimer += trait->GetWLTKDGATimer();
-			m_iGAUnhappinesNeedMod += trait->GetGAUnhappinesNeedMod();
+			m_iWLTKDUnhappinessNeedsMod += trait->GetWLTKDUnhappinessNeedsMod();
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
 			m_iSpyMoveRateBonus += trait->GetSpyMoveRateBonus();
@@ -4784,7 +4825,44 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromLevelUp[iYield] = trait->GetYieldFromLevelUp(iYield);
 				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
-				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
+				// TradeRouteEndYield
+				{
+					const std::pair<int, int> tradeEndChange = trait->GetTradeRouteEndYield(static_cast<YieldTypes>(iYield));
+					const int tradeEndDomesticChange = tradeEndChange.first;
+					const int tradeEndInternationalChange = tradeEndChange.second;
+					if (tradeEndDomesticChange != 0)
+					{
+						std::map<int, int>::iterator tradeEndDomesticIt = m_tradeRouteEndYieldDomestic.find(iYield);
+						if (tradeEndDomesticIt != m_tradeRouteEndYieldDomestic.end())
+						{
+							tradeEndDomesticIt->second += tradeEndDomesticChange;
+							if (tradeEndDomesticIt->second == 0)
+							{
+								m_tradeRouteEndYieldDomestic.erase(tradeEndDomesticIt);
+							}
+						}
+						else
+						{
+							m_tradeRouteEndYieldDomestic.insert(tradeEndDomesticIt, std::make_pair(iYield, tradeEndDomesticChange));
+						}
+					}
+					if (tradeEndInternationalChange != 0)
+					{
+						std::map<int, int>::iterator tradeEndInternationalIt = m_tradeRouteEndYieldInternational.find(iYield);
+						if (tradeEndInternationalIt != m_tradeRouteEndYieldInternational.end())
+						{
+							tradeEndInternationalIt->second += tradeEndInternationalChange;
+							if (tradeEndInternationalIt->second == 0)
+							{
+								m_tradeRouteEndYieldInternational.erase(tradeEndInternationalIt);
+							}
+						}
+						else
+						{
+							m_tradeRouteEndYieldInternational.insert(tradeEndInternationalIt, std::make_pair(iYield, tradeEndInternationalChange));
+						}
+					}
+				}
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
@@ -5189,7 +5267,7 @@ void CvPlayerTraits::Reset()
 	m_iEventGP = 0;
 	m_iWLTKDCulture = 0;
 	m_iWLTKDGATimer = 0;
-	m_iGAUnhappinesNeedMod = 0;
+	m_iWLTKDUnhappinessNeedsMod = 0;
 	m_iStartingSpies = 0;
 	m_iStartingSpyRank = 0;
 	m_iSpyMoveRateBonus = 0;
@@ -5384,6 +5462,9 @@ void CvPlayerTraits::Reset()
 		yield[j] = 0;
 	}
 
+	m_tradeRouteEndYieldDomestic.clear();
+	m_tradeRouteEndYieldInternational.clear();
+
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		m_iExtraYieldThreshold[iYield] = 0;
@@ -5412,7 +5493,6 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromLevelUp[iYield] = 0;
 		m_iYieldFromHistoricEvent[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
-		m_iTradeRouteStartYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
 		m_iYieldFromImport[iYield] = 0;
@@ -6361,7 +6441,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return false;
 
 	//choose one
-	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GC.getGame().GetCultureAverage() );
+	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() );
 	ResourceTypes eResourceToGive = vPossibleResources[iChoice];
 		
 	//first round. place on owned non-city, non-resource plots without improvement
@@ -7429,7 +7509,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iEventGP);
 	visitor(playerTraits.m_iWLTKDCulture);
 	visitor(playerTraits.m_iWLTKDGATimer);
-	visitor(playerTraits.m_iGAUnhappinesNeedMod);
+	visitor(playerTraits.m_iWLTKDUnhappinessNeedsMod);
 	visitor(playerTraits.m_iStartingSpies);
 	visitor(playerTraits.m_iStartingSpyRank);
 	visitor(playerTraits.m_iSpyMoveRateBonus);
@@ -7581,7 +7661,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iYieldFromLevelUp);
 	visitor(playerTraits.m_iYieldFromHistoricEvent);
 	visitor(playerTraits.m_iYieldFromOwnPantheon);
-	visitor(playerTraits.m_iTradeRouteStartYield);
+	visitor(playerTraits.m_tradeRouteEndYieldDomestic);
+	visitor(playerTraits.m_tradeRouteEndYieldInternational);
 	visitor(playerTraits.m_iYieldFromRouteMovement);
 	visitor(playerTraits.m_iYieldFromExport);
 	visitor(playerTraits.m_iYieldFromImport);

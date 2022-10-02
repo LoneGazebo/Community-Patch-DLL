@@ -202,17 +202,17 @@ private:
 	void AssignStartingLocations();
 	int GetRegion(int iX, int iY);
 
-	void DivideContinentIntoRegions(CvContinent continent);
+	void DivideContinentIntoRegions(const CvContinent& continent);
 	void ComputeTileFertilityValues();
 	void SubdivideRegion(CvStartRegion region, int numDivisions);
 	void ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, int iChopPercent);
 	void ChopIntoThreeRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, CvStartRegion* thirdRegion);
 	int ComputeRowFertility(int iAreaID, int xMin, int xMax, int yMin, int yMax);
-	bool AddCivToRegion(int iPlayerIndex, CvStartRegion region, bool bRelaxFoodReq);
+	bool AddCivToRegion(int iPlayerIndex, const CvStartRegion& region, bool bRelaxFoodReq);
 	int StartingPlotRange() const;
 
 	// Logging
-	void LogStartPositionMessage(CvString strMsg);
+	void LogStartPositionMessage(const CvString& strMsg);
 
 	// References to other objects
 	CvCitySiteEvaluator* m_pSiteEvaluator;

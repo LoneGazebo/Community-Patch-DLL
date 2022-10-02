@@ -405,6 +405,11 @@ public:
 	void cacheAvgGoldRate();
 	int getTurnsToBankruptcy(int iAssumedExtraExpense) const;
 
+	int GetAverageProduction() const;
+	int GetAverageProductionTimes100() const;
+	int GetAverageInstantProduction();
+	int GetAverageInstantProductionTimes100();
+
 	int unitsRequiredForGoldenAge() const;
 	int unitsGoldenAgeCapable() const;
 	int unitsGoldenAgeReady() const;
@@ -582,8 +587,6 @@ public:
 	int DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL);
 	void DoUpdateTotalHappiness();
 	void DoUpdateLuxuryHappiness();
-	int GetEmpireHappinessForCity(CvCity* pCity = NULL) const;
-	int GetEmpireUnhappinessForCity(CvCity* pCity = NULL) const;
 	int GetEmpireHappinessFromCities() const;
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
@@ -591,7 +594,7 @@ public:
 	int GetUnhappiness() const;
 	void CalculateNetHappiness();
 	int GetHappinessRatioRawPercent();
-	void DistributeHappinessToCities(int iTotal, int iLux);
+	void DistributeHappinessToCities();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	void ChangeEmpireNeedsModifierGlobal(int iChange);
@@ -682,9 +685,7 @@ public:
 	int GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport = true) const;
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int getGlobalAverage(YieldTypes eYield) const;
-#endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
 	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
@@ -712,17 +713,17 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int getHappinessFromCitizenNeeds() const;
-	int getUnhappinessFromCitizenNeeds() const;
-	int getUnhappinessFromCityCulture() const;
-	int getUnhappinessFromCityScience() const;
-	int getUnhappinessFromCityDefense() const;
-	int getUnhappinessFromCityGold() const;
-	int getUnhappinessFromCityConnection() const;
-	int getUnhappinessFromCityPillaged() const;
-	int getUnhappinessFromCityStarving() const;
-	int getUnhappinessFromCityMinority() const;
-	int getUnhappinessFromCityJFDSpecial() const;
+	int GetHappinessFromCitizenNeeds() const;
+	int GetUnhappinessFromCitizenNeeds() const;
+	int GetUnhappinessFromCityCulture() const;
+	int GetUnhappinessFromCityScience() const;
+	int GetUnhappinessFromCityDefense() const;
+	int GetUnhappinessFromCityGold() const;
+	int GetUnhappinessFromCityConnection() const;
+	int GetUnhappinessFromCityPillaged() const;
+	int GetUnhappinessFromCityStarving() const;
+	int GetUnhappinessFromCityMinority() const;
+	int GetUnhappinessFromCityJFDSpecial() const;
 #endif
 
 	int GetCityCountUnhappinessMod() const;
@@ -1124,14 +1125,14 @@ public:
 	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
 #if defined(MOD_BALANCE_CORE)
 	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
-	void addInstantYieldText(InstantYieldType iType, CvString strInstantYield);
-	void setInstantYieldText(InstantYieldType iType, CvString strInstantYield);
+	void addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
+	void setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
-	void doInstantGWAM(GreatPersonTypes eGreatPerson, CvString strUnitName, bool bConquest = false);
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strUnitName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
 	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING, int iPassValue = 0, GreatPersonTypes ePassGreatPerson = NO_GREATPERSON);
-	void addInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
-	void setInstantGreatPersonProgressText(InstantYieldType iType, CvString strInstantYield);
+	void addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield);
+	void setInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield);
 	CvString getInstantGreatPersonProgressText(InstantYieldType iType)  const;
 #endif
 	// Great People Expenditure
@@ -1578,12 +1579,10 @@ public:
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
-	int GetPuppetUnhappinessMod() const;
-	void ChangePuppetUnhappinessMod(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
-	int GetTechDeviation() const;
+	int GetTechNeedModifier() const;
 
 	int GetHappfromXSpecialists() const;
 	void ChangeHappfromXSpecialists(int iChange);
@@ -2407,7 +2406,7 @@ public:
 	int getReplayDataValue(const CvString& strDataset, unsigned int uiTurn) const;
 	void setReplayDataValue(const CvString& strDataset, unsigned int uiTurn, int iValue);
 
-	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns);
+	int getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgnoreInstant = false);
 	void updateYieldPerTurnHistory();
 
 	int getInstantYieldAvg(YieldTypes eYield, int iTurnA, int iTurnB) const;
@@ -2424,7 +2423,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(std::string szNewValue);
+	void setScriptData(const std::string& szNewValue);
 
 	const CvString& getPbemEmailAddress() const;
 	void setPbemEmailAddress(const char* szAddress);
@@ -2975,10 +2974,8 @@ protected:
 	int m_iReformationFollowerReduction;
 	bool m_bIsReformation;
 	std::vector<int> m_viInstantYieldsTotal;
-	std::vector<int> m_viTourismHistory;
-	std::vector<int> m_viGAPHistory;
-	std::vector<int> m_viCultureHistory;
-	std::vector<int> m_viScienceHistory;
+	std::tr1::unordered_map<YieldTypes, int> m_miLocalInstantYieldsTotal;
+	std::tr1::unordered_map<YieldTypes, std::vector<int>> m_aiYieldHistory;
 #endif
 	int m_iUprisingCounter;
 	int m_iExtraHappinessPerLuxury;
@@ -3136,14 +3133,12 @@ protected:
 	int m_iUnculturedUnhappinessModCapital;
 	int m_iIlliteracyUnhappinessModCapital;
 	int m_iMinorityUnhappinessModCapital;
-	int m_iPuppetUnhappinessMod;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhapppinessMod;
@@ -3805,10 +3800,8 @@ SYNC_ARCHIVE_VAR(int, m_iReferenceFoundValue)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viTourismHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viGAPHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viCultureHistory)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_viScienceHistory)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miLocalInstantYieldsTotal)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, std::vector<int>>), m_aiYieldHistory)
 SYNC_ARCHIVE_VAR(int, m_iUprisingCounter)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerLuxury)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromUnits)
@@ -3950,7 +3943,6 @@ SYNC_ARCHIVE_VAR(int, m_iDefenseUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iUnculturedUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iIlliteracyUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iMinorityUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iPuppetUnhappinessMod)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)

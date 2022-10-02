@@ -435,8 +435,16 @@ WHERE Type = 'BUILDING_BLETCHLEY_PARK';
 -- Information
 
 -- CN Tower
-UPDATE Buildings
-SET Cost = '2300', FreeBuilding = NULL, FreeBuildingThisCity = 'BUILDINGCLASS_BROADCAST_TOWER', LandmarksTourismPercent = '50', GreatWorksTourismModifier = '50', HappinessPerCity = '1', GlobalPopulationChange = '0'
+UPDATE Buildings SET 
+	Cost = 2300, 
+	FreeBuilding = NULL, 
+	FreeBuildingThisCity = 'BUILDINGCLASS_BROADCAST_TOWER', 
+	LandmarksTourismPercent = 25, 
+	GreatWorksTourismModifier = 25,
+	GlobalLandmarksTourismPercent = 25, 
+	GlobalGreatWorksTourismModifier = 25,
+	HappinessPerCity = '1', 
+	GlobalPopulationChange = '0'
 WHERE Type = 'BUILDING_CN_TOWER';
 
 INSERT INTO Building_GreatWorkYieldChanges

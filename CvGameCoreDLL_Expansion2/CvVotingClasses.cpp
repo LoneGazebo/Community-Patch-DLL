@@ -847,6 +847,10 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
 
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	int iTotalVotes = 0;
 	int iVotes = 0;
 
@@ -886,6 +890,10 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
 
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	int iTotalVotes = 0;
 	int iVotes = 0;
 
@@ -918,6 +926,10 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 {
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
@@ -931,6 +943,10 @@ std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingAgainstChoice(int iChoice)
 {
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
@@ -10892,7 +10908,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	// Teammates or Debug Mode
-	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
+	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GET_PLAYER(eToPlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
 
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();

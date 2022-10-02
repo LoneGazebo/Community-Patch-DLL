@@ -1765,7 +1765,7 @@ local function UpdateCityViewNow()
 				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
 				-- CBP
 				local iHappinessPerTurn = city:GetLocalHappiness();
-				local iUnhappinessPerTurn = city:getUnhappinessAggregated();
+				local iUnhappinessPerTurn = city:GetUnhappinessAggregated();
 				Controls.HappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn)
 				Controls.UnhappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn)
 				-- END

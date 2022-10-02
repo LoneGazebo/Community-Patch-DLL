@@ -254,8 +254,8 @@ function RefreshData()
 		local otherBonuses = "";
 		tradeRoute.OtherIsolation = 0;
 		if (pTargetCity ~= nil and pPlayer ~= nil and tradeRoute.Category == 1) then
-			local iIsolation = pTargetCity:GetUnhappinessFromConnection();
-			if(iIsolation > 0 and pOriginCity:IsConnectedToCapital()) then
+			local iIsolation = pTargetCity:GetUnhappinessFromIsolation();
+			if (iIsolation > 0 and pOriginCity:IsConnectedToCapital()) then
 				tradeRoute.OtherIsolation = iIsolation;
 				otherBonuses = otherBonuses .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION_OTHER", -iIsolation);
 			end

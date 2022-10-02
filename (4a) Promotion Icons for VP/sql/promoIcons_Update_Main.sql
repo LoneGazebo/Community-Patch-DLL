@@ -264,8 +264,8 @@ UPDATE UnitPromotions SET PortraitIndex = '31' WHERE Type = 'PROMOTION_FAST_GENE
 
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_GUN'; --                  ->  Lightning Warfare (Gun)
 UPDATE UnitPromotions SET PortraitIndex = '32' WHERE Type = 'PROMOTION_LIGHTNING_WARFARE_GUN';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_MONGOL_TERROR'; --                          ->  Steppe Nomads
-UPDATE UnitPromotions SET PortraitIndex = '33' WHERE Type = 'PROMOTION_MONGOL_TERROR';
+--UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = ''; --                                                 ->  UNUSED (Ignore ZOC and +move)
+--UPDATE UnitPromotions SET PortraitIndex = '33' WHERE Type = '';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_STEAM_POWERED'; --                          ->  Double Movement in Coast
 UPDATE UnitPromotions SET PortraitIndex = '34' WHERE Type = 'PROMOTION_STEAM_POWERED';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_01' WHERE Type = 'PROMOTION_CAN_MOVE_AFTER_ATTACKING'; --              |->  Can Move After Attack
@@ -613,6 +613,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_03' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = 'PROMOTION_ESPRIT_DE_CORPS';
 
 -- atlas_04
+
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04' WHERE Type = 'PROMOTION_ROUGH_TERRAIN_HALF_TURN'; --                 ->  Skirmisher Doctrine
 UPDATE UnitPromotions SET PortraitIndex = '0' WHERE Type = 'PROMOTION_ROUGH_TERRAIN_HALF_TURN';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04' WHERE Type = 'PROMOTION_OCEAN_HALF_MOVES'; --                       ->  Half Moves in Ocean
@@ -624,8 +625,12 @@ UPDATE UnitPromotions SET PortraitIndex = '3' WHERE Type = 'PROMOTION_HAKKAA_PAA
 
 -- extraPromo_atlas
 
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE'; --                    ->  Skirmisher Doctrine
+UPDATE UnitPromotions SET PortraitIndex = '21' WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_SCOUT_CAVALRY';  --                         -> Scout Cavalry
 UPDATE UnitPromotions SET PortraitIndex = '22' WHERE Type = 'PROMOTION_SCOUT_CAVALRY';
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_MONGOL_TERROR'; --                          ->  Steppe Nomads
+UPDATE UnitPromotions SET PortraitIndex = '23' WHERE Type = 'PROMOTION_MONGOL_TERROR';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_DOPPELSOLDNER';  --                         -> Doppelsoldner
 UPDATE UnitPromotions SET PortraitIndex = '56' WHERE Type = 'PROMOTION_DOPPELSOLDNER';
 

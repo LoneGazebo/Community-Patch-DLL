@@ -280,34 +280,34 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (not OptionsManager.IsNoBasicHelp()) then	
 		if (pCity ~= nil) then
 			local iPovertyTotal = iGetPovertyHappinessChangeBuilding + iGetPovertyHappinessChangeBuildingGlobal;
-			if(iPovertyTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
-				local iOldThreshold = pCity:GetUnhappinessFromGoldNeeded() / 100;
-				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+			if (iPovertyTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_GOLD) / 100;
+				local iOldThreshold = pCity:GetGoldMedian() / 100;
+				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
 					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
 				end
 			end		
 			local iDefenseTotal = iGetDefenseHappinessChangeBuilding + iGetDefenseHappinessChangeBuildingGlobal;
-			if(iDefenseTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
-				local iOldThreshold = pCity:GetUnhappinessFromDefenseNeeded() / 100;
-				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+			if (iDefenseTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_PRODUCTION) / 100;
+				local iOldThreshold = pCity:GetBasicNeedsMedian() / 100;
+				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
 					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
 				end
 			end
 			local iIlliteracyTotal = iGetIlliteracyHappinessChangeBuilding + iGetIlliteracyHappinessChangeBuildingGlobal;
-			if(iIlliteracyTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
-				local iOldThreshold = pCity:GetUnhappinessFromScienceNeeded() / 100;
-				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+			if (iIlliteracyTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_SCIENCE) / 100;
+				local iOldThreshold = pCity:GetScienceMedian() / 100;
+				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
 					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
 				end
 			end
 			local iCultureTotal = iGetUnculturedHappinessChangeBuilding + iGetUnculturedHappinessChangeBuildingGlobal;
-			if(iCultureTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalUnhappinessDecrease(buildingID) / 100;
-				local iOldThreshold = pCity:GetUnhappinessFromCultureNeeded() / 100;
-				if(iNewThreshold ~= 0 and iOldThreshold ~= 0)then
+			if (iCultureTotal ~= 0) then
+				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_CULTURE) / 100;
+				local iOldThreshold = pCity:GetCultureMedian() / 100;
+				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
 					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
 				end
 			end		

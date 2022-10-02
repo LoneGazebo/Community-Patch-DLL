@@ -1,31 +1,44 @@
 -- Shift Policies Around
+
 UPDATE Policies
-SET GridX = '4', GridY = '1'
+SET
+	GridX = 4, GridY = 1
 WHERE Type = 'POLICY_MILITARY_TRADITION';
 
 UPDATE Policies
-SET GridX = '2', GridY = '1'
+SET
+	GridX = 2, GridY = 1
 WHERE Type = 'POLICY_DISCIPLINE';
 
 UPDATE Policies
-SET GridX = '2', GridY = '2'
+SET
+	GridX = 2, GridY = 2
 WHERE Type = 'POLICY_WARRIOR_CODE';
 
 DELETE FROM Policy_PrereqPolicies
 WHERE PrereqPolicy IN 
 ('POLICY_MILITARY_TRADITION',
-'POLICY_WARRIOR_CODE',
-'POLICY_DISCIPLINE');
+ 'POLICY_WARRIOR_CODE',
+ 'POLICY_DISCIPLINE');
 
--- Honor 
+INSERT INTO Policy_PrereqPolicies
+	(PolicyType, PrereqPolicy)
+VALUES
+	('POLICY_WARRIOR_CODE', 'POLICY_DISCIPLINE'),
+	('POLICY_MILITARY_CASTE', 'POLICY_MILITARY_TRADITION');
+
+
+-- Opener (now Authority)
+
 UPDATE Policies
-SET CultureFromBarbarianKills = '0', CultureFromKills = '100', BarbarianCombatBonus = '25'
+SET
+	CultureFromBarbarianKills = 0,
+	CultureFromKills = 100,
+	BarbarianCombatBonus = 25
 WHERE Type = 'POLICY_HONOR';
 
--- Warrior Code (Now Imperialism)
-UPDATE Policies
-SET GreatGeneralRateModifier = '0', IncludesOneShotFreeUnits = '1'
-WHERE Type = 'POLICY_WARRIOR_CODE';
+
+-- Warrior Code (Now Imperium)
 
 DELETE FROM Policy_UnitCombatProductionModifiers
 WHERE PolicyType = 'POLICY_WARRIOR_CODE';
@@ -33,77 +46,12 @@ WHERE PolicyType = 'POLICY_WARRIOR_CODE';
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_WARRIOR_CODE';
 
--- Discipline (Now Tribute)
-DELETE FROM Policy_FreePromotions
-WHERE PolicyType = 'POLICY_DISCIPLINE';
-
 UPDATE Policies
-SET PortraitIndex = '23'
-WHERE Type = 'POLICY_DISCIPLINE';
+SET
+	GreatGeneralRateModifier = 0,
+	IncludesOneShotFreeUnits = 1
+WHERE Type = 'POLICY_WARRIOR_CODE';
 
--- Military Tradition (Now Dominance)
-UPDATE Policies
-SET ExpModifier = '0', ExtraSupplyPerPopulation = '10'
-WHERE Type = 'POLICY_MILITARY_TRADITION';
-
--- Military Caste (Now Honor)
-UPDATE Policies
-SET CulturePerGarrisonedUnit = '2', PortraitIndex = '22', HappinessPerGarrisonedUnit = '1', UnitGoldMaintenanceMod = '-15', RouteGoldMaintenanceMod = '-50'
-WHERE Type = 'POLICY_MILITARY_CASTE';
-
--- Professional Army (Now Heroism)
-UPDATE Policies
-SET UnitUpgradeCostMod = '0', WarWearinessModifier = '25', XPopulationConscription = '10', PortraitIndex = '20'
-WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
-
-DELETE FROM Policy_BuildingClassProductionModifiers
-WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
-
-UPDATE Policy_BuildingClassProductionModifiers
-SET ProductionModifier = '0'
-WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
-
--- Finisher
-
-UPDATE Policies
-SET GoldFromKills = '0'
-WHERE Type = 'POLICY_HONOR_FINISHER';
-
---UPDATE Policies
---SET UnlocksPolicyBranchEra = 'ERA_MEDIEVAL'
---WHERE Type = 'POLICY_HONOR_FINISHER';
-
--- Finisher
---UPDATE Policies
---SET IdeologyPoint = '1'
---WHERE Type = 'POLICY_HONOR_FINISHER';
-
--- Mercenary Army 
--- Free Company and Mercenaries are added in NewUnits.sql (strength, cost, promotions, etc)
--- Foreign Legion: Cost and Combat are balanced in UnitCosts.sql and UnitCombat.sql; Unit-Class Promotions added in MeleeCombat.sql)
-UPDATE Units SET Class = 'UNITCLASS_FOREIGNLEGION',						
-PrereqTech = 'TECH_RIFLING',						
-ObsoleteTech = 'TECH_PENICILIN', 					
-DefaultUnitAI = 'UNITAI_ATTACK',					
-PolicyType = 'POLICY_HONOR_FINISHER',				
-PurchaseOnly = '1', 								
-RequiresFaithPurchaseEnabled = '0',					
-FaithCost = '0', 									
-MoveAfterPurchase = '1',							
-GoodyHutUpgradeUnitClass = 'UNITCLASS_GREAT_WAR_INFANTRY' 	
-WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
-
-UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GREAT_WAR_INFANTRY' WHERE UnitType = 'UNIT_FRENCH_FOREIGNLEGION';
-
-INSERT INTO Policy_CityYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_HONOR', 'YIELD_PRODUCTION', 1),
-	('POLICY_WARRIOR_CODE', 'YIELD_PRODUCTION', 1),
-	('POLICY_MILITARY_TRADITION', 'YIELD_PRODUCTION', 1),
-	('POLICY_PROFESSIONAL_ARMY', 'YIELD_PRODUCTION', 1),
-	('POLICY_DISCIPLINE', 'YIELD_PRODUCTION', 1),
-	('POLICY_MILITARY_CASTE', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Policy_ConquerorYield
 	(PolicyType, YieldType, Yield)
@@ -122,10 +70,109 @@ INSERT INTO Policy_FreeUnitClasses
 VALUES
 	('POLICY_WARRIOR_CODE', 'UNITCLASS_SETTLER', 1);
 
+
+-- Discipline (Now Tribute)
+DELETE FROM Policy_FreePromotions
+WHERE PolicyType = 'POLICY_DISCIPLINE';
+
+UPDATE Policies
+SET
+	PortraitIndex = 23
+WHERE Type = 'POLICY_DISCIPLINE';
+
+
+-- Military Tradition (Now Dominance)
+
+UPDATE Policies
+SET
+	ExpModifier = 0,
+	ExtraSupplyPerPopulation = 10
+WHERE Type = 'POLICY_MILITARY_TRADITION';
+
 INSERT INTO Policy_YieldFromKills
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_MILITARY_TRADITION', 'YIELD_SCIENCE', 100);
+
+
+-- Military Caste (Now Militarism)
+
+UPDATE Policies
+SET
+	CulturePerGarrisonedUnit = 2,
+	HappinessPerGarrisonedUnit = 1,
+	UnitGoldMaintenanceMod = -15,
+	RouteGoldMaintenanceMod = -50,
+	PortraitIndex = 22
+WHERE Type = 'POLICY_MILITARY_CASTE';
+
+
+-- Professional Army (Now Honor)
+
+DELETE FROM Policy_BuildingClassProductionModifiers
+WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
+
+UPDATE Policies
+SET
+	UnitUpgradeCostMod = 0,
+	WarWearinessModifier = 25,
+	XPopulationConscription = 10,
+	PortraitIndex = 20
+WHERE Type = 'POLICY_PROFESSIONAL_ARMY';
+
+UPDATE Policy_BuildingClassProductionModifiers
+SET
+	ProductionModifier = 0
+WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
+
+
+-- Finisher
+
+UPDATE Policies
+SET
+	GoldFromKills = 0
+WHERE Type = 'POLICY_HONOR_FINISHER';
+
+-- Mercenary Army 
+-- Free Company and Mercenaries are added in NewUnits.sql (strength, cost, promotions, etc)
+-- Foreign Legion: Cost and Combat are balanced in UnitCosts.sql and UnitCombat.sql; Unit-Class Promotions added in MeleeCombat.sql)
+UPDATE Units SET
+	Class							= 'UNITCLASS_FOREIGNLEGION',
+	PrereqTech						= 'TECH_RIFLING',
+	ObsoleteTech					= 'TECH_PENICILIN',
+	DefaultUnitAI					= 'UNITAI_ATTACK',
+	PolicyType 					 	= 'POLICY_HONOR_FINISHER',
+	PurchaseOnly 					= 1,
+	RequiresFaithPurchaseEnabled	= 0,
+	FaithCost 						= 0,
+	MoveAfterPurchase 				= 1,
+	GoodyHutUpgradeUnitClass = 'UNITCLASS_GREAT_WAR_INFANTRY'
+WHERE Type = 'UNIT_FRENCH_FOREIGNLEGION';
+
+UPDATE Unit_ClassUpgrades
+SET
+	UnitClassType = 'UNITCLASS_GREAT_WAR_INFANTRY'
+WHERE UnitType = 'UNIT_FRENCH_FOREIGNLEGION';
+
+
+
+----------------------
+-- Combined Insertions
+----------------------
+
+-- Scaler
+
+INSERT INTO Policy_CityYieldChanges
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_HONOR', 'YIELD_PRODUCTION', 1),
+	('POLICY_WARRIOR_CODE', 'YIELD_PRODUCTION', 1),
+	('POLICY_MILITARY_TRADITION', 'YIELD_PRODUCTION', 1),
+	('POLICY_PROFESSIONAL_ARMY', 'YIELD_PRODUCTION', 1),
+	('POLICY_DISCIPLINE', 'YIELD_PRODUCTION', 1),
+	('POLICY_MILITARY_CASTE', 'YIELD_PRODUCTION', 1);
+
+
 
 INSERT INTO Policy_FreePromotions
 	(PolicyType, PromotionType)
@@ -147,14 +194,8 @@ VALUES
 	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 25),
 	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
-INSERT INTO Policy_PrereqPolicies
-	(PolicyType, PrereqPolicy)
-VALUES
-	('POLICY_WARRIOR_CODE', 'POLICY_DISCIPLINE'),
-	('POLICY_MILITARY_CASTE', 'POLICY_MILITARY_TRADITION');
 
-
--- Honor Promotions
+-- Promotions
 
 INSERT INTO UnitPromotions
 	(Type, Description, Help, Sound, CannotBeChosen, CombatPercent, PortraitIndex, IconAtlas, PediaType, PediaEntry, HPHealedIfDestroyEnemy, HealIfDestroyExcludesBarbarians)

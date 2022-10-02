@@ -203,7 +203,6 @@ void CvPlot::reset()
 	m_eFeatureType = NO_FEATURE;
 	m_eResourceType = NO_RESOURCE;
 	m_eImprovementType = NO_IMPROVEMENT;
-	m_eImprovementTypeUnderConstruction = NO_IMPROVEMENT;
 	m_ePlayerBuiltImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
@@ -1032,35 +1031,84 @@ bool CvPlot::isFreshWater(bool bUseCachedValue) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue) const
+bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckCanals) const
 {
 	if (!bUseCachedValue)
 		updateWaterFlags();
 
-	//if the plot is water, this flag will be false by definition!
-	if (!m_bIsAdjacentToWater)
-		return false;
-
-	//no size or trivial size given, we're done
-	if (iMinWaterSize < 2)
-		return true;
-
-	//otherwise check the size of the water body
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	if (m_bIsAdjacentToWater)
 	{
-		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-		if(pAdjacentPlot && pAdjacentPlot->isWater())
-		{
-			if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
-				continue;
+		// fast check for ocean or 1-size water bodies
+		if (iMinWaterSize < 2)
+			return true;
 
-			//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
-			CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
-			if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
-				return true;
+		//otherwise check the size of the water body
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+		for (int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+		{
+			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+			if (pAdjacentPlot && pAdjacentPlot->isWater())
+			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+
+				//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
+				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
+					return true;
+			}
 		}
 	}
+
+	// Not adjacent to water or not adjacent to enough water? If not checking for canals, abort!
+	// Also, water tiles are not land, so always return false
+	if (!bCheckCanals || !MOD_GLOBAL_PASSABLE_FORTS || isWater())
+		return false;
+
+	//check for areas of water connected by canals
+	//starting with the plot itself, we loop through all adjacent plots and add them to a list if they are water tiles
+	//or if there is an owned fort, citadel or city on them
+	//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
+	std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
+	unsigned int iNumPlotsChecked = 0;
+	do
+	{
+		const CvPlot* pPlotBeingChecked = vAccessibleWaterPlots[iNumPlotsChecked];
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlotBeingChecked);
+		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+		{
+			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+			if (!pAdjacentPlot)
+				continue;
+
+			// If water, must not be unowned ice
+			if (pAdjacentPlot->isWater())
+			{
+				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+					continue;
+			}
+			//If land, must be owned city, fort or citadel
+			else if (pAdjacentPlot->isOwned())
+			{
+				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
+					continue;
+
+				// Must be adjacent to water
+				if (!pAdjacentPlot->isAdjacentToWater())
+					continue;
+			}
+
+			// add the plot to the list if it's not already in it
+			if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) 
+			{
+				vAccessibleWaterPlots.push_back(pAdjacentPlot);
+				if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot itself
+					return true;
+			}
+		}
+		iNumPlotsChecked++;
+	}
+	while (iNumPlotsChecked != vAccessibleWaterPlots.size());
 
 	return false;
 }
@@ -1072,6 +1120,23 @@ bool CvPlot::isAdjacentToLand(bool bUseCachedValue) const
 		updateWaterFlags();
 
 	return m_bIsAdjacentToLand;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentToWater() const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if (pAdjacentPlot)
+		{
+			if (pAdjacentPlot->isWater())
+				return true;
+		}
+	}
+
+	return false;
 }
 
 void CvPlot::updateWaterFlags() const
@@ -3163,13 +3228,26 @@ int CvPlot::GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherU
 	const CvPlot* pOtherPlot = pOtherUnitPlot ? pOtherUnitPlot : pOtherUnit->plot();
 
 	//our units are the enemy's enemies ...
-	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit);
-	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit);
+	int iNumUnitsAdjacentToOther = pOtherPlot->GetNumEnemyUnitsAdjacent( pOtherUnit->getTeam(), pOtherUnit->getDomainType(), pUnit, true);
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pUnit->getTeam(), pUnit->getDomainType(), pOtherUnit, true);
 
 	if (iNumUnitsAdjacentToOther > iNumUnitsAdjacentToHere)
 		return (pUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToOther - iNumUnitsAdjacentToHere);
 
 	return 0;
+}
+
+int CvPlot::GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const
+{
+	// note that this plot is the plot that the ranged unit is ATTACKING, not the plot that the ranged unit is located
+	
+	if (!pAttackingUnit || !pDefendingUnit)
+		return 0;
+
+	// ranged units can't get flanked when they attack, but their target can be
+	int iNumUnitsAdjacentToHere = GetNumEnemyUnitsAdjacent( pDefendingUnit->getTeam(), pDefendingUnit->getDomainType(), pAttackingUnit, true);
+
+	return (pAttackingUnit->GetFlankAttackModifier() + /*10*/ GD_INT_GET(BONUS_PER_ADJACENT_FRIEND)) * (iNumUnitsAdjacentToHere);
 }
 
 
@@ -7313,12 +7391,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		PlayerTypes owningPlayerID = getOwner();
 		if(eOldImprovement != NO_IMPROVEMENT)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(IsImprovementPillaged())
-			{
-				SetImprovementPillaged(false, false);
-			}
-#endif
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 			DomainTypes eTradeRouteDomain = NO_DOMAIN;
@@ -11657,9 +11729,44 @@ bool CvPlot::setRevealedRouteType(TeamTypes eTeam, RouteTypes eNewValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlot::SilentlyResetAllBuildProgress()
+//	Reset all current builds related to route or improvement, based on eBuild.
+void CvPlot::SilentlyResetAllBuildProgress(BuildTypes eBuild)
 {
-	m_buildProgress.clear();
+	if (m_buildProgress.size() == 0)
+		return;
+
+	if (eBuild == NO_BUILD)
+	{
+		m_buildProgress.clear();
+		return;
+	}
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+	if(pkBuildInfo == NULL)
+		return;
+	
+	bool bBuildImprovement = pkBuildInfo->getImprovement() != NO_IMPROVEMENT;
+	bool bBuildRoute = pkBuildInfo->getRoute() != NO_ROUTE;
+
+	for (map<BuildTypes, int>::iterator it = m_buildProgress.begin(), next_it = it; it != m_buildProgress.end(); it = next_it)
+	{
+		++next_it;
+
+		CvBuildInfo* pkIterInfo = GC.getBuildInfo(it->first);
+		if(pkIterInfo == NULL)
+			continue;
+
+		bool bIterImprovement = pkIterInfo->getImprovement() != NO_IMPROVEMENT;
+		bool bIterRoute = pkIterInfo->getRoute() != NO_ROUTE;
+
+		// Two groupings: Improvement (build or repair), Route(build, repair or remove)
+		if ((bBuildImprovement && (bIterImprovement || (pkIterInfo->isRepair() && !IsRoutePillaged()))) ||
+			(bBuildRoute && (bIterRoute || (pkIterInfo->isRepair() && !IsImprovementPillaged()) || pkIterInfo->IsRemoveRoute())) ||
+			(pkBuildInfo->IsRemoveRoute() && (bIterRoute || (pkIterInfo->isRepair() && !IsImprovementPillaged()))))
+		{
+			m_buildProgress.erase(it);
+		}
+	}
 }
 
 
@@ -11703,15 +11810,12 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 	if(iChange != 0)
 	{
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
-		if (eImprovement != NO_IMPROVEMENT)
+		// wipe out related build progress when starting a new build
+		if (getBuildProgress(eBuild) == 0)
 		{
-			if (eImprovement != m_eImprovementTypeUnderConstruction)
-			{
-				SilentlyResetAllBuildProgress();
-				m_eImprovementTypeUnderConstruction = eImprovement;
-			}
+			SilentlyResetAllBuildProgress(eBuild);
 		}
+		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 
 		m_iLastTurnBuildChanged = GC.getGame().getGameTurn();
 
@@ -11726,15 +11830,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				setImprovementType(eImprovement, ePlayer);
-
-				// Building a GP improvement on a resource needs to clear any previous pillaged state
-				if (GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson()) {
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-					SetImprovementPillaged(false, false);
-#else
-					SetImprovementPillaged(false);
-#endif
-				}
 
 				CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eImprovement);
 
@@ -12643,7 +12738,6 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 	visitor.template as<FeatureTypes>(plot.m_eFeatureType);
 	visitor.template as<ResourceTypes>(plot.m_eResourceType);
 	visitor.template as<ImprovementTypes>(plot.m_eImprovementType);
-	visitor.template as<ImprovementTypes>(plot.m_eImprovementTypeUnderConstruction);
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
@@ -13224,7 +13318,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
+bool CvPlot::canTrain(UnitTypes eUnit) const
 {
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if(pkUnitInfo == NULL)
@@ -13272,12 +13366,12 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 		}
 	}
 
-	if(isCity())
+	if (isCity())
 	{
-		if(thisUnitDomain == DOMAIN_SEA)
+		if (thisUnitDomain == DOMAIN_SEA)
 		{
 			//fast check for ocean (-1)
-			if(!isCoastalLand(-1) || !isCoastalLand(thisUnitEntry.GetMinAreaSize()))
+			if (!isCoastalLand(-1, true, true) || !isCoastalLand(thisUnitEntry.GetMinAreaSize(), true, true))
 			{
 				return false;
 			}
@@ -14691,7 +14785,7 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking) const
 {
 	int iNumEnemiesAdjacent = 0;
 
@@ -14715,9 +14809,6 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 					// Must be a combat Unit
 					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
-							continue;
-
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
@@ -14726,7 +14817,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
 							{
-								iNumEnemiesAdjacent++;
+								iNumEnemiesAdjacent += bConsiderFlanking ? pLoopUnit->GetFlankPower() : 1;
 							}
 						}
 					}
@@ -14738,7 +14829,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	return iNumEnemiesAdjacent;
 }
 
-int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bCountRanged) const
+int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude) const
 {
 	int iNumFriendliesAdjacent = 0;
 
@@ -14762,9 +14853,6 @@ int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, 
 					// Must be a combat Unit
 					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
 					{
-						if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
-							continue;
-
 						// Same team?
 						if(pLoopUnit->getTeam() == eMyTeam)
 						{

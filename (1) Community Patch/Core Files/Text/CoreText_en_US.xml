@@ -7759,9 +7759,8 @@
 
 		<!-- Tooltip helpers for unhappiness -->
 		<Row Tag="TXT_KEY_POTENTIAL_HAPPINESS_GROWTH">
-			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness is estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH">
 			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to increase as follows:</Text>
 		</Row>
@@ -7779,16 +7778,16 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<!-- Great person rate modifiers -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">
@@ -7800,14 +7799,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED">
-			<Text>We were struck by a {1_CIV} Nuke!</Text>
+			<Text>We were struck by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuke!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUKE_STRIKE_AFFECTED_S">
 			<Text>Nuclear Strike!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NUKE_STRIKE_OWNED_TERRITORY">
-			<Text>A Nuke has been detonated by {1_CivName} in {2_CIV} territory!</Text>
+			<Text>A Nuke has been detonated by {1_CivName} in the territory of {2_CIV}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUKE_STRIKE_UNOWNED_TERRITORY">
 			<Text>A Nuke has been detonated by {1_CivName} in neutral territory!</Text>
@@ -7817,7 +7816,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED">
-			<Text>A {1_CIV} Nuke was intercepted by {2_City}!</Text>
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuke was intercepted by {2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_S">
 			<Text>Nuclear Interception!</Text>

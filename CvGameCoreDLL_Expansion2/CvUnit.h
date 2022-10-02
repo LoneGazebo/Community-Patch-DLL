@@ -490,10 +490,10 @@ public:
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;
 	int GetConversionStrength(const CvCity* pCity) const;
-#if defined(MOD_BALANCE_CORE)
+
 	bool greatperson();
-#endif
 	int GetScaleAmount(int iAmountToScale) const;
+
 	bool canDiscover(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getDiscoverAmount();
 	bool discover();
@@ -501,14 +501,14 @@ public:
 	bool IsCanRushBuilding(CvCity* pCity, bool bTestVisible) const;
 	bool DoRushBuilding();
 
+	bool canHurry(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getMaxHurryProduction(CvCity* pCity) const;
 	int getHurryProduction(const CvPlot* pPlot) const;
-	bool canHurry(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool hurry();
 
-	int getTradeGold(const CvPlot* pPlot) const;
-	int getTradeInfluence(const CvPlot* pPlot) const;
 	bool canTrade(const CvPlot* pPlot, bool bTestVisible = false) const;
+	int getTradeGold() const;
+	int getTradeInfluence(const CvPlot* pPlot) const;
 	bool trade();
 
 	bool canBuyCityState(const CvPlot* pPlot, bool bTestVisible = false) const;
@@ -524,10 +524,13 @@ public:
 	bool isCultureBomb() const;
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
+	int getNumberOfCultureBombs() const;
+	void setNumberOfCultureBombs(const int iBombs);
 
 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;
+	int getGAPBlast();
+	int getGoldenAgeTurns() const;
 	bool goldenAge();
-	int GetGoldenAgeTurns() const;
 
 	bool canGivePolicies(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getGivePoliciesCulture();
@@ -535,6 +538,7 @@ public:
 
 	bool canBlastTourism(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getBlastTourism();
+	int getBlastTourismTurns();
 	bool blastTourism();
 
 	bool canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible = false, bool bTestGold = true) const;
@@ -544,10 +548,7 @@ public:
 	int getBuilderStrength() const;
 	void setBuilderStrength(const int newPower);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int getNumberOfCultureBombs() const;
-	void setNumberOfCultureBombs(const int iBombs);
-#endif
+
 	bool canPromote(PromotionTypes ePromotion, int iLeaderUnitId) const;
 	void promote(PromotionTypes ePromotion, int iLeaderUnitId);
 
@@ -615,7 +616,7 @@ public:
 	void SetLinkedLeaderID(int iLinkedLeaderID);
 	bool IsGrouped() const;
 	void SetIsGrouped(bool bValue);
-	void SetLinkedUnits(UnitIdContainer LinkedUnits);
+	void SetLinkedUnits(const UnitIdContainer& LinkedUnits);
 	UnitIdContainer GetLinkedUnits();
 	int GetLinkedMaxMoves() const;
 	void SetLinkedMaxMoves(int iValue);
@@ -1335,12 +1336,17 @@ public:
 	int getExtraAttackFullyHealedMod() const;
 	void changeExtraAttackFullyHealedMod(int iChange);
 
-
 	int getExtraAttackAboveHealthMod() const;
 	void changeExtraAttackAboveHealthMod(int iChange);
 
 	int getExtraAttackBelowHealthMod() const;
 	void changeExtraAttackBelowHealthMod(int iChange);
+
+	bool IsRangedFlankAttack() const;
+	void ChangeRangedFlankAttackCount(int iChange);
+
+	int GetFlankPower() const;
+	void ChangeFlankPower(int iChange);
 
 	int GetFlankAttackModifier() const;
 	void ChangeFlankAttackModifier(int iChange);
@@ -1596,13 +1602,13 @@ public:
 	const char* getNameKey() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	const CvString getUnitName() const;
-	void setUnitName(const CvString strNewValue);
+	void setUnitName(const CvString& strNewValue);
 #endif
 	const CvString getNameNoDesc() const;
 	void setName(const CvString strNewValue);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
-	void setGreatName(CvString strName);
+	void setGreatName(const CvString& strName);
 #endif
 	GreatWorkType GetGreatWork() const;
 	void SetGreatWork(GreatWorkType eGreatWork);
@@ -1621,13 +1627,14 @@ public:
 	int GetHurryStrength() const;
 	void SetHurryStrength(int iValue);
 
+	int GetGoldBlastStrength() const;
+	void SetGoldBlastStrength(int iValue);
+
 	int GetCultureBlastStrength() const;
 	void SetCultureBlastStrength(int iValue);
 
 	int GetGAPBlastStrength() const;
 	void SetGAPBlastStrength(int iValue);
-
-	int getGAPBlast();
 
 	bool IsPromotionEverObtained(PromotionTypes eIndex) const;
 	void SetPromotionEverObtained(PromotionTypes eIndex, bool bValue);
@@ -1635,7 +1642,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(std::string szNewValue);
+	void setScriptData(const std::string& szNewValue);
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 
@@ -1733,6 +1740,9 @@ public:
 
 	int getUnitClassModifier(UnitClassTypes eIndex) const;
 	void changeUnitClassModifier(UnitClassTypes eIndex, int iChange);
+
+	std::pair<int, int> getYieldFromPillage(YieldTypes eYield) const;
+	void changeYieldFromPillage(YieldTypes eYield, std::pair<int, int> change);
 
 	bool canAcquirePromotion(PromotionTypes ePromotion) const;
 	bool canAcquirePromotionAny() const;
@@ -2122,6 +2132,8 @@ protected:
 	int m_iExtraFullyHealedMod;
 	int m_iExtraAttackAboveHealthMod;
 	int m_iExtraAttackBelowHealthMod;
+	int m_iRangedFlankAttack;
+	int m_iFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iExtraOpenDefensePercent;
 	int m_iExtraRoughDefensePercent;
@@ -2347,6 +2359,7 @@ protected:
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatAttackMod;
 	std::vector<int> m_iCombatModPerAdjacentUnitCombatDefenseMod;
 #endif
+	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 	int m_iMissionTimer;
 	int m_iMissionAIX;
 	int m_iMissionAIY;
@@ -2379,6 +2392,7 @@ protected:
 	int m_iTourismBlastLength;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHurryStrength;
+	int m_iGoldBlastStrength;
 	int m_iScienceBlastStrength;
 	int m_iCultureBlastStrength;
 	int m_iGAPBlastStrength;
@@ -2559,6 +2573,8 @@ SYNC_ARCHIVE_VAR(int, m_iExtraAttackWoundedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraFullyHealedMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackAboveHealthMod)
 SYNC_ARCHIVE_VAR(int, m_iExtraAttackBelowHealthMod)
+SYNC_ARCHIVE_VAR(int, m_iRangedFlankAttack)
+SYNC_ARCHIVE_VAR(int, m_iFlankPower)
 SYNC_ARCHIVE_VAR(int, m_iFlankAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iExtraOpenDefensePercent)
 SYNC_ARCHIVE_VAR(int, m_iExtraRoughDefensePercent)
@@ -2730,6 +2746,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_unitClassModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatAttackMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_iCombatModPerAdjacentUnitCombatDefenseMod)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::map<int, std::pair<int, int>>), m_yieldFromPillage)
 SYNC_ARCHIVE_VAR(int, m_iMissionTimer)
 SYNC_ARCHIVE_VAR(int, m_iMissionAIX)
 SYNC_ARCHIVE_VAR(int, m_iMissionAIY)
@@ -2754,6 +2771,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumGoodyHutsPopped)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iTourismBlastLength)
 SYNC_ARCHIVE_VAR(int, m_iHurryStrength)
+SYNC_ARCHIVE_VAR(int, m_iGoldBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iScienceBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iCultureBlastStrength)
 SYNC_ARCHIVE_VAR(int, m_iGAPBlastStrength)

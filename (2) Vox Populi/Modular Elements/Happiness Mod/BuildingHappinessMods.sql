@@ -17,13 +17,11 @@ SET PovertyHappinessMod = '-15'
 WHERE Type = 'POLICY_CARAVANS';
 
 -- Imperialism
-
 UPDATE Policies
 SET NeedsModifierFromAirUnits = '3'
 WHERE Type = 'POLICY_EXPLORATION_FINISHER';
 
 -- Rationalism
-
 UPDATE Policies
 SET PovertyHappinessMod = '-5', DefenseHappinessMod = '-5', IlliteracyHappinessMod = '-5', UnculturedHappinessMod = '-5'
 WHERE Type = 'POLICY_RATIONALISM';
@@ -79,10 +77,6 @@ WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 UPDATE Buildings
 SET EmpireNeedsModifier = '-5'
 WHERE Type = 'BUILDING_CASTLE';
-
---UPDATE Buildings
---SET EmpireNeedsModifier = '-5'
---WHERE Type = 'BUILDING_MISSION';
 
 UPDATE Buildings
 SET EmpireNeedsModifier = '-5'
@@ -194,7 +188,6 @@ VALUES
 	('BUILDING_CIRCUS', 'YIELD_CULTURE', 1),
 	('BUILDING_THEATRE', 'YIELD_CULTURE', 1),
 	('BUILDING_MUSEUM', 'YIELD_CULTURE', 1),
-	('BUILDING_STADIUM', 'YIELD_CULTURE', 1),
 	('BUILDING_BROADCAST_TOWER', 'YIELD_CULTURE', 1),
 	('BUILDING_PARTHENON', 'YIELD_CULTURE', 1),
 	('BUILDING_GLOBE_THEATER', 'YIELD_CULTURE', 1),

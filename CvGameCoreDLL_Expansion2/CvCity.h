@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
 	All other marks and trademarks are the property of their respective owners.
@@ -123,19 +123,21 @@ public:
 
 	bool AreOurBordersTouching(PlayerTypes ePlayer);
 
-	void UpdateGlobalStaticYields();
-	void SetGlobalStaticYield(YieldTypes eYield, int iValue);
-	int GetGlobalStaticYield(YieldTypes eYield) const;
-
-	void SetStaticNeedAdditives(YieldTypes eYield, int iValue);
-	int GetStaticNeedAdditives(YieldTypes eYield) const;
-
-	int GetStaticTechDeviation() const;
-	void UpdateStaticTechDeviation(int iValue);
-
-	int GetLuxuryHappinessFromEmpire() const;
-	void ChangeHappinessFromLuxuries(int iValue);
-	void ResetHappinessFromLuxuries();
+	void UpdateCachedYieldMedians();
+	void SetCachedBasicNeedsMedian(int iValue);
+	void SetCachedGoldMedian(int iValue);
+	void SetCachedScienceMedian(int iValue);
+	void SetCachedCultureMedian(int iValue);
+	void SetCachedTechNeedModifier(int iValue);
+	void SetCachedEmpireSizeModifier(int iValue);
+	void SetYieldMediansCachedTurn(int iTurn);
+	int GetCachedBasicNeedsMedian() const;
+	int GetCachedGoldMedian() const;
+	int GetCachedScienceMedian() const;
+	int GetCachedCultureMedian() const;
+	int GetCachedTechNeedModifier() const;
+	int GetCachedEmpireSizeModifier() const;
+	int GetYieldMediansCachedTurn() const;
 
 	int GetHappinessFromEmpire() const;
 	void ChangeHappinessFromEmpire(int iValue);
@@ -858,52 +860,42 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int updateNetHappiness();
 	int getHappinessDelta() const;
-	int getHappinessThresholdMod(YieldTypes eYield, int iMod = 0, bool bForceGlobal = false) const;
-	int getThresholdSubtractions(YieldTypes eYield) const;
-	int getThresholdAdditions(/*YieldTypes eYield = NO_YIELD*/) const;
+	int GetAllNeedsModifier(bool bForceRecalc) const;
 	int getUnhappyCitizenCount() const;
-	int getPopThresholdMod() const;
-	int getEmpireSizeMod() const;
+	int GetCitySizeModifier() const;
+	int GetEmpireSizeModifier() const;
+	int GetReducedEmpireSizeModifier(bool bForceRecalc, bool bCityOnly) const;
+	int GetNeedModifierForYield(YieldTypes eYield) const;
+	int GetTotalNeedModifierForYield(YieldTypes eYield, bool bForceRecalc) const;
+	int GetCityNeedModifierForYield(YieldTypes eYield) const;
 
-	CvString GetCityUnhappinessBreakdown(bool bIncludeMedian = false, bool bFlavorText = false);
+	CvString GetCityUnhappinessBreakdown(bool bIncludeMedian = false, bool bCityBanner = false);
 	CvString GetCityHappinessBreakdown();
 
-	float GetMinYieldNeededToReduceUnhappiness(int iCreated, int iNeeded, int iFactor) const;
-	float GetMinYieldNeededToIncreaseUnhappiness(int iCreated, int iNeeded, int iFactor) const;
-
-	int getUnhappinessFromCultureYield(int iPopMod = 0) const;
-	int getUnhappinessFromCultureNeeded(int iMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromCultureRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromCulture(int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromScienceYield(int iPopMod = 0) const;
-	int getUnhappinessFromScienceNeeded(int iMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromScienceRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromScience(int iPopMod = 0, bool bForceGlobal = false) const;
-	//new name should be distress instead of defense, but it's a hassle to change now
-	int getUnhappinessFromDefenseYield(int iPopMod = 0) const;
-	int getUnhappinessFromDefenseNeeded(int iMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromDefenseRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromDefense(int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromGoldYield(int iPopMod = 0) const;
-	int getUnhappinessFromGoldNeeded(int iMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromGoldRaw(int iLimit = INT_MAX, int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromGold(int iPopMod = 0, bool bForceGlobal = false) const;
-	int getUnhappinessFromConnectionRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromConnection() const;
-	int getUnhappinessFromPillagedRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromPillaged() const;
-	int getUnhappinessFromStarvingRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromStarving() const;
-	int getUnhappinessFromReligionRaw(int iLimit = INT_MAX) const;
-	int getUnhappinessFromReligion() const;
+	int GetUnhappinessFromFamine() const;
+	int GetUnhappinessFromPillagedTiles() const;
+	int GetDistress(bool bForceRecalc) const;
+	int GetDistressRaw(bool bForceRecalc) const;
+	float GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	int GetPoverty(bool bForceRecalc) const;
+	int GetPovertyRaw(bool bForceRecalc) const;
+	float GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	int GetIlliteracy(bool bForceRecalc) const;
+	int GetIlliteracyRaw(bool bForceRecalc) const;
+	float GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	int GetBoredom(bool bForceRecalc) const;
+	int GetBoredomRaw(bool bForceRecalc) const;
+	float GetCultureMedian(bool bForceRecalc, int iAdditionalModifier) const;
+	int GetUnhappinessFromReligiousUnrest() const;
+	int GetUnhappinessFromIsolation() const;
 
 	int getJFDSpecialUnhappinessSources() const;
 
-	int getUnhappinessAggregated() const;
+	int GetUnhappinessAggregated() const;
 	int getUnhappinessFromSpecialists(int iSpecialists) const;
 
-	CvString getPotentialHappinessWithGrowth();
-	int getPotentialHappinessWithGrowthVal() const;
+	CvString GetPotentialHappinessWithGrowth();
+	int GetPotentialHappinessWithGrowthVal() const;
 
 	CvString getPotentialUnhappinessWithGrowth();
 	int getPotentialUnhappinessWithGrowthVal() const;
@@ -1034,21 +1026,21 @@ public:
 	void SetSpecialReligionYields(YieldTypes eIndex, int iValue);
 
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
-#if defined(MOD_BALANCE_CORE)
+
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bStatic = true) const;
-#else
-	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
-	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
-#endif
-#if defined(MOD_PROCESS_STOCKPILE)
+
 	int getBasicYieldRateTimes100(YieldTypes eIndex) const;
-#endif
 
 #if defined(MOD_BALANCE_CORE)
 	void updateEconomicValue();
 	int getEconomicValue(PlayerTypes ePossibleNewOwner);
 	void setEconomicValue(PlayerTypes ePossibleNewOwner, int iValue);
+
+	// Instant Yield History
+	void ChangeInstantYieldTotal(YieldTypes eYield, int iValue);
+	int GetInstantYieldTotal(YieldTypes eYield);
+
 #endif
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
@@ -1877,12 +1869,15 @@ protected:
 	std::vector<int> m_aiChangeGrowthExtraYield;
 #if defined(MOD_BALANCE_CORE)
 	int m_iHappinessFromEmpire;
-	int m_iHappinessFromLuxuries;
 	int m_iUnhappinessFromEmpire;
-	int m_iStaticTechDeviation;
+	int m_iCachedBasicNeedsMedian;
+	int m_iCachedGoldMedian;
+	int m_iCachedScienceMedian;
+	int m_iCachedCultureMedian;
+	int m_iCachedTechNeedModifier;
+	int m_iCachedEmpireSizeModifier;
+	int m_iYieldMediansCachedTurn;
 	std::vector<int> m_aiNumProjects;
-	std::vector<int> m_aiStaticGlobalYield;
-	std::vector<int> m_aiStaticNeedAdditives;
 	std::vector<int> m_aiLongestPotentialTradeRoute;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_aiYieldFromKnownPantheons;
@@ -1944,6 +1939,7 @@ protected:
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iNukeInterceptionChance;
 	std::vector<int> m_aiEconomicValue;
+	std::tr1::unordered_map<YieldTypes, int> m_miInstantYieldsTotal;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
@@ -1959,7 +1955,6 @@ protected:
 	int m_iAlwaysHeal;
 	int m_iResourceDiversityModifier;
 	int m_iNoUnhappfromXSpecialists;
-	int m_aiStaticNeedsUpdateTurn;
 	std::vector<int> m_aiGreatWorkYieldChange;
 #endif
 	std::vector<int> m_aiYieldRateModifier;
@@ -2254,12 +2249,15 @@ SYNC_ARCHIVE_VAR(int, m_iTotalArtsyAid)
 SYNC_ARCHIVE_VAR(int, m_iTotalGreatWorkAid)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiChangeGrowthExtraYield)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromEmpire)
-SYNC_ARCHIVE_VAR(int, m_iHappinessFromLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iUnhappinessFromEmpire)
-SYNC_ARCHIVE_VAR(int, m_iStaticTechDeviation)
+SYNC_ARCHIVE_VAR(int, m_iCachedBasicNeedsMedian)
+SYNC_ARCHIVE_VAR(int, m_iCachedGoldMedian)
+SYNC_ARCHIVE_VAR(int, m_iCachedScienceMedian)
+SYNC_ARCHIVE_VAR(int, m_iCachedCultureMedian)
+SYNC_ARCHIVE_VAR(int, m_iCachedTechNeedModifier)
+SYNC_ARCHIVE_VAR(int, m_iCachedEmpireSizeModifier)
+SYNC_ARCHIVE_VAR(int, m_iYieldMediansCachedTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticGlobalYield)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticNeedAdditives)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLongestPotentialTradeRoute)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
@@ -2321,6 +2319,7 @@ SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiEconomicValue)
+SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::tr1::unordered_map<YieldTypes, int>), m_miInstantYieldsTotal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromReligion)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSAlliance)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBaseYieldRateFromCSFriendship)
@@ -2334,7 +2333,6 @@ SYNC_ARCHIVE_VAR(int, m_iSeaTourismBonus)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHeal)
 SYNC_ARCHIVE_VAR(int, m_iResourceDiversityModifier)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
-SYNC_ARCHIVE_VAR(int, m_aiStaticNeedsUpdateTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGreatWorkYieldChange)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerPop)

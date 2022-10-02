@@ -438,6 +438,12 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>3</YieldChange>
 		</Row>
+		<Row>
+			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
+			<BuildingClassType>BUILDINGCLASS_TIDAL_PLANT</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>3</YieldChange>
+		</Row>
 	</Corporation_BuildingClassYieldChanges>
 	<Corporation_SpecialistYieldChanges>
 		<Row>

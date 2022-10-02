@@ -61,8 +61,8 @@
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_TREBUCHET';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_KOREAN_HWACHA';
+	UPDATE Units SET Cost = '180', FaithCost = '300' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR'; -- more expensive than explorer, does a lot more.
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_KNIGHT';
-	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_SONGHAI_MUSLIMCAVALRY';
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 	UPDATE Units SET Cost = '220', FaithCost = '300' WHERE Type = 'UNIT_SIAMESE_WARELEPHANT';

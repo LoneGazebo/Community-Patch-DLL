@@ -5,7 +5,7 @@
 //!		This header includes all enumerations shared by both exe and dll.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#pragma once 
+#pragma once
 #ifndef CVENUMS_H
 #define CVENUMS_H
 
@@ -490,7 +490,7 @@ enum CLOSED_ENUM DiploMessageTypes
 	DIPLO_MESSAGE_TOO_SOON_FOR_SHARE_OPINION,
 	DIPLO_MESSAGE_GREETING_VASSALAGE_VASSAL,
 	DIPLO_MESSAGE_GREETING_HOSTILE_VASSALAGE_VASSAL,
-	DIPLO_MESSAGE_REVOKE_VASSALAGE,						
+	DIPLO_MESSAGE_REVOKE_VASSALAGE,
 	DIPLO_MESSAGE_REVOKE_VASSALAGE_HOSTILE,
 	DIPLO_MESSAGE_VASSALAGE_REVOKED_HUMAN_WAR,
 	DIPLO_MESSAGE_VASSALAGE_REVOKED_HUMAN_PEACEFUL,
@@ -581,6 +581,22 @@ enum CLOSED_ENUM CameraLookAtTypes
 	CAMERALOOKAT_HOTSEAT,
 };
 
+enum CLOSED_ENUM UnhappyReasons
+{
+	UNHAPPY_REASON_RESISTANCE,
+	UNHAPPY_REASON_OCCUPIED,
+	UNHAPPY_REASON_EMPIRE,
+	UNHAPPY_REASON_FAMINE,
+	UNHAPPY_REASON_PILLAGED_TILES,
+	UNHAPPY_REASON_DISTRESS,
+	UNHAPPY_REASON_POVERTY,
+	UNHAPPY_REASON_ILLITERACY,
+	UNHAPPY_REASON_BOREDOM,
+	UNHAPPY_REASON_RELIGIOUS_UNREST,
+	UNHAPPY_REASON_ISOLATION,
+	UNHAPPY_REASON_URBANIZATION,
+};
+
 enum CLOSED_ENUM UnitCreationReason
 {
 	REASON_DEFAULT,
@@ -613,7 +629,7 @@ enum CLOSED_ENUM DirectionTypes
 	DIRECTION_NORTHEAST_MASK = 1 << 1,						// DIRECTION_NORTHEAST,
 	DIRECTION_EAST_MASK = 1 << 2,							// DIRECTION_EAST,
 	DIRECTION_SOUTHEAST_MASK = 1 << 3,						// DIRECTION_SOUTHEAST,
-	DIRECTION_SOUTH_MASK = 1 << 4,							// DIRECTION_SOUTH, 
+	DIRECTION_SOUTH_MASK = 1 << 4,							// DIRECTION_SOUTH,
 	DIRECTION_SOUTHWEST_MASK = 1 << 5,						// DIRECTION_SOUTHWEST,
 	DIRECTION_WEST_MASK = 1 << 6,							// DIRECTION_WEST,
 	DIRECTION_NORTHWEST_MASK = 1 << 7,						// DIRECTION_NORTHWEST,
@@ -633,7 +649,7 @@ enum CLOSED_ENUM FlowDirectionTypes
 	NO_FLOWDIRECTION,
 
 	FLOWDIRECTION_NORTH_MASK = 1 << 0,							// FLOWDIRECTION_NORTH,
-	FLOWDIRECTION_SOUTH_MASK = 1 << 1,							// FLOWDIRECTION_SOUTH, 
+	FLOWDIRECTION_SOUTH_MASK = 1 << 1,							// FLOWDIRECTION_SOUTH,
 	FLOWDIRECTION_SOUTHEAST_MASK = 1 << 2,						// FLOWDIRECTION_SOUTHEAST,
 	FLOWDIRECTION_NORTHWEST_MASK = 1 << 3,						// FLOWDIRECTION_NORTHWEST,
 	FLOWDIRECTION_SOUTHWEST_MASK = 1 << 4,						// FLOWDIRECTION_SOUTHWEST,
@@ -688,7 +704,7 @@ enum OPEN_ENUM PlayerColorTypes
 	NO_PLAYERCOLOR = -1,
 };
 
-enum CLOSED_ENUM InterfaceModeTypes			
+enum CLOSED_ENUM InterfaceModeTypes
 {
 	NO_INTERFACEMODE = -1,
 
@@ -720,7 +736,7 @@ enum CLOSED_ENUM InterfaceModeTypes
 	NUM_INTERFACEMODE_TYPES ENUM_META_VALUE
 };
 
-enum CLOSED_ENUM InterfaceMessageTypes	
+enum CLOSED_ENUM InterfaceMessageTypes
 {
 	NO_MESSAGE_TYPE = -1,
 
@@ -736,7 +752,7 @@ enum CLOSED_ENUM InterfaceMessageTypes
 };
 
 
-//  !!!!!!!!!!!!!!!!!!!!!!! 
+//  !!!!!!!!!!!!!!!!!!!!!!!
 //  IMPORTANT - NotificationTypes enum contains hash values, not an index!
 //  It is not required to add a new enum for a new notification, you can just use the hash (FString::Hash) of the name
 //	as defined in the Notifications.xml or equivalent.  The enum is just a helper so that the has generation is done
@@ -748,7 +764,7 @@ enum CLOSED_ENUM InterfaceMessageTypes
 //		to the notification system.
 
 //	When adding Notifications, please remember to add an entry in the sound notifications file using the same name.
-//  !!!!!!!!!!!!!!!!!!!!!!! 
+//  !!!!!!!!!!!!!!!!!!!!!!!
 
 enum OPEN_ENUM NotificationTypes
 {
@@ -770,7 +786,7 @@ enum OPEN_ENUM NotificationTypes
 	NOTIFICATION_BUY_TILE								= 0xCD412906,
 	NOTIFICATION_CITY_GROWTH							= 0xCD6F572E,
 	NOTIFICATION_CITY_TILE								= 0x66532408,
-	NOTIFICATION_DEMAND_RESOURCE						= 0x250F2E27, 
+	NOTIFICATION_DEMAND_RESOURCE						= 0x250F2E27,
 	NOTIFICATION_UNIT_PROMOTION							= 0x5ED9C509,
 	//	NOTIFICATION_WONDER_STARTED,
 
@@ -803,7 +819,7 @@ enum OPEN_ENUM NotificationTypes
 	NOTIFICATION_DIPLO_VOTE								= 0x769821E9,
 	NOTIFICATION_RELIGION_RACE							= 0xA9E7CC17,
 
-	NOTIFICATION_EXPLORATION_RACE						= 0x97818EEE, 
+	NOTIFICATION_EXPLORATION_RACE						= 0x97818EEE,
 	NOTIFICATION_DIPLOMACY_DECLARATION					= 0x4EA00B5D,
 	NOTIFICATION_DEAL_EXPIRED_GPT						= 0xF1FC86ED,
 	NOTIFICATION_DEAL_EXPIRED_RESOURCE					= 0x211D6F50,
@@ -840,7 +856,7 @@ enum OPEN_ENUM NotificationTypes
 	NOTIFICATION_RELIGION_SPREAD						= 0x71FB054A,
 	NOTIFICATION_TECH_STOLEN_SPY_DETECTED				= 0x03691C24,
 	NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED				= 0xD50B2758,
-	NOTIFICATION_SPY_WAS_KILLED							= 0x149E6E49, 
+	NOTIFICATION_SPY_WAS_KILLED							= 0x149E6E49,
 	NOTIFICATION_SPY_KILLED_A_SPY						= 0xFCC63818,
 	NOTIFICATION_SPY_REPLACEMENT						= 0x9ABF6534,
 	NOTIFICATION_MAYA_LONG_COUNT						= 0x054C8467,
@@ -1148,7 +1164,7 @@ enum OPEN_ENUM SeaLevelTypes
 	NO_SEALEVEL = -1,
 };
 
-enum CLOSED_ENUM WorldSizeTypes				
+enum CLOSED_ENUM WorldSizeTypes
 {
 	NO_WORLDSIZE = -1,
 
@@ -1163,7 +1179,7 @@ enum CLOSED_ENUM WorldSizeTypes
 	NUM_WORLDSIZE_TYPES ENUM_META_VALUE
 };
 
-// This is our current relationship with each 
+// This is our current relationship with each
 // one of our connected network peers
 enum CLOSED_ENUM InitStates
 {
@@ -1186,7 +1202,7 @@ enum CLOSED_ENUM TerrainTypes
 {
 	NO_TERRAIN = -1,
 
-	TERRAIN_GRASS,		//valid with 
+	TERRAIN_GRASS,		//valid with
 	TERRAIN_PLAINS,
 	TERRAIN_DESERT,
 	TERRAIN_TUNDRA,
@@ -1482,7 +1498,7 @@ enum OPEN_ENUM ArtStyleTypes
 	NO_ARTSTYLE = -1,
 };
 
-enum CLOSED_ENUM CitySizeTypes				
+enum CLOSED_ENUM CitySizeTypes
 {
 	NO_CITYSIZE = -1,
 
@@ -1503,7 +1519,7 @@ enum OPEN_ENUM FootstepAudioTags
 	NO_FOOTSTEPAUDIO_TAG = -1,
 };
 
-enum CLOSED_ENUM ChatTargetTypes			
+enum CLOSED_ENUM ChatTargetTypes
 {
 	NO_CHATTARGET = -1,
 	CHATTARGET_ALL = -2,
@@ -1657,7 +1673,7 @@ enum CLOSED_ENUM CityTaskResult
 	TASK_QUEUED		= 2				// The task operation cannot be done immediately and is queued
 };
 
-enum OPEN_ENUM BuildingClassTypes				 
+enum OPEN_ENUM BuildingClassTypes
 {
 	NO_BUILDINGCLASS = -1,
 };
@@ -1691,7 +1707,7 @@ enum CLOSED_ENUM PlayerVoteTypes
 	NO_PLAYER_VOTE = -1
 };
 
-enum CLOSED_ENUM CalendarTypes			
+enum CLOSED_ENUM CalendarTypes
 {
 	NO_CALENDAR = -1,
 
@@ -1724,7 +1740,7 @@ enum CLOSED_ENUM WarTypes
 	WARTYPE_SEA,
 };
 
-enum OPEN_ENUM UnitClassTypes		
+enum OPEN_ENUM UnitClassTypes
 {
 	NO_UNITCLASS = -1,
 };
@@ -1744,7 +1760,7 @@ enum OPEN_ENUM UnitCombatTypes
 	NO_UNITCOMBAT = -1,
 };
 
-enum CLOSED_ENUM UnitAITypes			
+enum CLOSED_ENUM UnitAITypes
 {
 	NO_UNITAI = -1,
 
@@ -1799,7 +1815,7 @@ enum CLOSED_ENUM UnitAITypes
 	NUM_UNITAI_TYPES ENUM_META_VALUE
 };
 
-enum OPEN_ENUM InvisibleTypes			
+enum OPEN_ENUM InvisibleTypes
 {
 	NO_INVISIBLE = -1,
 };
@@ -1839,7 +1855,7 @@ enum CLOSED_ENUM EventClassTypes
 };
 #endif
 
-enum CLOSED_ENUM ActivityTypes			
+enum CLOSED_ENUM ActivityTypes
 {
 	NO_ACTIVITY = -1,
 
@@ -1873,13 +1889,13 @@ enum CLOSED_ENUM AutomateTypes
 };
 
 // any additions need to be reflected in GlobalTypes.xml
-enum OPEN_ENUM MissionTypes				
+enum OPEN_ENUM MissionTypes
 {
 	NO_MISSION = -1,
 };
 
 // a relic used only for debugging nowadays
-enum CLOSED_ENUM MissionAITypes		
+enum CLOSED_ENUM MissionAITypes
 {
 	NO_MISSIONAI = -1,
 
@@ -1893,7 +1909,7 @@ enum CLOSED_ENUM MissionAITypes
 };
 
 // any additions need to be reflected in GlobalTypes.xml
-enum CLOSED_ENUM CommandTypes					
+enum CLOSED_ENUM CommandTypes
 {
 	NO_COMMAND = -1,
 
@@ -1911,7 +1927,7 @@ enum CLOSED_ENUM CommandTypes
 	NUM_COMMAND_TYPES ENUM_META_VALUE
 };
 
-enum CLOSED_ENUM ControlTypes					
+enum CLOSED_ENUM ControlTypes
 {
 	NO_CONTROL = -1,
 
@@ -1963,7 +1979,7 @@ enum CLOSED_ENUM ControlTypes
 	NUM_CONTROL_TYPES ENUM_META_VALUE
 };
 
-enum OPEN_ENUM PromotionTypes				
+enum OPEN_ENUM PromotionTypes
 {
 	NO_PROMOTION = -1,
 };
@@ -2014,7 +2030,7 @@ enum OPEN_ENUM PolicyBranchTypes
 	NO_POLICY_BRANCH_TYPE = -1,
 };
 
-enum CLOSED_ENUM FogOfWarModeTypes		
+enum CLOSED_ENUM FogOfWarModeTypes
 {
 	FOGOFWARMODE_OFF,
 	FOGOFWARMODE_UNEXPLORED,
@@ -2028,7 +2044,7 @@ enum OPEN_ENUM EntityEventTypes
 	ENTITY_EVENT_NONE = -1,			//!< Invalid event
 };
 
-enum CLOSED_ENUM AnimationPathTypes	
+enum CLOSED_ENUM AnimationPathTypes
 {
 	ANIMATIONPATH_NONE = -1,
 
@@ -2081,7 +2097,7 @@ enum CLOSED_ENUM AnimationPathTypes
 	ANIMATIONPATH_AIRPATROL,
 };
 
-enum CLOSED_ENUM WonderCommandType 
+enum CLOSED_ENUM WonderCommandType
 {
 	WONDER_NO_OP,
 	WONDER_CREATED,
@@ -2089,7 +2105,7 @@ enum CLOSED_ENUM WonderCommandType
 	WONDER_REMOVED,
 };
 
-enum OPEN_ENUM CursorTypes							
+enum OPEN_ENUM CursorTypes
 {
 	NO_CURSOR = -1,
 };
@@ -2099,7 +2115,7 @@ enum OPEN_ENUM DiploCommentTypes
 	NO_DIPLOCOMMENT = -1
 };
 
-enum CLOSED_ENUM NetContactTypes					 
+enum CLOSED_ENUM NetContactTypes
 {
 	NO_NETCONTACT = -1,
 	NETCONTACT_INITIAL,
@@ -2110,7 +2126,7 @@ enum CLOSED_ENUM NetContactTypes
 	NUM_NETCONTACT_TYPES ENUM_META_VALUE
 };
 
-enum CLOSED_ENUM SaveGameTypes			
+enum CLOSED_ENUM SaveGameTypes
 {
 	SAVEGAME_NONE = -1,
 
@@ -2163,9 +2179,9 @@ enum CLOSED_ENUM GameMode
 enum CLOSED_ENUM SlotClaim
 {
 	SLOTCLAIM_UNASSIGNED,
-	SLOTCLAIM_RESERVED,			//Reserved status occurs during load game initialization 
-													//and in the multiplayer staging room when the host indicates that a slot must be occupied by a human 
-													//before the game can start. 
+	SLOTCLAIM_RESERVED,			//Reserved status occurs during load game initialization
+													//and in the multiplayer staging room when the host indicates that a slot must be occupied by a human
+													//before the game can start.
 	SLOTCLAIM_ASSIGNED,
 
 	NUM_SLOTCLAIMS ENUM_META_VALUE
@@ -2202,7 +2218,7 @@ enum CLOSED_ENUM CivLoginStates
 	LOGIN_CIV_TAKEN,
 	LOGIN_CIV_HAS_ID,
 };
-   
+
 /*------------------------------------------------------------------------------------
 Enum:		EAudioTag
   Purpose:	To enumerate all of the tag strings loaded from the csv or xml files
@@ -2275,7 +2291,7 @@ enum CLOSED_ENUM GameMessageTypes
 	GAMEMESSAGE_FILE_INFO,
 	GAMEMESSAGE_PICK_YOUR_CIV,
 	GAMEMESSAGE_CIV_CHOICE,
-	GAMEMESSAGE_CONFIRM_CIV_CLAIM, 
+	GAMEMESSAGE_CONFIRM_CIV_CLAIM,
 	GAMEMESSAGE_CLAIM_INFO,
 	GAMEMESSAGE_CIV_CHOICE_ACK,
 	GAMEMESSAGE_CIV_CHOICE_NACK,
@@ -2528,7 +2544,7 @@ enum OPEN_ENUM AICityStrategyTypes
 	NO_AICITYSTRATEGY = -1,
 };
 
-enum CLOSED_ENUM AITacticalMove					
+enum CLOSED_ENUM AITacticalMove
 {
 	AI_TACTICAL_MOVE_NONE = 0,
 
@@ -2777,8 +2793,8 @@ enum CLOSED_ENUM LeaderheadAnimationTypes
     // The numeric values of these enums correspond to magic numbers embedded in the leaderhead assets
     // Changing them will lead to discord and confusion
 
-    LEADERHEAD_ANIM_INTRO           =   1,    
-    LEADERHEAD_ANIM_NEUTRAL_HELLO   =   2,    
+    LEADERHEAD_ANIM_INTRO           =   1,
+    LEADERHEAD_ANIM_NEUTRAL_HELLO   =   2,
     LEADERHEAD_ANIM_PEACEFUL        =   3,
     LEADERHEAD_ANIM_OPENING_GLOAT   =   4,  // gloats, then transitions to neutral
     LEADERHEAD_ANIM_DECLARE_WAR     =   5,
@@ -2823,7 +2839,7 @@ enum CLOSED_ENUM EndTurnBlockingTypes
 	ENDTURN_BLOCKING_STEAL_TECH,
 	ENDTURN_BLOCKING_MAYA_LONG_COUNT,
 	ENDTURN_BLOCKING_FAITH_GREAT_PERSON,
-	
+
 	// XP2
 	ENDTURN_BLOCKING_ADD_REFORMATION_BELIEF,
 	ENDTURN_BLOCKING_LEAGUE_CALL_FOR_PROPOSALS,
@@ -3005,7 +3021,7 @@ enum CLOSED_ENUM EAchievement
 
 	//DLC_DELUXE
 	ACHIEVEMENT_WIN_NEBUCHADNEZZAR,
-	
+
 	//DLC_01
 	ACHIEVEMENT_WIN_GENGHIS,
 	ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW,
@@ -3028,7 +3044,7 @@ enum CLOSED_ENUM EAchievement
 	ACHIEVEMENT_SCENARIO_02_DISCOVER_FOUNTAIN,
 	ACHIEVEMENT_SCENARIO_02_DISCOVER_EL_DORADO,
 	ACHIEVEMENT_SCENARIO_02_RETURN_TREASURE,
-	
+
 	//DLC_03
 	ACHIEVEMENT_WIN_KAMEHAMEHA,
 	ACHIEVEMENT_SCENARIO_03_WIN_HIVA,
@@ -3350,7 +3366,7 @@ enum ESteamStat
 
 	//DLC_05
 	ESTEAMSTAT_HWACHAKILLS,
-	
+
 	//DLC_06
 	ESTEAMSTAT_STATUEOFZEUS,
 	ESTEAMSTAT_TEMPLEOFARTEMIS,
@@ -3381,7 +3397,7 @@ enum CLOSED_ENUM GenericWorldAnchorTypes
 	WORLD_ANCHOR_NATURAL_WONDER,
 	WORLD_ANCHOR_SETTLER,
 	WORLD_ANCHOR_WORKER,
-	
+
 	NUM_WORLD_ANCHORS ENUM_META_VALUE
 };
 
@@ -3568,6 +3584,7 @@ enum CLOSED_ENUM InstantYieldType
 	INSTANT_YIELD_TYPE_REFUND					= 45,
 	INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY			= 46,
 	INSTANT_YIELD_TYPE_TECH_RETROACTIVE         = 47,
+	INSTANT_YIELD_TYPE_PILLAGE_UNIT				= 48,
 
 	NUM_INSTANT_YIELD_TYPES ENUM_META_VALUE
 };
@@ -3623,8 +3640,7 @@ enum CLOSED_ENUM WarmongerTriggerTypes
 #endif
 
 
-#if defined(MOD_BALANCE_CORE_JFD)
-enum CLOSED_ENUM LoyaltyStateTypes
+enum CLOSED_ENUM LoyaltyStateTypes // MOD_BALANCE_CORE_JFD
 {
 	NO_LOYALTY_TYPE = -1,
 	LOYALTY_JFD_NEUTRAL = 0,
@@ -3635,7 +3651,6 @@ enum CLOSED_ENUM LoyaltyStateTypes
 
 	NUM_LOYALTY_TYPES ENUM_META_VALUE
 };
-#endif
 
 enum CLOSED_ENUM AITacticalTargetType
 {

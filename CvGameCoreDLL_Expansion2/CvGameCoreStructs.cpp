@@ -598,7 +598,7 @@ CvAirMissionDefinition::CvAirMissionDefinition() :
 //! \param      kCopy The object to copy
 //------------------------------------------------------------------------------------------------
 CvAirMissionDefinition::CvAirMissionDefinition(const CvAirMissionDefinition& kCopy)
-{
+ : CvMissionDefinition(kCopy) {
 	m_fMissionTime = kCopy.m_fMissionTime;
 	m_eMissionType = kCopy.m_eMissionType;
 	m_pPlot = kCopy.m_pPlot;

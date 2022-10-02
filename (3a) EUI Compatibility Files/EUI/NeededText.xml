@@ -6,7 +6,7 @@
 			<Text>X: {1_Num} / Y: {2_Num} / Plot Danger: {3_Num}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CP_HAPPINESS_EXPLANATION">
-			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Both are limited by the size of the city, except for urbanization!</Text>
+			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Unhappiness is limited by the size of the city, except for Urbanization!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CBP">
 			<Text>Local Resources</Text>

@@ -4116,145 +4116,120 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 //	--------------------------------------------------------------------------------
 void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	ASSERT(eIndex >= 0 && eIndex < MAX_TEAMS);
 
-	if(!isHasMet(eIndex))
+	if (isHasMet(eIndex))
+		return;
+
+	m_abHasMet[eIndex] = true;
+	SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
+
+	updateTechShare();
+
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && isHuman() && GetID() != eIndex)
 	{
-		m_abHasMet[eIndex] = true;
-
-		SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
-
-		updateTechShare();
-
-		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-		{
-			if(isHuman())
-			{
-				if(GetID() != eIndex)
-				{
-					declareWar(eIndex, false, getLeaderID());
-				}
-			}
-		}
-
-		// First Contact in Diplo AI (Civ 5)
-		for(int iMyPlayersLoop = 0; iMyPlayersLoop < MAX_CIV_PLAYERS; iMyPlayersLoop++)
-		{
-			PlayerTypes eMyPlayer = (PlayerTypes) iMyPlayersLoop;
-
-			if(GET_PLAYER(eMyPlayer).isAlive())
-			{
-				if(GET_PLAYER(eMyPlayer).getTeam() == GetID())
-				{
-					// Now loop through players on Their team
-					for(int iTheirPlayersLoop = 0; iTheirPlayersLoop < MAX_CIV_PLAYERS; iTheirPlayersLoop++)
-					{
-						PlayerTypes eTheirPlayer = (PlayerTypes) iTheirPlayersLoop;
-
-						// Don't calculate proximity to oneself!
-						if(eMyPlayer != eTheirPlayer)
-						{
-							if(GET_PLAYER(eTheirPlayer).isAlive())
-							{
-								if(GET_PLAYER(eTheirPlayer).getTeam() == eIndex)
-								{
-									// Begin contact stuff here
-
-									// First contact Diplo changes (no Minors)
-									if(isMajorCiv())
-									{
-										GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
-									}
-
-									// THIRD party loop - let everyone else know that someone met someone!
-									for(int iThirdPlayersLoop = 0; iThirdPlayersLoop < MAX_CIV_PLAYERS; iThirdPlayersLoop++)
-									{
-										PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayersLoop;
-
-										if(GET_PLAYER(eThirdPlayer).isAlive())
-										{
-											// Don't notify diplo AI if we're the one meeting or the one being met
-											if(eThirdPlayer != eMyPlayer && eThirdPlayer != eTheirPlayer)
-											{
-												GET_PLAYER(eThirdPlayer).GetDiplomacyAI()->DoPlayerMetSomeone(eMyPlayer, eTheirPlayer);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if(GET_TEAM(eIndex).isHuman())
-		{
-			for(int iI = 0; iI < MAX_PLAYERS; iI++)
-			{
-				if(GET_PLAYER((PlayerTypes)iI).isAlive())
-				{
-					if(GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
-					{
-						if(!(GET_PLAYER((PlayerTypes)iI).isHuman()))
-						{
-							GET_PLAYER((PlayerTypes)iI).clearResearchQueue();
-							//GET_PLAYER((PlayerTypes)iI).AI_makeProductionDirty();
-						}
-					}
-				}
-			}
-		}
-
-		if((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
-		{
-			DLLUI->setDirty(Score_DIRTY_BIT, true);
-		}
-
-		if(GET_TEAM(eIndex).isMinorCiv())
-		{
-			int iCapitalX = -1;
-			int iCapitalY = -1;
-			int iCapitalID = -1;
-
-			// Minor reveals his capital to the player so that he can click on the City to contact
-			CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
-			if(pCap != NULL)
-			{
-				iCapitalX  = pCap->getX();
-				iCapitalY  = pCap->getY();
-				iCapitalID = pCap->GetID();
-				CvPlot* pCapPlot = pCap->plot();
-				if(pCapPlot)
-				{
-					pCapPlot->setRevealed(GetID(), true);
-					GC.getMap().updateDeferredFog();
-				}
-			}
-
-			// First contact with major stuff
-			if(isMajorCiv())
-			{
-				GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(GetID(), /*bSuppressMessages*/ isAtWar(eIndex));
-			}
-
-			if(!isAtWar(eIndex))
-			{
-				// Notify the Team that they met someone
-				if(!bSuppressMessages)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
-
-					AddNotification(NOTIFICATION_MET_MINOR, strBuffer, strSummary, iCapitalX, iCapitalY, iCapitalID);
-				}
-			}
-		}
-
-		// Report event
-		gDLL->GameplayMetTeam(GetID(), eIndex);
+		declareWar(eIndex, false, getLeaderID());
 	}
+
+	const vector<PlayerTypes>& vMyTeam = getPlayers();
+	const vector<PlayerTypes>& vTheirTeam = GET_TEAM(eIndex).getPlayers();
+
+	// Update military strengths before doing first contact (avoids a crash in DoUpdatePlayerTargetValues() in games with teams)
+	for (size_t i=0; i<vMyTeam.size(); i++)
+	{
+		PlayerTypes eMyPlayer = vMyTeam[i];
+		if (!GET_PLAYER(eMyPlayer).isAlive() || !GET_PLAYER(eMyPlayer).isMajorCiv())
+			continue;
+
+		GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoUpdatePlayerMilitaryStrengths();
+	}
+
+	// First Contact in Diplo AI (Civ 5)
+	for (size_t i=0; i<vMyTeam.size(); i++)
+	{
+		PlayerTypes eMyPlayer = vMyTeam[i];
+		if (!GET_PLAYER(eMyPlayer).isAlive() || !GET_PLAYER(eMyPlayer).isMajorCiv())
+			continue;
+
+		for (size_t j=0; j<vTheirTeam.size(); j++)
+		{
+			PlayerTypes eTheirPlayer = vTheirTeam[j];
+			if (!GET_PLAYER(eTheirPlayer).isAlive())
+				continue;
+
+			GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoFirstContact(eTheirPlayer);
+
+			// THIRD party loop - let everyone else know that someone met someone!
+			for (int iThirdPlayersLoop = 0; iThirdPlayersLoop < MAX_MAJOR_CIVS; iThirdPlayersLoop++)
+			{
+				PlayerTypes eThirdPlayer = (PlayerTypes) iThirdPlayersLoop;
+
+				// Don't notify diplo AI if we're the one meeting or the one being met
+				if (GET_PLAYER(eThirdPlayer).isAlive() && eThirdPlayer != eMyPlayer && eThirdPlayer != eTheirPlayer)
+				{
+					GET_PLAYER(eThirdPlayer).GetDiplomacyAI()->DoPlayerMetSomeone(eMyPlayer, eTheirPlayer);
+				}
+			}
+		}
+	}
+
+	if (GET_TEAM(eIndex).isHuman())
+	{
+		for (size_t i=0; i<vMyTeam.size(); i++)
+		{
+			PlayerTypes eMyPlayer = vMyTeam[i];
+			if (!GET_PLAYER(eMyPlayer).isAlive() || GET_PLAYER(eMyPlayer).isHuman())
+				continue;
+
+			GET_PLAYER(eMyPlayer).clearResearchQueue();
+		}
+	}
+
+	if (GetID() == GC.getGame().getActiveTeam() || eIndex == GC.getGame().getActiveTeam())
+	{
+		DLLUI->setDirty(Score_DIRTY_BIT, true);
+	}
+
+	if (GET_TEAM(eIndex).isMinorCiv())
+	{
+		int iCapitalX = -1, iCapitalY = -1, iCapitalID = -1;
+
+		// Minor reveals his capital to the player so that he can click on the City to contact
+		CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
+		if (pCap != NULL)
+		{
+			iCapitalX  = pCap->getX();
+			iCapitalY  = pCap->getY();
+			iCapitalID = pCap->GetID();
+			CvPlot* pCapPlot = pCap->plot();
+			if (pCapPlot)
+			{
+				pCapPlot->setRevealed(GetID(), true);
+				GC.getMap().updateDeferredFog();
+			}
+		}
+
+		// First contact with major stuff
+		if (isMajorCiv())
+		{
+			GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).GetMinorCivAI()->DoFirstContactWithMajor(GetID(), /*bSuppressMessages*/ isAtWar(eIndex));
+		}
+
+		if (!isAtWar(eIndex))
+		{
+			// Notify the Team that they met someone
+			if (!bSuppressMessages)
+			{
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
+
+				AddNotification(NOTIFICATION_MET_MINOR, strBuffer, strSummary, iCapitalX, iCapitalY, iCapitalID);
+			}
+		}
+	}
+
+	// Report event
+	gDLL->GameplayMetTeam(GetID(), eIndex);
 }
 
 //	--------------------------------------------------------------------------------
@@ -8504,12 +8479,10 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_JFD)
 		if(MOD_BALANCE_CORE_JFD && isHuman())
 		{
 			GC.getGame().GetGameContracts()->DoUpdateContracts();
 		}
-#endif
 
 		if(!isMinorCiv())
 		{

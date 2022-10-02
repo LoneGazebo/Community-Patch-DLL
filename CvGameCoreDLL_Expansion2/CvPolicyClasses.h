@@ -458,7 +458,6 @@ public:
 	int GetUnculturedHappinessChangePolicyCapital() const;
 	int GetIlliteracyHappinessChangePolicyCapital() const;
 	int GetMinorityHappinessChangePolicyCapital() const;
-	int GetPuppetUnhappinessMod() const;
 	int GetNoUnhappfromXSpecialists() const;
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
@@ -681,7 +680,6 @@ private:
 	int m_iUnculturedHappinessChangePolicyCapital;
 	int m_iIlliteracyHappinessChangePolicyCapital;
 	int m_iMinorityHappinessChangePolicyCapital;
-	int m_iPuppetUnhappinessModPolicy;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;

@@ -2850,7 +2850,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetPovertyHappinessChangePolicy() != 0)
 	{
-		if (pPlayerTraits->IsExpansionist() || pPlayer->getUnhappinessFromCityGold() > 0)
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromCityGold() > 0)
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetPovertyHappinessChangePolicy() * -4;
 		}
@@ -2861,7 +2861,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetDefenseHappinessChangePolicy() != 0)
 	{
-		if (pPlayerTraits->IsExpansionist() || pPlayer->getUnhappinessFromCityDefense() > 0)
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromCityDefense() > 0)
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetDefenseHappinessChangePolicy() * -10;
 		}
@@ -2872,7 +2872,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetUnculturedHappinessChangePolicy() != 0)
 	{
-		if (pPlayerTraits->IsExpansionist() || pPlayer->getUnhappinessFromCityCulture() > 0)
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromCityCulture() > 0)
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetUnculturedHappinessChangePolicy() * -10;
 		}
@@ -2883,7 +2883,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetIlliteracyHappinessChangePolicy() != 0)
 	{
-		if (pPlayerTraits->IsExpansionist() || pPlayer->getUnhappinessFromCityScience() > 0)
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromCityScience() > 0)
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetIlliteracyHappinessChangePolicy() * -10;
 		}
@@ -2894,7 +2894,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	}
 	if (PolicyInfo->GetMinorityHappinessChangePolicy() != 0)
 	{
-		if (pPlayerTraits->IsExpansionist() || pPlayer->getUnhappinessFromCityMinority() > 0)
+		if (pPlayerTraits->IsExpansionist() || pPlayer->GetUnhappinessFromCityMinority() > 0)
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetMinorityHappinessChangePolicy() * -10;
 		}
@@ -2956,17 +2956,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		else
 		{
 			yield[YIELD_FOOD] += PolicyInfo->GetMinorityHappinessChangePolicyCapital() * -2;
-		}
-	}
-	if (PolicyInfo->GetPuppetUnhappinessMod() != 0)
-	{
-		if (pPlayerTraits->IsWarmonger())
-		{
-			yield[YIELD_FOOD] += PolicyInfo->GetPuppetUnhappinessMod() * 3;
-		}
-		else
-		{
-			yield[YIELD_FOOD] += PolicyInfo->GetPuppetUnhappinessMod() * 2;
 		}
 	}
 	if (PolicyInfo->GetNoUnhappfromXSpecialists() != 0)

@@ -923,7 +923,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += m_pCity->GetTradePrioritySea()*10;
 			}
 
-			int iUnhappyGold = m_pCity->getUnhappinessFromGold();
+			int iUnhappyGold = m_pCity->GetPoverty(false);
 			if (iUnhappyGold > 0)
 			{
 				iBonus += (iUnhappyGold * 10);

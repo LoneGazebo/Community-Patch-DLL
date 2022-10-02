@@ -3,74 +3,33 @@ UPDATE PolicyBranchTypes
 SET EraPrereq = 'ERA_INDUSTRIAL'
 WHERE Type = 'POLICY_BRANCH_COMMERCE';
 
--- Commerce Opener
 
-UPDATE Policies
-SET FreeTradeRoute = '2'
-WHERE Type = 'POLICY_COMMERCE';
+-- Opener (now Industry)
 
 DELETE FROM Policy_CapitalYieldModifiers
 WHERE PolicyType = 'POLICY_COMMERCE';
 
--- Wagon Trains (now Turnpikes)
 UPDATE Policies
-SET LandTradeRouteGoldChange = '500', SeaTradeRouteGoldChange = '500', RouteGoldMaintenanceMod = '0', GreatMerchantRateModifier = '50'
+SET
+	FreeTradeRoute = 2
+WHERE Type = 'POLICY_COMMERCE';
+
+
+-- Wagon Trains (now Free Trade)
+
+UPDATE Policies
+SET
+	RouteGoldMaintenanceMod = 0,
+	LandTradeRouteGoldChange = 500,
+	SeaTradeRouteGoldChange = 500,
+	GreatMerchantRateModifier = 50
 WHERE Type = 'POLICY_CARAVANS';
 
--- Mercantilism (the same)
-UPDATE Policy_HurryModifiers
-SET HurryCostModifier = '-5'
-WHERE PolicyType = 'POLICY_MERCANTILISM';
+
+-- Mercantilism
 
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_MERCANTILISM' AND BuildingClassType = 'BUILDINGCLASS_MARKET';
-
-UPDATE Policy_BuildingClassYieldChanges
-SET YieldChange = '2'
-WHERE PolicyType = 'POLICY_MERCANTILISM';
-
--- Trade Unions
-UPDATE Policies
-SET PortraitIndex = '6', IconAtlas = 'POLICY_ATLAS_EXP2', IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
-WHERE Type = 'POLICY_TRADE_UNIONS';
-
--- Entrepreneurship
-
-UPDATE Policies
-SET TradeMissionGoldModifier = '0', GreatMerchantRateModifier = '0', EmbarkedExtraMoves = '0', GreatEngineerHurryModifier = '25', TradeMissionGoldModifier = '25'
-WHERE Type = 'POLICY_ENTREPRENEURSHIP';
-    
--- Protectionism
-UPDATE Policies
-SET FreeTradeRoute = '0', ExtraHappinessPerLuxury = '0', InternalTradeRouteYieldModifier = '33', InvestmentModifier = '-10'
-WHERE Type = 'POLICY_PROTECTIONISM';
-
--- Finisher
---UPDATE Policies
---SET IdeologyPoint = '1'
---WHERE Type = 'POLICY_COMMERCE_FINISHER';
-
-DELETE FROM Policy_ImprovementYieldChanges
-WHERE PolicyType = 'POLICY_COMMERCE_FINISHER';
-
-DELETE FROM Policy_SpecialistExtraYields
-WHERE PolicyType = 'POLICY_COMMERCE_FINISHER';
-
-INSERT INTO Policy_SpecialistExtraYields
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_COMMERCE_FINISHER', 'YIELD_GOLD', 2),
-	('POLICY_COMMERCE_FINISHER', 'YIELD_PRODUCTION', 2);
-
-INSERT INTO Policy_WLTKDYieldMod
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_PROTECTIONISM', 'YIELD_SCIENCE', 10),
-	('POLICY_PROTECTIONISM', 'YIELD_FOOD', 10);
-
-UPDATE Policies
-SET ExtraHappinessPerLuxury = '3'
-WHERE Type = 'POLICY_COMMERCE_FINISHER';
 
 DELETE FROM Policy_BuildingClassCultureChanges
 WHERE PolicyType = 'POLICY_MERCANTILISM';
@@ -78,19 +37,48 @@ WHERE PolicyType = 'POLICY_MERCANTILISM';
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_MERCANTILISM';
 
+UPDATE Policy_HurryModifiers
+SET
+	HurryCostModifier = -5
+WHERE PolicyType = 'POLICY_MERCANTILISM';
+
+UPDATE Policy_BuildingClassYieldChanges
+SET
+	YieldChange = 2
+WHERE PolicyType = 'POLICY_MERCANTILISM';
+
 INSERT INTO Policy_YieldFromConstruction
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_MERCANTILISM', 'YIELD_SCIENCE', 10);
 
-INSERT INTO Policy_HurryModifiers
-	(PolicyType, HurryType, HurryCostModifier)
+
+-- Mercenary Army (now Division of Labor)
+
+UPDATE Policies
+SET
+	PortraitIndex = 6,
+	IconAtlas = 'POLICY_ATLAS_EXP2',
+	IconAtlasAchieved = 'POLICY_A_ATLAS_EXP2'
+WHERE Type = 'POLICY_TRADE_UNIONS';
+
+INSERT INTO Policy_BuildingClassProductionModifiers
+	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES
-	('POLICY_COMMERCE', 'HURRY_GOLD', -5),
-	('POLICY_TRADE_UNIONS', 'HURRY_GOLD', -5),
-	('POLICY_CARAVANS', 'HURRY_GOLD', -5),
-	('POLICY_ENTREPRENEURSHIP', 'HURRY_GOLD', -5),
-	('POLICY_PROTECTIONISM', 'HURRY_GOLD', -5);
+	('POLICY_TRADE_UNIONS', 'BUILDINGCLASS_TRAINSTATION', 100),
+	('POLICY_TRADE_UNIONS', 'BUILDINGCLASS_SEAPORT', 100);
+
+
+-- Entrepreneurship
+
+UPDATE Policies
+SET
+	TradeMissionGoldModifier = 0,
+	GreatMerchantRateModifier = 0,
+	EmbarkedExtraMoves = 0,
+	GreatEngineerHurryModifier = 25,
+	TradeMissionGoldModifier = 25
+WHERE Type = 'POLICY_ENTREPRENEURSHIP';
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
@@ -108,6 +96,63 @@ VALUES
 	('POLICY_ENTREPRENEURSHIP', 'IMPROVEMENT_LUMBERMILL', 'YIELD_GOLD', 1),
 	('POLICY_ENTREPRENEURSHIP', 'IMPROVEMENT_LUMBERMILL_JUNGLE', 'YIELD_PRODUCTION', 2),
 	('POLICY_ENTREPRENEURSHIP', 'IMPROVEMENT_LUMBERMILL_JUNGLE', 'YIELD_GOLD', 1);
+
+
+-- Protectionism
+
+UPDATE Policies
+SET
+	FreeTradeRoute = 0,
+	ExtraHappinessPerLuxury = 0,
+	InternalTradeRouteYieldModifier = 33,
+	InvestmentModifier = -10
+WHERE Type = 'POLICY_PROTECTIONISM';
+
+INSERT INTO Policy_WLTKDYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_PROTECTIONISM', 'YIELD_SCIENCE', 10),
+	('POLICY_PROTECTIONISM', 'YIELD_FOOD', 10);
+
+
+-- Finisher
+
+DELETE FROM Policy_ImprovementYieldChanges
+WHERE PolicyType = 'POLICY_COMMERCE_FINISHER';
+
+DELETE FROM Policy_SpecialistExtraYields
+WHERE PolicyType = 'POLICY_COMMERCE_FINISHER';
+
+UPDATE Policies
+SET
+	ExtraHappinessPerLuxury = 3
+WHERE Type = 'POLICY_COMMERCE_FINISHER';
+
+INSERT INTO Policy_SpecialistExtraYields
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_COMMERCE_FINISHER', 'YIELD_GOLD', 2),
+	('POLICY_COMMERCE_FINISHER', 'YIELD_PRODUCTION', 2);
+
+
+
+----------------------
+-- Combined Insertions
+----------------------
+
+-- Scaler
+
+INSERT INTO Policy_HurryModifiers
+	(PolicyType, HurryType, HurryCostModifier)
+VALUES
+	('POLICY_COMMERCE', 'HURRY_GOLD', -5),
+	('POLICY_TRADE_UNIONS', 'HURRY_GOLD', -5),
+	('POLICY_CARAVANS', 'HURRY_GOLD', -5),
+	('POLICY_ENTREPRENEURSHIP', 'HURRY_GOLD', -5),
+	('POLICY_PROTECTIONISM', 'HURRY_GOLD', -5);
+
+
+-- Building Changes
 
 INSERT INTO Policy_BuildingClassYieldModifiers
 	(PolicyType, BuildingClassType, YieldType, YieldMod)
@@ -134,9 +179,3 @@ VALUES
 	('POLICY_MERCANTILISM', 'BUILDINGCLASS_STOCK_EXCHANGE', 'YIELD_SCIENCE', 3),
 	('POLICY_MERCANTILISM', 'BUILDINGCLASS_BANK', 'YIELD_SCIENCE', 3),
 	('POLICY_MERCANTILISM', 'BUILDINGCLASS_MINT', 'YIELD_SCIENCE', 3);
-
-INSERT INTO Policy_BuildingClassProductionModifiers
-	(PolicyType, BuildingClassType, ProductionModifier)
-VALUES
-	('POLICY_TRADE_UNIONS', 'BUILDINGCLASS_TRAINSTATION', 100),
-	('POLICY_TRADE_UNIONS', 'BUILDINGCLASS_SEAPORT', 100);

@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v109 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 109)
+#define MOD_DLL_NAME "Community Patch v110 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 110)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -841,8 +841,8 @@ enum BattleTypeTypes
 };
 
 #if defined(MOD_EVENTS_BATTLES)
-#define BATTLE_STARTED(iType, pPlot)              if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleStarted, iType, pPlot.getX(), pPlot.getY()); }
-#define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && pCombatant) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
+#define BATTLE_STARTED(iType, pPlot)              if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleStarted, iType, (pPlot).getX(), (pPlot).getY()); }
+#define BATTLE_JOINED(pCombatant, iRole, bIsCity) if (MOD_EVENTS_BATTLES && (pCombatant)) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleJoined, (pCombatant)->getOwner(), (pCombatant)->GetID(), iRole, bIsCity); }
 #define BATTLE_FINISHED()                         if (MOD_EVENTS_BATTLES) { GAMEEVENTINVOKE_HOOK(GAMEEVENT_BattleFinished); }
 #else
 #define BATTLE_STARTED(pPlot)            __noop
@@ -905,11 +905,11 @@ enum BattleTypeTypes
 }
 
 // Message wrappers
-#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, pPlayer->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, pCity->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, pUnit->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, pPlot->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) pPlot->showPopupText(ePlayer, szMessage)
+#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, (pPlayer)->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
+#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, (pCity)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
+#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, (pUnit)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
+#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, (pPlot)->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) (pPlot)->showPopupText(ePlayer, szMessage)
 
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
@@ -940,7 +940,7 @@ enum BattleTypeTypes
 #define GAMEEVENTINVOKE_TESTALL gCustomMods.eventTestAll
 #define GAMEEVENTINVOKE_VALUE   gCustomMods.eventAccumulator
 
-#define GAMEEVENTRETURN_NONE  -1
+#define GAMEEVENTRETURN_NONE  (-1)
 #define GAMEEVENTRETURN_FALSE  0
 #define GAMEEVENTRETURN_TRUE   1
 #define GAMEEVENTRETURN_HOOK   GAMEEVENTRETURN_TRUE
@@ -1169,34 +1169,34 @@ enum BattleTypeTypes
 //to help debug errors
 void CheckSentinel(uint);
 
-#define MOD_SERIALIZE_INIT_READ_NO_SENTINEL(stream) uint uiDllSaveVersion; stream >> uiDllSaveVersion;
-#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; stream >> uiDllSaveVersion; stream >> uiSentinel; CheckSentinel(uiSentinel);
-#define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= version) { stream >> member; } else { member = def; }
+#define MOD_SERIALIZE_INIT_READ_NO_SENTINEL(stream) uint uiDllSaveVersion; (stream) >> uiDllSaveVersion;
+#define MOD_SERIALIZE_INIT_READ(stream) uint uiDllSaveVersion, uiSentinel; (stream) >> uiDllSaveVersion; (stream) >> uiSentinel; CheckSentinel(uiSentinel);
+#define MOD_SERIALIZE_READ(version, stream, member, def) if (uiDllSaveVersion >= (version)) { (stream) >> (member); } else { (member) = def; }
 #define MOD_SERIALIZE_READ_AUTO(version, stream, member, size, def)   \
-	if (uiDllSaveVersion >= version) {                                \
-		stream >> member;                                             \
+	if (uiDllSaveVersion >= (version)) {                                \
+		(stream) >> (member);                                             \
 	} else {                                                          \
-		for (int iI = 0; iI < size; iI++) { member.setAt(iI, def); }  \
+		for (int iI = 0; iI < (size); iI++) { (member).setAt(iI, def); }  \
 	}
 #define MOD_SERIALIZE_READ_ARRAY(version, stream, member, type, size, def)	\
-	if (uiDllSaveVersion >= version) {										\
-		ArrayWrapper<type> wrapper(size, member); stream >> wrapper;		\
+	if (uiDllSaveVersion >= (version)) {										\
+		ArrayWrapper<type> wrapper(size, member); (stream) >> wrapper;		\
 	} else {																\
-		for (int iI = 0; iI < size; iI++) { (member)[iI] = def; }			\
+		for (int iI = 0; iI < (size); iI++) { (member)[iI] = def; }			\
 	}
 #define MOD_SERIALIZE_READ_HASH(version, stream, member, type, size, def)		\
-	if (uiDllSaveVersion >= version) {											\
+	if (uiDllSaveVersion >= (version)) {											\
 		CvInfosSerializationHelper::ReadHashedDataArray(stream, member, size);	\
 	} else {																	\
-		for (int iI = 0; iI < size; iI++) { (member)[iI] = def; }				\
+		for (int iI = 0; iI < (size); iI++) { (member)[iI] = def; }				\
 	}
 
-#define MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion;
-#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; stream << uiDllSaveVersion; stream << 0xDEADBEEF;
-#define MOD_SERIALIZE_WRITE(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
-#define MOD_SERIALIZE_WRITE_AUTO(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << member
-#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << ArrayWrapper<type>(size, member)
-#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); stream << ArrayWrapperConst<type>(size, member)
+#define MOD_SERIALIZE_INIT_WRITE_NO_SENTINEL(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion;
+#define MOD_SERIALIZE_INIT_WRITE(stream) uint uiDllSaveVersion = MOD_DLL_VERSION_NUMBER; (stream) << uiDllSaveVersion; (stream) << 0xDEADBEEF;
+#define MOD_SERIALIZE_WRITE(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_AUTO(stream, member) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << member
+#define MOD_SERIALIZE_WRITE_ARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapper<type>(size, member)
+#define MOD_SERIALIZE_WRITE_CONSTARRAY(stream, member, type, size) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); (stream) << ArrayWrapperConst<type>(size, member)
 #define MOD_SERIALIZE_WRITE_HASH(stream, member, type, size, obj) CvAssert(uiDllSaveVersion == MOD_DLL_VERSION_NUMBER); CvInfosSerializationHelper::WriteHashedDataArray<obj, type>(stream, member, size)
 #else
 #define MOD_SERIALIZE_INIT_READ(stream) __noop
@@ -1247,7 +1247,7 @@ public:
 	void preloadCache();
 	void reloadCache();
 	int getOption(const char* szName, int defValue = 0);
-	int getOption(std::string sName, int defValue = 0);
+	int getOption(const std::string& sName, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
 	MOD_OPT_DECL(BALANCE_VP);

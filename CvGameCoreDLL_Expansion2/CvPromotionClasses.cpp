@@ -71,6 +71,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAttackFullyHealedMod(0),
 	m_iAttackAboveHealthMod(0),
 	m_iAttackBelowHealthMod(0),
+	m_bRangedFlankAttack(false),
+	m_iExtraFlankPower(0),
 	m_iFlankAttackModifier(0),
 	m_iNearbyEnemyCombatMod(0),
 	m_iNearbyEnemyCombatRange(0),
@@ -582,6 +584,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
 	m_iAttackAboveHealthMod = kResults.GetInt("AttackAbove50HealthMod");
 	m_iAttackBelowHealthMod = kResults.GetInt("AttackBelowEqual50HealthMod");
+	m_bRangedFlankAttack = kResults.GetBool("RangedFlankAttack");
+	m_iExtraFlankPower = kResults.GetInt("ExtraFlankPower");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
 	m_iNearbyEnemyCombatRange = kResults.GetInt("NearbyEnemyCombatRange");
@@ -1167,6 +1171,61 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		pResults->Reset();
 	}
 
+	//UnitPromotions_YieldFromPillage
+	{
+		std::string sqlKey = "UnitPromotions_YieldFromPillage";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldsID, Yield, YieldNoScale from UnitPromotions_YieldFromPillage inner join Yields on Yields.Type = YieldType where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			// Note:
+			// * yieldFlat: row[2], pair.first
+			// * yieldEraScaled: row[1], pair.second
+			// 
+			// The columns should still be loaded in the order that they appear as it _may_ have an impact on cache performance.
+			// Once the values are on the stack the access order is likely non-impactful since the compiler will re-order things
+			// to the best of its ability and often try to keep the values loaded into registers.
+			// 
+			// This is a nano-optimization but it's still the correct thing to do :P
+			const int yieldID = pResults->GetInt(0);
+			const int yieldEraScaled = pResults->GetInt(1);
+			const int yieldFlat = pResults->GetInt(2);
+
+			if (yieldFlat != 0 || yieldEraScaled != 0)
+			{
+				const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldID);
+				if (it != m_yieldFromPillage.end())
+				{
+					std::pair<int, int>& yieldValues = it->second;
+					yieldValues.first += yieldFlat;
+					yieldValues.second += yieldEraScaled;
+
+					if (yieldValues.first == 0 && yieldValues.second == 0)
+					{
+						m_yieldFromPillage.erase(it);
+					}
+				}
+				else
+				{
+					const std::pair<int, int> yieldValues = std::make_pair(yieldFlat, yieldEraScaled);
+					m_yieldFromPillage.insert(it, std::make_pair(yieldID, yieldValues));
+				}
+			}
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, int>>(m_yieldFromPillage).swap(m_yieldFromPillage);
+	}
+
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	if (MOD_PROMOTIONS_UNIT_NAMING)
 	{
@@ -1571,6 +1630,18 @@ int CvPromotionEntry::GetAttackAboveHealthMod() const
 int CvPromotionEntry::GetAttackBelowHealthMod() const
 {
 	return m_iAttackBelowHealthMod;
+}
+
+/// Accessor: Ranged unit attacks benefit from units flanking target
+bool CvPromotionEntry::IsRangedFlankAttack() const
+{
+	return m_bRangedFlankAttack;
+}
+
+/// Accessor: Counts as additional units when supporting a flank
+int CvPromotionEntry::GetExtraFlankPower() const
+{
+	return m_iExtraFlankPower;
 }
 
 /// Accessor: Bonus when making a flank attack
@@ -3002,6 +3073,26 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 	return false;
 }
 
+/// Returns the amount of a given yield to receive when a unit that has this promotion pillages a tile.
+/// 
+/// The first element of the pair is the flat amount, the second element is the era scaling amount.
+std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
+
+	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
+	{
+		std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+		if (it != m_yieldFromPillage.end())
+		{
+			return it->second;
+		}
+	}
+
+	return std::make_pair(0, 0);
+}
+
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 /// If this a promotion that names a unit
 bool CvPromotionEntry::IsUnitNaming(int i) const
@@ -3351,7 +3442,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->getExperienceTimes100());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->GetID() + pThisUnit->getDamage());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 

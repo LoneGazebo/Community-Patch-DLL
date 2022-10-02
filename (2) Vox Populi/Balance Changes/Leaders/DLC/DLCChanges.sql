@@ -439,38 +439,22 @@ INSERT INTO Trait_YieldFromTileStealCultureBomb (TraitType, TerrainType, YieldTy
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
 
--- NEW DLC Leader Data and Yields
-
---UPDATE Buildings
---SET CitySupplyModifier = '10'
---WHERE Type = 'BUILDING_MISSION';
-
---UPDATE Buildings
---SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
---WHERE Type = 'BUILDING_MISSION';
-
---UPDATE Buildings
---SET GreatWorkCount = '1'
---WHERE Type = 'BUILDING_MISSION';
-
 
 UPDATE Buildings
 SET CitySupplyModifier = '10'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
---INSERT INTO Building_GrowthExtraYield
---	(BuildingType, YieldType, Yield)
---VALUES
---	('BUILDING_MISSION', 'YIELD_GOLD', 300),
---	('BUILDING_MISSION', 'YIELD_FAITH', 300);
-
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
 VALUES
---	('CIVILIZATION_SPAIN', 'BUILDINGCLASS_CASTLE', 'BUILDING_MISSION'),
 	('CIVILIZATION_DENMARK', 'BUILDINGCLASS_LIGHTHOUSE', 'BUILDING_JELLING_STONES'),
 	('CIVILIZATION_KOREA', 'BUILDINGCLASS_UNIVERSITY', 'BUILDING_SEOWON'),
-	('CIVILIZATION_MONGOL', 'BUILDINGCLASS_GRANARY', 'BUILDING_YURT');
+	('CIVILIZATION_MONGOL', 'BUILDINGCLASS_LODGE', 'BUILDING_YURT');
+
+INSERT INTO Building_ClassesNeededInCity
+	(BuildingType,				BuildingClassType)
+VALUES	
+	('BUILDING_SPAIN_MISSION',	'BUILDINGCLASS_D_FOR_SPAIN_MISSION');
 
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
@@ -478,17 +462,22 @@ VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_FOOD', 2),
 	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 1);
 
+INSERT INTO Building_ImprovementYieldChanges	
+	(BuildingType, 				ImprovementType,				YieldType,		Yield)
+VALUES	
+	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1);
+
 INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
-INSERT INTO Building_InstantYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_YURT', 'YIELD_FOOD', 25);
-
+INSERT INTO Building_YieldFromBorderGrowth
+	(BuildingType, 		YieldType, 		Yield)
+VALUES	
+	('BUILDING_YURT', 	'YIELD_FOOD', 	5);
+		
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 
@@ -508,8 +497,9 @@ VALUES
 	('BUILDING_SEOWON', 'YIELD_FAITH', 2),
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 2),
 	('BUILDING_YURT', 'YIELD_FAITH', 1),
-	('BUILDING_YURT', 'YIELD_FOOD', 1),
-	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 1);
+	('BUILDING_YURT', 'YIELD_PRODUCTION', 1),
+	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 1),
+	('BUILDING_SPAIN_MISSION',	'YIELD_FAITH',	2);
 
 INSERT INTO Building_SpecialistYieldChangesLocal
 	(BuildingType, SpecialistType, YieldType, Yield)
@@ -547,10 +537,8 @@ VALUES
 	('BUILDING_YURT', 'RESOURCE_HORSE', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_SHEEP', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_COW', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_WHEAT', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_DEER', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_BISON', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_BANANA', 'YIELD_FOOD', 1);
+	('BUILDING_YURT', 'RESOURCE_BISON', 'YIELD_FOOD', 1);
 
 INSERT INTO Trait_MountainRangeYield
 	(TraitType, YieldType, Yield)

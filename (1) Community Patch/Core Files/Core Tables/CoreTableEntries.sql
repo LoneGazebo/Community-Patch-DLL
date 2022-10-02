@@ -831,7 +831,7 @@ ALTER TABLE Policies ADD COLUMN 'XPopulationConscription' INTEGER DEFAULT 0;
 -- No Unhappiness from Expansion
 ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
 
--- No Unhapppiness from Isolation
+-- No Unhappiness from Isolation
 ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT 0;
 
 -- Double City Border Growth During GA (does not stack with WLTKD)
@@ -1063,8 +1063,14 @@ ALTER TABLE Units ADD COLUMN 'GoodyModifier' INTEGER DEFAULT 0;
 -- Allows for Unit to increase your supply cap.
 ALTER TABLE Units ADD COLUMN 'SupplyCapBoost' INTEGER DEFAULT 0;
 
--- Replacement for free GA on Artists, etc.
+-- Gain Production from best X cities from previous turns - Replacement for Population-based Hurry Production on Great Engineers, etc.
+ALTER TABLE Units ADD COLUMN 'BaseProductionTurnsToCount' INTEGER DEFAULT 0;
+-- Gain Gold from previous turns - Replacement for Era-based Gold Trade Missions on Great Merchants, etc.
+ALTER TABLE Units ADD COLUMN 'BaseGoldTurnsToCount' INTEGER DEFAULT 0;
+-- Gain GAP from previous turns - Replacement for free GA on Great Artists, etc.
 ALTER TABLE Units ADD COLUMN 'BaseTurnsForGAPToCount' INTEGER DEFAULT 0;
+-- Gain turns of WLTKD - Replacement for Influence from Trade Missions on Great Merchants, etc.
+ALTER TABLE Units ADD Column 'BaseWLTKDTurns' INTEGER DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
@@ -1129,6 +1135,11 @@ ALTER TABLE UnitPromotions ADD 'AttackFullyHealedMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackAbove50HealthMod' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'AttackBelowEqual50HealthMod' INTEGER DEFAULT 0;
 
+-- ranged attacks benefit from other units flanking the target
+ALTER TABLE UnitPromotions ADD 'RangedFlankAttack' INTEGER DEFAULT 0;
+-- counts as extra units when supporting a flank
+ALTER TABLE UnitPromotions ADD 'ExtraFlankPower' INTEGER DEFAULT 0;
+
 ALTER TABLE UnitPromotions ADD 'SplashDamage' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'AOEDamageOnKill' INTEGER DEFAULT 0;
@@ -1142,7 +1153,6 @@ ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'PromotionDuration' INTEGER DEFAULT 0;
 
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
-
 ALTER TABLE UnitPromotions ADD COLUMN 'IsLostOnMove' BOOLEAN DEFAULT 0;
 
 -- Put the name of the Promotion in this row in order to negate it with another promotion - currently only works with the terrain/feature related promotion functions above!
@@ -1338,8 +1348,8 @@ ALTER TABLE Traits ADD COLUMN 'WLTKDCultureBoost' INTEGER DEFAULT 0;
 -- Cities gain x turns of WLTKD because of a GA trigger!
 ALTER TABLE Traits ADD COLUMN 'WLTKDFromGATurns' INTEGER DEFAULT 0;
 
--- Unhappienss modifier during GAs - more negative the better!
-ALTER TABLE Traits ADD COLUMN 'GAUnhappinesNeedMod' INTEGER DEFAULT 0;
+-- Unhappiness modifier during WLTKD - more negative the better!
+ALTER TABLE Traits ADD COLUMN 'WLTKDUnhappinessNeedsMod' INTEGER DEFAULT 0;
 
 -- Start game with x number of spies
 ALTER TABLE Traits ADD COLUMN 'StartingSpies' INTEGER DEFAULT 0;

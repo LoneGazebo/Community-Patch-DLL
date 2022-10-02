@@ -82,7 +82,7 @@ public:
 	void ResetSpySiphon();
 	CvString GetSiphonHistory();
 	void ResetSiphonHistory();
-	void SetSiphonHistory(CvString string);
+	void SetSiphonHistory(const CvString& string);
 
 	// Public data
 	int m_iName;
