@@ -1143,6 +1143,7 @@ enum CLOSED_ENUM ButtonPopupTypes
 	NUM_FIXED_BUTTONPOPUP_TYPES,		// Do not add any more sequential enums!  Use hash values!
 
 	BUTTONPOPUP_MODDER_12 = 0x3A2F256C,
+	BUTTONPOPUP_MODDER_13 = 0x7245FA2E,
 };
 
 //////////////////////////////////////////
