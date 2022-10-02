@@ -20293,12 +20293,12 @@ void CvPlayer::DistributeHappinessToCities()
 	{
 		for (int i = 0; i < CitiesSortedByNeed.size(); i++)
 		{
-			CvCity* pLoopCity = CitiesSortedByNeed.GetElement(i);
 			int iNeedScore = CitiesSortedByNeed.GetWeight(i);
 
 			// This city has Need - give it 1 Happiness from the empire
 			if (iNeedScore > 0)
 			{
+				CvCity* pLoopCity = CitiesSortedByNeed.GetElement(i);
 				pLoopCity->ChangeHappinessFromEmpire(1);
 				iHappiness--;
 				CitiesSortedByNeed.SetWeight(i, iNeedScore - 1);
