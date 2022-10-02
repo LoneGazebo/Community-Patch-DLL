@@ -428,11 +428,13 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 				break;
 			}
 		}
+ 
+		const TeamTypes eTeam = (TeamTypes)((kPlayer.m_byTeam - uiPlayerCount) + MAX_MAJOR_CIVS);
 
 		CvPreGame::setHandicap(ePlayer, eHandicap);
 
 		CvPreGame::setSlotStatus(ePlayer, SS_COMPUTER);
-		CvPreGame::setTeamType(ePlayer, (TeamTypes)kPlayer.m_byTeam);
+		CvPreGame::setTeamType(ePlayer, eTeam);
 		CvPreGame::setMinorCiv(ePlayer, true);
 	}
 }
