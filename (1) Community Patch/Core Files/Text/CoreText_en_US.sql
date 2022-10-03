@@ -647,7 +647,7 @@ SET Text = 'Forces defender to retreat if it inflicts more damage than it receiv
 WHERE Tag = 'TXT_KEY_PROMOTION_HEAVY_CHARGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Only one combat unit may occupy a city at a time. That military unit is said to "Garrison" the city, and it adds a significant defensive bonus to the city. If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. [COLOR_YELLOW]Be careful, however, as a Garrison can be destroyed this way.[ENDCOLOR][NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)'
+SET Text = 'Only one land and one naval may occupy a city at a time. A military unit in a city is said to "Garrison" the city, and it adds a significant defensive bonus to the city. [COLOR_YELLOW]If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[ENDCOLOR][NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)[NEWLINE][NEWLINE][COLOR_YELLOW]Note also that naval units cannot perform any attacks while they are stationed in a city.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -659,8 +659,25 @@ SET Text = '[COLOR_YELLOW]Garrison Units in Cities[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. [COLOR_YELLOW]The garrisoned will divert part of the all damage to a city when the city is attacked. This can destroy the garrison, so be careful![ENDCOLOR] If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE][COLOR_YELLOW]A unit stationed in the city may attack surrounding enemy units, but if it does so the city loses its garrison bonus, and, if it is a melee attack, the unit may take damage during the combat as normal.[ENDCOLOR]'
+SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. [COLOR_YELLOW]The garrisoned will divert part of the damage to a city when the city is attacked. This can destroy the garrison, so be careful![ENDCOLOR] If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE]'
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_BODY';
+
+WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY';
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Fort[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_FORT_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Once a civ has acquired the Engineering technology, workers can construct "forts" in friendly or neutral territory. Forts provide a hefty defensive bonus to units occupying them. Forts cannot be constructed in enemy territory. They can be constructed atop resources. [COLOR_YELLOW]Melee Units attacking from a Fort don''t leave the Fort even if they destroy the attacked enemy unit.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_FORT_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Siege Weapons[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_SEIGEWEAPONS_HEADING2_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Certain ranged weapons are classified as "siege weapons" - catapults, ballistae, trebuchets, and so forth. These units get combat bonuses when attacking enemy cities. They are extremely vulnerable to melee combat, and should be accompanied by melee units to fend off enemy assault.[NEWLINE][NEWLINE][COLOR_YELLOW]In Vox Populi and the Community Patch, siege units don''t have to be "set up" anymore. Instead, they move at half-speed in enemy territory.[ENDCOLOR][NEWLINE][NEWLINE]Siege weapons are important. It''s really difficult to capture a well-defended city without them!'
+WHERE Tag = 'TXT_KEY_COMBAT_SEIGEWEAPONS_HEADING2_BODY';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Melee Combat Results[ENDCOLOR]'
@@ -671,7 +688,7 @@ SET Text = 'At the end of melee combat, one or both units may have sustained dam
 WHERE Tag = 'TXT_KEY_COMBAT_MELEERESULTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 20% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
+SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 15% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
 WHERE Tag = 'TXT_KEY_COMBAT_GREATGENERALS_HEADING2_BODY';
 
 UPDATE Language_en_US

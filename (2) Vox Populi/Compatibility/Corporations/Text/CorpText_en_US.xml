@@ -4,7 +4,7 @@
 	<Language_en_US>
 		<!-- Civilopedia-->
 		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_27">
-			<Text>[COLOR_GREEN]Corporations and Monopolies[ENDCOLOR]</Text>
+			<Text>[COLOR_GREEN]Corporations[ENDCOLOR]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
