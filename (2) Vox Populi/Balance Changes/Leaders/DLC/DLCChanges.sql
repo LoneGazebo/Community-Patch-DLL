@@ -465,7 +465,8 @@ VALUES
 INSERT INTO Building_ImprovementYieldChanges	
 	(BuildingType, 				ImprovementType,				YieldType,		Yield)
 VALUES	
-	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1);
+	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1),
+	('BUILDING_YURT',	'IMPROVEMENT_CAMP',	'YIELD_PRODUCTION',	1);
 
 INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
