@@ -833,8 +833,9 @@ function HappinessTipHandler( control )
 		local tradehappiness = pPlayer:GetHappinessFromTradeRoutes();
 		local resourcehappiness = pPlayer:GetBonusHappinessFromLuxuriesFlat();
 		local handicaphappiness = pPlayer:GetHandicapHappiness();
+		local localcityhappiness = pPlayer:GetEmpireHappinessFromCities();
 
-		local htotal = naturalwonderhappiness + minorcivhappiness + leaguehappiness + vassalhappiness + eventhappiness + tradehappiness + religionHappiness + resourcehappiness + handicaphappiness;
+		local htotal = pPlayer:GetHappinessFromCitizenNeeds();
 
 		if(htotal ~= 0) then
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", htotal);
@@ -869,21 +870,25 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness);
 		end
-		if(religionHappiness ~= 0) then
+		if(religionhappiness ~= 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION", religionHappiness);
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionhappiness);
 		end
 		if(resourcehappiness ~= 0) then
 			local perresourcehappiness  = pPlayer:GetBonusHappinessFromLuxuriesFlatForUI();
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness);
 		end
+		if(localcityhappiness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITY_LOCAL", localcityhappiness);
+		end
 
 		strText = strText .. "[/COLOR]";
 		
 
 		-- City Unhappiness
-		local total = (unhappinessFromSpecialists / 100) + (iUnhappinessFromOccupiedCities) + (iUnhappinessFromPupetCities/100) + iUnhappinessFromStarving + iUnhappinessFromPillaged + iUnhappinessFromGold + iUnhappinessFromDefense + iUnhappinessFromConnection + iUnhappinessFromMinority + iUnhappinessFromCulture + iUnhappinessFromScience;
+		local total = pPlayer:GetUnhappinessFromCitizenNeeds();
 
 		if(total ~= 0)then
 			strText = strText .. "[NEWLINE][NEWLINE][COLOR:255:150:150:255]";

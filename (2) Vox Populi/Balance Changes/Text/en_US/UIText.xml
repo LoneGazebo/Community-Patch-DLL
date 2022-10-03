@@ -963,6 +963,12 @@
 		</Row>
 
 		<!-- Top Panel -->
+		<Row Tag="TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO">
+			<Text>{1_Num} from Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
+			<Text>{1_Num} from local sources in cities (religion, buildings, etc).</Text>
+		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_SCIENCE">
 			<Text>{1_Num} from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
