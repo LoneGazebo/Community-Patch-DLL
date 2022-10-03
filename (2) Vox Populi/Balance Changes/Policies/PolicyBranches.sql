@@ -3,6 +3,14 @@
 
 UPDATE PolicyBranchTypes
 SET
+	NumPolicyRequirement = 0
+WHERE Type IN 
+('POLICY_BRANCH_TRADITION',
+ 'POLICY_BRANCH_LIBERTY',
+ 'POLICY_BRANCH_HONOR');
+
+UPDATE PolicyBranchTypes
+SET
 	NumPolicyRequirement = 6
 WHERE Type IN 
 ('POLICY_BRANCH_PIETY',
