@@ -46390,25 +46390,35 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(*player.m_pLeagueAI);
 	visitor(*player.m_pCulture);
 
-	// Notifications
-	{
-		bool bHasNotifications;
-		if (bSaving)
-			bHasNotifications = player.m_pNotifications != NULL;
+    // Notifications
+    {
+        bool bHasNotifications;
+        if (bSaving)
+            bHasNotifications = player.m_pNotifications != NULL;
 
-		visitor(bHasNotifications);
-		if (bHasNotifications)
-		{
-			if (bLoading)
-			{
-				FAssert(player.m_pNotifications == NULL);
-				CvNotifications* pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
-				visitor.loadAssign(player.m_pNotifications, pNotifications);
-				pNotifications->Init(player.GetID());
-			}
-			visitor(*player.m_pNotifications);
-		}
-	}
+        visitor(bHasNotifications);
+
+        // Players may not yet have notifications during an initial load.
+        // Any players who do have notifications are expected to be majors.
+        ASSERT((bLoading && !bHasNotifications) || bHasNotifications == player.m_eID < MAX_MAJOR_CIVS);
+
+        if (bHasNotifications)
+        {
+            if (bLoading)
+            {
+                // The first time a game is loaded may be from the main menu before players have been initialized to have notifications.
+                // For this reason we may need to create the object here during loading.
+                // Otherwise we expect that the visitor will appropriately initialize the existing notification object.
+                if (player.m_pNotifications == NULL)
+                {
+                    CvNotifications* pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+                    pNotifications->Init(player.GetID());
+                    visitor.loadAssign(player.m_pNotifications, pNotifications);
+                }
+            }
+            visitor(*player.m_pNotifications);
+        }
+    }
 
 	visitor(*player.m_pTreasury);
 
