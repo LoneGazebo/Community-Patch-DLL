@@ -146,6 +146,20 @@ UPDATE Language_en_US
 SET Text = 'If your civilization is unhappy, then the city will produce less food. The city will produce enough food to feed its citizens, but there is a decrease in growth locally.'
 WHERE Tag = 'TXT_KEY_FOOD_UNHAPPINESS_HEADING3_BODY';
 
+UPDATE Language_en_US
+SET Text = 'Settlers can only be constructed in cities of size 2 or larger [COLOR_YELLOW]after researching Pottery[ENDCOLOR]. During construction, settlers consume a city''s production and all of the city''s excess food intake. As long as the settler is in production, the city will not grow or add food to its growth bucket. [COLOR_YELLOW]After the construction of the Settler is completed, the city loses one Population. Later in the game, Settlers are replaced by more advanced units which can found cities with additional infrastructure.[ENDCOLOR] See the section on Settlers for more details.'
+WHERE Tag = 'TXT_KEY_FOOD_SETTLERS_HEADING2_BODY';
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Settlers And Food Production[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_FOOD_SETTLERS_HEADING2_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Periodically a city may request that you acquire [COLOR_YELLOW]or possess[ENDCOLOR] a specific luxury resource. If you do so, the city will go into "We Love the King Day" for [COLOR_YELLOW]10[ENDCOLOR] turns, during which the city''s growth rate is increased by 25%. When the [COLOR_YELLOW]10[ENDCOLOR] turns are over, the city will demand another luxury resource. Filling that request will cause the city to resume WLtKD for another [COLOR_YELLOW]10[ENDCOLOR] turns.'
+WHERE Tag = 'TXT_KEY_RESOURCES_CITYREQUESTS_HEADING3_BODY';
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]We Love the King Day (WLtKD)[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_RESOURCES_CITYREQUESTS_HEADING3_TITLE';
+
 -- Resource Limit breached
 UPDATE Language_en_US
 SET Text = 'You are currently using more {1_Resource:textkey} than you have! All Units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
@@ -470,7 +484,7 @@ WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_SPECIALISTS';
 -- Tutorial Text
 
 UPDATE Language_en_US
-SET Text = 'The happiness system in the Community Balance Overhaul is completely revised, favoring neither tall nor wide playstyles. Happiness is now wholly localized, and is based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it starts to drop below 75%, your population is getting restless. If it starts to dip below 50%, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
+SET Text = 'The happiness system in Vox Populi is completely revised, favoring neither tall nor wide playstyles. Happiness is now wholly localized, and is based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it starts to drop below 50%, your population is getting restless. If it starts to dip below 35%, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
 WHERE Tag = 'TXT_KEY_HAPPINESS_HEADING1_BODY';
 
 UPDATE Language_en_US
@@ -620,7 +634,7 @@ WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_TITLE';
 
 	
 UPDATE Language_en_US
-SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on hills: 2 [ICON_FOOD], 2 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on flat land or mountains next to fresh water: 3 [ICON_FOOD] Food, 1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on mountains without fresh water: 2 [ICON_FOOD] Food, 2 [ICON_PRODUCTION] Production, 1 [ICON_GOLD] Gold.[NEWLINE][ICON_BULLET] Cities on flat land without fresh water: 2 [ICON_FOOD], 1 [ICON_PRODUCTION] Production, 1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.'
+SET Text = 'Cities should be founded in locations with plenty of food and production and with access to resources such as wheat, fish, and cattle. Cities founded on hills gain a defensive bonus, making it harder for enemies to capture them. It''s often a good idea to build a city on a river or coastal hex, as cities built in different locations have different starting yields:[NEWLINE][ICON_BULLET] Cities on hills: 2 [ICON_FOOD], 2 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on flat land or mountains next to fresh water: 3 [ICON_FOOD] Food, 1 [ICON_PRODUCTION] Production.[NEWLINE][ICON_BULLET] Cities on mountains without fresh water: 2 [ICON_FOOD] Food, 2 [ICON_PRODUCTION] Production, 1 [ICON_GOLD] Gold.[NEWLINE][ICON_BULLET] Cities on flat land without fresh water: 2 [ICON_FOOD], 1 [ICON_PRODUCTION] Production, 1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_BODY';
 
 -- Trade Routes

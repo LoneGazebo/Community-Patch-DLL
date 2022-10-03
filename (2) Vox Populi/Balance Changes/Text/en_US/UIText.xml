@@ -4,6 +4,17 @@
 	<!-- Historic Event Info-->
 	<Concepts>
 		<Row>
+			<Type>CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA</Type>
+			<Topic>TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC</Topic>
+			<Description>TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_DESCRIPTION</Description>
+			<Summary>TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_SUMMARY</Summary>
+			<AdvisorQuestion>TXT_KEY_CITIES_YIELDS_SCALING_WITH_ERA_ADV_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CITIES</CivilopediaHeaderType>
+			<InsertAfter>CONCEPT_WHERE_TO_FOUND_CITIES</InsertAfter>
+			<InsertBefore>CONCEPT_CITY_BANNER</InsertBefore>
+		</Row>
+		<Row>
 			<Type>CONCEPT_HISTORIC_EVENT</Type>
 			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
 			<Description>TXT_KEY_HISTORIC_EVENT</Description>
@@ -50,11 +61,23 @@
 		</Row>
 	</Concepts>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC">
+			<Text>[COLOR_GREEN]Yields Scaling with Era[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_SUMMARY">
+			<Text>Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_ADVISOR_QUESTION">
+			<Text>What are Yields Scaling with Era?</Text>
+		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
 			<Text>[COLOR_GREEN]Historic Events[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
-			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War (Warscore 25+)[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Start a [ICON_GOLDEN_AGE] Golden Age ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Complete an [ICON_RES_ARTIFACTS] Archaeological Dig ('Heritage' Policy only)[NEWLINE][ICON_BULLET] Trade with a [ICON_CITY_STATE] City-State ('Cultural Diplomacy' Policy Only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_GOLDEN_AGE] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War (Warscore 25+)[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
 			<Text>What is a Historic Event?</Text>
