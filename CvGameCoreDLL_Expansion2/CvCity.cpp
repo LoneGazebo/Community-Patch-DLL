@@ -22188,56 +22188,56 @@ int CvCity::GetUnhappinessAggregated() const
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetUnhappinessFromIsolation();
+		iSource = GetUnhappinessFromIsolation();
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetUnhappinessFromReligiousUnrest();
+		iSource = GetUnhappinessFromReligiousUnrest();
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetUnhappinessFromPillagedTiles();
+		iSource = GetUnhappinessFromPillagedTiles();
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetPoverty(false);
+		iSource = GetPoverty(false);
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetIlliteracy(false);
+		iSource = GetIlliteracy(false);
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetBoredom(false);
+		iSource = GetBoredom(false);
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetUnhappinessFromFamine();
+		iSource = GetUnhappinessFromFamine();
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
 
 	if (iUnhappiness < iPopulation)
 	{
-		iUnhappiness += GetDistress(false);
+		iSource = GetDistress(false);
 		if (iSource > 0)
 			iUnhappiness += iSource;
 	}
@@ -22823,7 +22823,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
 		fMedian += GetBasicNeedsMedian(false, 0) / 100;
 		fAmountNeeded += fMedian * iPopulation;
-		fAmountHave += ((float)getYieldRateTimes100(YIELD_FOOD, true, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, true, false)) / 100;
+		fAmountHave += ((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -22836,7 +22836,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	{
 		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
 		fAmountNeeded += (GetBasicNeedsMedian(false, 0) * iPopulation) / 100;
-		fSurplus += (((float)getYieldRateTimes100(YIELD_FOOD, true, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, true, false)) / 100) - fAmountNeeded;
+		fSurplus += (((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -22854,7 +22854,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
 		fMedian += GetGoldMedian(false, 0) / 100;
 		fAmountNeeded += fMedian * iPopulation;
-		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD, true, false) / 100;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -22867,7 +22867,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	{
 		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
 		fAmountNeeded += (GetGoldMedian(false, 0) * iPopulation) / 100;
-		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD, true, false) / 100) - fAmountNeeded;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", fSurplus);
 	}
@@ -22885,7 +22885,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		float fMedian = 0.00f, fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
 		fMedian += GetScienceMedian(false, 0) / 100;
 		fAmountNeeded += fMedian * iPopulation;
-		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE, true, false) / 100;
+		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
 
 		// Increase by X for -1 Unhappiness
@@ -22898,7 +22898,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	{
 		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
 		fAmountNeeded += (GetScienceMedian(false, 0) * iPopulation) / 100;
-		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE, true, false) / 100) - fAmountNeeded;
+		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100) - fAmountNeeded;
 
 		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", fSurplus);
 	}
