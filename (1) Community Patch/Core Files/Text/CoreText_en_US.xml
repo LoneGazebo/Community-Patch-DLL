@@ -7440,7 +7440,7 @@
 
 		<!--Policies-->
 		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
-			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked. Finishers do not count towards this amount.[ENDCOLOR]</Text>
+			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_SPY_RANK_TT_SHORT">
