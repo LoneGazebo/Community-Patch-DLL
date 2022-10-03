@@ -588,7 +588,7 @@ public:
 	RepealProposalList GetRepealProposals() const;
 	RepealProposalList GetRepealProposalsOnHold() const;
 	CvActiveResolution* GetActiveResolution(int iResolutionID, int iValue = -1);
-	ActiveResolutionList GetActiveResolutions() const;
+	const ActiveResolutionList& GetActiveResolutions() const;
 	int GetNumResolutionsEverEnacted() const;
 	int GetNumProposersPerSession() const;
 

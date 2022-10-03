@@ -208,8 +208,8 @@ ResolutionTypes LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eTyp
 	if(eType != NO_RESOLUTION)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		ActiveResolutionList vActiveResolutions = pLeague->GetActiveResolutions();
-		for (ActiveResolutionList::iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
+		const ActiveResolutionList& vActiveResolutions = pLeague->GetActiveResolutions();
+		for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
 		{
 			if (it->GetType() == eType)
 			{
@@ -3741,7 +3741,7 @@ CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID, int iValue)
 	return NULL;
 }
 
-ActiveResolutionList CvLeague::GetActiveResolutions() const
+const ActiveResolutionList& CvLeague::GetActiveResolutions() const
 {
 	return m_vActiveResolutions;
 }

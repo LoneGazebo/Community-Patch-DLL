@@ -847,6 +847,24 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	int iValue = 0;
 
 	CityAIFocusTypes eFocus = GetFocusType();
+	bool bWantArt = false;
+	bool bWantScience = false;
+	bool bWantDiplo = false;
+	if (!GetPlayer()->isHuman())
+	{
+		if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
+		{
+			bWantArt = true;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
+		{
+			bWantScience = true;
+		}
+		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+		{
+			bWantDiplo = true;
+		}
+	}
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -901,25 +919,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 
 	// GPP modifiers
 	int iMod = m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
-
-	bool bWantArt = false;
-	bool bWantScience = false;
-	bool bWantDiplo = false;
-	if (!GetPlayer()->isHuman())
-	{
-		if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
-		{
-			bWantArt = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-		{
-			bWantScience = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
-		{
-			bWantDiplo = true;
-		}
-	}
 
 	// Player and Golden Age mods to this specific class
 	if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))

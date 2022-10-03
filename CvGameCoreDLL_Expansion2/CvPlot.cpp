@@ -4603,6 +4603,13 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 	{
 		do
 		{
+			//performance optimization: skip the expensive unit lookup for our own units
+			if (pUnitNode->eOwner == ePlayer)
+			{
+				pUnitNode = m_units.next(pUnitNode);
+				continue;
+			}
+
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
