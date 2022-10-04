@@ -45,7 +45,7 @@ public:
 	// Logging
 	void LogPossibleBuilds();
 	// Fast version with precomputed stats
-	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const std::vector<int>& allExistingBuildings,
 		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
 	// Slow version
 	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, 
