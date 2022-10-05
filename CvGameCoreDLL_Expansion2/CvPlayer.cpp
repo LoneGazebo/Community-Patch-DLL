@@ -46401,10 +46401,12 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 		{
 			if (bLoading)
 			{
-				FAssert(player.m_pNotifications == NULL);
-				CvNotifications* pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
-				visitor.loadAssign(player.m_pNotifications, pNotifications);
-				pNotifications->Init(player.GetID());
+				if (player.m_pNotifications == NULL)
+				{
+					CvNotifications* pNotifications = FNEW(CvNotifications, c_eCiv5GameplayDLL, 0);
+					visitor.loadAssign(player.m_pNotifications, pNotifications);
+				}
+				player.m_pNotifications->Init(player.GetID());
 			}
 			visitor(*player.m_pNotifications);
 		}

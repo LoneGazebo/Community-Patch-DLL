@@ -958,8 +958,9 @@ namespace TacticalAIHelpers
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	bool KillLoneEnemyIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
-	bool IsSuicideMeleeAttack(CvUnit* pAttacker, CvPlot* pTarget);
-	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
+	bool IsSuicideMeleeAttack(const CvUnit* pAttacker, CvPlot* pTarget);
+	bool CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget);
+	vector<pair<CvPlot*,bool>> GetTargetsInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 	bool IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes eOwner);
