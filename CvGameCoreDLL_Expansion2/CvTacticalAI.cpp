@@ -3631,15 +3631,34 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	}
 	while (!bSuccess && iCount < 4);
 
-	//second round: move in as long as there is no danger and we're still far away
+	//sometimes tactsim cannot use all units, eg if they are too far out
+	vector<CvUnit*> remaining;
 	for (vector<CvUnit*>::const_iterator it = vUnits.begin(); it != vUnits.end(); ++it)
 	{
-		CvUnit* pUnit = *it; 
-		//don't move in further if we're already close
-		if (pUnit->TurnProcessed() || (bSuccess && plotDistance(*pLongRangeTarget,*pUnit->plot())<=TACTICAL_COMBAT_MAX_TARGET_DISTANCE))
+		CvUnit* pUnit = *it;
+		if (pUnit->TurnProcessed())
 			continue;
+		
+		//after a successful tactsim if there are unused units close to the target 
+		//we probably want to move them out, not in. so ignore them here
+		if (bSuccess && plotDistance(*pLongRangeTarget, *pUnit->plot()) <= TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
+			continue; //do not end the turn ... we may want to shuffle them around later
 
+		remaining.push_back(pUnit);
+	}
+
+	//we want to move the civilians last so they have a better chance of getting cover
+	struct PrSortCombatFirst
+	{
+		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return (lhs->IsCombatUnit() ? 0 : 1) < (rhs->IsCombatUnit() ? 0 : 1); }
+	};
+	std::sort(remaining.begin(), remaining.end(), PrSortCombatFirst());
+
+	//second round: move in as long as there is no danger and we're still far away
+	for (vector<CvUnit*>::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
+	{
 		//lots of flags ...
+		CvUnit* pUnit = *it;
 		int	iFlags = CvUnit::MOVEFLAG_NO_STOPNODES | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 		if (pUnit->IsCivilianUnit())
 			iFlags |= (CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
@@ -3650,7 +3669,9 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 
 		//we are not here to fight or flee, let other moves take over
 		int iDanger = pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot());
-		if (iDanger > pUnit->GetCurrHitPoints() / 2)
+		int iDangerLimit = pUnit->IsCombatUnit() ? pUnit->GetCurrHitPoints() / 2 : 0;
+		//generals should not even be in fog danger
+		if (iDanger > iDangerLimit)
 			continue;
 
 		//embark only when it's safe
