@@ -281,7 +281,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<CultureRateModifier>10</CultureRateModifier>
+			<CultureRateModifier>0</CultureRateModifier>
 			<NoUnhappfromXSpecialists>2</NoUnhappfromXSpecialists>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
