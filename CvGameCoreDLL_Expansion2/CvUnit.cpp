@@ -12105,7 +12105,7 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	if (m_pUnitInfo->GetBaseGold() == 0 && GetDiploMissionInfluence() == 0)
+	if (GetGoldBlastStrength() == 0 && GetDiploMissionInfluence() == 0)
 	{
 		return false;
 	}
