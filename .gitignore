@@ -40,6 +40,7 @@
 
 #ignore output from Visual Studio, ModBuddy, and Inno
 .vs/
+.idea/
 BuildOutput/
 BuildTemp/
 Build/
