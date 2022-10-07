@@ -6341,21 +6341,21 @@ void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuest
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
 		bCheckAllQuests = false;
 
-	QuestListForPlayer::iterator itr_quest;
-	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+	//do not use an iterator here!
+	//finishing one quest may generate new ones, potentially invalidating the iterator!
+	for (size_t i = 0; i < m_QuestsGiven[ePlayer].size(); i++)
 	{
-		if (bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
+		CvMinorCivQuest& quest = m_QuestsGiven[ePlayer][i];
+		if (bCheckAllQuests || quest.GetType() == eSpecifyQuestType)
 		{
-			if (itr_quest->IsComplete())
+			if (quest.IsComplete())
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				bool bCompleted = itr_quest->DoFinishQuest();
+				bool bCompleted = quest.DoFinishQuest();
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				
 				if (bCompleted)
-				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
-				}
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, quest.GetType());
 			}
 		}
 	}
