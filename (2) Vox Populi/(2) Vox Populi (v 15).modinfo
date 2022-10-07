@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="15">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(2.7.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(2.7.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -362,15 +362,15 @@
     <File md5="EE1590B25BD112A096F15E83BB2B88B2" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
     <File md5="6FF842300866A73B2721CC541A5719A9" import="0">Balance Changes/Beliefs/Reformation.sql</File>
     <File md5="682C86ED22E221135FAE3E1171BFB2C4" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
-    <File md5="C91BFB3E5950DD73EE6C9A9DB9FBCB4C" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
+    <File md5="2262000F062335EADD082ABE4D6E508B" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
     <File md5="5668360CC4AB31ED170EEB203C11B7DD" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
-    <File md5="69A2644788B3E2BFA72374C0A966DF45" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
+    <File md5="54C4D246D35D2833948A6AEC031F1CFF" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
     <File md5="B8C5E5FB11E2B5CE15C93B1F01D73882" import="0">Balance Changes/Buildings/BuildingCosts.sql</File>
     <File md5="0FA99E402FF6CADC45C93CE8B956DF39" import="0">Balance Changes/Buildings/BuildingHurryCosts.sql</File>
     <File md5="8575171C7E1C9A1DA6D03F8DB35B1273" import="0">Balance Changes/Buildings/CityDefense.sql</File>
-    <File md5="00899B1F760624BDA2DC5D2DEDAE592B" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
+    <File md5="BBA72136B5CBB8136D5A347D0FE5FE4B" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
     <File md5="316CF64D917DC847A548822EE31CDBE7" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
-    <File md5="0E43788209A6E79AEE553A21F47AD5C3" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
+    <File md5="9916B27EB4236B07C5920879F01A3567" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
     <File md5="6448F0A7F5C3D407197B68534BD5E9F6" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="C36A7D603D8D28E0CBE107D95D893FB9" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
     <File md5="5CC427A60F37BE9B98443DF1F009EB2E" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
@@ -380,10 +380,10 @@
     <File md5="EBB6189A522349B4210A9450337F7AD2" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
     <File md5="569FB4A5A75DEBA0CDF0B7618E9DB5C3" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
-    <File md5="A2ED5AB683D47B7A23E63E43523D0356" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
+    <File md5="BF0D6F5A7C4B3CDC1BA20BC93F156384" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
     <File md5="AA58B0905B50B03B520A7735A33301E6" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
     <File md5="68935F2C96862E55F2D394C97AAFEEA5" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
-    <File md5="C426E08C078721E756352B43AD85416E" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
+    <File md5="E9A69FEEA04E0C622ADDF16CE9D7AD90" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
     <File md5="EFAA52C4C2A0D22370C538E67EEB08E0" import="0">Balance Changes/Minors/QuestChanges.sql</File>
     <File md5="958FBFB37A90475CC7543BB79ED060F2" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
     <File md5="AC851E7A43B18C52535954EC2DDC37F9" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
@@ -397,7 +397,7 @@
     <File md5="284AD59B451BB0A8CA60033C8DAC0B01" import="0">Balance Changes/Policies/Liberty/Liberty.sql</File>
     <File md5="DB047C84C508C5B5850A10A1CB4D8F98" import="0">Balance Changes/Policies/Patronage/Patronage.sql</File>
     <File md5="AAED7BEEBA6214C484F6FE84BE859CCF" import="0">Balance Changes/Policies/Rationalism/Rationalism.sql</File>
-    <File md5="0670E65D43B3078B740482E7A84AD35F" import="0">Balance Changes/Policies/Tradition/Tradition.sql</File>
+    <File md5="C0D8596CE4603D150876AB273F2F94AC" import="0">Balance Changes/Policies/Tradition/Tradition.sql</File>
     <File md5="BC10C6D120151E5BC32901B82269AAE6" import="0">Balance Changes/Projects/NewProjects.xml</File>
     <File md5="F2A4623D7F178BAC489128761215C762" import="0">Balance Changes/Projects/Projects.sql</File>
     <File md5="45D9AAF7E146F9DDB9733292D648F5DE" import="0">Balance Changes/Specialists/GPChanges.sql</File>
@@ -419,11 +419,11 @@
     <File md5="2483F89F5ECEE7D7E325C725AF192C3D" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="098BD1AFFB1B4AEB67B7B610AB8AC8FB" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="076DAE7017C2F461B0C293316CB2FB06" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
-    <File md5="4851D0CF0CD03FB2EB6AC355DFACAC43" import="0">Balance Changes/Text/en_US/UIText.xml</File>
+    <File md5="764B0D1FDB1215CD1A271B593A8BC68F" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="E58D1C23CE516AAF659392615433FD50" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="A8EF000816529AEBDE0C68492538A8B1" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="7BCA19471ACB3A009CE1D48A9F73177C" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="0773D6EF2BA5155A2DB6B12CB2F71B27" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="9D4DED6173B168E276894EC6D2E04E9B" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="24BB8399CBE7AF3A65AF25E957E6FE39" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="0E661B9528F12DCB8D0A4DCBEBE0910F" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="68A80F9C597C23CC86E0F24D6A78AB4B" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -450,7 +450,7 @@
     <File md5="128AED0C9766875BE21335E5F98AD521" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
     <File md5="947C8FC6D9276A6A0117652F609B0C2C" import="0">Balance Changes/Wonders/NewWonders.xml</File>
     <File md5="787B6A3BD45A5472ED620F1F64BECE36" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
-    <File md5="BBEF6EF6ED1620B8D4014C80D91E7404" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
+    <File md5="362B20EDFC219AB0C9867E4DCE375FDB" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
     <File md5="CC83B83AB81435CD8A9AA268155FD57B" import="0">Balance Changes/Worlds/WorldSizes.sql</File>
     <File md5="141A4126B327E5610F6396C10F26322A" import="0">CommunityOptions.sql</File>
     <File md5="47C668AB87260601675D4B3A566FEF1A" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>

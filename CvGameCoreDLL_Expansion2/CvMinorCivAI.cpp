@@ -2807,7 +2807,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_COUP");
 		strMessage << strTargetNameKey;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COUP");
-		strSummary << strTargetNameKey;
 
 		iNotificationX = pCity->getX();
 		iNotificationY = pCity->getY();

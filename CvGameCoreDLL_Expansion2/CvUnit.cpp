@@ -19097,7 +19097,7 @@ int CvUnit::GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 {
 	if (plot() != NULL)
 	{
-		return plot()->GetNumFriendlyUnitsAdjacent(getTeam(), plot()->getDomain(), pUnitToExclude);
+		return plot()->GetNumFriendlyUnitsAdjacent(getTeam(), plot()->getDomain(), true, pUnitToExclude);
 	}
 	return 0;
 }

@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(2.7.2) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(2.7.3) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -26,7 +26,7 @@
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
     <File md5="9AE69E7FD299CA9C0CD4E574C5D2DE3B" import="1">EUI/DC45_UnitPromotions.dds</File>
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
-    <File md5="6F03F714A40A2EF7B35352A15E992ED8" import="0">EUI/EUI_text_en_us.xml</File>
+    <File md5="43CFF7ADF01EEA0B9949FF34B84EEFBB" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="98975D978486893BE07F3521CFEC4E3E" import="0">EUI/NeededText.xml</File>
     <File md5="FF611059BB1F44D14AD3455D37A9201A" import="1">LUA/CityBannerManager.lua</File>
     <File md5="73619449A132023E26FFE9B1C3134FBB" import="1">LUA/CityBannerManager.xml</File>
@@ -41,7 +41,7 @@
     <File md5="3125858296BA493F375BF6520FC55343" import="1">LUA/DiploCorner.lua</File>
     <File md5="66BFFDAC10E0E688F10948C69D752D91" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="C0AF7BEDBDFA9A83620D07CBAA28B4A7" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="B62370D993576D0F825EA235B6366593" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="A175817D0764E0D2D387381DE53B2CA1" import="1">LUA/LeaderHeadRoot.lua</File>

@@ -14829,40 +14829,34 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	return iNumEnemiesAdjacent;
 }
 
-int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, bool bAllowRanged, const CvUnit* pUnitToExclude) const
+int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, bool bCountRanged, const CvUnit* pUnitToExclude) const
 {
 	int iNumFriendliesAdjacent = 0;
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
-	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 	{
 		CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-		if(pLoopPlot != NULL)
+		if (pLoopPlot)
 		{
 			IDInfo* pUnitNode = pLoopPlot->headUnitNode();
 
 			// Loop through all units on this plot
-			while(pUnitNode != NULL)
+			while (pUnitNode != NULL)
 			{
 				CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
 				pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
 
-				// No NULL, and no unit we want to exclude
-				if(pLoopUnit && pLoopUnit != pUnitToExclude)
+				// Not NULL, not excluded, and must be a non-embarked combat unit on our team
+				if (pLoopUnit && pLoopUnit != pUnitToExclude && pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked() && pLoopUnit->getTeam() == eMyTeam)
 				{
-					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
-					{
-						// Same team?
-						if(pLoopUnit->getTeam() == eMyTeam)
-						{
-							// Must be same domain
-							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)
-							{
-								iNumFriendliesAdjacent++;
-							}
-						}
-					}
+					// Excluding ranged units?
+					if (pLoopUnit->IsCanAttackRanged() && !bCountRanged)
+						continue;
+
+					// Domain must match
+					if (eDomain == NO_DOMAIN || pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER)
+						iNumFriendliesAdjacent++;
 				}
 			}
 		}
