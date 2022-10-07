@@ -72,10 +72,8 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
-	int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
-#endif
+int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
 
 struct stringHash
 {
@@ -1317,10 +1315,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	CvCityManager::Reset();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	m_iGlobalAssetCounterAllPreviousTurns = 1000; //0 is invalid
 	m_iGlobalAssetCounterCurrentTurn = 0;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -8788,9 +8784,7 @@ void CvGame::doTurn()
 
 	m_kGameDeals.DoTurnPost();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	RollOverAssetCounter();
-#endif
 
 	//-------------------------------------------------------------
 	// old turn ends here, new turn starts
