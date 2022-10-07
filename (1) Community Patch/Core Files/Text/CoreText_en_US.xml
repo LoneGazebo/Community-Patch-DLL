@@ -2445,7 +2445,7 @@
 			<Text>Intelligence reports from {@2_CivName} indicate that {@1_CityName} is ripe for a coup. Complete this coup, and you will be greatly rewarded!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COUP">
-			<Text>Intelligence from {@1_CivName}</Text>
+			<Text>Intelligence from {@2_CivName}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_CITY_COMPLETE">
