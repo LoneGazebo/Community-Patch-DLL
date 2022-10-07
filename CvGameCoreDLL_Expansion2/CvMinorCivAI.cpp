@@ -6382,7 +6382,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
 		bCheckAllQuests = false;
 
-	bool bQuestRevokedFromBullying = false;
+	bool bQuestRevoked = false;
 
 	QuestListForPlayer::iterator itr_quest;
 	for(itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
@@ -6398,7 +6398,7 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 				if (bCancelled)
 				{
 					if(itr_quest->IsRevoked(bWar))
-						bQuestRevokedFromBullying = true;
+						bQuestRevoked = true;
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
 				}
@@ -6406,14 +6406,24 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 		}
 	}
 
-	// If quest(s) were revoked because of bullying, send out a notification
-	if(bQuestRevokedFromBullying)
-	{
-		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED");
-		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED");
-		strMessage << GetPlayer()->getNameKey();
-		strSummary << GetPlayer()->getNameKey();
-		AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
+	// If quest(s) were revoked because of bullying or war, send out a notification
+	if (bQuestRevoked && GetPlayer()->isAlive()) {
+		if (bWar)
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED_WAR");
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR");
+			strMessage << GetPlayer()->getNameKey();
+			strSummary << GetPlayer()->getNameKey();
+			AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
+		}
+		else
+		{
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED");
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED");
+			strMessage << GetPlayer()->getNameKey();
+			strSummary << GetPlayer()->getNameKey();
+			AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
+		}
 	}
 }
 
