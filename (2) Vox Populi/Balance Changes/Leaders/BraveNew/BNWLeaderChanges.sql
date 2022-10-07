@@ -426,11 +426,6 @@ VALUES
 	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_PRODUCTION', 2),
 	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_FOOD', 2);
 
-INSERT INTO Building_YieldModifiers
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_VENETIAN_ARSENALE', 'YIELD_PRODUCTION', 15);
-
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresAnyButOwner, AIPriority)
 VALUES

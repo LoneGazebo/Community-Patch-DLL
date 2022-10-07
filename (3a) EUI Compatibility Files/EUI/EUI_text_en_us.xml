@@ -475,6 +475,10 @@
 			<Text>[COLOR_HIGHLIGHT_TEXT]Empire[ENDCOLOR]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_VP_PUPPET_CITIES">
+			<Text>[ICON_PUPPET] puppets</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_EUI_RESOURCES_QUANTITY_TOTAL_REQUIRED">
 			<Text>Access required</Text>
 		</Row>

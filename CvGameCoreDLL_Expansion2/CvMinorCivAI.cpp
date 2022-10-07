@@ -1309,7 +1309,7 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Camp removed & cleared by this player?
-		return pPlot->getImprovementType() != GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->GetPlayerThatClearedBarbCampHere() == m_eAssignedPlayer;
+		return pPlot && pPlot->getImprovementType() != GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->GetPlayerThatClearedBarbCampHere() == m_eAssignedPlayer;
 	}
 	case MINOR_CIV_QUEST_CONNECT_RESOURCE:
 	{
@@ -1449,7 +1449,7 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Antiquity site removed & cleared by this player?
-		return pPlot->getResourceType() != GD_INT_GET(ARTIFACT_RESOURCE) && pPlot->GetPlayerThatClearedDigHere() == m_eAssignedPlayer;
+		return pPlot && pPlot->getResourceType() != GD_INT_GET(ARTIFACT_RESOURCE) && pPlot->GetPlayerThatClearedDigHere() == m_eAssignedPlayer;
 	}
 	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
 	{
@@ -1515,7 +1515,8 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Conquered or destroyed this city? NOTE: If the player liberated the city, it should still have the "previous owner" flag set
-		return (pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer)) || (!pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer);
+		return (pPlot && pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer)) || 
+			(pPlot && !pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer);
 	}
 	}
 
@@ -6340,21 +6341,21 @@ void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuest
 	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
 		bCheckAllQuests = false;
 
-	QuestListForPlayer::iterator itr_quest;
-	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+	//do not use an iterator here!
+	//finishing one quest may generate new ones, potentially invalidating the iterator!
+	for (size_t i = 0; i < m_QuestsGiven[ePlayer].size(); i++)
 	{
-		if (bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
+		CvMinorCivQuest& quest = m_QuestsGiven[ePlayer][i];
+		if (bCheckAllQuests || quest.GetType() == eSpecifyQuestType)
 		{
-			if (itr_quest->IsComplete())
+			if (quest.IsComplete())
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				bool bCompleted = itr_quest->DoFinishQuest();
+				bool bCompleted = quest.DoFinishQuest();
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				
 				if (bCompleted)
-				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
-				}
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, quest.GetType());
 			}
 		}
 	}

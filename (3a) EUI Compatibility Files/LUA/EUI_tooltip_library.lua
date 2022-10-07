@@ -2695,9 +2695,11 @@ local function GetMoodInfo( playerID )
 		end
 	end
 	-- Population
+	local numpuppets = player:GetNumPuppetCities()
 	tips:insert( player:GetTotalPopulation() .. "[ICON_CITIZEN]"
 			.. ", "
 			.. player:GetNumCities() .. " " .. Locale_ToLower("TXT_KEY_VP_CITIES")
+			.. (numpuppets>0 and " (" .. numpuppets .. L"TXT_KEY_VP_PUPPET_CITIES" .. ")" or "")
 			.. ", "
 			.. player:GetNumWorldWonders() .. " " .. Locale_ToLower("TXT_KEY_VP_WONDERS")
 			.. (#wonders>0 and ": " .. wonders:concat( ", " ) or "") )

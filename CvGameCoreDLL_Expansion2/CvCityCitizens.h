@@ -24,6 +24,9 @@ struct SPrecomputedExpensiveNumbers
 	int iIlliteracy;
 	int iBoredom;
 	int iReligiousUnrest;
+	bool bWantArt;
+	bool bWantScience;
+	bool bWantDiplo;
 
 	vector<vector<int>> bonusForXTerrain;
 	vector<vector<int>> bonusForXFeature;

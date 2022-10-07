@@ -12105,7 +12105,7 @@ bool CvUnit::canTrade(const CvPlot* pPlot, bool bTestVisible) const
 		return false;
 	}
 
-	if (m_pUnitInfo->GetBaseGold() == 0 && GetDiploMissionInfluence() == 0)
+	if (GetGoldBlastStrength() == 0 && GetDiploMissionInfluence() == 0)
 	{
 		return false;
 	}
@@ -28581,16 +28581,17 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
 	//sometimes we should heal but we have to fight instead
-	int iHpLimit = GetMaxHitPoints() / 3;
-	if (bBeforeAttacks && GetCurrHitPoints() > iHpLimit && TacticalAIHelpers::GetFirstTargetInRange(this))
-		return false;
+	if (bBeforeAttacks)
+	{
+		//also depends on what we can do with the unit
+		int iHpLimit = GetMaxHitPoints() / 3;
+		return GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+	}
 
 	//typically want to start healing before health becomes critical
 	int iAcceptableDamage = 20;
-	if (bAllowMoreDamage)
+	if (bAllowMoreDamage || iMaxHealRate==0)
 		iAcceptableDamage = 50;
-	if (iMaxHealRate == 0)
-		iAcceptableDamage = 80;
 
 	return getDamage() > iAcceptableDamage;
 }

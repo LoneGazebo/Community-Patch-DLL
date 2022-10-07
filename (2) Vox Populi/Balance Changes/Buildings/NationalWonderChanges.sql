@@ -136,7 +136,7 @@ WHERE Type = 'BUILDING_PALACE';
 
 -- Hermitage Remove Culture Mod
 UPDATE Buildings
-SET CultureRateModifier = '10'
+SET CultureRateModifier = '0'
 WHERE Type = 'BUILDING_HERMITAGE';
 
 -- Oxford Change
