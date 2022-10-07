@@ -1495,6 +1495,12 @@
 		<Row Tag="TXT_KEY_CITYVIEW_RESET_SPEC_TT">
 			<Text>Click here to have the governor reassign specialists.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED_WAR">
+			<Text>Because you are at war with {1_MinorCivName:textkey}, they have revoked quests previously offered to you.  The war must end before they will offer you quests again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
+			<Text>{1_MinorCivName:textkey} revokes quests</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>

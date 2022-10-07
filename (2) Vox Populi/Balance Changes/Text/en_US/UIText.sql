@@ -625,6 +625,11 @@ UPDATE Language_en_US
 SET Text = 'A Lumbermill allows you to improve the Production output of forest tiles. Gains additional Production for every two adjacent Lumbermills, so try to build them in clusters of three if possible.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT';
 
+-- We Love the King Day
+
+UPDATE Language_en_US
+SET Text = 'Because you have {1_Resource:textkey}, the city of {2_CityName:textkey} enters "We Love the King Day", giving it a [ICON_FOOD] growth bonus!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_WLTKD';
 
 -- Founding Cities
 
