@@ -1309,7 +1309,7 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Camp removed & cleared by this player?
-		return pPlot->getImprovementType() != GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->GetPlayerThatClearedBarbCampHere() == m_eAssignedPlayer;
+		return pPlot && pPlot->getImprovementType() != GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && pPlot->GetPlayerThatClearedBarbCampHere() == m_eAssignedPlayer;
 	}
 	case MINOR_CIV_QUEST_CONNECT_RESOURCE:
 	{
@@ -1449,7 +1449,7 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Antiquity site removed & cleared by this player?
-		return pPlot->getResourceType() != GD_INT_GET(ARTIFACT_RESOURCE) && pPlot->GetPlayerThatClearedDigHere() == m_eAssignedPlayer;
+		return pPlot && pPlot->getResourceType() != GD_INT_GET(ARTIFACT_RESOURCE) && pPlot->GetPlayerThatClearedDigHere() == m_eAssignedPlayer;
 	}
 	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
 	{
@@ -1515,7 +1515,8 @@ bool CvMinorCivQuest::IsComplete()
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Conquered or destroyed this city? NOTE: If the player liberated the city, it should still have the "previous owner" flag set
-		return (pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer)) || (!pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer);
+		return (pPlot && pPlot->isCity() && (pPlot->getPlotCity()->getOwner() == m_eAssignedPlayer || pPlot->getPlotCity()->getPreviousOwner() == m_eAssignedPlayer)) || 
+			(pPlot && !pPlot->isCity() && pPlot->GetPlayerThatDestroyedCityHere() == m_eAssignedPlayer);
 	}
 	}
 

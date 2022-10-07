@@ -845,26 +845,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 
 	int iValue = 0;
-
 	CityAIFocusTypes eFocus = GetFocusType();
-	bool bWantArt = false;
-	bool bWantScience = false;
-	bool bWantDiplo = false;
-	if (!GetPlayer()->isHuman())
-	{
-		if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
-		{
-			bWantArt = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-		{
-			bWantScience = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
-		{
-			bWantDiplo = true;
-		}
-	}
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
@@ -924,7 +905,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{
 		iMod += GetPlayer()->getGreatScientistRateModifier();
-		if (bWantScience)
+		if (cache.bWantScience)
 		{
 			iMod += 20;
 		}
@@ -936,7 +917,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
 		}
 		iMod += GetPlayer()->getGreatWriterRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -948,7 +929,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
 		}
 		iMod += GetPlayer()->getGreatArtistRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -960,7 +941,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
 		}
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -968,7 +949,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 	{
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
-		if (bWantDiplo)
+		if (cache.bWantDiplo)
 		{
 			iMod += 20;
 		}
@@ -976,7 +957,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 	{
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
-		if (bWantScience || bWantArt)
+		if (cache.bWantScience || cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -984,7 +965,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if (MOD_BALANCE_VP && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
-		if (bWantDiplo)
+		if (cache.bWantDiplo)
 		{
 			iMod += 20;
 		}
@@ -1097,11 +1078,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			else
 			{
 				iMod += (iEmptySlots * 2);
-			}
-
-			if (bWantArt)
-			{
-				iMod += 10;
 			}
 		}
 	}
@@ -3533,7 +3509,10 @@ SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	iBoredom(0),
 	iReligiousUnrest(0),
 	iExcessFoodTimes100(0),
-	iFoodCorpMod(0)
+	iFoodCorpMod(0),
+	bWantArt(false),
+	bWantScience(false),
+	bWantDiplo(false)
 {
 }
 
@@ -3556,4 +3535,18 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	for (size_t i = 0; i < bonusForXTerrain.size(); i++)
 		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
 			bonusForXTerrain[i][j] = INT_MAX;
+
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	if (kPlayer.isHuman())
+	{
+		bWantArt = false;
+		bWantScience = false;
+		bWantDiplo = false;
+	}
+	else
+	{
+		bWantArt = kPlayer.GetPlayerTraits()->IsTourism() || kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() || kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory();
+		bWantScience = kPlayer.GetPlayerTraits()->IsNerd() || kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+		bWantDiplo = kPlayer.GetPlayerTraits()->IsDiplomat() || kPlayer.GetDiplomacyAI()->IsGoingForDiploVictory() || kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory();
+	}
 }

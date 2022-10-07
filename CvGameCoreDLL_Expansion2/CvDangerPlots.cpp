@@ -478,8 +478,12 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 	if (pUnit->isInvisible(GET_PLAYER(m_ePlayer).getTeam(), false))
 		return true;
 
-	//invisible but revealed camp. count the unit there anyways (for AI)
-	bIgnoreVisibility |= (pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !GET_PLAYER(m_ePlayer).isHuman());
+	//invisible but revealed camp/city. count the unit there anyways (for AI), humans would guess so
+	if (!GET_PLAYER(m_ePlayer).isHuman())
+	{
+		bIgnoreVisibility |= pUnit->plot()->isCity();
+		bIgnoreVisibility |= pUnit->plot()->getRevealedImprovementType(pUnit->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+	}
 
 	if(!pUnit->plot()->isVisible(GET_PLAYER(m_ePlayer).getTeam()) && !bIgnoreVisibility)
 		return true;

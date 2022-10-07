@@ -14829,7 +14829,7 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 	return iNumEnemiesAdjacent;
 }
 
-int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude) const
+int CvPlot::GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, bool bAllowRanged, const CvUnit* pUnitToExclude) const
 {
 	int iNumFriendliesAdjacent = 0;
 
