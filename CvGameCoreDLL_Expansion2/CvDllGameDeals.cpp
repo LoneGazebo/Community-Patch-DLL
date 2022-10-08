@@ -80,7 +80,7 @@ CvGameDeals* CvDllGameDeals::GetInstance()
 //------------------------------------------------------------------------------
 void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	if(pkDeal != NULL)
 	{
 		m_pGameDeals->AddProposedDeal(*pkDeal);
@@ -110,7 +110,7 @@ ICvDeal1* CvDllGameDeals::GetTempDeal()
 //------------------------------------------------------------------------------
 void CvDllGameDeals::SetTempDeal(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	m_pGameDeals->SetTempDeal(pkDeal);
 }
 //------------------------------------------------------------------------------

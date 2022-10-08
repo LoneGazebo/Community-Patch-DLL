@@ -117,7 +117,7 @@ ICvCity1* CvDllMap::FindCity(int iX,
 	CvCity* pkSkipCity = NULL;
 	if(pSkipCity)
 	{
-		pkSkipCity = static_cast<CvDllCity*>(pSkipCity)->GetInstance();
+		pkSkipCity = dynamic_cast<CvDllCity*>(pSkipCity)->GetInstance();
 	}
 
 	CvCity* pkCity = m_pMap->findCity(iX, iY, eOwner, eTeam, bSameArea, bCoastalOnly, eTeamAtWarWith, eDirection, pkSkipCity);

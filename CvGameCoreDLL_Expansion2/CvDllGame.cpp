@@ -131,7 +131,7 @@ int CvDllGame::CountNumHumanGameTurnActive()
 //------------------------------------------------------------------------------
 bool CvDllGame::CyclePlotUnits(ICvPlot1* pPlot, bool bForward, bool bAuto, int iCount)
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	return m_pGame->cyclePlotUnits(pkPlot, bForward, bAuto, iCount);
 }
 //------------------------------------------------------------------------------
@@ -237,7 +237,7 @@ bool CvDllGame::GetPbemTurnSent() const
 //------------------------------------------------------------------------------
 ICvUnit1* CvDllGame::GetPlotUnit(ICvPlot1* pPlot, int iIndex)
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	CvUnit* pkUnit = m_pGame->getPlotUnit(pkPlot, iIndex);
 
 	return (NULL != pkUnit)? new CvDllUnit(pkUnit) : NULL;
@@ -387,13 +387,13 @@ void CvDllGame::ResetTurnTimer()
 //------------------------------------------------------------------------------
 void CvDllGame::SelectAll(ICvPlot1* pPlot)
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	m_pGame->selectAll(pkPlot);
 }
 //------------------------------------------------------------------------------
 void CvDllGame::SelectGroup(ICvUnit1* pUnit, bool bShift, bool bCtrl, bool bAlt)
 {
-	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 	m_pGame->selectGroup(pkUnit, bShift, bCtrl, bAlt);
 }
 //------------------------------------------------------------------------------
@@ -404,7 +404,7 @@ bool CvDllGame::SelectionListIgnoreBuildingDefense()
 //------------------------------------------------------------------------------
 void CvDllGame::SelectionListMove(ICvPlot1* pPlot, bool bShift)
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	m_pGame->selectionListMove(pkPlot, bShift);
 }
 //------------------------------------------------------------------------------
@@ -415,7 +415,7 @@ void CvDllGame::SelectSettler()
 //------------------------------------------------------------------------------
 void CvDllGame::SelectUnit(ICvUnit1* pUnit, bool bClear, bool bToggle, bool bSound)
 {
-	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 	m_pGame->selectUnit(pkUnit, bClear, bToggle, bSound);
 }
 //------------------------------------------------------------------------------

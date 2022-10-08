@@ -97,7 +97,7 @@ void CvDllPlot::UpdateCenterUnit()
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsAdjacent(ICvPlot1* pPlot) const
 {
-	CvPlot* pkPlot = (pPlot != NULL)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (pPlot != NULL)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	return m_pPlot->isAdjacent(pkPlot);
 }
 //------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ bool CvDllPlot::IsCity() const
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsEnemyCity(ICvUnit1* pUnit) const
 {
-	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 	if(pkUnit != NULL)
 		return m_pPlot->isEnemyCity(*pkUnit);
 	else
@@ -334,13 +334,13 @@ ICvUnit1* CvDllPlot::GetUnitByIndex(int iIndex) const
 //------------------------------------------------------------------------------
 void CvDllPlot::AddUnit(ICvUnit1* pUnit, bool bUpdate)
 {
-	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 	return m_pPlot->addUnit(pkUnit, bUpdate);
 }
 //------------------------------------------------------------------------------
 void CvDllPlot::RemoveUnit(ICvUnit1* pUnit, bool bUpdate)
 {
-	CvUnit* pkUnit = (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 	return m_pPlot->removeUnit(pkUnit, bUpdate);
 }
 //------------------------------------------------------------------------------
