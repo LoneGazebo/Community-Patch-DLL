@@ -163,7 +163,7 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 /// Helper function to read a single resource type ID as a hash and convert it to an ID
 int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
-	uint uiHash;
+	uint uiHash = 0;
 	if(bValid) *bValid = true;
 	kStream >> uiHash;
 	if(uiHash != 0)

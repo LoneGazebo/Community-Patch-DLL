@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 CvReplayMessage::CvReplayMessage()
 	: m_iTurn(-1)
-	, m_eType(NO_REPLAY_MESSAGE)
+	, m_eType(NO_REPLAY_MESSAGE), m_Plots()
 	, m_ePlayer(NO_PLAYER)
 {
 }

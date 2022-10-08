@@ -249,7 +249,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 			}
 		}
 
-		int iNumResource;
+		int iNumResource = 0;
 
 		// Update the amount of a Resource used up by popped Build
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -889,7 +889,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						        (kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT()))
 						{
 							// How long does the camera wait before jumping to the next item?
-							int iCameraTime;
+							int iCameraTime = 0;
 
 							if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
 							{
@@ -950,7 +950,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 /// Eligible to start a new mission?
 bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int iData2, CvPlot* pPlot, bool bTestVisible)
 {
-	CvUnit* pTargetUnit;
+	CvUnit* pTargetUnit = NULL;
 
 	if(hUnit->IsBusy())
 	{
@@ -1342,9 +1342,9 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 /// Initiate a mission
 void CvUnitMission::StartMission(CvUnit* hUnit)
 {
-	bool bDelete;
-	bool bAction;
-	bool bNotify;
+	bool bDelete = 0;
+	bool bAction = 0;
+	bool bNotify = 0;
 
 	static int stackDepth = 0;
 	++stackDepth; // JAR debugging
@@ -1980,11 +1980,11 @@ CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 //		 exhausting its mission queue all in one go.
 int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 {
-	CvUnit* pTargetUnit;
-	CvPlot* pTargetPlot;
+	CvUnit* pTargetUnit = NULL;
+	CvPlot* pTargetPlot = NULL;
 	int iTime = 0;
 
-	MissionData* pkMissionNode;
+	MissionData* pkMissionNode = NULL;
 	if(!hUnit->isHuman())
 	{
 		iTime = 0;
@@ -2108,7 +2108,7 @@ void CvUnitMission::InsertAtEndMissionQueue(CvUnit* hUnit, MissionData mission, 
 /// Delete a specific mission from queue
 MissionData* CvUnitMission::DeleteMissionData(CvUnit* hUnit, MissionData* pNode)
 {
-	MissionData* pNextMissionNode;
+	MissionData* pNextMissionNode = NULL;
 
 	CvAssertMsg(pNode != NULL, "Node is not assigned a valid value");
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -2288,7 +2288,7 @@ const MissionData* CvUnitMission::IsHeadMission(CvUnit* hUnit, int iMission)
 //	Returns true if the is a move mission at the head of the unit queue and it is complete
 bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 {
-	MissionData* pkMissionNode;
+	MissionData* pkMissionNode = NULL;
 	if((pkMissionNode = HeadMissionData(hUnit->m_missionQueue)) != NULL)
 	{
 		MissionData& kMissionData = *pkMissionNode;

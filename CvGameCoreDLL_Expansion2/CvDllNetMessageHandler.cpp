@@ -1270,7 +1270,7 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 			args->Push(iCityID);
 			args->Push(eBuilding);
 
-			bool bResult;
+			bool bResult = 0;
 			LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_CITY)

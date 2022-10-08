@@ -59,8 +59,8 @@ namespace NetMessageExt
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iEspionageValue, PlayerTypes eSpyOwner)
 		{
 			CvPlayer& kActualPlayer = GET_PLAYER(ePlayer);
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for (pLoopCity = kActualPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kActualPlayer.nextCity(&iLoop))
 			{
 				if (pLoopCity->GetID() == iCityID)

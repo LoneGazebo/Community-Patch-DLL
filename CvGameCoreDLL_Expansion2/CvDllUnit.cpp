@@ -206,7 +206,7 @@ void CvDllUnit::GetPosition(int& iX, int& iY) const
 //------------------------------------------------------------------------------
 bool CvDllUnit::CanSwapWithUnitHere(ICvPlot1* pPlot) const
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	FAssert(pkPlot != NULL);
 	if(pkPlot != NULL)
 		return m_pUnit->CanSwapWithUnitHere(*pkPlot);
@@ -216,8 +216,8 @@ bool CvDllUnit::CanSwapWithUnitHere(ICvPlot1* pPlot) const
 //------------------------------------------------------------------------------
 bool CvDllUnit::CanEmbarkOnto(ICvPlot1* pOriginPlot, ICvPlot1* pTargetPlot, bool bOverrideEmbarkedCheck) const
 {
-	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? static_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
-	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? static_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
+	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? dynamic_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
+	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? dynamic_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
 	FAssert(pkOriginPlot != NULL);
 	FAssert(pkTargetPlot != NULL);
 
@@ -229,8 +229,8 @@ bool CvDllUnit::CanEmbarkOnto(ICvPlot1* pOriginPlot, ICvPlot1* pTargetPlot, bool
 //------------------------------------------------------------------------------
 bool CvDllUnit::CanDisembarkOnto(ICvPlot1* pOriginPlot, ICvPlot1* pTargetPlot, bool bOverrideEmbarkedCheck) const
 {
-	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? static_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
-	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? static_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
+	CvPlot* pkOriginPlot = (NULL != pOriginPlot)? dynamic_cast<CvDllPlot*>(pOriginPlot)->GetInstance() : NULL;
+	CvPlot* pkTargetPlot = (NULL != pTargetPlot)? dynamic_cast<CvDllPlot*>(pTargetPlot)->GetInstance() : NULL;
 	FAssert(pkOriginPlot != NULL);
 	FAssert(pkTargetPlot != NULL);
 	if(pkOriginPlot != NULL && pkTargetPlot != NULL)
@@ -291,7 +291,7 @@ int CvDllUnit::MovesLeft() const
 //------------------------------------------------------------------------------
 bool CvDllUnit::CanMoveInto(ICvPlot1* pPlot, byte bMoveFlags) const
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	if(pkPlot != NULL)
 		return m_pUnit->canMoveInto(*pkPlot, bMoveFlags);
 	else
@@ -300,7 +300,7 @@ bool CvDllUnit::CanMoveInto(ICvPlot1* pPlot, byte bMoveFlags) const
 //------------------------------------------------------------------------------
 TeamTypes CvDllUnit::GetDeclareWarMove(ICvPlot1* pPlot) const
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	if(pkPlot != NULL)
 		return m_pUnit->GetDeclareWarMove(*pkPlot);
 	else

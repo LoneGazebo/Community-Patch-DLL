@@ -125,7 +125,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 	// traversing the hex grid.
 
 	// Make DX and DY positive and adjust the step constant for the opposite axis.
-	int stepY;
+	int stepY = 0;
 	if (dy < 0) 
 	{ 
 		dy = -dy;  
@@ -134,7 +134,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 	else 
 		stepY = 1; 
 
-	int stepX;
+	int stepX = 0;
 	if (dx < 0) 
 	{ 
 		dx = -dx;  
@@ -356,7 +356,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 	// traversing the hex grid.
 
 	// Make DX and DY positive and adjust the step constant for the opposite axis.
-	int stepY;
+	int stepY = 0;
 	if (dy < 0) 
 	{ 
 		dy = -dy;  
@@ -365,7 +365,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 	else 
 		stepY = 1; 
 
-	int stepX;
+	int stepX = 0;
 	if (dx < 0) 
 	{ 
 		dx = -dx;  
