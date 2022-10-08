@@ -1381,7 +1381,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			break;
 		}
 
-		if (0) // (pLog)
+		if (false) // (pLog)
 		{
 			CvString strOutBuf;
 			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d with forced work status %d. current net food %d", 

@@ -378,7 +378,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 
 	//here the magic happens
 	bool bSuccess = false;
-	while(1)
+	while(true)
 	{
 		m_iRounds++;
 
