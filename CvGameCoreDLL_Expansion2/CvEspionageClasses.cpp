@@ -7003,19 +7003,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 
 
 			int iDiploModifier = 100;
-			if (pDiploAI->IsWantsSneakAttack(eTargetPlayer))
+			if (GET_TEAM(eTeam).isAtWar(eTargetTeam) || pDiploAI->GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
 			{
-				iDiploModifier += 20;
-			}
-			else if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
-			{
-				// ignore promises
 				// bonus targeting!
 				iDiploModifier += 20;
 			}
-			else // we're not at war with them, so look at other factors
+			else // we're not at war with them, so look at other factors -- FIXME: Why are quests not being considered if at war?
 			{
-				
 				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
 					PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
