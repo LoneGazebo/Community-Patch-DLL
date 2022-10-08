@@ -378,6 +378,7 @@ protected:
 	static int lGetUnhappinessFromPuppetCityPopulation(lua_State* L);
 	static int lGetUnhappinessFromOccupiedCities(lua_State* L);
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
+	static int lGetUnhappinessFromPuppetCitySpecialists(lua_State* L);
 
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetWarWeariness, int);

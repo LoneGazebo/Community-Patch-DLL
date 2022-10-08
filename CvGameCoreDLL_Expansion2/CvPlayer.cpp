@@ -22623,6 +22623,20 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 	return (int)iUnhappiness;
 }
 
+int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
+{
+	int iSpecialistUnhappiness = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+		{
+			iSpecialistUnhappiness += pLoopCity->getUnhappinessFromSpecialists(pLoopCity->GetCityCitizens()->GetTotalSpecialistCount());
+		}
+	}
+	return(iSpecialistUnhappiness);
+}
+
 //	--------------------------------------------------------------------------------
 /// Unhappiness from City Population in Occupied Cities
 int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const

@@ -390,6 +390,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCitySpecialists);
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
+	Method(GetUnhappinessFromPuppetCitySpecialists);
 	Method(GetUnhappinessFromPublicOpinion);
 
 	Method(GetUnhappinessFromWarWeariness);
@@ -4182,6 +4183,12 @@ int CvLuaPlayer::lGetUnhappinessFromCitySpecialists(lua_State* L)
 int CvLuaPlayer::lGetUnhappinessFromPuppetCityPopulation(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromPuppetCityPopulation);
+}
+
+//int GetUnhappinessFromPuppetCitySpecialists() const;
+int CvLuaPlayer::lGetUnhappinessFromPuppetCitySpecialists(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromPuppetCitySpecialists);
 }
 
 //------------------------------------------------------------------------------

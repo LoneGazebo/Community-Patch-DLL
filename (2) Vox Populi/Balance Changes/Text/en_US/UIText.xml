@@ -993,6 +993,9 @@
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
 			<Text>{1_Num} from [ICON_RELIGION] Religious Unrest.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS">
+			<Text>{1_Num} from [ICON_URBANIZATION] Urbanization in [ICON_PUPPET] Puppet Cities.</Text>
+		</Row>
 
 		<!-- Economic Overview -->
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
