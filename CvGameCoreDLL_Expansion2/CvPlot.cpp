@@ -2630,32 +2630,16 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
 					{
-						bool bCityStateTerritory = false;
 						if (isOwned() && GET_PLAYER(getOwner()).isMinorCiv())
 						{
-							bCityStateTerritory = true;
-
-							// Let's check for Embassies.
+							// If this is an embassy, check for existing embassies
 							if (GC.getImprovementInfo(eImprovement)->IsEmbassy())
 							{
-								int iCityLoop;
-								for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-								{
-									for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-									{
-										CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-										if (pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
-										{
-											if (pCityPlot->IsImprovementEmbassy())
-												return false;
-										}
-									}
-								}
+								if (GET_PLAYER(getOwner()).getImprovementCount(eImprovement, false) > 0)
+									return false;
 							}
 						}
-
-						if (!bCityStateTerritory)
+						else
 							return false;
 					}
 					else if(getTeam() != eTeam) 
