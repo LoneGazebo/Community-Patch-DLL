@@ -4,8 +4,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_API_ACHIEVEMENTS)
-
 CvAchievementInfo::CvAchievementInfo() :
 	m_bBroken(false),
 	m_bAchieved(false)
@@ -76,5 +74,3 @@ CvAchievementInfo* CvAchievementXMLEntries::GetEntry(EAchievement index)
 {
 	return m_paAchievementEntries[index];
 }
-
-#endif

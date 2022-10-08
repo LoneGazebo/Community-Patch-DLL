@@ -4051,8 +4051,8 @@ void CvPlayerCulture::DoTurn()
 		}
 	}
 #endif
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		// check for having city-state artifacts
 		std::vector<int> aiCityStateArtifact;
@@ -4172,7 +4172,7 @@ void CvPlayerCulture::DoTurn()
 			}
 		}
 	}	
-#endif
+
 	LogCultureData();
 }
 #if defined(MOD_BALANCE_CORE)
@@ -7782,12 +7782,10 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 					{
 						iRtnValue = iRtnValue * (100 + iModifier) / 100;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-						if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
+						if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 						}
-#endif
 					}
 				}
 			}

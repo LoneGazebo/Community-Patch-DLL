@@ -6100,17 +6100,18 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 	if(GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
-#if defined(MOD_API_ACHIEVEMENTS)
-		CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
-
-		if(	GC.getGame().getActivePlayer() == ePlayer &&
-			strcmp(pkTechInfo->GetType(), "TECH_SATELLITES") == 0 &&
-			strcmp(kResearchingPlayer.getCivilizationTypeKey(), "CIVILIZATION_HUNS") == 0 &&
-			strcmp(GC.getMap().getWorldInfo().GetType(), "WORLDSIZE_HUGE") == 0)
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_30);
+			CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
+
+			if(	GC.getGame().getActivePlayer() == ePlayer &&
+				strcmp(pkTechInfo->GetType(), "TECH_SATELLITES") == 0 &&
+				strcmp(kResearchingPlayer.getCivilizationTypeKey(), "CIVILIZATION_HUNS") == 0 &&
+				strcmp(GC.getMap().getWorldInfo().GetType(), "WORLDSIZE_HUGE") == 0)
+			{
+				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_30);
+			}
 		}
-#endif
 
 		if(pkTechInfo->IsRepeat())
 		{

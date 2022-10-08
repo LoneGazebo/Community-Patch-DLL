@@ -559,12 +559,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	CvString strNewCityName = owningPlayer.getNewCityName();
 	setName(strNewCityName.c_str());
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
+	if (MOD_API_ACHIEVEMENTS && strcmp(strNewCityName.c_str(), "TXT_KEY_CITY_NAME_LLANFAIRPWLLGWYNGYLL") == 0)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_34);
 	}
-#endif
 
 	if (bInitialFounding)
 	{
@@ -966,16 +964,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			{
 				changeOverflowProduction(/*0*/ GD_INT_GET(INITIAL_AI_CITY_PRODUCTION));
 			}
-#if defined(MOD_API_ACHIEVEMENTS)
-			else
+			else if (MOD_API_ACHIEVEMENTS)
 			{
 				CvAchievementUnlocker::UnlockFromDatabase();
 			}
-#endif
 		}
 	}
 
-	// Do this only after the capital has been chosen
 	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
 	{
 		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
@@ -2706,9 +2701,9 @@ void CvCity::doTurn()
 		updateStrengthValue();
 
 		DoNearbyEnemy();
-#if defined(MOD_API_ACHIEVEMENTS)
+
 		//Check for Achievements
-		if (isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			if (getJONSCulturePerTurn() >= 100)
 			{
@@ -2723,7 +2718,7 @@ void CvCity::doTurn()
 				gDLL->UnlockAchievement(ACHIEVEMENT_CITY_100SCIENCE);
 			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		if (!bWeGrew)
 		{
@@ -10707,9 +10702,8 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 	{
 		pUnit->changeExperienceTimes100(getProductionExperience(pUnit->getUnitType()) * 100 / ((HalveXP) ? 2 : 1));
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		// XP2 Achievement
-		if (getOwner() != NO_PLAYER)
+		if (MOD_API_ACHIEVEMENTS && getOwner() != NO_PLAYER)
 		{
 			CvPlayer& kOwner = GET_PLAYER(getOwner());
 			if (!GC.getGame().isGameMultiPlayer() && kOwner.isHuman() && kOwner.isLocalPlayer())
@@ -10726,7 +10720,6 @@ void CvCity::addProductionExperience(CvUnit* pUnit, bool bConscript, bool bGoldP
 				}
 			}
 		}
-#endif
 	}
 
 	vector<PromotionTypes> freePromotions = getFreePromotions();
@@ -29040,13 +29033,11 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 	}
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievement test for purchasing 1000 tiles
-	if (thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && thisPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESPURCHASED, 1000, ACHIEVEMENT_PURCHASE_1000TILES);
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -30481,9 +30472,8 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 
 	m_pCityBuildings->SetNumRealBuilding(eBuildingType, m_pCityBuildings->GetNumRealBuilding(eBuildingType) + 1);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements
-	if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		CvBuildingClassInfo* pBuildingClass = GC.getBuildingClassInfo(eBuildingClass);
 		if (pBuildingClass && ::isWorldWonderClass(*pBuildingClass))
@@ -30515,7 +30505,6 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 
 		CheckForAchievementBuilding(eBuildingType);
 	}
-#endif
 
 	return true;
 }
@@ -31975,10 +31964,10 @@ bool CvCity::doCheckProduction()
 
 					CvInterfacePtr<ICvCity1> pDllCity(new CvDllCity(this));
 					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes)eExpiredBuilding, 0);
-#if defined(MOD_API_ACHIEVEMENTS)
+
 					//Add "achievement" for sucking it up
-					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
-#endif
+					if (MOD_API_ACHIEVEMENTS)
+						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
 				}
 
 				iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
@@ -33699,11 +33688,13 @@ bool CvCity::IsInDangerFromPlayers(vector<PlayerTypes>& vWarAllies) const
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 {
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if (pkBuildingInfo == NULL)
 		return;
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	const char* szBuildingTypeChar = pkBuildingInfo->GetType();
 	CvString szBuilding = szBuildingTypeChar;
 
@@ -33774,15 +33765,16 @@ void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)
 			}
 		}
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
 void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 {
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	CvString szUnitType = pUnit->getUnitInfo().GetType();
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	if (szUnitType == "UNIT_WARRIOR")
 	{
 		gDLL->IncrementSteamStat(ESTEAMSTAT_WARRIOR);
@@ -34116,7 +34108,6 @@ void CvCity::IncrementUnitStatCount(CvUnit* pUnit)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_UNITS);
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------

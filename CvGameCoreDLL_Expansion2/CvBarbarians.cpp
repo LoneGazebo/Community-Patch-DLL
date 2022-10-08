@@ -142,14 +142,11 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
 					CancelActivePlayerEndTurn();
 
-#if defined(MOD_API_ACHIEVEMENTS)
 					//Increment Stat
-					if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+					if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 					{
 						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
 					}
-#endif
-
 				}
 			}
 

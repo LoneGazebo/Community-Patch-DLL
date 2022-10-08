@@ -2094,11 +2094,9 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
-#if defined(MOD_API_ACHIEVEMENTS)
-						activePlayer.GetPlayerAchievements().EndTurn();
-#endif
+						if (MOD_API_ACHIEVEMENTS)
+							activePlayer.GetPlayerAchievements().EndTurn();
 
-#if defined(MOD_EVENTS_RED_TURN)
 						if (MOD_EVENTS_RED_TURN)
 						// RED <<<<<
 						{
@@ -2114,12 +2112,12 @@ void CvGame::updateTestEndTurn()
 							}
 						}
 						// RED >>>>>
-#endif
 
 						gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-						CvAchievementUnlocker::EndTurn();
-#endif
+
+						if (MOD_API_ACHIEVEMENTS)
+							CvAchievementUnlocker::EndTurn();
+
 						m_endTurnTimer.Start();
 					}
 				}
@@ -2199,11 +2197,9 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
-#if defined(MOD_API_ACHIEVEMENTS)
-									activePlayer.GetPlayerAchievements().EndTurn();
-#endif
+									if (MOD_API_ACHIEVEMENTS)
+										activePlayer.GetPlayerAchievements().EndTurn();
 
-#if defined(MOD_EVENTS_RED_TURN)
 									if (MOD_EVENTS_RED_TURN)
 									// RED <<<<<
 									{
@@ -2219,12 +2215,11 @@ void CvGame::updateTestEndTurn()
 										}
 									}
 									// RED >>>>>
-#endif
 
 									gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-									CvAchievementUnlocker::EndTurn();
-#endif
+
+									if (MOD_API_ACHIEVEMENTS)
+										CvAchievementUnlocker::EndTurn();
 								}
 
 								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
@@ -3600,7 +3595,7 @@ void CvGame::doControl(ControlTypes eControl)
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-#if defined(MOD_EVENTS_RED_TURN)
+
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
 			{
@@ -3616,15 +3611,15 @@ void CvGame::doControl(ControlTypes eControl)
 				}
 			}
 			// RED >>>>>
-#endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-			kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+				kActivePlayer.GetPlayerAchievements().EndTurn();
+
 			gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvAchievementUnlocker::EndTurn();
-#endif
+
+			if (MOD_API_ACHIEVEMENTS)
+				CvAchievementUnlocker::EndTurn();
+
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 		break;
@@ -3634,33 +3629,33 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-			kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+			{
+				CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
+				kActivePlayer.GetPlayerAchievements().EndTurn();
+			}
 
-#if defined(MOD_EVENTS_RED_TURN)
-				if (MOD_EVENTS_RED_TURN)
-				// RED <<<<<
-				{
-					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if(pkScriptSystem)
-					{	
-						CvLuaArgsHandle args;
+			if (MOD_EVENTS_RED_TURN)
+			// RED <<<<<
+			{
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if(pkScriptSystem)
+				{	
+					CvLuaArgsHandle args;
 
-						args->Push(getActivePlayer());
+					args->Push(getActivePlayer());
 
-						bool bResult;
-						LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
-					}
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
-				// RED >>>>>
-#endif
+			}
+			// RED >>>>>
 
 			gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvAchievementUnlocker::EndTurn();
-#endif
+
+			if (MOD_API_ACHIEVEMENTS)
+				CvAchievementUnlocker::EndTurn();
+
 			SetForceEndingTurn(true);
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
@@ -6936,7 +6931,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 
 			const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
 
-			if(getWinner() != NO_TEAM)
+			if (getWinner() != NO_TEAM)
 			{
 				const PlayerTypes winningTeamLeaderID = GET_TEAM(getWinner()).getLeaderID();
 				CvPlayerAI& kWinningTeamLeader = GET_PLAYER(winningTeamLeaderID);
@@ -6953,19 +6948,21 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
 				localizedSummary << szWinningTeamLeaderNameKey;
 
-				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+				for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop)
+				{
 					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
 					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 					CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-					if(pNotifications){
+					if (pNotifications)
 						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
-					}
 				}
 
-#if defined(MOD_API_ACHIEVEMENTS)
+				if (pkVictoryInfo)
+					LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
+
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
-				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
+				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
 					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
@@ -7700,19 +7697,13 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 				//Win any multiplayer game
-				if(GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
+				if (MOD_API_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MULTIPLAYER);
 				}
-#endif
-
-		if (pkVictoryInfo)
-		{
-			LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
-		}
 			}
 
-			if((getAIAutoPlay() > 0) || gDLL->GetAutorun())
+			if ((getAIAutoPlay() > 0) || gDLL->GetAutorun())
 			{
 				setGameState(GAMESTATE_EXTENDED);
 			}
@@ -7723,7 +7714,6 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 		}
 
 		GC.GetEngineUserInterface()->setDirty(Center_DIRTY_BIT, true);
-
 		GC.GetEngineUserInterface()->setDirty(Soundtrack_DIRTY_BIT, true);
 	}
 }
@@ -8072,10 +8062,9 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 	{
 		m_eGameState = eNewValue;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		if(eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
+		if (eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
 		{
-			if (!isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				if (GetGameLeagues()->GetNumActiveLeagues() > 0)
 				{
@@ -8090,12 +8079,10 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				}
 			}
 		}
-#endif
 
 		if(eNewValue == GAMESTATE_OVER)
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			if(!isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				bool bLocalPlayerLost = true;
 
@@ -8130,7 +8117,6 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 					}
 				}
 			}
-#endif
 
 			//Write out time spent playing.
 			int iHours = getMinutesPlayed() / 60;
@@ -9713,14 +9699,16 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
-#if defined(MOD_API_ACHIEVEMENTS)
-				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-				kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+				if (MOD_API_ACHIEVEMENTS)
+				{
+					CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+					kActivePlayer.GetPlayerAchievements().EndTurn();
+				}
+
 				gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-				CvAchievementUnlocker::EndTurn();
-#endif
+
+				if (MOD_API_ACHIEVEMENTS)
+					CvAchievementUnlocker::EndTurn();
 			}
 
 			if(!m_processPlayerAutoMoves)

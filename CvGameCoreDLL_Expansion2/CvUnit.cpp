@@ -6999,12 +6999,8 @@ void CvUnit::embark(CvPlot* pPlot)
 	CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
-	{
+	if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_EMBARK);
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -8472,34 +8468,34 @@ bool CvUnit::airlift(int iX, int iY)
 	pTargetPlot = GC.getMap().plot(iX, iY);
 	CvAssert(pTargetPlot != NULL);
 
-
-#if defined(MOD_API_ACHIEVEMENTS)
-	//Here's Looking at You, Kid
-	CvPlayerAI& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-	if(pTargetPlot != NULL && getOwner() == kActivePlayer.GetID() && kActivePlayer.isHuman())
+	if (MOD_API_ACHIEVEMENTS)
 	{
-		//Easy checks out of the way, now for the ugly ones.
-
-		//Current City Casablanca?
-		CvPlot* pCurrentPlot = plot();
-		if(pCurrentPlot != NULL)
+		//Here's Looking at You, Kid
+		CvPlayerAI& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+		if (pTargetPlot != NULL && getOwner() == kActivePlayer.GetID() && kActivePlayer.isHuman())
 		{
-			CvCity* pCurrentCity = pCurrentPlot->getPlotCity();
-			CvCity* pTargetCity = pTargetPlot->getPlotCity();
-			if(	pCurrentCity != NULL && pTargetCity != NULL &&
-				strcmp(pCurrentCity->getNameKey(), "TXT_KEY_CITY_NAME_CASABLANCA") == 0 &&
-				pTargetCity->IsOriginalCapital())
+			//Easy checks out of the way, now for the ugly ones.
+
+			//Current City Casablanca?
+			CvPlot* pCurrentPlot = plot();
+			if (pCurrentPlot != NULL)
 			{
-				const PlayerTypes eOriginalOwner = pTargetCity->getOriginalOwner();
-				CvPlayerAI& kOriginalPlayer = GET_PLAYER(eOriginalOwner);
-				if(strcmp(kOriginalPlayer.getCivilizationTypeKey(), "CIVILIZATION_PORTUGAL") == 0)
+				CvCity* pCurrentCity = pCurrentPlot->getPlotCity();
+				CvCity* pTargetCity = pTargetPlot->getPlotCity();
+				if (pCurrentCity != NULL && pTargetCity != NULL &&
+					strcmp(pCurrentCity->getNameKey(), "TXT_KEY_CITY_NAME_CASABLANCA") == 0 &&
+					pTargetCity->IsOriginalCapital())
 				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_22);
+					const PlayerTypes eOriginalOwner = pTargetCity->getOriginalOwner();
+					CvPlayerAI& kOriginalPlayer = GET_PLAYER(eOriginalOwner);
+					if (strcmp(kOriginalPlayer.getCivilizationTypeKey(), "CIVILIZATION_PORTUGAL") == 0)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_22);
+					}
 				}
 			}
 		}
 	}
-#endif
 
 
 	if(pTargetPlot != NULL)
@@ -10532,11 +10528,9 @@ bool CvUnit::pillage()
 				}
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			//Unlock any possible achievements.
-			if(getOwner() == GC.getGame().getActivePlayer() && strcmp(pkImprovement->GetType(), "IMPROVEMENT_FARM") == 0)
+			if (MOD_API_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer() && strcmp(pkImprovement->GetType(), "IMPROVEMENT_FARM") == 0)
 				CvAchievementUnlocker::FarmImprovementPillaged();
-#endif
 
 			// Improvement that's destroyed?
 			bSuccessfulNonRoadPillage = true;
@@ -10697,9 +10691,7 @@ bool CvUnit::foundCity()
 	}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-#if defined(MOD_API_ACHIEVEMENTS)
 	CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
-#endif
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	if (MOD_GLOBAL_RELIGIOUS_SETTLERS && GetReligionData()->GetReligion() > RELIGION_PANTHEON)
@@ -10736,13 +10728,9 @@ bool CvUnit::foundCity()
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitActivate(pDllUnit.get());
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement
-		if(eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
-		{
+		if (MOD_API_ACHIEVEMENTS && eActivePlayer == getOwner() && kActivePlayer.getNumCities() >= 2 && kActivePlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_SECOND_CITY);
-		}
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	int iMaxRange = 3;
@@ -11388,14 +11376,15 @@ bool CvUnit::DoSpreadReligion()
 				finishMoves();
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements
-			const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-			if(getOwner() == eActivePlayer && pCity->getOwner() != eActivePlayer)
+			if (MOD_API_ACHIEVEMENTS)
 			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_17);
+				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+				if (getOwner() == eActivePlayer && pCity->getOwner() != eActivePlayer)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_17);
+				}
 			}
-#endif
 		}
 	}
 
@@ -11512,9 +11501,8 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			//Achievements
-			if(getOwner() == GC.getGame().getActivePlayer())
+			if (MOD_API_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer())
 			{
 				CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 				if(strcmp(kPlayer.getCivilizationTypeKey(), "CIVILIZATION_SPAIN") == 0)
@@ -11522,7 +11510,6 @@ bool CvUnit::DoRemoveHeresy()
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_24);
 				}
 			}
-#endif
 			
 			kill(true);
 		}
@@ -12053,30 +12040,26 @@ bool CvUnit::hurry()
 		}
 	}
 
-	if(pPlot->isActiveVisible())
+	if (pPlot->isActiveVisible())
 	{
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement check
-		if(pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
+		if (MOD_API_ACHIEVEMENTS && pCity && pCity->getProductionBuilding() != NO_BUILDING)
 		{
 			CvBuildingEntry* pkProductionBuildinInfo = GC.getBuildingInfo(pCity->getProductionBuilding());
-			if(pkProductionBuildinInfo)
+			if (pkProductionBuildinInfo)
 			{
-				if(isLimitedWonderClass(pkProductionBuildinInfo->GetBuildingClassInfo()))
+				if (isLimitedWonderClass(pkProductionBuildinInfo->GetBuildingClassInfo()))
 				{
-					if(pCity->isHuman() && !GC.getGame().isGameMultiPlayer())
+					if (pCity->isHuman() && !GC.getGame().isGameMultiPlayer())
 					{
 						const char* pLeaderChar = GET_PLAYER(pCity->getOwner()).getLeaderTypeKey();
 						CvString szLeader = pLeaderChar;
-						if(szLeader == "LEADER_RAMESSES")
-						{
+						if (szLeader == "LEADER_RAMESSES")
 							gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_SPHINX);
-						}
 					}
 				}
 			}
 		}
-#endif
 	}
 
 	if(IsGreatPerson())
@@ -13573,9 +13556,8 @@ bool CvUnit::blastTourism()
 		SHOW_PLOT_POPUP(pPlot, getOwner(), text);
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	// Achievements
-	if (GET_PLAYER(m_eOwner).isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && GET_PLAYER(m_eOwner).isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		if (strcmp(GET_PLAYER(eOwner).getCivilizationTypeKey(),   "CIVILIZATION_AMERICA") == 0 &&
 			strcmp(GET_PLAYER(m_eOwner).getCivilizationTypeKey(), "CIVILIZATION_ENGLAND") == 0)
@@ -13593,7 +13575,7 @@ bool CvUnit::blastTourism()
 			}
 		}
 	}
-#endif
+
 	return true;
 }
 
@@ -14945,12 +14927,8 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 		kill(true);
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
-	{
+	if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_UPGRADE);
-	}
-#endif
 
 	return pNewUnit;
 }
@@ -20200,79 +20178,80 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 				if(NO_PLAYER != eNewOwner)
 				{
-#if defined(MOD_API_ACHIEVEMENTS)
-					//Test for City Achievements here since we need to know about the capturing unit.
-					if(getOwner() == GC.getGame().getActivePlayer())
+					if (MOD_API_ACHIEVEMENTS)
 					{
-						//Expansion 1 - Capture the city that built Petra using a Landship
-						if(strcmp(getUnitInfo().GetType(), "UNIT_WWI_TANK") == 0)
+						//Test for City Achievements here since we need to know about the capturing unit.
+						if (getOwner() == GC.getGame().getActivePlayer())
 						{
-							const int numBuildings = GC.getNumBuildingInfos();
-							for(int i = 0; i < numBuildings; ++i)
+							//Expansion 1 - Capture the city that built Petra using a Landship
+							if(strcmp(getUnitInfo().GetType(), "UNIT_WWI_TANK") == 0)
 							{
-								const BuildingTypes eBuilding = static_cast<BuildingTypes>(i);
-								const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-								if(pkBuildingInfo != NULL && strcmp(pkBuildingInfo->GetType(), "BUILDING_PETRA") == 0)
+								const int numBuildings = GC.getNumBuildingInfos();
+								for(int i = 0; i < numBuildings; ++i)
 								{
-									if(pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+									const BuildingTypes eBuilding = static_cast<BuildingTypes>(i);
+									const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+									if(pkBuildingInfo != NULL && strcmp(pkBuildingInfo->GetType(), "BUILDING_PETRA") == 0)
 									{
-										gDLL->UnlockAchievement(ACHIEVEMENT_XP1_26);
+										if(pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+										{
+											gDLL->UnlockAchievement(ACHIEVEMENT_XP1_26);
+										}
+										break;
 									}
-									break;
+								}
+							}
+
+							//Expansion 1 - Capture a Spanish Coastal City with a Dutch Sea Begger
+							if(strcmp(getUnitInfo().GetType(), "UNIT_DUTCH_SEA_BEGGAR") == 0)
+							{
+								if(pNewCity->isCoastal())
+								{
+									if(strcmp(pNewCity->getCivilizationInfo().GetType(), "CIVILIZATION_SPAIN") == 0)
+									{
+										gDLL->UnlockAchievement(ACHIEVEMENT_XP1_28);
+									}
+								}
+							}
+
+							// Expansion 2 - Capture Venice's holy city as Venice
+							// if venice
+							//   find venice religion
+							//   compare religion to if city is holy city of conquered
+							if (!GC.getGame().isGameMultiPlayer())
+							{
+								if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_VENICE") == 0)
+								{
+									CvCity* pCity = GET_PLAYER(m_eOwner).getCapitalCity();
+									ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
+									if (eReligion != NO_RELIGION)
+									{
+										if (pNewCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
+										{
+											gDLL->UnlockAchievement(ACHIEVEMENT_XP2_26);
+										}
+									}
 								}
 							}
 						}
 
-						//Expansion 1 - Capture a Spanish Coastal City with a Dutch Sea Begger
-						if(strcmp(getUnitInfo().GetType(), "UNIT_DUTCH_SEA_BEGGAR") == 0)
+						bool bUsingXP1Scenario2 = gDLL->IsModActivated(CIV5_XP1_SCENARIO2_MODID);
+						if(bUsingXP1Scenario2)
 						{
-							if(pNewCity->isCoastal())
+							if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_SONGHAI") == 0)
 							{
-								if(strcmp(pNewCity->getCivilizationInfo().GetType(), "CIVILIZATION_SPAIN") == 0)
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_XP1_28);
-								}
-							}
-						}
+								const int iRomeX = 33;
+								const int iRomeY = 31;
 
-						// Expansion 2 - Capture Venice's holy city as Venice
-						// if venice
-						//   find venice religion
-						//   compare religion to if city is holy city of conquered
-						if (!GC.getGame().isGameMultiPlayer())
-						{
-							if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_VENICE") == 0)
-							{
-								CvCity* pCity = GET_PLAYER(m_eOwner).getCapitalCity();
-								ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
-								if (eReligion != NO_RELIGION)
+								//Did we, as vandals, just capture Rome with a boat?
+								if(pNewCity->getX() == iRomeX && pNewCity->getY() == iRomeY && getDomainType() == DOMAIN_SEA)
 								{
-									if (pNewCity->GetCityReligions()->IsHolyCityForReligion(eReligion))
-									{
-										gDLL->UnlockAchievement(ACHIEVEMENT_XP2_26);
-									}
+									gDLL->UnlockAchievement(ACHIEVEMENT_XP1_52);
 								}
 							}
 						}
 					}
-
-					bool bUsingXP1Scenario2 = gDLL->IsModActivated(CIV5_XP1_SCENARIO2_MODID);
-					if(bUsingXP1Scenario2)
-					{
-						if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_SONGHAI") == 0)
-						{
-							const int iRomeX = 33;
-							const int iRomeY = 31;
-
-							//Did we, as vandals, just capture Rome with a boat?
-							if(pNewCity->getX() == iRomeX && pNewCity->getY() == iRomeY && getDomainType() == DOMAIN_SEA)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_52);
-							}
-						}
-					}
-#endif
 
 					GET_PLAYER(eNewOwner).acquireCity(pNewCity, true, false); // will delete the pointer
 					pNewCity = NULL;
@@ -20830,9 +20809,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//Dr. Livingstone I presume?
-	if (isHuman() && !isDelayedDeath())
+	if (MOD_API_ACHIEVEMENTS && isHuman() && !isDelayedDeath())
 	{
 		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0)
 		{
@@ -20857,7 +20835,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 	}
-#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -24965,12 +24942,11 @@ void CvUnit::setPromotionReady(bool bNewValue)
 				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UNIT_CAN_GET_PROMOTION");
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_CAN_GET_PROMOTION");
 				pNotifications->Add(NOTIFICATION_UNIT_PROMOTION, strBuffer, strSummary, -1, -1, getUnitType(), GetID());
-#if defined(MOD_API_ACHIEVEMENTS)
-				if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+
+				if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_PROMOTE);
 				}
-#endif
 			}
 		}
 
@@ -27322,16 +27298,18 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 				GC.getMap().updateDeferredFog();
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
-		PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
-
-		const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-		if(getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
+			PromotionTypes eBuffaloChest =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_CHEST", true /*bHideAssert*/);
+			PromotionTypes eBuffaloLoins =(PromotionTypes) GC.getInfoTypeForString("PROMOTION_BUFFALO_LOINS", true /*bHideAssert*/);
+
+			const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+			if (getOwner() == eActivePlayer && ((eIndex == eBuffaloChest && isHasPromotion(eBuffaloLoins)) || (eIndex == eBuffaloLoins && isHasPromotion(eBuffaloChest))))
+			{
+				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_27);
+			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		// Set promotion IsEverObtained to true. This should be the last statement.
 		if (bNewValue && !IsPromotionEverObtained(eIndex))

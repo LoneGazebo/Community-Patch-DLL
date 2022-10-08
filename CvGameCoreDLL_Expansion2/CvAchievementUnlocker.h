@@ -23,9 +23,7 @@ public:
 	static void EndTurn();
 	static void AlexanderConquest(PlayerTypes ePlayer);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	static void UnlockFromDatabase();
-#endif
 
 private:
 	static int ms_iNumImprovementsPillagedPerTurn;

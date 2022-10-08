@@ -7634,15 +7634,11 @@ void CvDiplomacyAI::SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue)
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiArtifactsEverDugUp[ePlayer] = range(iValue, 0, UCHAR_MAX);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
+	if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 	{
 		if (iValue >= 5)
-		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_34);
-		}
 	}
-#endif
 }
 
 void CvDiplomacyAI::ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange)
@@ -28874,14 +28870,11 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 		gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		if(!GC.getGame().isGameMultiPlayer())
+		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_DESTROY_CIV);
-
 			CvAchievementUnlocker::AlexanderConquest(ePlayer);
 		}
-#endif
 	}
 }
 //	-------------------------------------------------------------------------------------------------------------------
@@ -39235,18 +39228,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (bActivePlayer)
 			{
-#if defined(MOD_API_ACHIEVEMENTS)
-				if(GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+				if (MOD_API_ACHIEVEMENTS)
 				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
-				}
+					if (GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
 
-				bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-				if(bUsingXP1Scenario3)
-				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
+					bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+					if (bUsingXP1Scenario3)
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
 				}
-#endif
 
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE, NO_PLAYER, GET_PLAYER(ePlottingPlayer).getCivilizationAdjectiveKey());
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);

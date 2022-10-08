@@ -761,13 +761,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					m_aiNumTechsToStealList[iCityOwner] = 0;
 				}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
-				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-				{
+				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_12);
-				}
-#endif
 
 				LevelUpSpy(uiSpyIndex);
 
@@ -4200,19 +4196,15 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	//Achievements!
-	if(bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
-	}
-#endif
-
 	if (bAttemptSuccess)
 	{
 		LevelUpSpy(uiSpyIndex, /*50*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE));
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
+
+		//Achievements!
+		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
 	}
 
 	// Update City banners and game info
@@ -4762,14 +4754,10 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strNotification << pCity->getNameKey();
 
 					pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
-				
-#if defined(MOD_API_ACHIEVEMENTS)
+
 					//Achievements
-					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-					{
+					if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_15);
-					}
-#endif
 				}
 			}
 			break;
