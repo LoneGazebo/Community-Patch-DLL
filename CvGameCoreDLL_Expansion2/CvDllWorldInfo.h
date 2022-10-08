@@ -14,7 +14,7 @@ class CvDllWorldInfo : public ICvWorldInfo1
 {
 public:
 	CvDllWorldInfo(_In_ CvWorldInfo* pWorldInfo);
-	~CvDllWorldInfo();
+	virtual ~CvDllWorldInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

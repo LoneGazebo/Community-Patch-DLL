@@ -25,7 +25,7 @@ class CvReligionEntry: public CvBaseInfo
 {
 public:
 	CvReligionEntry(void);
-	~CvReligionEntry(void);
+	virtual ~CvReligionEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 	

@@ -19,7 +19,7 @@ class CvDllWorldBuilderMapLoader;
 class CvDllGameContext : public ICvGameContext3
 {
 public:
-	~CvDllGameContext();
+	virtual ~CvDllGameContext();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

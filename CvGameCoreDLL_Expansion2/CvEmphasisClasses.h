@@ -25,7 +25,7 @@ class CvEmphasisEntry: public CvBaseInfo
 {
 public:
 	CvEmphasisEntry(void);
-	~CvEmphasisEntry(void);
+	virtual ~CvEmphasisEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

@@ -13,7 +13,7 @@ class CvDllImprovementInfo : public ICvImprovementInfo1
 {
 public:
 	CvDllImprovementInfo(_In_ CvImprovementEntry* pImprovementInfo);
-	~CvDllImprovementInfo();
+	virtual ~CvDllImprovementInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

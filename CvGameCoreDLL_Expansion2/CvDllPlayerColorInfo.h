@@ -14,7 +14,7 @@ class CvDllPlayerColorInfo : public ICvPlayerColorInfo1
 {
 public:
 	CvDllPlayerColorInfo(_In_ CvPlayerColorInfo* pPlayerColorInfo);
-	~CvDllPlayerColorInfo();
+	virtual ~CvDllPlayerColorInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

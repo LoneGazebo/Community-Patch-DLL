@@ -12,7 +12,7 @@ class CvDllCity : public ICvCity1
 {
 public:
 	CvDllCity(_In_ CvCity* pCity);
-	~CvDllCity();
+	virtual ~CvDllCity();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

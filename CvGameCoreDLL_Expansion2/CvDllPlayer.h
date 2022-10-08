@@ -12,7 +12,7 @@ class CvDllPlayer : public ICvPlayer3
 {
 public:
 	CvDllPlayer(_In_ CvPlayerAI* pPlayer);
-	~CvDllPlayer();
+	virtual ~CvDllPlayer();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

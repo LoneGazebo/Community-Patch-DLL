@@ -14,7 +14,7 @@ class CvDllMinorCivInfo : public ICvMinorCivInfo1
 {
 public:
 	CvDllMinorCivInfo(_In_ CvMinorCivInfo* pMinorCivInfo);
-	~CvDllMinorCivInfo();
+	virtual ~CvDllMinorCivInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

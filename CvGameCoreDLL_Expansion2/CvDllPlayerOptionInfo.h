@@ -14,7 +14,7 @@ class CvDllPlayerOptionInfo : public ICvPlayerOptionInfo1
 {
 public:
 	CvDllPlayerOptionInfo(_In_ CvPlayerOptionInfo* pPlayerOptionInfo);
-	~CvDllPlayerOptionInfo();
+	virtual ~CvDllPlayerOptionInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

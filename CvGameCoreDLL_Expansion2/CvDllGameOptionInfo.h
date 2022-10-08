@@ -14,7 +14,7 @@ class CvDllGameOptionInfo : public ICvGameOptionInfo1
 {
 public:
 	CvDllGameOptionInfo(_In_ CvGameOptionInfo* pGameOptionInfo);
-	~CvDllGameOptionInfo();
+	virtual ~CvDllGameOptionInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

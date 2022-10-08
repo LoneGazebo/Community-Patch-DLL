@@ -14,7 +14,7 @@ class CvDllPromotionInfo : public ICvPromotionInfo1
 {
 public:
 	CvDllPromotionInfo(_In_ CvPromotionEntry* pPromotionInfo);
-	~CvDllPromotionInfo();
+	virtual ~CvDllPromotionInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -14,7 +14,7 @@ class CvDllMissionData: public ICvMissionData1
 {
 public:
 	CvDllMissionData(_In_ const MissionData* pMissionData);
-	~CvDllMissionData();
+	virtual ~CvDllMissionData();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -18,6 +18,7 @@ typedef int(*CvAStarFunc)(FAStarNode*, FAStarNode*, int, const void*, CvAStar*);
 class CvDLLFAStarIFaceBase
 {
 public:
+virtual ~CvDLLFAStarIFaceBase() = default;
 	virtual CvAStar* create() = 0;
 	virtual void destroy(CvAStar*& ptr, bool bSafeDelete=true) = 0;
 	virtual bool GeneratePath(CvAStar*, int iXstart, int iYstart, int iXdest, int iYdest, bool bUseHexes = false, bool bCardinalOnly = false, int iInfo = 0, bool bReuse = false) = 0;

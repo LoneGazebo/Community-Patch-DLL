@@ -13,7 +13,7 @@ class CvDllEraInfo : public ICvEraInfo1
 {
 public:
 	CvDllEraInfo(_In_ CvEraInfo* pEraInfo);
-	~CvDllEraInfo();
+	virtual ~CvDllEraInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

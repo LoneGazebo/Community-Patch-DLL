@@ -14,7 +14,7 @@ class CvDllTechInfo : public ICvTechInfo1
 {
 public:
 	CvDllTechInfo(_In_ CvTechEntry* pTechInfo);
-	~CvDllTechInfo();
+	virtual ~CvDllTechInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

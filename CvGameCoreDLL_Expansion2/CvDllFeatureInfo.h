@@ -14,7 +14,7 @@ class CvDllFeatureInfo : public ICvFeatureInfo1
 {
 public:
 	CvDllFeatureInfo(_In_ CvFeatureInfo* pFeatureInfo);
-	~CvDllFeatureInfo();
+	virtual ~CvDllFeatureInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

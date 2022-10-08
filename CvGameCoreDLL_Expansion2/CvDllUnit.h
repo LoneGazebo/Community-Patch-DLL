@@ -12,7 +12,7 @@ class CvDllUnit : public ICvUnit2
 {
 public:
 	CvDllUnit(_In_ CvUnit* pUnit);
-	~CvDllUnit();
+	virtual ~CvDllUnit();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

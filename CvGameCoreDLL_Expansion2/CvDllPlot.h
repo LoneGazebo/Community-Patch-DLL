@@ -12,7 +12,7 @@ class CvDllPlot : public ICvPlot1
 {
 public:
 	CvDllPlot(_In_ CvPlot* pPlot);
-	~CvDllPlot();
+	virtual ~CvDllPlot();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

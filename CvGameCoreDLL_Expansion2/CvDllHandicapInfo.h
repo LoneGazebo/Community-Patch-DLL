@@ -14,7 +14,7 @@ class CvDllHandicapInfo : public ICvHandicapInfo1
 {
 public:
 	CvDllHandicapInfo(_In_ CvHandicapInfo* pHandicapInfo);
-	~CvDllHandicapInfo();
+	virtual ~CvDllHandicapInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

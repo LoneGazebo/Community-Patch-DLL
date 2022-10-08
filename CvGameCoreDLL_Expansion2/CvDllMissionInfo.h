@@ -14,7 +14,7 @@ class CvDllMissionInfo : public ICvMissionInfo1
 {
 public:
 	CvDllMissionInfo(_In_ CvMissionInfo* pMissionInfo);
-	~CvDllMissionInfo();
+	virtual ~CvDllMissionInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

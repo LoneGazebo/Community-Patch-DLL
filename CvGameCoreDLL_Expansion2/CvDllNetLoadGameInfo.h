@@ -12,7 +12,7 @@ class CvDllNetLoadGameInfo : public ICvNetLoadGameInfo1
 {
 public:
 	CvDllNetLoadGameInfo();
-	~CvDllNetLoadGameInfo();
+	virtual ~CvDllNetLoadGameInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

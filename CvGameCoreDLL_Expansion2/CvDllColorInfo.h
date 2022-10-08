@@ -14,7 +14,7 @@ class CvDllColorInfo : public ICvColorInfo1
 {
 public:
 	CvDllColorInfo(_In_ CvColorInfo* pColorInfo);
-	~CvDllColorInfo();
+	virtual ~CvDllColorInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

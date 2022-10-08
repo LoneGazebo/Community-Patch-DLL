@@ -13,7 +13,7 @@ class CvDllWorldBuilderMapLoader : public ICvWorldBuilderMapLoader2
 {
 public:
 	CvDllWorldBuilderMapLoader();
-	~CvDllWorldBuilderMapLoader();
+	virtual ~CvDllWorldBuilderMapLoader();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

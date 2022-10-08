@@ -14,7 +14,7 @@ class CvDllLeaderHeadInfo : public ICvLeaderHeadInfo1
 {
 public:
 	CvDllLeaderHeadInfo(_In_ CvLeaderHeadInfo* pLeaderHeadInfo);
-	~CvDllLeaderHeadInfo();
+	virtual ~CvDllLeaderHeadInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 
