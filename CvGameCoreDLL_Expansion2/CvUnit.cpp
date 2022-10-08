@@ -16204,37 +16204,28 @@ int CvUnit::GetBestAttackStrength() const
 //typically negative
 int CvUnit::GetDamageCombatModifier(bool bForDefenseAgainstRanged, int iAssumedDamage) const
 {
-	int iRtnValue = 0;
-	int iDamageValueToUse = (iAssumedDamage > 0) ? iAssumedDamage : getDamage();
+	int iDamageValueToUse = iAssumedDamage > 0 ? iAssumedDamage : getDamage();
+	int iWoundedDamageMultiplier = /*33*/ GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER);
+	int iRtnValue = iDamageValueToUse > 0 ? GET_PLAYER(getOwner()).GetWoundedUnitDamageMod() * -1 : 0; // usually 0, +25% with vanilla Elite Forces if wounded
+
+	// Unit is stronger when damaged (Tenacity)
+	if (iDamageValueToUse > 0 && IsStrongerDamaged())
+	{
+		iRtnValue += (iDamageValueToUse * iWoundedDamageMultiplier) / 100;
+		return iRtnValue;
+	}
 
 	// Option: Damage modifier does not apply for defense against ranged attack (fewer targets -> harder to hit)
 	// Units that fight well damaged do not take a penalty from being wounded
-	if ((bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY))
+	if (bForDefenseAgainstRanged && MOD_BALANCE_CORE_RANGED_ATTACK_PENALTY)
 	{
 		return iRtnValue;
 	}
 
 	// How much does damage weaken the effectiveness of the Unit?
-	if (iDamageValueToUse > 0)
+	if (iDamageValueToUse > 0 && !IsFightWellDamaged() && !GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-		//If Japan, you should get stronger as you lose health.
-		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
-			iRtnValue += (iDamageValueToUse / 5);
-
-		if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && IsStrongerDamaged())
-			iRtnValue += (iDamageValueToUse / 3);
-#endif
-
-		//default behavior
-		if (iRtnValue == 0 && !IsFightWellDamaged())
-		{
-			int iWoundedDamageMultiplier = /*33*/ GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER) + GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
-			if (IsStrongerDamaged())
-				iWoundedDamageMultiplier += /*-33*/ GD_INT_GET(TRAIT_WOUNDED_DAMAGE_MOD);
-
-			iRtnValue = -(iDamageValueToUse * iWoundedDamageMultiplier) / 100;
-		}
+		iRtnValue -= (iDamageValueToUse * iWoundedDamageMultiplier) / 100;
 	}
 
 	return iRtnValue;

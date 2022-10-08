@@ -23951,11 +23951,6 @@ int CvPlayer::GetWoundedUnitDamageMod() const
 void CvPlayer::SetWoundedUnitDamageMod(int iValue)
 {
 	m_iWoundedUnitDamageMod = iValue;
-
-	if (m_iWoundedUnitDamageMod < /*-33*/ -GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER))
-	{
-		m_iWoundedUnitDamageMod = -GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER);
-	}
 }
 
 //	--------------------------------------------------------------------------------

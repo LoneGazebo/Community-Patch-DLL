@@ -4585,9 +4585,6 @@ void CvPlayerTraits::InitPlayerTraits()
 			if(trait->IsFightWellDamaged())
 			{
 				m_bFightWellDamaged = true;
-				// JON: Changing the way this works. Above line can/should probably be removed at some point
-				int iWoundedUnitDamageMod = /*-33*/ GD_INT_GET(TRAIT_WOUNDED_DAMAGE_MOD);
-				m_pPlayer->ChangeWoundedUnitDamageMod(iWoundedUnitDamageMod);
 			}
 			if(trait->IsWoodlandMovementBonus())
 			{
