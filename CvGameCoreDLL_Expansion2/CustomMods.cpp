@@ -16,7 +16,7 @@ CustomMods::CustomMods() :
 int CustomMods::eventHook(const char* szName, const char* p, ...) {
 	CvLuaArgsHandle args;
 
-	va_list vl;
+	va_list vl = NULL;
 	va_start(vl, p);
 
 	for (const char* it = p; *it; ++it) {
@@ -42,7 +42,7 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 	CvLuaArgsHandle args;
 
-	va_list vl;
+	va_list vl = NULL;
 	va_start(vl, p);
 
 	for (const char* it = p; *it; ++it) {
@@ -68,7 +68,7 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 	CvLuaArgsHandle args;
 
-	va_list vl;
+	va_list vl = NULL;
 	va_start(vl, p);
 
 	for (const char* it = p; *it; ++it) {
@@ -94,7 +94,7 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p, ...) {
 	CvLuaArgsHandle args;
 
-	va_list vl;
+	va_list vl = NULL;
 	va_start(vl, p);
 
 	for (const char* it = p; *it; ++it) {
@@ -120,7 +120,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 int CustomMods::eventHook(const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem) {
-		bool bResult;
+		bool bResult = 0;
 		if (LuaSupport::CallHook(pkScriptSystem, szName, args.get(), bResult)) {
 			return GAMEEVENTRETURN_HOOK;
 		}
