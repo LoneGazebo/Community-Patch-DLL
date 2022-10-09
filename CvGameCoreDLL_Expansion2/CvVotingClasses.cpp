@@ -2657,9 +2657,8 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 			m_vRepealProposals.push_back(proposal);
 			iFound++;
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			// XP2 Achievement
-			if (!GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
 			{
 				PlayerTypes eOriginalProposer = it->GetProposerDecision()->GetProposer();
 				if (eOriginalProposer != NO_PLAYER && eOriginalProposer == eProposer)
@@ -2670,7 +2669,6 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 					}
 				}
 			}
-#endif
 		}
 
 	}
@@ -7066,12 +7064,10 @@ void CvLeague::CheckProjectAchievements()
 				}
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-			if (iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
+			if (MOD_API_ACHIEVEMENTS && iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_44);
 			}
-#endif
 		}
 	}
 }

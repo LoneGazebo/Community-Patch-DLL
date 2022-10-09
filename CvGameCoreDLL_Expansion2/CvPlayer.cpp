@@ -14215,9 +14215,8 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 						GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
 #endif
 				}
-				
-#if defined(MOD_API_ACHIEVEMENTS)
-				if (pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
+
+				if (MOD_API_ACHIEVEMENTS && pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
 				{
 					pUnit->SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
 					if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && pUnit->GetNumGoodyHutsPopped() >= 5)
@@ -14225,7 +14224,6 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_25);
 					}
 				}
-#endif
 			}
 
 			pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), m_eID, NO_PLAYER);
@@ -23967,11 +23965,6 @@ int CvPlayer::GetWoundedUnitDamageMod() const
 void CvPlayer::SetWoundedUnitDamageMod(int iValue)
 {
 	m_iWoundedUnitDamageMod = iValue;
-
-	if (m_iWoundedUnitDamageMod < /*-33*/ -GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER))
-	{
-		m_iWoundedUnitDamageMod = -GD_INT_GET(WOUNDED_DAMAGE_MULTIPLIER);
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -24886,18 +24879,16 @@ void CvPlayer::SetNumGoldenAges(int iValue)
 {
 	m_iNumGoldenAges = iValue;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(iValue > 0 && isHuman() && !GC.getGame().isGameMultiPlayer()&& GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+	if (MOD_API_ACHIEVEMENTS && iValue > 0 && isHuman() && !GC.getGame().isGameMultiPlayer()&& GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_GOLDEN_AGE);
 
 		const char* strLeader = getLeaderTypeKey();
-		if(m_iNumGoldenAges >=5 && NULL != strLeader && strcmp(strLeader, "LEADER_DARIUS") == 0)
+		if (m_iNumGoldenAges >=5 && NULL != strLeader && strcmp(strLeader, "LEADER_DARIUS") == 0)
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ARCHAEMENNID);
 		}
 	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -28388,8 +28379,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 #endif
 		GetTreasury()->ChangeGold(iExpendGold);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
+		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			// Update Steam stat and check achievement
 			const int HALICARNASSUS_ACHIEVEMENT_GOLD = 1000;
@@ -28413,7 +28403,6 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 		}
-#endif
 	}
 
 	if (pGreatPersonUnit)
@@ -46769,9 +46758,8 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements and Stats
-	if(pGreatPeopleUnit->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && pGreatPeopleUnit->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->IncrementSteamStat(ESTEAMSTAT_GREATGENERALS);
 		const char* strLeader = GET_PLAYER(pGreatPeopleUnit->getOwner()).getLeaderTypeKey();
@@ -46782,7 +46770,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 
 		CvAchievementUnlocker::Check_PSG();
 	}
-#endif
+
 	// Notification
 	if(GetNotifications())
 	{

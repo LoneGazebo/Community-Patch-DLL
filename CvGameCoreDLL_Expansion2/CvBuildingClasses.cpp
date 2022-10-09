@@ -4993,18 +4993,19 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			pPlayer->GetTreasury()->ChangeBaseBuildingGoldMaintenance(buildingEntry->GetGoldMaintenance() * iChangeNumRealBuilding);
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement for Temples
-		const char* szBuildingTypeC = buildingEntry->GetType();
-		CvString szBuildingType = szBuildingTypeC;
-		if(szBuildingType == "BUILDING_TEMPLE")
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			if(m_pCity->getOwner() == GC.getGame().getActivePlayer())
+			const char* szBuildingTypeC = buildingEntry->GetType();
+			CvString szBuildingType = szBuildingTypeC;
+			if (szBuildingType == "BUILDING_TEMPLE")
 			{
-				gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TEMPLES, 1000, ACHIEVEMENT_1000TEMPLES);
+				if (m_pCity->getOwner() == GC.getGame().getActivePlayer())
+				{
+					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TEMPLES, 1000, ACHIEVEMENT_1000TEMPLES);
+				}
 			}
 		}
-#endif
 
 		if(buildingEntry->GetPreferredDisplayPosition() > 0)
 		{
@@ -5117,16 +5118,13 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 								CvPopupInfo kPopup(BUTTONPOPUP_WONDER_COMPLETED_ACTIVE_PLAYER, eIndex);
 								GC.GetEngineUserInterface()->AddPopup(kPopup);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-								if(GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+								if (MOD_API_ACHIEVEMENTS && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
 								{
 									gDLL->UnlockAchievement(ACHIEVEMENT_BUILD_WONDER);
 
 									//look to see if all wonders have been built to unlock the other one
 									IncrementWonderStats(buildingClassType);
-
 								}
-#endif
 							}
 						}
 
@@ -5164,13 +5162,11 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 								}
 							}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 							//Achievements!
-							if(pPlayer->GetID() == GC.getGame().getActivePlayer() && strcmp(buildingEntry->GetType(), "BUILDING_GREAT_FIREWALL") == 0)
+							if (MOD_API_ACHIEVEMENTS && pPlayer->GetID() == GC.getGame().getActivePlayer() && strcmp(buildingEntry->GetType(), "BUILDING_GREAT_FIREWALL") == 0)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_16);
 							}
-#endif
 						}
 					}
 				}
@@ -5185,10 +5181,9 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Test for any achievements being unlocked.
-		pPlayer->GetPlayerAchievements().FinishedBuilding(m_pCity, eIndex);
-#endif
+		if (MOD_API_ACHIEVEMENTS)
+			pPlayer->GetPlayerAchievements().FinishedBuilding(m_pCity, eIndex);
 	}
 }
 
@@ -5931,10 +5926,9 @@ int CvCityBuildings::GetCurrentThemingBonuses() const
 					iModifier += m_pCity->GetPlayer()->GetPlayerTraits()->GetCapitalThemingBonusModifier();
 
 				iBonus = iBonus * (100 + iModifier) / 100;
-#if defined(MOD_API_ACHIEVEMENTS)
-				if (m_pCity->GetPlayer()->isHuman() && !GC.getGame().isGameMultiPlayer() && iBonus >= 16)
+
+				if (MOD_API_ACHIEVEMENTS && m_pCity->GetPlayer()->isHuman() && !GC.getGame().isGameMultiPlayer() && iBonus >= 16)
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
-#endif
 
 				iTotal += iBonus;
 			}
@@ -6075,8 +6069,11 @@ void CvCityBuildings::ChangeMissionaryExtraSpreads(int iChange)
 
 void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 {
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
-	if(pkBuildingClassInfo == NULL)
+	if (pkBuildingClassInfo == NULL)
 		return;
 
 	const char* szWonderTypeChar = pkBuildingClassInfo->GetType();
@@ -6235,26 +6232,16 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 		//CUSTOMLOG("No Stat for selected Wonder %s.",szWonderType.c_str());
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	bool bCheckForWonders = false;
-	bCheckForWonders = CheckForAllWondersBuilt();
-	if(bCheckForWonders)
-	{
+	bool bCheckForWonders = CheckForAllWondersBuilt();
+	if (bCheckForWonders)
 		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_WONDERS);
-	}
-#endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//DLC_06
-	bool bCheckForAncientWonders = false;
-	bCheckForAncientWonders = CheckForSevenAncientWondersBuilt();
-	if(bCheckForAncientWonders)
-	{
+	bool bCheckForAncientWonders = CheckForSevenAncientWondersBuilt();
+	if (bCheckForAncientWonders)
 		gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ANCIENT_WONDERS);
-	}
-#endif
-
 }
+
 bool CvCityBuildings::CheckForAllWondersBuilt()
 {
 	int iI;

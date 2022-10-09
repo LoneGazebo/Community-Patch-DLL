@@ -2834,9 +2834,7 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	CvPlayerAchievements& GetPlayerAchievements(){return m_kPlayerAchievements;}
-#endif
 
 	bool hasTurnTimerExpired();
 #if defined(MOD_BALANCE_CORE)

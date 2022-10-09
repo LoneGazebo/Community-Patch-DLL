@@ -10830,9 +10830,7 @@ void CvMinorCivAI::DoFriendship()
 				}
 
 				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
-				}
 			}
 			else if (IsFriends(ePlayer))
 			{
@@ -11407,10 +11405,9 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			}
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievement Test
-		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
-#endif
+		if (MOD_API_ACHIEVEMENTS)
+			kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
 	}
 
 	// Alter who gets this guy's resources
@@ -14691,19 +14688,20 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBoughtOut, eMajor, GetPlayer()->GetID());
 		}
-	
-#if defined(MOD_API_ACHIEVEMENTS)
-		CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
-		kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
 
-		//Nigerian Prince Achievement
-		MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
-		MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
-		bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
+		if (MOD_API_ACHIEVEMENTS)
+		{
+			CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
+			kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
 
-		if (kMajorPlayer.isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
-			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_54);
-#endif
+			//Nigerian Prince Achievement
+			MinorCivTypes eBornu =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_BORNU", /*bHideAssert*/ true);
+			MinorCivTypes  eSokoto =(MinorCivTypes) GC.getInfoTypeForString("MINOR_CIV_SOKOTO", /*bHideAssert*/ true);
+			bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
+
+			if (kMajorPlayer.isHuman() && bUsingXP2Scenario2 && (GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eBornu || GetPlayer()->GetMinorCivAI()->GetMinorCivType() == eSokoto ))
+				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_54);
+		}
 	}
 }
 
@@ -16297,9 +16295,7 @@ void CvMinorCivAI::DoElection()
 
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
-				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
-				}
 
 				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
 				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];

@@ -246,6 +246,8 @@ public:
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
+	bool IsWantsSneakAttack(PlayerTypes ePlayer) const; // Do we want to launch a Sneak Attack Operation against ePlayer?
+
 	// Approach Values: Cached weight for each approach
 	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
@@ -406,10 +408,6 @@ public:
 	bool IsPotentialWarTarget(PlayerTypes ePlayer) const;
 	void SetPotentialWarTarget(PlayerTypes ePlayer, bool bValue);
 	void DoResetPotentialWarTargets();
-
-	// Do we want to launch a Sneak Attack Operation against ePlayer?
-	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
-	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
 
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
@@ -1939,7 +1937,6 @@ private:
 	// War
 	bool m_abSaneDiplomaticTarget[MAX_CIV_PLAYERS];
 	bool m_abPotentialWarTarget[MAX_CIV_PLAYERS];
-	bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 	bool m_abArmyInPlaceForAttack[MAX_CIV_PLAYERS];
 	bool m_abAggressor[MAX_CIV_PLAYERS];
 	unsigned char m_aiNumWarsFought[MAX_CIV_PLAYERS];

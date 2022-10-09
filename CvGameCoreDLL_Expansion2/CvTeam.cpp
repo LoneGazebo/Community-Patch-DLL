@@ -1330,7 +1330,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								bool bHaveOffensiveOperation = GET_PLAYER(eLoopPlayer).HasAnyOffensiveOperationsAgainstPlayer(eLoopTarget);
 								bool bWarApproach = !GET_PLAYER(eLoopPlayer).isHuman() && pDiplo->GetCivApproach(eLoopTarget) == CIV_APPROACH_WAR;
 
-								if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopTarget) || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
+								if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopTarget) || pDiplo->GetGlobalCoopWarAgainstState(eLoopTarget) >= COOP_WAR_STATE_PREPARING)
 								{
 									pDiplo->SetAggressor(eLoopTarget, true);
 								}
@@ -1358,7 +1358,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 							bool bHaveOffensiveOperation = GET_PLAYER(eLoopTarget).HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer);
 							bool bWarApproach = !GET_PLAYER(eLoopTarget).isHuman() && pDiplo->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR;
 
-							if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsWantsSneakAttack(eLoopPlayer) || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
+							if (bHaveOffensiveOperation || bWarApproach || pDiplo->IsArmyInPlaceForAttack(eLoopPlayer) || pDiplo->GetGlobalCoopWarAgainstState(eLoopPlayer) >= COOP_WAR_STATE_PREPARING)
 							{
 								pDiplo->SetAggressor(eLoopPlayer, true);
 							}
@@ -6100,17 +6100,18 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 	if(GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
-#if defined(MOD_API_ACHIEVEMENTS)
-		CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
-
-		if(	GC.getGame().getActivePlayer() == ePlayer &&
-			strcmp(pkTechInfo->GetType(), "TECH_SATELLITES") == 0 &&
-			strcmp(kResearchingPlayer.getCivilizationTypeKey(), "CIVILIZATION_HUNS") == 0 &&
-			strcmp(GC.getMap().getWorldInfo().GetType(), "WORLDSIZE_HUGE") == 0)
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_30);
+			CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
+
+			if(	GC.getGame().getActivePlayer() == ePlayer &&
+				strcmp(pkTechInfo->GetType(), "TECH_SATELLITES") == 0 &&
+				strcmp(kResearchingPlayer.getCivilizationTypeKey(), "CIVILIZATION_HUNS") == 0 &&
+				strcmp(GC.getMap().getWorldInfo().GetType(), "WORLDSIZE_HUGE") == 0)
+			{
+				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_30);
+			}
 		}
-#endif
 
 		if(pkTechInfo->IsRepeat())
 		{

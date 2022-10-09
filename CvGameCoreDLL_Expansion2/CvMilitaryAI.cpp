@@ -3302,7 +3302,7 @@ void CvMilitaryAI::UpdateWarType()
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
-					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+					if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 					{
 						if (pLoopCity->isCoastal())
 						{
@@ -3335,7 +3335,7 @@ void CvMilitaryAI::UpdateWarType()
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
 		{
-			if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->IsWantsSneakAttack(eLoopPlayer))
+			if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()) || m_pPlayer->GetDiplomacyAI()->GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 			{
 				for(CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
 				{
@@ -3641,7 +3641,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 #endif
 
 		// Mobilize for war is automatic if we are preparing a sneak attack
-		if(pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
+		if (pkDiplomacyAI->GetCivApproach(eOtherPlayer) == CIV_APPROACH_WAR)
 		{
 			iCurrentWeight += 100;
 		}
@@ -3758,10 +3758,10 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 		{
 			// Also don't bother if we're building up for a sneak attack
 			CvDiplomacyAI* pkDiplomacyAI = pPlayer->GetDiplomacyAI();
-			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
 				PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-				if(pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
+				if (pkDiplomacyAI->IsWantsSneakAttack(eOtherPlayer))
 				{
 					return false;
 				}

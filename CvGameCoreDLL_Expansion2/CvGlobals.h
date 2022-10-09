@@ -115,10 +115,8 @@ class CvTraitEntry;
 class CvTraitXMLEntries;
 class CvNotificationEntry;
 class CvNotificationXMLEntries;
-#if defined(MOD_API_ACHIEVEMENTS)
 class CvAchievementInfo;
 class CvAchievementXMLEntries;
-#endif
 class CvBaseInfo;
 class CvReplayInfo;
 class CvReligion;
@@ -625,12 +623,11 @@ public:
 	_Ret_maybenull_ CvSmallAwardInfo* getSmallAwardInfo(SmallAwardTypes eSmallAwardNum);
 
 	CvNotificationXMLEntries* GetNotificationEntries();
-#if defined(MOD_API_ACHIEVEMENTS)
+
 	int getNumAchievementInfos();
 	std::vector<CvAchievementInfo*>& getAchievementInfo();
 	_Ret_maybenull_ CvAchievementInfo* getAchievementInfo(EAchievement eAchievementNum);
 	CvAchievementXMLEntries* GetGameAchievements() const;
-#endif
 
 	//
 	// Global Types
@@ -2060,7 +2057,6 @@ public:
 	GD_INT_MEMBER(INTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE);
 	GD_INT_MEMBER(AIR_SWEEP_INTERCEPTION_DAMAGE_MOD);
 	GD_INT_MEMBER(WOUNDED_DAMAGE_MULTIPLIER);
-	GD_INT_MEMBER(TRAIT_WOUNDED_DAMAGE_MOD);
 	GD_INT_MEMBER(CITY_STRENGTH_DEFAULT);
 	GD_INT_MEMBER(CITY_STRENGTH_POPULATION_CHANGE);
 	GD_INT_MEMBER(CITY_STRENGTH_TECH_MULTIPLIER);
@@ -2687,9 +2683,7 @@ protected:
 	CvLeagueProjectRewardXMLEntries* m_pLeagueProjectRewards;
 	CvResolutionXMLEntries* m_pResolutions;
 	CvNotificationXMLEntries* m_pNotifications;
-#if defined(MOD_API_ACHIEVEMENTS)
 	CvAchievementXMLEntries* m_pAchievements;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	CvCorporationXMLEntries* m_pCorporations;
 	CvContractXMLEntries* m_pContracts;

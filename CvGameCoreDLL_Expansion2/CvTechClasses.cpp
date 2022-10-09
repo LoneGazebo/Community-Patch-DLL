@@ -1651,69 +1651,67 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman() || GC.getGame().isGameMultiPlayer())
+		return;
+
+	//Check for Catherine Achievement
+	if((CvString)m_pPlayer->getLeaderTypeKey() == "LEADER_CATHERINE")
 	{
-		//Check for Catherine Achievement
-		if((CvString)m_pPlayer->getLeaderTypeKey() == "LEADER_CATHERINE")
+		for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
-			for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
+			const TechTypes eTech = static_cast<TechTypes>(iI);
+			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+			if(pkTechInfo)
 			{
-				const TechTypes eTech = static_cast<TechTypes>(iI);
-				CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-				if(pkTechInfo)
+				CvString szCurrentTech = (CvString) pkTechInfo->GetType();
+				if(szCurrentTech == "TECH_HORSEBACK_RIDING")
 				{
-					CvString szCurrentTech = (CvString) pkTechInfo->GetType();
-					if(szCurrentTech == "TECH_HORSEBACK_RIDING")
+					if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
 					{
-						if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
+						int iJ;
+						int iNumPlayersWith = 0;
+						for(iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 						{
-							int iJ;
-							int iNumPlayersWith = 0;
-							for(iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
+							if(!GET_PLAYER((PlayerTypes)iJ).isBarbarian() && !GET_PLAYER((PlayerTypes)iJ).isMinorCiv())
 							{
-								if(!GET_PLAYER((PlayerTypes)iJ).isBarbarian() && !GET_PLAYER((PlayerTypes)iJ).isMinorCiv())
+								if(GET_TEAM(GET_PLAYER((PlayerTypes)iJ).getTeam()).GetTeamTechs()->HasTech(eTech))
 								{
-									if(GET_TEAM(GET_PLAYER((PlayerTypes)iJ).getTeam()).GetTeamTechs()->HasTech(eTech))
-									{
-										iNumPlayersWith++;
-									}
+									iNumPlayersWith++;
 								}
 							}
-							if(iNumPlayersWith <= 1)  //For only the human player
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_PONY);
-							}
+						}
+						if(iNumPlayersWith <= 1)  //For only the human player
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_PONY);
 						}
 					}
 				}
 			}
 		}
-		//Check for all achievements
-		if(m_pPlayer->GetPlayerTechs()->IsCurrentResearchRepeat())
-		{
-			for(int iI = 0; iI < GC.getNumTechInfos() - 1; iI++)
-			{
-				const TechTypes eTech = static_cast<TechTypes>(iI);
-				CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-				if(pkTechInfo)
-				{
-					if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
-					{
-						return;
-					}
-				}
-
-			}
-
-			if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount((TechTypes)m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
-			{
-				return;
-			}
-			gDLL->UnlockAchievement(ACHIEVEMENT_ALL_TECHS);
-		}
 	}
-#endif
+	//Check for all achievements
+	if(m_pPlayer->GetPlayerTechs()->IsCurrentResearchRepeat())
+	{
+		for(int iI = 0; iI < GC.getNumTechInfos() - 1; iI++)
+		{
+			const TechTypes eTech = static_cast<TechTypes>(iI);
+			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+			if(pkTechInfo)
+			{
+				if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
+				{
+					return;
+				}
+			}
+
+		}
+
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetTechCount((TechTypes)m_pPlayer->GetPlayerTechs()->GetCurrentResearch()) < 1)
+		{
+			return;
+		}
+		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_TECHS);
+	}
 }
 
 /// Accessor: How many turns of research left?
