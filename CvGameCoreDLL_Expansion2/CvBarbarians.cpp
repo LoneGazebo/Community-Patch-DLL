@@ -572,11 +572,11 @@ void CvBarbarians::DoCamps()
 				continue;
 
 			// No camps on n-tile islands
-			if (pLoopPlot->getArea() == -1 || kMap.getArea(pLoopPlot->getArea())->getNumTiles() <= GD_INT_GET(BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE))
+			if (pLoopPlot->getLandmass() == -1 || kMap.getLandmass(pLoopPlot->getLandmass())->getNumTiles() <= /*1*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE))
 				continue;
 
-			// No camps on resources or improvements
-			if(/*pLoopPlot->getResourceType() != NO_RESOURCE || */ pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			// No camps on improvements
+			if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 				continue;
 
 			// Don't look at Tiles that can't have an improvement

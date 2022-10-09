@@ -40,7 +40,6 @@
 
 #ignore output from Visual Studio, ModBuddy, and Inno
 .vs/
-.idea/
 BuildOutput/
 BuildTemp/
 Build/
@@ -74,3 +73,6 @@ Vox Populi Installer Files/(1) Community Patch (v 120)/
 #ignore clang build intermediates
 clang-build/
 clang-output/
+
+#ignore output from any other IDEs/tools
+.idea/
