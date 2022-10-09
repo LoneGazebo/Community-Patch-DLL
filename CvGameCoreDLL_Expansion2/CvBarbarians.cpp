@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -571,8 +571,8 @@ void CvBarbarians::DoCamps()
 			if (pLoopPlot->isOwned() || pLoopPlot->isAdjacentOwned())
 				continue;
 
-			// No camps on 1-tile islands
-			if(pLoopPlot->getArea()==-1 || kMap.getArea(pLoopPlot->getArea())->getNumTiles() == 1)
+			// No camps on n-tile islands
+			if (pLoopPlot->getArea() == -1 || kMap.getArea(pLoopPlot->getArea())->getNumTiles() <= GD_INT_GET(BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE))
 				continue;
 
 			// No camps on resources or improvements

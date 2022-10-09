@@ -116,7 +116,7 @@
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="5F796A71EC4284037274FD10975313FD" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="3CFA058472EACE26C9A231236AA9080D" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="74D09033AE6F3A8F67B1B20A16183655" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="F8D37E359042282F346458D28BAA4AD1" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
