@@ -776,6 +776,7 @@ function HappinessTipHandler( control )
 -- COMMUNITY PATCH CHANGES BELOW
 		--local unhappinessFromPop = pPlayer:GetUnhappinessFromCityPopulation() - unhappinessFromSpecialists - iUnhappinessFromPupetCities;
 		local unhappinessFromPop = pPlayer:GetUnhappinessFromCityPopulation() - iUnhappinessFromPupetCities;
+		local iUnhappinessFromPuppetCitySpecialists = pPlayer:GetUnhappinessFromPuppetCitySpecialists();
 --END			
 		local iUnhappinessFromPop = Locale.ToNumber( unhappinessFromPop / 100, "#.##" );
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
@@ -795,31 +796,6 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromScience = pPlayer:GetUnhappinessFromCityScience();
 		local iUnhappinessFromCulture = pPlayer:GetUnhappinessFromCityCulture();
 --END
-
-		-- Empire Unhappiness
-		
-		if(totalUnhappiness ~= 0) then
-
-			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. "[COLOR:255:150:150:255]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", totalunhappiness);
-
--- COMMUNITY PATCH CHANGES BELOW
-			if (iUnhappinessFromPop > "0") then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
-			end
---END
-
-			if (iUnhappinessFromPublicOpinion ~= 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessFromPublicOpinion);
-			end
-			if (iUnhappinessFromWarWeariness ~= 0) then
-				strText = strText .. "[NEWLINE]";
-				strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
-			end
-		end
 
 		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR:150:255:150:255]";
 
@@ -893,13 +869,35 @@ function HappinessTipHandler( control )
 		if(total ~= 0)then
 			strText = strText .. "[NEWLINE][NEWLINE][COLOR:255:150:150:255]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_NEEDS" );
+		end	
+
+-- COMMUNITY PATCH CHANGES BELOW
+		if (iUnhappinessFromPop > "0") then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_POPULATION", iUnhappinessFromPop);
+		end
+--END
+
+		if (iUnhappinessFromPublicOpinion ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessFromPublicOpinion);
+		end
+		if (iUnhappinessFromWarWeariness ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWarWeariness);
 		end
 
 		if(iUnhappinessFromPupetCities > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", iUnhappinessFromPupetCities / 100);
 		end
+
+		if(iUnhappinessFromPuppetCitySpecialists > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", iUnhappinessFromPuppetCitySpecialists);
+		end
 		
+
 		if (iUnhappinessFromOccupiedCities ~= "0") then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", iUnhappinessFromOccupiedCities);
