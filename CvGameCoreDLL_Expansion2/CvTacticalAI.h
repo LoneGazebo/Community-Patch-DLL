@@ -222,14 +222,14 @@ public:
 		m_iZoneID = iZone;
 	};
 
-	bool IsReadyForCapture();
-	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
-	bool IsTargetValidInThisDomain(DomainTypes eDomain);
+	bool IsReadyForCapture() const;
+	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer) const;
+	bool IsTargetValidInThisDomain(DomainTypes eDomain) const;
 
 	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
 	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
 
-	inline CvUnit* GetUnitPtr()
+	inline CvUnit* GetUnitPtr() const
 	{
 		return m_pUnit;
 	}
@@ -242,7 +242,7 @@ public:
 	// For defensive items used to SORT targets in priority order
 	//    Set to the weight for defensive bastions
 	//    Set to the danger for cities to be garrisoned
-	inline int GetAuxIntData()
+	inline int GetAuxIntData() const
 	{
 		return m_iAuxData;
 	}
@@ -442,7 +442,6 @@ private:
 	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
-	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	void ExecuteHeals(bool bFirstPass);
@@ -465,12 +464,13 @@ private:
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot, bool bCheckDanger);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
+	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
 
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
 
-	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
+	int ComputeTotalExpectedDamage(const CvTacticalTarget& target);
 	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
@@ -952,7 +952,7 @@ namespace TacticalAIHelpers
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
 
-	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
+	std::vector<CvPlot*> GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
