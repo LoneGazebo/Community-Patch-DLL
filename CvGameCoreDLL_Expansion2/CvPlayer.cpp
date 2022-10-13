@@ -4346,9 +4346,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// Test to see if the city acquirer has won a Domination Victory
-	GC.getGame().DoTestConquestVictory();
-
 	// Update ownership of nearby plots
 	// Recursive: Still needed?
 	GC.getMap().updateOwningCityForPlots(pCityPlot, pNewCity->getWorkPlotDistance()*2);
@@ -4399,6 +4396,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	if (MOD_BALANCE_CORE_EVENTS)
 		CheckActivePlayerEvents(pNewCity);
+
+	// Test for Domination Victory
+	GC.getGame().DoTestConquestVictory();
 
 	if (bFirstConquest && isMajorCiv())
 	{

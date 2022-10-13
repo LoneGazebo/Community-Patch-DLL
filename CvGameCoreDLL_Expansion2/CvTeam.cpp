@@ -10043,6 +10043,9 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), locString.toUTF8(), -1, -1);
 		}
 	}
+
+	// Test for Domination Victory
+	GC.getGame().DoTestConquestVictory();
 }
 
 //	--------------------------------------------------------------------------------

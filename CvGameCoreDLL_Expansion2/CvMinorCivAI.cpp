@@ -11506,6 +11506,10 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
 	}
+
+	// Test for Domination Victory
+	if (eNewAlly != NO_PLAYER)
+		GC.getGame().DoTestConquestVictory();
 }
 
 /// How many turns has the alliance been active?
