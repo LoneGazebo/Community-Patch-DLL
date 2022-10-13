@@ -31725,7 +31725,7 @@ int CvPlayer::GetTechNeedModifier() const
 	int iPercentResearched = iOurTech * 100;
 	iPercentResearched /= max(1, iNumTechs);
 
-	iPercentResearched *= /*160*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_BASE_MODIFIER);
+	iPercentResearched *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_BASE_MODIFIER);
 	iPercentResearched /= 100;
 
 	return iPercentResearched;
