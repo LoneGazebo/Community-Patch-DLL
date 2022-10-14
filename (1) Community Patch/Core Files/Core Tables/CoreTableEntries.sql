@@ -330,20 +330,14 @@ ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
 ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 
--- Multiplier to AI perception of human military strength.
-ALTER TABLE HandicapInfos ADD COLUMN 'AIHumanStrengthMod' INTEGER DEFAULT 0;
-
--- AIs get more vision.
-ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0;
-
--- CBO Handicap Happiness System
-ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0;
-
--- CBP Difficulty Bonus
-ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0;
+-- New Handicap Values
+ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0; -- Local Happiness Bonus to Capital
+ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0; -- Bonus Warriors at game start (City-States)
+ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAULT 0; -- % increase to AI perception of human military strength.
+ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0; -- Extra sight for AI units.
+ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against this player (%)
+ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0; -- Periodic instant yields bonus when AI players complete certain triggers. Yield Amount = Base * (A + (B * Game Era) + (C * Game Era * Game Era)) / 100
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusC' INTEGER DEFAULT 0;

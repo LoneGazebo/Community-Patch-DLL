@@ -3004,7 +3004,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIStartingWorkerUnits(0),
 	m_iAIStartingExploreUnits(0),
 	m_iAIDeclareWarProb(0),
-	m_iAIHumanStrengthMod(0),
+	m_iHumanStrengthPerceptionMod(0),
 	m_iAIWorkRateModifier(0),
 	m_iAIUnhappinessPercent(0),
 	m_iAIGrowthPercent(0),
@@ -3265,9 +3265,9 @@ int CvHandicapInfo::getAIDeclareWarProb() const
 	return m_iAIDeclareWarProb;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIHumanStrengthMod() const
+int CvHandicapInfo::getHumanStrengthPerceptionMod() const
 {
-	return m_iAIHumanStrengthMod;
+	return m_iHumanStrengthPerceptionMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIWorkRateModifier() const
@@ -3521,7 +3521,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
 	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
 	m_iAIDeclareWarProb = kResults.GetInt("AIDeclareWarProb");
-	m_iAIHumanStrengthMod = kResults.GetInt("AIHumanStrengthMod");
+	m_iHumanStrengthPerceptionMod = kResults.GetInt("HumanStrengthPerceptionMod");
 	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
 	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
