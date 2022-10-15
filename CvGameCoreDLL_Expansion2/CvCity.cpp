@@ -22957,22 +22957,22 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		case UNHAPPY_REASON_RELIGIOUS_UNREST:
 			break; // Already handled above!
 		case UNHAPPY_REASON_OCCUPIED:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_OCCUPATION", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_OCCUPATION_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		case UNHAPPY_REASON_EMPIRE:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_EMPIRE", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_WIDE_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		case UNHAPPY_REASON_FAMINE:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_STARVING", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_STARVING_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		case UNHAPPY_REASON_PILLAGED_TILES:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_PILLAGED", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PILLAGED_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		case UNHAPPY_REASON_ISOLATION:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_UNCONNECTED", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CONNECTION_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		case UNHAPPY_REASON_URBANIZATION:
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_SPECIALIST", iUnhappyCitizens);
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_SPECIALIST_UNHAPPINESS", iUnhappyCitizens);
 			break;
 		}
 	}
