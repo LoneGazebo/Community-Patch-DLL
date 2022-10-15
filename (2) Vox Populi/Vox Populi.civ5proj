@@ -922,6 +922,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Compatibility/MoreLuxuries/Text/Text_en_US.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Mapscripts/EMP/EMP_Maps.xml</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -963,6 +968,13 @@
         <Type>Mod</Type>
         <Name>(6b) Vox Populi - Compatibility Files (No-EUI)</Name>
         <Id>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Explorer's Map Pack</Name>
+        <Id>3F49DF54-68B6-44d1-A930-A168628FAA59</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
@@ -1022,6 +1034,30 @@
         <Name>Terra</Name>
         <Description />
         <FileName>Mapscripts/Terra.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>ContinentsPlus</Name>
+        <Description />
+        <FileName>Mapscripts/EMP/ContinentsPlus.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Donut</Name>
+        <Description />
+        <FileName>Mapscripts/EMP/Donut.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>PangaeaPlus</Name>
+        <Description />
+        <FileName>Mapscripts/EMP/PangaeaPlus.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Sandstorm</Name>
+        <Description />
+        <FileName>Mapscripts/EMP/Sandstorm.lua</FileName>
       </Content>
       <Content>
         <Type>InGameUIAddin</Type>
@@ -1161,6 +1197,7 @@
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Balance Changes" />
     <Folder Include="Mapscripts" />
+    <Folder Include="Mapscripts\EMP" />
     <Folder Include="CSD\Art" />
     <Folder Include="CSD\Art\Buildings" />
     <Folder Include="CSD\Art\Buildings\Icons" />
@@ -3221,6 +3258,46 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Mapscripts\Terra.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\BeringStrait.Civ5Map">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\BritishIsles.Civ5Map">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\Caribbean.Civ5Map">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\ContinentsPlus.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\Donut.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\EasternUnitedStates.Civ5Map">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\EMP_Maps.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\JapaneseMainland.Civ5Map">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\PangaeaPlus.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\EMP\Sandstorm.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
