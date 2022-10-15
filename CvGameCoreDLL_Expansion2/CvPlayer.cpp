@@ -16259,8 +16259,8 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 								if (eBuildingUnlockedEra == NO_ERA)
 									continue;
 
-								int iEraDivisor = GetCurrentEra() - eBuildingUnlockedEra;
-								switch (iEraDivisor)
+								int iEraDifference = GetCurrentEra() - eBuildingUnlockedEra;
+								switch (iEraDifference)
 								{
 								case 0:
 									iProductionModifier += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
@@ -16269,8 +16269,10 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 									iProductionModifier += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
 									break;
 								case 2:
-									iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
+									iProductionModifier += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
 									break;
+								default:
+									iProductionModifier += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 								}
 							}
 						}
