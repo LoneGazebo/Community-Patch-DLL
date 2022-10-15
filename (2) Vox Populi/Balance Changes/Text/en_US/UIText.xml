@@ -1028,16 +1028,16 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESEARCH] Illiteracy[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_NEGATIVE_TEXT]{2_Num:number "#.##"} [ICON_RESEARCH][ENDCOLOR][NEWLINE]          Increase [ICON_RESEARCH] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESEARCH] Illiteracy[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num:number "#.##"} [ICON_RESEARCH][ENDCOLOR][NEWLINE]          Increase [ICON_RESEARCH] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CULTURE] Boredom[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_NEGATIVE_TEXT]{2_Num:number "#.##"} [ICON_CULTURE][ENDCOLOR][NEWLINE]          Increase [ICON_CULTURE] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_CULTURE] Boredom[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num:number "#.##"} [ICON_CULTURE][ENDCOLOR][NEWLINE]          Increase [ICON_CULTURE] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_FOOD] and [ICON_PRODUCTION] Distress[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_NEGATIVE_TEXT]{2_Num:number "#.##"}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION][NEWLINE]          Increase [ICON_FOOD]/[ICON_PRODUCTION] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_FOOD] and [ICON_PRODUCTION] Distress[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num:number "#.##"}[ENDCOLOR] [ICON_FOOD]/[ICON_PRODUCTION][NEWLINE]          Increase [ICON_FOOD]/[ICON_PRODUCTION] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_GOLD] Poverty[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_NEGATIVE_TEXT]{2_Num:number "#.##"} [ICON_GOLD][ENDCOLOR][NEWLINE]          Increase [ICON_GOLD] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_GOLD] Poverty[NEWLINE]          Actual: {3_Num} [ICON_HAPPINESS_3] (Reduced by {4_Num})[NEWLINE]          Total Deficit: [COLOR_CYAN]{2_Num:number "#.##"} [ICON_GOLD][ENDCOLOR][NEWLINE]          Increase [ICON_GOLD] by {5_Num:number "#.##"} for -1 [ICON_HAPPINESS_3]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Isolation. [NEWLINE]          ([ICON_BLOCKADED] Blockaded / no [ICON_CONNECTED] Connection /[NEWLINE]          no [ICON_CAPITAL] Capital [ICON_INTERNATIONAL_TRADE] Trade Route)</Text>
