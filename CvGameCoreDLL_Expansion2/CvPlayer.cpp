@@ -16294,57 +16294,61 @@ int CvPlayer::getProductionNeeded(BuildingTypes eTheBuilding) const
 	iProductionNeeded *= GC.getGame().getStartEraInfo().getConstructPercent();
 	iProductionNeeded /= 100;
 
-	if (pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
+	// Reduce the cost of buildings from earlier eras
+	if (MOD_BALANCE_VP)
 	{
-		CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkBuildingInfo->GetPrereqAndTech());
-		if (pkTechInfo)
+		if (pkBuildingInfo->GetPrereqAndTech() != NO_TECH)
 		{
-			// Loop through all eras and apply Building production mod based on how much time has passed
-			int iTotalEraMod = 0;
-			EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
-
-			if (eBuildingUnlockedEra < GetCurrentEra())
+			CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkBuildingInfo->GetPrereqAndTech());
+			if (pkTechInfo)
 			{
-				for (int iLoop = eBuildingUnlockedEra; iLoop < GetCurrentEra(); iLoop++)
-				{
-					CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
-					CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+				// Loop through all eras and apply Building production mod based on how much time has passed
+				int iTotalEraMod = 0;
+				EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
 
-					if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
+				if (eBuildingUnlockedEra < GetCurrentEra())
+				{
+					for (int iLoop = eBuildingUnlockedEra; iLoop < GetCurrentEra(); iLoop++)
 					{
-						CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
-						if (pkEraInfo)
+						CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
+						CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+
+						if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
 						{
-							iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+							CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
+							if (pkEraInfo)
+							{
+								iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+							}
 						}
 					}
-				}
 
-				iProductionNeeded *= (100 + iTotalEraMod);
-				iProductionNeeded /= 100;
+					iProductionNeeded *= (100 + iTotalEraMod);
+					iProductionNeeded /= 100;
+				}
 			}
 		}
-	}
-	else
-	{
-		int iTotalEraMod = 0;
-		for (int iLoop = 0; iLoop < GetCurrentEra(); iLoop++)
+		else
 		{
-			CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
-			CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
-
-			if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
+			int iTotalEraMod = 0;
+			for (int iLoop = 0; iLoop < GetCurrentEra(); iLoop++)
 			{
-				CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
-				if (pkEraInfo)
+				CvAssertMsg(iLoop >= 0, "Loop should be within era bounds");
+				CvAssertMsg(iLoop <GC.getNumEraInfos(), "Loop should be within era bounds");
+
+				if (iLoop >= 0 && iLoop < GC.getNumEraInfos())
 				{
-					iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+					CvEraInfo* pkEraInfo = GC.getEraInfo((EraTypes)iLoop);
+					if (pkEraInfo)
+					{
+						iTotalEraMod += pkEraInfo->getLaterEraBuildingConstructMod();
+					}
 				}
 			}
-		}
 
-		iProductionNeeded *= (100 + iTotalEraMod);
-		iProductionNeeded /= 100;
+			iProductionNeeded *= (100 + iTotalEraMod);
+			iProductionNeeded /= 100;
+		}
 	}
 
 	if (!isBarbarian())
