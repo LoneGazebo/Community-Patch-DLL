@@ -1076,45 +1076,45 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_PUPPET">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want [ICON_PUPPET] Equal Rights!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We want [ICON_PUPPET] Equal Rights!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_OCCUPATION">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Fight the [ICON_OCCUPIED] Oppressors!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "Fight the [ICON_OCCUPIED] Oppressors!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RESISTANCE">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "[ICON_RESISTANCE] Viva la Revolución!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "[ICON_RESISTANCE] Viva la Revolución!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_FOOD] and [ICON_PRODUCTION] distressed!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "Our city is [ICON_FOOD] and [ICON_PRODUCTION] distressed!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "The city is [ICON_GOLD] impoverished!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "The city is [ICON_GOLD] impoverished!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_CULTURE] boring!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "Our city is [ICON_CULTURE] boring!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCONNECTED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_BLOCKADED] disconnected!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We are [ICON_BLOCKADED] disconnected!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_PILLAGED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "The land is [ICON_RAZING] burning!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "The land is [ICON_RAZING] burning!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_STARVING">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] food!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "There is not enough [ICON_FOOD] food!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RELIGION">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want more {2_ReligionIcon} followers!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "We want more {2_ReligionIcon} followers!"</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_SPECIALIST">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This place is [ICON_URBANIZATION] crowded!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "This place is [ICON_URBANIZATION] crowded!"</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_EMPIRE">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "[ICON_WAR] War! What is it good for!?"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN_RED]: "[ICON_WAR] War! What is it good for!?"</Text>
 		</Row>
 
 		<!-- Luxury Tooltip -->
