@@ -750,6 +750,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>CSD/Units/MoreGreatDiplomats.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>CSD/Units/CSD_Units.xml</FileName>
       </Action>
       <Action>
