@@ -133,11 +133,11 @@ SET Text = 'Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST]
 WHERE Tag = 'TXT_KEY_TRAIT_INGENIOUS';
 
 UPDATE Language_en_US
-SET Text = 'This Babylonian Unique Unit replaces the Composite Bowman. The Bowman is stronger and can better withstand melee attacks than the standard Composite Bowman. Starts with the [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] promotion.'
+SET Text = 'This Babylonian Unique Unit replaces the Archer. The Bowman is stronger and can better withstand melee attacks than the standard Archer. Starts with the [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] promotion.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Bowman is the Babylonian Unique Unit, replacing the Composite Bowman. This Unit is defensively stronger than the Composite Bowman, allowing placement in the front line. The Bowman''s improved combat prowess helps ameliorate any concern that it may be quickly overrun.'
+SET Text = 'The Bowman is the Babylonian Unique Unit, replacing the Archer. This Unit is defensively stronger than the Archer, allowing placement in the front line. The Bowman''s improved combat prowess helps ameliorate any concern that it may be quickly overrun.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_STRATEGY';
 
 UPDATE Language_en_US
@@ -575,11 +575,15 @@ SET Text = 'Units ignore terrain costs when on Hills and may cross Mountains. Ci
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
-SET Text = 'This Incan Unique Unit replaces the Archer. The Slinger possesses a promotion that gives it a good chance to withdraw to the rear before an enemy melee attack can occur, and can daze enemy units.'
+SET Text = 'Waraq''Ak'
+WHERE Tag = 'TXT_KEY_UNIT_INCAN_SLINGER';
+
+UPDATE Language_en_US
+SET Text = 'This Incan Unique Unit replaces the Slinger. Has increased [ICON_RANGE_STRENGTH] Attack Range and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Slinger is an Ancient Era ranged infantry Unit that can strike foes from afar. This Incan Unique Unit can withdraw before most melee attacks, and can daze enemy units: use it to harass your foes. However the Slinger can be easily defeated if the enemy pins it against obstructions or chases it with fast units.'
+SET Text = 'The Waraq''Ak is an Ancient Era ranged infantry Unit that can strike foes from afar. This Incan Unique Unit can daze enemy units; use it to harass your foes and take down Barbarian camps quickly.'
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
 
 UPDATE Language_en_US
@@ -744,7 +748,7 @@ SET Text = 'Only the Maya may build this unit. It is available sooner than the C
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MAYAN_ATLATLIST';
 
 UPDATE Language_en_US
-SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are cheaper than Composite Bowmen and gain bonus damage from attacking wounded units. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
+SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are cheaper and available earlier than Composite Bowmen, and gain bonus damage from attacking wounded units. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
 WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 
 --------------------
