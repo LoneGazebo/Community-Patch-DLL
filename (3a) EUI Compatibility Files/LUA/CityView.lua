@@ -1144,7 +1144,9 @@ local g_SelectionListCallBacks = {
 							end
 						end
 						-- all cities are producing...
-						return ExitCityScreen()
+						if not UI.CtrlKeyDown() then
+							return ExitCityScreen()
+						end
 					end
 				end
 			end
