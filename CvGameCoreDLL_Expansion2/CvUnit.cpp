@@ -5098,7 +5098,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 	if (isBarbarian() && IsCanAttack() && GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 	{
 		//do not capture settlers early in the game ...
-		if (plot.isOwned() || plot.getNumUnitsOfAIType(UNITAI_SETTLE)>0)
+		if (plot.isOwned() || plot.getFirstUnitOfAITypeOtherTeam(BARBARIAN_TEAM, UNITAI_SETTLE) != NULL)
 		{
 			return false;
 		}
