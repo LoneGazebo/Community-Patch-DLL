@@ -68,6 +68,16 @@ local FaithFontIconList = {
 	UNITCLASS_PROPHET = "[ICON_ITP_RELIGION]",
 	UNITCLASS_MISSIONARY = " [ICON_MISSIONARY]",
 	UNITCLASS_INQUISITOR = "[ICON_INQUISITOR]",
+	UNITCLASS_COMBAT = "[ICON_ITP_RELIGIOUS_UNIT]",
+	UNITCLASS_ENGINEER = "[ICON_ITP_RELIGIOUS_ENGINEER]",
+	UNITCLASS_GREAT_GENERAL = "[ICON_ITP_RELIGIOUS_GENERAL]",
+	UNITCLASS_SCIENTIST = "[ICON_ITP_RELIGIOUS_SCIENTIST]",
+	UNITCLASS_MERCHANT = "[ICON_ITP_RELIGIOUS_MERCHANT]",
+	UNITCLASS_ARTIST = "[ICON_ITP_RELIGIOUS_ARTIST]",
+	UNITCLASS_MUSICIAN = "[ICON_ITP_RELIGIOUS_MUSICIAN]",
+	UNITCLASS_WRITER = "[ICON_ITP_RELIGIOUS_WRITER]",
+	UNITCLASS_GREAT_ADMIRAL = "[ICON_ITP_RELIGIOUS_ADMIRAL]",
+	UNITCLASS_GREAT_DIPLOMAT = "[ICON_ITP_RELIGIOUS_DIPLOMAT]",
 }
 
 local civ5_mode = InStrategicView ~= nil
@@ -657,7 +667,13 @@ local function UpdateTopPanelNow()
 					if faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_BUILDING then
 						Controls.FaithIcon:SetText("[ICON_ITP_RELIGIOUS_BUILDING]")	
 					elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_UNIT or faithTarget == GameInfo.Units.UNIT_PROPHET then
+						if FaithFontIconList[faithTarget.Class] ~= nil then
 							Controls.FaithIcon:SetText(FaithFontIconList[faithTarget.Class])	
+						else
+							IconHookup(faithTarget.PortraitIndex, iconSize, faithTarget.IconAtlas, Controls.FaithIcon)
+							Controls.FaithIcon:SetOffsetVal(-5,-13)
+							Controls.FaithTurns:SetOffsetVal(0,9)
+						end
 					else 
 						Controls.FaithIcon:SetText("[ICON_ITP_PANTHEON]")	
 					end
@@ -1406,7 +1422,6 @@ if civ5_mode then
 			--------------
 			-- Unhappiness
 			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
-			local iUnhappinessFromPuppetSpecialists = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists()
 			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
 --CBP
 			local unhappinessFromPop = (g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromPupetCities)
@@ -1437,7 +1452,6 @@ if civ5_mode then
 
 -- COMMUNITY PATCH CHANGES BELOW		
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", iUnhappinessFromPuppetSpecialists )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
 			
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving )
