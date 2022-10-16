@@ -13,6 +13,7 @@
 !*.civ5proj
 !*.civ5sln
 !*.civ5sln
+!*.Civ5Map
 !*.dds
 !*.def
 !*.dll
