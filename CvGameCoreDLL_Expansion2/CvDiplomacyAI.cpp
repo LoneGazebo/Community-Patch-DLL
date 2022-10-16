@@ -11192,7 +11192,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				switch (eMajorEstimate)
 				{
 				case NO_STRENGTH_VALUE:
-					UNREACHABLE();
+					//this is ok, can happen if we just resurrected a player. fall through to pathetic
 				case STRENGTH_PATHETIC:
 					eThirdPartyStrength = STRENGTH_IMMENSE;
 					break;

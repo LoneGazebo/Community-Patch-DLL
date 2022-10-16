@@ -6156,6 +6156,10 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 
 CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush)
 {
+	//use rebase moves for aircraft!
+	if (!pUnit || pUnit->getDomainType() == DOMAIN_AIR)
+		return NULL;
+
 	vector<OptionWithScore<CvPlot*>> aCityList;
 	vector<OptionWithScore<CvPlot*>> aZeroDangerList;
 	vector<OptionWithScore<CvPlot*>> aCoverList;

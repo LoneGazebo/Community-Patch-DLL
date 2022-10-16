@@ -495,6 +495,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	ExecuteUnitGift();
 
 	//military only
+	PlotAircraftRebase();
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
 	PlotSentryMoves();
@@ -505,7 +506,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotMovesToSafety();
 
 	//military again
-	PlotAircraftRebase();
 	PlotPatrolMoves();
 
 	//civilians again
@@ -2928,13 +2928,16 @@ typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 {
-	if (!pUnit)
+	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+	if (!pBestPlot)
 		return;
 
-	//a bit tricky: we know that we should be able to reach the plot
+	pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+
+	//a bit tricky: we know that we should be able to reach the best plot
 	//but maybe the mission is aborted (new enemy discovered etc)
 	//can happen for AI civilians ...
-	CvPlot* pBestPlot = NULL;
+
 	for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
 	{
 		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
@@ -2953,7 +2956,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 	{
 		CvString strLogString;
 		CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-		strLogString.Format("Moved %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
+		strLogString.Format("Moved %s (%d) to safety, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
 		LogHomelandMessage(strLogString);
 	}
 }
