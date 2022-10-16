@@ -18132,7 +18132,7 @@ int CvPlayer::GetAverageProduction() const
 int CvPlayer::GetAverageProductionTimes100() const
 {
 	vector<int> viCityProduction;
-	int iNumBestCities = /*4*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
+	int iNumBestCities = /*1*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
 
 	int iProduction = 0;
 
@@ -18169,7 +18169,7 @@ int CvPlayer::GetAverageInstantProduction()
 int CvPlayer::GetAverageInstantProductionTimes100()
 {
 	vector<int> viCityProduction;
-	int iNumBestCities = /*4*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
+	int iNumBestCities = /*1*/ GD_INT_GET(HISTORY_LOCAL_NUM_BEST_CITIES);
 
 	int iProduction = 0;
 

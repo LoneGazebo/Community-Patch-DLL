@@ -527,9 +527,9 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERT
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '100'; -- The median Science need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '100'; -- The median Culture need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.5'; -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '1.0'; -- Unhappiness point per starving citizen.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.50'; -- Unhappiness point per pillaged plot owned by city.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.34'; -- Unhappiness point per pop if unconnected or blockaded.
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.50'; -- Unhappiness point per pillaged plot owned by city. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.33'; -- Unhappiness point per pop if unconnected or blockaded. (rounded up)
 
 
 -- Tourism

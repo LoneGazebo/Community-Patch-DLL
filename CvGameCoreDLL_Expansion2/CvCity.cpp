@@ -23380,7 +23380,7 @@ int CvCity::GetUnhappinessFromIsolation() const
 	float fUnhappiness = 0.00f;
 	if (GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP) > 0)
 	{
-		fUnhappiness += ceil((float)getPopulation() * /*0.34f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP));
+		fUnhappiness += ceil((float)getPopulation() * /*0.33f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP));
 	}
 
 	return range((int)fUnhappiness, 0, getPopulation());
