@@ -25,7 +25,7 @@ local g_VPTipTable = {
 "When you expend a Great Writer, make sure you do it in a city where you want to grab new tiles from border growth.",
 "Issue move orders with SHIFT+RCLICK to create waypoints.",
 "CTRL+RCLICK issues a 'Move and Act' order. Workers repair tiles and improve resources, Missionaries spread their religion, Diplomatic Units spread influence, Archaeologists dig, and Combat Units go into Fortify or Alert mode.",
-"When voting for World Congress resolutions, right-click to assign all delegates and middle-click to assign ten.",
+"When voting for World Congress resolutions, right-click to assign all delegates and middle-click or shift-click to assign ten.",
 "SHIFT+LCLICK on the Next Turn button to issue a skip turn order to all idle Units. This can be used if you're experiencing the glitch that prevents progressing to the next turn.",
 -- "CTRL+RCLICK on a notification to quickly clear all notifications.",
 "Specialists can be locked in Vox Populi by clicking on an empty Specialist slot in the city screen.",
