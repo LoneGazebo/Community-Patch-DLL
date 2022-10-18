@@ -5270,12 +5270,16 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 		if (!pCityPlot)
 			continue;
 
-		// Only count settled cities, not conquered ones
-		if (GET_PLAYER(pOtherCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
-			continue;
-
 		// Ignore their capital
 		if (pOtherCity->IsOriginalCapitalForPlayer(ePlayer))
+			continue;
+
+		// Can we actually see this city? No cheating!
+		if (!pCityPlot->isRevealed(GetTeam()))
+			continue;
+
+		// Only count settled cities, not conquered ones
+		if (GET_PLAYER(pOtherCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
 			continue;
 
 		int iTurnFounded = pOtherCity->getGameTurnFounded();
@@ -5296,7 +5300,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 			if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
 				continue;
 
-			// Must be closer to this city than to their capital
+			// Must be closer to our city than to their capital
 			int iDistance = plotDistance(*pCityPlot, *pOurCityPlot);
 			if (iDistanceFromTheirCapital <= iDistance)
 				continue;
@@ -11987,16 +11991,21 @@ void CvDiplomacyAI::DoExpansionBickering()
 			if (!pCityPlot)
 				continue;
 
-			// Only count settled cities, not conquered ones
-			if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
+			// Ignore their capital
+			if (pLoopCity->IsOriginalCapitalForPlayer(ePlayer))
 				continue;
 
-			// Don't trigger expansion bickering if we've already done so for this city
+			// If this city already existed last time we got mad, don't get mad again over it
+			// This flag also excludes City-States purchased by Venice/Austria
 			if (pLoopCity->IsIgnoredForExpansionBickering(GetID()))
 				continue;
 
-			// Ignore their capital
-			if (pLoopCity->IsOriginalCapitalForPlayer(ePlayer))
+			// Can we actually see this city? No cheating!
+			if (!pCityPlot->isRevealed(GetTeam()))
+				continue;
+
+			// Only count settled cities, not conquered ones
+			if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
 				continue;
 
 			// Must have founded the city recently
@@ -12005,13 +12014,10 @@ void CvDiplomacyAI::DoExpansionBickering()
 				continue;
 
 			// Must be close to one of our cities
-			int iDistanceFromUs = GetPlayer()->GetCityDistanceInPlots(pCityPlot);
-			if (iDistanceFromUs > iExpansionBickerRange)
+			if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > iExpansionBickerRange)
 				continue;
 
-			// Must be closer to our closest city than to their capital
-			if (plotDistance(*pCityPlot, *pTheirCapital->plot()) <= iDistanceFromUs)
-				continue;
+			int iDistanceFromTheirCapital = plotDistance(*pCityPlot, *pTheirCapital->plot());
 
 			// Check to see if any of our cities within range of them were founded earlier than theirs was
 			for (CvCity* pOurLoopCity = GetPlayer()->firstCity(&iLoop2); pOurLoopCity != NULL; pOurLoopCity = GetPlayer()->nextCity(&iLoop2))
@@ -12029,7 +12035,12 @@ void CvDiplomacyAI::DoExpansionBickering()
 					continue;
 
 				// Is this city near them?
-				if (plotDistance(*pCityPlot, *pOurCityPlot) > iExpansionBickerRange)
+				int iDistanceBetweenUs = plotDistance(*pCityPlot, *pOurCityPlot);
+				if (iDistanceBetweenUs > iExpansionBickerRange)
+					continue;
+
+				// If their city is closer to (or equidistant from) their own capital, it's within their sphere of influence - ignore it
+				if (iDistanceFromTheirCapital <= iDistanceBetweenUs)
 					continue;
 
 				// We've got a reason to be mad!
