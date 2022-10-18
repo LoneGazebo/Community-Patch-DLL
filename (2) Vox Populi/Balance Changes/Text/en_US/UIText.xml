@@ -169,7 +169,7 @@
 			<Text>[COLOR_GREEN]Local Happiness in Cities[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_BODY">
-			<Text>The Local Happiness of a city is determined as follows: [NEWLINE][NEWLINE]Some Happiness is generated locally by the city. This can be through Buildings, Policies, World Wonders or Worked Landmarks. [NEWLINE][NEWLINE]The total amount of Happiness coming from empire-wide sources (like Luxury Resources or allied City States) is distributed deck of cards style among all Cities. This is done automatically, prioritizing Cities that have less local Happiness than Population. </Text>
+			<Text>The Local Happiness of a city is determined as follows: [NEWLINE][NEWLINE]Some Happiness is generated locally by the City. This can be through Buildings, Policies, World Wonders or Worked Landmarks. [NEWLINE][NEWLINE]The total amount of Happiness coming from empire-wide sources (like Luxury Resources or allied City States) is distributed deck-of-cards style among all Cities. This is done automatically, prioritizing Cities that have less local Happiness than Population. </Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_ADV_QUEST">
 			<Text>How is Local City Happiness determined?</Text>
