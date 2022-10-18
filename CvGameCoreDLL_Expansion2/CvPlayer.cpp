@@ -48682,7 +48682,7 @@ std::vector<int> CvPlayer::GetTotalBuildingCount(bool bIncludePuppets) const
 	int iLoop;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (bIncludePuppets || CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+		if (bIncludePuppets || !CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 		{
 			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 			for (size_t i = 0; i < vBuildings.size(); i++)
