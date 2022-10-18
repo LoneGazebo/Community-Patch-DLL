@@ -22431,7 +22431,7 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 int CvCity::GetCitySizeModifier() const
 {
 	int iPop = getPopulation();
-	iPop *= /*-50*/ GD_INT_GET(BALANCE_HAPPINESS_POP_MULTIPLIER);
+	iPop *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_POP_MULTIPLIER);
 	iPop /= 100;
 	return iPop;
 }
