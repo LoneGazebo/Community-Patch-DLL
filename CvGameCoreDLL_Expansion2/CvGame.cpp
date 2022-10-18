@@ -1163,7 +1163,7 @@ void CvGame::uninit()
 	m_eTeamThatCircumnavigated = NO_TEAM;
 	m_bVictoryRandomization = false;
 
-	m_iGlobalPopulation = 0;
+	m_iMedianTechsResearched = 0;
 	m_iBasicNeedsMedian = 0;
 	m_iGoldMedian = 0;
 	m_iScienceMedian = 0;
@@ -11296,7 +11296,7 @@ void CvGame::updateEconomicTotal()
 void CvGame::updateGlobalMedians()
 {
 	int iCityLoop;
-	int iGlobalPopulation = 0;
+	std::vector<int> viTechsResearched;
 	std::vector<float> vfBasicNeedsYield;
 	std::vector<float> vfGoldYield;
 	std::vector<float> vfScienceYield;
@@ -11309,14 +11309,14 @@ void CvGame::updateGlobalMedians()
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
 			continue;
 
+		viTechsResearched.push_back(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown());
+
 		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 		{
 			if (pLoopCity->IsPuppet() || pLoopCity->IsRazing() || pLoopCity->IsResistance())
 				continue;
 
 			int iPopulation = pLoopCity->getPopulation();
-			iGlobalPopulation += iPopulation;
-
 			if (iPopulation < /*3*/ GD_INT_GET(UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT))
 				continue;
 
@@ -11345,22 +11345,24 @@ void CvGame::updateGlobalMedians()
 	}
 
 	// Cannot define median if calculations are at zero.
-	if (vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty())
+	if (viTechsResearched.empty() || vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty())
 		return;
-
-	// Set the global population (in non-puppeted/razing/resistance cities)
-	SetGlobalPopulation(iGlobalPopulation);
 	
-	//Select n-th percentile of each category
-	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	// Select n-th percentile of each category
+	size_t nt = (viTechsResearched.size() * /*50*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	size_t n = (vfCultureYield.size() * /*50*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
 
-	//Find it ...
+	// Find it ...
+	std::nth_element(viTechsResearched.begin(), viTechsResearched.begin() + nt, viTechsResearched.end());
 	std::nth_element(vfBasicNeedsYield.begin(), vfBasicNeedsYield.begin()+n, vfBasicNeedsYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 
-	// Exponential smoothing so the medians increase gradually
+	// And set it.
+	SetMedianTechsResearched((int)viTechsResearched[nt]);
+
+	// Exponential smoothing so the yield medians change gradually
 	float fAlpha = /*0.65f*/ GD_FLOAT_GET(DISTRESS_MEDIAN_RATE_CHANGE);
 	int iNewMedian = int(0.5f + ((int)vfBasicNeedsYield[n] * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
 	SetBasicNeedsMedian(iNewMedian);
@@ -11380,9 +11382,9 @@ void CvGame::updateGlobalMedians()
 	DoGlobalMedianLogging();
 }
 //	--------------------------------------------------------------------------------
-void CvGame::SetGlobalPopulation(int iValue)
+void CvGame::SetMedianTechsResearched(int iValue)
 {
-	m_iGlobalPopulation = iValue;
+	m_iMedianTechsResearched = iValue;
 }
 void CvGame::SetBasicNeedsMedian(int iValue)
 {
@@ -11428,9 +11430,9 @@ void CvGame::DoGlobalMedianLogging()
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvGame::GetGlobalPopulation() const
+int CvGame::GetMedianTechsResearched() const
 {
-	return m_iGlobalPopulation;
+	return m_iMedianTechsResearched;
 }
 int CvGame::GetBasicNeedsMedian() const
 {
@@ -11691,7 +11693,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_eTeamThatCircumnavigated);
 	visitor(game.m_bVictoryRandomization);
 
-	visitor(game.m_iGlobalPopulation);
+	visitor(game.m_iMedianTechsResearched);
 	visitor(game.m_iBasicNeedsMedian);
 	visitor(game.m_iGoldMedian);
 	visitor(game.m_iScienceMedian);

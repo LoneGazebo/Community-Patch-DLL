@@ -512,10 +512,11 @@ INSERT INTO Defines (Name, Value) SELECT 'VERY_UNHAPPY_PRODUCTION_PENALTY', '-50
 
 -- City Happiness Defines
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '4'; -- Puppets produce flat unhappiness based on # of citizens in the city. Divisor is this, never set to zero.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '10'; -- Per non-puppet city % modifier for unhappiness from needs (i.e. # cities * value below = % modifier).
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '10'; -- Per non-puppet city % modifier for unhappiness from needs (i.e. # cities * value below = % modifier). Scales with map size.
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '100'; -- 100 = 1 unhappiness per specialist.
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'; -- Base Modifier for Capital Needs. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '0'; -- % of techs researched, multiplied by this value and then divided by 100. 0 (disabled) is default.
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '0'; -- % of techs researched, multiplied by this value and then divided by 100. Disabled by default.
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_TECH_DEVIATION_MODIFIER', '0'; -- Modifier to needs for each tech ahead of the median # of techs researched you are. No bonus for being behind in tech. Disabled by default.
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-50'; -- Base modifier to needs based on # of citizens in cities you own (2 citizens = -1%). Modifier increases as cities grow. -50 is default.
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT', '3'; -- The required population for a city to be counted in the global median for Needs. Prevents an early game unhappiness spike due to the high initial rate per citizen.
 INSERT INTO Defines (Name, Value) SELECT 'DISTRESS_MEDIAN_RATE_CHANGE', '0.65'; -- The rate at which the global median for Distress changes. Valid values are between 0.01 and 1.00. Higher values cause the median to shift more quickly.

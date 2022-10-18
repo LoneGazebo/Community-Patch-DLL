@@ -1,8 +1,3 @@
--- Median value for global average selection model. 50 = true median.
-UPDATE Defines
-SET Value = '55'
-WHERE Name = 'BALANCE_HAPPINESS_THRESHOLD_PERCENTILE';
-
 -- DEFINES FOR CITY HAPPINESS
 
 -- Base unhappiness per each citizen in a city.

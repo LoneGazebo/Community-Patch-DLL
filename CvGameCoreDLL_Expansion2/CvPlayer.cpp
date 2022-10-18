@@ -31723,20 +31723,25 @@ void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
 	m_iNoUnhappfromXSpecialists += iChange;
 }
 
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetTechNeedModifier() const
 {
 	int iOurTech = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iNumTechs = GC.getNumTechInfos();
 
+	// Modifier increasing needs based purely on % of techs researched (disabled by default)
 	int iPercentResearched = iOurTech * 100;
 	iPercentResearched /= max(1, iNumTechs);
-
 	iPercentResearched *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_BASE_MODIFIER);
 	iPercentResearched /= 100;
 
-	return iPercentResearched;
-}
+	// Modifier increasing needs based on how many techs this player is ahead of the median # of techs researched (disabled by default)
+	int iTechDeviation = iOurTech - GC.getGame().GetMedianTechsResearched();
+	if (iTechDeviation > 0)
+		iTechDeviation *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_DEVIATION_MODIFIER);
 
+	return iPercentResearched + iTechDeviation;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetHappfromXSpecialists() const

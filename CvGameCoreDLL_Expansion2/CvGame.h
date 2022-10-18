@@ -535,14 +535,14 @@ public:
 
 	// Median Yield Per Pop Calculations
 	void updateGlobalMedians();
-	void SetGlobalPopulation(int iValue);
+	void SetMedianTechsResearched(int iValue);
 	void SetBasicNeedsMedian(int iValue);
 	void SetGoldMedian(int iValue);
 	void SetScienceMedian(int iValue);
 	void SetCultureMedian(int iValue);
 	void DoGlobalMedianLogging();
 
-	int GetGlobalPopulation() const;
+	int GetMedianTechsResearched() const;
 	int GetBasicNeedsMedian() const;
 	int GetGoldMedian() const;
 	int GetScienceMedian() const;
@@ -847,7 +847,7 @@ protected:
 
 	bool m_bVictoryRandomization;
 
-	int m_iGlobalPopulation;
+	int m_iMedianTechsResearched;
 	int m_iBasicNeedsMedian;
 	int m_iGoldMedian;
 	int m_iScienceMedian;
