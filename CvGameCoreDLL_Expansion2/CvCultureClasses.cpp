@@ -5446,7 +5446,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	iTargetWarWeariness /= 100;
 
 	// also never more than x% of population...
-	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(BALANCE_WAR_WEARINESS_POPULATION_CAP) / 100;
+	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP) / 100;
 	if (iTargetWarWeariness > iPopLimit)
 		iTargetWarWeariness = iPopLimit;
 

@@ -686,15 +686,10 @@ public:
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	int GetPlayerHappinessLuxuryPopulationFactor1000() const;
-	int GetBonusHappinessFromLuxuries(int iPop = 0) const;
 	int GetBonusHappinessFromLuxuriesFlat() const;
 	int GetBonusHappinessFromLuxuriesFlatForUI() const;
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	int GetUnhappinessFromWarWeariness() const;
-#endif
 
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -2018,7 +2013,7 @@ public:
 	bool IsCSResourcesCountMonopolies() const;
 	void changeCSResourcesCountMonopolies(int iChange);
 
-	int GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const;
+	int GetScalingNationalPopulationRequired(BuildingTypes eBuilding) const;
 #endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);

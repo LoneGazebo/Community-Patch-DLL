@@ -13414,7 +13414,7 @@ bool CvUnit::blastTourism()
 		// Give happiness to Musician owner
 		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 		{
-			int iCap = /*2*/ GD_INT_GET(BALANCE_CORE_MUSICIAN_BLAST_HAPPINESS);
+			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
 
 			if (kUnitOwner.getCapitalCity() != NULL)
 			{
@@ -13460,7 +13460,7 @@ bool CvUnit::blastTourism()
 			PlayerTypes eOwner = pPlot->getOwner();
 
 			// Give happiness to Musician owner
-			int iCap = /*2*/ GD_INT_GET(BALANCE_CORE_MUSICIAN_BLAST_HAPPINESS);
+			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
 
 			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 			{

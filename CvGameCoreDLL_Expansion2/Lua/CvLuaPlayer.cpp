@@ -774,12 +774,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCityMinority);
 #endif
 	Method(GetUnhappinessFromJFDSpecial);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	Method(GetBonusHappinessFromLuxuries);
-	Method(GetScalingNationalPopulationRequrired);
-#endif
+	Method(GetScalingNationalPopulationRequired);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	Method(GetCapitalUnhappinessModCBP);
+	Method(GetCapitalNeedModifier);
 #endif
 
 	Method(IsAlive);
@@ -9201,37 +9199,24 @@ int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //------------------------------------------------------------------------------
-//int getBonusHappinessFromLuxuries();
-int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
-//------------------------------------------------------------------------------
-//int GetScalingNationalPopulationRequrired();
-int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
+//int GetScalingNationalPopulationRequired();
+int CvLuaPlayer::lGetScalingNationalPopulationRequired(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetScalingNationalPopulationRequrired(eBuilding);
+	const int iResult = pkPlayer->GetScalingNationalPopulationRequired(eBuilding);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
-//int GetCapitalUnhappinessModCBP();
-int CvLuaPlayer::lGetCapitalUnhappinessModCBP(lua_State* L)
+//int GetCapitalNeedModifier();
+int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
 {
-	const int iResult = /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER);
+	const int iResult = /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -11882,7 +11882,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_VP)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
@@ -11897,40 +11897,32 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		}
 		else if (pkUnitInfo->IsFound())
 		{
-			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
+			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 			{
-				if (iTempMod > 0)
-					iTempMod = 0;
-
-				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_PRODUCTION_PENALTY);
+				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+			}
+			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+			{
+				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+			}
+			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
 
-			//malus?
-			if (iTempMod < 0)
+			// Can't be lower than -75% from Unhappiness.
+			if (iTempMod < /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY))
 			{
-				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				{
-					iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY);
-				}
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				{
-					iTempMod += /*-100*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY) * 2;
-				}
-				//If happiness is less than the main threshold, calculate city penalty mod.
-				if (iTempMod < /*-75*/ GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM))
-				{
-					iTempMod = GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM);
-				}
-
-				iTempMod *= -1;
-
-				//Let's do the yield mods.			
-				iCost *= (100 + iTempMod);
-				iCost /= 100;
+				iTempMod = GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
+
+			iTempMod *= -1;
+
+			//Let's do the yield mods.
+			iCost *= (100 + iTempMod);
+			iCost /= 100;
 		}
 	}
 
@@ -12224,8 +12216,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_VP)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		if (bCombat)
@@ -12240,43 +12231,34 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		}
 		else if (pkUnitInfo->IsFound())
 		{
-			//Mechanic to allow for production malus from happiness/unhappiness.
-			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER));
+			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 			{
-				if (iTempMod > 0)
-					iTempMod = 0;
-
-				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_PRODUCTION_PENALTY);
+				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+			}
+			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+			{
+				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+			}
+			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
 
-			//malus?
-			if (iTempMod < 0)
+			// Can't be lower than -75% from Unhappiness.
+			if (iTempMod < /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY))
 			{
-				if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				{
-					iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY);
-				}
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				{
-					iTempMod += /*-100*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY) * 2;
-				}
-				//If happiness is less than the main threshold, calculate city penalty mod.
-				if (iTempMod < /*-75*/ GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM))
-				{
-					iTempMod = GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM);
-				}
-
-				iTempMod *= -1;
-
-				//Let's do the yield mods.			
-				iCost *= (100 + iTempMod);
-				iCost /= 100;
+				iTempMod = GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
+
+			iTempMod *= -1;
+
+			//Let's do the yield mods.
+			iCost *= (100 + iTempMod);
+			iCost /= 100;
 		}
 	}
-#endif
 
 	// Make the number not be funky
 	int iDivisor = /*10*/ GD_INT_GET(GOLD_PURCHASE_VISIBLE_DIVISOR);
@@ -13029,7 +13011,6 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	// Production bonus from Corporation
 	CorporationTypes eCorporation = GET_PLAYER(getOwner()).GetCorporations()->GetFoundedCorporation();
 	if (eCorporation != NO_CORPORATION)
@@ -13055,50 +13036,44 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+
 	UnitTypes prodUnit = getProductionUnit();
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL && !bIgnoreHappiness && prodUnit != NO_UNIT)
+	if (MOD_BALANCE_VP && !bIgnoreHappiness && prodUnit != NO_UNIT)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(prodUnit);
 		int iTempMod = 0;
-		if (pUnitEntry->IsFound())
+		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
+
+		if (bCombat)
 		{
-			//Mechanic to allow for production malus from happiness/unhappiness.
-			iTempMod = getHappinessDelta() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_PRODUCTION_MODIFIER);
+			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY) * -1);
 		}
-
-		if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		else if (pUnitEntry->IsFound())
 		{
-			if (iTempMod > 0)
-				iTempMod = 0;
+			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_PRODUCTION_PENALTY);
-		}
-
-		//malus?
-		if (iTempMod < 0)
-		{
-			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY);
-			}
 			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 			{
-				iTempMod += /*-100*/ GD_INT_GET(VERY_UNHAPPY_PRODUCTION_PENALTY) * 2;
+				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
-			//If happiness is less than the main threshold, calculate city penalty mod.
-			if (iTempMod < /*-75*/ GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM))
+			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 			{
-				iTempMod = GD_INT_GET(BALANCE_HAPPINESS_PENALTY_MAXIMUM);
+				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
 			}
-			//Let's do the yield mods.
-			iMultiplier += iTempMod;
-			if (iTempMod != 0 && toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
+			{
+				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+			}
 		}
+
+		// Can't be lower than -75% from Unhappiness.
+		if (iTempMod < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
+			iTempMod = GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY);
+
+		iMultiplier += iTempMod;
+		if (iTempMod != 0 && toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
 	}
-#endif
-#endif
 
 	// Military production bonus
 	if (pkUnitInfo->IsMilitaryProduction())
@@ -17426,34 +17401,29 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		iTotalMod += iReligionGrowthMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			int iHappiness = getHappinessDelta();
 
 			if (iHappiness > 0)
-				iHappiness *= /*2*/ GD_INT_GET(BALANCE_HAPPINESS_FOOD_MODIFIER);
+				iHappiness *= /*2*/ GD_INT_GET(LOCAL_HAPPINESS_FOOD_MODIFIER);
 			else
-				iHappiness *= /*10*/ GD_INT_GET(BALANCE_UNHAPPINESS_FOOD_MODIFIER);
-
+				iHappiness *= /*10*/ GD_INT_GET(LOCAL_UNHAPPINESS_FOOD_MODIFIER);
 
 			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
 				if (iHappiness > 0)
 					iHappiness = 0;
 
-				iHappiness += /*-75 in CP, -25 in VP*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
-			}
-			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				iHappiness += /*-100 in CP, -50 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-			}
-			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-			{
-				iHappiness += /*-200 in CP, -100 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY) * 2;
+				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+					iHappiness += /*-100*/ GD_INT_GET(SUPER_UNHAPPY_GROWTH_PENALTY);
+				else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+					iHappiness += /*-50*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
+				else
+					iHappiness += /*-25*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
 			}
 
-			//value
-			if (iHappiness <= -100)
+			if (iHappiness < -100)
 				iHappiness = -100;
 
 			iTotalMod += iHappiness;
@@ -17468,14 +17438,14 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			// Cities stop growing when empire is very unhappy
 			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 			{
-				int iMod = /*-100 in CP, -50 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
+				int iMod = /*-100*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
 				iTotalMod += iMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 			}
 			// Cities grow slower if the player is over his Happiness Limit
 			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 			{
-				int iMod = /*-75 in CP, -25 in VP*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
+				int iMod = /*-75*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
 				iTotalMod += iMod;
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 			}
@@ -17527,15 +17497,14 @@ int CvCity::getGrowthMods() const
 	{
 		iTotalMod += iCityGrowthMod;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	int iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
 
 	if (iCorpMod > 0)
 	{
 		iTotalMod += iCorpMod;
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
 	{
 		int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
@@ -17560,7 +17529,6 @@ int CvCity::getGrowthMods() const
 			iTotalMod += iSupplyMod;
 		}
 	}
-#endif
 
 	if (MOD_BALANCE_CORE)
 	{
@@ -17603,7 +17571,6 @@ int CvCity::getGrowthMods() const
 		}
 	}
 
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	// Mod for civs keeping their pantheon belief forever
 	if (MOD_RELIGION_PERMANENT_PANTHEON)
 	{
@@ -17621,9 +17588,7 @@ int CvCity::getGrowthMods() const
 			}
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		// Do we get increased yields from a resource monopoly?
@@ -17635,58 +17600,45 @@ int CvCity::getGrowthMods() const
 			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 		}
 	}
-#endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (MOD_BALANCE_CORE_HAPPINESS)
+
+	if (MOD_BALANCE_VP)
 	{
 		int iHappiness = getHappinessDelta();
 
 		if (iHappiness > 0)
-			iHappiness *= /*2*/ GD_INT_GET(BALANCE_HAPPINESS_FOOD_MODIFIER);
+			iHappiness *= /*2*/ GD_INT_GET(LOCAL_HAPPINESS_FOOD_MODIFIER);
 		else
-			iHappiness *= /*10*/ GD_INT_GET(BALANCE_UNHAPPINESS_FOOD_MODIFIER);
-
+			iHappiness *= /*10*/ GD_INT_GET(LOCAL_UNHAPPINESS_FOOD_MODIFIER);
 
 		if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 		{
 			if (iHappiness > 0)
 				iHappiness = 0;
 
-			iHappiness += /*-75 in CP, -25 in VP*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
-		}
-		if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-		{
-			iHappiness += /*-100 in CP, -50 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-		}
-		if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-		{
-			iHappiness += /*-200 in CP, -100 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY) * 2;
+			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
+				iHappiness += /*-100*/ GD_INT_GET(SUPER_UNHAPPY_GROWTH_PENALTY);
+			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+				iHappiness += /*-50*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
+			else
+				iHappiness += /*-25*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
 		}
 
-		//value
-		if (iHappiness <= -100)
-			iHappiness = -100;
-
-		iTotalMod += iHappiness;
+		iTotalMod += std::max(iHappiness, -100);
 	}
 	else
 	{
-#endif
 		// Cities stop growing when empire is very unhappy
 		if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
-			int iMod = /*-100 in CP, -50 in VP*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-			iTotalMod += iMod;
+			iTotalMod += std::max(/*-100*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY), -100);
 		}
-		// Cities grow slower if the player is over his Happiness Limit
+		// Cities grow much slower if the player is over his Happiness Limit
 		else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 		{
-			int iMod = /*-75 in CP, -25 in VP*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
-			iTotalMod += iMod;
+			iTotalMod += std::max(/*-75*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY), -100);
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
-#endif
+
 	// WLTKD Growth Bonus
 	if (GetWeLoveTheKingDayCounter() > 0)
 	{
@@ -17748,7 +17700,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		//Less unhappiness from specialists....
 		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		{
-			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 			int iNoHappinessSpecialists = 0;
 			if (iPopulation > 0)
 			{
@@ -21706,7 +21658,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 		int iSpecialistPopulation = GetCityCitizens()->GetTotalSpecialistCount();
 		if (iSpecialistPopulation > 0)
 		{
-			int iHappinessPerPop = /*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+			int iHappinessPerPop = /*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 			int iHappinessSpecialists = GET_PLAYER(getOwner()).GetHappfromXSpecialists();
 
 			//Can't give more free happiness than specialists.
@@ -22115,7 +22067,7 @@ int CvCity::getUnhappinessFromSpecialists(int iSpecialists) const
 	//Less unhappiness from specialists....
 	if (MOD_BALANCE_VP)
 	{
-		iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+		iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 		int iNoHappinessSpecialists = 0;
 		if (iSpecialists > 0)
 		{
@@ -22160,7 +22112,7 @@ int CvCity::GetUnhappinessAggregated() const
 	else if (IsPuppet())
 	{
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
-		return getUnhappinessFromSpecialists(iSpecialists) + (iPopulation / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD)));
+		return getUnhappinessFromSpecialists(iSpecialists) + (iPopulation / max(1, /*4*/ GD_INT_GET(UNHAPPINESS_PER_X_PUPPET_CITIZENS)));
 	}
 	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -22401,7 +22353,7 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 	// Increase from being the capital
-	int iModifier = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+	int iModifier = isCapital() ? /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER) : 0;
 
 	// Increase from tech
 	iModifier += bForceRecalc ? kPlayer.GetTechNeedModifier() : GetCachedTechNeedModifier();
@@ -22430,16 +22382,30 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 
 int CvCity::GetCitySizeModifier() const
 {
-	int iPop = getPopulation();
-	iPop *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_POP_MULTIPLIER);
-	iPop /= 100;
-	return iPop;
+	return getPopulation() * /*0*/ GD_INT_GET(CITY_SIZE_NEED_MODIFIER);
 }
 
 int CvCity::GetEmpireSizeModifier() const
 {
-	// -1 (exclude the capital)
-	int iEmpireMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_EMPIRE_MULTIPLIER);
+	// x% per city, excluding puppets and the capital
+	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*10*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES);
+	if (iNumCitiesMod < 0)
+		iNumCitiesMod = 0;
+
+	// x% per empire pop, excluding puppets
+	int iLoop = 0, iPopMod = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if (pLoopCity->IsPuppet())
+			continue;
+
+		iPopMod += pLoopCity->getPopulation();
+	}
+	iPopMod *= /*0*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
+	if (iPopMod < 0)
+		iPopMod = 0;
+
+	int iEmpireMod = iNumCitiesMod + iPopMod;
 
 	// Scale with map size
 	iEmpireMod *= std::min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
@@ -22542,7 +22508,7 @@ int CvCity::GetCityNeedModifierForYield(YieldTypes eYield) const
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
 	// Increase from being the capital
-	int iModifier = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+	int iModifier = isCapital() ? /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER) : 0;
 
 	// Decrease from city size
 	iModifier += GetCitySizeModifier();
@@ -22627,7 +22593,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	}
 	else if (IsPuppet())
 	{
-		int iPuppetUnhappiness = iPopulation / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
+		int iPuppetUnhappiness = iPopulation / max(1, /*4*/ GD_INT_GET(UNHAPPINESS_PER_X_PUPPET_CITIZENS));
 		int iSpecialistUnhappiness = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 		int iTotalUnhappiness = iPuppetUnhappiness + iSpecialistUnhappiness;
 		CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness, GC.getGame().getGameTurn());
@@ -22982,7 +22948,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		// Needs Factors
 		strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_BREAKDOWN");
 
-		int iCapitalMod = isCapital() ? /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER) : 0;
+		int iCapitalMod = isCapital() ? /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER) : 0;
 		int iTechMod = GetCachedTechNeedModifier();
 		int iCitySize = GetCitySizeModifier();
 		int iEmpireSize = GetReducedEmpireSizeModifier(false,false);
@@ -23120,7 +23086,7 @@ float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) co
 	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetBasicNeedsMedian() : (float)GetCachedBasicNeedsMedian();
 	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_PRODUCTION, bForceRecalc) + iAdditionalModifier);
 	fMedianYieldPerPop /= 100;
-	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_DISTRESS), 0);
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(DISTRESS_MEDIAN_BASE_MODIFIER), 0);
 	fMedianYieldPerPop /= 100;
 
 	if (fMedianYieldPerPop <= 0.00f)
@@ -23165,7 +23131,7 @@ float CvCity::GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const
 	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetGoldMedian() : (float)GetCachedGoldMedian();
 	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_GOLD, bForceRecalc) + iAdditionalModifier);
 	fMedianYieldPerPop /= 100;
-	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY), 0);
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(POVERTY_MEDIAN_BASE_MODIFIER), 0);
 	fMedianYieldPerPop /= 100;
 
 	if (fMedianYieldPerPop <= 0.00f)
@@ -23210,7 +23176,7 @@ float CvCity::GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const
 	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetScienceMedian() : (float)GetCachedScienceMedian();
 	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_SCIENCE, bForceRecalc) + iAdditionalModifier);
 	fMedianYieldPerPop /= 100;
-	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY), 0);
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(ILLITERACY_MEDIAN_BASE_MODIFIER), 0);
 	fMedianYieldPerPop /= 100;
 
 	if (fMedianYieldPerPop <= 0.00f)
@@ -23255,7 +23221,7 @@ float CvCity::GetCultureMedian(bool bForceRecalc, int iAdditionalModifier) const
 	fMedianYieldPerPop += bForceRecalc ? (float)GC.getGame().GetCultureMedian() : (float)GetCachedCultureMedian();
 	fMedianYieldPerPop *= (100 + GetTotalNeedModifierForYield(YIELD_CULTURE, bForceRecalc) + iAdditionalModifier);
 	fMedianYieldPerPop /= 100;
-	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY), 0);
+	fMedianYieldPerPop *= /*100*/ std::max(GD_INT_GET(ILLITERACY_MEDIAN_BASE_MODIFIER), 0);
 	fMedianYieldPerPop /= 100;
 
 	if (fMedianYieldPerPop <= 0.00f)
@@ -23274,7 +23240,7 @@ int CvCity::GetUnhappinessFromPillagedTiles() const
 	if (iPillagedTiles > 0)
 	{
 		float fUnhappiness = 0.0f;
-		float fUnhappyPerTile = /*0.50f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_PILLAGED);
+		float fUnhappyPerTile = /*0.50f*/ GD_FLOAT_GET(UNHAPPINESS_PER_PILLAGED_TILE);
 		fUnhappiness += (float)iPillagedTiles * fUnhappyPerTile;
 		return range((int)fUnhappiness, 0, getPopulation());
 	}
@@ -23294,7 +23260,7 @@ int CvCity::GetUnhappinessFromFamine() const
 		iDiff = (iDiff * -1);
 
 		float fUnhappiness = 0.0f;
-		float fUnhappyPerDeficit = /*1.0f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP);
+		float fUnhappyPerDeficit = /*1.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_STARVING_POP);
 		fUnhappiness += (float)iDiff * fUnhappyPerDeficit;
 
 		return range((int)fUnhappiness, 0, getPopulation());
@@ -23327,7 +23293,7 @@ int CvCity::GetUnhappinessFromReligiousUnrest() const
 
 		if (iReligiousMinorities > 0)
 		{
-			fUnhappiness += iReligiousMinorities * /*0.5f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_PER_MINORITY_POP);
+			fUnhappiness += iReligiousMinorities * /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
 			int iModifier = GetTotalNeedModifierForYield(YIELD_FAITH, false);
 
 			fUnhappiness *= (100 + iModifier);
@@ -23378,9 +23344,9 @@ int CvCity::GetUnhappinessFromIsolation() const
 
 	//ok, how much unhappiness do we generate?
 	float fUnhappiness = 0.00f;
-	if (GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP) > 0)
+	if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
 	{
-		fUnhappiness += ceil((float)getPopulation() * /*0.33f*/ GD_FLOAT_GET(BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP));
+		fUnhappiness += ceil((float)getPopulation() * /*0.33f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP));
 	}
 
 	return range((int)fUnhappiness, 0, getPopulation());
@@ -24659,13 +24625,11 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 int CvCity::getHappinessModifier(YieldTypes eIndex) const
 {
 	VALIDATE_OBJECT
+	if (MOD_BALANCE_VP)
+		return 0;
+
 	int iModifier = 0;
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
-
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	{
-		return iModifier;
-	}
 
 	if (kPlayer.IsEmpireUnhappy())
 	{

@@ -147,7 +147,7 @@ SET Text = 'If your civilization is unhappy, then the city will produce less foo
 WHERE Tag = 'TXT_KEY_FOOD_UNHAPPINESS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Settlers can only be constructed in cities of size 2 or larger [COLOR_YELLOW]after researching Pottery[ENDCOLOR]. During construction, settlers consume a city''s production and all of the city''s excess food intake. As long as the settler is in production, the city will not grow or add food to its growth bucket. [COLOR_YELLOW]After the construction of the Settler is completed, the city loses one Population. Later in the game, Settlers are replaced by more advanced units which can found cities with additional infrastructure.[ENDCOLOR] See the section on Settlers for more details.'
+SET Text = 'Settlers can only be constructed in cities of size [COLOR_YELLOW]4[ENDCOLOR] or larger [COLOR_YELLOW]after researching Pottery[ENDCOLOR]. During construction, settlers consume a city''s production and all of the city''s excess food intake. As long as the settler is in production, the city will not grow or add food to its growth bucket. [COLOR_YELLOW]After the construction of the Settler is completed, the city loses one Population. Later in the game, Settlers are replaced by more advanced units which can found cities with additional infrastructure.[ENDCOLOR] See the section on Settlers for more details.'
 WHERE Tag = 'TXT_KEY_FOOD_SETTLERS_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Settlers And Food Production[ENDCOLOR]'
@@ -557,7 +557,7 @@ SET Text = 'Your approval rating is less than 50%! Because of this, all Cities w
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, but [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth and the cost of Settlers.'
+SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, but [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth, Military Unit costs and Settler costs.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS';
 
 -- TOOLTIPS FOR TOP BAR

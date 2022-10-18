@@ -770,12 +770,11 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
-	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
-#endif
+
+	LUAAPIEXTN(GetScalingNationalPopulationRequired, int);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	LUAAPIEXTN(GetCapitalUnhappinessModCBP, int);
+	LUAAPIEXTN(GetCapitalNeedModifier, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

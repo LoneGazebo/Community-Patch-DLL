@@ -1439,7 +1439,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 	--- National/Local Population
 	if(activePlayer) then
-		local iNumNationalPop = activePlayer:GetScalingNationalPopulationRequrired(buildingID);
+		local iNumNationalPop = activePlayer:GetScalingNationalPopulationRequired(buildingID);
 		if(iNumNationalPop > 0) then
 			local iNumHave = activePlayer:GetTotalPopulation();
 			tips:insert(L("TXT_KEY_PEDIA_NUM_POPULATION_NATIONAL_NEEDED_LABEL", iNumNationalPop, iNumHave))

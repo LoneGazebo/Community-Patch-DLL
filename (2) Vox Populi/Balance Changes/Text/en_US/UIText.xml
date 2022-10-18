@@ -1451,11 +1451,11 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Military Unit and Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">

@@ -11295,12 +11295,15 @@ void CvGame::updateEconomicTotal()
 /// Updates global medians for yields. Also updates global population (counting only citizens in non-puppet/razing/resistance cities).
 void CvGame::updateGlobalMedians()
 {
+	if (!MOD_BALANCE_VP)
+		return;
+
 	int iCityLoop;
-	std::vector<int> viTechsResearched;
 	std::vector<float> vfBasicNeedsYield;
 	std::vector<float> vfGoldYield;
 	std::vector<float> vfScienceYield;
 	std::vector<float> vfCultureYield;
+	std::vector<int> viTechsResearched;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -11317,7 +11320,7 @@ void CvGame::updateGlobalMedians()
 				continue;
 
 			int iPopulation = pLoopCity->getPopulation();
-			if (iPopulation < /*3*/ GD_INT_GET(UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT))
+			if (iPopulation < /*3*/ GD_INT_GET(YIELD_MEDIAN_MIN_POP_REQUIREMENT))
 				continue;
 
 			float fPopulation = (float)iPopulation;
@@ -11345,19 +11348,19 @@ void CvGame::updateGlobalMedians()
 	}
 
 	// Cannot define median if calculations are at zero.
-	if (viTechsResearched.empty() || vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty())
+	if (vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty() || viTechsResearched.empty())
 		return;
 	
 	// Select n-th percentile of each category
-	size_t nt = (viTechsResearched.size() * /*50*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
-	size_t n = (vfCultureYield.size() * /*50*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	size_t n = (vfCultureYield.size() * /*50*/ range(GD_INT_GET(YIELD_MEDIAN_PERCENTILE), 1, 100)) / 100;
+	size_t nt = (viTechsResearched.size() * /*50*/ range(GD_INT_GET(TECH_COUNT_MEDIAN_PERCENTILE), 1, 100)) / 100;
 
 	// Find it ...
-	std::nth_element(viTechsResearched.begin(), viTechsResearched.begin() + nt, viTechsResearched.end());
 	std::nth_element(vfBasicNeedsYield.begin(), vfBasicNeedsYield.begin()+n, vfBasicNeedsYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
+	std::nth_element(viTechsResearched.begin(), viTechsResearched.begin() + nt, viTechsResearched.end());
 
 	// And set it.
 	SetMedianTechsResearched((int)viTechsResearched[nt]);

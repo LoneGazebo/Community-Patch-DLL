@@ -15550,7 +15550,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		//Requires a certain population size, nationally.
 		if(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 		{
-			int iPopRequired = GetScalingNationalPopulationRequrired(eBuilding);
+			int iPopRequired = GetScalingNationalPopulationRequired(eBuilding);
 			if(iPopRequired > 0)
 			{
 				int iCurrentPop = getTotalPopulation();
@@ -21874,63 +21874,9 @@ void CvPlayer::ChangeExtraHappinessPerLuxury(int iChange)
 	m_iExtraHappinessPerLuxury += iChange;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetPlayerHappinessLuxuryPopulationFactor1000() const
-{
-	return /*20*/ GD_INT_GET(BALANCE_HAPPINESS_LUXURY_POP_SCALER);
-}
-
-int CvPlayer::GetBonusHappinessFromLuxuries(int iPop) const
-{
-	if (iPop == 0)
-		return 0;
-
-	int iTotalResourceWeight = 0;
-	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
-		int iBaseVal = GetHappinessFromLuxury(eResource, false) * 1000;
-		if (iBaseVal <= 0)
-			continue;
-
-		iBaseVal += (GetExtraHappinessPerLuxury() * 1000);
-
-		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
-		if (pInfo && pInfo->isMonopoly())
-		{
-			if (HasGlobalMonopoly(eResource) && pInfo->getMonopolyHappiness() > 0)
-			{
-				iBaseVal += (pInfo->getMonopolyHappiness() + GetMonopolyModFlat()) * 1000;
-			}
-		}
-
-		// Resource bonus from Minors, and this is a Luxury we're getting from one (Policies, etc.)
-		if (IsMinorResourceBonus() && getResourceFromMinors(eResource) > 0)
-		{
-			iBaseVal *= /*150 in CP, 100 in VP*/ GD_INT_GET(MINOR_POLICY_RESOURCE_HAPPINESS_MULTIPLIER);
-			iBaseVal /= 100;
-		}
-
-		iTotalResourceWeight += iBaseVal;
-	}
-
-	if (iTotalResourceWeight <= 0)
-		return 0;
-
-	//scaler is in 1/1000th
-	int iScaled = int(0.5f + iTotalResourceWeight / 1000.f * iPop * GetPlayerHappinessLuxuryPopulationFactor1000() / 1000);
-
-	return max(1, iScaled);
-	
-}
-
 int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 {
-	int iTotalResourceWeight = 0;
-
-	int iCityScaler = getNumCities() * (/*20*/ GD_INT_GET(BALANCE_HAPPINESS_LUXURY_POP_SCALER) + GetCurrentEra());
-	iCityScaler /= 100;
+	int iHappiness = 0;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -21940,7 +21886,6 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 			continue;
 
 		iBaseVal += GetExtraHappinessPerLuxury();
-		iBaseVal += iCityScaler;
 
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
 		if (pInfo && pInfo->isMonopoly())
@@ -21958,22 +21903,19 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlat() const
 			iBaseVal /= 100;
 		}
 
-		iTotalResourceWeight += iBaseVal;
+		iHappiness += iBaseVal;
 	}
 
-	if (iTotalResourceWeight <= 0)
+	if (iHappiness <= 0)
 		return 0;
 
-	return iTotalResourceWeight;
+	return iHappiness;
 
 }
 
 int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 {
-	int iTotalResourceWeight = 0;
-
-	int iCityScaler = getNumCities() * /*20*/ GD_INT_GET(BALANCE_HAPPINESS_LUXURY_POP_SCALER);
-	iCityScaler /= 100;
+	int iHappiness = 0;
 	
 	int iNumResources = 0;
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -21984,7 +21926,6 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 			continue;
 
 		iBaseVal += GetExtraHappinessPerLuxury();
-		iBaseVal += iCityScaler;
 
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
 		if (pInfo && pInfo->isMonopoly())
@@ -22002,26 +21943,22 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 			iBaseVal /= 100;
 		}
 
-		iTotalResourceWeight += iBaseVal;
-
+		iHappiness += iBaseVal;
 		iNumResources++;
 	}
 
-	if (iTotalResourceWeight <= 0)
+	if (iHappiness <= 0)
 		return 0;
 
-	return iTotalResourceWeight / max(1, iNumResources);
-	 
+	return iHappiness / max(1, iNumResources);
 }
-#endif
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetUnhappinessFromWarWeariness() const
 {
 	return GetCulture()->GetWarWeariness();
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport) const
@@ -22034,7 +21971,7 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImpor
 	if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
 		// Any extras?
-		if (getNumResourceAvailable(eResource, /*bIncludeImport*/ bIncludeImport) > 0)
+		if (getNumResourceAvailable(eResource, bIncludeImport) > 0)
 		{
 			return pkResourceInfo->getHappiness();
 		}
@@ -22434,7 +22371,7 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 			if (!pLoopCity->IsPuppet())
 				continue;
 			else
-				iTotal += pLoopCity->getPopulation() / max(1, /*4*/ GD_INT_GET(BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD));
+				iTotal += pLoopCity->getPopulation() / max(1, /*4*/ GD_INT_GET(UNHAPPINESS_PER_X_PUPPET_CITIZENS));
 		}
 		return iTotal;
 	}
@@ -22544,7 +22481,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			//Less unhappiness from specialists....
 			if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS || MOD_BALANCE_CORE_JFD)
 			{
-				iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(BALANCE_UNHAPPINESS_PER_SPECIALIST);
+				iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 				int iNoHappinessSpecialists = 0;
 				if (iPopulation > 0)
 				{
@@ -31732,15 +31669,17 @@ int CvPlayer::GetTechNeedModifier() const
 	// Modifier increasing needs based purely on % of techs researched (disabled by default)
 	int iPercentResearched = iOurTech * 100;
 	iPercentResearched /= max(1, iNumTechs);
-	iPercentResearched *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_BASE_MODIFIER);
+	iPercentResearched *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PERCENT_RESEARCHED);
 	iPercentResearched /= 100;
 
 	// Modifier increasing needs based on how many techs this player is ahead of the median # of techs researched (disabled by default)
-	int iTechDeviation = iOurTech - GC.getGame().GetMedianTechsResearched();
-	if (iTechDeviation > 0)
-		iTechDeviation *= /*0*/ GD_INT_GET(BALANCE_HAPPINESS_TECH_DEVIATION_MODIFIER);
+	int iTechDifference = iOurTech - GC.getGame().GetMedianTechsResearched();
+	if (iTechDifference > 0)
+		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN);
+	else if (iTechDifference < 0)
+		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
 
-	return iPercentResearched + iTechDeviation;
+	return iPercentResearched + iTechDifference;
 }
 
 //	--------------------------------------------------------------------------------
@@ -35921,7 +35860,7 @@ void CvPlayer::changeCSResourcesCountMonopolies(int iChange)
 }
 
 
-int CvPlayer::GetScalingNationalPopulationRequrired(BuildingTypes eBuilding) const
+int CvPlayer::GetScalingNationalPopulationRequired(BuildingTypes eBuilding) const
 {
 	if(eBuilding != NO_BUILDING)
 	{
@@ -47202,7 +47141,7 @@ int CvPlayer::getNewCityProductionValue() const
 
 	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		iValue *= (100 + (getNumCities() * /*10*/ GD_INT_GET(BALANCE_HAPPINESS_EMPIRE_MULTIPLIER)));
+		iValue *= (100 + (getNumCities() * /*10*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES)));
 		iValue /= 100;
 	}
 
