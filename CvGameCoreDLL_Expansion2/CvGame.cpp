@@ -7718,6 +7718,50 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	}
 }
 
+void CvGame::LogTurnScores()
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		static bool bFirstRun = true;
+		bool bBuildHeader = false;
+		CvString strHeader;
+		if (bFirstRun)
+		{
+			bFirstRun = false;
+			bBuildHeader = true;
+		}
+
+		CvString header = "Turn";
+		CvString rowOutput;
+		CvString strTemp;
+
+		CvString strLogName = "Score_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		rowOutput.Format("%03d", getElapsedGameTurns());
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayer& eLoopCvPlayer = GET_PLAYER(eLoopPlayer);
+			if (eLoopPlayer != NO_PLAYER && eLoopCvPlayer.isEverAlive() && !eLoopCvPlayer.isMinorCiv() && !eLoopCvPlayer.isBarbarian())
+			{
+				strTemp = eLoopCvPlayer.getCivilizationShortDescription();
+				header += ", " + strTemp;
+
+				strTemp.Format("%5d", GET_TEAM(eLoopCvPlayer.getTeam()).GetScore());
+				rowOutput += ", " + strTemp;
+			}
+		}
+
+		if (bBuildHeader)
+		{
+			pLog->Msg(header);
+		}
+		pLog->Msg(rowOutput);
+	}
+}
+
 void CvGame::LogGameResult(const char* victoryTypeText, const char* victoryCivText)
 {
 	if (GC.getLogging() && GC.getAILogging())
@@ -8704,6 +8748,8 @@ void CvGame::doTurn()
 	DoUpdateCachedWorldReligionTechProgress();
 
 	updateScore();
+
+	LogTurnScores();
 
 	m_kGameDeals.DoTurn();
 
