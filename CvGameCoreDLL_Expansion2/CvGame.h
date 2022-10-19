@@ -391,6 +391,7 @@ public:
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 
+	void LogTurnScores();
 	void LogGameResult(const char* victoryTypeText, const char* victoryCivText);
 #if defined(MOD_BALANCE_CORE)
 	bool isVictoryRandomizationDone() const;
