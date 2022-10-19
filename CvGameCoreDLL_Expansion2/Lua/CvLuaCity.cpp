@@ -348,13 +348,18 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityAutomatonWorkersChange);
 	Method(ChangeCityAutomatonWorkersChange);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetRemainingFreeSpecialists);
 	Method(GetBasicNeedsMedian);
 	Method(GetGoldMedian);
 	Method(GetScienceMedian);
 	Method(GetCultureMedian);
-	Method(GetTheoreticalNewMedianFromBuilding);
+	Method(GetReligiousUnrestPerMinorityFollower);
+	Method(GetTheoreticalNewBasicNeedsMedian);
+	Method(GetTheoreticalNewGoldMedian);
+	Method(GetTheoreticalNewScienceMedian);
+	Method(GetTheoreticalNewCultureMedian);
+	Method(GetTheoreticalNewReligiousUnrestPerMinorityFollower);
 	Method(GetCachedTechNeedModifier);
 	Method(GetCitySizeModifier);
 	Method(GetEmpireSizeModifier);
@@ -370,7 +375,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityUnhappinessBreakdown);
 	Method(GetCityHappinessBreakdown);
 	Method(getUnhappinessFromSpecialists);
-#endif
 
 	Method(ChangeHealRate);
 
@@ -3725,55 +3729,110 @@ int CvLuaCity::lGetCultureMedian(lua_State* L)
 	lua_pushinteger(L, iMedian);
 	return 1;
 }
-int CvLuaCity::lGetTheoreticalNewMedianFromBuilding(lua_State* L)
+int CvLuaCity::lGetReligiousUnrestPerMinorityFollower(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iReligiousUnrestPerMinorityFollower = 0;
+	if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+	{
+		float fUnhappyPerMinorityPop = 0.00f;
+		fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
+		fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false));
+		fUnhappyPerMinorityPop /= 100;
+		iReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+	}
+
+	lua_pushinteger(L, iReligiousUnrestPerMinorityFollower);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
-	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 3);
 	int iNewMedian = 0;
 	if (eBuilding != NO_BUILDING)
 	{
-		if (pkCity->canConstruct(eBuilding, false, false, false, false))
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if (pkBuildingInfo)
-			{
-				if (eIndex == YIELD_FOOD || eIndex == YIELD_PRODUCTION)
-				{
-					int iModifier = pkBuildingInfo->GetDefenseHappinessChangeBuilding() + pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal();
-					if (iModifier != 0)
-					{
-						iNewMedian = (int)pkCity->GetBasicNeedsMedian(false, iModifier);
-					}
-				}
-				else if (eIndex == YIELD_GOLD)
-				{
-					int iModifier = pkBuildingInfo->GetPovertyHappinessChangeBuilding() + pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal();
-					if (iModifier != 0)
-					{
-						iNewMedian = (int)pkCity->GetGoldMedian(false, iModifier);
-					}
-				}
-				else if (eIndex == YIELD_SCIENCE)
-				{
-					int iModifier = pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() + pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal();
-					if (iModifier != 0)
-					{
-						iNewMedian = (int)pkCity->GetScienceMedian(false, iModifier);
-					}
-				}
-				else if (eIndex == YIELD_CULTURE)
-				{
-					int iModifier = pkBuildingInfo->GetUnculturedHappinessChangeBuilding() + pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal();
-					if (iModifier != 0)
-					{
-						iNewMedian = (int)pkCity->GetCultureMedian(false, iModifier);
-					}
-				}
-			}
+			int iModifier = pkBuildingInfo->GetBasicNeedsMedianModifier() + pkBuildingInfo->GetBasicNeedsMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetBasicNeedsMedian(false, iModifier);
 		}
 	}
 	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewGoldMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetGoldMedianModifier() + pkBuildingInfo->GetGoldMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetGoldMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewScienceMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetScienceMedianModifier() + pkBuildingInfo->GetScienceMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetScienceMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewCultureMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetCultureMedianModifier() + pkBuildingInfo->GetCultureMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetCultureMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewReligiousUnrestPerMinorityFollower(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewReligiousUnrestPerMinorityFollower = 0;
+	if (eBuilding != NO_BUILDING && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetReligiousUnrestModifier() + pkBuildingInfo->GetReligiousUnrestModifierGlobal();
+			float fUnhappyPerMinorityPop = 0.00f;
+			fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
+			fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false) + iModifier);
+			fUnhappyPerMinorityPop /= 100;
+			iNewReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+		}
+	}
+
+	lua_pushinteger(L, iNewReligiousUnrestPerMinorityFollower);
 	return 1;
 }
 //int getHappinessDelta();

@@ -2996,7 +2996,11 @@ public:
 	int getGlobalSpecialistYieldChange(int i, int j) const;
 	int getPlayerHappiness() const;
 	int getCityHappinessGlobal() const;
-	int getCityUnhappinessNeedMod(int i) const;
+	int getBasicNeedsMedianModifierGlobal() const;
+	int getGoldMedianModifierGlobal() const;
+	int getScienceMedianModifierGlobal() const;
+	int getCultureMedianModifierGlobal() const;
+	int getReligiousUnrestModifierGlobal() const;
 	const char* getDisabledTooltip() const;
 	
 	CvEventNotificationInfo *GetNotificationInfo(int i) const;
@@ -3079,12 +3083,16 @@ protected:
 	int** m_ppiBuildingClassYieldModifier;
 	int m_iPlayerHappiness;
 	int m_iCityHappinessGlobal;
-	int* m_piCityUnhappinessNeedMod;
 	int** m_ppiTerrainYield;
 	int** m_ppiFeatureYield;
 	int** m_ppiImprovementYield;
 	int** m_ppiResourceYield;
 	int** m_ppiSpecialistYield;
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
 	CvString m_strDisabledTooltip;
 	//Filters
 
@@ -3421,6 +3429,11 @@ public:
 	int getRandomBarbs() const;
 	int getFreeScaledUnits() const;
 	int getCityHappiness() const;
+	int getBasicNeedsMedianModifier() const;
+	int getGoldMedianModifier() const;
+	int getScienceMedianModifier() const;
+	int getCultureMedianModifier() const;
+	int getReligiousUnrestModifier() const;
 	int getNumFreeSpecificUnits(int i) const;
 	int getNumFreeUnits(int i) const;
 	int getEventConvertReligion(int i) const;
@@ -3436,7 +3449,6 @@ public:
 	int getImprovementYield(int i, int j) const;
 	int getResourceYield(int i, int j) const;
 	int getEventResourceChange(ResourceTypes eResource) const;
-	int getCityUnhappinessNeedMod(int i) const;
 	int getCitySpecialistYieldChange(int i, int j) const;
 	const char* getDisabledTooltip() const;
 	int getEventPromotion() const;
@@ -3566,8 +3578,12 @@ protected:
 	int m_iCityWideDestructionChance;
 	int m_iCityStrategicResourcePillage;
 	int m_iCityHappiness;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	int* m_piResourceChange;
-	int* m_piCityUnhappinessNeedMod;
 	int* m_piYieldSiphon;
 	CvString m_strDisabledTooltip;
 	int m_iConvertsCityToPlayerReligion;

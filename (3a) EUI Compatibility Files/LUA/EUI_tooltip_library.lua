@@ -836,7 +836,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		for pYieldInfo in GameInfo.Yields() do
 			local iYieldID = pYieldInfo.ID;
 			local iYieldAmount = city:GetEventBuildingClassModifier(buildingClassID, iYieldID);
-							
+
 			if (iYieldAmount > 0) then
 				tips:insert( L("TXT_KEY_BUILDING_EVENT_MODIFIER", iYieldAmount, pYieldInfo.IconString, pYieldInfo.Description))
 			end
@@ -893,7 +893,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		end
 	end
 
--- CBP -- Global Average Modifiers
+-- VP -- Global Average Modifiers
 	if(tips and Game and buildingID) then
 		if(city and building.GPRateModifierPerXFranchises ~= 0) then
 			local iCorpGPChange = city:GetGPRateModifierPerXFranchises();
@@ -901,81 +901,91 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				tips:insert( L( "TXT_KEY_PEDIA_CORP_GP_CHANGE", iCorpGPChange))
 			end
 		end
-		
-		local iGetPovertyHappinessChangeBuilding = Game.GetPovertyHappinessChangeBuilding( buildingID)
-		if (iGetPovertyHappinessChangeBuilding ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_POVERTY_AVERAGE_MODIFIER", iGetPovertyHappinessChangeBuilding))
+
+		local iBasicNeedsMedianModifierBuilding = Game.GetBasicNeedsMedianModifierBuilding(buildingID)
+		if (iBasicNeedsMedianModifierBuilding ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER", iBasicNeedsMedianModifierBuilding))
 		end
-		local iGetDefenseHappinessChangeBuilding = Game.GetDefenseHappinessChangeBuilding( buildingID)
-		if (iGetDefenseHappinessChangeBuilding ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_DEFENSE_AVERAGE_MODIFIER", iGetDefenseHappinessChangeBuilding))
+		local iGoldMedianModifierBuilding = Game.GetGoldMedianModifierBuilding(buildingID)
+		if (iGoldMedianModifierBuilding ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER", iGoldMedianModifierBuilding))
 		end
-		local iGetUnculturedHappinessChangeBuilding = Game.GetUnculturedHappinessChangeBuilding( buildingID) 
-		if (iGetUnculturedHappinessChangeBuilding ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_CULTURE_AVERAGE_MODIFIER", iGetUnculturedHappinessChangeBuilding))
+		local iScienceMedianModifierBuilding = Game.GetScienceMedianModifierBuilding(buildingID)
+		if (iScienceMedianModifierBuilding ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER", iScienceMedianModifierBuilding))
 		end
-		local iGetIlliteracyHappinessChangeBuilding = Game.GetIlliteracyHappinessChangeBuilding( buildingID)
-		if (iGetIlliteracyHappinessChangeBuilding ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_SCIENCE_AVERAGE_MODIFIER", iGetIlliteracyHappinessChangeBuilding))
+		local iCultureMedianModifierBuilding = Game.GetCultureMedianModifierBuilding(buildingID) 
+		if (iCultureMedianModifierBuilding ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER", iCultureMedianModifierBuilding))
 		end
-		local iGetMinorityHappinessChangeBuilding = Game.GetMinorityHappinessChangeBuilding( buildingID)
-		if (iGetMinorityHappinessChangeBuilding ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_MINORITY_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuilding))
+		local iReligiousUnrestModifierBuilding = Game.GetReligiousUnrestModifierBuilding(buildingID)
+		if (iReligiousUnrestModifierBuilding ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER", iReligiousUnrestModifierBuilding))
 		end
-		local iGetPovertyHappinessChangeBuildingGlobal = Game.GetPovertyHappinessChangeBuildingGlobal( buildingID)
-		if (iGetPovertyHappinessChangeBuildingGlobal ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_POVERTY_GLOBAL_AVERAGE_MODIFIER", iGetPovertyHappinessChangeBuildingGlobal))
+
+		local iBasicNeedsMedianModifierBuildingGlobal = Game.GetBasicNeedsMedianModifierBuildingGlobal(buildingID)
+		if (iBasicNeedsMedianModifierBuildingGlobal ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER_GLOBAL", iBasicNeedsMedianModifierBuildingGlobal))
 		end
-		local iGetDefenseHappinessChangeBuildingGlobal = Game.GetDefenseHappinessChangeBuildingGlobal( buildingID)
-		if (iGetDefenseHappinessChangeBuildingGlobal ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_DEFENSE_GLOBAL_AVERAGE_MODIFIER", iGetDefenseHappinessChangeBuildingGlobal))
+		local iGoldMedianModifierBuildingGlobal = Game.GetGoldMedianModifierBuildingGlobal(buildingID)
+		if (iGoldMedianModifierBuildingGlobal ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER_GLOBAL", iGoldMedianModifierBuildingGlobal))
 		end
-		local iGetUnculturedHappinessChangeBuildingGlobal = Game.GetUnculturedHappinessChangeBuildingGlobal( buildingID)
-		if (iGetUnculturedHappinessChangeBuildingGlobal ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_CULTURE_GLOBAL_AVERAGE_MODIFIER", iGetUnculturedHappinessChangeBuildingGlobal))
+		local iScienceMedianModifierBuildingGlobal = Game.GetScienceMedianModifierBuildingGlobal(buildingID)
+		if (iScienceMedianModifierBuildingGlobal ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER_GLOBAL", iScienceMedianModifierBuildingGlobal))
 		end
-		local iGetIlliteracyHappinessChangeBuildingGlobal = Game.GetIlliteracyHappinessChangeBuildingGlobal( buildingID)
-		if (iGetIlliteracyHappinessChangeBuildingGlobal ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_SCIENCE_GLOBAL_AVERAGE_MODIFIER", iGetIlliteracyHappinessChangeBuildingGlobal))
+		local iCultureMedianModifierBuildingGlobal = Game.GetCultureMedianModifierBuildingGlobal(buildingID)
+		if (iCultureMedianModifierBuildingGlobal ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER_GLOBAL", iCultureMedianModifierBuildingGlobal))
 		end
-		local iGetMinorityHappinessChangeBuildingGlobal = Game.GetMinorityHappinessChangeBuildingGlobal( buildingID)
-		if (iGetMinorityHappinessChangeBuildingGlobal ~= 0) then
-			tips:insert( L( "TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuildingGlobal))
+		local iReligiousUnrestModifierBuildingGlobal = Game.GetReligiousUnrestModifierBuildingGlobal(buildingID)
+		if (iReligiousUnrestModifierBuildingGlobal ~= 0) then
+			tips:insert( L( "TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER_GLOBAL", iReligiousUnrestModifierBuildingGlobal))
 		end
+
 		if (not OptionsManager.IsNoBasicHelp()) then	
 			if (city) then
-				local iPovertyTotal = iGetPovertyHappinessChangeBuilding + iGetPovertyHappinessChangeBuildingGlobal;
-				if (iPovertyTotal ~= 0) then
-					iNewThreshold = city:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_GOLD) / 100;
-					local iOldThreshold = city:GetGoldMedian() / 100;
-					if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-						tips:insert( L( "TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
-					end
-				end		
-				local iDefenseTotal = iGetDefenseHappinessChangeBuilding + iGetDefenseHappinessChangeBuildingGlobal;
-				if (iDefenseTotal ~= 0) then
-					iNewThreshold = city:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_PRODUCTION) / 100;
-					local iOldThreshold = city:GetBasicNeedsMedian() / 100;
-					if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-						tips:insert( L( "TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+				local iBasicNeedsMedianModifier = iBasicNeedsMedianModifierBuilding + iBasicNeedsMedianModifierBuildingGlobal;
+				if (iBasicNeedsMedianModifier ~= 0) then
+					local iNewMedian = city:GetTheoreticalNewBasicNeedsMedian(buildingID) / 100;
+					local iOldMedian = city:GetBasicNeedsMedian() / 100;
+					if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+						tips:insert( L( "TXT_KEY_BUILDING_BASIC_NEEDS_NEW_MEDIAN", iNewMedian, iOldMedian))
 					end
 				end
-				local iIlliteracyTotal = iGetIlliteracyHappinessChangeBuilding + iGetIlliteracyHappinessChangeBuildingGlobal;
-				if (iIlliteracyTotal ~= 0) then
-					iNewThreshold = city:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_SCIENCE) / 100;
-					local iOldThreshold = city:GetScienceMedian() / 100;
-					if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-						tips:insert( L( "TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+				local iGoldMedianModifier = iGoldMedianModifierBuilding + iGoldMedianModifierBuildingGlobal;
+				if (iGoldMedianModifier ~= 0) then
+					local iNewMedian = city:GetTheoreticalNewGoldMedian(buildingID) / 100;
+					local iOldMedian = city:GetGoldMedian() / 100;
+					if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+						tips:insert( L( "TXT_KEY_BUILDING_GOLD_NEW_MEDIAN", iNewMedian, iOldMedian))
 					end
 				end
-				local iCultureTotal = iGetUnculturedHappinessChangeBuilding + iGetUnculturedHappinessChangeBuildingGlobal;
-				if (iCultureTotal ~= 0) then
-					iNewThreshold = city:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_CULTURE) / 100;
-					local iOldThreshold = city:GetCultureMedian() / 100;
-					if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-						tips:insert( L( "TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD", iNewThreshold, iOldThreshold))
+				local iScienceMedianModifier = iScienceMedianModifierBuilding + iScienceMedianModifierBuildingGlobal;
+				if (iScienceMedianModifier ~= 0) then
+					local iNewMedian = city:GetTheoreticalNewScienceMedian(buildingID) / 100;
+					local iOldMedian = city:GetScienceMedian() / 100;
+					if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+						tips:insert( L( "TXT_KEY_BUILDING_SCIENCE_NEW_MEDIAN", iNewMedian, iOldMedian))
 					end
-				end	
+				end
+				local iCultureMedianModifier = iCultureMedianModifierBuilding + iCultureMedianModifierBuildingGlobal;
+				if (iCultureMedianModifier ~= 0) then
+					local iNewMedian = city:GetTheoreticalNewCultureMedian(buildingID) / 100;
+					local iOldMedian = city:GetCultureMedian() / 100;
+					if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+						tips:insert( L( "TXT_KEY_BUILDING_CULTURE_NEW_MEDIAN", iNewMedian, iOldMedian))
+					end
+				end
+				local iReligiousUnrestModifier = iReligiousUnrestModifierBuilding + iReligiousUnrestModifierBuildingGlobal;
+				if (iReligiousUnrestModifier ~= 0) then
+					local iNewUnhappyPerPop = city:GetTheoreticalNewReligiousUnrestPerMinorityFollower(buildingID) / 100;
+					local iOldUnhappyPerPop = city:GetReligiousUnrestPerMinorityFollower(buildingID) / 100;
+					if (iNewUnhappyPerPop ~= 0 and iOldUnhappyPerPop ~= 0) then
+						tips:insert( L( "TXT_KEY_BUILDING_RELIGIOUS_UNREST_NEW_THRESHOLD", iNewUnhappyPerPop, iOldUnhappyPerPop))
+					end
+				end
 			end
 		end
 	end

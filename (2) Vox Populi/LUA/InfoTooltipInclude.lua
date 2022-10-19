@@ -129,7 +129,7 @@ end
 -- BUILDING
 function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMaintenance, pCity)
 	local pBuildingInfo = GameInfo.Buildings[iBuildingID];
-	 
+
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local pActiveTeam = Teams[Game.GetActiveTeam()];
 	
@@ -234,83 +234,91 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_HAPPINESS", iHappinessTotal));
 	end
 
--- CBP -- Global Average Modifiers
-	local iGetPovertyHappinessChangeBuilding = Game.GetPovertyHappinessChangeBuilding( iBuildingID); 
-	if (iGetPovertyHappinessChangeBuilding ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_POVERTY_AVERAGE_MODIFIER", iGetPovertyHappinessChangeBuilding));
+-- VP -- Global Average Modifiers
+	local iBasicNeedsMedianModifierBuilding = Game.GetBasicNeedsMedianModifierBuilding(iBuildingID); 
+	if (iBasicNeedsMedianModifierBuilding ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER", iBasicNeedsMedianModifierBuilding));
 	end
-	local iGetDefenseHappinessChangeBuilding = Game.GetDefenseHappinessChangeBuilding( iBuildingID); 
-	if (iGetDefenseHappinessChangeBuilding ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_DEFENSE_AVERAGE_MODIFIER", iGetDefenseHappinessChangeBuilding));
+	local iGoldMedianModifierBuilding = Game.GetPovertyHappinessChangeBuilding(iBuildingID); 
+	if (iGoldMedianModifierBuilding ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER", iGoldMedianModifierBuilding));
 	end
-	local iGetUnculturedHappinessChangeBuilding = Game.GetUnculturedHappinessChangeBuilding( iBuildingID); 
-	if (iGetUnculturedHappinessChangeBuilding ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_AVERAGE_MODIFIER", iGetUnculturedHappinessChangeBuilding));
+	local iScienceMedianModifierBuilding = Game.GetScienceMedianModifierBuilding(iBuildingID); 
+	if (iScienceMedianModifierBuilding ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER", iScienceMedianModifierBuilding));
 	end
-	local iGetIlliteracyHappinessChangeBuilding = Game.GetIlliteracyHappinessChangeBuilding( iBuildingID); 
-	if (iGetIlliteracyHappinessChangeBuilding ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_SCIENCE_AVERAGE_MODIFIER", iGetIlliteracyHappinessChangeBuilding));
+	local iCultureMedianModifierBuilding = Game.GetCultureMedianModifierBuilding(iBuildingID); 
+	if (iCultureMedianModifierBuilding ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER", iCultureMedianModifierBuilding));
 	end
-	local iGetMinorityHappinessChangeBuilding = Game.GetMinorityHappinessChangeBuilding( iBuildingID); 
-	if (iGetMinorityHappinessChangeBuilding ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_MINORITY_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuilding));
+	local iReligiousUnrestModifierBuilding = Game.GetReligiousUnrestModifierBuilding(iBuildingID); 
+	if (iReligiousUnrestModifierBuilding ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER", iReligiousUnrestModifierBuilding));
 	end
 
-	local iGetPovertyHappinessChangeBuildingGlobal = Game.GetPovertyHappinessChangeBuildingGlobal( iBuildingID); 
-	if (iGetPovertyHappinessChangeBuildingGlobal ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_POVERTY_GLOBAL_AVERAGE_MODIFIER", iGetPovertyHappinessChangeBuildingGlobal));
+	local iBasicNeedsMedianModifierBuildingGlobal = Game.GetBasicNeedsMedianModifierBuildingGlobal(iBuildingID); 
+	if (iBasicNeedsMedianModifierBuildingGlobal ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER_GLOBAL", iBasicNeedsMedianModifierBuildingGlobal));
 	end
-	local iGetDefenseHappinessChangeBuildingGlobal = Game.GetDefenseHappinessChangeBuildingGlobal( iBuildingID); 
-	if (iGetDefenseHappinessChangeBuildingGlobal ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_DEFENSE_GLOBAL_AVERAGE_MODIFIER", iGetDefenseHappinessChangeBuildingGlobal));
+	local iGoldMedianModifierBuildingGlobal = Game.GetGoldMedianModifierBuildingGlobal(iBuildingID); 
+	if (iGoldMedianModifierBuildingGlobal ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER_GLOBAL", iGoldMedianModifierBuildingGlobal));
 	end
-	local iGetUnculturedHappinessChangeBuildingGlobal = Game.GetUnculturedHappinessChangeBuildingGlobal( iBuildingID); 
-	if (iGetUnculturedHappinessChangeBuildingGlobal ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_GLOBAL_AVERAGE_MODIFIER", iGetUnculturedHappinessChangeBuildingGlobal));
+	local iScienceMedianModifierBuildingGlobal = Game.GetScienceMedianModifierBuildingGlobal(iBuildingID); 
+	if (iScienceMedianModifierBuildingGlobal ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_SCIENCE_MEDIAN_MODIFIER_GLOBAL", iScienceMedianModifierBuildingGlobal));
 	end
-	local iGetIlliteracyHappinessChangeBuildingGlobal = Game.GetIlliteracyHappinessChangeBuildingGlobal( iBuildingID); 
-	if (iGetIlliteracyHappinessChangeBuildingGlobal ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_SCIENCE_GLOBAL_AVERAGE_MODIFIER", iGetIlliteracyHappinessChangeBuildingGlobal));
+	local iCultureMedianModifierBuildingGlobal = Game.GetCultureMedianModifierBuildingGlobal(iBuildingID); 
+	if (iCultureMedianModifierBuildingGlobal ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_MEDIAN_MODIFIER_GLOBAL", iCultureMedianModifierBuildingGlobal));
 	end
-	local iGetMinorityHappinessChangeBuildingGlobal = Game.GetMinorityHappinessChangeBuildingGlobal( iBuildingID); 
-	if (iGetMinorityHappinessChangeBuildingGlobal ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER", iGetMinorityHappinessChangeBuildingGlobal));
+	local iReligiousUnrestModifierBuildingGlobal = Game.GetReligiousUnrestModifierBuildingGlobal(iBuildingID); 
+	if (iReligiousUnrestModifierBuildingGlobal ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_RELIGIOUS_UNREST_MODIFIER_GLOBAL", iReligiousUnrestModifierBuildingGlobal));
 	end
 
 	if (not OptionsManager.IsNoBasicHelp()) then	
 		if (pCity ~= nil) then
-			local iPovertyTotal = iGetPovertyHappinessChangeBuilding + iGetPovertyHappinessChangeBuildingGlobal;
-			if (iPovertyTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_GOLD) / 100;
-				local iOldThreshold = pCity:GetGoldMedian() / 100;
-				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_POVERTY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
-				end
-			end		
-			local iDefenseTotal = iGetDefenseHappinessChangeBuilding + iGetDefenseHappinessChangeBuildingGlobal;
-			if (iDefenseTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_PRODUCTION) / 100;
-				local iOldThreshold = pCity:GetBasicNeedsMedian() / 100;
-				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_DEFENSE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+			local iBasicNeedsMedianModifier = iBasicNeedsMedianModifierBuilding + iBasicNeedsMedianModifierBuildingGlobal;
+			if (iBasicNeedsMedianModifier ~= 0) then
+				local iNewMedian = pCity:GetTheoreticalNewBasicNeedsMedian(iBuildingID) / 100;
+				local iOldMedian = pCity:GetBasicNeedsMedian() / 100;
+				if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_BASIC_NEEDS_NEW_MEDIAN", iNewMedian, iOldMedian));
 				end
 			end
-			local iIlliteracyTotal = iGetIlliteracyHappinessChangeBuilding + iGetIlliteracyHappinessChangeBuildingGlobal;
-			if (iIlliteracyTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_SCIENCE) / 100;
-				local iOldThreshold = pCity:GetScienceMedian() / 100;
-				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_ILLITERACY_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+			local iGoldMedianModifier = iGoldMedianModifierBuilding + iGoldMedianModifierBuildingGlobal;
+			if (iGoldMedianModifier ~= 0) then
+				local iNewMedian = pCity:GetTheoreticalNewGoldMedian(iBuildingID) / 100;
+				local iOldMedian = pCity:GetGoldMedian() / 100;
+				if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_GOLD_NEW_MEDIAN", iNewMedian, iOldMedian));
 				end
 			end
-			local iCultureTotal = iGetUnculturedHappinessChangeBuilding + iGetUnculturedHappinessChangeBuildingGlobal;
-			if (iCultureTotal ~= 0) then
-				iNewThreshold = pCity:GetTheoreticalNewMedianFromBuilding(buildingID, YieldTypes.YIELD_CULTURE) / 100;
-				local iOldThreshold = pCity:GetCultureMedian() / 100;
-				if (iNewThreshold ~= 0 and iOldThreshold ~= 0) then
-					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_NEW_THRESHOLD", iNewThreshold, iOldThreshold));
+			local iScienceMedianModifier = iScienceMedianModifierBuilding + iScienceMedianModifierBuildingGlobal;
+			if (iScienceMedianModifier ~= 0) then
+				local iNewMedian = pCity:GetTheoreticalNewScienceMedian(iBuildingID) / 100;
+				local iOldMedian = pCity:GetScienceMedian() / 100;
+				if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_SCIENCE_NEW_MEDIAN", iNewMedian, iOldMedian));
 				end
-			end		
+			end
+			local iCultureMedianModifier = iCultureMedianModifierBuilding + iCultureMedianModifierBuildingGlobal;
+			if (iCultureMedianModifier ~= 0) then
+				local iNewMedian = pCity:GetTheoreticalNewCultureMedian(iBuildingID) / 100;
+				local iOldMedian = pCity:GetCultureMedian() / 100;
+				if (iNewMedian ~= 0 and iOldMedian ~= 0) then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_CULTURE_NEW_MEDIAN", iNewMedian, iOldMedian));
+				end
+			end
+			local iReligiousUnrestModifier = iReligiousUnrestModifierBuilding + iReligiousUnrestModifierBuildingGlobal;
+			if (iReligiousUnrestModifier ~= 0) then
+				local iNewUnhappyPerPop = pCity:GetTheoreticalNewReligiousUnrestPerMinorityFollower(iBuildingID) / 100;
+				local iOldUnhappyPerPop = pCity:GetReligiousUnrestPerMinorityFollower(iBuildingID) / 100;
+				if (iNewUnhappyPerPop ~= 0 and iOldUnhappyPerPop ~= 0) then
+					table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_RELIGIOUS_UNREST_NEW_THRESHOLD", iNewUnhappyPerPop, iOldUnhappyPerPop));
+				end
+			end
 		end
 	end
 

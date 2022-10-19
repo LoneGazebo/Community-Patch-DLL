@@ -474,7 +474,7 @@ SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While i
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
-SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied or [ICON_RESISTANCE] Resisting Cities.'
+SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied, [ICON_RESISTANCE] Resisting or [ICON_RAZING] Razing Cities.'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION';
 
 UPDATE Language_en_US
@@ -714,12 +714,12 @@ WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
 -- Happiness
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {2_Num}[NEWLINE]Unhappiness Totals:'
-WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
+SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {1_Num}'
+WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {2_Num}[NEWLINE]Happiness Totals:'
-WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
+SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {1_Num} (capped by City Population)'
+WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} is added per turn from positive [ICON_HAPPINESS_1] Happiness produced by Cities.'

@@ -1285,12 +1285,12 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
-			<DefenseHappinessChangeGlobal>-5</DefenseHappinessChangeGlobal>
-			<IlliteracyHappinessChangeGlobal>-5</IlliteracyHappinessChangeGlobal>
-			<PovertyHappinessChangeGlobal>-5</PovertyHappinessChangeGlobal>
-			<EmpireNeedsModifierGlobal>-5</EmpireNeedsModifierGlobal>
-			<UnculturedHappinessChangeGlobal>-5</UnculturedHappinessChangeGlobal>
-			<MinorityHappinessChangeGlobal>-5</MinorityHappinessChangeGlobal>
+			<EmpireSizeModifierReductionGlobal>-5</EmpireSizeModifierReductionGlobal>
+			<DistressFlatReductionGlobal>1</DistressFlatReductionGlobal>
+			<PovertyFlatReductionGlobal>1</PovertyFlatReductionGlobal>
+			<IlliteracyFlatReductionGlobal>1</IlliteracyFlatReductionGlobal>
+			<BoredomFlatReductionGlobal>1</BoredomFlatReductionGlobal>
+			<ReligiousUnrestFlatReductionGlobal>1</ReligiousUnrestFlatReductionGlobal>
 		</Row>
 		<!-- Franchise-->
 		<Row>

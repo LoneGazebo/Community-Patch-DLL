@@ -760,14 +760,14 @@ protected:
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
-	LUAAPIEXTN(GetUnhappinessFromCityScience, int);
-	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
-	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
-	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);
-	LUAAPIEXTN(GetUnhappinessFromCityPillaged, int);
-	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
-	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
+	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
+	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
+	LUAAPIEXTN(GetUnhappinessFromDistress, int);
+	LUAAPIEXTN(GetUnhappinessFromPoverty, int);
+	LUAAPIEXTN(GetUnhappinessFromIsolation, int);
+	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
+	LUAAPIEXTN(GetUnhappinessFromFamine, int);
+	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
 #endif
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 

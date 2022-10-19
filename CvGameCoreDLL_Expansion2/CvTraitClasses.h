@@ -330,19 +330,18 @@ public:
 
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int GetPovertyHappinessChange() const;
-	int GetDefenseHappinessChange() const;
-	int GetIlliteracyHappinessChange() const;
-	int GetUnculturedHappinessChange() const;
-	int GetMinorityHappinessChange() const;
+
+	int GetBasicNeedsMedianModifierGlobal() const;
+	int GetGoldMedianModifierGlobal() const;
+	int GetScienceMedianModifierGlobal() const;
+	int GetCultureMedianModifierGlobal() const;
+	int GetReligiousUnrestModifierGlobal() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
 	bool IsOddEraScaler() const;
 	int GetWonderProductionModGA() const;
 	int GetCultureBonusModifierConquest() const;
 	int GetProductionBonusModifierConquest() const;
-#endif
 
 	// Arrays
 	int GetExtraYieldThreshold(int i) const;
@@ -695,19 +694,17 @@ protected:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int m_iPovertyHappinessChange;
-	int m_iDefenseHappinessChange;
-	int m_iUnculturedHappinessChange;
-	int m_iIlliteracyHappinessChange;
-	int m_iMinorityHappinessChange;
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
 	bool m_bIsOddEraScaler;
 	int m_iWonderProductionModGA;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;
-#endif
 
 	CvString m_strShortDescription;
 
@@ -1653,26 +1650,26 @@ public:
 	{
 		return m_bAngerFreeIntrusionOfCityStates;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int GetPovertyHappinessChange() const
+
+	int GetBasicNeedsMedianModifierGlobal() const
 	{
-		return m_iPovertyHappinessChange;
+		return m_iBasicNeedsMedianModifierGlobal;
 	}
-	int GetDefenseHappinessChange() const
+	int GetGoldMedianModifierGlobal() const
 	{
-		return m_iDefenseHappinessChange;
+		return m_iGoldMedianModifierGlobal;
 	}
-	int GetIlliteracyHappinessChange() const
+	int GetScienceMedianModifierGlobal() const
 	{
-		return m_iIlliteracyHappinessChange;
+		return m_iScienceMedianModifierGlobal;
 	}
-	int GetUnculturedHappinessChange() const
+	int GetCultureMedianModifierGlobal() const
 	{
-		return m_iUnculturedHappinessChange;
+		return m_iCultureMedianModifierGlobal;
 	}
-	int GetMinorityHappinessChange() const
+	int GetReligiousUnrestModifierGlobal() const
 	{
-		return m_iMinorityHappinessChange;
+		return m_iReligiousUnrestModifierGlobal;
 	}
 	bool IsNoConnectionUnhappiness() const
 	{
@@ -1698,7 +1695,6 @@ public:
 	{
 		return m_iProductionBonusModifierConquest;
 	};
-#endif
 
 	int GetExtraYieldThreshold(YieldTypes eYield) const
 	{
@@ -2293,17 +2289,15 @@ private:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int m_iPovertyHappinessChange;
-	int m_iDefenseHappinessChange;
-	int m_iUnculturedHappinessChange;
-	int m_iIlliteracyHappinessChange;
-	int m_iMinorityHappinessChange;
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
 	bool m_bNoConnectionUnhappiness;
 	bool m_bIsNoReligiousStrife;
 	bool m_bIsOddEraScaler;
 	int m_iWonderProductionModGA;
-#endif
 
 	UnitTypes m_eCampGuardType;
 	unsigned int m_uiFreeUnitIndex;

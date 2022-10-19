@@ -651,41 +651,65 @@ ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAU
 -- Conquering a city heals all units (by X%)
 ALTER TABLE Policies ADD COLUMN 'CityCaptureHealGlobal' INTEGER DEFAULT 0;
 
--- % modifiers to empire needs modifier - negative = good!
-ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifier' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'EmpireNeedsModifierGlobal' INTEGER DEFAULT 0;
+-- % modifiers to empire size modifier - negative = good!
+ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReduction' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReductionGlobal' INTEGER DEFAULT 0;
 
--- % modifiers to city unhappiness sources - values should be negative to be good!
-ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChange' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChange' INTEGER DEFAULT 0;
+-- Flat reductions to Unhappiness from Needs in this city
+ALTER TABLE Buildings ADD COLUMN 'DistressFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'PovertyFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'IlliteracyFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BoredomFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ReligiousUnrestFlatReduction' INTEGER DEFAULT 0;
 
--- % global modifiers to city unhappiness sources - values should be negative to be good!
-ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChangeGlobal' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChangeGlobal' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChangeGlobal' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChangeGlobal' INTEGER DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChangeGlobal' INTEGER DEFAULT 0;
+-- Flat reductions to Unhappiness from Needs in all Cities
+ALTER TABLE Buildings ADD COLUMN 'DistressFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'PovertyFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'IlliteracyFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BoredomFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ReligiousUnrestFlatReductionGlobal' INTEGER DEFAULT 0;
 
--- % reduction to city threshold for happiness sources (policies) - Values should be negative to be good!
-ALTER TABLE Policies ADD COLUMN 'PovertyHappinessMod' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'DefenseHappinessMod' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'IlliteracyHappinessMod' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'UnculturedHappinessMod' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'MinorityHappinessMod' INTEGER DEFAULT 0;
+-- Flat reductions to Unhappiness from Needs in all Cities
+ALTER TABLE Policies ADD COLUMN 'DistressFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'PovertyFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'IlliteracyFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'BoredomFlatReductionGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ReligiousUnrestFlatReductionGlobal' INTEGER DEFAULT 0;
 
--- % reduction to city threshold for happiness sources in Capital (policies) - Values should be negative to be good!
-ALTER TABLE Policies ADD COLUMN 'PovertyHappinessModCapital' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'DefenseHappinessModCapital' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'IlliteracyHappinessModCapital' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'UnculturedHappinessModCapital' INTEGER DEFAULT 0;
-ALTER TABLE Policies ADD COLUMN 'MinorityHappinessModCapital' INTEGER DEFAULT 0;
+-- Changes the global median for a Need in this city by x% - values should be negative to be good!
+ALTER TABLE Buildings ADD COLUMN 'BasicNeedsMedianModifier' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'GoldMedianModifier' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ScienceMedianModifier' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CultureMedianModifier' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ReligiousUnrestModifier' INTEGER DEFAULT 0;
 
--- Reduce the Unhappiness Threshold for Puppeted Cities. Value should be negative to be good.
+-- Changes the global median for a Need in the capital by x% - values should be negative to be good!
+ALTER TABLE Policies ADD COLUMN 'BasicNeedsMedianModifierCapital' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'GoldMedianModifierCapital' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ScienceMedianModifierCapital' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CultureMedianModifierCapital' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ReligiousUnrestModifierCapital' INTEGER DEFAULT 0;
 
-ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' INTEGER DEFAULT 0;
+-- Changes the global median for a Need in all cities by x% - values should be negative to be good!
+ALTER TABLE Buildings ADD COLUMN 'BasicNeedsMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'GoldMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ScienceMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CultureMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'ReligiousUnrestModifierGlobal' INTEGER DEFAULT 0;
+
+-- Changes the global median for a Need in all cities by x% - values should be negative to be good!
+ALTER TABLE Policies ADD COLUMN 'BasicNeedsMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'GoldMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ScienceMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'CultureMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'ReligiousUnrestModifierGlobal' INTEGER DEFAULT 0;
+
+-- Changes the global median for a Need in all cities by x% - values should be negative to be good!
+ALTER TABLE Traits ADD COLUMN 'BasicNeedsMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'GoldMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'ScienceMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'CultureMedianModifierGlobal' INTEGER DEFAULT 0;
+ALTER TABLE Traits ADD COLUMN 'ReligiousUnrestModifierGlobal' INTEGER DEFAULT 0;
 
 -- Puppets and/or Occupied cities receive a % production modifier. Values should be positive to be good.
 ALTER TABLE Policies ADD COLUMN 'PuppetProdMod' INTEGER DEFAULT 0;
@@ -719,13 +743,6 @@ ALTER TABLE Policies ADD COLUMN 'NoAlliedCSInfluenceDecayAtWar' BOOLEAN DEFAULT 
 
 -- Vassals don't rebel and can't be forced out by deals or WC
 ALTER TABLE Policies ADD COLUMN 'VassalsNoRebel' BOOLEAN DEFAULT 0;
-
--- % boosts to city yield for happiness sources (traits) - Values should be negative to be good!
-ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' INTEGER DEFAULT 0;
-ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' INTEGER DEFAULT 0;
-ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' INTEGER DEFAULT 0;
-ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' INTEGER DEFAULT 0;
-ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' INTEGER DEFAULT 0;
 
 -- Get more tenets when you adopt for first time
 ALTER TABLE Traits ADD COLUMN 'ExtraTenetsFirstAdoption' INTEGER DEFAULT 0;
@@ -1418,7 +1435,12 @@ ALTER TABLE Projects ADD COLUMN 'CostScalerEra' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'CostScalerNumRepeats' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'IsRepeatable' BOOLEAN DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'Happiness' INTEGER DEFAULT 0;
-ALTER TABLE Projects ADD COLUMN 'EmpireMod' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'EmpireSizeModifierReduction' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'DistressFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'PovertyFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'IlliteracyFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'BoredomFlatReduction' INTEGER DEFAULT 0;
+ALTER TABLE Projects ADD COLUMN 'ReligiousUnrestFlatReduction' INTEGER DEFAULT 0;
 ALTER TABLE Projects ADD COLUMN 'EspionageMod' INTEGER DEFAULT 0;
 
 ALTER TABLE Projects ADD COLUMN 'InfluenceAllRequired' BOOLEAN DEFAULT 0;

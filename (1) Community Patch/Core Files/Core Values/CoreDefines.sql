@@ -541,8 +541,8 @@ INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PERCENT_RESEARCHED'
 INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN', '0'; -- Modifier to needs for each tech ahead of the median # of techs researched you are. Disabled by default.
 INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', '0'; -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default.
 INSERT INTO Defines (Name, Value) SELECT 'CITY_SIZE_NEED_MODIFIER', '0'; -- Modifier to needs per citizen in the city. Disabled by default.
-INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '10'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size.
-INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '10'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size.
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '8'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size.
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '2'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size.
 
 -- Unhappiness from Other Sources
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded up)

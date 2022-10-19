@@ -180,21 +180,28 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDPToVotesBase(0),
 	m_bIgnoreDefensivePactLimit(false),
 	m_iGPExpendInfluenceBase(0),
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	m_iEmpireNeedsModifier(0),
-	m_iEmpireNeedsModifierGlobal(0),
-	m_iPovertyHappinessChangeBuilding(0),
-	m_iDefenseHappinessChangeBuilding(0),
-	m_iUnculturedHappinessChangeBuilding(0),
-	m_iIlliteracyHappinessChangeBuilding(0),
-	m_iMinorityHappinessChangeBuilding(0),
-	m_iPovertyHappinessChangeBuildingGlobal(0),
-	m_iDefenseHappinessChangeBuildingGlobal(0),
-	m_iUnculturedHappinessChangeBuildingGlobal(0),
-	m_iIlliteracyHappinessChangeBuildingGlobal(0),
-	m_iMinorityHappinessChangeBuildingGlobal(0),
-	m_piUnhappinessNeedsFlatReduction(NULL),
-#endif
+	m_iEmpireSizeModifierReduction(0),
+	m_iEmpireSizeModifierReductionGlobal(0),
+	m_iBasicNeedsMedianModifier(0),
+	m_iGoldMedianModifier(0),
+	m_iScienceMedianModifier(0),
+	m_iCultureMedianModifier(0),
+	m_iReligiousUnrestModifier(0),
+	m_iBasicNeedsMedianModifierGlobal(0),
+	m_iGoldMedianModifierGlobal(0),
+	m_iScienceMedianModifierGlobal(0),
+	m_iCultureMedianModifierGlobal(0),
+	m_iReligiousUnrestModifierGlobal(0),
+	m_iDistressFlatReduction(0),
+	m_iPovertyFlatReduction(0),
+	m_iIlliteracyFlatReduction(0),
+	m_iBoredomFlatReduction(0),
+	m_iReligiousUnrestFlatReduction(0),
+	m_iDistressFlatReductionGlobal(0),
+	m_iPovertyFlatReductionGlobal(0),
+	m_iIlliteracyFlatReductionGlobal(0),
+	m_iBoredomFlatReductionGlobal(0),
+	m_iReligiousUnrestFlatReductionGlobal(0),
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
 	m_bTeamShare(false),
@@ -740,20 +747,18 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iDPToVotesBase = kResults.GetInt("DPToVotes");
 	m_bIgnoreDefensivePactLimit = kResults.GetBool("IgnoreDefensivePactLimit");
 	m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	m_iEmpireNeedsModifier = kResults.GetInt("EmpireNeedsModifier");
-	m_iEmpireNeedsModifierGlobal = kResults.GetInt("EmpireNeedsModifierGlobal");
-	m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
-	m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
-	m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
-	m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
-	m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
-	m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
-	m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
-	m_iUnculturedHappinessChangeBuildingGlobal = kResults.GetInt("UnculturedHappinessChangeGlobal");
-	m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
-	m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
-#endif
+	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
+	m_iEmpireSizeModifierReductionGlobal = kResults.GetInt("EmpireSizeModifierReductionGlobal");
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
+	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
+	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
+	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
+	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
+	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
 
@@ -883,6 +888,18 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("FreeGreatWork");
 	m_eFreeGreatWork = (GreatWorkType)GC.getInfoTypeForString(szTextVal, true);
 
+	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
+	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
+	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
+	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
+
+	m_iDistressFlatReductionGlobal = kResults.GetInt("DistressFlatReductionGlobal");
+	m_iPovertyFlatReductionGlobal = kResults.GetInt("PovertyFlatReductionGlobal");
+	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
+	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
+	m_iReligiousUnrestFlatReductionGlobal = kResults.GetInt("ReligiousUnrestFlatReductionGlobal");
+
 	//Arrays
 	const char* szBuildingType = GetType();
 
@@ -893,7 +910,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE)
-	kUtility.SetYields(m_piUnhappinessNeedsFlatReduction, "Building_UnhappinessNeedsFlatReduction", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
@@ -2471,56 +2487,54 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 	return m_iGPExpendInfluenceBase;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-int CvBuildingEntry::GetEmpireNeedsModifier() const
+int CvBuildingEntry::GetEmpireSizeModifierReduction() const
 {
-	return m_iEmpireNeedsModifier;
+	return m_iEmpireSizeModifierReduction;
 }
-int CvBuildingEntry::GetEmpireNeedsModifierGlobal() const
+int CvBuildingEntry::GetEmpireSizeModifierReductionGlobal() const
 {
-	return m_iEmpireNeedsModifierGlobal;
+	return m_iEmpireSizeModifierReductionGlobal;
 }
-int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
+int CvBuildingEntry::GetBasicNeedsMedianModifier() const
 {
-	return m_iPovertyHappinessChangeBuilding;
+	return m_iBasicNeedsMedianModifier;
 }
-int CvBuildingEntry::GetDefenseHappinessChangeBuilding() const
+int CvBuildingEntry::GetGoldMedianModifier() const
 {
-	return m_iDefenseHappinessChangeBuilding;
+	return m_iGoldMedianModifier;
 }
-int CvBuildingEntry::GetUnculturedHappinessChangeBuilding() const
+int CvBuildingEntry::GetScienceMedianModifier() const
 {
-	return m_iUnculturedHappinessChangeBuilding;
+	return m_iScienceMedianModifier;
 }
-int CvBuildingEntry::GetIlliteracyHappinessChangeBuilding() const
+int CvBuildingEntry::GetCultureMedianModifier() const
 {
-	return m_iIlliteracyHappinessChangeBuilding;
+	return m_iCultureMedianModifier;
 }
-int CvBuildingEntry::GetMinorityHappinessChangeBuilding() const
+int CvBuildingEntry::GetReligiousUnrestModifier() const
 {
-	return m_iMinorityHappinessChangeBuilding;
+	return m_iReligiousUnrestModifier;
 }
-int CvBuildingEntry::GetPovertyHappinessChangeBuildingGlobal() const
+int CvBuildingEntry::GetBasicNeedsMedianModifierGlobal() const
 {
-	return m_iPovertyHappinessChangeBuildingGlobal;
+	return m_iBasicNeedsMedianModifierGlobal;
 }
-int CvBuildingEntry::GetDefenseHappinessChangeBuildingGlobal() const
+int CvBuildingEntry::GetGoldMedianModifierGlobal() const
 {
-	return m_iDefenseHappinessChangeBuildingGlobal;
+	return m_iGoldMedianModifierGlobal;
 }
-int CvBuildingEntry::GetUnculturedHappinessChangeBuildingGlobal() const
+int CvBuildingEntry::GetScienceMedianModifierGlobal() const
 {
-	return m_iUnculturedHappinessChangeBuildingGlobal;
+	return m_iScienceMedianModifierGlobal;
 }
-int CvBuildingEntry::GetIlliteracyHappinessChangeBuildingGlobal() const
+int CvBuildingEntry::GetCultureMedianModifierGlobal() const
 {
-	return m_iIlliteracyHappinessChangeBuildingGlobal;
+	return m_iCultureMedianModifierGlobal;
 }
-int CvBuildingEntry::GetMinorityHappinessChangeBuildingGlobal() const
+int CvBuildingEntry::GetReligiousUnrestModifierGlobal() const
 {
-	return m_iMinorityHappinessChangeBuildingGlobal;
+	return m_iReligiousUnrestModifierGlobal;
 }
-#endif
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 /// Modifier to chance of conversion against this city
@@ -2912,19 +2926,58 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 {
 	return m_strThemingBonusHelp;
 }
-// ARRAYS
-/// Change to yield by type
-int CvBuildingEntry::GetUnhappinessNeedsFlatReduction(int i) const
+
+int CvBuildingEntry::GetDistressFlatReduction() const
 {
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piUnhappinessNeedsFlatReduction ? m_piUnhappinessNeedsFlatReduction[i] : -1;
+	return m_iDistressFlatReduction;
 }
 
-int* CvBuildingEntry::GetUnhappinessNeedsFlatReductionArray() const
+int CvBuildingEntry::GetPovertyFlatReduction() const
 {
-	return m_piUnhappinessNeedsFlatReduction;
+	return m_iPovertyFlatReduction;
 }
+
+int CvBuildingEntry::GetIlliteracyFlatReduction() const
+{
+	return m_iIlliteracyFlatReduction;
+}
+
+int CvBuildingEntry::GetBoredomFlatReduction() const
+{
+	return m_iBoredomFlatReduction;
+}
+
+int CvBuildingEntry::GetReligiousUnrestFlatReduction() const
+{
+	return m_iReligiousUnrestFlatReduction;
+}
+
+int CvBuildingEntry::GetDistressFlatReductionGlobal() const
+{
+	return m_iDistressFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetPovertyFlatReductionGlobal() const
+{
+	return m_iPovertyFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetIlliteracyFlatReductionGlobal() const
+{
+	return m_iIlliteracyFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetBoredomFlatReductionGlobal() const
+{
+	return m_iBoredomFlatReductionGlobal;
+}
+
+int CvBuildingEntry::GetReligiousUnrestFlatReductionGlobal() const
+{
+	return m_iReligiousUnrestFlatReductionGlobal;
+}
+
+// ARRAYS
 /// Change to yield by type
 int CvBuildingEntry::GetGrowthExtraYield(int i) const
 {
