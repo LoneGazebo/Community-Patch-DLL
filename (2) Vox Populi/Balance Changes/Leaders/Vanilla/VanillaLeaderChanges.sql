@@ -592,6 +592,9 @@ WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 DELETE FROM Trait_FreePromotionUnitCombats
 WHERE TraitType = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 
+INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES 
+("BUILDING_SIEGE_WORKSHOP", "SPECIALIST_ENGINEER", "YIELD_PRODUCTION", 2);
+
 -- Rome -- Unique Monument (Flavian Amphitheater) -- Receive Culture boost when you conquer a City.
 
 UPDATE Traits
