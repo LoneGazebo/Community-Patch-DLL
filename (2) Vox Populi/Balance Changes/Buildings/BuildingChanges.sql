@@ -66,10 +66,6 @@ UPDATE Buildings
 SET AlwaysHeal = '15'
 WHERE Type = 'BUILDING_HOSPITAL';
 
-UPDATE Buildings
-SET CitySupplyModifier = '10'
-WHERE Type = 'BUILDING_HOSPITAL';
-
 UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_HOSPITAL';
