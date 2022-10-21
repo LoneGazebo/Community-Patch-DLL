@@ -1582,7 +1582,7 @@ public:
 
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType) const;
-	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
+	bool HasBuildingClass(BuildingClassTypes iBuildingClassType, bool bKeepConqueredBuildings = false) const;
 	bool HasAnyWonder() const;
 	bool HasWonder(BuildingTypes iBuildingType) const;
 	bool IsBuildingWorldWonder() const;
