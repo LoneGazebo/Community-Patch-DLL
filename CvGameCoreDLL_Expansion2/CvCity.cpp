@@ -8639,7 +8639,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 			//Also use this if the option to check for all buildings in a class is enabled.
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
 			{
-				if (!HasBuildingClass((BuildingClassTypes)iI))
+				if (!HasBuildingClass((BuildingClassTypes)iI, GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings()))
 				{
 					return false;
 				}
@@ -8666,7 +8666,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 					int iLoop;
 					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
-						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI))
+						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI, GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings()))
 						{
 							bHasBuildingClass = true;
 							break;
@@ -8704,7 +8704,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 					int iLoop;
 					for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 					{
-						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI))
+						if (pLoopCity->HasBuildingClass((BuildingClassTypes)iI, GET_PLAYER(getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings()))
 						{
 							return false;
 						}
@@ -34297,9 +34297,9 @@ bool CvCity::HasBuilding(BuildingTypes iBuildingType) const
 	return (GetCityBuildings()->GetNumBuilding(iBuildingType) > 0);
 }
 
-bool CvCity::HasBuildingClass(BuildingClassTypes iBuildingClassType) const
+bool CvCity::HasBuildingClass(BuildingClassTypes iBuildingClassType, bool bKeepConqueredBuildings) const
 {
-	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
+	if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bKeepConqueredBuildings)
 	{
 		return GetCityBuildings()->HasBuildingClass(iBuildingClassType);
 	}
