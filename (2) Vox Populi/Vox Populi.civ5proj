@@ -430,6 +430,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/ArchaeologistUIMods/AAA/ArchaeologyAestheticAdjustments.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/ArchaeologistUIMods/MiniMapPanelText.xml</FileName>
       </Action>
       <Action>
@@ -1191,6 +1196,7 @@
     <Folder Include="Modular Elements\Happiness Mod" />
     <Folder Include="Modular Elements\Corporations" />
     <Folder Include="Modular Elements\ArchaeologistUIMods" />
+    <Folder Include="Modular Elements\ArchaeologistUIMods\AAA" />
     <Folder Include="Modular Elements\Events" />
     <Folder Include="Modular Elements\RandomVictory" />
     <Folder Include="Modular Elements\ReligionPopup" />
@@ -3300,6 +3306,38 @@
     <Content Include="Mapscripts\EMP\Sandstorm.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_antiquity_site.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_antiquity_site.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_antiquity_site_decal_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_antiquity_site_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_archaeological_dig.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_archaeological_dig.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\hidden_archaeological_dig_decal_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\AAA\ArchaeologyAestheticAdjustments.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\ArchaeologistUIMods\GlobalArchaeologistDigSites.lua">
       <SubType>Lua</SubType>

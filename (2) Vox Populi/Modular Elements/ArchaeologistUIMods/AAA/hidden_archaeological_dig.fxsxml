@@ -1,0 +1,10 @@
+<Asset>
+  <Mesh file="Hidden_Archaeological_Dig.gr2" source="Max" />
+  <Texture file="Generic_Grey_8.dds" source="Max" />
+  <Texture file="Hidden_Antiquity_Site_DIFF.dds" source="Max" />
+  <Texture file="Antiquity_Site_SREF.dds" source="Max" />
+  <Texture file="Hidden_Archaeological_Dig_Decal_DIFF.dds" source="Max" />
+  <Texture file="Archaeological_Dig_Decal_H.dds" source="Max" />
+  <Texture file="Improvements_Cubelight.dds" source="Max" />
+  <Texture file="Sunlight_Africa_Terrain.dds" source="Max" />
+</Asset>
