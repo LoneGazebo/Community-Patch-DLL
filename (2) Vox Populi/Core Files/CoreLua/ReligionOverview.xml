@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow">
+
+  <Instance Name="YourReligiousBeliefInstance">
+    <Box Size="790,24" Color="0,0,0,0" ID="Base">
+      <Box Size="160,24" Color="0,0,0,0">
+        <Label Font="TwCenMT18" TruncateWidth="160" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BeliefType"  />
+      </Box>
+      <Box Size="180,24" Offset="160,0" Color="0,0,0,0">
+        <Label Font="TwCenMT18" ColorSet="Beige_Black_Alpha" TruncateWidth="175" FontStyle="Shadow" ID="BeliefName"  />
+      </Box>
+      <Box Size="450,24" Offset="340,0" Color="0,0,0,0">
+        <Label Offset="0,2" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" WrapWidth="450" FontStyle="Shadow" ID="BeliefDescription"  />
+      </Box>
+      <Image Anchor="L,B" Offset="0,5" TextureOffset="0,0" Texture="bar500x2.dds" Size="500,1" />
+      <Image Anchor="R,B" Offset="0,5" TextureOffset="0,0" Texture="bar500x2.dds" Size="500,1" />
+
+    </Box>
+  </Instance>
+  <Instance Name="FaithModifierInstance">
+    <Label Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FaithModifier"  />
+  </Instance>
+
+  <Instance Name="WorldReligionInstance">
+    <Box Size="930,30" Color="0,0,0,0" ID="Base">
+      <Stack StackGrowth="Right">
+        <Box Size="250,30" Color="0,0,0,0">
+          <Image Anchor="L,C" Size="48,48" Offset="0,0" Texture="assets/DLC/Expansion/UI/Art/Icons/ReligiousSymbolsWhite48_Expansion.dds" ID="WorldReligionIcon"/>
+          <Label Anchor="L,C" Offset="55,0" Font="TwCenMT18" TruncateWidth="195" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="ReligionName" />
+        </Box>
+        <Box Size="230,30" Color="0,0,0,0">
+          <Label Anchor="C,C" Font="TwCenMT18" TruncateWidth="230" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="HolyCityName" />
+        </Box>
+        <Box Size="250,30" Color="0,0,0,0">
+          <Box Size="45,45" Anchor="L,C" Color="0,0,0,0">
+            <Image ID="FounderIconBG" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+            <Image ID="FounderIconShadow" Size="32,32" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+            <Image ID="FounderIcon" Size="32,32" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+            <Image ID="FounderIconHighlight" Size="45,45" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes_Highlight.dds"/>
+            <Image Anchor="L,C" Size="45,45" Offset="0,0" TextureOffset="135,90" Texture="unitactions360.dds" ID="FounderKilled" Hidden="1"/>
+          </Box>
+		  <Label Anchor="L,C" Offset="50,0" Font="TwCenMT18" TruncateWidth="200" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Founder" />
+        </Box>
+        <Box Size="100,30" Color="0,0,0,0">
+          <Label Anchor="C,C" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NumberOfCities" />
+        </Box>
+        <Box Size="100,30" Color="0,0,0,0">
+          <Label Anchor="C,C" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NumberOfFollowers" />
+        </Box>
+      </Stack>
+    </Box>
+  </Instance>
+
+  <Instance Name="BeliefInstance">
+    <Box Size="930,30" Color="0,0,0,0" ID="Base">
+      <Stack StackGrowth="Right">
+        <Box Size="175,30" Color="0,0,0,0">
+          <Label Anchor="L,C" Offset="20,0" TruncateWidth="155" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BeliefName"  />
+        </Box>
+        <Box Size="150,30" Color="0,0,0,0">
+          <Label Anchor="C,C" Font="TwCenMT18" TruncateWidth="150" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BeliefType"  />
+        </Box>
+        <Box Size="425,30" Color="0,0,0,0">
+          <Label Anchor="L,C" Font="TwCenMT18" TruncateWidth="425" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BeliefDescription" />
+        </Box>
+        <Box Size="180,30" Color="0,0,0,0">
+          <Image Anchor="L,C" Size="48,48" Offset="0,0" Texture="assets/DLC/Expansion/UI/Art/Icons/ReligiousSymbolsWhite48_Expansion.dds" ID="BeliefReligionIcon"/>
+          <Label Anchor="L,C" Offset="50,0" Font="TwCenMT18" TruncateWidth="130" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="BeliefReligion" />
+        </Box>
+      </Stack>
+    </Box>
+  </Instance>
+
+  <Box Style="BGBlock_ClearTopBar" />
+  <Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
+
+    <!-- Decoration -->
+    <!-- Top -->
+    <Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
+      <Image ID="Icon" Size="64,64" Offset="-1,-1" Anchor="C,C" Texture="Religion64.dds"/>
+    </Image>
+
+    <!-- Side treatments -->
+    <Box Style="MenuLeftSideTreatment"/>
+    <Box Style="MenuRightSideTreatment"/>
+
+		<Label Style="MenuTitleCaption" String="TXT_KEY_RELIGION_OVERVIEW" />
+
+    <!-- Top Panel  -->
+    <Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128" >
+      <Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
+
+        <Button  Anchor="L,T" Size="225,24" Offset="0,0" String="TXT_KEY_RO_TAB_YOUR_RELIGION" ID="TabButtonYourReligion" >
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="225,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+              <Grid   Size="225,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="225,26"  Style="Grid9FrameTurns" Hidden="0" ID="YourReligionSelectHighlight" />
+        </Button>
+
+        <Button  Anchor="L,T" Size="225,24" Offset="0,0" String="TXT_KEY_RO_TAB_WORLD_RELIGIONS" ID="TabButtonWorldReligions" >
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="225,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+              <Grid   Size="225,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="225,26"  Style="Grid9FrameTurns" Hidden="1" ID="WorldReligionsSelectHighlight" />
+        </Button>
+
+        <Button  Anchor="L,T" Size="225,24" Offset="0,0" String="TXT_KEY_RO_TAB_BELIEFS" ID="TabButtonBeliefs" >
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="225,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+              <Grid   Size="225,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="225,26"  Style="Grid9FrameTurns" Hidden="1" ID="BeliefsSelectHighlight" />
+        </Button>
+
+        <Button  Anchor="L,T" Size="225,24" Offset="0,0" String="TXT_KEY_RO_TAB_MAP" ID="TabButtonMap" >
+          <ShowOnMouseOver>
+            <AlphaAnim Anchor="L,C" Size="225,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1"  >
+              <Grid   Size="225,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL" />
+            </AlphaAnim>
+          </ShowOnMouseOver>
+          <!-- Selected State  -->
+          <Grid Anchor="C,C" Offset="0,1" Size="225,26"  Style="Grid9FrameTurns" Hidden="1" ID="MapSelectHighlight" />
+        </Button>
+      </Stack>
+
+      <Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971,5" />
+    </Box>
+
+    <!-- Content Panel -->
+    <Box Size ="953,459" Color="0,0,0,0" Offset="19,77">
+
+      <Image Anchor="L,T" Texture="Found_Religion_background.dds" Size="951,459" TextureOffset="0,125" Color="255,255,255,100" Offset="0,0" />
+
+      <!-- Your Religion Tab Content-->
+      <Box Size="953,459" Color="0,0,0,0" ID="YourReligionPanel" Hidden="1">
+        <Stack>
+          <Box Size="953,100" Color="0,0,0,0">
+            <Stack StackGrowth="Right" Padding="5">
+              <Box Size="80,80" Color="0,0,0,0" Anchor="L,C">
+                <Image ID="FounderIconBG" Size="80,80" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
+                <Image ID="FounderIconShadow" Size="64,64" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+                <Image ID="FounderIcon" Size="64,64" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
+                <Image ID="FounderIconHighlight" Size="80,80" Anchor="C,C" Offset="0,0" TextureOffset="141,0" Texture="CivIconBGSizes_Highlight.dds"/>
+              </Box>
+
+
+              <Label Anchor="L,C" String="TXT_KEY_RO_RELIGIOUS_STATUS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="ReligionStatusLabel" />
+
+              <Image Anchor="L,C" Size="80,80" Offset="0,0" Texture="ReligiousSymbolsWhite80_Expansion.dds" ID="FounderReligionIcon"/>
+              <Label Anchor="L,C" Offset="5,0" Font="TwCenMT18" WrapWidth="590" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="ReligiousStatus"  />
+            </Stack>
+
+            <Image Anchor="L,B" Offset="0,24" TextureOffset="50,0" Texture="bar900x2.dds" Size="476,1" />
+            <Image Anchor="R,B" Offset="0,24" TextureOffset="368,0" Texture="bar900x2.dds" Size="477,1" />
+          </Box>
+          <Box Size="953,180" Color="0,0,0,0">
+            <Stack Size="948,100" Offset="20,0" StackGrowth="Right" Padding="20" >
+              <Box Size="100,24" Color="0,0,0,0">
+                <Label String="TXT_KEY_RO_BELIEFS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+              </Box>
+              <Box Size="794,165" Color="0,0,0,0">
+                <ScrollPanel Vertical="1" Size="794,165" Offset="0,0" AutoScrollBar="0" ID="YourReligiousBeliefsScrollPanel">
+                  <!-- Scroll Controls -->
+                  <ScrollBar Style="VertSlider" Length="129" Anchor="R,C" AnchorSide="O,I"/>
+                  <UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+                  <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+                  <Stack Size="948,100" StackGrowth="Bottom" ID="YourReligiousBeliefsStack" />
+                </ScrollPanel>
+
+                <Label String="TXT_KEY_RO_BELIEFS_NONE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="YourReligionNoBeliefs"  />
+              </Box>
+            </Stack>
+
+            <Image Anchor="L,B" Offset="0,12" TextureOffset="50,0" Texture="bar900x2.dds" Size="476,1" />
+            <Image Anchor="R,B" Offset="0,12" TextureOffset="368,0" Texture="bar900x2.dds" Size="477,1" />
+          </Box>
+
+          <Box Size="953,100" Color="0,0,0,0">
+            <Stack Offset="20,0" StackGrowth="Right" Padding="180">
+              <Stack StackGrowth ="Bottom" ID="FaithModifierStack" Padding="4">
+                <Label Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CurrentFaith"  />
+              </Stack>
+              <Stack StackGrowth="Bottom" Padding="4">
+                <Label String="TXT_KEY_RO_POSSIBLE_GP" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+
+                <Stack StackGrowth="Bottom" WrapGrowth="Right" WrapWidth="60" Padding="4" ID="GreatPersonList">
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName1" />
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName2" />
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName3" />
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName4" />
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName5" />
+                    <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName6" />
+                  <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName7" />
+                  <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName8" />
+                  <Label Offset="20,0" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="GreatPersonName9" />
+                </Stack>
+              </Stack>
+            </Stack>
+
+            <Image Anchor="L,B" Offset="0,24" TextureOffset="50,0" Texture="bar900x2.dds" Size="476,1" />
+            <Image Anchor="R,B" Offset="0,24" TextureOffset="368,0" Texture="bar900x2.dds" Size="477,1" />
+          </Box>
+          <Box  Size="953,100" Color="0,0,0,0">
+            <Stack Size="953,32" Offset="20,0" StackGrowth="Right" Padding="20">
+              <Label Anchor="L,C" String="TXT_KEY_RO_AUTO_FAITH_PURCHASE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+              <PullDown Anchor="L,C" Style="GenericPullDown" ScrollThreshold="75" Size="300,27" AutoSizePopUp="1" SpaceForScroll="1" ID="AutomaticPurchasePD" />
+            </Stack>
+
+          </Box>
+        </Stack>
+      </Box>
+
+      <!-- World Religions Tab Content-->
+      <Box Size="953,459" Color="0,0,0,0" ID="WorldReligionPanel" Hidden="1">
+
+        <Stack>
+          <Box Size="953,385" Color="0,0,0,0">
+            <Label Anchor="C,C" String="TXT_KEY_RO_NO_WORLD_RELIGIONS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  ID="NoWorldReligions"/>
+            <ScrollPanel Vertical="1" Size="935,385" Offset="0,0" AutoScrollBar="0" ID="WorldReligionsScrollPanel" Hidden="1">
+              <!-- Scroll Controls -->
+              <ScrollBar Style="VertSlider" Length="349" Anchor="R,C" AnchorSide="O,I"/>
+              <UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+              <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+              <Stack StackGrowth="Bottom" Padding="10" ID="WorldReligionsStack">
+                <Box Size="935,23" Color="0,0,0,150">
+                  <Stack Anchor="L,T" StackGrowth="Right">
+                    <Box Anchor="L,T" Color="0,0,0,0"  Size="250,24" >
+                      <TextButton Offset="55,1" Anchor="L,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_RELIGION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByReligion" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByReligionImage" />
+                      </TextButton>
+                    </Box>
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="230,24" >
+                      <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_HOLY_CITY" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByHolyCity" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByHolyCityImage" />
+                      </TextButton>
+                    </Box>
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="250,24" >
+                      <TextButton Offset="50,1" Anchor="L,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_FOUNDER" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByFounder" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByFounderImage" />
+                      </TextButton>
+                    </Box>
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="100,24" >
+                      <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_TOTAL_CITIES" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByNumCities" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByNumCitiesImage" />
+                      </TextButton>
+                    </Box>
+                    <Box Anchor="L,T" Color="0,0,0,0" Size="100,24" >
+                      <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_WR_TOTAL_FOLLOWERS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="WRSortByNumFollowers" Hidden="0" >
+                        <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="WRSortByNumFollowersImage" />
+                      </TextButton>
+                    </Box>
+                  </Stack>
+                  <Image Anchor="L,T" Offset="0,24" TextureOffset="50,0" Texture="bar900x2.dds" Size="468,1" />
+                  <Image Anchor="R,T" Offset="0,24" TextureOffset="368,0" Texture="bar900x2.dds" Size="467,1" />
+                </Box>
+              </Stack>
+            </ScrollPanel>
+          </Box>
+          <Box Size="953,75" Color="0,0,0,0">
+            <Stack Anchor="L,T" Size="953,75" StackGrowth="Bottom" Padding="4">
+              <Box Size="953,18" Color="0,0,0,0">
+                <Label Anchor="C,T" String="TXT_KEY_RO_WR_OVERALL_STATUS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+              </Box>
+              <Box Size="953,18" Color="0,0,0,0">
+                <Label Anchor="C,T" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="NumberOfReligionsCanBeFounded"  />
+              </Box>
+              <Box Size="953,18" Color="0,0,0,0">
+                <Label Anchor="C,T" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="TooLateToStartPantheon"  />
+              </Box>
+            </Stack>
+          </Box>
+        </Stack>
+      </Box>
+
+      <!-- Beliefs Tab Content-->
+      <Box Size="953,459" Color="0,0,0,0" ID="BeliefsPanel" Hidden="1">
+        <Label Anchor="C,C" String="TXT_KEY_RO_B_NO_BELIEFS" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  ID="NoBeliefs"/>
+        <ScrollPanel Vertical="1" Size="935,459" Offset="0,0" AutoScrollBar="0" ID="BeliefsScrollPanel" Hidden="1">
+          <!-- Scroll Controls -->
+          <ScrollBar Style="VertSlider" Length="423" Anchor="R,C" AnchorSide="O,I"/>
+          <UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+          <DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+          <Stack StackGrowth="Bottom" ID="BeliefsStack" Padding="10">
+            <Box Size="935,23" Color="0,0,0,150">
+              <Stack Anchor="L,T" StackGrowth="Right">
+                <Box Anchor="L,T" Color="0,0,0,0"  Size="175,24" >
+                  <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_B_BELIEFS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="BPSortbyName" Hidden="0" >
+                    <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="BPSortbyNameImage" />
+                  </TextButton>
+                </Box>
+                <Box Anchor="L,T" Color="0,0,0,0" Size="150,24" >
+                  <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_B_TYPE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="BPSortbyType" Hidden="0" >
+                    <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="BPSortbyTypeImage" />
+                  </TextButton>
+                </Box>
+                <Box Anchor="L,T" Color="0,0,0,0" Size="425,24" >
+                  <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_B_BONUS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="BPSortbyBonus" Hidden="0" >
+                    <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="BPSortbyBonusImage" />
+                  </TextButton>
+                </Box>
+                <Box Anchor="L,T" Color="0,0,0,0" Size="200,24" >
+                  <TextButton Offset="0,1" Anchor="C,C" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" String="TXT_KEY_RO_B_RELIGION" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="BPSortbyReligion" Hidden="0" >
+                    <Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="BPSortbyReligionImage" />
+                  </TextButton>
+                </Box>
+              </Stack>
+              <Image Anchor="L,T" Offset="0,24" TextureOffset="50,0" Texture="bar900x2.dds" Size="468,1" />
+              <Image Anchor="R,T" Offset="0,24" TextureOffset="368,0" Texture="bar900x2.dds" Size="467,1" />
+            </Box>
+          </Stack>
+        </ScrollPanel>
+      </Box>
+
+      <!-- Map Tab Content-->
+      <Box Size="953,459" Color="0,0,0,255" ID="MapPanel" Hidden="1">
+        <ReplayMap ID="ReligionMap" Anchor="C,C" Size="930,440"/>
+      </Box>
+
+    </Box>
+
+    <!-- Bottom Panel -->
+    <Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="971,5" />
+    <Box Anchor="C,B" AnchorSide="I.I" Offset="0,54"   Size="927,56" Color="255,255,255,0" >
+      <!-- Close Button  -->
+      <GridButton Anchor="L,B"  Style="SmallButton" Size="150,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="CloseButton"  >
+        <Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
+      </GridButton>
+
+			<!-- MODS START -->
+			<!-- Found Button  -->
+			<GridButton Anchor="R,B"  Style="SmallButton" Size="180,32"  Offset="14,0" StateOffsetIncrement="0,0" ID="FoundButton" Hidden="1" >
+				<Label Anchor="C,C"  Offset="0,0"  String="TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</GridButton>
+			<!-- MODS END -->
+    </Box>
+  </Grid>
+</Context>

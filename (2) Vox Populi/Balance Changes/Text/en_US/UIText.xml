@@ -1504,6 +1504,17 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
 			<Text>{1_MinorCivName:textkey} revokes quests</Text>
 		</Row>
+	<!-- UI - Religion Spread -->
+			<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
+			<Text>Cities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
+			<Text>Followers</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RO_TAB_MAP">
+			<Text>Map</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
