@@ -2,10 +2,11 @@
 ALTER TABLE UnitPromotions	ADD RankList									text;
 ALTER TABLE UnitPromotions	ADD RankNumber							integer default 0;
 -- column to hold visibility preference for each promotion
--- bal: this is only used for Flags, not needed here ALTER TABLE UnitPromotions	ADD IsVisibleAboveFlag					boolean default 1; 
 ALTER TABLE UnitPromotions	ADD FlagPromoOrder						int default 0;
 ALTER TABLE UnitPromotions	ADD SimpleHelpText						boolean default 0;
+  
 ALTER TABLE UnitPromotions	ADD ShowInUnitPanel						boolean default 1;
+ALTER TABLE UnitPromotions	ADD IsVisibleAboveFlag					boolean default 1;
 
 -- For promos where the title is the same as the Help text
 UPDATE UnitPromotions SET SimpleHelpText = 1 WHERE Description == Help;
@@ -43,15 +44,17 @@ UPDATE UnitPromotions SET RankList = 'SCOUTING_SIGHT', RankNumber = 5 WHERE Type
 -- UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 6 WHERE Type = 'PROMOTION_TREASURE_FLEET'; -- UndeadDevel: this now gives +1 Sight and an attack bonus and ability to heal outside Friendly Territory
 -- UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 7 WHERE Type = 'PROMOTION_SENTRY'; -- UndeadDevel: +1 Sight, make this have -- precedence as it's the only one in the group that can be chosen for individual units
 UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 8 WHERE Type = 'PROMOTION_SKIRMISHER_SENTRY';
-
 UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 1 WHERE Type = 'PROMOTION_SCOUTING_1'; -- +1 Sight (Recon unit line)
+																																					   
 UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 2 WHERE Type = 'PROMOTION_SCOUTING_2'; -- +1 Sight (Recon unit line)
 UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 3 WHERE Type = 'PROMOTION_SCOUTING_3'; -- +1 Movement (Recon unit line)
 
+  
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 1 WHERE Type = 'PROMOTION_HONOR_BONUS';
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 2 WHERE Type = 'PROMOTION_KILL_HEAL';
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 3 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY'; -- MUC4VP uses it for the Eagle
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 4 WHERE Type = 'PROMOTION_HEAL_IF_DESTROY_ENEMY'; -- Janissary
+  
 
 UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 1 WHERE Type = 'PROMOTION_BUFFALO_LOINS'; -- UndeadDevel: now in the correct order
 UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 2 WHERE Type = 'PROMOTION_BUFFALO_CHEST';
@@ -74,6 +77,7 @@ UPDATE UnitPromotions SET RankList = 'PROMOTION_CHARGE', RankNumber = 2 WHERE Ty
 
 -- group generic combat buffs
 UPDATE UnitPromotions SET RankList = 'GENERIC_COMBAT_BUFF', RankNumber = 1 WHERE Type = 'PROMOTION_MORALE';
+UPDATE UnitPromotions SET RankList = 'GENERIC_COMBAT_BUFF', RankNumber = 2 WHERE Type = 'PROMOTION_EE_DRYDOCK'; --EE
 
 -- UndeadDevel: differentiate interception promos
 UPDATE UnitPromotions SET RankList = 'INTERCEPTOR', RankNumber = 1 WHERE Type = 'PROMOTION_INTERCEPTION_1';
@@ -88,10 +92,11 @@ UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 4 WHERE Type = 
 UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 5 WHERE Type = 'PROMOTION_DEFENSIVE_EMBARKATION';
 UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 6 WHERE Type = 'PROMOTION_WAR_CANOES';
 UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 7 WHERE Type = 'PROMOTION_OCEAN_CROSSING';
+UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 8 WHERE Type = 'PROMOTION_UNIT_DENMARK_VIKING_EXPLORATION_CAN_CROSS_OCEAN'; -- MUC4VP
 UPDATE UnitPromotions SET RankList = 'EMBARKATION', RankNumber = 9 WHERE Type = 'PROMOTION_HOVER_UNIT';				-- not to be confused with PROMOTION_HOVERING_UNIT
 
 -- UndeadDevel: fold in submarine promos
-/* bal: these are unrelated
+/* bal: these aren't related
 UPDATE UnitPromotions SET RankList = 'SUBMARINES', RankNumber = 1 WHERE Type = 'PROMOTION_INVISIBLE_SUBMARINE';
 UPDATE UnitPromotions SET RankList = 'SUBMARINES', RankNumber = 2 WHERE Type = 'PROMOTION_SEE_INVISIBLE_SUBMARINE';
 */
@@ -128,7 +133,7 @@ UPDATE UnitPromotions SET RankList = 'GREAT_GENERAL_AURA', RankNumber = 2 WHERE 
 UPDATE UnitPromotions SET RankList = 'HOMELAND_DEFENDER', RankNumber = 1 WHERE Type = 'PROMOTION_HIMEJI_CASTLE';
 UPDATE UnitPromotions SET RankList = 'HOMELAND_DEFENDER', RankNumber = 2 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN';
 */
--- UndeadDevel: group Cover and Field works promos/ bal: don't group cover
+-- UndeadDevel: group Cover and Field works promos
 UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 1 WHERE Type = 'PROMOTION_FIELD_WORKS_0';
 UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 2 WHERE Type = 'PROMOTION_FIELD_WORKS_1';
 UPDATE UnitPromotions SET RankList = 'FIELD_WORKS', RankNumber = 3 WHERE Type = 'PROMOTION_FIELD_WORKS_2';
@@ -147,6 +152,35 @@ UPDATE UnitPromotions SET RankList = null , RankNumber = 0 WHERE Type = 'PROMOTI
 UPDATE UnitPromotions SET RankList = null , RankNumber = 0 WHERE Type = 'PROMOTION_SHOCK_4';
 UPDATE UnitPromotions SET RankList = null , RankNumber = 0 WHERE Type = 'PROMOTION_DRILL_4';
 
+-- UndeadDevel: Unique City States Clermont promotions
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 1 WHERE Type = 'PROMOTION_CLERMONT';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 2 WHERE Type = 'PROMOTION_CLERMONT1';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 3 WHERE Type = 'PROMOTION_CLERMONT2';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 4 WHERE Type = 'PROMOTION_CLERMONT3';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 5 WHERE Type = 'PROMOTION_CLERMONT4';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 6 WHERE Type = 'PROMOTION_CLERMONT5';
+UPDATE UnitPromotions SET RankList = 'UCS_CLERMONT', RankNumber = 7 WHERE Type = 'PROMOTION_CLERMONT6';
+
+-- UndeadDevel: need to adjust these, unfortunately
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 1 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_0'; -- MUC4VP
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_1';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 3 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_2';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 4 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_3';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 5 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_4';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 6 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_5';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 7 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_6';
+UPDATE UnitPromotions SET RankList = 'BABYLON_LEGACY', RankNumber = 8 WHERE Type = 'PROMOTION_UNIT_BABYLON_LEGACY_7';
+
+-- UndeadDevel: group MUC4VP "cause and effect" promos
+UPDATE UnitPromotions SET RankList = 'ROME_PRAEFECTUS_CASTRORUM_CE', RankNumber = 1 WHERE Type = 'PROMOTION_UNIT_ROME_PRAEFECTUS_CASTRORUM_ON_LEGION';
+UPDATE UnitPromotions SET RankList = 'ROME_PRAEFECTUS_CASTRORUM_CE', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_ROME_PRAEFECTUS_CASTRORUM_EFFECT';
+
+UPDATE UnitPromotions SET RankList = 'ROME_LEGATUS_LEGIONIS_CE', RankNumber = 1 WHERE Type = 'PROMOTION_UNIT_ROME_LEGATUS_LEGIONIS_ON_BALLISTA';
+UPDATE UnitPromotions SET RankList = 'ROME_LEGATUS_LEGIONIS_CE', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_ROME_LEGATUS_LEGIONIS_EFFECT';
+
+UPDATE UnitPromotions SET RankList = 'SHOSHONE_BIG_HORSE_DANCE_CE', RankNumber = 1 WHERE Type = 'PROMOTION_UNIT_SHOSHONE_BIG_HORSE_DANCE';
+UPDATE UnitPromotions SET RankList = 'SHOSHONE_BIG_HORSE_DANCE_CE', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_SHOSHONE_BIG_HORSE_DANCE_PERFORMED';
+
 -- UndeadDevel: group these since they're not lost on upgrade and Scouts are too promotion-laden
 UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 1 WHERE Type = 'PROMOTION_SCOUT_GOODY_BONUS';
 UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 2 WHERE Type = 'PROMOTION_GOODY_HUT_PICKER';
@@ -157,7 +191,6 @@ UPDATE UnitPromotions SET RankList = 'SIEGE_PENALTIES', RankNumber = 1 WHERE Typ
 UPDATE UnitPromotions SET RankList = 'SIEGE_PENALTIES', RankNumber = 2 WHERE Type = 'PROMOTION_NAVAL_MISFIRE';
 UPDATE UnitPromotions SET RankList = 'SIEGE_PENALTIES', RankNumber = 3 WHERE Type = 'PROMOTION_SIEGE_INACCURACY';
 
----------------------------------------
 ---------------------------------------
 --Set FlagPromoOrder to keep important promos visible and
 -- consistently positioned, lower numbers take precedence
@@ -170,9 +203,22 @@ UPDATE UnitPromotions SET FlagPromoOrder = 10 WHERE Type IN (
 	'PROMOTION_BOARDED_I',			-- temporary debuffs
 	'PROMOTION_BOARDED_II',
 	'PROMOTION_BOARDED_III',
-	'PROMOTION_DAZED'
+	'PROMOTION_DAZED',
+	'PROMOTION_UNIT_BYZANTIUM_GREEK_FIRE_1', -- MUC4VP
+	'PROMOTION_UNIT_BYZANTIUM_GREEK_FIRE_2',
+	'PROMOTION_UNIT_BYZANTIUM_GREEK_FIRE_3',
+	'PROMOTION_UNIT_POLYNESIA_KAPU_KUIALUA_1',
+	'PROMOTION_UNIT_ETHIOPIA_MAIM_1'
 );
 
+UPDATE UnitPromotions SET FlagPromoOrder = 12 WHERE Type IN (
+	'PROMOTION_UNIT_CARTHAGE_ZOC', -- MUC4VP temporary buff
+	'PROMOTION_EE_FIRST_RATE_DEFENSE' -- EE temporary buff
+);
+
+UPDATE UnitPromotions SET FlagPromoOrder = 13 WHERE Type IN (
+	'PROMOTION_HEROES'				-- Capture Great People
+);
 
 UPDATE UnitPromotions SET FlagPromoOrder = 14 WHERE Type IN (
 	'PROMOTION_ALHAMBRA',			-- currently lost on upgrade, so hard to remember which unit has it
@@ -200,14 +246,46 @@ UPDATE UnitPromotions SET FlagPromoOrder = 15 WHERE Type IN (
 	'PROMOTION_HEROISM',
 	'PROMOTION_AMBITION',
 	'PROMOTION_RESTLESSNESS',
-	'PROMOTION_RECRUITMENT'
+	'PROMOTION_RECRUITMENT',
+	'PROMOTION_UNIT_BABYLON_LEGACY_0', -- MUC4VP
+	'PROMOTION_UNIT_BABYLON_LEGACY_1',
+	'PROMOTION_UNIT_BABYLON_LEGACY_2',
+	'PROMOTION_UNIT_BABYLON_LEGACY_3',
+	'PROMOTION_UNIT_BABYLON_LEGACY_4',
+	'PROMOTION_UNIT_BABYLON_LEGACY_5',
+	'PROMOTION_UNIT_BABYLON_LEGACY_6',
+	'PROMOTION_UNIT_BABYLON_LEGACY_7',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_1', -- MUC4VP
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_2',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_3',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_4',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_5',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_6',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_7',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_8',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_9',
+	'PROMOTION_UNIT_AZTEC_CUAUHOCELOTL_10',
+	'PROMOTION_UNIT_MAYA_KATUN_AHAW_1', -- MUC4VP
+	'PROMOTION_UNIT_MAYA_KATUN_AHAW_2',
+	'PROMOTION_UNIT_MAYA_KATUN_AHAW_3',
+	'PROMOTION_UNIT_MAYA_KATUN_AHAW_4'
 );
 
+UPDATE UnitPromotions SET FlagPromoOrder = 16 WHERE Type IN (
+	'PROMOTION_CLERMONT', -- Unique City States
+	'PROMOTION_CLERMONT1',
+	'PROMOTION_CLERMONT2',
+	'PROMOTION_CLERMONT3',
+	'PROMOTION_CLERMONT4',
+	'PROMOTION_CLERMONT5',
+	'PROMOTION_CLERMONT6'
+);
 
 UPDATE UnitPromotions SET FlagPromoOrder = 17 WHERE Type IN (
 	'PROMOTION_SCOUTING_1',
 	'PROMOTION_SCOUTING_2',
 	'PROMOTION_SCOUTING_3',
+	'PROMOTION_EE_ADVENTURER',
 	'PROMOTION_NAVAL_SENTRY_II',
 	'PROMOTION_SKIRMISHER_SENTRY'
 );
@@ -223,9 +301,9 @@ UPDATE UnitPromotions SET FlagPromoOrder = 19 WHERE Type IN (
 	'PROMOTION_SIEGE_I',				-- lets make sure they are displayed before their finishers
 	'PROMOTION_SIEGE_II',
 	'PROMOTION_SIEGE_III',
-	'PROMOTION_WOLFPACK_1',
-	'PROMOTION_WOLFPACK_2',
-	'PROMOTION_WOLFPACK_3'
+    'PROMOTION_WOLFPACK_1',
+    'PROMOTION_WOLFPACK_2',
+    'PROMOTION_WOLFPACK_3'
 );
 
 -- standard lines A
@@ -237,7 +315,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 20 WHERE Type IN (
 	'PROMOTION_ACCURACY_1',
 	'PROMOTION_ACCURACY_2',
 	'PROMOTION_ACCURACY_3',
-	'PROMOTION_ACCURACY_4',
+    'PROMOTION_ACCURACY_4',
 	'PROMOTION_FIELD_I',
 	'PROMOTION_FIELD_II',
 	'PROMOTION_FIELD_III',
@@ -250,10 +328,10 @@ UPDATE UnitPromotions SET FlagPromoOrder = 20 WHERE Type IN (
 	'PROMOTION_TARGETING_1',
 	'PROMOTION_TARGETING_2',
 	'PROMOTION_TARGETING_3',
-	'PROMOTION_BOARDING_PARTY_1',
-	'PROMOTION_BOARDING_PARTY_2',
-	'PROMOTION_BOARDING_PARTY_3',
-	'PROMOTION_BOARDING_PARTY_4',
+    'PROMOTION_BOARDING_PARTY_1',
+    'PROMOTION_BOARDING_PARTY_2',
+    'PROMOTION_BOARDING_PARTY_3',
+    'PROMOTION_BOARDING_PARTY_4',
 	'PROMOTION_DOGFIGHTING_1',
 	'PROMOTION_DOGFIGHTING_2',
 	'PROMOTION_DOGFIGHTING_3',
@@ -270,9 +348,11 @@ UPDATE UnitPromotions SET FlagPromoOrder = 25 WHERE Type IN (
 	'PROMOTION_DRILL_1',
 	'PROMOTION_DRILL_2',
 	'PROMOTION_DRILL_3',
+	'PROMOTION_DRILL_4',
 	'PROMOTION_BARRAGE_1',
 	'PROMOTION_BARRAGE_2',
 	'PROMOTION_BARRAGE_3',
+    'PROMOTION_BARRAGE_4',
 	'PROMOTION_SURVIVALISM_1',
 	'PROMOTION_SURVIVALISM_2',
 	'PROMOTION_SURVIVALISM_3',
@@ -282,9 +362,11 @@ UPDATE UnitPromotions SET FlagPromoOrder = 25 WHERE Type IN (
 	'PROMOTION_BOMBARDMENT_1',
 	'PROMOTION_BOMBARDMENT_2',
 	'PROMOTION_BOMBARDMENT_3',
-	'PROMOTION_COASTAL_RAIDER_1',
-	'PROMOTION_COASTAL_RAIDER_2',
-	'PROMOTION_COASTAL_RAIDER_3',
+	'PROMOTION_BOMBARDMENT_4',
+    'PROMOTION_COASTAL_RAIDER_1',
+    'PROMOTION_COASTAL_RAIDER_2',
+    'PROMOTION_COASTAL_RAIDER_3',
+    'PROMOTION_COASTAL_RAIDER_4',
 	'PROMOTION_INTERCEPTION_1',
 	'PROMOTION_INTERCEPTION_2',
 	'PROMOTION_INTERCEPTION_3',
@@ -311,25 +393,28 @@ UPDATE UnitPromotions SET FlagPromoOrder = 29 WHERE Type IN (
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 30 WHERE Type IN (
-	'PROMOTION_DAMAGE_REDUCTION',
-	'PROMOTION_PIRACY',
+    'PROMOTION_DAMAGE_REDUCTION',
+    'PROMOTION_PIRACY',
 	'PROMOTION_MARCH',
 	'PROMOTION_MARCH_RANGED',
 	'PROMOTION_SKIRMISHER_MARCH',
 	'PROMOTION_MARCH_IV',
 	'PROMOTION_SPLASH',
 	'PROMOTION_SPLASH_II',
-	'PROMOTION_EVASION_I', -- Air Penetration, can't be picked by Stealth Bombers
-	'PROMOTION_EVASION_II',
-	'PROMOTION_EVASION_III' -- Stealth
+    'PROMOTION_EVASION_I', -- Air Penetration, can't be picked by Stealth Bombers
+    'PROMOTION_EVASION_II',
+    'PROMOTION_EVASION_III', -- Stealth
+	'PROMOTION_UNIT_BYZANTIUM_GREEK_FIRE_0', -- MUC4VP plague placers
+	'PROMOTION_UNIT_POLYNESIA_KAPU_KUIALUA_0',
+	'PROMOTION_UNIT_ETHIOPIA_MAIM_0'
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 34 WHERE Type IN (
-	'PROMOTION_MINELAYER',
-	'PROMOTION_PRESS_GANGS',
-	'PROMOTION_MOBILITY',
+    'PROMOTION_MINELAYER',
+    'PROMOTION_PRESS_GANGS',
+    'PROMOTION_MOBILITY',
 	'PROMOTION_SKIRMISHER_MOBILITY',
-	'PROMOTION_EVASION'
+    'PROMOTION_EVASION'
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 35 WHERE Type IN (
@@ -338,16 +423,16 @@ UPDATE UnitPromotions SET FlagPromoOrder = 35 WHERE Type IN (
 	'PROMOTION_LOGISTICS',
 	'PROMOTION_AIR_LOGISTICS',
 	'PROMOTION_NAVAL_LOGISTICS',
-	'PROMOTION_BREACHER',
-	'PROMOTION_ENCIRCLEMENT'
+    'PROMOTION_BREACHER',
+    'PROMOTION_ENCIRCLEMENT'
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 39 WHERE Type IN (
 	'PROMOTION_SIEGE',
-	'PROMOTION_INTERCEPTION_I',
-	'PROMOTION_INTERCEPTION_II',
-	'PROMOTION_INTERCEPTION_III',
-	'PROMOTION_INTERCEPTION_IV'
+    'PROMOTION_INTERCEPTION_I',
+    'PROMOTION_INTERCEPTION_II',
+    'PROMOTION_INTERCEPTION_III',
+    'PROMOTION_INTERCEPTION_IV'
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 40 WHERE Type IN (
@@ -356,8 +441,8 @@ UPDATE UnitPromotions SET FlagPromoOrder = 40 WHERE Type IN (
 	'PROMOTION_COVER_VANGUARD_2',
 	'PROMOTION_VOLLEY',
 	'PROMOTION_DOUBLE_PLUNDER',
-	'PROMOTION_ANTI_AIR',
-	'PROMOTION_ANTI_AIR_II',
+    'PROMOTION_ANTI_AIR',
+    'PROMOTION_ANTI_AIR_II',
 	'PROMOTION_TERROR',
 	'PROMOTION_TERROR_II'
 );
@@ -366,10 +451,11 @@ UPDATE UnitPromotions SET FlagPromoOrder = 42 WHERE Type IN (
 	'PROMOTION_SKIRMISHER_DOCTRINE',
 	'PROMOTION_FORMATION_1',
 	'PROMOTION_FORMATION_2',
-	'PROMOTION_ANTI_FIGHTER'
+    'PROMOTION_ANTI_FIGHTER'
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 43 WHERE Type IN (
+	'PROMOTION_UNIT_ETHIOPIA_HOOKED_WEAPON', -- MUC4VP
 	'PROMOTION_AIR_RANGE',
 	'PROMOTION_RANGE'
 );
@@ -389,6 +475,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 45 WHERE Type IN (
 
 UPDATE UnitPromotions SET FlagPromoOrder = 46 WHERE Type IN (
 	'PROMOTION_GAIN_EXPERIENCE',
+	'PROMOTION_EE_DRYDOCK',
 	'PROMOTION_SAPPER',
 	'PROMOTION_REPAIR',
 	'PROMOTION_AIR_REPAIR',
@@ -397,12 +484,16 @@ UPDATE UnitPromotions SET FlagPromoOrder = 46 WHERE Type IN (
 
 -- want to keep this visible in the row so we know at a glance what unit was produced in the capital
 UPDATE UnitPromotions SET FlagPromoOrder = 50 WHERE Type IN (
-	'PROMOTION_MORALE',
-	'PROMOTION_MORALE_EVENT'
+    'PROMOTION_MORALE',
+    'PROMOTION_MORALE_EVENT'
 );
 
 -- most of these are unit-specific but kept on upgrade...want to know which unit "descends" from a special one
 UPDATE UnitPromotions SET FlagPromoOrder = 55 WHERE Type IN (
+	'PROMOTION_UNIT_AMERICA_HARDENED', -- MUC4VP (FreePromotion for Monitor)
+	'PROMOTION_UNIT_ARABIA_DESERT_RAIDER', -- MUC4VP (FreePromotion for Hashemite Raider)
+	'PROMOTION_UNIT_ASSYRIA_IRON_AND_HORSE', -- MUC4VP (FreePromotion for Iron Chariot)
+	'PROMOTION_UNIT_NETHERLANDS_BURGEMEESTE', -- MUC4VP (FreePromotion for Goedendag)
 	'PROMOTION_REPEATER',
 	'PROMOTION_ASSIZE_OF_ARMS',
 	'PROMOTION_RAIDER',
@@ -443,12 +534,52 @@ UPDATE UnitPromotions SET FlagPromoOrder = 60 WHERE Type IN (
 	'PROMOTION_BUFFALO_HORNS',
 	'PROMOTION_FASTER_HEAL',
 	'PROMOTION_SELL_EXOTIC_GOODS',
-	'PROMOTION_SCOUT_CAVALRY'
+	'PROMOTION_SCOUT_CAVALRY',
+	'PROMOTION_UNIT_ASSYRIA_FURY_OF_NERGAL', -- MUC4VP from here on...most of these are not lost with upgrade so they should not get pushed to the very back
+	'PROMOTION_UNIT_CELTS_CARNYX',
+	'PROMOTION_UNIT_INDONESIA_FLYING_THE_AMA',
+	'PROMOTION_UNIT_KOREA_DECK_SPIKES',
+	'PROMOTION_UNIT_PERSIA_SAFAVI_AGITATOR',
+	'PROMOTION_UNIT_ROME_LEGATUS_LEGIONIS_ON_BALLISTA',
+	'PROMOTION_UNIT_ROME_LEGATUS_LEGIONIS_EFFECT',
+	'PROMOTION_UNIT_ROME_PRAEFECTUS_CASTRORUM_ON_LEGION',
+	'PROMOTION_UNIT_ROME_PRAEFECTUS_CASTRORUM_EFFECT',
+	'PROMOTION_UNIT_SHOSHONE_BIG_HORSE_DANCE',
+	'PROMOTION_UNIT_SHOSHONE_BIG_HORSE_DANCE_PERFORMED',
+	'PROMOTION_UNIT_SIAM_COASTAL_CANNON',
+	'PROMOTION_UNIT_SONGHAI_HORSE_FATHER',
+	'PROMOTION_UNIT_OTTOMANS_SAHI_TOPU', -- special case: unit damages itself
+	'PROMOTION_UNIT_SIAM_CROACHING_TIGER',
+	'PROMOTION_UNIT_SPAIN_INVINCIBLE',
+	'PROMOTION_UNIT_MAYA_KATUN_AHAW_0',
+	'PROMOTION_UNIT_AZTEC_CAPTIVES_OF_WAR',
+	'PROMOTION_UNIT_HUNS_HORSE_ARCHER',
+	'PROMOTION_UNIT_AMERICA_MONITOR',
+	'PROMOTION_UNIT_NETHERLANDS_GOEDENDAG',
+	'PROMOTION_UNIT_INDIA_DHANURVIDYA',
+	'PROMOTION_UNIT_ENGLAND_AGINCOURT',
+	'PROMOTION_UNIT_EGYPT_MERCY',
+	'PROMOTION_UNIT_HUNS_SACKER',
+	'PROMOTION_UNIT_RUSSIA_GRAPESHOT',
+	'PROMOTION_UNIT_DENMARK_VIKING_EXPLORATION',
+	'PROMOTION_UNIT_POLAND_BOGURODZICA',
+	'PROMOTION_UNIT_GREECE_PHILHELLENISM',
+	'PROMOTION_UNIT_AUSTRIA_YORKSCHER_MARCHE',
+	'PROMOTION_UNIT_GERMANY_FUROR_TEUTONICUS',
+	'PROMOTION_UNIT_JAPAN_YAMATO',
+	'PROMOTION_UNIT_INCA_CHASQUIWASI',
+	'PROMOTION_UNIT_ARABIA_GARLAND_MINE',
+	'PROMOTION_UNIT_MONGOLIA_MINGGHAN',
+	'PROMOTION_UNIT_MOROCCO_RAZZIA',
+	'PROMOTION_ATLATL_ATTACK',
+	'PROMOTION_UNIT_CHINA_KOWTOW',
+	'PROMOTION_UNIT_BRAZIL_EXPEDITIONARY_FORCE'
 );
 
 -- mostly trait- or policy- specific promos and keeping some unit-specific ones separate from the above group
 UPDATE UnitPromotions SET FlagPromoOrder = 61 WHERE Type IN (
 	'PROMOTION_ATTACK_BONUS_SWEDEN',
+	'PROMOTION_STEAM_POWERED', -- MUC4VP (FreePromotion for Monitor)
 	'PROMOTION_MONGOL_TERROR',
 	'PROMOTION_VIKING',
 	'PROMOTION_LONGBOAT',
@@ -456,10 +587,22 @@ UPDATE UnitPromotions SET FlagPromoOrder = 61 WHERE Type IN (
 	'PROMOTION_ENSLAVEMENT',
 	'PROMOTION_AOE_STRIKE_FORTIFY', -- Pilum (Rome)
 	'PROMOTION_SLINGER',
+	'PROMOTION_UNIT_POLAND_BARBICAN',
+	'PROMOTION_UNIT_PORTUGAL_AGE_OF_DISCOVERY',
+	'PROMOTION_UNIT_SONGHAI_HORSE_FATHER_EFFECT',
+	'PROMOTION_UNIT_AZTEC_HUMAN_SACRIFICE',
+	'PROMOTION_UNIT_INDIA_EPIC',
+	'PROMOTION_UNIT_SPAIN_SANTA_MARIA',
+	'PROMOTION_UNIT_HUNS_MIGRATION',
+	'PROMOTION_UNIT_GERMANY_BARBARIAN_ALLIANCE',
+	'PROMOTION_UNIT_BRAZIL_TOURISM',
 	'PROMOTION_ANTI_GUNPOWDER', -- Zulu Impi is the only one getting this and with MUC4VP it's not lost with upgrade
 	'PROMOTION_ARSENALE'
 );
 
+UPDATE UnitPromotions SET FlagPromoOrder = 62 WHERE Type IN (
+	'PROMOTION_EE_FASIL_GHEBBI'
+);
 
 -- mostly defensive promotions
 UPDATE UnitPromotions SET FlagPromoOrder = 68 WHERE Type IN (
@@ -480,6 +623,7 @@ UPDATE UnitPromotions SET FlagPromoOrder = 69 WHERE Type IN (
 	'PROMOTION_ARMOR_PLATING_1',
 	'PROMOTION_ARMOR_PLATING_2',
 	'PROMOTION_ARMOR_PLATING_3',
+	'PROMOTION_UNIT_MAYA_SCOUT_GOODY_BONUS_2', -- MUC4VP
 	'PROMOTION_DEFEND_NEAR_CAPITAL'
 );
 
@@ -497,12 +641,28 @@ UPDATE UnitPromotions SET FlagPromoOrder = 71 WHERE Type IN (
 	'PROMOTION_HIMEJI_CASTLE'
 );
 
+UPDATE UnitPromotions SET FlagPromoOrder = 72 WHERE Type IN (
+	'PROMOTION_ANTANANARIVO', -- Unique City States combat buffs
+	'PROMOTION_BELGRADE',
+	'PROMOTION_HANOI',
+	'PROMOTION_MBANZA_KONGO',
+	'PROMOTION_SIDON',
+	'PROMOTION_YEREVAN',
+	'PROMOTION_LACONIA',
+	'PROMOTION_ODENSO',
+	'PROMOTION_AMBRACIA',
+	'PROMOTION_DODOMA',
+	'PROMOTION_FAYA',
+	'PROMOTION_SURREY'
+);
 
 -- can still be useful in some cases
 UPDATE UnitPromotions SET FlagPromoOrder = 75 WHERE Type IN (
 	'PROMOTION_IGNORE_TERRAIN_COST',
 	'PROMOTION_EXTRA_MOVES_I',
-	'PROMOTION_COERCION'
+	'PROMOTION_COERCION',
+	'PROMOTION_CBOEE_SKIRMISH', --EE
+	'PROMOTION_2HANDER' --EE
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 76 WHERE Type IN (
@@ -513,7 +673,8 @@ UPDATE UnitPromotions SET FlagPromoOrder = 76 WHERE Type IN (
 
 -- most of these are generic buffs that will be known to the player
 UPDATE UnitPromotions SET FlagPromoOrder = 80 WHERE Type IN (
-	'PROMOTION_WITHDRAW_BEFORE_MELEE'
+	'PROMOTION_WITHDRAW_BEFORE_MELEE',
+	'PROMOTION_UNIT_PORTUGAL_CACADOR' -- MUC4VP
 );
 
 UPDATE UnitPromotions SET FlagPromoOrder = 81 WHERE Type IN (
@@ -586,7 +747,9 @@ UPDATE UnitPromotions SET FlagPromoOrder = 92 WHERE Type IN (
 	'PROMOTION_HOVER_UNIT',				-- not to be confused with PROMOTION_HOVERING_UNIT
 	'PROMOTION_EMBARKED_SIGHT',
 	'PROMOTION_DEEPWATER_EMBARKATION',
-	'PROMOTION_DEFENSIVE_EMBARKATION'
+	'PROMOTION_DEFENSIVE_EMBARKATION',
+	'PROMOTION_HONOR_BONUS',
+	'PROMOTION_KILL_HEAL'
 );
 
 -- slightly more useful to know about than the generic penalties
@@ -642,6 +805,112 @@ UPDATE UnitPromotions SET FlagPromoOrder = 99 WHERE Type IN (
 	'PROMOTION_CREATED'
 );
 
+-- don't show these on the unit panel
 UPDATE UnitPromotions SET ShowInUnitPanel = 0 WHERE Type IN (
 	'PROMOTION_ONLY_DEFENSIVE');
-	
+
+---------------------------------------
+--Promotions which should not be displayed above the Unit Flag
+---------------------------------------
+UPDATE UnitPromotions SET IsVisibleAboveFlag = 1;
+UPDATE UnitPromotions SET IsVisibleAboveFlag = 0 WHERE
+	Type LIKE '%PENALTY%'
+	OR Type LIKE '%NOUPGRADE%'
+	OR Type LIKE '%CARGO%'
+	OR Type LIKE '%EMBARKATION%'
+--	OR Type LIKE '%INTERCEPTION%'             		  -- UndeadDevel: since VP changes how these are used they are actually meaningful and should be displayed
+--	OR Type LIKE '%EVASION%'
+	OR Type IN (
+	'PROMOTION_FASTER_GENERAL'						, --VP
+	'PROMOTION_FAST_GENERAL'							, --VP
+	'PROMOTION_NAVAL_MISFIRE'						, --VP
+	'PROMOTION_SIEGE_INACCURACY'					, --VP
+	'PROMOTION_NAVAL_INACCURACY'					, --VP
+	'PROMOTION_AIR_MISFIRE'								, --VP
+	'PROMOTION_OCEAN_CROSSING'					, --VP
+	'PROMOTION_UNIT_DENMARK_VIKING_EXPLORATION_CAN_CROSS_OCEAN', -- MUC4VP
+	'PROMOTION_RECON_EXPERIENCE'				, --VP
+	'PROMOTION_HOVER_UNIT'								, --VP
+	'PROMOTION_BARBARIAN_PENALTY_I'				, --VP
+	'PROMOTION_BARBARIAN_PENALTY_II'			, --VP
+	'PROMOTION_BARBARIAN_PENALTY_III'			, --VP
+	'PROMOTION_EVASION_III'								, --VP
+	'PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY',
+	'PROMOTION_WEAK_RANGED'							,
+--	'PROMOTION_PRIZE_RULES'							,
+--	'PROMOTION_EE_FIRST_RATE'							, --Enlightenment Era, flagship
+--	'PROMOTION_EE_FIRST_RATE_DEFENSE'		, --Enlightenment Era, proximity to flagship
+--	'PROMOTION_EE_FASIL_GHEBBI'						, --Enlightenment Era, proximity to wonder
+	'PROMOTION_CREATED'									, -- CIV-Linked Great Generals
+	'PROMOTION_EMISSARY'									, --CSD
+	'PROMOTION_ENVOY'										, --CSD
+	'PROMOTION_DIPLOMAT'									, --CSD
+	'PROMOTION_AMBASSADOR'							, --CSD
+	'PROMOTION_GREAT_MERCHANT'					, --CSD
+	'PROMOTION_GREAT_DIPLOMAT'						, --CSD
+--	'PROMOTION_NOBEL_LAUREATE'						, --sweden
+	'PROMOTION_SIGNET'										,
+	'PROMOTION_EXPRESS'									,
+	'PROMOTION_LITERACY'									,
+	'PROMOTION_IMMUNITY'									,
+	'PROMOTION_PAX'						    				,
+	'PROMOTION_NOBILITY'									,
+--	'PROMOTION_CAN_MOVE_AFTER_ATTACKING'	, -- UndeadDevel: useful to distinguish late game scouts that have upgraded from Zeppelin and kept this promo
+	'PROMOTION_SELL_EXOTIC_GOODS'				, --Portugal	
+	'PROMOTION_WAR_CANOES'							, --songhai
+	'PROMOTION_VIKING'										, --denmark
+	'PROMOTION_LONGBOAT'								, --denmark
+--	'PROMOTION_DOUBLE_PLUNDER'					, --Landsknechts; UndeadDevel: keep this visible to be able to easily see Landsknecht upgrade units
+	'PROMOTION_MOVEMENT_TO_GENERAL'			, 
+--	'PROMOTION_GENERAL_STACKING'   				,
+	'PROMOTION_SILENT_HUNTER'    					,
+--	'PROMOTION_ANTI_FIGHTER'    						, -- UndeadDevel: it's now choosable for fighters in VP
+	'PROMOTION_FLAT_MOVEMENT_COST'			, 
+	'PROMOTION_PARADROP'								, 
+	'PROMOTION_ENSLAVEMENT'							, --Ramses
+	'PROMOTION_GODDY_HUT_PICKER'				, --Shosho
+	'PROMOTION_GOLDEN_AGE_POINTS'				, --Braz
+	'PROMOTION_GAIN_EXPERIENCE'					, --oda,jap
+	'PROMOTION_SPAWN_GENERALS_II'				,
+	'PROMOTION_SPAWN_GENERALS_I'				,
+	'PROMOTION_AIR_SWEEP'								,
+	'PROMOTION_AIR_RECON'								,
+	'PROMOTION_CAN_MOVE_IMPASSABLE'			,
+	'PROMOTION_INVISIBLE_SUBMARINE'				,
+	'PROMOTION_HOVERING_UNIT'						,
+	'PROMOTION_WITHDRAW_BEFORE_MELEE'		,
+	'PROMOTION_SEE_INVISIBLE_SUBMARINE'		,
+	'PROMOTION_ANTI_SUBMARINE_II'					,	
+	'PROMOTION_EXTENDED_PARADROP'				,
+	'PROMOTION_GREAT_ADMIRAL'						,	
+	'PROMOTION_RIVAL_TERRITORY'						,		
+	'PROMOTION_UNWELCOME_EVANGELIST'		,		
+	'PROMOTION_FALLOUT_REDUCTION'				,		
+	'PROMOTION_FALLOUT_IMMUNITY'					,		
+	'PROMOTION_ICE_BREAKERS'							, -- UndeadDevel: VP promo for Workers after a certain Tech
+	'PROMOTION_EMBARKED_SIGHT'						,		
+--	'PROMOTION_ANTI_TANK'								, -- is FreePromotion of several units
+	'PROMOTION_ROUGH_TERRAIN_ENDS_TURN'	, --penalty
+	'PROMOTION_ONLY_DEFENSIVE'						, --penalty
+	'PROMOTION_NO_DEFENSIVE_BONUSES'		, --penalty
+	'PROMOTION_MUST_SET_UP'							, --penalty
+	'PROMOTION_CITY_SIEGE'								, --demolish
+	'PROMOTION_CITY_ASSAULT'							, --demolish
+	'PROMOTION_NEW_UNIT'								, --
+	'PROMOTION_DEFENSE_1'								, --
+	'PROMOTION_DEFENSE_2'								, --
+	'PROMOTION_GREAT_GENERAL'						, --
+	'PROMOTION_FREE_UPGRADES'						, --citystates
+--	'PROMOTION_ANTI_CAVALRY'							, --Ottomans
+--	'PROMOTION_MEDIC_GENERAL'						, --Mongolia
+--	'PROMOTION_SENTRY'										, --America
+	'PROMOTION_FREE_PILLAGE_MOVES'				, --Denmark
+	'PROMOTION_OCEAN_MOVEMENT'					, --England
+	'PROMOTION_OCEAN_IMPASSABLE'					, --Korea
+	'PROMOTION_MUSTERED'								,
+	'PROMOTION_FAST_ADMIRAL'							,
+	'PROMOTION_INSTA_HEAL'                  			,
+--    'PROMOTION_HONOR_BONUS'                 		, --from Authority...every unit will have it, so not a distinguishing feature and player will know about his opponent's social policy
+--    'PROMOTION_KILL_HEAL'                   				, --from Authority...every melee unit will have it so not a distinguishing feature and very obvious and need to prevent clutter from this very common promo (same as Honor)
+	'PROMOTION_STATUE_ZEUS'					  		  -- UndeadDevel: not super relevant, looks similar to more important promos like City Assault and thus confusing and everyone will know about the WWs of his opponent
+	);

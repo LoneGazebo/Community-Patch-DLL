@@ -138,6 +138,7 @@
 				<CheckBox ID="CivRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_OVERVIEW_BODY"/>
 				<CheckBox ID="CityRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_BODY"/>
 				<CheckBox ID="UnitRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_BODY"/>
+				<CheckBox ID="PromotionFlagsCheckbox" Anchor="R,C" String="Promotion Flags" LeadingOffset="-10" WrapWidth="450" ToolTip="Display promotions on the unit flag.[NEWLINE][COLOR_NEGATIVE_TEXT] REQUIRES RELOAD [ENDCOLOR]"/>
 				<CheckBox ID="NoCitizenWarningCheckbox" Anchor="R,C" String="TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_NO_CITIZEN_WARNING" />
 				<CheckBox ID="CityAdvisorCheckbox" Anchor="R,C" >
 					<Stack Offset="30.0" Anchor="R,C" StackGrowth="L" >
