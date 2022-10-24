@@ -22843,16 +22843,20 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 
 
 	// Religious Unrest
+	bool bReligionOff = GC.getGame().isOption(GAMEOPTION_NO_RELIGION);
 	CvString strIcon = "";
-	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if (eMajority > RELIGION_PANTHEON)
+	if (!bReligionOff)
 	{
-		strIcon = GC.getReligionInfo(eMajority)->GetIconString();
-	}
-	if (iReligiousUnrest != 0 && strIcon != "")
-	{
-		int iReduction = GetReligiousUnrestFlatReduction() + kPlayer.GetReligiousUnrestFlatReductionGlobal();
-		strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RELIGIOUS_UNREST_UNHAPPINESS", iReligiousUnrest, strIcon, iReduction);
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		if (eMajority > RELIGION_PANTHEON)
+		{
+			strIcon = GC.getReligionInfo(eMajority)->GetIconString();
+		}
+		if (iReligiousUnrest != 0 && strIcon != "")
+		{
+			int iReduction = GetReligiousUnrestFlatReduction() + kPlayer.GetReligiousUnrestFlatReductionGlobal();
+			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RELIGIOUS_UNREST_UNHAPPINESS", iReligiousUnrest, strIcon, iReduction);
+		}
 	}
 
 	// Other Stuff (sort by highest to lowest # of unhappy citizens)
@@ -22926,28 +22930,18 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_MEDIAN_CULTURE", fCultureMedian, iTotalBoredomModifier);
 
 		// Religious Unrest (only shows % modifier, and only shows up if city has a majority religion)
-		bool bReligionOff = GC.getGame().isOption(GAMEOPTION_NO_RELIGION);
 		int iTotalReligiousUnrestModifier = bReligionOff ? 0 : GetTotalNeedModifierForYield(YIELD_FAITH, false);
-		if (!bReligionOff)
+		if (strIcon != "")
 		{
-			const CvReligion* pReligion = NULL;
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			if (eMajority > RELIGION_PANTHEON)
-			{
-				pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-			}
-			if (pReligion)
-			{
-				float fUnhappyPerMinorityPop = 0.00f;
-				fUnhappyPerMinorityPop += /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
-				fUnhappyPerMinorityPop *= (100 + iTotalReligiousUnrestModifier);
-				fUnhappyPerMinorityPop /= 100;
-				
-				if (iTotalReligiousUnrestModifier > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS", fUnhappyPerMinorityPop, iTotalReligiousUnrestModifier);
-				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST", fUnhappyPerMinorityPop, iTotalReligiousUnrestModifier);
-			}
+			float fUnhappyPerMinorityPop = 0.00f;
+			fUnhappyPerMinorityPop += /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
+			fUnhappyPerMinorityPop *= (100 + iTotalReligiousUnrestModifier);
+			fUnhappyPerMinorityPop /= 100;
+			
+			if (iTotalReligiousUnrestModifier > 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS", strIcon, fUnhappyPerMinorityPop, iTotalReligiousUnrestModifier);
+			else
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST", strIcon, fUnhappyPerMinorityPop, iTotalReligiousUnrestModifier);
 		}
 
 		// Need Modifier Breakdown
@@ -23048,8 +23042,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				if (iArtsModifier != 0)
 					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ARTS_UNHAPPINESS_MOD", iArtsModifier);
 
-				if (iPrayerModifier != 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", iPrayerModifier);
+				if (iPrayerModifier != 0 && strIcon != "")
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", strIcon, iPrayerModifier);
 			}
 		}
 
@@ -23108,12 +23102,12 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				else
 					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD", iExtraBoredomMod);
 			}
-			if (iExtraReligiousUnrestMod != 0)
+			if (iExtraReligiousUnrestMod != 0 && strIcon != "")
 			{
 				if (iExtraReligiousUnrestMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", iExtraReligiousUnrestMod);
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", strIcon, iExtraReligiousUnrestMod);
 				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD", iExtraReligiousUnrestMod);
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD", strIcon, iExtraReligiousUnrestMod);
 			}
 		}
 	}

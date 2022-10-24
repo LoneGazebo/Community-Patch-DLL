@@ -1003,7 +1003,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS">
-			<Text>[COLOR_POSITIVE_TEXT]Yield Medians (Need Modifier %):[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]City Needs (Need Modifier %):[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS_POS">
@@ -1019,7 +1019,7 @@
 			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS">
-			<Text>[ICON_BULLET] Unrest: {1_Num:number "#.##"} per Religious Minority (+{2_Num})%</Text>
+			<Text>[ICON_BULLET]{1_Icon} Unrest: {2_Num:number "#.##"} per Minority (+{3_Num}%)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS">
@@ -1035,7 +1035,7 @@
 			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST">
-			<Text>[ICON_BULLET] Unrest: {1_Num:number "#.##"} per Religious Minority ({2_Num})%</Text>
+			<Text>[ICON_BULLET]{1_Icon} Unrest: {2_Num:number "#.##"} per Minority ({3_Num}%)</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS_BREAKDOWN">
@@ -1091,7 +1091,7 @@
 			<Text>[ICON_BULLET] [ICON_CULTURE] Arts Process: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRAYER_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_PEACE] Prayer Process: {1_Num}%</Text>
+			<Text>[ICON_BULLET] {1_Icon} Prayer Process: {2_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_UNHAPPINESS_MOD_POS">
 			<Text>[ICON_BULLET] [ICON_SPY] Spies, Events, Other: +{1_Num}%</Text>
@@ -1124,10 +1124,10 @@
 			<Text>[ICON_BULLET] [ICON_CULTURE] Other: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS">
-			<Text>[ICON_BULLET] [ICON_PEACE] Other: +{1_Num}%</Text>
+			<Text>[ICON_BULLET] {1_Icon} Other: +{2_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_PEACE] Other: {1_Num}%</Text>
+			<Text>[ICON_BULLET] {1_Icon} Other: {2_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">

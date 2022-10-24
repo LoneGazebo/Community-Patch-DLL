@@ -541,8 +541,8 @@ INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PERCENT_RESEARCHED'
 INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN', '0'; -- Modifier to needs for each tech ahead of the median # of techs researched you are. Disabled by default.
 INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', '0'; -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default.
 INSERT INTO Defines (Name, Value) SELECT 'CITY_SIZE_NEED_MODIFIER', '-100'; -- Modifier to needs per citizen in the city. Default is -100 (-1%).
-INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '900'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size. Default is 900 (+9%).
-INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '100'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 100 (+1%).
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '900'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size. Default is 900 (+9%). Does not support negative values.
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '100'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 100 (+1%). Does not support negative values.
 
 -- Unhappiness from Other Sources
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded up)
