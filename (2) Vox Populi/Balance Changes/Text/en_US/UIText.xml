@@ -103,6 +103,16 @@
 			<InsertAfter>CONCEPT_HAPPINESS_PUPPET_CITIES</InsertAfter>
 		</Row>
 	</Concepts>
+	<Concepts_RelatedConcept>
+		<Row>
+			<ConceptType>CONCEPT_HAPPINESS_CAUSES_HAPPINESS</ConceptType>
+			<RelatedConcept>CONCEPT_HAPPINESS_LOCAL_HAPPINESS</RelatedConcept>
+		</Row>
+		<Row>
+			<ConceptType>CONCEPT_HAPPINESS_NEED_THRESHOLDS</ConceptType>
+			<RelatedConcept>CONCEPT_HAPPINESS_CAUSES_UNHAPPINESS</RelatedConcept>
+		</Row>
+	</Concepts_RelatedConcept>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC">
 			<Text>[COLOR_GREEN]Yields Scaling with Era[ENDCOLOR]</Text>
@@ -180,10 +190,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_BODY">
 			<Text>
-				The calculation of Unhappiness from Needs is done by comparing a city's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each city. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. Many buildings and social policies decrease a specific Needs Threshold by a certain percentage. In addition to buildings and policies, there are three global modifiers that will always affect all of your cities and all Needs Thresholds:[NEWLINE][NEWLINE]
-				[COLOR_NEGATIVE_TEXT]Empire Needs[ENDCOLOR]: Each city except your capital [COLOR_NEGATIVE_TEXT]increases[ENDCOLOR] Needs Thresholds of all cities by 9%. Note that this modifier is lowered by several buildings, including the Walls line of buildings and Public Works.[NEWLINE]
-				[COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the capital are [COLOR_NEGATIVE_TEXT]increased[ENDCOLOR] by 25%.[NEWLINE]
-				[COLOR_POSITIVE_TEXT]City Population[ENDCOLOR]: Every 2 citizens in a city will [COLOR_POSITIVE_TEXT]decrease[ENDCOLOR] its Needs Thresholds by 1%.
+				The calculation of Unhappiness from Needs is done by comparing a City's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only Cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each City. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. The following modifiers are always applied:[NEWLINE] [COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the Capital are increased by 25%.[NEWLINE] [COLOR_NEGATIVE_TEXT]Empire Size[ENDCOLOR]: Each City in your Empire (excluding the Capital and Puppet Cities) increases the Needs Thresholds in every City by 9%. Additionally, each Citizen in your Empire (excluding Citizens in Puppet Cities) increases them by 1%.[NEWLINE] [COLOR_POSITIVE_TEXT]City Size[ENDCOLOR]: In each City, Needs Thresholds are reduced by 1% per Citizen in the City.[NEWLINE] [COLOR_POSITIVE_TEXT]Difficulty Level[ENDCOLOR]: On the Difficulty Levels "Settler" and "Chieftain" Needs Thresholds are reduced for human players and increased for the AI. On Difficulty Levels above Chieftain, no modifiers are applied.[NEWLINE][NEWLINE]Certain Policies and Spy Events can also modify Needs Thresholds in a City. In addition, the Processes that convert Production into some other yield provide a reduction of the respective Need Threshold equal to the conversion rate (which can be increased using Power Plants), e.g. Farming converts 25% of Production into Food and decreases the Distress Need Threshold by 25%.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_ADV_QUEST">
