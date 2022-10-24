@@ -42,13 +42,13 @@
 			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
 		</Row>
 		<Row>
-			<Type>CONCEPT_COMBAT_WAR_WEARINESS</Type>
-			<Topic>TXT_KEY_TOPIC_COMBAT</Topic>
-			<Description>TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_TITLE</Description>
-			<Summary>TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_COMBAT_WAR_WEARINESS_ADV_QUEST</AdvisorQuestion>
-			<Advisor>MILITARY</Advisor>
-			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
+			<Type>CONCEPT_HAPPINESS_WAR_WEARINESS</Type>
+			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
+			<Description>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
 		</Row>
 		<Row>
 			<Type>CONCEPT_HAPPINESS_MILITARY_SUPPLY</Type>
@@ -58,49 +58,6 @@
 			<AdvisorQuestion>TXT_KEY_MILITARY_SUPPLY_ADV_QUEST</AdvisorQuestion>
 			<Advisor>MILITARY</Advisor>
 			<CivilopediaHeaderType>HEADER_UNITS</CivilopediaHeaderType>
-		</Row>
-		<Row>
-			<Type>CONCEPT_HAPPINESS_LOCAL_HAPPINESS</Type>
-			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
-			<Description>TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE</Description>
-			<Summary>TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_ADV_QUEST</AdvisorQuestion>
-			<Advisor>ECONOMIC</Advisor>
-			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
-			<InsertAfter>CONCEPT_HAPPINESS_CAUSES_HAPPINESS</InsertAfter>
-			<InsertBefore>CONCEPT_HAPPINESS_CAUSES_UNHAPPINESS</InsertBefore>
-		</Row>
-		<Row>
-			<Type>CONCEPT_HAPPINESS_NEED_THRESHOLDS</Type>
-			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
-			<Description>TXT_KEY_HAPPINESS_NEED_THRESHOLDS_TITLE</Description>
-			<Summary>TXT_KEY_HAPPINESS_NEED_THRESHOLDS_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_HAPPINESS_NEED_THRESHOLDS_ADV_QUEST</AdvisorQuestion>
-			<Advisor>ECONOMIC</Advisor>
-			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
-			<InsertAfter>CONCEPT_HAPPINESS_CAUSES_UNHAPPINESS</InsertAfter>
-			<InsertBefore>CONCEPT_HAPPINESS_PUPPET_CITIES</InsertBefore>
-		</Row>
-		<Row>
-			<Type>CONCEPT_HAPPINESS_PUPPET_CITIES</Type>
-			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
-			<Description>TXT_KEY_HAPPINESS_PUPPET_CITIES_TITLE</Description>
-			<Summary>TXT_KEY_HAPPINESS_PUPPET_CITIES_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_HAPPINESS_PUPPET_CITIES_ADV_QUEST</AdvisorQuestion>
-			<Advisor>ECONOMIC</Advisor>
-			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
-			<InsertAfter>CONCEPT_HAPPINESS_NEED_THRESHOLDS</InsertAfter>
-			<InsertBefore>CONCEPT_HAPPINESS_OCCUPIED_CITIES</InsertBefore>
-		</Row>
-		<Row>
-			<Type>CONCEPT_HAPPINESS_OCCUPIED_CITIES</Type>
-			<Topic>TXT_KEY_TOPIC_HAPPINESS</Topic>
-			<Description>TXT_KEY_HAPPINESS_OCCUPIED_CITIES_TITLE</Description>
-			<Summary>TXT_KEY_HAPPINESS_OCCUPIED_CITIES_BODY</Summary>
-			<AdvisorQuestion>TXT_KEY_HAPPINESS_OCCUPIED_CITIES_ADV_QUEST</AdvisorQuestion>
-			<Advisor>ECONOMIC</Advisor>
-			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
-			<InsertAfter>CONCEPT_HAPPINESS_PUPPET_CITIES</InsertAfter>
 		</Row>
 	</Concepts>
 	<Language_en_US>
@@ -145,13 +102,13 @@
 			<Text>What are Partisans?</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_TITLE">
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_TITLE">
 			<Text>[COLOR_GREEN]War Weariness[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_BODY">
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_HEADING3_BODY">
 			<Text>War, war never changes. Well, actually, it does. As the game progresses, the citizens of your empire will become more and more aware of the dangers of prolonged conflict, and will begin to develop [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]. War Weariness is calculated based on two factors: the length of your longest current war (however long that may be), and the largest amount of damage your cities and armies have sustained in a single combat against an opponent you are currently fighting. Every City lost or unit destroyed will increase your War Weariness, leading to three major effects:[NEWLINE][ICON_BULLET] Unhappiness from War Weariness[NEWLINE][ICON_BULLET] Increased Production and Gold costs for Military Units[NEWLINE][ICON_BULLET] Reduced maximum Military Unit Supply Cap.[NEWLINE]The latter two cap at 75%. Be careful of overextending during a single conflict!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_ADV_QUEST">
+		<Row Tag="TXT_KEY_HAPPINESS_WAR_WEARINESS_ADV_QUEST">
 			<Text>What is War Weariness?</Text>
 		</Row>
 
@@ -164,53 +121,6 @@
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
 			<Text>What is Military Supply?</Text>
 		</Row>
-		
-		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE">
-			<Text>[COLOR_GREEN]Local Happiness in Cities[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_BODY">
-			<Text>The Local Happiness of a city is determined as follows: [NEWLINE][NEWLINE]Some Happiness is generated locally by the City. This can be through Buildings, Policies, World Wonders or Worked Landmarks. [NEWLINE][NEWLINE]The total amount of Happiness coming from empire-wide sources (like Luxury Resources or allied City States) is distributed deck-of-cards style among all Cities. This is done automatically, prioritizing Cities that have less local Happiness than Population. </Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_ADV_QUEST">
-			<Text>How is Local City Happiness determined?</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_TITLE">
-			<Text>[COLOR_GREEN]Calculation of Needs Thresholds[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_BODY">
-			<Text>
-				The calculation of Unhappiness from Needs is done by comparing a city's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each city. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. Many buildings and social policies decrease a specific Needs Threshold by a certain percentage. In addition to buildings and policies, there are three global modifiers that will always affect all of your cities and all Needs Thresholds:[NEWLINE][NEWLINE]
-				[COLOR_NEGATIVE_TEXT]Empire Needs[ENDCOLOR]: Each city except your capital [COLOR_NEGATIVE_TEXT]increases[ENDCOLOR] Needs Thresholds of all cities by 9%. Note that this modifier is lowered by several buildings, including the Walls line of buildings and Public Works.[NEWLINE]
-				[COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the capital are [COLOR_NEGATIVE_TEXT]increased[ENDCOLOR] by 25%.[NEWLINE]
-				[COLOR_POSITIVE_TEXT]City Population[ENDCOLOR]: Every 2 citizens in a city will [COLOR_POSITIVE_TEXT]decrease[ENDCOLOR] its Needs Thresholds by 1%.
-			</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_ADV_QUEST">
-			<Text>How are Needs Thresholds calculated?</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_TITLE">
-			<Text>[COLOR_GREEN]Unhappiness in Puppet Cities[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_BODY">
-			<Text>In Puppet Cities, special rules for Happiness and Unhappiness apply. Every 4 citizens in a Puppet City generate 1 Unhappiness. The only other possible source of Unhappiness in a Puppet City is Urbanization, which is calculated the same way as in other cities. In a Puppet City, you cannot control the assigment of specialists and therefore cannot counteract Urbanization unless you annex the city. Puppet Cities don't produce any local Happiness, and they follow their own rules for growth, independent of the Happiness system. The Unhappiness generated by Puppet Cities therefore only makes a difference at the empire level.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_ADV_QUEST">
-			<Text>What causes Unhappiness in Puppet Cities?</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIED_CITIES_TITLE">
-			<Text>[COLOR_GREEN]Occupied and Resisting Cities[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIED_CITIES_BODY">
-			<Text>Cities that are in Resistance don't generate any Local Happiness. Instead, they generate Unhappiness equal to the city's population. This can massively decrease the Approval Rating of your empire.[NEWLINE][NEWLINE]Occupied Cities also don't produce any Happiness. They generate Unhappiness equal to the city's population, to which the regular Unhappiness from Urbanization is added.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIEDCITIES_ADV_QUEST">
-			<Text>What causes Unhappiness in Occupied and Resisting Cities?</Text>
-		</Row>
-		
-		
 
 		<Row Tag="TXT_KEY_DUDE_8">
 			<Text>Herodotus</Text>
