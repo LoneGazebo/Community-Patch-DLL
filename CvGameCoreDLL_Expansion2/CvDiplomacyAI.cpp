@@ -188,7 +188,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 		m_aiCoopWarScore[iI] = 0;
 
 		// War
-		m_abWantsSneakAttack[iI] = false;
 		m_aiNumWarsDeclaredOnUs[iI] = 0;
 		m_aiCivilianKillerValue[iI] = 0;
 
@@ -493,7 +492,6 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	// War
 	visitor(diplomacyAI.m_abSaneDiplomaticTarget);
 	visitor(diplomacyAI.m_abPotentialWarTarget);
-	visitor(diplomacyAI.m_abWantsSneakAttack);
 	visitor(diplomacyAI.m_abArmyInPlaceForAttack);
 	visitor(diplomacyAI.m_abAggressor);
 	visitor(diplomacyAI.m_aiNumWarsFought);
@@ -803,10 +801,8 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetOfferedGift(ID, false);
 
 			// Reset approach to NEUTRAL
-			SetCivApproach(eMajor, CIV_APPROACH_NEUTRAL);
 			SetCivStrategicApproach(eMajor, CIV_APPROACH_NEUTRAL);
 			SetCachedSurfaceApproach(eMajor, NO_CIV_APPROACH);
-			pOther->SetCivApproach(ID, CIV_APPROACH_NEUTRAL);
 			pOther->SetCivStrategicApproach(ID, CIV_APPROACH_NEUTRAL);
 			pOther->SetCachedSurfaceApproach(ID, NO_CIV_APPROACH);
 			for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
@@ -821,14 +817,10 @@ void CvDiplomacyAI::SlotStateChange()
 			// Clear war status
 			SetSaneDiplomaticTarget(eMajor, true);
 			SetPotentialWarTarget(eMajor, false);
-			SetArmyInPlaceForAttack(eMajor, false);
-			SetWantsSneakAttack(eMajor, false);
 			SetTreatyWillingToOffer(eMajor, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(eMajor, NO_PEACE_TREATY_TYPE);
 			pOther->SetSaneDiplomaticTarget(eMajor, true);
 			pOther->SetPotentialWarTarget(eMajor, false);
-			pOther->SetArmyInPlaceForAttack(ID, false);
-			pOther->SetWantsSneakAttack(ID, false);
 			pOther->SetTreatyWillingToOffer(ID, NO_PEACE_TREATY_TYPE);
 			pOther->SetTreatyWillingToAccept(ID, NO_PEACE_TREATY_TYPE);
 
@@ -880,7 +872,6 @@ void CvDiplomacyAI::SlotStateChange()
 			SetPlayerRecklessExpander(eMajor, false);
 			SetPlayerWonderSpammer(eMajor, false);
 			SetEndgameAggressiveTo(eMajor, false);
-			SetLandDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetWonderDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetMinorCivDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetVictoryDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
@@ -891,7 +882,6 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetPlayerRecklessExpander(ID, false);
 			pOther->SetPlayerWonderSpammer(ID, false);
 			pOther->SetEndgameAggressiveTo(ID, false);
-			pOther->SetLandDisputeLevel(ID, DISPUTE_LEVEL_NONE);
 			pOther->SetWonderDisputeLevel(ID, DISPUTE_LEVEL_NONE);
 			pOther->SetNumWondersBeatenTo(ID, 0); // only for killed player
 			pOther->SetMinorCivDisputeLevel(ID, DISPUTE_LEVEL_NONE);
@@ -904,6 +894,28 @@ void CvDiplomacyAI::SlotStateChange()
 			// Reset voting history score
 			SetVotingHistoryScore(eMajor, 0);
 			pOther->SetVotingHistoryScore(ID, 0);
+		}
+
+		// Reset values for all civs
+		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iI;
+			if (ePlayer == GetID() || !GET_PLAYER(ePlayer).isAlive())
+				continue;
+
+			SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+			SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+			SetArmyInPlaceForAttack(ePlayer, false);
+
+			if (iI < MAX_MAJOR_CIVS)
+			{
+				CvDiplomacyAI* pOther = GET_PLAYER(ePlayer).GetDiplomacyAI();
+				PlayerTypes ID = GetID();
+
+				pOther->SetLandDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+				pOther->SetCivApproach(ID, CIV_APPROACH_NEUTRAL);
+				pOther->SetArmyInPlaceForAttack(ID, false);
+			}
 		}
 
 		return;
@@ -962,11 +974,14 @@ void CvDiplomacyAI::SlotStateChange()
 		SetBackstabber(false);
 		SetCompetingForVictory(true);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-			if (GET_PLAYER(eLoopPlayer).isAlive())
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
+
+			if (iPlayerLoop < MAX_MAJOR_CIVS)
 			{
 				if (GET_PLAYER(eLoopPlayer).isHuman())
 				{
@@ -1003,7 +1018,6 @@ void CvDiplomacyAI::SlotStateChange()
 				// Reset opinion/approach to neutral
 				SetCivOpinion(eLoopPlayer, CIV_OPINION_NEUTRAL);
 				SetCachedOpinionWeight(eLoopPlayer, 0);
-				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 				SetCivStrategicApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 				SetCachedSurfaceApproach(eLoopPlayer, NO_CIV_APPROACH);
 
@@ -1016,8 +1030,6 @@ void CvDiplomacyAI::SlotStateChange()
 				SetWantsResearchAgreementWithPlayer(eLoopPlayer, false);
 				SetSaneDiplomaticTarget(eLoopPlayer, true);
 				SetPotentialWarTarget(eLoopPlayer, true);
-				SetArmyInPlaceForAttack(eLoopPlayer, false);
-				SetWantsSneakAttack(eLoopPlayer, false);
 				SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 				SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 				SetPlayerRecklessExpander(eLoopPlayer, false);
@@ -1026,7 +1038,6 @@ void CvDiplomacyAI::SlotStateChange()
 				SetStrategicTradePartner(eLoopPlayer, false);
 				SetMajorCompetitor(eLoopPlayer, false);
 				SetPlotBuyingAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
-				SetLandDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetWonderDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetMinorCivDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
@@ -1039,6 +1050,12 @@ void CvDiplomacyAI::SlotStateChange()
 				SetOfferingGift(eLoopPlayer, false);
 				SetOfferedGift(eLoopPlayer, false);
 				ResetSentAttackProtectedMinorTaunts(eLoopPlayer);
+			}
+			else
+			{
+				SetLandDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
+				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
+				SetArmyInPlaceForAttack(eLoopPlayer, false);
 			}
 		}
 	}
@@ -3111,6 +3128,23 @@ void CvDiplomacyAI::SetCivApproach(PlayerTypes ePlayer, CivApproachTypes eApproa
 		if (eApproach != CIV_APPROACH_WAR && eApproach != CIV_APPROACH_HOSTILE && eApproach != CIV_APPROACH_NEUTRAL && eApproach != CIV_APPROACH_FRIENDLY)
 			return;
 	}
+	// If we WERE planning a sneak attack but our new approach is something other than WAR, cancel any attack operations
+	if (IsWantsSneakAttack(ePlayer) && eApproach != CIV_APPROACH_WAR)
+	{
+		if (GetPlayer()->getFirstOffensiveAIOperation(ePlayer) != NULL)
+		{
+			if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
+			{
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_TARGET_NOT_VALID);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_TARGET_NOT_VALID);
+			}
+			else
+			{
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer,AI_ABORT_DIPLO_OPINION_CHANGE);
+			}
+		}
+	}
 
 	m_aeCivApproach[ePlayer] = eApproach;
 }
@@ -3294,6 +3328,12 @@ CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer)
 	}
 
 	return GET_PLAYER(ePlayer).GetDiplomacyAI()->GetSurfaceApproach(GetID());
+}
+
+/// Does this AI want to sneak attack ePlayer?
+bool CvDiplomacyAI::IsWantsSneakAttack(PlayerTypes ePlayer) const
+{
+	return GetCivApproach(ePlayer) == CIV_APPROACH_WAR && !IsAtWar(ePlayer);
 }
 
 /// Returns the value for a specific approach from the last SelectBestApproachTowardsMajorCiv() NORMAL (non-strategic) update
@@ -4464,19 +4504,6 @@ void CvDiplomacyAI::DoResetPotentialWarTargets()
 	}
 }
 
-/// Does this AI want to sneak attack ePlayer?
-bool CvDiplomacyAI::IsWantsSneakAttack(PlayerTypes ePlayer) const
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
-	return m_abWantsSneakAttack[ePlayer];
-}
-
-void CvDiplomacyAI::SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue)
-{
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-	m_abWantsSneakAttack[ePlayer] = bValue;
-}
-
 /// Are we building up for an attack on ePlayer?
 bool CvDiplomacyAI::IsArmyInPlaceForAttack(PlayerTypes ePlayer) const
 {
@@ -5168,12 +5195,6 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 		{
 			if (!GetPlayer()->isHuman())
 			{
-				if (IsWantsSneakAttack(eAttackedPlayer))
-					return;
-
-				if (IsArmyInPlaceForAttack(eAttackedPlayer))
-					return;
-
 				if (GetCivApproach(eAttackedPlayer) == CIV_APPROACH_WAR)
 					return;
 
@@ -5271,12 +5292,16 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 		if (!pCityPlot)
 			continue;
 
-		// Only count settled cities, not conquered ones
-		if (GET_PLAYER(pOtherCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
-			continue;
-
 		// Ignore their capital
 		if (pOtherCity->IsOriginalCapitalForPlayer(ePlayer))
+			continue;
+
+		// Can we actually see this city? No cheating!
+		if (!pCityPlot->isRevealed(GetTeam()))
+			continue;
+
+		// Only count settled cities, not conquered ones
+		if (GET_PLAYER(pOtherCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
 			continue;
 
 		int iTurnFounded = pOtherCity->getGameTurnFounded();
@@ -5297,7 +5322,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 			if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
 				continue;
 
-			// Must be closer to this city than to their capital
+			// Must be closer to our city than to their capital
 			int iDistance = plotDistance(*pCityPlot, *pOurCityPlot);
 			if (iDistanceFromTheirCapital <= iDistance)
 				continue;
@@ -7634,15 +7659,11 @@ void CvDiplomacyAI::SetNumArtifactsEverDugUp(PlayerTypes ePlayer, int iValue)
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	m_aiArtifactsEverDugUp[ePlayer] = range(iValue, 0, UCHAR_MAX);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
+	if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman() && ePlayer == GC.getGame().getActivePlayer())
 	{
 		if (iValue >= 5)
-		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_34);
-		}
 	}
-#endif
 }
 
 void CvDiplomacyAI::ChangeNumArtifactsEverDugUp(PlayerTypes ePlayer, int iChange)
@@ -10489,7 +10510,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 			// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 			if (!GetPlayer()->isHuman() && GET_PLAYER(ePlayer).isHuman() && !GET_PLAYER(ePlayer).IsVassalOfSomeone() && !GET_PLAYER(ePlayer).IsInTerribleShapeForWar() && GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 			{
-				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+				int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 				int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID()) - 100;
 				int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -10546,7 +10567,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 								int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 								int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -10598,7 +10619,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 						if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 						{
-							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 							int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -10648,7 +10669,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 							// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 							if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 							{
-								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+								int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 								int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 								int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -10691,7 +10712,7 @@ void CvDiplomacyAI::DoUpdatePlayerMilitaryStrengths()
 						// If we're an AI evaluating a human, modify their strength estimate based on difficulty level if they're reasonably strong
 						if (!GetPlayer()->isHuman() && GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).IsVassalOfSomeone() && !GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar() && GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarState(eLoopPlayer) < WAR_STATE_OFFENSIVE)
 						{
-							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIHumanStrengthMod());
+							int iHumanStrengthMod = max(0, GET_PLAYER(eLoopPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eLoopPlayer, GetID()) - 100;
 							int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -11037,7 +11058,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 	{
 		if (!GET_PLAYER(ePlayer).IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(ePlayer) < WAR_STATE_OFFENSIVE)
 		{
-			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getAIHumanStrengthMod());
+			int iHumanStrengthMod = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 			int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(ePlayer, GetID()) - 100;
 			int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -11196,7 +11217,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				switch (eMajorEstimate)
 				{
 				case NO_STRENGTH_VALUE:
-					UNREACHABLE();
+					//this is ok, can happen if we just resurrected a player. fall through to pathetic
 				case STRENGTH_PATHETIC:
 					eThirdPartyStrength = STRENGTH_IMMENSE;
 					break;
@@ -11294,7 +11315,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 					{
 						if (!GET_PLAYER(*it).IsAtWarWith(eComparedToPlayer) || !GET_PLAYER(eComparedToPlayer).isMajorCiv() || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(*it) < WAR_STATE_OFFENSIVE)
 						{
-							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getAIHumanStrengthMod());
+							int iHumanStrengthMod = max(0, GET_PLAYER(*it).getHandicapInfo().getHumanStrengthPerceptionMod());
 							int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(*it, GetID()) - 100;
 							int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -11490,7 +11511,7 @@ int CvDiplomacyAI::GetPlayerOverallStrengthEstimate(PlayerTypes ePlayer, PlayerT
 				{
 					if (!kPlayer.IsAtWarWith(eComparedToPlayer) || GET_PLAYER(eComparedToPlayer).GetDiplomacyAI()->GetWarState(eAllyPlayer) < WAR_STATE_OFFENSIVE)
 					{
-						int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getAIHumanStrengthMod());
+						int iHumanStrengthMod = max(0, GET_PLAYER(eAllyPlayer).getHandicapInfo().getHumanStrengthPerceptionMod());
 						int iSkillRatingMod = GC.getGame().ComputeRatingStrengthAdjustment(eAllyPlayer, GetID()) - 100;
 						int iBufferValue = range(/*-20*/ GD_INT_GET(MILITARY_RATING_HUMAN_BUFFER_VALUE), -50, 0);
 
@@ -11992,16 +12013,21 @@ void CvDiplomacyAI::DoExpansionBickering()
 			if (!pCityPlot)
 				continue;
 
-			// Only count settled cities, not conquered ones
-			if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
+			// Ignore their capital
+			if (pLoopCity->IsOriginalCapitalForPlayer(ePlayer))
 				continue;
 
-			// Don't trigger expansion bickering if we've already done so for this city
+			// If this city already existed last time we got mad, don't get mad again over it
+			// This flag also excludes City-States purchased by Venice/Austria
 			if (pLoopCity->IsIgnoredForExpansionBickering(GetID()))
 				continue;
 
-			// Ignore their capital
-			if (pLoopCity->IsOriginalCapitalForPlayer(ePlayer))
+			// Can we actually see this city? No cheating!
+			if (!pCityPlot->isRevealed(GetTeam()))
+				continue;
+
+			// Only count settled cities, not conquered ones
+			if (GET_PLAYER(pLoopCity->getOriginalOwner()).getTeam() != GET_PLAYER(ePlayer).getTeam())
 				continue;
 
 			// Must have founded the city recently
@@ -12010,13 +12036,10 @@ void CvDiplomacyAI::DoExpansionBickering()
 				continue;
 
 			// Must be close to one of our cities
-			int iDistanceFromUs = GetPlayer()->GetCityDistanceInPlots(pCityPlot);
-			if (iDistanceFromUs > iExpansionBickerRange)
+			if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > iExpansionBickerRange)
 				continue;
 
-			// Must be closer to our closest city than to their capital
-			if (plotDistance(*pCityPlot, *pTheirCapital->plot()) <= iDistanceFromUs)
-				continue;
+			int iDistanceFromTheirCapital = plotDistance(*pCityPlot, *pTheirCapital->plot());
 
 			// Check to see if any of our cities within range of them were founded earlier than theirs was
 			for (CvCity* pOurLoopCity = GetPlayer()->firstCity(&iLoop2); pOurLoopCity != NULL; pOurLoopCity = GetPlayer()->nextCity(&iLoop2))
@@ -12034,7 +12057,12 @@ void CvDiplomacyAI::DoExpansionBickering()
 					continue;
 
 				// Is this city near them?
-				if (plotDistance(*pCityPlot, *pOurCityPlot) > iExpansionBickerRange)
+				int iDistanceBetweenUs = plotDistance(*pCityPlot, *pOurCityPlot);
+				if (iDistanceBetweenUs > iExpansionBickerRange)
+					continue;
+
+				// If their city is closer to (or equidistant from) their own capital, it's within their sphere of influence - ignore it
+				if (iDistanceFromTheirCapital <= iDistanceBetweenUs)
 					continue;
 
 				// We've got a reason to be mad!
@@ -14955,11 +14983,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 
 							if (!GET_PLAYER(vOurTeam[i]).isHuman())
 							{
-								if (pDiploAI->IsWantsSneakAttack(vMasterTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vMasterTeam[j]))
-								{
-									bWarPlans = true;
-									break;
-								}
 								if (pDiploAI->GetCivApproach(vMasterTeam[j]) == CIV_APPROACH_WAR)
 								{
 									bWarPlans = true;
@@ -15285,7 +15308,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[(int)eOldApproach] += vApproachBias[(int)eOldApproach] * /*2*/ GD_INT_GET(APPROACH_BIAS_FOR_CURRENT);
 
 		// If we're planning a war (or want to wipe them off the planet) then add WAR bias so that we don't get away from it too easily
-		if (eOldApproach == CIV_APPROACH_WAR || IsWantsSneakAttack(ePlayer) || IsArmyInPlaceForAttack(ePlayer))
+		if (eOldApproach == CIV_APPROACH_WAR)
 		{
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * /*4*/ GD_INT_GET(APPROACH_WAR_CURRENTLY_WAR);
 
@@ -21428,7 +21451,7 @@ void CvDiplomacyAI::DoRelationshipPairing()
 	{
 		PlayerTypes eLoopPlayer = GET_PLAYER(*it).GetID();
 
-		if (IsAtWar(eLoopPlayer) || IsWantsSneakAttack(eLoopPlayer) || IsArmyInPlaceForAttack(eLoopPlayer))
+		if (IsAtWar(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 		{
 			SetStrategicTradePartner(eLoopPlayer, false);
 			continue;
@@ -22359,9 +22382,6 @@ bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly)
 					{
 						if (pDiploAI->GetCivApproach(vTheirTeam[j]) == CIV_APPROACH_WAR)
 							return true;
-
-						if (pDiploAI->IsWantsSneakAttack(vTheirTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vTheirTeam[j]))
-							return true;
 					}
 					else
 					{
@@ -22369,9 +22389,6 @@ bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly)
 							return true;
 
 						if (pDiploAI->GetSurfaceApproach(vTheirTeam[j]) != CIV_APPROACH_FRIENDLY && pDiploAI->GetCivOpinion(vTheirTeam[j]) <= CIV_OPINION_ENEMY)
-							return true;
-
-						if (pDiploAI->IsWantsSneakAttack(vTheirTeam[j]) || pDiploAI->IsArmyInPlaceForAttack(vTheirTeam[j]))
 							return true;
 					}
 				}
@@ -22836,7 +22853,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 
 				if (!GET_PLAYER(vMyTeam[i]).isHuman())
 				{
-					if (GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->IsWantsSneakAttack(vTeam[j]) || GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->IsArmyInPlaceForAttack(vTeam[j]))
+					if (GET_PLAYER(vMyTeam[i]).GetDiplomacyAI()->GetCivApproach(vTeam[j]) == CIV_APPROACH_WAR)
 					{
 						bWarPlans = true;
 						break;
@@ -23088,9 +23105,12 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				}
 			}
 			// How much do we value this existing sneak attack?
-			else if (IsWantsSneakAttack(*it) || IsArmyInPlaceForAttack(*it))
+			else if (GetPlayer()->getFirstOffensiveAIOperation(*it) != NULL || IsArmyInPlaceForAttack(*it))
 			{
 				int iSneakAttackValue = GetPlayerApproachValue(*it, CIV_APPROACH_WAR);
+				if (IsArmyInPlaceForAttack(*it))
+					iSneakAttackValue += 100000000;
+
 				viExistingSneakAttacks.push_back(*it, iSneakAttackValue);
 			}
 		}
@@ -24197,7 +24217,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		{
 			if (GET_PLAYER(eLoopPlayer).isMajorCiv() && std::find(vGoodWarTargetMajors.begin(), vGoodWarTargetMajors.end(), eLoopPlayer) == vGoodWarTargetMajors.end())
 			{
-				if (IsAtWar(eLoopPlayer) || IsWantsSneakAttack(eLoopPlayer) || IsArmyInPlaceForAttack(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
+				if (IsAtWar(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 				{
 					if (!IsPhonyWar(eLoopPlayer) && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
 					{
@@ -24422,6 +24442,20 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 						break;
 					}
 				}
+				// Did we make a promise?
+				/* comment this out for now because this promise never resets, it currently only applies AI-to-AI, and the AI doesn't know when to break it
+				else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
+				{
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeAttackCityStatePromise(GetID()))
+					{
+						vApproachScores[CIV_APPROACH_WAR] = 0;
+					}
+					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsPlayerMadeBullyCityStatePromise(GetID()))
+					{
+						vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+					}
+				}
+				*/
 			}
 		}
 	}
@@ -26410,7 +26444,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 			continue;
 
 		// If we're planning a war, don't make a demand of them...doesn't mesh well
-		if (IsWantsSneakAttack(ePlayer) || IsArmyInPlaceForAttack(ePlayer))
+		if (GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
 			continue;
 
 		// Have to be able to contact this player
@@ -26734,7 +26768,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	//if we are already at war, there is not much to do
 	if (IsAtWar(eTargetPlayer))
 	{
-		SetWantsSneakAttack(eTargetPlayer, false);
 		SetArmyInPlaceForAttack(eTargetPlayer, false);
 		return;
 	}
@@ -26742,7 +26775,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	//sometimes we cannot declare war
 	if (!IsPlayerValid(eTargetPlayer) || !GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), GetID()))
 	{
-		SetWantsSneakAttack(eTargetPlayer, false);
 		SetArmyInPlaceForAttack(eTargetPlayer, false);
 
 		if (GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer) != NULL)
@@ -26782,20 +26814,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 	if (IsArmyInPlaceForAttack(eTargetPlayer))
 	{
-		bool bWaitForAllies = false;
+		SetArmyInPlaceForAttack(eTargetPlayer, false);
 
 		// Our Approach with this player calls for war
 		if (bWantToAttack)
 		{
 			// Don't declare war until any coop war allies are ready!
-			if (GetGlobalCoopWarAgainstState(eTargetPlayer) == COOP_WAR_STATE_PREPARING)
-			{
-				bWaitForAllies = true;
-			}
-			else
+			if (GetGlobalCoopWarAgainstState(eTargetPlayer) != COOP_WAR_STATE_PREPARING)
 			{
 				DeclareWar(eTargetPlayer); // let loose the dogs of war!
 			}
+			// Waiting on our coop war allies...do nothing. FIXME: Shouldn't this prevent the formation of new operations against other players in some way? Some way to make the AI keep their troops in the area would also be nice.
 		}
 		else if (bWantShowOfForce)
 		{
@@ -26813,14 +26842,13 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
 			}
 
-			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
-				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
-		}
-
-		if (!bWaitForAllies)
-		{
-			SetArmyInPlaceForAttack(eTargetPlayer, false);
-			SetWantsSneakAttack(eTargetPlayer, false);
+			if (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
+			{
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+					SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
+				else
+					SetCivApproach(eTargetPlayer, CIV_APPROACH_NEUTRAL);
+			}
 		}
 	}
 	else
@@ -26841,7 +26869,6 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 			// Attack on major
 			else
 			{
-				SetWantsSneakAttack(eTargetPlayer, true);
 				bool bCareful = (GetPlayer()->IsNoNewWars() || GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0) && GetGlobalCoopWarAgainstState(eTargetPlayer) < COOP_WAR_STATE_PREPARING;
 
 				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eTargetPlayer))
@@ -26855,14 +26882,16 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			GetPlayer()->GetMilitaryAI()->RequestBullyingOperation(eTargetPlayer);
 		}
-		//we have no operation under way and we don't want to attack anyway
+		//we don't want to attack. abort any ongoing operation.
 		else
 		{
-			SetWantsSneakAttack(eTargetPlayer, false);
-			SetArmyInPlaceForAttack(eTargetPlayer, false);
-
-			if (GET_PLAYER(eTargetPlayer).isMajorCiv() && GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
-				SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
+			if (GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
+			{
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+					SetCivApproach(eTargetPlayer, GetHighestValueApproach(eTargetPlayer, true, true));
+				else
+					SetCivApproach(eTargetPlayer, CIV_APPROACH_NEUTRAL);
+			}
 		}
 	}
 }
@@ -27388,19 +27417,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 
 		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 		{
-			if (IsAtWar(eLoopPlayer))
-			{
-				return true;
-			}
-			if (IsArmyInPlaceForAttack(eLoopPlayer))
-			{
-				return true;
-			}
-			if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eLoopPlayer))
-			{
-				return true;
-			}
-			if (IsWantsSneakAttack(eLoopPlayer))
+			if (IsAtWar(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 			{
 				return true;
 			}
@@ -27414,17 +27431,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
 {
 	// May want to make this logic more sophisticated eventually. This will do for now.
-	if (GetCivApproach(ePlayer) <= CIV_APPROACH_HOSTILE)
-	{
-		return false;
-	}
-
-	if (IsArmyInPlaceForAttack(ePlayer) || IsWantsSneakAttack(ePlayer))
-	{
-		return false;
-	}
-
-	return true;
+	return GetCivApproach(ePlayer) > CIV_APPROACH_HOSTILE;
 }
 
 /// Are we willing to accept Open Borders from eOtherPlayer?
@@ -27490,11 +27497,10 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	if (IsWantsSneakAttack(ePlayer))
+	if (GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
 	{
 		return false;
 	}
-
 	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
@@ -27631,11 +27637,10 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	if (IsWantsSneakAttack(ePlayer))
+	if (GetCivApproach(ePlayer) == CIV_APPROACH_WAR)
 	{
 		return false;
 	}
-
 	if (IsHasDefensivePact(ePlayer) || IsDoFAccepted(ePlayer))
 	{
 		return true;
@@ -28301,7 +28306,11 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 		{
 			// In case we had an ongoing operation, kill it
 			SetArmyInPlaceForAttack(ePeacePlayer, false);
-			SetWantsSneakAttack(ePeacePlayer, false);
+			if (GetPlayer()->getFirstOffensiveAIOperation(ePeacePlayer) != NULL)
+			{
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(ePeacePlayer,AI_ABORT_WAR_STATE_CHANGE);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(ePeacePlayer,AI_ABORT_WAR_STATE_CHANGE);
+			}
 
 			// Reset values specific to this war
 			SetAggressor(ePeacePlayer, false);
@@ -28874,14 +28883,11 @@ void CvDiplomacyAI::DoKilledByPlayer(PlayerTypes ePlayer)
 		gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, szText, LEADERHEAD_ANIM_DEFEATED);
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		if(!GC.getGame().isGameMultiPlayer())
+		if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->UnlockAchievement(ACHIEVEMENT_DESTROY_CIV);
-
 			CvAchievementUnlocker::AlexanderConquest(ePlayer);
 		}
-#endif
 	}
 }
 //	-------------------------------------------------------------------------------------------------------------------
@@ -28917,7 +28923,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else
 			{
-				if (GET_PLAYER(ePlayer).HasAnyOffensiveOperationsAgainstPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->AvoidExchangesWithPlayer(GetID(), /*bWarOnly*/ true))
+				if (GET_PLAYER(ePlayer).getFirstOffensiveAIOperation(GetID()) != NULL || GET_PLAYER(ePlayer).GetDiplomacyAI()->AvoidExchangesWithPlayer(GetID(), /*bWarOnly*/ true))
 				{
 					if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(GetTeam()))
 					{
@@ -38727,7 +38733,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// Human responds to AI action in a positive or negative way.
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_MEAN_RESPONSE:
-	{		
+	{
+		// If player is offended, AI should take note as penalty to assistance.
+		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, 300);
+
 		// Does the AI declare war?
 		bool bDeclareWar = false;
 
@@ -38820,6 +38829,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 					}
 				}
 			}
+			// Was already planning on declaring war - go to war if it's sane!
+			if ((GetCivApproach(eFromPlayer) == CIV_APPROACH_WAR && IsWarSane(eFromPlayer)) || GetGlobalCoopWarAgainstState(eFromPlayer) >= COOP_WAR_STATE_PREPARING)
+			{
+				bDeclareWar = true;
+			}
 			if (bDeclareWar)
 			{
 				bDeclareWar = DeclareWar(GET_PLAYER(eFromPlayer).getTeam());
@@ -38830,9 +38844,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			if (!bDeclareWar)
 			{
 				SetCivApproach(eFromPlayer, CIV_APPROACH_NEUTRAL);
-				
-				// If player is offended, AI should take note as penalty to assistance.
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, 300);
 			}
 			if (bActivePlayer)
 			{
@@ -39235,18 +39246,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 			if (bActivePlayer)
 			{
-#if defined(MOD_API_ACHIEVEMENTS)
-				if(GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+				if (MOD_API_ACHIEVEMENTS)
 				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
-				}
+					if (GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
 
-				bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-				if(bUsingXP1Scenario3)
-				{
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
+					bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+					if (bUsingXP1Scenario3)
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
 				}
-#endif
 
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE, NO_PLAYER, GET_PLAYER(ePlottingPlayer).getCivilizationAdjectiveKey());
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
@@ -39812,12 +39820,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman) const
 		return false;
 
 	// Planning war? Let's not tip them off about our plans.
-	bool bPlanningWar = GetCivApproach(eHuman) == CIV_APPROACH_WAR;
-	bPlanningWar |= IsWantsSneakAttack(eHuman);
-	bPlanningWar |= IsArmyInPlaceForAttack(eHuman);
-	bPlanningWar |= GetGlobalCoopWarAgainstState(eHuman) >= COOP_WAR_STATE_PREPARING;
-
-	if (bPlanningWar)
+	if (IsWantsSneakAttack(eHuman))
 	{
 		if (!IsEasyTarget(eHuman) && eTargetValue != TARGET_VALUE_SOFT)
 			return false;
@@ -40940,7 +40943,7 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eC
 			continue;
 
 		// Only ask if we're sufficiently upset with the target
-		if (GetBiggestCompetitor() != eTarget && GetCivApproach(eTarget) > CIV_APPROACH_DECEPTIVE && !IsWantsSneakAttack(eTarget) && GetGlobalCoopWarAgainstState(eTarget) < COOP_WAR_STATE_PREPARING)
+		if (GetBiggestCompetitor() != eTarget && GetCivApproach(eTarget) > CIV_APPROACH_DECEPTIVE)
 			continue;
 
 		int iScore = GetCoopWarDesireScore(eAllyPlayer, eTarget);
@@ -41723,7 +41726,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	CivOpinionTypes  eOpinionOfTarget = GetCivOpinion(eTargetPlayer);
 
 	// Do we want war against the target?
-	if (eApproachTowardsTarget == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eTargetPlayer) || IsWantsSneakAttack(eTargetPlayer) || GetDemandTargetPlayer() == eTargetPlayer)
+	if (eApproachTowardsTarget == CIV_APPROACH_WAR || GetDemandTargetPlayer() == eTargetPlayer)
 	{
 		return false;
 	}
@@ -41735,7 +41738,7 @@ bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, Play
 	}
 
 	// Do we want war against the asker?
-	if (eApproachTowardsAsker == CIV_APPROACH_WAR || IsArmyInPlaceForAttack(eAskingPlayer) || IsWantsSneakAttack(eAskingPlayer) || GetDemandTargetPlayer() == eAskingPlayer)
+	if (eApproachTowardsAsker == CIV_APPROACH_WAR || GetDemandTargetPlayer() == eAskingPlayer)
 	{
 		return true;
 	}
@@ -48052,10 +48055,6 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 
 	if (GET_PLAYER(ePlayerToLiberate).isMajorCiv())
 	{
-		// If we're planning to attack them, liberating their cities would be foolish!
-		if (IsWantsSneakAttack(ePlayerToLiberate) || IsArmyInPlaceForAttack(ePlayerToLiberate) || GetGlobalCoopWarAgainstState(ePlayerToLiberate) >= COOP_WAR_STATE_PREPARING)
-			return false;
-
 		// Hate them? Don't consider liberating!
 		if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
 			return false;
@@ -48154,10 +48153,6 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 		if (pCity->GetCityReligions()->IsHolyCityAnyReligion() && !pCity->GetCityReligions()->IsHolyCityForReligion(GetPlayer()->GetReligions()->GetStateReligion(false)))
 			return false;
 	}
-
-	// If we're planning to attack them, liberating their cities would be foolish!
-	if (IsWantsSneakAttack(ePlayerToLiberate) || IsArmyInPlaceForAttack(ePlayerToLiberate) || GetGlobalCoopWarAgainstState(ePlayerToLiberate) >= COOP_WAR_STATE_PREPARING)
-		return false;
 
 	// Hate them? Don't consider liberating!
 	if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
@@ -56611,10 +56606,19 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 		if (eLoopTeam != GetTeam())
 		{
 			// Kill any attack operations
-			SetWantsSneakAttack(eLoopPlayer, false);
 			SetArmyInPlaceForAttack(eLoopPlayer, false);
-			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetWantsSneakAttack(GetID(), false);
 			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetArmyInPlaceForAttack(GetID(), false);
+
+			if (GetPlayer()->getFirstOffensiveAIOperation(eLoopPlayer) != NULL)
+			{
+				GetPlayer()->StopAllLandOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_TARGET_NOT_VALID);
+				GetPlayer()->StopAllSeaOffensiveOperationsAgainstPlayer(eLoopPlayer,AI_ABORT_TARGET_NOT_VALID);
+			}
+			if (GET_PLAYER(eLoopPlayer).getFirstOffensiveAIOperation(GetID()) != NULL)
+			{
+				GET_PLAYER(eLoopPlayer).StopAllLandOffensiveOperationsAgainstPlayer(GetID(),AI_ABORT_TARGET_NOT_VALID);
+				GET_PLAYER(eLoopPlayer).StopAllSeaOffensiveOperationsAgainstPlayer(GetID(),AI_ABORT_TARGET_NOT_VALID);
+			}
 
 			// Reset locked war turns
 			GET_TEAM(GetTeam()).SetNumTurnsLockedIntoWar(eLoopTeam, 0);

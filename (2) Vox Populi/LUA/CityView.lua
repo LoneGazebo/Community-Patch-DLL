@@ -1541,7 +1541,7 @@ function OnCityViewUpdate()
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists );
 		else
 			print("No free specialists...")
-			local defSpecialist = tostring((GameDefines.BALANCE_UNHAPPINESS_PER_SPECIALIST / 100));
+			local defSpecialist = tostring((GameDefines.UNHAPPINESS_PER_SPECIALIST / 100));
 			Controls.FreeSpecialistLabel:SetText(defSpecialist);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");

@@ -340,13 +340,18 @@ protected:
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
 	LUAAPIEXTN(GetBasicNeedsMedian, int);
 	LUAAPIEXTN(GetGoldMedian, int);
 	LUAAPIEXTN(GetScienceMedian, int);
 	LUAAPIEXTN(GetCultureMedian, int);
-	LUAAPIEXTN(GetTheoreticalNewMedianFromBuilding, int);
+	LUAAPIEXTN(GetReligiousUnrestPerMinorityFollower, int);
+	LUAAPIEXTN(GetTheoreticalNewBasicNeedsMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewGoldMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewScienceMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewCultureMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewReligiousUnrestPerMinorityFollower, int);
 	LUAAPIEXTN(getHappinessDelta, int);
 	LUAAPIEXTN(GetUnhappinessAggregated, int);
 	LUAAPIEXTN(GetCitySizeModifier, int);
@@ -362,7 +367,6 @@ protected:
 	LUAAPIEXTN(GetCityUnhappinessBreakdown, int);
 	LUAAPIEXTN(GetCityHappinessBreakdown, int);
 	LUAAPIEXTN(getUnhappinessFromSpecialists, int);
-#endif
 
 	static int lChangeHealRate(lua_State* L);
 

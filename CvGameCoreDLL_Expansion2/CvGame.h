@@ -391,6 +391,7 @@ public:
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 
+	void LogTurnScores();
 	void LogGameResult(const char* victoryTypeText, const char* victoryCivText);
 #if defined(MOD_BALANCE_CORE)
 	bool isVictoryRandomizationDone() const;
@@ -535,14 +536,14 @@ public:
 
 	// Median Yield Per Pop Calculations
 	void updateGlobalMedians();
-	void SetGlobalPopulation(int iValue);
+	void SetMedianTechsResearched(int iValue);
 	void SetBasicNeedsMedian(int iValue);
 	void SetGoldMedian(int iValue);
 	void SetScienceMedian(int iValue);
 	void SetCultureMedian(int iValue);
 	void DoGlobalMedianLogging();
 
-	int GetGlobalPopulation() const;
+	int GetMedianTechsResearched() const;
 	int GetBasicNeedsMedian() const;
 	int GetGoldMedian() const;
 	int GetScienceMedian() const;
@@ -729,10 +730,8 @@ public:
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	int GetNextGlobalID() { ++m_iGlobalAssetCounterCurrentTurn; return m_iGlobalAssetCounterAllPreviousTurns + m_iGlobalAssetCounterCurrentTurn; }
 	void RollOverAssetCounter() { m_iGlobalAssetCounterAllPreviousTurns += m_iGlobalAssetCounterCurrentTurn; m_iGlobalAssetCounterCurrentTurn = 0; }
-#endif
 
 	void SetClosestCityMapDirty();
 	//assuming a typical unit
@@ -764,11 +763,9 @@ protected:
 
 	bool m_firstActivationOfPlayersAfterLoad;
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	//for MP RNG we split this into two parts - everybody agrees on the previous turn but for the current turn races are possible
 	int m_iGlobalAssetCounterAllPreviousTurns;
 	int m_iGlobalAssetCounterCurrentTurn;
-#endif
 
 	int m_iEndTurnMessagesSent;
 	int m_iElapsedGameTurns;
@@ -851,7 +848,7 @@ protected:
 
 	bool m_bVictoryRandomization;
 
-	int m_iGlobalPopulation;
+	int m_iMedianTechsResearched;
 	int m_iBasicNeedsMedian;
 	int m_iGoldMedian;
 	int m_iScienceMedian;

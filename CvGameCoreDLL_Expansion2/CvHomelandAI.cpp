@@ -495,6 +495,7 @@ void CvHomelandAI::AssignHomelandMoves()
 	ExecuteUnitGift();
 
 	//military only
+	PlotAircraftRebase();
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
 	PlotSentryMoves();
@@ -505,7 +506,6 @@ void CvHomelandAI::AssignHomelandMoves()
 	PlotMovesToSafety();
 
 	//military again
-	PlotAircraftRebase();
 	PlotPatrolMoves();
 
 	//civilians again
@@ -2928,13 +2928,16 @@ typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
 /// Moves units to the hex with the lowest danger
 void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 {
-	if (!pUnit)
+	CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+	if (!pBestPlot)
 		return;
 
-	//a bit tricky: we know that we should be able to reach the plot
+	pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY());
+
+	//a bit tricky: we know that we should be able to reach the best plot
 	//but maybe the mission is aborted (new enemy discovered etc)
 	//can happen for AI civilians ...
-	CvPlot* pBestPlot = NULL;
+
 	for (int iLimit = 0; iLimit<9; iLimit++) //failsafe so we don't get stuck ...
 	{
 		pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
@@ -2953,7 +2956,7 @@ void CvHomelandAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 	{
 		CvString strLogString;
 		CvString strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-		strLogString.Format("Moved %s to safety, X: %d, Y: %d", strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY());
+		strLogString.Format("Moved %s (%d) to safety, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
 		LogHomelandMessage(strLogString);
 	}
 }
@@ -5955,38 +5958,39 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 	if (!kPlayer.GetDiplomacyAI()->IsHasMet(pCity->getOwner()))
 		return NULL;
 
-	if(atWar(kPlayer.getTeam(), kCityPlayer.getTeam()))
+	if (atWar(kPlayer.getTeam(), kCityPlayer.getTeam()))
 		return NULL;
 
 	if (!pCity->isCapital())
 		return NULL;
 
-	if(!pCity->plot()->isAdjacentRevealed(kPlayer.getTeam()))
+	if (!pCity->plot()->isAdjacentRevealed(kPlayer.getTeam()))
+		return NULL;
+
+	// Does somebody already have an embassy here?
+	ImprovementTypes eEmbassyImprovement = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
+	if (kCityPlayer.getImprovementCount(eEmbassyImprovement, false) > 0)
+		return NULL;
+
+	//Are we planning on conquering them?
+	if (kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
 		return NULL;
 
 	//Danger
-	if(kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(kPlayer.GetID(), MINOR_CIV_QUEST_HORDE) || 
+	if (kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(kPlayer.GetID(), MINOR_CIV_QUEST_HORDE) || 
 		kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(kPlayer.GetID(), MINOR_CIV_QUEST_REBELLION) ||
 		kCityPlayer.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(kPlayer.GetID()))
 		return NULL;
 
-	//Are we planning on conquering them?
-	if(kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
-		return NULL;
-
-	// Does somebody already have an embassy here and is there a free spot for us to build on?
-	ImprovementTypes eEmbassyImprovement = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
+	// Is there an available spot for us to build on?
 	BuildTypes eEmbassyBuild = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 	CvPlot* pEmbassyPlot = NULL;
 
-	for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+	for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 		if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
 		{
-			if (pCityPlot->getImprovementType() == eEmbassyImprovement)
-				return NULL;
-
 			// Don't be captured but allow some fog danger
 			if (pUnit->GetDanger(pCityPlot) > 10)
 				continue;

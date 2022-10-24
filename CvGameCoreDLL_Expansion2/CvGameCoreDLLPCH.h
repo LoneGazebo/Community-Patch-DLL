@@ -240,9 +240,7 @@ typedef wchar_t          wchar;
 #include "CvCityConnections.h"
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
-#if defined(MOD_API_ACHIEVEMENTS)
 #include "CvAchievementInfo.h"
-#endif
 #if defined(MOD_BALANCE_CORE)
 #include "CvCorporationClasses.h"
 #include "CvContractClasses.h"

@@ -52,9 +52,18 @@ public:
 	bool InfluenceAllRequired() const;
 	bool IdeologyRequired() const;
 	bool IsRepeatable() const;
-	int GetHappinessNeedModifier(int i) const;
 	int GetHappiness() const;
-	int GetEmpireMod() const;
+	int GetEmpireSizeModifierReduction() const;
+	int GetDistressFlatReduction() const;
+	int GetPovertyFlatReduction() const;
+	int GetIlliteracyFlatReduction() const;
+	int GetBoredomFlatReduction() const;
+	int GetReligiousUnrestFlatReduction() const;
+	int GetBasicNeedsMedianModifier() const;
+	int GetGoldMedianModifier() const;
+	int GetScienceMedianModifier() const;
+	int GetCultureMedianModifier() const;
+	int GetReligiousUnrestModifier() const;
 	int GetEspionageMod() const;
 #endif
 
@@ -94,9 +103,18 @@ protected:
 	int m_iNumRequiredTier3Tenets;
 	bool m_bInfluenceAllRequired;
 	bool m_bIdeologyRequired;
-	int* m_piHappinessNeedModifier;
 	int m_iHappiness;
-	int m_iEmpireMod;
+	int m_iEmpireSizeModifierReduction;
+	int m_iDistressFlatReduction;
+	int m_iPovertyFlatReduction;
+	int m_iIlliteracyFlatReduction;
+	int m_iBoredomFlatReduction;
+	int m_iReligiousUnrestFlatReduction;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	int m_iEspionageMod;
 #endif
 

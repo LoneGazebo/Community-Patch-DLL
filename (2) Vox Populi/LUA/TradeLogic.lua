@@ -730,8 +730,8 @@ end
 -- Update buttons at the bottom
 ---------------------------------------------------------
 function DoUpdateButtons()
-	
-	-- Dealing with a human in a MP game
+
+-- Dealing with a human in a MP game
     if (g_bPVPTrade) then
 		
         --print( "PVP Updating ProposeButton" );
@@ -1305,7 +1305,7 @@ function ResetDisplay()
 
     	Controls.UsText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pUs:GetNameKey() ) ) );
 
-        if (pOtherPlayer:IsHuman()) then
+        if (g_pThem:IsHuman()) then
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetNickName() ) ) );
         else
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetName() ) ) );
@@ -1879,7 +1879,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
+			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 		else
@@ -1957,7 +1957,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 			
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
+			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 
@@ -3317,13 +3317,13 @@ function PocketResourceHandler( isUs, resourceId )
 	end
 	
     if( isUs == 1 ) then
-		if (iAmount > g_Deal:GetNumResource(g_iUs, resourceId)) then
-			iAmount = g_Deal:GetNumResource(g_iUs, resourceId);
+		if (iAmount > g_pUs:GetNumResourceAvailable(resourceId, false)) then
+			iAmount = g_pUs:GetNumResourceAvailable(resourceId, false);
 		end
         g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
     else
-		if (iAmount > g_Deal:GetNumResource(g_iThem, resourceId)) then
-			iAmount = g_Deal:GetNumResource(g_iThem, resourceId);
+		if (iAmount > g_pThem:GetNumResourceAvailable(resourceId, false)) then
+			iAmount = g_pThem:GetNumResourceAvailable(resourceId, false);
 		end
         g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
     end
@@ -3517,7 +3517,7 @@ Controls.ThemTableRevokeVassalage:SetVoid1( 0 );
 -------------------------------------------------------------------
 -------------------------------------------------------------------
 function ChangeResourceAmount( string, control )
-	
+
 	local bIsUs = control:GetVoid1() == 1;
 	local iResourceID = control:GetVoid2();
 	
@@ -3536,18 +3536,21 @@ function ChangeResourceAmount( string, control )
     else
         control:SetText( 0 );
     end
-    
+	
     -- Can't offer more than someone has
-    if (iNumResource > g_Deal:GetNumResource(iPlayer, iResourceID)) then
-		iNumResource = g_Deal:GetNumResource(iPlayer, iResourceID);
+    if (iNumResource > pPlayer:GetNumResourceAvailable(iResourceID, false)) then
+		iNumResource = pPlayer:GetNumResourceAvailable(iResourceID, false);
 		control:SetText(iNumResource);
 	end
-    
+	
     if ( bIsUs ) then
         g_Deal:ChangeResourceTrade( g_iUs, iResourceID, iNumResource, g_iDealDuration );
     else
         g_Deal:ChangeResourceTrade( g_iThem, iResourceID, iNumResource, g_iDealDuration );
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 
 -----------------------------------------------------------------------------------------------------------------------

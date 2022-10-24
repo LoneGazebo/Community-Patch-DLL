@@ -122,7 +122,6 @@ UPDATE Policies
 SET
 	GreatEngineerHurryModifier = 0,
 	GreatScientistBeakerModifier = 25,
-	MinorityHappinessMod = -100,
 	AdmiralLuxuryBonus = 2
 WHERE Type = 'POLICY_FREE_THOUGHT';
 

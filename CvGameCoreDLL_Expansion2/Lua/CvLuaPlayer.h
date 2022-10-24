@@ -378,6 +378,7 @@ protected:
 	static int lGetUnhappinessFromPuppetCityPopulation(lua_State* L);
 	static int lGetUnhappinessFromOccupiedCities(lua_State* L);
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
+	static int lGetUnhappinessFromPuppetCitySpecialists(lua_State* L);
 
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetWarWeariness, int);
@@ -759,22 +760,21 @@ protected:
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
-	LUAAPIEXTN(GetUnhappinessFromCityScience, int);
-	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
-	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
-	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);
-	LUAAPIEXTN(GetUnhappinessFromCityPillaged, int);
-	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
-	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
+	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
+	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
+	LUAAPIEXTN(GetUnhappinessFromDistress, int);
+	LUAAPIEXTN(GetUnhappinessFromPoverty, int);
+	LUAAPIEXTN(GetUnhappinessFromIsolation, int);
+	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
+	LUAAPIEXTN(GetUnhappinessFromFamine, int);
+	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
 #endif
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
-	LUAAPIEXTN(GetScalingNationalPopulationRequrired, int);
-#endif
+
+	LUAAPIEXTN(GetScalingNationalPopulationRequired, int);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	LUAAPIEXTN(GetCapitalUnhappinessModCBP, int);
+	LUAAPIEXTN(GetCapitalNeedModifier, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

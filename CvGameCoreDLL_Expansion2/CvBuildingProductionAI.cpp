@@ -453,7 +453,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	
 	/////////
-	////Happiness (CBP)
+	////Happiness (VP)
 	////////
 
 	
@@ -489,22 +489,14 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 
-	int iPoverty = 0;
-	int iIlliteracy = 0;
-	int iCrime = 0;
-	int iBoredom = 0;
-	int iReligion = 0;
-	int iEmpire = 0;
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP) // Yield median reductions (supported, but not used in base VP except for the empire mod)
 	{
-		bool bTested = false;
-		//Only checking for buildings that matter, and only once per test (based on prioritization of city happiness logic.
-		iEmpire = pkBuildingInfo->GetEmpireNeedsModifier() + pkBuildingInfo->GetEmpireNeedsModifierGlobal();
-		iPoverty = pkBuildingInfo->GetPovertyHappinessChangeBuilding() + pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal();
-		iIlliteracy = pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() + pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal();
-		iCrime = pkBuildingInfo->GetDefenseHappinessChangeBuilding() + pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal();
-		iBoredom = pkBuildingInfo->GetUnculturedHappinessChangeBuilding() + pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal();
-		iReligion = pkBuildingInfo->GetMinorityHappinessChangeBuilding() + pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal();
+		int iEmpire = pkBuildingInfo->GetEmpireSizeModifierReduction() + pkBuildingInfo->GetEmpireSizeModifierReductionGlobal();
+		int iDistress = pkBuildingInfo->GetBasicNeedsMedianModifier() + pkBuildingInfo->GetBasicNeedsMedianModifierGlobal();
+		int iPoverty = pkBuildingInfo->GetGoldMedianModifier() + pkBuildingInfo->GetGoldMedianModifierGlobal();
+		int iIlliteracy = pkBuildingInfo->GetScienceMedianModifier() + pkBuildingInfo->GetScienceMedianModifierGlobal();
+		int iBoredom = pkBuildingInfo->GetCultureMedianModifier() + pkBuildingInfo->GetCultureMedianModifierGlobal();
+		int iReligiousUnrest = pkBuildingInfo->GetReligiousUnrestModifier() + pkBuildingInfo->GetReligiousUnrestModifierGlobal();
 
 		if (iEmpire < 0)
 		{
@@ -516,59 +508,54 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				bGoodforHappiness = true;
 			}
 		}
-		else if (iPoverty < 0)
+		if (iDistress < 0)
+		{
+			int iUnhappyBasicNeeds = m_pCity->GetDistress(false);
+			if (iUnhappyBasicNeeds > 0)
+			{
+				iDistress *= -1;
+				iBonus += (iUnhappyBasicNeeds * iDistress);
+				bGoodforHappiness = true;
+			}
+		}
+		if (iPoverty < 0)
 		{
 			int iUnhappyGold = m_pCity->GetPoverty(false);
 			if (iUnhappyGold > 0)
 			{
 				iPoverty *= -1;
-				bTested = true;
 				iBonus += (iUnhappyGold * iPoverty);
 				bGoodforHappiness = true;
 				bGoodforGPT = true;
 			}
 		}
-		else if (!bTested && (iCrime < 0))
-		{
-			int iUnhappyDefense = m_pCity->GetDistress(false);
-			if (iUnhappyDefense > 0)
-			{
-				iCrime *= -1;
-				bTested = true;
-				iBonus += (iUnhappyDefense * iCrime);
-				bGoodforHappiness = true;
-			}
-		}
-		else if (!bTested && (iReligion < 0))
-		{
-			int iUnhappyReligion = m_pCity->GetUnhappinessFromReligiousUnrest();
-			if (iUnhappyReligion > 0)
-			{
-				iReligion *= -1;
-				bTested = true;
-				iBonus += (iUnhappyReligion * iReligion);
-				bGoodforHappiness = true;
-			}
-		}
-		else if (!bTested && (iBoredom < 0))
-		{
-			int iUnhappyCulture = m_pCity->GetBoredom(false);
-			if (iUnhappyCulture > 0)
-			{
-				iBoredom *= -1;
-				bTested = true;
-				iBonus += (iUnhappyCulture * iBoredom);
-				bGoodforHappiness = true;
-			}
-		}
-		else if (!bTested && (iIlliteracy < 0))
+		if (iIlliteracy < 0)
 		{
 			int iUnhappyScience = m_pCity->GetIlliteracy(false);
 			if (iUnhappyScience > 0)
 			{
 				iIlliteracy *= -1;
-				bTested = true;
 				iBonus += (iUnhappyScience * iIlliteracy);
+				bGoodforHappiness = true;
+			}
+		}
+		if (iBoredom < 0)
+		{
+			int iUnhappyCulture = m_pCity->GetBoredom(false);
+			if (iUnhappyCulture > 0)
+			{
+				iBoredom *= -1;
+				iBonus += (iUnhappyCulture * iBoredom);
+				bGoodforHappiness = true;
+			}
+		}
+		if (iReligiousUnrest < 0)
+		{
+			int iUnhappyReligion = m_pCity->GetUnhappinessFromReligiousUnrest();
+			if (iUnhappyReligion > 0)
+			{
+				iReligiousUnrest *= -1;
+				iBonus += (iUnhappyReligion * iReligiousUnrest);
 				bGoodforHappiness = true;
 			}
 		}
@@ -897,7 +884,28 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		int iDummyFlatYield = 0;
 		int iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, plotStats, allExistingBuildings, eYield, iDummyFlatYield);
 		int iYieldTrait = CityStrategyAIHelpers::GetBuildingTraitValue(m_pCity, eYield, eBuilding, iYieldValue);
-		int iHappinessReduction = pkBuildingInfo->GetUnhappinessNeedsFlatReduction(eYield);
+		int iHappinessReduction = 0;
+		switch (eYield)
+		{
+		case YIELD_FOOD:
+		case YIELD_PRODUCTION:
+			iHappinessReduction = pkBuildingInfo->GetDistressFlatReduction() + (pkBuildingInfo->GetDistressFlatReductionGlobal() * kPlayer.getNumCities());
+			break;
+		case YIELD_GOLD:
+			iHappinessReduction = pkBuildingInfo->GetPovertyFlatReduction() + (pkBuildingInfo->GetPovertyFlatReductionGlobal() * kPlayer.getNumCities());
+			break;
+		case YIELD_SCIENCE:
+			iHappinessReduction = pkBuildingInfo->GetIlliteracyFlatReduction() + (pkBuildingInfo->GetIlliteracyFlatReductionGlobal() * kPlayer.getNumCities());
+			break;
+		case YIELD_CULTURE:
+			iHappinessReduction = pkBuildingInfo->GetBoredomFlatReduction() + (pkBuildingInfo->GetBoredomFlatReductionGlobal() * kPlayer.getNumCities());
+			break;
+		case YIELD_FAITH:
+			iHappinessReduction = pkBuildingInfo->GetReligiousUnrestFlatReduction() + (pkBuildingInfo->GetReligiousUnrestFlatReductionGlobal() * kPlayer.getNumCities());
+			break;
+		default:
+			break;
+		}
 
 		if ((iYieldValue > 0) || (iYieldTrait > 0) || (iHappinessReduction > 0))
 		{
@@ -938,13 +946,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				if (iHappinessReduction > 0)
 				{
 					iYieldValue += iHappinessReduction * 100;
-
 					bGoodforHappiness = true;
 				}
-
-				//explicit check for stonehenge.
-				if (pkBuildingInfo->GetInstantYield(YIELD_FAITH) > 0 && kPlayer.GetReligions()->HasCreatedPantheon() && kPlayer.GetCurrentEra() <= 3)
-					iReligion /= 50;
 
 				break;
 			case YIELD_CULTURE:

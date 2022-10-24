@@ -18,7 +18,6 @@ CvProjectEntry::CvProjectEntry(void):
 	m_piVictoryMinThreshold(NULL),
 	m_piProjectsNeeded(NULL),
 #if defined(MOD_BALANCE_CORE)
-	m_piHappinessNeedModifier(NULL),
 	m_eFreeBuilding(NO_BUILDINGCLASS),
 	m_eFreePolicy(NO_POLICY),
 #endif
@@ -28,7 +27,6 @@ CvProjectEntry::CvProjectEntry(void):
 //------------------------------------------------------------------------------
 CvProjectEntry::~CvProjectEntry(void)
 {
-	SAFE_DELETE_ARRAY(m_piHappinessNeedModifier);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
 	SAFE_DELETE_ARRAY(m_piVictoryThreshold);
 	SAFE_DELETE_ARRAY(m_piVictoryMinThreshold);
@@ -61,7 +59,17 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_bInfluenceAllRequired = kResults.GetBool("InfluenceAllRequired");
 	m_bIdeologyRequired = kResults.GetBool("IdeologyRequired");
 	m_iHappiness = kResults.GetInt("Happiness");
-	m_iEmpireMod = kResults.GetInt("EmpireMod");
+	m_iEmpireSizeModifierReduction = kResults.GetInt("EmpireSizeModifierReduction");
+	m_iDistressFlatReduction = kResults.GetInt("DistressFlatReduction");
+	m_iPovertyFlatReduction = kResults.GetInt("PovertyFlatReduction");
+	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
+	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
+	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iEspionageMod = kResults.GetInt("EspionageMod");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
@@ -96,8 +104,6 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szProjectType = GetType();
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Project_ResourceQuantityRequirements", "ResourceType", "ProjectType", szProjectType, "Quantity");
-
-	kUtility.SetYields(m_piHappinessNeedModifier, "Project_NeedsModifierYield", "ProjectType", szProjectType);
 
 	//Victory Thresholds
 	{
@@ -268,26 +274,54 @@ bool CvProjectEntry::IsRepeatable() const
 {
 	return m_bIsRepeatable;
 }
-int CvProjectEntry::GetHappinessNeedModifier(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-
-	if (i > -1 && i < NUM_YIELD_TYPES && m_piHappinessNeedModifier)
-	{
-		return  m_piHappinessNeedModifier[i];
-	}
-
-	return 0;
-}
 
 int CvProjectEntry::GetHappiness() const
 {
 	return m_iHappiness;
 }
-int CvProjectEntry::GetEmpireMod() const
+int CvProjectEntry::GetEmpireSizeModifierReduction() const
 {
-	return m_iEmpireMod;
+	return m_iEmpireSizeModifierReduction;
+}
+int CvProjectEntry::GetDistressFlatReduction() const
+{
+	return m_iDistressFlatReduction;
+}
+int CvProjectEntry::GetPovertyFlatReduction() const
+{
+	return m_iPovertyFlatReduction;
+}
+int CvProjectEntry::GetIlliteracyFlatReduction() const
+{
+	return m_iIlliteracyFlatReduction;
+}
+int CvProjectEntry::GetBoredomFlatReduction() const
+{
+	return m_iBoredomFlatReduction;
+}
+int CvProjectEntry::GetReligiousUnrestFlatReduction() const
+{
+	return m_iReligiousUnrestFlatReduction;
+}
+int CvProjectEntry::GetBasicNeedsMedianModifier() const
+{
+	return m_iBasicNeedsMedianModifier;
+}
+int CvProjectEntry::GetGoldMedianModifier() const
+{
+	return m_iGoldMedianModifier;
+}
+int CvProjectEntry::GetScienceMedianModifier() const
+{
+	return m_iScienceMedianModifier;
+}
+int CvProjectEntry::GetCultureMedianModifier() const
+{
+	return m_iCultureMedianModifier;
+}
+int CvProjectEntry::GetReligiousUnrestModifier() const
+{
+	return m_iReligiousUnrestModifier;
 }
 int CvProjectEntry::GetEspionageMod() const
 {

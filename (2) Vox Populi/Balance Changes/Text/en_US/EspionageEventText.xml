@@ -63,7 +63,7 @@
 			<Text>Foment Local [ICON_HAPPINESS_3] Unhappiness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE_HELP">
-			<Text>{6_Spy}Target City: All sources of Needs Unhappiness are increased by 34%.</Text>
+			<Text>{6_Spy}Target City: +34% Unhappiness from Needs.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
 			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
@@ -134,7 +134,7 @@
 			<Text>Turn your network on the local population. Bring them in line.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness in the City, and all sources of Needs Unhappiness are reduced by 25%.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness and -25% Unhappiness from Needs in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST">
 			<Text>Make sure local Specialists are giving their best.</Text>

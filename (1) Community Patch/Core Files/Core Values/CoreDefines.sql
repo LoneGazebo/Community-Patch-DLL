@@ -491,45 +491,66 @@ UPDATE Defines SET Value = '30' WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD
 UPDATE Defines SET Value = '15' WHERE Name = 'PEACE_WILLINGNESS_ACCEPT_THRESHOLD_ARMISTICE';
 
 
--- CBO Defines
+-- VP Defines
 
--- Happiness
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_THRESHOLD', '50'; -- Unhappiness Threshold
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_WAR_WEARINESS_POPULATION_CAP', '34'; -- This is the % of empire population that war weariness is capped at.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_LUXURY_POP_SCALER', '20'; -- avg pop to happiness conversion in 1/1000th; 100 means one tenth
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_THRESHOLD_PERCENTILE', '50'; -- Happiness
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_MUSICIAN_BLAST_HAPPINESS', '2'; -- Tourism Blast Happiness
+-- Happiness System Rework
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_THRESHOLD', '50'; -- Below this approval rating threshold, the empire is unhappy
 
--- These values modify empire-wide bonuses or penalties gained (or lost) from happiness. Change the values below, making sure to keep the integers + or - as they are below.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '2'; -- Food % point per happiness mod (should always be a positive value).
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FOOD_MODIFIER', '10';
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '10'; -- Production % point per happiness mod (should always be a positive value).
+-- Bonus/Penalty to Growth based on Local Happiness
+INSERT INTO Defines (Name, Value) SELECT 'LOCAL_HAPPINESS_FOOD_MODIFIER', '2'; -- % bonus to Growth per point of Local Happiness above Local Unhappiness
+INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPINESS_FOOD_MODIFIER', '10'; -- % penalty to Growth per point of Local Unhappiness above Local Happiness
 
--- Maximum happiness penalty % mod. (Should always be a negative value)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-75';
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_PRODUCTION_PENALTY', '-25';
-INSERT INTO Defines (Name, Value) SELECT 'VERY_UNHAPPY_PRODUCTION_PENALTY', '-50';
+-- Penalty to Growth if empire is super unhappy
+INSERT INTO Defines (Name, Value) SELECT 'SUPER_UNHAPPY_GROWTH_PENALTY', '-100';
 
--- City Happiness Defines
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '4'; -- Puppets produce flat unhappiness based on # of citizens in the city. Divisor is this, never set to zero.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_EMPIRE_MULTIPLIER', '10'; -- Per non-puppet city % modifier for unhappiness from needs (i.e. # cities * value below = % modifier).
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '100'; -- 100 = 1 unhappiness per specialist.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'; -- Base Modifier for Capital Needs. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '160'; -- 	Base Value of Tech - % of techs researched v. techs known, multiplied by this value. 160 is default (each tech increases % by fraction of techs remaining v. techs researched).
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_HAPPINESS_POP_MULTIPLIER', '-50'; -- Base modifier to needs based on # of citizens in cities you own (2 citizens = -1%). Modifier increases as cities grow. -50 is default.
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT', '3'; -- The required population for a city to be counted in the global median for Needs. Prevents an early game unhappiness spike due to the high initial rate per citizen.
+-- Production penalties if unhappy
+INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-10'; -- Local % penalty to Settler production for each point of Local Unhappiness above Local Happiness
+INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY', '-10'; -- Local % penalty to combat unit production for each point of Local Unhappiness above Local Happiness
+
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-25'; -- Global % penalty to Settler production when the empire is unhappy
+INSERT INTO Defines (Name, Value) SELECT 'VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-50'; -- very unhappy
+INSERT INTO Defines (Name, Value) SELECT 'SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-75'; -- super unhappy
+
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY', '-75'; -- Maximum penalty to any kind of unit production from happiness
+
+-- Great Musician Happiness
+INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS', '2';
+
+-- Unhappiness from Needs
+INSERT INTO Defines (Name, Value) SELECT 'YIELD_MEDIAN_PERCENTILE', '50'; -- 50 = true median. Values below 50 will try to pick a city below the true median, values above 50 will try to pick a city above it. Capped between 1 and 100.
+INSERT INTO Defines (Name, Value) SELECT 'YIELD_MEDIAN_MIN_POP_REQUIREMENT', '3'; -- The required population for a city to be counted in the global median for Needs. Prevents an early game unhappiness spike due to the high initial rate per citizen.
+INSERT INTO Defines (Name, Value) SELECT 'TECH_COUNT_MEDIAN_PERCENTILE', '50'; -- 50 = true median. See YIELD_MEDIAN_PERCENTILE above. Only used if TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN or TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN are enabled below.
+
+INSERT INTO Defines (Name, Value) SELECT 'DISTRESS_MEDIAN_BASE_MODIFIER', '100'; -- The median Food/Production need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'DISTRESS_MEDIAN_RATE_CHANGE', '0.65'; -- The rate at which the global median for Distress changes. Valid values are between 0.01 and 1.00. Higher values cause the median to shift more quickly.
+
+INSERT INTO Defines (Name, Value) SELECT 'POVERTY_MEDIAN_BASE_MODIFIER', '100'; -- The median Gold need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'POVERTY_MEDIAN_RATE_CHANGE', '0.65'; -- The rate at which the global median for Poverty changes. Valid values are between 0.01 and 1.00. Higher values cause the median to shift more quickly.
+
+INSERT INTO Defines (Name, Value) SELECT 'ILLITERACY_MEDIAN_BASE_MODIFIER', '100'; -- The median Science need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'ILLITERACY_MEDIAN_RATE_CHANGE', '0.65'; -- The rate at which the global median for Illiteracy changes. Valid values are between 0.01 and 1.00. Higher values cause the median to shift more quickly.
+
+INSERT INTO Defines (Name, Value) SELECT 'BOREDOM_MEDIAN_BASE_MODIFIER', '100'; -- The median Culture need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
 INSERT INTO Defines (Name, Value) SELECT 'BOREDOM_MEDIAN_RATE_CHANGE', '0.65'; -- The rate at which the global median for Boredom changes. Valid values are between 0.01 and 1.00. Higher values cause the median to shift more quickly.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISTRESS', '100'; -- The median Food/Production need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY', '100'; -- The median Gold need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '100'; -- The median Science need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '100'; -- The median Culture need for a city (after modifiers) is multiplied by this value and then divided by 100. Higher values = more Unhappiness.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.5'; -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '1.0'; -- Unhappiness point per starving citizen.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.50'; -- Unhappiness point per pillaged plot owned by city.
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.34'; -- Unhappiness point per pop if unconnected or blockaded.
+
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP', '0.5'; -- Base Unhappiness per religious minority citizen. Modified by need modifiers. (rounded up)
+
+-- Unhappiness Need Modifiers (modify the median value)
+INSERT INTO Defines (Name, Value) SELECT 'CAPITAL_NEED_MODIFIER', '25'; -- +x% Needs in the capital. Offsets boost from Palace, helps make Capital a source of Unhappiness early on.
+INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PERCENT_RESEARCHED', '0'; -- Modifier to needs equal to % of techs researched, multiplied by this value and then divided by 100. Disabled by default.
+INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN', '0'; -- Modifier to needs for each tech ahead of the median # of techs researched you are. Disabled by default.
+INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', '0'; -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default.
+INSERT INTO Defines (Name, Value) SELECT 'CITY_SIZE_NEED_MODIFIER', '-100'; -- Modifier to needs per citizen in the city. Default is -100 (-1%).
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '900'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size. Default is 900 (+9%). Does not support negative values.
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '100'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 100 (+1%). Does not support negative values.
+
+-- Unhappiness from Other Sources
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_PILLAGED_TILE', '0.50'; -- Unhappiness point per pillaged plot owned by city. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_ISOLATED_POP', '0.33'; -- Unhappiness point per pop if unconnected or blockaded. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_SPECIALIST', '100'; -- 100 = 1 unhappiness per specialist.
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_X_PUPPET_CITIZENS', '4'; -- Puppets produce flat unhappiness based on # of citizens in the city. This is the divisor.
+INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', '34'; -- This is the % of empire population that war weariness is capped at.
 
 
 -- Tourism
@@ -575,6 +596,7 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FAITH_PERCENTAGE_VALUE', '10';
 
 -- Barbarians
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BARBARIAN_HEAL_RATE', '0';
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', '1';
 
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
@@ -630,7 +652,8 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_CORP_OFFICE_TR_CONVERSION
 -- Increasing World Wonder Production costs
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER', '25';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER', '15';
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', '10';
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER', '10';
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER', '5'; -- all previous eras
 
 -- FOR JFD
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.0';

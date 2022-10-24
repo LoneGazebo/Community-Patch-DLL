@@ -72,10 +72,8 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
-	int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
-	int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
-#endif
+int GetNextGlobalID() { return GC.getGame().GetNextGlobalID(); }
+int GetJonRand(int iRange) { return GC.getGame().getJonRandNum(iRange,"generic"); }
 
 struct stringHash
 {
@@ -1165,7 +1163,7 @@ void CvGame::uninit()
 	m_eTeamThatCircumnavigated = NO_TEAM;
 	m_bVictoryRandomization = false;
 
-	m_iGlobalPopulation = 0;
+	m_iMedianTechsResearched = 0;
 	m_iBasicNeedsMedian = 0;
 	m_iGoldMedian = 0;
 	m_iScienceMedian = 0;
@@ -1317,10 +1315,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 	CvCityManager::Reset();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	m_iGlobalAssetCounterAllPreviousTurns = 1000; //0 is invalid
 	m_iGlobalAssetCounterCurrentTurn = 0;
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2098,11 +2094,9 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
-#if defined(MOD_API_ACHIEVEMENTS)
-						activePlayer.GetPlayerAchievements().EndTurn();
-#endif
+						if (MOD_API_ACHIEVEMENTS)
+							activePlayer.GetPlayerAchievements().EndTurn();
 
-#if defined(MOD_EVENTS_RED_TURN)
 						if (MOD_EVENTS_RED_TURN)
 						// RED <<<<<
 						{
@@ -2118,12 +2112,12 @@ void CvGame::updateTestEndTurn()
 							}
 						}
 						// RED >>>>>
-#endif
 
 						gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-						CvAchievementUnlocker::EndTurn();
-#endif
+
+						if (MOD_API_ACHIEVEMENTS)
+							CvAchievementUnlocker::EndTurn();
+
 						m_endTurnTimer.Start();
 					}
 				}
@@ -2203,11 +2197,9 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
-#if defined(MOD_API_ACHIEVEMENTS)
-									activePlayer.GetPlayerAchievements().EndTurn();
-#endif
+									if (MOD_API_ACHIEVEMENTS)
+										activePlayer.GetPlayerAchievements().EndTurn();
 
-#if defined(MOD_EVENTS_RED_TURN)
 									if (MOD_EVENTS_RED_TURN)
 									// RED <<<<<
 									{
@@ -2223,12 +2215,11 @@ void CvGame::updateTestEndTurn()
 										}
 									}
 									// RED >>>>>
-#endif
 
 									gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-									CvAchievementUnlocker::EndTurn();
-#endif
+
+									if (MOD_API_ACHIEVEMENTS)
+										CvAchievementUnlocker::EndTurn();
 								}
 
 								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
@@ -3604,7 +3595,7 @@ void CvGame::doControl(ControlTypes eControl)
 		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-#if defined(MOD_EVENTS_RED_TURN)
+
 			if (MOD_EVENTS_RED_TURN)
 			// RED <<<<<
 			{
@@ -3620,15 +3611,15 @@ void CvGame::doControl(ControlTypes eControl)
 				}
 			}
 			// RED >>>>>
-#endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
-			kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+				kActivePlayer.GetPlayerAchievements().EndTurn();
+
 			gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvAchievementUnlocker::EndTurn();
-#endif
+
+			if (MOD_API_ACHIEVEMENTS)
+				CvAchievementUnlocker::EndTurn();
+
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 		break;
@@ -3638,33 +3629,33 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
-			kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+			if (MOD_API_ACHIEVEMENTS)
+			{
+				CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
+				kActivePlayer.GetPlayerAchievements().EndTurn();
+			}
 
-#if defined(MOD_EVENTS_RED_TURN)
-				if (MOD_EVENTS_RED_TURN)
-				// RED <<<<<
-				{
-					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if(pkScriptSystem)
-					{	
-						CvLuaArgsHandle args;
+			if (MOD_EVENTS_RED_TURN)
+			// RED <<<<<
+			{
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if(pkScriptSystem)
+				{	
+					CvLuaArgsHandle args;
 
-						args->Push(getActivePlayer());
+					args->Push(getActivePlayer());
 
-						bool bResult;
-						LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
-					}
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
-				// RED >>>>>
-#endif
+			}
+			// RED >>>>>
 
 			gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-			CvAchievementUnlocker::EndTurn();
-#endif
+
+			if (MOD_API_ACHIEVEMENTS)
+				CvAchievementUnlocker::EndTurn();
+
 			SetForceEndingTurn(true);
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
@@ -6940,7 +6931,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 
 			const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
 
-			if(getWinner() != NO_TEAM)
+			if (getWinner() != NO_TEAM)
 			{
 				const PlayerTypes winningTeamLeaderID = GET_TEAM(getWinner()).getLeaderID();
 				CvPlayerAI& kWinningTeamLeader = GET_PLAYER(winningTeamLeaderID);
@@ -6957,19 +6948,21 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
 				localizedSummary << szWinningTeamLeaderNameKey;
 
-				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+				for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop)
+				{
 					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
 					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 					CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-					if(pNotifications){
+					if (pNotifications)
 						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
-					}
 				}
 
-#if defined(MOD_API_ACHIEVEMENTS)
+				if (pkVictoryInfo)
+					LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
+
 				//--Start Achievements
 				//--Don't allow most in multiplayer so friends can't achieve-whore it up together
-				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
+				if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
 					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
@@ -7704,19 +7697,13 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					}
 				}
 				//Win any multiplayer game
-				if(GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
+				if (MOD_API_ACHIEVEMENTS && GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID()))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MULTIPLAYER);
 				}
-#endif
-
-		if (pkVictoryInfo)
-		{
-			LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
-		}
 			}
 
-			if((getAIAutoPlay() > 0) || gDLL->GetAutorun())
+			if ((getAIAutoPlay() > 0) || gDLL->GetAutorun())
 			{
 				setGameState(GAMESTATE_EXTENDED);
 			}
@@ -7727,8 +7714,51 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 		}
 
 		GC.GetEngineUserInterface()->setDirty(Center_DIRTY_BIT, true);
-
 		GC.GetEngineUserInterface()->setDirty(Soundtrack_DIRTY_BIT, true);
+	}
+}
+
+void CvGame::LogTurnScores()
+{
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		static bool bFirstRun = true;
+		bool bBuildHeader = false;
+		CvString strHeader;
+		if (bFirstRun)
+		{
+			bFirstRun = false;
+			bBuildHeader = true;
+		}
+
+		CvString header = "Turn";
+		CvString rowOutput;
+		CvString strTemp;
+
+		CvString strLogName = "Score_Log.csv";
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+		rowOutput.Format("%03d", getElapsedGameTurns());
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayer& eLoopCvPlayer = GET_PLAYER(eLoopPlayer);
+			if (eLoopPlayer != NO_PLAYER && eLoopCvPlayer.isEverAlive() && !eLoopCvPlayer.isMinorCiv() && !eLoopCvPlayer.isBarbarian())
+			{
+				strTemp = eLoopCvPlayer.getCivilizationShortDescription();
+				header += ", " + strTemp;
+
+				strTemp.Format("%5d", GET_TEAM(eLoopCvPlayer.getTeam()).GetScore());
+				rowOutput += ", " + strTemp;
+			}
+		}
+
+		if (bBuildHeader)
+		{
+			pLog->Msg(header);
+		}
+		pLog->Msg(rowOutput);
 	}
 }
 
@@ -8076,10 +8106,9 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 	{
 		m_eGameState = eNewValue;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		if(eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
+		if (eNewValue == GAMESTATE_OVER || eNewValue == GAMESTATE_EXTENDED)
 		{
-			if (!isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				if (GetGameLeagues()->GetNumActiveLeagues() > 0)
 				{
@@ -8094,12 +8123,10 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				}
 			}
 		}
-#endif
 
 		if(eNewValue == GAMESTATE_OVER)
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
-			if(!isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !isGameMultiPlayer())
 			{
 				bool bLocalPlayerLost = true;
 
@@ -8134,7 +8161,6 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 					}
 				}
 			}
-#endif
 
 			//Write out time spent playing.
 			int iHours = getMinutesPlayed() / 60;
@@ -8723,6 +8749,8 @@ void CvGame::doTurn()
 
 	updateScore();
 
+	LogTurnScores();
+
 	m_kGameDeals.DoTurn();
 
 	for(int iI = 0; iI < MAX_TEAMS; iI++)
@@ -8788,9 +8816,7 @@ void CvGame::doTurn()
 
 	m_kGameDeals.DoTurnPost();
 
-#if defined(MOD_BALANCE_CORE_GLOBAL_IDS)
 	RollOverAssetCounter();
-#endif
 
 	//-------------------------------------------------------------
 	// old turn ends here, new turn starts
@@ -9719,14 +9745,16 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
-#if defined(MOD_API_ACHIEVEMENTS)
-				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
-				kActivePlayer.GetPlayerAchievements().EndTurn();
-#endif
+				if (MOD_API_ACHIEVEMENTS)
+				{
+					CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
+					kActivePlayer.GetPlayerAchievements().EndTurn();
+				}
+
 				gDLL->sendTurnComplete();
-#if defined(MOD_API_ACHIEVEMENTS)
-				CvAchievementUnlocker::EndTurn();
-#endif
+
+				if (MOD_API_ACHIEVEMENTS)
+					CvAchievementUnlocker::EndTurn();
 			}
 
 			if(!m_processPlayerAutoMoves)
@@ -11313,12 +11341,15 @@ void CvGame::updateEconomicTotal()
 /// Updates global medians for yields. Also updates global population (counting only citizens in non-puppet/razing/resistance cities).
 void CvGame::updateGlobalMedians()
 {
+	if (!MOD_BALANCE_VP)
+		return;
+
 	int iCityLoop;
-	int iGlobalPopulation = 0;
 	std::vector<float> vfBasicNeedsYield;
 	std::vector<float> vfGoldYield;
 	std::vector<float> vfScienceYield;
 	std::vector<float> vfCultureYield;
+	std::vector<int> viTechsResearched;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -11327,15 +11358,15 @@ void CvGame::updateGlobalMedians()
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
 			continue;
 
+		viTechsResearched.push_back(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown());
+
 		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 		{
 			if (pLoopCity->IsPuppet() || pLoopCity->IsRazing() || pLoopCity->IsResistance())
 				continue;
 
 			int iPopulation = pLoopCity->getPopulation();
-			iGlobalPopulation += iPopulation;
-
-			if (iPopulation < /*3*/ GD_INT_GET(UNHAPPINESS_MEDIANS_MIN_POP_REQUIREMENT))
+			if (iPopulation < /*3*/ GD_INT_GET(YIELD_MEDIAN_MIN_POP_REQUIREMENT))
 				continue;
 
 			float fPopulation = (float)iPopulation;
@@ -11363,22 +11394,24 @@ void CvGame::updateGlobalMedians()
 	}
 
 	// Cannot define median if calculations are at zero.
-	if (vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty())
+	if (vfBasicNeedsYield.empty() || vfGoldYield.empty() || vfCultureYield.empty() || vfScienceYield.empty() || viTechsResearched.empty())
 		return;
-
-	// Set the global population (in non-puppeted/razing/resistance cities)
-	SetGlobalPopulation(iGlobalPopulation);
 	
-	//Select n-th percentile of each category
-	size_t n = (vfCultureYield.size() * /*50 in CP, 55 in VP*/ GD_INT_GET(BALANCE_HAPPINESS_THRESHOLD_PERCENTILE)) / 100;
+	// Select n-th percentile of each category
+	size_t n = (vfCultureYield.size() * /*50*/ range(GD_INT_GET(YIELD_MEDIAN_PERCENTILE), 1, 100)) / 100;
+	size_t nt = (viTechsResearched.size() * /*50*/ range(GD_INT_GET(TECH_COUNT_MEDIAN_PERCENTILE), 1, 100)) / 100;
 
-	//Find it ...
+	// Find it ...
 	std::nth_element(vfBasicNeedsYield.begin(), vfBasicNeedsYield.begin()+n, vfBasicNeedsYield.end());
 	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
+	std::nth_element(viTechsResearched.begin(), viTechsResearched.begin() + nt, viTechsResearched.end());
 
-	// Exponential smoothing so the medians increase gradually
+	// And set it.
+	SetMedianTechsResearched((int)viTechsResearched[nt]);
+
+	// Exponential smoothing so the yield medians change gradually
 	float fAlpha = /*0.65f*/ GD_FLOAT_GET(DISTRESS_MEDIAN_RATE_CHANGE);
 	int iNewMedian = int(0.5f + ((int)vfBasicNeedsYield[n] * fAlpha) + (GetBasicNeedsMedian() * (1 - fAlpha)));
 	SetBasicNeedsMedian(iNewMedian);
@@ -11398,9 +11431,9 @@ void CvGame::updateGlobalMedians()
 	DoGlobalMedianLogging();
 }
 //	--------------------------------------------------------------------------------
-void CvGame::SetGlobalPopulation(int iValue)
+void CvGame::SetMedianTechsResearched(int iValue)
 {
-	m_iGlobalPopulation = iValue;
+	m_iMedianTechsResearched = iValue;
 }
 void CvGame::SetBasicNeedsMedian(int iValue)
 {
@@ -11446,9 +11479,9 @@ void CvGame::DoGlobalMedianLogging()
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvGame::GetGlobalPopulation() const
+int CvGame::GetMedianTechsResearched() const
 {
-	return m_iGlobalPopulation;
+	return m_iMedianTechsResearched;
 }
 int CvGame::GetBasicNeedsMedian() const
 {
@@ -11709,7 +11742,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_eTeamThatCircumnavigated);
 	visitor(game.m_bVictoryRandomization);
 
-	visitor(game.m_iGlobalPopulation);
+	visitor(game.m_iMedianTechsResearched);
 	visitor(game.m_iBasicNeedsMedian);
 	visitor(game.m_iGoldMedian);
 	visitor(game.m_iScienceMedian);

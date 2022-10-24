@@ -172,7 +172,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			if (iWeight <= 0)
 				continue;
 
-			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
+			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, false, false, true);
 			if(iWeight > 0)
 				m_Buildables.push_back(iBldgLoop, iWeight);
 		}

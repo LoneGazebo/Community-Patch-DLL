@@ -3004,7 +3004,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIStartingWorkerUnits(0),
 	m_iAIStartingExploreUnits(0),
 	m_iAIDeclareWarProb(0),
-	m_iAIHumanStrengthMod(0),
+	m_iHumanStrengthPerceptionMod(0),
 	m_iAIWorkRateModifier(0),
 	m_iAIUnhappinessPercent(0),
 	m_iAIGrowthPercent(0),
@@ -3265,9 +3265,9 @@ int CvHandicapInfo::getAIDeclareWarProb() const
 	return m_iAIDeclareWarProb;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIHumanStrengthMod() const
+int CvHandicapInfo::getHumanStrengthPerceptionMod() const
 {
-	return m_iAIHumanStrengthMod;
+	return m_iHumanStrengthPerceptionMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIWorkRateModifier() const
@@ -3521,7 +3521,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
 	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
 	m_iAIDeclareWarProb = kResults.GetInt("AIDeclareWarProb");
-	m_iAIHumanStrengthMod = kResults.GetInt("AIHumanStrengthMod");
+	m_iHumanStrengthPerceptionMod = kResults.GetInt("HumanStrengthPerceptionMod");
 	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
 	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
 	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
@@ -9007,7 +9007,6 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bLosingMoney(false),
 	 m_iPlayerHappiness(0),
 	 m_iCityHappinessGlobal(0),
-	 m_piCityUnhappinessNeedMod(0),
 	 m_iFreeScaledUnits(0),
 	 m_strDisabledTooltip(""),
 	 m_bVassal(false),
@@ -9022,7 +9021,12 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_bCapitalEffectOnly(false),
 	 m_bInstantYieldAllCities(false),
 	 m_paLinkerInfo(NULL),
-	 m_iLinkerInfos(0)
+	 m_iLinkerInfos(0),
+	 m_iBasicNeedsMedianModifierGlobal(0),
+	 m_iGoldMedianModifierGlobal(0),
+	 m_iScienceMedianModifierGlobal(0),
+	 m_iCultureMedianModifierGlobal(0),
+	 m_iReligiousUnrestModifierGlobal(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -9041,7 +9045,6 @@ CvModEventChoiceInfo::~CvModEventChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piConvertReligionPercent);
 	SAFE_DELETE_ARRAY(m_piCityYield);
 	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
-	SAFE_DELETE_ARRAY(m_piCityUnhappinessNeedMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYield);
@@ -9113,13 +9116,6 @@ int CvModEventChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
 	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
-}
-//------------------------------------------------------------------------------
-int CvModEventChoiceInfo::getCityUnhappinessNeedMod(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityUnhappinessNeedMod ? m_piCityUnhappinessNeedMod[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventYield(YieldTypes eYield) const
@@ -9203,6 +9199,31 @@ int CvModEventChoiceInfo::getPlayerHappiness() const
 int CvModEventChoiceInfo::getCityHappinessGlobal() const
 {
 	return m_iCityHappinessGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getBasicNeedsMedianModifierGlobal() const
+{
+	return m_iBasicNeedsMedianModifierGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getGoldMedianModifierGlobal() const
+{
+	return m_iGoldMedianModifierGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getScienceMedianModifierGlobal() const
+{
+	return m_iScienceMedianModifierGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getCultureMedianModifierGlobal() const
+{
+	return m_iCultureMedianModifierGlobal;
+}
+//------------------------------------------------------------------------------
+int CvModEventChoiceInfo::getReligiousUnrestModifierGlobal() const
+{
+	return m_iReligiousUnrestModifierGlobal;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getNumFreeSpecificUnits(int i) const
@@ -9569,8 +9590,6 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	szTextVal = kResults.GetText("EventPromotion");
 	m_iEventPromotion =  GC.getInfoTypeForString(szTextVal, true);
 
-	kUtility.SetYields(m_piCityUnhappinessNeedMod, "EventChoice_CityUnhappinessNeedMod", "EventChoiceType", szEventType);
-
 	kUtility.PopulateArrayByValue(m_piResourceChange, "Resources", "EventChoice_ResourceQuantity", "ResourceType", "EventChoiceType", szEventType, "Quantity");
 
 	kUtility.SetYields(m_piEventYield, "EventChoice_InstantYield", "EventChoiceType", szEventType);
@@ -9876,6 +9895,12 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 
 	kUtility.PopulateArrayByValue(m_piRequiredResource, "Resources", "EventChoice_MinimumResourceRequired", "ResourceType", "EventChoiceType", szEventType, "Quantity");
 	kUtility.PopulateArrayByValue(m_piRequiredFeature, "Features", "EventChoice_MinimumFeatureRequired", "FeatureType", "EventChoiceType", szEventType, "Quantity");
+
+	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
+	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
+	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
+	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
+	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
 
 	return true;
 }
@@ -10521,7 +10546,6 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iEventPromotion(0),
 	 m_iCityHappiness(0),
 	 m_piResourceChange(NULL),
-	 m_piCityUnhappinessNeedMod(NULL),
 	 m_strDisabledTooltip(""),
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
@@ -10551,7 +10575,12 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bExpiresOnCounterSpyExit(false),
 	 m_bIsMissionSetup(false),
 	 m_paCityLinkerInfo(NULL),
-	 m_iCityLinkerInfos(0)
+	 m_iCityLinkerInfos(0),
+	 m_iBasicNeedsMedianModifier(0),
+	 m_iGoldMedianModifier(0),
+	 m_iScienceMedianModifier(0),
+	 m_iCultureMedianModifier(0),
+	 m_iReligiousUnrestModifier(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -10573,7 +10602,6 @@ CvModEventCityChoiceInfo::~CvModEventCityChoiceInfo()
 	SAFE_DELETE_ARRAY(m_piYieldSiphon);
 	SAFE_DELETE_ARRAY(m_pbParentEventIDs);
 	SAFE_DELETE_ARRAY(m_piResourceChange);
-	SAFE_DELETE_ARRAY(m_piCityUnhappinessNeedMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYield);
@@ -10772,6 +10800,32 @@ int CvModEventCityChoiceInfo::getCityHappiness() const
 {
 	return m_iCityHappiness;
 }
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getBasicNeedsMedianModifier() const
+{
+	return m_iBasicNeedsMedianModifier;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getGoldMedianModifier() const
+{
+	return m_iGoldMedianModifier;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getScienceMedianModifier() const
+{
+	return m_iScienceMedianModifier;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getCultureMedianModifier() const
+{
+	return m_iCultureMedianModifier;
+}
+//------------------------------------------------------------------------------
+int CvModEventCityChoiceInfo::getReligiousUnrestModifier() const
+{
+	return m_iReligiousUnrestModifier;
+}
+//------------------------------------------------------------------------------
 const char* CvModEventCityChoiceInfo::getEventChoiceSoundEffect() const
 {
 	return m_strEventChoiceSoundEffect.c_str();
@@ -10956,13 +11010,6 @@ int CvModEventCityChoiceInfo::getEventResourceChange(ResourceTypes eResource) co
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
 	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
-}
-//------------------------------------------------------------------------------
-int CvModEventCityChoiceInfo::getCityUnhappinessNeedMod(int i) const
-{
-	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityUnhappinessNeedMod ? m_piCityUnhappinessNeedMod[i] : -1;
 }
 // Filters
 //------------------------------------------------------------------------------
@@ -11295,8 +11342,6 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	szTextVal = kResults.GetText("DisabledTooltip");
 	m_strDisabledTooltip = szTextVal;
-
-	kUtility.SetYields(m_piCityUnhappinessNeedMod, "CityEventChoice_CityUnhappinessNeedMod", "CityEventChoiceType", szEventType);
 
 	kUtility.PopulateArrayByValue(m_piResourceChange, "Resources", "CityEventChoice_ResourceQuantity", "ResourceType", "CityEventChoiceType", szEventType, "Quantity");
 
@@ -11639,6 +11684,12 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bPantheon = kResults.GetBool("RequiresPantheon");
 	m_bNearMountain = kResults.GetBool("RequiresNearbyMountain");
 	m_bNearNaturalWonder = kResults.GetBool("RequiresNearbyNaturalWonder");
+
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 
 	return true;
 }

@@ -108,7 +108,9 @@ function OnOK()
 	EUI_options.SetValue( "CityRibbon", Controls.CityRibbonCheckbox:IsChecked() )
 	EUI_options.SetValue( "UnitRibbon", Controls.UnitRibbonCheckbox:IsChecked() )
 	EUI_options.SetValue( "CivRibbon", Controls.CivRibbonCheckbox:IsChecked() )
-
+-- balparmak: add promotion flags option
+	EUI_options.SetValue( "PromotionFlags", Controls.PromotionFlagsCheckbox:IsChecked() )
+--
 	OptionsManager.CommitGameOptions();
 	OptionsManager.CommitGraphicsOptions();
 	SaveAudioOptions();
@@ -637,6 +639,17 @@ function UpdateGameOptionsDisplay()
 	Controls.CityRibbonCheckbox:SetCheck( EUI_options.GetValue( "CityRibbon" ) ~= 0 )
 	Controls.UnitRibbonCheckbox:SetCheck( EUI_options.GetValue( "UnitRibbon" ) ~= 0 )
 	Controls.CivRibbonCheckbox:SetCheck( EUI_options.GetValue( "CivRibbon" ) ~= 0 )
+-- balparmak: promotion flags
+	Controls.PromotionFlagsCheckbox:SetCheck( EUI_options.GetValue( "PromotionFlags" ) == 1 )
+	local currentLanguage = Locale.GetCurrentLanguage().DisplayName;
+	if currentLanguage ~= "English" then
+		local keyUnitFlag = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_MAP_OPTIONS_UNIT_FLAGS")
+		local keyPromo = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_PEDIA_CATEGORY_5_LABEL")
+		local keyReload = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_OPSCREEN_RELOAD_UI")
+		Controls.PromotionFlagsCheckbox:GetTextButton():SetText( keyUnitFlag.." "..keyPromo );
+		Controls.PromotionFlagsCheckbox:SetToolTipString( keyUnitFlag.." "..keyPromo.."[NEWLINE][COLOR_NEGATIVE_TEXT]"..keyReload.."[ENDCOLOR]" );
+	end	
+--
 	Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
 	Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
 	Controls.AutoWorkersDontRemoveFeaturesCB:SetCheck( OptionsManager.IsAutoWorkersDontRemoveFeatures_Cached() );

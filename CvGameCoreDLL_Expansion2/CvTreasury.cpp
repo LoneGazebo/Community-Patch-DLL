@@ -115,8 +115,7 @@ void CvTreasury::DoGold()
 		m_GoldBalanceForTurnTimes100.push_back(GetGoldTimes100());
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		int iGoldDelta = (GetGoldFromCitiesTimes100(false) - GetGoldFromCitiesTimes100(true)) / 100;
 		if (iGoldDelta >= 200)
@@ -124,7 +123,6 @@ void CvTreasury::DoGold()
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_32);
 		}
 	}
-#endif
 }
 
 /// Returns current balance in treasury

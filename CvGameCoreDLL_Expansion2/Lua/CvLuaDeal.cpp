@@ -55,8 +55,6 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(GetReasonsItemUntradeable);
 	Method(BlockTemporaryForPermanentTrade);
 
-	Method(GetNumResource);
-
 	Method(AddGoldTrade);
 	Method(AddGoldPerTurnTrade);
 	Method(AddMapTrade);
@@ -167,21 +165,6 @@ int CvLuaDeal::lBlockTemporaryForPermanentTrade(lua_State* L)
 	return 1;
 }
 
-//------------------------------------------------------------------------------
-int CvLuaDeal::lGetNumResource(lua_State* L)
-{
-	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 3);
-
-	//the name of this method is highly misleading ... 
-	//we actually want to report the amount of resources the player has available outside of this deal
-	int iNumAvailablePreDeal = GET_PLAYER(ePlayer).getNumResourceAvailable(eResource, false);
-	int iResult = iNumAvailablePreDeal - pkDeal->GetNumResourceInDeal(ePlayer, eResource);
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
 
 //------------------------------------------------------------------------------
 int CvLuaDeal::lResetIterator(lua_State* L)

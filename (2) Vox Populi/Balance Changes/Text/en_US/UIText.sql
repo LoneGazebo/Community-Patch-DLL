@@ -147,7 +147,7 @@ SET Text = 'If your civilization is unhappy, then the city will produce less foo
 WHERE Tag = 'TXT_KEY_FOOD_UNHAPPINESS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Settlers can only be constructed in cities of size 2 or larger [COLOR_YELLOW]after researching Pottery[ENDCOLOR]. During construction, settlers consume a city''s production and all of the city''s excess food intake. As long as the settler is in production, the city will not grow or add food to its growth bucket. [COLOR_YELLOW]After the construction of the Settler is completed, the city loses one Population. Later in the game, Settlers are replaced by more advanced units which can found cities with additional infrastructure.[ENDCOLOR] See the section on Settlers for more details.'
+SET Text = 'Settlers can only be constructed in cities of size [COLOR_YELLOW]4[ENDCOLOR] or larger [COLOR_YELLOW]after researching Pottery[ENDCOLOR]. During construction, settlers consume a city''s production and all of the city''s excess food intake. As long as the settler is in production, the city will not grow or add food to its growth bucket. [COLOR_YELLOW]After the construction of the Settler is completed, the city loses one Population. Later in the game, Settlers are replaced by more advanced units which can found cities with additional infrastructure.[ENDCOLOR] See the section on Settlers for more details.'
 WHERE Tag = 'TXT_KEY_FOOD_SETTLERS_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Settlers And Food Production[ENDCOLOR]'
@@ -474,8 +474,12 @@ SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While i
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
-SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied or [ICON_RESISTANCE] Resisting Cities.'
+SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied, [ICON_RESISTANCE] Resisting or [ICON_RAZING] Razing Cities.'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION';
+
+UPDATE Language_en_US
+SET Text = '{1_Num : number "#.##"} from [ICON_CITIZEN] Population of [ICON_PUPPET] Puppet Cities.'
+WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES';
 
 UPDATE Language_en_US
 SET Text = '{1_Num : number "#.##"} from [ICON_URBANIZATION] Urbanization (Specialists).'
@@ -594,7 +598,7 @@ SET Text = 'Your approval rating is less than 50%! Because of this, all Cities w
 WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY';
 
 UPDATE Language_en_US
-SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, but [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth and the cost of Settlers.'
+SET Text = 'Your approval rating is at least 50%. [ICON_HAPPINESS_1] Happy Cities will [ICON_FOOD] Grow more quickly, but [ICON_HAPPINESS_3] Unhappy Cities will suffer penalties to [ICON_FOOD] Growth, Military Unit costs and Settler costs.'
 WHERE Tag = 'TXT_KEY_TP_TOTAL_HAPPINESS';
 
 -- TOOLTIPS FOR TOP BAR
@@ -751,12 +755,12 @@ WHERE Tag = 'TXT_KEY_DEMOGRAPHICS_TITLE';
 -- Happiness
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {2_Num}[NEWLINE]Unhappiness Totals:'
-WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
+SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {1_Num}'
+WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
 
 UPDATE Language_en_US
-SET Text = 'Empire-Wide [ICON_HAPPINESS_1] Happiness Total: {2_Num}[NEWLINE]Happiness Totals:'
-WHERE Tag = 'TXT_KEY_TP_HAPPINESS_SOURCES';
+SET Text = 'Empire-Wide [ICON_HAPPINESS_3] Unhappiness Total: {1_Num} (capped by City Population)'
+WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_TOTAL';
 
 UPDATE Language_en_US
 SET Text = '[ICON_BULLET]{1_Num} is added per turn from positive [ICON_HAPPINESS_1] Happiness produced by Cities.'

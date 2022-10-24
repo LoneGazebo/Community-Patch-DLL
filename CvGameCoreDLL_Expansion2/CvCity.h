@@ -1181,28 +1181,38 @@ public:
 	void ChangeGreatPersonProgressFromConstruction(GreatPersonTypes eGreatPerson, EraTypes eEra, int iChange);
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	void ChangeEmpireNeedsModifier(int iChange);
-	int GetEmpireNeedsModifier() const;
+	int GetEmpireSizeModifierReduction() const;
+	void ChangeEmpireSizeModifierReduction(int iChange);
 
-	int GetFlatNeedsReduction(YieldTypes eYield) const;
-	void ChangeFlatNeedsReduction(YieldTypes eYield, int iValue);
+	int GetDistressFlatReduction() const;
+	void ChangeDistressFlatReduction(int iChange);
 
-	int GetPovertyUnhappiness() const;
-	void ChangePovertyUnhappiness(int iChange);
+	int GetPovertyFlatReduction() const;
+	void ChangePovertyFlatReduction(int iChange);
 
-	int GetDefenseUnhappiness() const;
-	void ChangeDefenseUnhappiness(int iChange);
+	int GetIlliteracyFlatReduction() const;
+	void ChangeIlliteracyFlatReduction(int iChange);
 
-	int GetUnculturedUnhappiness() const;
-	void ChangeUnculturedUnhappiness(int iChange);
+	int GetBoredomFlatReduction() const;
+	void ChangeBoredomFlatReduction(int iChange);
 
-	int GetIlliteracyUnhappiness() const;
-	void ChangeIlliteracyUnhappiness(int iChange);
+	int GetReligiousUnrestFlatReduction() const;
+	void ChangeReligiousUnrestFlatReduction(int iChange);
 
-	int GetMinorityUnhappiness() const;
-	void ChangeMinorityUnhappiness(int iChange);
-#endif
+	int GetBasicNeedsMedianModifier() const;
+	void ChangeBasicNeedsMedianModifier(int iChange);
+
+	int GetGoldMedianModifier() const;
+	void ChangeGoldMedianModifier(int iChange);
+
+	int GetScienceMedianModifier() const;
+	void ChangeScienceMedianModifier(int iChange);
+
+	int GetCultureMedianModifier() const;
+	void ChangeCultureMedianModifier(int iChange);
+
+	int GetReligiousUnrestModifier() const;
+	void ChangeReligiousUnrestModifier(int iChange);
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
@@ -1582,7 +1592,7 @@ public:
 
 	bool HasBelief(BeliefTypes iBeliefType) const;
 	bool HasBuilding(BuildingTypes iBuildingType) const;
-	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
+	bool HasBuildingClass(BuildingClassTypes iBuildingClassType, bool bKeepConqueredBuildings = false) const;
 	bool HasAnyWonder() const;
 	bool HasWonder(BuildingTypes iBuildingType) const;
 	bool IsBuildingWorldWonder() const;
@@ -1929,12 +1939,17 @@ protected:
 	bool m_bNoWarmonger;
 	int m_iCitySpyRank;
 	int m_iTurnsSinceRankAnnouncement;
-	int m_iChangePovertyUnhappiness;
-	int m_iEmpireNeedsModifier;
-	int m_iChangeDefenseUnhappiness;
-	int m_iChangeUnculturedUnhappiness;
-	int m_iChangeIlliteracyUnhappiness;
-	int m_iChangeMinorityUnhappiness;
+	int m_iEmpireSizeModifierReduction;
+	int m_iDistressFlatReduction;
+	int m_iPovertyFlatReduction;
+	int m_iIlliteracyFlatReduction;
+	int m_iBoredomFlatReduction;
+	int m_iReligiousUnrestFlatReduction;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iNukeInterceptionChance;
@@ -1949,7 +1964,6 @@ protected:
 	std::vector<int> m_aiResourceQuantityPerXFranchises;
 	std::vector<int> m_aiYieldChangeFromCorporationFranchises;
 	std::vector<int> m_aiResourceQuantityFromPOP;
-	std::vector<int> m_aiNeedsFlatReduction;
 	int m_iLandTourismBonus;
 	int m_iSeaTourismBonus;
 	int m_iAlwaysHeal;
@@ -2309,12 +2323,17 @@ SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
 SYNC_ARCHIVE_VAR(int, m_iCitySpyRank)
 SYNC_ARCHIVE_VAR(int, m_iTurnsSinceRankAnnouncement)
-SYNC_ARCHIVE_VAR(int, m_iChangePovertyUnhappiness)
-SYNC_ARCHIVE_VAR(int, m_iEmpireNeedsModifier)
-SYNC_ARCHIVE_VAR(int, m_iChangeDefenseUnhappiness)
-SYNC_ARCHIVE_VAR(int, m_iChangeUnculturedUnhappiness)
-SYNC_ARCHIVE_VAR(int, m_iChangeIlliteracyUnhappiness)
-SYNC_ARCHIVE_VAR(int, m_iChangeMinorityUnhappiness)
+SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
+SYNC_ARCHIVE_VAR(int, m_iDistressFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iIlliteracyFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iBoredomFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iReligiousUnrestFlatReduction)
+SYNC_ARCHIVE_VAR(int, m_iBasicNeedsMedianModifier)
+SYNC_ARCHIVE_VAR(int, m_iGoldMedianModifier)
+SYNC_ARCHIVE_VAR(int, m_iScienceMedianModifier)
+SYNC_ARCHIVE_VAR(int, m_iCultureMedianModifier)
+SYNC_ARCHIVE_VAR(int, m_iReligiousUnrestModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteSeaDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iTradeRouteLandDistanceModifier)
 SYNC_ARCHIVE_VAR(int, m_iNukeInterceptionChance)
@@ -2327,7 +2346,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityPerXFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldChangeFromCorporationFranchises)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResourceQuantityFromPOP)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNeedsFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iLandTourismBonus)
 SYNC_ARCHIVE_VAR(int, m_iSeaTourismBonus)
 SYNC_ARCHIVE_VAR(int, m_iAlwaysHeal)

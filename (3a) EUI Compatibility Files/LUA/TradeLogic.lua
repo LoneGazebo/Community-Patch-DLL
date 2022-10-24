@@ -1294,7 +1294,7 @@ function ResetDisplay()
 
     	Controls.UsText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pUs:GetNameKey() ) ) );
 
-        if (pOtherPlayer:IsHuman()) then
+        if (g_pThem:IsHuman()) then
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetNickName() ) ) );
         else
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetName() ) ) );
@@ -1868,7 +1868,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
+			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 		else
@@ -1946,7 +1946,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 			
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
+			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 
@@ -3323,18 +3323,10 @@ function PocketResourceHandler( isUs, resourceId )
 --	end
 
 	if( isUs == 1 ) then
-		if gk_mode then
-			iAmount = math.min(g_Deal:GetNumResource(g_iUs, resourceId),iAmount);
-		else
-			iAmount = math.min(Players[g_iUs]:GetNumResourceAvailable(resourceId, false),iAmount);
-		end
+		iAmount = math.min(g_pUs:GetNumResourceAvailable(resourceId, false),iAmount);
 		g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
 	else
-		if gk_mode then
-			iAmount = math.min(g_Deal:GetNumResource(g_iThem, resourceId),iAmount);
-		else
-			iAmount = math.min(Players[g_iThem]:GetNumResourceAvailable(resourceId, false),iAmount);
-		end
+		iAmount = math.min(g_pThem:GetNumResourceAvailable(resourceId, false),iAmount);
 		g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
 	end
 

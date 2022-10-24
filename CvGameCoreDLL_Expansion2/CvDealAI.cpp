@@ -2089,11 +2089,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue /= 7;
 		}
 
-		//Good target? Don't sell to them!
-		if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eOtherPlayer))
-		{
-			iItemValue *= 2;
-		}
 		//Are they close, or far away? We should always be a bit less eager to sell war resources from neighbors.
 		if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 		{
@@ -2150,7 +2145,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue /= 100;
 			break;
 		case CIV_APPROACH_WAR:
-			iItemValue *= 300;
+			iItemValue *= 600;
 			iItemValue /= 100;
 			break;
 		}
@@ -2187,11 +2182,6 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue /= 10;
 		}
 
-		//Good target? Don't buy from them!
-		if (GetPlayer()->GetDiplomacyAI()->IsWantsSneakAttack(eOtherPlayer))
-		{
-			iItemValue /= 2;
-		}
 		//Are they close, or far away? We should always be a bit less eager to buy war resources from neighbors.
 		if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 		{
@@ -2263,7 +2253,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 			iItemValue /= 100;
 			break;
 		case CIV_APPROACH_WAR:
-			iItemValue *= 50;
+			iItemValue *= 25;
 			iItemValue /= 100;
 			break;
 		}

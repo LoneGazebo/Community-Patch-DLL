@@ -1194,13 +1194,9 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			LogReligionMessage(strLogMsg);
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievements!
-		if(ePlayer == GC.getGame().getActivePlayer())
-		{
+		if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_10);
-		}
-#endif
 	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
@@ -1382,13 +1378,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			LogReligionMessage(strLogMsg);
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 		//Achievements!
-		if(ePlayer == GC.getGame().getActivePlayer())
-		{
+		if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_11);
-		}
-#endif
 	}
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -5684,71 +5676,72 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 			}
 		}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		//More Achievements
-		if(m_pCity->getOwner() != GC.getGame().getActivePlayer() && pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			if(m_pCity->GetCityReligions()->IsHolyCityAnyReligion() && !m_pCity->GetCityReligions()->IsHolyCityForReligion(pNewReligion->m_eReligion))
+			//More Achievements
+			if(m_pCity->getOwner() != GC.getGame().getActivePlayer() && pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
 			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_18);
-			}
-		}
-
-		if(m_pCity->isCapital() && pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
-		{
-			//Determine if this is a standard size or larger map.
-			bool bIsStandardOrLarger = false;
-			Database::Connection* pDB = GC.GetGameDatabase();
-			Database::Results kStandardSize;
-			if(pDB->SelectAt(kStandardSize, "Worlds", "Type", "WORLDSIZE_STANDARD"))
-			{
-				if(kStandardSize.Step())
+				if(m_pCity->GetCityReligions()->IsHolyCityAnyReligion() && !m_pCity->GetCityReligions()->IsHolyCityForReligion(pNewReligion->m_eReligion))
 				{
-					int idColumn = kStandardSize.ColumnPosition("ID");
-					if(idColumn >= 0)
-					{
-						WorldSizeTypes eWorldSize = GC.getMap().getWorldSize();
-						int standardWorldSize = kStandardSize.GetInt(idColumn);
-						if(eWorldSize >= standardWorldSize)
-						{
-							bIsStandardOrLarger = true;
-						}
-					}
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_18);
 				}
 			}
 
-			if(bIsStandardOrLarger)
+			if(m_pCity->isCapital() && pNewReligion->m_eFounder == GC.getGame().getActivePlayer())
 			{
-				//Determine if this religion has spread to all capitals
-				bool bSpreadToAllCapitals = true;
-				for(int i = 0; i < MAX_MAJOR_CIVS; ++i)
+				//Determine if this is a standard size or larger map.
+				bool bIsStandardOrLarger = false;
+				Database::Connection* pDB = GC.GetGameDatabase();
+				Database::Results kStandardSize;
+				if(pDB->SelectAt(kStandardSize, "Worlds", "Type", "WORLDSIZE_STANDARD"))
 				{
-					CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
-					if(kPlayer.isAlive())
+					if(kStandardSize.Step())
 					{
-						CvCity* pCapital = kPlayer.getCapitalCity();
-						if(pCapital != NULL)
+						int idColumn = kStandardSize.ColumnPosition("ID");
+						if(idColumn >= 0)
 						{
-							CvCityReligions* pCityReligions = pCapital->GetCityReligions();
-							if(pCityReligions != NULL)
+							WorldSizeTypes eWorldSize = GC.getMap().getWorldSize();
+							int standardWorldSize = kStandardSize.GetInt(idColumn);
+							if(eWorldSize >= standardWorldSize)
 							{
-								if(pCityReligions->GetReligiousMajority() != pNewReligion->m_eReligion)
-								{
-									bSpreadToAllCapitals = false;
-									break;
-								}
+								bIsStandardOrLarger = true;
 							}
 						}
 					}
+				}
 
-					if(bSpreadToAllCapitals)
+				if(bIsStandardOrLarger)
+				{
+					//Determine if this religion has spread to all capitals
+					bool bSpreadToAllCapitals = true;
+					for(int i = 0; i < MAX_MAJOR_CIVS; ++i)
 					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_19);
+						CvPlayerAI& kPlayer = GET_PLAYER(static_cast<PlayerTypes>(i));
+						if(kPlayer.isAlive())
+						{
+							CvCity* pCapital = kPlayer.getCapitalCity();
+							if(pCapital != NULL)
+							{
+								CvCityReligions* pCityReligions = pCapital->GetCityReligions();
+								if(pCityReligions != NULL)
+								{
+									if(pCityReligions->GetReligiousMajority() != pNewReligion->m_eReligion)
+									{
+										bSpreadToAllCapitals = false;
+										break;
+									}
+								}
+							}
+						}
+
+						if(bSpreadToAllCapitals)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_19);
+						}
 					}
 				}
 			}
 		}
-#endif
 
 		// Diplo implications (there must have been religion switch and a responsible party)
 		if (eMajority != eOldMajority && eResponsibleParty != NO_PLAYER)

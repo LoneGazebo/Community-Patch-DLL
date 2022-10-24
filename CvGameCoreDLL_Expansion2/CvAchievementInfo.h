@@ -3,8 +3,6 @@
 #ifndef CV_ACHIEVEMENT_INFO_H
 #define CV_ACHIEVEMENT_INFO_H
 
-#if defined(MOD_API_ACHIEVEMENTS)
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvAchievementInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -46,7 +44,4 @@ public:
 private:
 	std::vector<CvAchievementInfo*> m_paAchievementEntries;
 };
-
-#endif
-
 #endif

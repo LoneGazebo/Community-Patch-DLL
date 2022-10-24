@@ -4354,8 +4354,7 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 		}
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		bool bConnectedToArabs = false;
 		bool bConnectedToPersia = false;
@@ -4409,7 +4408,6 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_29);
 		}
 	}
-#endif
 
 	return true;
 }
@@ -5107,12 +5105,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 		}
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (eDomain == DOMAIN_LAND && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && eDomain == DOMAIN_LAND && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_28);
 	}
-#endif
 
 #if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
 	if (MOD_EVENTS_TRADE_ROUTE_PLUNDERED) {
@@ -7147,7 +7143,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	// FOOD FOOD FOOD FOOD
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	std::vector<CvCity*> apFoodTargetCities;
-	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromCityStarving() >= 0)
+	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromFamine() >= 0)
 #else
 	if (m_pPlayer->GetHappiness() >= 0)
 #endif

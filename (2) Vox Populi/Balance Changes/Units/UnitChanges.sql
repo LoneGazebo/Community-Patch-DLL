@@ -37,7 +37,7 @@
 	UPDATE Units SET GoldenAgeTurns = '0', BaseTurnsForGAPToCount = '10', ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST';
 
 	-- Engineer production boost switched to average city production
-	UPDATE Units SET BaseHurry = '0', HurryMultiplier = '0', BaseProductionTurnsToCount = '10' WHERE Type = 'UNIT_ENGINEER';
+	UPDATE Units SET BaseHurry = '0', HurryMultiplier = '0', BaseProductionTurnsToCount = '5' WHERE Type = 'UNIT_ENGINEER';
 
 	-- Musician changes
 	UPDATE Units SET OneShotTourismPercentOthers = '0', OneShotTourism = '0', TourismBonusTurns = '10' WHERE Type = 'UNIT_MUSICIAN';

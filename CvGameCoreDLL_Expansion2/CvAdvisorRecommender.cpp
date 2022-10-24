@@ -71,7 +71,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eBuilding, 0);
 
 		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
-		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, 0, 0);
+		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
 
 		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}

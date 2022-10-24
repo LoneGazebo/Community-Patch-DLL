@@ -238,17 +238,16 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bOneShot(false),
 	m_bIsOnlyTradeSameIdeology(false),
 	m_bIncludesOneShotFreeUnits(false),
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	m_iPovertyHappinessChangePolicy(0),
-	m_iDefenseHappinessChangePolicy(0),
-	m_iUnculturedHappinessChangePolicy(0),
-	m_iIlliteracyHappinessChangePolicy(0),
-	m_iMinorityHappinessChangePolicy(0),
-	m_iPovertyHappinessChangePolicyCapital(0),
-	m_iDefenseHappinessChangePolicyCapital(0),
-	m_iUnculturedHappinessChangePolicyCapital(0),
-	m_iIlliteracyHappinessChangePolicyCapital(0),
-	m_iMinorityHappinessChangePolicyCapital(0),
+	m_iBasicNeedsMedianModifierGlobal(0),
+	m_iGoldMedianModifierGlobal(0),
+	m_iScienceMedianModifierGlobal(0),
+	m_iCultureMedianModifierGlobal(0),
+	m_iReligiousUnrestModifierGlobal(0),
+	m_iBasicNeedsMedianModifierCapital(0),
+	m_iGoldMedianModifierCapital(0),
+	m_iScienceMedianModifierCapital(0),
+	m_iCultureMedianModifierCapital(0),
+	m_iReligiousUnrestModifierCapital(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
@@ -256,7 +255,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
-#endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
 	m_piPolicyDisables(NULL),
@@ -704,17 +702,21 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIsOnlyTradeSameIdeology = kResults.GetBool("IsOnlyTradeSameIdeology");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessMod");
-	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessMod");
-	m_iUnculturedHappinessChangePolicy = kResults.GetInt("UnculturedHappinessMod");
-	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessMod");
-	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessMod");
-	m_iPovertyHappinessChangePolicyCapital = kResults.GetInt("PovertyHappinessModCapital");
-	m_iDefenseHappinessChangePolicyCapital = kResults.GetInt("DefenseHappinessModCapital");
-	m_iUnculturedHappinessChangePolicyCapital = kResults.GetInt("UnculturedHappinessModCapital");
-	m_iIlliteracyHappinessChangePolicyCapital = kResults.GetInt("IlliteracyHappinessModCapital");
-	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
+	m_iDistressFlatReductionGlobal = kResults.GetInt("DistressFlatReductionGlobal");
+	m_iPovertyFlatReductionGlobal = kResults.GetInt("PovertyFlatReductionGlobal");
+	m_iIlliteracyFlatReductionGlobal = kResults.GetInt("IlliteracyFlatReductionGlobal");
+	m_iBoredomFlatReductionGlobal = kResults.GetInt("BoredomFlatReductionGlobal");
+	m_iReligiousUnrestFlatReductionGlobal = kResults.GetInt("ReligiousUnrestFlatReductionGlobal");
+	m_iBasicNeedsMedianModifierGlobal = kResults.GetInt("BasicNeedsMedianModifierGlobal");
+	m_iGoldMedianModifierGlobal = kResults.GetInt("GoldMedianModifierGlobal");
+	m_iScienceMedianModifierGlobal = kResults.GetInt("ScienceMedianModifierGlobal");
+	m_iCultureMedianModifierGlobal = kResults.GetInt("CultureMedianModifierGlobal");
+	m_iReligiousUnrestModifierGlobal = kResults.GetInt("ReligiousUnrestModifierGlobal");
+	m_iBasicNeedsMedianModifierCapital = kResults.GetInt("BasicNeedsMedianModifierCapital");
+	m_iGoldMedianModifierCapital = kResults.GetInt("GoldMedianModifierCapital");
+	m_iScienceMedianModifierCapital = kResults.GetInt("ScienceMedianModifierCapital");
+	m_iCultureMedianModifierCapital = kResults.GetInt("CultureMedianModifierCapital");
+	m_iReligiousUnrestModifierCapital = kResults.GetInt("ReligiousUnrestModifierCapital");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
@@ -722,7 +724,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
@@ -2505,47 +2506,70 @@ bool CvPolicyEntry::IncludesOneShotFreeUnits() const
 {
 	return m_bIncludesOneShotFreeUnits;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-int CvPolicyEntry::GetPovertyHappinessChangePolicy() const
+
+int CvPolicyEntry::GetDistressFlatReductionGlobal() const
 {
-	return m_iPovertyHappinessChangePolicy;
+	return m_iDistressFlatReductionGlobal;
 }
-int CvPolicyEntry::GetDefenseHappinessChangePolicy() const
+int CvPolicyEntry::GetPovertyFlatReductionGlobal() const
 {
-	return m_iDefenseHappinessChangePolicy;
+	return m_iPovertyFlatReductionGlobal;
 }
-int CvPolicyEntry::GetUnculturedHappinessChangePolicy() const
+int CvPolicyEntry::GetIlliteracyFlatReductionGlobal() const
 {
-	return m_iUnculturedHappinessChangePolicy;
+	return m_iIlliteracyFlatReductionGlobal;
 }
-int CvPolicyEntry::GetIlliteracyHappinessChangePolicy() const
+int CvPolicyEntry::GetBoredomFlatReductionGlobal() const
 {
-	return m_iIlliteracyHappinessChangePolicy;
+	return m_iBoredomFlatReductionGlobal;
 }
-int CvPolicyEntry::GetMinorityHappinessChangePolicy() const
+int CvPolicyEntry::GetReligiousUnrestFlatReductionGlobal() const
 {
-	return m_iMinorityHappinessChangePolicy;
+	return m_iReligiousUnrestFlatReductionGlobal;
 }
-int CvPolicyEntry::GetPovertyHappinessChangePolicyCapital() const
+
+int CvPolicyEntry::GetBasicNeedsMedianModifierGlobal() const
 {
-	return m_iPovertyHappinessChangePolicyCapital;
+	return m_iBasicNeedsMedianModifierGlobal;
 }
-int CvPolicyEntry::GetDefenseHappinessChangePolicyCapital() const
+int CvPolicyEntry::GetGoldMedianModifierGlobal() const
 {
-	return m_iDefenseHappinessChangePolicyCapital;
+	return m_iGoldMedianModifierGlobal;
 }
-int CvPolicyEntry::GetUnculturedHappinessChangePolicyCapital() const
+int CvPolicyEntry::GetScienceMedianModifierGlobal() const
 {
-	return m_iUnculturedHappinessChangePolicyCapital;
+	return m_iScienceMedianModifierGlobal;
 }
-int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
+int CvPolicyEntry::GetCultureMedianModifierGlobal() const
 {
-	return m_iIlliteracyHappinessChangePolicyCapital;
+	return m_iCultureMedianModifierGlobal;
 }
-int CvPolicyEntry::GetMinorityHappinessChangePolicyCapital() const
+int CvPolicyEntry::GetReligiousUnrestModifierGlobal() const
 {
-	return m_iMinorityHappinessChangePolicyCapital;
+	return m_iReligiousUnrestModifierGlobal;
 }
+
+int CvPolicyEntry::GetBasicNeedsMedianModifierCapital() const
+{
+	return m_iBasicNeedsMedianModifierCapital;
+}
+int CvPolicyEntry::GetGoldMedianModifierCapital() const
+{
+	return m_iGoldMedianModifierCapital;
+}
+int CvPolicyEntry::GetScienceMedianModifierCapital() const
+{
+	return m_iScienceMedianModifierCapital;
+}
+int CvPolicyEntry::GetCultureMedianModifierCapital() const
+{
+	return m_iCultureMedianModifierCapital;
+}
+int CvPolicyEntry::GetReligiousUnrestModifierCapital() const
+{
+	return m_iReligiousUnrestModifierCapital;
+}
+
 int CvPolicyEntry::GetNoUnhappfromXSpecialists() const
 {
 	return m_iNoUnhappfromXSpecialists;
@@ -2575,7 +2599,6 @@ int CvPolicyEntry::GetGreatGeneralExtraBonus() const
 {
 	return m_iGreatGeneralExtraBonus;
 }
-#endif
 
 /// Return "We Love the King" day text
 const char* CvPolicyEntry::GetWeLoveTheKing()
@@ -5850,59 +5873,59 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 	CvAssertMsg(eBranchType >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBranchType < m_pPolicies->GetNumPolicyBranches(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(bValue != IsPolicyBranchFinished(eBranchType))
+	if (bValue != IsPolicyBranchFinished(eBranchType))
 	{
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-
-		//Achievements for fulfilling branches
-		if(!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			//Must not be playing smokey skies scenario.
-			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer() && !bUsingXP1Scenario3)
+			bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+
+			//Achievements for fulfilling branches
+			if (!GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
 			{
-				switch(eBranchType)
+				//Must not be playing smokey skies scenario.
+				if (m_pPlayer->GetID() == GC.getGame().getActivePlayer() && !bUsingXP1Scenario3)
 				{
-				case NO_POLICY_BRANCH_TYPE:
-					UNREACHABLE(); // It would be a logic error to complete `NO_POLICY_BRANCH_TYPE`.
-				case 0:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_TRADITION);
-					break;
-				case 1:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_LIBERTY);
-					break;
-				case 2:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_HONOR);
-					break;
-				case 3:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PIETY);
-					break;
-				case 4:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PATRONAGE);
-					break;
-				
-				case 5:	//Aesthetics
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_48);
-					break;
-				case 6:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_COMMERCE);
-					break;
-				case 7: //Exploration
-					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_47);
-					break;
-				case 8:
-					gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_RATIONALISM);
-					break;
+					switch (eBranchType)
+					{
+					case NO_POLICY_BRANCH_TYPE:
+						UNREACHABLE(); // It would be a logic error to complete `NO_POLICY_BRANCH_TYPE`.
+					case 0:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_TRADITION);
+						break;
+					case 1:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_LIBERTY);
+						break;
+					case 2:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_HONOR);
+						break;
+					case 3:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PIETY);
+						break;
+					case 4:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_PATRONAGE);
+						break;
+					case 5:	//Aesthetics
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_48);
+						break;
+					case 6:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_COMMERCE);
+						break;
+					case 7: //Exploration
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_47);
+						break;
+					case 8:
+						gDLL->UnlockAchievement(ACHIEVEMENT_POLICY_RATIONALISM);
+						break;
+					}
+				}
+				if (gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_TRADITION) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_HONOR) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_LIBERTY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PIETY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PATRONAGE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_ORDER) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_AUTOCRACY)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_FREEDOM)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_COMMERCE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_RATIONALISM))
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_ALL_SOCIAL_POLICIES);
 				}
 			}
-			if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_TRADITION) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_HONOR) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_LIBERTY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PIETY) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_PATRONAGE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_ORDER) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_AUTOCRACY)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_FREEDOM)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_COMMERCE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_POLICY_RATIONALISM))
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_ALL_SOCIAL_POLICIES);
-			}
 		}
-#endif
 	}
 }
 

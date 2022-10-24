@@ -2630,32 +2630,16 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 					// Only City State Territory - Can only be built in City-State territory (not our own lands)
 					else if (GC.getImprovementInfo(eImprovement)->IsOnlyCityStateTerritory())
 					{
-						bool bCityStateTerritory = false;
 						if (isOwned() && GET_PLAYER(getOwner()).isMinorCiv())
 						{
-							bCityStateTerritory = true;
-
-							// Let's check for Embassies.
+							// If this is an embassy, check for existing embassies
 							if (GC.getImprovementInfo(eImprovement)->IsEmbassy())
 							{
-								int iCityLoop;
-								for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iCityLoop))
-								{
-									for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-									{
-										CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-										if (pCityPlot != NULL && pCityPlot->getOwner() == pLoopCity->getOwner())
-										{
-											if (pCityPlot->IsImprovementEmbassy())
-												return false;
-										}
-									}
-								}
+								if (GET_PLAYER(getOwner()).getImprovementCount(eImprovement, false) > 0)
+									return false;
 							}
 						}
-
-						if (!bCityStateTerritory)
+						else
 							return false;
 					}
 					else if(getTeam() != eTeam) 
@@ -7624,32 +7608,34 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 								CancelActivePlayerEndTurn();
 							}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 							// Raiders of the Lost Ark achievement
-							const char* szCivKey = kPlayer.getCivilizationTypeKey();
-							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+							if (MOD_API_ACHIEVEMENTS)
 							{
-								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-								szCivKey = kPlotOwner.getCivilizationTypeKey();
-								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+								const char* szCivKey = kPlayer.getCivilizationTypeKey();
+								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
 								{
-									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+									szCivKey = kPlotOwner.getCivilizationTypeKey();
+									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 									{
-										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 										{
-											szCivKey = kLoopPlayer.getCivilizationTypeKey();
-											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 											{
-												CvUnit *pLoopUnit;
-												int iUnitLoop;
-												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+												szCivKey = kLoopPlayer.getCivilizationTypeKey();
+												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 												{
-													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+													CvUnit *pLoopUnit;
+													int iUnitLoop;
+													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 													{
-														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
 														{
-															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+															{
+																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+															}
 														}
 													}
 												}
@@ -7658,7 +7644,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 									}
 								}
 							}
-#endif
 						}
 						else
 						{
@@ -7802,33 +7787,35 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				CvPlayer& owningPlayer = GET_PLAYER(owningPlayerID);
 				owningPlayer.changeImprovementCount(eNewValue, 1, eBuilder == owningPlayerID);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 				//DLC_04 Achievement
-				if(owningPlayerID == GC.getGame().getActivePlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_MOTTE_BAILEY", 64) == 0)
+				if (MOD_API_ACHIEVEMENTS)
 				{
-					//string compares are faster than testing if the mod is activated, so perform this after the compare test.
-					if(gDLL->IsModActivated(CIV5_DLC_04_SCENARIO_MODID))
+					if (owningPlayerID == GC.getGame().getActivePlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_MOTTE_BAILEY", 64) == 0)
 					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_BUILD_MOTTE);
-					}
-				}
-				
-				// XP2 Achievement
-				if (eBuilder != NO_PLAYER && !GC.getGame().isGameMultiPlayer())
-				{
-					if (GET_PLAYER(eBuilder).isHuman() && GET_PLAYER(eBuilder).isLocalPlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_FEITORIA", 64) == 0)
-					{
-						if (owningPlayer.isMinorCiv())
+						//string compares are faster than testing if the mod is activated, so perform this after the compare test.
+						if(gDLL->IsModActivated(CIV5_DLC_04_SCENARIO_MODID))
 						{
-							PlayerTypes eAlly = owningPlayer.GetMinorCivAI()->GetAlly();
-							if (eAlly != NO_PLAYER && eAlly != eBuilder)
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_BUILD_MOTTE);
+						}
+					}
+					
+					// XP2 Achievement
+					if (eBuilder != NO_PLAYER && !GC.getGame().isGameMultiPlayer())
+					{
+						if (GET_PLAYER(eBuilder).isHuman() && GET_PLAYER(eBuilder).isLocalPlayer() && strncmp(newImprovementEntry.GetType(), "IMPROVEMENT_FEITORIA", 64) == 0)
+						{
+							if (owningPlayer.isMinorCiv())
 							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_24);
+								PlayerTypes eAlly = owningPlayer.GetMinorCivAI()->GetAlly();
+								if (eAlly != NO_PLAYER && eAlly != eBuilder)
+								{
+									gDLL->UnlockAchievement(ACHIEVEMENT_XP2_24);
+								}
 							}
 						}
 					}
 				}
-#endif
+
 				// Maintenance
 				// If plot is owned, the plot owner is responsible for the improvement
 				SetPlayerResponsibleForImprovement(owningPlayerID);
@@ -11177,9 +11164,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	{
 		m_bfRevealed.ToggleBit(eTeam);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		bool bEligibleForAchievement = GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer();
-#endif
+		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer() : false;
 
 		if(area())
 		{
@@ -11369,17 +11354,15 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 								CancelActivePlayerEndTurn();
 							}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 							//Add Stat and check for Achievement
-							if(bEligibleForAchievement && !GC.getGame().isGameMultiPlayer())
+							if (bEligibleForAchievement && !GC.getGame().isGameMultiPlayer())
 							{
 								gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_NATURALWONDERS, 100, ACHIEVEMENT_ALL_NATURALWONDER);
 							}
-#endif
 						}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 						//DLC2 Natural Wonder Achievements
+						if (MOD_API_ACHIEVEMENTS)
 						{
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(getFeatureType());
 							if(pkFeatureInfo)
@@ -11391,7 +11374,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 									gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_DISCOVER_EL_DORADO);
 							}
 						}
-#endif
+
 						CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(this));
 						gDLL->GameplayNaturalWonderRevealed(pDllPlot.get());
 					}
@@ -11426,13 +11409,13 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_GOODY_HUT");
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_GOODY_HUT");
-#if defined(MOD_API_ACHIEVEMENTS)
-						if(bEligibleForAchievement)
+
+						if (bEligibleForAchievement)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_ANCIENT_RUIN);
 							OutputDebugString("RUINS!");
 						}
-#endif
+
 						for(iI = 0; iI < MAX_MAJOR_CIVS; ++iI)
 						{
 							CvPlayerAI& playerI = GET_PLAYER((PlayerTypes)iI);
@@ -11450,12 +11433,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
-#if defined(MOD_API_ACHIEVEMENTS)
-				if(bEligibleForAchievement)
+				if (bEligibleForAchievement)
 				{
 					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESDISCOVERED, 1000, ACHIEVEMENT_1000TILES);
 				}
-#endif
 			}
 		}
 
@@ -11847,7 +11828,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				{
 					if (GetArchaeologicalRecord().m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 					{
-
 						kPlayer.SetNumArchaeologyChoices(kPlayer.GetNumArchaeologyChoices() + 1);
 						kPlayer.GetCulture()->AddDigCompletePlot(this);
 
@@ -11865,32 +11845,34 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 								CancelActivePlayerEndTurn();
 							}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 							// Raiders of the Lost Ark achievement
-							const char* szCivKey = kPlayer.getCivilizationTypeKey();
-							if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+							if (MOD_API_ACHIEVEMENTS)
 							{
-								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-								szCivKey = kPlotOwner.getCivilizationTypeKey();
-								if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+								const char* szCivKey = kPlayer.getCivilizationTypeKey();
+								if (getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
 								{
-									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+									CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+									szCivKey = kPlotOwner.getCivilizationTypeKey();
+									if (strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 									{
-										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+										for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 										{
-											szCivKey = kLoopPlayer.getCivilizationTypeKey();
-											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+											CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+											if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 											{
-												CvUnit *pLoopUnit;
-												int iUnitLoop;
-												for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+												szCivKey = kLoopPlayer.getCivilizationTypeKey();
+												if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 												{
-													if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+													CvUnit *pLoopUnit;
+													int iUnitLoop;
+													for (pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 													{
-														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+														if (strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
 														{
-															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+															if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
+															{
+																gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
+															}
 														}
 													}
 												}
@@ -11899,7 +11881,6 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 									}
 								}
 							}
-#endif
 						}
 						else
 						{
