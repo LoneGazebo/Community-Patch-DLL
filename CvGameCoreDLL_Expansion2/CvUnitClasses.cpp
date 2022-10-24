@@ -61,10 +61,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bCultureFromExperienceOnDisband(false),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
-	m_bWarOnly(0),
+	m_bWarOnly(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
-	m_bCultureBoost(0),
+	m_bCultureBoost(false),
 	m_bExtraAttackHealthOnKill(false),
 	m_bHighSeaRaider(false),
 #endif

@@ -124,7 +124,7 @@ bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eTo
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, 0) != NULL;
+		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false) != NULL;
 	}
 	else
 		return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
@@ -139,7 +139,7 @@ ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes e
 	CvDeal* pDeal;
 	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
-		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, 0);
+		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false);
 	}
 	else
 	{

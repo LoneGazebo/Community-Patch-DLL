@@ -3599,7 +3599,7 @@ bool CvDeal::IsAllowEmbassyTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsOpenBordersTrade(PlayerTypes eFrom)
@@ -3612,7 +3612,7 @@ bool CvDeal::IsOpenBordersTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsDefensivePactTrade(PlayerTypes eFrom)
@@ -3625,7 +3625,7 @@ bool CvDeal::IsDefensivePactTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsResearchAgreementTrade(PlayerTypes eFrom)
@@ -3638,7 +3638,7 @@ bool CvDeal::IsResearchAgreementTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsPeaceTreatyTrade(PlayerTypes eFrom)
@@ -3651,7 +3651,7 @@ bool CvDeal::IsPeaceTreatyTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
@@ -3664,7 +3664,7 @@ bool CvDeal::IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsThirdPartyWarTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
@@ -3677,7 +3677,7 @@ bool CvDeal::IsThirdPartyWarTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsVoteCommitmentTrade(PlayerTypes eFrom)
@@ -4010,7 +4010,7 @@ bool CvDeal::IsMapTrade(PlayerTypes eFrom)
 		}
 
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsTechTrade(PlayerTypes eFrom, TechTypes eTech)
@@ -4026,7 +4026,7 @@ bool CvDeal::IsTechTrade(PlayerTypes eFrom, TechTypes eTech)
 		}
 
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsVassalageTrade(PlayerTypes eFrom)
@@ -4039,7 +4039,7 @@ bool CvDeal::IsVassalageTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 bool CvDeal::IsRevokeVassalageTrade(PlayerTypes eFrom)
@@ -4052,7 +4052,7 @@ bool CvDeal::IsRevokeVassalageTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 /// Delete a tech trade
