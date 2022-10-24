@@ -65,6 +65,11 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iIlliteracyFlatReduction = kResults.GetInt("IlliteracyFlatReduction");
 	m_iBoredomFlatReduction = kResults.GetInt("BoredomFlatReduction");
 	m_iReligiousUnrestFlatReduction = kResults.GetInt("ReligiousUnrestFlatReduction");
+	m_iBasicNeedsMedianModifier = kResults.GetInt("BasicNeedsMedianModifier");
+	m_iGoldMedianModifier = kResults.GetInt("GoldMedianModifier");
+	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
+	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
+	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
 	m_iEspionageMod = kResults.GetInt("EspionageMod");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
@@ -297,6 +302,26 @@ int CvProjectEntry::GetBoredomFlatReduction() const
 int CvProjectEntry::GetReligiousUnrestFlatReduction() const
 {
 	return m_iReligiousUnrestFlatReduction;
+}
+int CvProjectEntry::GetBasicNeedsMedianModifier() const
+{
+	return m_iBasicNeedsMedianModifier;
+}
+int CvProjectEntry::GetGoldMedianModifier() const
+{
+	return m_iGoldMedianModifier;
+}
+int CvProjectEntry::GetScienceMedianModifier() const
+{
+	return m_iScienceMedianModifier;
+}
+int CvProjectEntry::GetCultureMedianModifier() const
+{
+	return m_iCultureMedianModifier;
+}
+int CvProjectEntry::GetReligiousUnrestModifier() const
+{
+	return m_iReligiousUnrestModifier;
 }
 int CvProjectEntry::GetEspionageMod() const
 {

@@ -26,6 +26,10 @@ SET DistressFlatReductionGlobal = '1', PovertyFlatReductionGlobal = '1', Illiter
 WHERE Type = 'POLICY_RATIONALISM';
 
 UPDATE Policies
+SET ReligiousUnrestFlatReductionGlobal = '5'
+WHERE Type = 'POLICY_FREE_THOUGHT';
+
+UPDATE Policies
 SET DistressFlatReductionGlobal = '1', PovertyFlatReductionGlobal = '1', IlliteracyFlatReductionGlobal = '1', BoredomFlatReductionGlobal = '1', ReligiousUnrestFlatReductionGlobal = '1'
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 

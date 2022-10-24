@@ -59,6 +59,11 @@ public:
 	int GetIlliteracyFlatReduction() const;
 	int GetBoredomFlatReduction() const;
 	int GetReligiousUnrestFlatReduction() const;
+	int GetBasicNeedsMedianModifier() const;
+	int GetGoldMedianModifier() const;
+	int GetScienceMedianModifier() const;
+	int GetCultureMedianModifier() const;
+	int GetReligiousUnrestModifier() const;
 	int GetEspionageMod() const;
 #endif
 
@@ -105,6 +110,11 @@ protected:
 	int m_iIlliteracyFlatReduction;
 	int m_iBoredomFlatReduction;
 	int m_iReligiousUnrestFlatReduction;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
 	int m_iEspionageMod;
 #endif
 

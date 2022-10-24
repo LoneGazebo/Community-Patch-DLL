@@ -815,9 +815,9 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness);
 			end
 
-			local HandicapHappiness = pPlayer:GetHappinessFromHandicap();
+			local HandicapHappiness = pPlayer:GetHandicapHappiness();
 			if (HandicapHappiness ~= 0) then
-				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicaphappiness);
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", HandicapHappiness);
 			end
 
 			local LocalCityHappiness = pPlayer:GetEmpireHappinessFromCities();

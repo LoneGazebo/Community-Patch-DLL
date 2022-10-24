@@ -304,6 +304,46 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight += 75 * pkProjectInfo->GetReligiousUnrestFlatReduction() * iReligiousUnrest * iReligiousUnrest;
 	}
 
+	if (pkProjectInfo->GetBasicNeedsMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iDistress = m_pCity->GetDistress(false);
+		if (iDistress > 0)
+			iTempWeight += -5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress;
+	}
+
+	if (pkProjectInfo->GetGoldMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iPoverty = m_pCity->GetPoverty(false);
+		if (iPoverty > 0)
+			iTempWeight += -5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty;
+	}
+
+	if (pkProjectInfo->GetScienceMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iIlliteracy = m_pCity->GetIlliteracy(false);
+		if (iIlliteracy > 0)
+			iTempWeight += -5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy;
+	}
+
+	if (pkProjectInfo->GetCultureMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iBoredom = m_pCity->GetBoredom(false);
+		if (iBoredom > 0)
+			iTempWeight += -5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom;
+	}
+
+	if (pkProjectInfo->GetReligiousUnrestModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
+		if (iReligiousUnrest > 0)
+			iTempWeight += -5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest;
+	}
+
 	if (pkProjectInfo->GetEspionageMod() < 0)
 	{
 		int iEsp = /*2000*/ (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT) * 2) - m_pCity->GetEspionageRankingForEspionage();

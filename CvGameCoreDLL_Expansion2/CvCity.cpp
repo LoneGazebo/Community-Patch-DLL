@@ -30685,6 +30685,11 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeIlliteracyFlatReduction(pProject->GetIlliteracyFlatReduction());
 		ChangeBoredomFlatReduction(pProject->GetBoredomFlatReduction());
 		ChangeReligiousUnrestFlatReduction(pProject->GetReligiousUnrestFlatReduction());
+		ChangeBasicNeedsMedianModifier(pProject->GetBasicNeedsMedianModifier());
+		ChangeGoldMedianModifier(pProject->GetGoldMedianModifier());
+		ChangeScienceMedianModifier(pProject->GetScienceMedianModifier());
+		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
+		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
 		ChangeEspionageModifier(pProject->GetEspionageMod());
 	}
 

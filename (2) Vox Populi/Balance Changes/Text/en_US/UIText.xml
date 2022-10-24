@@ -1089,31 +1089,31 @@
 
 		<!-- Economic Overview -->
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
-			<Text>Cities cannot produce more [ICON_HAPPINESS_3] Unhappiness than their [ICON_CITIZEN] Population (except from [ICON_URBANIZATION] Urbanization).[NEWLINE][NEWLINE]Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] (Population Changed Turn {2_NUM})</Text>
+			<Text>Cities cannot produce more [ICON_HAPPINESS_3] Unhappiness than their [ICON_CITIZEN] Population (except from [ICON_URBANIZATION] Urbanization).[NEWLINE][NEWLINE]Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] (Turn {2_NUM})</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS">
-			<Text>[COLOR_POSITIVE_TEXT]Yield Medians (+ Need Modifier %):[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Yield Medians (Need Modifier %):[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS_POS">
-			<Text>[ICON_BULLET] Basic Needs: {1_Num} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN] (+{2_Num}%)</Text>
+			<Text>[ICON_BULLET] Basic Needs: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD_POS">
-			<Text>[ICON_BULLET] Gold: {1_Num} [ICON_GOLD] per [ICON_CITIZEN] (+{2_Num}%)</Text>
+			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_SCIENCE_POS">
-			<Text>[ICON_BULLET] Science: {1_Num} [ICON_RESEARCH] per [ICON_CITIZEN] (+{2_Num}%)</Text>
+			<Text>[ICON_BULLET] Science: {1_Num:number "#.##"} [ICON_RESEARCH] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_CULTURE_POS">
-			<Text>[ICON_BULLET] Culture: {1_Num} [ICON_CULTURE] per [ICON_CITIZEN] (+{2_Num}%)</Text>
+			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS">
 			<Text>[ICON_BULLET] Religious Unrest: {1_Num:number "#.##"} [ICON_HAPPINESS_3] per Religious Minority (+{2_Num})%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS">
-			<Text>[ICON_BULLET] Basic Needs: {1_Num:number "#.##"} [ICON_FOOD] and [ICON_PRODUCTION] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Basic Needs: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD">
 			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] ({2_Num}%)</Text>
@@ -1169,7 +1169,7 @@
 			<Text>[ICON_BULLET] [ICON_AIRSTRIKE_DEFENSE] Air Units: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FARMING_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Farming Process: {1_Num}%</Text>
+			<Text>[ICON_BULLET] [ICON_FOOD]/[ICON_PRODUCTION] Farming Process: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WEALTH_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_GOLD] Wealth Process: {1_Num}%</Text>
