@@ -1,3 +1,4 @@
+-- balparmak: 17/10/22 integrated Religion Spread based on HungryForFood's v2
 -------------------------------------------------
 -- Religion Overview Popup
 -------------------------------------------------
@@ -22,6 +23,12 @@ g_Tabs = {
 		Panel = Controls.BeliefsPanel,
 		SelectHighlight = Controls.BeliefsSelectHighlight,
 	},
+  -- Infixo: Religion Spread - add a new tab to the window for the map
+  ["Map"] = {
+    Panel = Controls.MapPanel,
+    SelectHighlight = Controls.MapSelectHighlight,
+  },
+  -- Infixo: Religion Spread
 }
 
 g_BeliefSortOptions = {
@@ -85,6 +92,16 @@ g_WorldReligionSortOptions = {
 		SortType = "numeric",
 		CurrentDirection = nil,
 	},
+	-- Infixo: Religion Spread - add a new column in existing tab for no of followers
+	{
+		Button = Controls.WRSortByNumFollowers,
+		ImageControl = Controls.WRSortByNumFollowersImage,
+		Column = "NumFollowers",
+		DefaultDirection = "desc",
+		SortType = "numeric",
+		CurrentDirection = nil,
+	},
+	-- Infixo: Religion Spread
 };
 
 
@@ -96,6 +113,22 @@ local g_FaithModifierManager = InstanceManager:new("FaithModifierInstance", "Fai
 local g_WorldReligionsManager = InstanceManager:new( "WorldReligionInstance", "Base", Controls.WorldReligionsStack);
 local g_BeliefsManager = InstanceManager:new( "BeliefInstance", "Base", Controls.BeliefsStack);
 
+-- Infixo: Religion Spread - definitions and variables
+local tColours = {
+	UNKNOWN		= {r=190, g=190, b=190, a=1.0},
+	NONE		= {r=0,   g=0,   b=0,   a=0.0},
+	WATER		= {r=0,   g=0,   b=0,   a=0.0},
+	ICE			= {r=189, g=242, b=255, a=0.7},
+	CITY		= {r=0,   g=0,   b=0,   a=1.0},
+	HOLY_CITY	= {r=255, g=255, b=0,   a=1.0}
+}
+
+local iFeatureIce = GameInfoTypes.FEATURE_ICE
+local iTerrainDesert = GameInfoTypes.TERRAIN_DESERT
+
+local mapWidth, mapHeight = Map.GetGridSize()
+Controls.ReligionMap:SetMapSize(mapWidth, mapHeight, 0, -1)
+-- Infixo: Religion Spread
 -------------------------------------------------
 -- Global Variables
 -------------------------------------------------
@@ -215,6 +248,9 @@ end
 Controls.TabButtonYourReligion:RegisterCallback( Mouse.eLClick, function() TabSelect("YourReligion"); end);
 Controls.TabButtonWorldReligions:RegisterCallback( Mouse.eLClick, function() TabSelect("WorldReligion"); end );
 Controls.TabButtonBeliefs:RegisterCallback( Mouse.eLClick, function() TabSelect("Beliefs"); end );
+-- Infixo: Religion Spread - what happens when you press the map button
+Controls.TabButtonMap:RegisterCallback( Mouse.eLClick, function() TabSelect("Map"); end );
+-- Infixo: Religion Spread
 
 function RefreshYourReligion()
 	local player = Players[Game.GetActivePlayer()];
@@ -440,6 +476,8 @@ end
 
 g_Tabs["YourReligion"].RefreshContent = RefreshYourReligion;
 
+-- Infixo: Religion Spread
+
 function RefreshWorldReligions()
 	g_WorldReligionsManager:ResetInstances();
 	
@@ -447,37 +485,63 @@ function RefreshWorldReligions()
 	
 	local activePlayer = Players[Game.GetActivePlayer()];
 	local activeTeam = Teams[activePlayer:GetTeam()];
+	
+	AssignReligionColours();
 		
 	-- Pantheon and Religion info (JFD: Changes made to register religions 'founded' by the same player)
 	for religion in GameInfo.Religions() do
 		local eReligion = religion.ID
+		--print("Processing religion ID=", eReligion);
 		local holyCity = Game.GetHolyCityForReligion(eReligion, -1);
 		if holyCity then
+			--print("Holy City exists");
 			local pPlayer = Players[holyCity:GetOwner()]
 			local holyCityName = holyCity:GetName();
+			--print("Holy City is", holyCityName);
 			local civName = pPlayer:GetCivilizationDescription();
-			
+			--print("Holy City owned by", civName)
 			local founderID = pPlayer:GetID();
+			--print("Who has ID:", founderID)
+			-- Infixo: Religion Spread - add colors to religion names
+			-- HungryForFood: Always refresh the colour, since the holy city can change hands
+			local tColour = tColours[eReligion]
+			-- Infixo: Religion Spread end
 			
+			local bMet = true
+
 			if(not activeTeam:IsHasMet(pPlayer:GetTeam())) then
 				founderID = -1;
 				holyCityName = "TXT_KEY_RO_WR_UNKNOWN_HOLY_CITY";
 				civName = "TXT_KEY_RO_WR_UNKNOWN_CIV";
+				bMet = false
 			end
-			
+
+			--print("Inserting into religions table for religion ID:", eReligion)
 			table.insert(religions, {
 				Name = Locale.Lookup(Game.GetReligionName(eReligion)),
 				ReligionIconIndex = religion.PortraitIndex,
 				ReligionIconAtlas = religion.IconAtlas,
 				FounderID = founderID,
-				HolyCity= Locale.Lookup(holyCityName),
+				HolyCity = Locale.Lookup(holyCityName),
 				Founder = Locale.Lookup(civName),
 				NumCities = Game.GetNumCitiesFollowing(eReligion),
+				-- Infixo: Religion Spread - additional info on tab with all religions
+				Colour = {x=tColour.r/255, y=tColour.g/255, z=tColour.b/255, w=tColour.a},
+				NumFollowers = Game.GetNumFollowers(eReligion),
+				FounderAlive = pPlayer:IsAlive(),
+				-- Infixo: Religion Spread
+				Met = bMet
 			});
+			--print("#cities    is", Game.GetNumCitiesFollowing(eReligion));
+			--print("#followers is", Game.GetNumFollowers(eReligion));
+			--print("#religions is", #religions);
+--		else
+			--print("No Holy City found");
 		end
 	end
 	
 	if(#religions > 0) then
+		--print("Listing", #religions, "religions...");
 		Controls.WorldReligionsScrollPanel:SetHide(false);
 		Controls.NoWorldReligions:SetHide(true);
 		
@@ -486,9 +550,17 @@ function RefreshWorldReligions()
 		for i,v in ipairs(religions) do
 			local entry = g_WorldReligionsManager:GetInstance();
 			entry.ReligionName:SetText(v.Name);
+			-- Infixo: Religion Spread
+			if v.Met then -- since the colour is based on the holy city owner's civ colours, try not to reveal it too early
+				entry.ReligionName:SetColor(v.Colour, 0);
+			end
+			-- Infixo: Religion Spread
 			entry.HolyCityName:SetText(v.HolyCity);
 			entry.Founder:SetText(v.Founder);
 			entry.NumberOfCities:SetText(v.NumCities);
+			-- Infixo: Religion Spread
+			entry.NumberOfFollowers:SetText(v.NumFollowers);
+			-- Infixo: Religion Spread
 			IconHookup(v.ReligionIconIndex, 48, v.ReligionIconAtlas, entry.WorldReligionIcon);
 			CivIconHookup(v.FounderID, 45, entry.FounderIcon, entry.FounderIconBG, entry.FounderIconShadow, true, true );
 		end
@@ -497,6 +569,7 @@ function RefreshWorldReligions()
 		Controls.WorldReligionsStack:ReprocessAnchoring();
 		Controls.WorldReligionsScrollPanel:CalculateInternalSize();
 	else
+		--print("No religions to show...");
 		Controls.WorldReligionsScrollPanel:SetHide(true);
 		Controls.NoWorldReligions:SetHide(false);
 	end
@@ -604,6 +677,136 @@ function RefreshBeliefs()
 end
 g_Tabs["Beliefs"].RefreshContent = RefreshBeliefs;
 
+-- Infixo: Religion Spread - functions to draw the spread map
+function AssignReligionColours()
+	-- Infixo: 2017.01.30 the function has been redesigned; original was awfully complicated
+	-- colors are always the same for religions, they are stored in DB
+	-- simply iterate through all religions and get them
+	-- HungryForFood: 2020.03.27 (yes, free time due to COVID-19)
+	-- Previously, each religion had a hard-coded colour. However, this made the mod
+	-- incompatible with mods which add more religion types. Hence, we shall just use the
+	-- holy city own civ colours.
+	--print("function AssignReligionColours() - new version");
+	for religion in GameInfo.Religions() do
+		local eReligion = religion.ID
+		--print("Checking religion, ID:", eReligion, "Type:", religion.Type)
+		local pHolyCity = nil
+		local tColour, tColourPrimary, tColourSecondary = {}, {}, {}
+		-- exception for pantheon
+		if religion.Type == "RELIGION_PANTHEON" then
+			tColour = GameInfo.Colors["COLOR_PLAYER_GRAY"]
+			--print("Found the pantheon religion.")
+		elseif Game.AnyoneHasReligion(eReligion) then
+			pHolyCity = Game.GetHolyCityForReligion(eReligion, -1)
+			if pHolyCity then -- either religion type was not founded, or holy city has been razed
+				--print("Found holy city.")
+				local pPlayer = Players[pHolyCity:GetOwner()]
+				if pPlayer then
+					--print("Holy city owner: Player", pHolyCity:GetOwner())
+				end
+				--print("Attempting to get player colours for player,")
+				local ePlayerColour = pPlayer:GetPlayerColor()
+				--print("Player colour ID is:", ePlayerColour)
+				tColourPrimary = GameInfo.Colors[GameInfo.PlayerColors[pPlayer:GetPlayerColor()].PrimaryColor]
+				tColourSecondary = GameInfo.Colors[GameInfo.PlayerColors[pPlayer:GetPlayerColor()].SecondaryColor]
+				
+				-- pick the brighter colour from the two
+				if tColourPrimary.Red + tColourPrimary.Green + tColourPrimary.Blue > tColourSecondary.Red + tColourSecondary.Green + tColourSecondary.Blue then
+					tColour = tColourPrimary
+				else
+					tColour = tColourSecondary
+				end
+				
+				--print("Success.")
+			end
+
+			if tColour == {} then
+				tColour = GameInfo.Colors["COLOR_PLAYER_GRAY"]
+				--print("Either holy city not found, or civ did not have a colour assigned in database; assigning grey.")
+			end
+			
+			--print("Saving colour to table.")
+			tColours[eReligion] = {r = tColour.Red * 255, g = tColour.Green * 255, b = tColour.Blue * 255, a = 1};
+		end
+	end
+end
+
+function ShadeCities(iTeam)
+  for iPlayer=0, GameDefines.MAX_CIV_PLAYERS-1 do	
+    local pPlayer = Players[iPlayer]
+
+    if (pPlayer:IsAlive()) then
+      for pCity in pPlayer:Cities() do
+        local iReligion = pCity:GetReligiousMajority()
+
+        if (iReligion > 0) then
+          if (tColours[iReligion] == nil) then
+            AssignReligionColours()
+          end
+
+          ShadeCity(iTeam, pCity, tColours[iReligion])
+        end
+      end
+    end
+  end
+end
+
+function ShadeCity(iTeam, pCity, colour)
+  for i = 1, pCity:GetNumCityPlots()-1, 1 do
+    local pPlot = pCity:GetCityIndexPlot(i)
+    
+    if (pPlot ~= nil and pPlot:IsRevealed(iTeam)) then
+      if (pPlot:GetOwner() == pCity:GetOwner()) then
+        if (pPlot:IsLake() or not pPlot:IsWater()) then 
+          if (pPlot:IsMountain() or pPlot:GetTerrainType() == iTerrainDesert or pCity:IsWorkingPlot(pPlot) or pCity:CanWork(pPlot)) then
+            Controls.ReligionMap:SetPlot(pPlot:GetX(), pPlot:GetY(), pPlot:GetTerrainType(), colour.r/255, colour.g/255, colour.b/255, colour.a)
+          end
+        end
+      end
+    end
+  end
+end
+
+function RefreshMap()
+  local iPlayer = Game.GetActivePlayer()
+  local pPlayer = Players[iPlayer]
+  local iTeam = pPlayer:GetTeam()
+
+  for y = 0, mapHeight-1, 1 do  
+    for x = 0, mapWidth-1, 1 do
+      local pPlot = Map.GetPlot(x, y)
+      local colour = tColours.UNKNOWN
+
+      if (pPlot:IsRevealed(iTeam)) then
+        if (pPlot:IsCity()) then
+          local pCity = pPlot:GetPlotCity()
+          local iReligion = pCity:GetReligiousMajority()
+
+          if (iReligion >= 0 and pCity:IsHolyCityForReligion(iReligion)) then
+            colour = tColours.HOLY_CITY
+          else
+            colour = tColours.CITY
+          end
+        else
+          if (pPlot:GetFeatureType() == iFeatureIce) then
+            colour = tColours.ICE
+          elseif (pPlot:IsWater()) then
+            colour = tColours.WATER
+          else
+            colour = tColours.NONE
+          end
+        end
+      end
+
+      Controls.ReligionMap:SetPlot(x, y, pPlot:GetTerrainType(), colour.r/255, colour.g/255, colour.b/255, colour.a)
+    end
+  end
+
+  ShadeCities(iTeam)
+end
+g_Tabs["Map"].RefreshContent = RefreshMap;
+
+-- Infixo: Religion Spread
 -------------------------------------------------------------------------------
 -- Sorting Support
 -------------------------------------------------------------------------------
@@ -740,6 +943,12 @@ function ShowHideHandler( bIsHide, bInitState )
         	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
         	
         	TabSelect(g_CurrentTab);
+				-- Infixo: Religion Spread
+                -- MODS START
+                local pPlayer = Players[Game.GetActivePlayer()]
+                Controls.FoundButton:SetHide(pPlayer:HasCreatedPantheon() == true or pPlayer:CanCreatePantheon(true) == false)
+                -- MODS END
+				-- Infixo: Religion Spread
         else
 			if(g_PopupInfo ~= nil) then
 				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
@@ -779,5 +988,16 @@ if(not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 	LuaEvents.RequestRefreshAdditionalInformationDropdownEntries();
 end
 
+-- Infixo: Religion Spread
+-- MODS START
+function OnFound()
+  OnClose()
+  Events.SerialEventGameMessagePopup({Type=ButtonPopupTypes.BUTTONPOPUP_FOUND_PANTHEON, Data2=1})
+end
+Controls.FoundButton:RegisterCallback(Mouse.eLClick, OnFound)
+-- MODS END
+
+AssignReligionColours()
+-- Infixo: Religion Spread
 RegisterSortOptions();
 TabSelect("YourReligion");
