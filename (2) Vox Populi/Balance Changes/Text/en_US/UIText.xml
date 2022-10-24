@@ -1007,7 +1007,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS_POS">
-			<Text>[ICON_BULLET] Basic Needs: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] (+{2_Num}%)</Text>
+			<Text>[ICON_BULLET] Basics: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD_POS">
 			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] (+{2_Num}%)</Text>
@@ -1019,11 +1019,11 @@
 			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] (+{2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST_POS">
-			<Text>[ICON_BULLET] Religious Unrest: {1_Num:number "#.##"} [ICON_HAPPINESS_3] per Religious Minority (+{2_Num})%</Text>
+			<Text>[ICON_BULLET] Unrest: {1_Num:number "#.##"} per Religious Minority (+{2_Num})%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_BASIC_NEEDS">
-			<Text>[ICON_BULLET] Basic Needs: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] ({2_Num}%)</Text>
+			<Text>[ICON_BULLET] Basics: {1_Num:number "#.##"} [ICON_FOOD]/[ICON_PRODUCTION] per [ICON_CITIZEN] ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_GOLD">
 			<Text>[ICON_BULLET] Gold: {1_Num:number "#.##"} [ICON_GOLD] per [ICON_CITIZEN] ({2_Num}%)</Text>
@@ -1035,7 +1035,7 @@
 			<Text>[ICON_BULLET] Culture: {1_Num:number "#.##"} [ICON_CULTURE] per [ICON_CITIZEN] ({2_Num}%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GLOBAL_MEDIAN_RELIGIOUS_UNREST">
-			<Text>[ICON_BULLET] Religious Unrest: {1_Num:number "#.##"} [ICON_HAPPINESS_3] per Religious Minority ({2_Num})%</Text>
+			<Text>[ICON_BULLET] Unrest: {1_Num:number "#.##"} per Religious Minority ({2_Num})%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS_BREAKDOWN">

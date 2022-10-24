@@ -22352,13 +22352,13 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 
 int CvCity::GetCitySizeModifier() const
 {
-	return getPopulation() * /*0*/ GD_INT_GET(CITY_SIZE_NEED_MODIFIER);
+	return getPopulation() * /*-100*/ GD_INT_GET(CITY_SIZE_NEED_MODIFIER) / 100;
 }
 
 int CvCity::GetEmpireSizeModifier() const
 {
 	// x% per city, excluding puppets and the capital
-	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*8*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES);
+	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*900*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES) / 100;
 	if (iNumCitiesMod < 0)
 		iNumCitiesMod = 0;
 
@@ -22371,7 +22371,8 @@ int CvCity::GetEmpireSizeModifier() const
 
 		iPopMod += pLoopCity->getPopulation();
 	}
-	iPopMod *= /*2*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
+	iPopMod *= /*100*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
+	iPopMod /= 100;
 	if (iPopMod < 0)
 		iPopMod = 0;
 
@@ -22821,7 +22822,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 
 		// Total Deficit
 		float fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
-		fAmountNeeded += fCultureMedian / 100;
+		fAmountNeeded += fCultureMedian * iPopulation;
 		fAmountHave += (float)getJONSCulturePerTurn(false);
 		fDeficit += fAmountNeeded - fAmountHave;
 

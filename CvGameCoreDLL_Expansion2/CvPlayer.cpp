@@ -47063,9 +47063,9 @@ int CvPlayer::getNewCityProductionValue() const
 		iValue += (getGrowthThreshold(i) * /*150*/ GD_INT_GET(ADVANCED_START_POPULATION_COST)) / 100;
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_VP)
 	{
-		iValue *= (100 + (getNumCities() * /*8*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES)));
+		iValue *= (100 + (getNumCities() * 10));
 		iValue /= 100;
 	}
 
