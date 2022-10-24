@@ -267,6 +267,9 @@ WHERE Type = 'BUILDING_FORGE';
 DELETE FROM Building_LocalResourceAnds
 WHERE BuildingType = 'BUILDING_FORGE';
 
+INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES 
+("BUILDING_FORGE", "SPECIALIST_ENGINEER", "YIELD_PRODUCTION", 2);
+
 -- Workshop 
 UPDATE Building_YieldChanges
 SET Yield = '2'
