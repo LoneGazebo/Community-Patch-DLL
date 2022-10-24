@@ -848,7 +848,7 @@
 			<Text>[ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus provide +1 [ICON_FOOD] Food in all Cities with a TwoKay Foods Franchise.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_OFFICE_BONUS_TWOKAY_FOODS">
-			<Text>+3 [ICON_FOOD] Food for every Global Franchise, -5% to all Needs Modifiers in the City, and +10% [ICON_FOOD] Food in the City.</Text>
+			<Text>+3 [ICON_FOOD] Food, -1 [ICON_HAPPINESS_3] Unhappiness from all Needs and -5% to [ICON_CITY_STATE] Empire Size Modifier for every Global Franchise. +10% [ICON_FOOD] Food in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_TRADE_ROUTE_BONUS_TWOKAY_FOODS">
 			<Text>[ICON_INTERNATIONAL_TRADE] Trade Routes to foreign Cities with a TwoKay Foods Franchise grant +10% [ICON_FOOD] Food to the origin City.</Text>
@@ -884,7 +884,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness Needs Modifier for all Yields and Empire Modifier by 5% in all Cities. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness from all Needs by 1 and the [ICON_CITY_STATE] Empire Size Modifier by 5% in all Cities. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_CORPORATION_CIVILIZED_JEWELERS">

@@ -7143,7 +7143,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	// FOOD FOOD FOOD FOOD
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	std::vector<CvCity*> apFoodTargetCities;
-	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromCityStarving() >= 0)
+	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromFamine() >= 0)
 #else
 	if (m_pPlayer->GetHappiness() >= 0)
 #endif

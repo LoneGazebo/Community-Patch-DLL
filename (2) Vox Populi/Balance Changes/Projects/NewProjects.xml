@@ -30,39 +30,17 @@
 			<CostScalerEra>100</CostScalerEra>
 			<CostScalerNumRepeats>100</CostScalerNumRepeats>
 			<Happiness>1</Happiness>
-			<EmpireMod>-10</EmpireMod>
+			<EmpireSizeModifierReduction>-10</EmpireSizeModifierReduction>
+			<DistressFlatReduction>1</DistressFlatReduction>
+			<PovertyFlatReduction>1</PovertyFlatReduction>
+			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
+			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
 			<EspionageMod>-10</EspionageMod>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
 		</Row>
 	</Projects>
-	<Project_NeedsModifierYield>
-		<Row>
-			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-15</Yield>
-		</Row>
-		<Row>
-			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>-15</Yield>
-		</Row>
-		<Row>
-			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>-15</Yield>
-		</Row>
-		<Row>
-			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>-15</Yield>
-		</Row>
-		<Row>
-			<ProjectType>PROJECT_PUBLIC_WORKS</ProjectType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>-15</Yield>
-		</Row>
-	</Project_NeedsModifierYield>
 	<Project_Flavors>
 		<Row>
 			<ProjectType>PROJECT_UTOPIA_PROJECT</ProjectType>

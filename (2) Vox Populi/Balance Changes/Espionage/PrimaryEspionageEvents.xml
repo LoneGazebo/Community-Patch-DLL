@@ -165,6 +165,11 @@
 			<EventDuration>20</EventDuration>
 			<EspionageDifficultyMod>25</EspionageDifficultyMod>
 			<DeathModifier>30</DeathModifier>
+			<BasicNeedsMedianModifier>34</BasicNeedsMedianModifier>
+			<GoldMedianModifier>34</GoldMedianModifier>
+			<ScienceMedianModifier>34</ScienceMedianModifier>
+			<CultureMedianModifier>34</CultureMedianModifier>
+			<ReligiousUnrestModifier>34</ReligiousUnrestModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<!-- TILES -->
@@ -240,6 +245,11 @@
 			<DeathModifier>25</DeathModifier>
 			<ExpiresOnCounterSpyExit>true</ExpiresOnCounterSpyExit>
 			<CityHappiness>2</CityHappiness>
+			<BasicNeedsMedianModifier>-25</BasicNeedsMedianModifier>
+			<GoldMedianModifier>-25</GoldMedianModifier>
+			<ScienceMedianModifier>-25</ScienceMedianModifier>
+			<CultureMedianModifier>-25</CultureMedianModifier>
+			<ReligiousUnrestModifier>-25</ReligiousUnrestModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<Row>
@@ -287,58 +297,6 @@
 			<Yield>50</Yield>
 		</Row>
 	</CityEventChoice_YieldSiphon>
-	<CityEventChoice_CityUnhappinessNeedMod>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL</CityEventChoiceType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>-25</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>34</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>34</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>34</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>34</Yield>
-		</Row>
-		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STOKE</CityEventChoiceType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>34</Yield>
-		</Row>
-	</CityEventChoice_CityUnhappinessNeedMod>
 	<CityEventChoice_ImprovementDestructionRandom>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>

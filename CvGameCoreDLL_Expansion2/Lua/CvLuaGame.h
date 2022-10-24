@@ -318,16 +318,16 @@ protected:
 
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);
-	static int lGetPovertyHappinessChangeBuilding(lua_State* L);
-	static int lGetDefenseHappinessChangeBuilding(lua_State* L);
-	static int lGetUnculturedHappinessChangeBuilding(lua_State* L);
-	static int lGetIlliteracyHappinessChangeBuilding(lua_State* L);
-	static int lGetMinorityHappinessChangeBuilding(lua_State* L);
-	static int lGetPovertyHappinessChangeBuildingGlobal(lua_State* L);
-	static int lGetDefenseHappinessChangeBuildingGlobal(lua_State* L);
-	static int lGetUnculturedHappinessChangeBuildingGlobal(lua_State* L);
-	static int lGetIlliteracyHappinessChangeBuildingGlobal(lua_State* L);
-	static int lGetMinorityHappinessChangeBuildingGlobal(lua_State* L);
+	static int lGetBasicNeedsMedianModifierBuilding(lua_State* L);
+	static int lGetGoldMedianModifierBuilding(lua_State* L);
+	static int lGetScienceMedianModifierBuilding(lua_State* L);
+	static int lGetCultureMedianModifierBuilding(lua_State* L);
+	static int lGetReligiousUnrestModifierBuilding(lua_State* L);
+	static int lGetBasicNeedsMedianModifierBuildingGlobal(lua_State* L);
+	static int lGetGoldMedianModifierBuildingGlobal(lua_State* L);
+	static int lGetScienceMedianModifierBuildingGlobal(lua_State* L);
+	static int lGetCultureMedianModifierBuildingGlobal(lua_State* L);
+	static int lGetReligiousUnrestModifierBuildingGlobal(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
 	static int lGetPromiseDuration(lua_State* L);
 	static int lGetCorporationFounder(lua_State* L);

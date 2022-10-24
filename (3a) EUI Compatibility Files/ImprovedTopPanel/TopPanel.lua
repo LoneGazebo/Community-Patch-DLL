@@ -559,7 +559,7 @@ local function UpdateTopPanelNow()
 				else -- 20<= winter palace vibes
 					percentString = "[ICON_RESISTANCE] [COLOR_RED]"..L(percent).."%[ENDCOLOR]"
 				end
-				happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percentString, unhappypop, happypop)
+				happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_VP", percentString, unhappypop, happypop)
 			end											 
 
 			Controls.HappinessString:SetText(happinessText)
@@ -1359,24 +1359,21 @@ if civ5_mode then
 	-------------------------------------------------
 	g_toolTipHandler.HappinessString = function()-- control )
 
-		if g_isHappinessEnabled then
+		if (g_isHappinessEnabled and g_activePlayer:IsAlive()) then
 			local tips = table()
 
-		-- CBP EDITS HERE
-
 			if (g_activePlayer:IsEmpireSuperUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-					tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")  .. "[ENDCOLOR]" )
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")  .. "[ENDCOLOR]")
 			elseif (g_activePlayer:IsEmpireSuperUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")  .. "[ENDCOLOR]" )
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")  .. "[ENDCOLOR]")
 			elseif (g_activePlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then	
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[ENDCOLOR]" )
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[ENDCOLOR]")
 			elseif (g_activePlayer:IsEmpireVeryUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS") .. "[ENDCOLOR]" )
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS") .. "[ENDCOLOR]")
 			elseif g_activePlayer:IsEmpireUnhappy() then
-				tips:insert( "[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[ENDCOLOR]" )
+				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[ENDCOLOR]")
 			else
-				tips:insert( "[COLOR:150:255:150:255]" .. L("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[ENDCOLOR]" )
-			-- Basic explanation of Happiness
+				tips:insert("[COLOR:150:255:150:255]" .. L("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[ENDCOLOR]")
 			end
 
 			local happypop = g_activePlayer:GetHappinessFromCitizenNeeds()
@@ -1384,89 +1381,78 @@ if civ5_mode then
 			if g_isBasicHelp then
         		tips:insert( "" )
 				if CondensedHappiness then
-					tips:insert( L("TXT_KEY_ITP_HAPPINESS_EXPLANATION", happypop, unhappypop) )
+					tips:insert(L("TXT_KEY_ITP_HAPPINESS_EXPLANATION", happypop, unhappypop))
 				else
-					tips:insert( L"TXT_KEY_CP_HAPPINESS_EXPLANATION" )
+					tips:insert(L"TXT_KEY_CP_HAPPINESS_EXPLANATION")
 				end
 			elseif CondensedHappiness then
-				tips:insert( L("TXT_KEY_ITP_HAPPINESS_SUMMARY", happypop, unhappypop) )
+				tips:insert(L("TXT_KEY_ITP_HAPPINESS_SUMMARY", happypop, unhappypop))
 			end
-			------------
-			-- Happiness
 
-			local religionhappiness = g_activePlayer:GetHappinessFromReligion();
-			local naturalwonderhappiness = g_activePlayer:GetHappinessFromNaturalWonders();
-			local minorcivhappiness = g_activePlayer:GetHappinessFromMinorCivs();
-			local leaguehappiness = g_activePlayer:GetHappinessFromLeagues();
-			local vassalhappiness = g_activePlayer:GetHappinessFromVassals();
-			local eventhappiness = g_activePlayer:GetEventHappiness();
-			local tradehappiness = g_activePlayer:GetHappinessFromTradeRoutes();
-			local resourcehappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
-			local perresourcehappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
-			local handicaphappiness = g_activePlayer:GetHandicapHappiness();
-			local localcityhappiness = g_activePlayer:GetEmpireHappinessFromCities();
+			------------
+			-- First do Happiness
+
+			local ResourceHappiness = g_activePlayer:GetBonusHappinessFromLuxuriesFlat();
+			local AvgResourceHappiness  = g_activePlayer:GetBonusHappinessFromLuxuriesFlatForUI();
+			local LocalCityHappiness = g_activePlayer:GetEmpireHappinessFromCities();
+			local NaturalWonderAndLandmarkHappiness = g_activePlayer:GetHappinessFromNaturalWonders();
+			local ReligionHappiness = g_activePlayer:GetHappinessFromReligion();
+			local LeagueHappiness = g_activePlayer:GetHappinessFromLeagues();
+			local EventHappiness = g_activePlayer:GetEventHappiness();
+			local CityConnectionHappiness = g_activePlayer:GetHappinessFromTradeRoutes();
+			local CityStateHappiness = g_activePlayer:GetHappinessFromMinorCivs();
+			local VassalHappiness = g_activePlayer:GetHappinessFromVassals();
+			local HandicapHappiness = g_activePlayer:GetHappinessFromHandicap();
 
 			tips:insert( "[ENDCOLOR][COLOR:150:255:150:255]" )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicaphappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", naturalwonderhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", minorcivhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leaguehappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", vassalhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionhappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness )
-    		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", localcityhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", ResourceHappiness, AvgResourceHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_NATURAL_WONDERS", NaturalWonderAndLandmarkHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_VP", ReligionHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", LeagueHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", EventHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", CityConnectionHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness )
+    		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", handicaphappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", LocalCityHappiness )
 			tips:insert( "[ENDCOLOR]" )
 
-			--------------
-			-- Unhappiness
-			local unhappinessFromPupetCities = g_activePlayer:GetUnhappinessFromPuppetCityPopulation() * 100
-			local iUnhappinessFromPuppetSpecialists = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists()
-			local unhappinessFromSpecialists = g_activePlayer:GetUnhappinessFromCitySpecialists()
---CBP
-			local unhappinessFromPop = (g_activePlayer:GetUnhappinessFromCityPopulation() - unhappinessFromPupetCities)
-			if(unhappinessFromPop < 0)then
-				unhappinessFromPop = 0
-			end
+			------------
+			-- Now do Unhappiness
 
-			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
-			local iUnhappinessFromWar = g_activePlayer:GetUnhappinessFromWarWeariness();
-			local totalunhappiness = iUnhappinessFromWar + iUnhappinessPublicOpinion;
---END	
+			local WarWearinessUnhappiness = g_activePlayer:GetUnhappinessFromWarWeariness();
+			local PublicOpinionUnhappiness = g_activePlayer:GetUnhappinessFromPublicOpinion();
+			local OccupationUnhappiness = g_activePlayer:GetUnhappinessFromOccupiedCities();
+			local PuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCityPopulation();
+			local FamineUnhappiness = g_activePlayer:GetUnhappinessFromFamine();
+			local PillagedTileUnhappiness = g_activePlayer:GetUnhappinessFromPillagedTiles();
+			local IsolationUnhappiness = g_activePlayer:GetUnhappinessFromIsolation();
+			local UnitUnhappiness = g_activePlayer:GetUnhappinessFromUnits();
+			local DistressUnhappiness = g_activePlayer:GetUnhappinessFromDistress();
+			local PovertyUnhappiness = g_activePlayer:GetUnhappinessFromPoverty();
+			local IlliteracyUnhappiness = g_activePlayer:GetUnhappinessFromIlliteracy();
+			local BoredomUnhappiness = g_activePlayer:GetUnhappinessFromBoredom();
+			local ReligiousUnrestUnhappiness = g_activePlayer:GetUnhappinessFromReligiousUnrest();
+			local UrbanizationUnhappiness = g_activePlayer:GetUnhappinessFromCitySpecialists();
+			local UrbanizationPuppetUnhappiness = g_activePlayer:GetUnhappinessFromPuppetCitySpecialists();
+
 			tips:insert( "[COLOR:255:150:150:255]" )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", g_activePlayer:GetUnhappinessFromCityCount() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", g_activePlayer:GetUnhappinessFromCapturedCityCount() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POPULATION", unhappinessFromPop / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWar)	
-			
-			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
-			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
-			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
-			local iUnhappinessFromDefense = g_activePlayer:GetUnhappinessFromCityDefense();
-			local iUnhappinessFromConnection = g_activePlayer:GetUnhappinessFromCityConnection();
-			local iUnhappinessFromMinority = g_activePlayer:GetUnhappinessFromCityMinority();
-			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromCityScience();
-			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromCityCulture();
-
--- COMMUNITY PATCH CHANGES BELOW		
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", iUnhappinessFromPuppetSpecialists )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
-			
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_DEFENSE", iUnhappinessFromDefense )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CONNECTION", iUnhappinessFromConnection )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", WarWearinessUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", PublicOpinionUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", OccupationUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_FAMINE", FamineUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", PillagedTileUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ISOLATION", IsolationUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", UnitUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_DISTRESS", DistressUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POVERTY", PovertyUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ILLITERACY", IlliteracyUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BOREDOM", BoredomUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", ReligiousUnrestUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", UrbanizationUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS", UrbanizationPuppetUnhappiness )
 			tips:insert( "[ENDCOLOR]" )
---END CHANGES
+
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 		else
 			return setTextToolTip( L"TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP" )
@@ -1481,7 +1467,7 @@ if civ5_mode then
 	-------------------------------------------------
 	g_toolTipHandler.GoldenAgeString = function()-- control )
 
-		if g_isHappinessEnabled then
+		if (g_isHappinessEnabled and g_activePlayer:IsAlive()) then
 
 			local tips = table()
 			local excessHappiness = g_activePlayer:GetHappinessForGAP()

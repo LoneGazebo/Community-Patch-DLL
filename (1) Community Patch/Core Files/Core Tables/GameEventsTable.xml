@@ -423,6 +423,12 @@
 		<!-- C4DF Only -->
 		<Column name="IsVassalOfSomeone" type="boolean" default="false"/>
 		<Column name="IsMasterOfSomeone" type="boolean" default="false"/>
+		<!-- City Need Median Modifier Changes. Applies to all cities. Negative values reduce the modifiers, positive values increase them. Affects Distress (Basic Needs), Poverty (Gold), Illiteracy (Science), Boredom (Culture), and Religious Unrest (Followers). -->
+		<Column name="BasicNeedsMedianModifierGlobal" type="integer" default="0"/>
+		<Column name="GoldMedianModifierGlobal" type="integer" default="0"/>
+		<Column name="ScienceMedianModifierGlobal" type="integer" default="0"/>
+		<Column name="CultureMedianModifierGlobal" type="integer" default="0"/>
+		<Column name="ReligiousUnrestModifierGlobal" type="integer" default="0"/>
 	</Table>
 	<!-- Parent Event is ESSENTIAL - this table assigns choices to events. Make sure the EventType matches the name of an EventType from above! Must be BELOW the above tables. -->
 	<Table name="Event_ParentEvents">
@@ -526,15 +532,6 @@
 		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
 		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
 		<Column name="Percent" type="integer"/>
-	</Table>
-	<!-- Unhappiness Modifier for CBP Happiness system. Affects ALL cities. 
-		Yield match: YIELD_GOLD = Poverty, YIELD_SCIENCE = Illiteracy, YIELD_PRODUCTION = Safety, YIELD_CULTURE = illiteracy, YIELD_FAITH = Religious Minorities
-		Note that negative values reduce needs, while positive values increase them!
-	-->
-	<Table name="EventChoice_CityUnhappinessNeedMod">
-		<Column name="EventChoiceType" type="text" reference="EventChoices(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer"/>
 	</Table>
 
 	<!-- Filters -->
@@ -914,6 +911,12 @@
 		<Column name="IsSuperUnhappy" type="boolean" default="false"/>
 		<Column name="RequiresNearbyNaturalWonder" type="boolean" default="false"/>
 		<Column name="RequiresNearbyMountain" type="boolean" default="false"/>
+		<!-- City Need Median Modifier Changes. Negative values reduce the modifiers, positive values increase them. Affects Distress (Basic Needs), Poverty (Gold), Illiteracy (Science), Boredom (Culture), and Religious Unrest (Followers). -->
+		<Column name="BasicNeedsMedianModifier" type="integer" default="0"/>
+		<Column name="GoldMedianModifier" type="integer" default="0"/>
+		<Column name="ScienceMedianModifier" type="integer" default="0"/>
+		<Column name="CultureMedianModifier" type="integer" default="0"/>
+		<Column name="ReligiousUnrestModifier" type="integer" default="0"/>
 	</Table>
 	<!-- Parent Event is essential - this table assigns choices to events. Make sure the CityEventType matches the name of an CityEventType from above! Must be BELOW the above tables. -->
 	<Table name="CityEvent_ParentEvents">
@@ -1049,15 +1052,7 @@
 		<Column name="ReligionType" type="text" reference="Religions(Type)"/>
 		<Column name="Percent" type="integer"/>
 	</Table>
-	<!-- Unhappiness Modifier for CBP Happiness system. 
-		Yield match: YIELD_GOLD = Poverty, YIELD_SCIENCE = Illiteracy, YIELD_PRODUCTION = Safety, YIELD_CULTURE = illiteracy, YIELD_FAITH = Religious Minorities
-		Note that negative values reduce needs, while positive values increase them!
-	-->
-	<Table name="CityEventChoice_CityUnhappinessNeedMod">
-		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer"/>
-	</Table>
+
 	<!-- Filters -->
 	
 	<!-- Checks local yields as well (Food and Production). -->

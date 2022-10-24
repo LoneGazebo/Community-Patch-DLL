@@ -801,10 +801,8 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetOfferedGift(ID, false);
 
 			// Reset approach to NEUTRAL
-			SetCivApproach(eMajor, CIV_APPROACH_NEUTRAL);
 			SetCivStrategicApproach(eMajor, CIV_APPROACH_NEUTRAL);
 			SetCachedSurfaceApproach(eMajor, NO_CIV_APPROACH);
-			pOther->SetCivApproach(ID, CIV_APPROACH_NEUTRAL);
 			pOther->SetCivStrategicApproach(ID, CIV_APPROACH_NEUTRAL);
 			pOther->SetCachedSurfaceApproach(ID, NO_CIV_APPROACH);
 			for (int iJ = 0; iJ < NUM_CIV_APPROACHES; iJ++)
@@ -819,12 +817,10 @@ void CvDiplomacyAI::SlotStateChange()
 			// Clear war status
 			SetSaneDiplomaticTarget(eMajor, true);
 			SetPotentialWarTarget(eMajor, false);
-			SetArmyInPlaceForAttack(eMajor, false); //FIXME: This should be for MAX_CIV_PLAYERS
 			SetTreatyWillingToOffer(eMajor, NO_PEACE_TREATY_TYPE);
 			SetTreatyWillingToAccept(eMajor, NO_PEACE_TREATY_TYPE);
 			pOther->SetSaneDiplomaticTarget(eMajor, true);
 			pOther->SetPotentialWarTarget(eMajor, false);
-			pOther->SetArmyInPlaceForAttack(ID, false);
 			pOther->SetTreatyWillingToOffer(ID, NO_PEACE_TREATY_TYPE);
 			pOther->SetTreatyWillingToAccept(ID, NO_PEACE_TREATY_TYPE);
 
@@ -876,7 +872,6 @@ void CvDiplomacyAI::SlotStateChange()
 			SetPlayerRecklessExpander(eMajor, false);
 			SetPlayerWonderSpammer(eMajor, false);
 			SetEndgameAggressiveTo(eMajor, false);
-			SetLandDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetWonderDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetMinorCivDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
 			SetVictoryDisputeLevel(eMajor, DISPUTE_LEVEL_NONE);
@@ -887,7 +882,6 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetPlayerRecklessExpander(ID, false);
 			pOther->SetPlayerWonderSpammer(ID, false);
 			pOther->SetEndgameAggressiveTo(ID, false);
-			pOther->SetLandDisputeLevel(ID, DISPUTE_LEVEL_NONE);
 			pOther->SetWonderDisputeLevel(ID, DISPUTE_LEVEL_NONE);
 			pOther->SetNumWondersBeatenTo(ID, 0); // only for killed player
 			pOther->SetMinorCivDisputeLevel(ID, DISPUTE_LEVEL_NONE);
@@ -900,6 +894,28 @@ void CvDiplomacyAI::SlotStateChange()
 			// Reset voting history score
 			SetVotingHistoryScore(eMajor, 0);
 			pOther->SetVotingHistoryScore(ID, 0);
+		}
+
+		// Reset values for all civs
+		for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)iI;
+			if (ePlayer == GetID() || !GET_PLAYER(ePlayer).isAlive())
+				continue;
+
+			SetLandDisputeLevel(ePlayer, DISPUTE_LEVEL_NONE);
+			SetCivApproach(ePlayer, CIV_APPROACH_NEUTRAL);
+			SetArmyInPlaceForAttack(ePlayer, false);
+
+			if (iI < MAX_MAJOR_CIVS)
+			{
+				CvDiplomacyAI* pOther = GET_PLAYER(ePlayer).GetDiplomacyAI();
+				PlayerTypes ID = GetID();
+
+				pOther->SetLandDisputeLevel(ID, DISPUTE_LEVEL_NONE);
+				pOther->SetCivApproach(ID, CIV_APPROACH_NEUTRAL);
+				pOther->SetArmyInPlaceForAttack(ID, false);
+			}
 		}
 
 		return;
@@ -958,11 +974,14 @@ void CvDiplomacyAI::SlotStateChange()
 		SetBackstabber(false);
 		SetCompetingForVictory(true);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-			if (GET_PLAYER(eLoopPlayer).isAlive())
+			if (!GET_PLAYER(eLoopPlayer).isAlive())
+				continue;
+
+			if (iPlayerLoop < MAX_MAJOR_CIVS)
 			{
 				if (GET_PLAYER(eLoopPlayer).isHuman())
 				{
@@ -999,7 +1018,6 @@ void CvDiplomacyAI::SlotStateChange()
 				// Reset opinion/approach to neutral
 				SetCivOpinion(eLoopPlayer, CIV_OPINION_NEUTRAL);
 				SetCachedOpinionWeight(eLoopPlayer, 0);
-				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 				SetCivStrategicApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
 				SetCachedSurfaceApproach(eLoopPlayer, NO_CIV_APPROACH);
 
@@ -1012,7 +1030,6 @@ void CvDiplomacyAI::SlotStateChange()
 				SetWantsResearchAgreementWithPlayer(eLoopPlayer, false);
 				SetSaneDiplomaticTarget(eLoopPlayer, true);
 				SetPotentialWarTarget(eLoopPlayer, true);
-				SetArmyInPlaceForAttack(eLoopPlayer, false);
 				SetTreatyWillingToOffer(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 				SetTreatyWillingToAccept(eLoopPlayer, NO_PEACE_TREATY_TYPE);
 				SetPlayerRecklessExpander(eLoopPlayer, false);
@@ -1021,7 +1038,6 @@ void CvDiplomacyAI::SlotStateChange()
 				SetStrategicTradePartner(eLoopPlayer, false);
 				SetMajorCompetitor(eLoopPlayer, false);
 				SetPlotBuyingAggressivePosture(eLoopPlayer, AGGRESSIVE_POSTURE_NONE);
-				SetLandDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetWonderDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetMinorCivDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
@@ -1034,6 +1050,12 @@ void CvDiplomacyAI::SlotStateChange()
 				SetOfferingGift(eLoopPlayer, false);
 				SetOfferedGift(eLoopPlayer, false);
 				ResetSentAttackProtectedMinorTaunts(eLoopPlayer);
+			}
+			else
+			{
+				SetLandDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
+				SetCivApproach(eLoopPlayer, CIV_APPROACH_NEUTRAL);
+				SetArmyInPlaceForAttack(eLoopPlayer, false);
 			}
 		}
 	}

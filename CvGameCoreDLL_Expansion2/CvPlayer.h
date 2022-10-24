@@ -596,31 +596,59 @@ public:
 	int GetHappinessRatioRawPercent();
 	void DistributeHappinessToCities();
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	void ChangeEmpireNeedsModifierGlobal(int iChange);
-	int GetEmpireNeedsModifierGlobal() const;
+	int GetEmpireSizeModifierReductionGlobal() const;
+	void ChangeEmpireSizeModifierReductionGlobal(int iChange);
 
-	int GetPovertyUnhappinessGlobal() const;
-	void ChangePovertyUnhappinessGlobal(int iChange);
+	int GetDistressFlatReductionGlobal() const;
+	void ChangeDistressFlatReductionGlobal(int iChange);
 
-	int GetDefenseUnhappinessGlobal() const;
-	void ChangeDefenseUnhappinessGlobal(int iChange);
+	int GetPovertyFlatReductionGlobal() const;
+	void ChangePovertyFlatReductionGlobal(int iChange);
 
-	int GetUnculturedUnhappinessGlobal() const;
-	void ChangeUnculturedUnhappinessGlobal(int iChange);
+	int GetIlliteracyFlatReductionGlobal() const;
+	void ChangeIlliteracyFlatReductionGlobal(int iChange);
 
-	int GetIlliteracyUnhappinessGlobal() const;
-	void ChangeIlliteracyUnhappinessGlobal(int iChange);
+	int GetBoredomFlatReductionGlobal() const;
+	void ChangeBoredomFlatReductionGlobal(int iChange);
 
-	int GetMinorityUnhappinessGlobal() const;
-	void ChangeMinorityUnhappinessGlobal(int iChange);
+	int GetReligiousUnrestFlatReductionGlobal() const;
+	void ChangeReligiousUnrestFlatReductionGlobal(int iChange);
+
+	int GetBasicNeedsMedianModifierGlobal() const;
+	void ChangeBasicNeedsMedianModifierGlobal(int iChange);
+
+	int GetGoldMedianModifierGlobal() const;
+	void ChangeGoldMedianModifierGlobal(int iChange);
+
+	int GetScienceMedianModifierGlobal() const;
+	void ChangeScienceMedianModifierGlobal(int iChange);
+
+	int GetCultureMedianModifierGlobal() const;
+	void ChangeCultureMedianModifierGlobal(int iChange);
+
+	int GetReligiousUnrestModifierGlobal() const;
+	void ChangeReligiousUnrestModifierGlobal(int iChange);
+
+	int GetBasicNeedsMedianModifierCapital() const;
+	void ChangeBasicNeedsMedianModifierCapital(int iChange);
+
+	int GetGoldMedianModifierCapital() const;
+	void ChangeGoldMedianModifierCapital(int iChange);
+
+	int GetScienceMedianModifierCapital() const;
+	void ChangeScienceMedianModifierCapital(int iChange);
+
+	int GetCultureMedianModifierCapital() const;
+	void ChangeCultureMedianModifierCapital(int iChange);
+
+	int GetReligiousUnrestModifierCapital() const;
+	void ChangeReligiousUnrestModifierCapital(int iChange);
 
 	void ChangeLandmarksTourismPercentGlobal(int iChange);
 	int GetLandmarksTourismPercentGlobal() const;
 
 	void ChangeGreatWorksTourismModifierGlobal(int iChange);
 	int GetGreatWorksTourismModifierGlobal() const;
-#endif
 
 	void DoTestEmpireInBadShapeForWar();
 	bool IsNoNewWars() const;
@@ -711,14 +739,14 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int GetHappinessFromCitizenNeeds() const;
 	int GetUnhappinessFromCitizenNeeds() const;
-	int GetUnhappinessFromCityCulture() const;
-	int GetUnhappinessFromCityScience() const;
-	int GetUnhappinessFromCityDefense() const;
-	int GetUnhappinessFromCityGold() const;
-	int GetUnhappinessFromCityConnection() const;
-	int GetUnhappinessFromCityPillaged() const;
-	int GetUnhappinessFromCityStarving() const;
-	int GetUnhappinessFromCityMinority() const;
+	int GetUnhappinessFromBoredom() const;
+	int GetUnhappinessFromIlliteracy() const;
+	int GetUnhappinessFromDistress() const;
+	int GetUnhappinessFromPoverty() const;
+	int GetUnhappinessFromIsolation() const;
+	int GetUnhappinessFromPillagedTiles() const;
+	int GetUnhappinessFromFamine() const;
+	int GetUnhappinessFromReligiousUnrest() const;
 	int GetUnhappinessFromCityJFDSpecial() const;
 #endif
 
@@ -1553,28 +1581,7 @@ public:
 
 	void RefreshCSAlliesFriends();
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int GetPovertyUnhappinessMod() const;
-	void ChangePovertyUnhappinessMod(int iChange);
-	int GetDefenseUnhappinessMod() const;
-	void ChangeDefenseUnhappinessMod(int iChange);
-	int GetUnculturedUnhappinessMod() const;
-	void ChangeUnculturedUnhappinessMod(int iChange);
-	int	GetIlliteracyUnhappinessMod() const;
-	void ChangeIlliteracyUnhappinessMod(int iChange);
-	int GetMinorityUnhappinessMod() const;
-	void ChangeMinorityUnhappinessMod(int iChange);
 
-	int GetPovertyUnhappinessModCapital() const;
-	void ChangePovertyUnhappinessModCapital(int iChange);
-	int GetDefenseUnhappinessModCapital() const;
-	void ChangeDefenseUnhappinessModCapital(int iChange);
-	int GetUnculturedUnhappinessModCapital() const;
-	void ChangeUnculturedUnhappinessModCapital(int iChange);
-	int	GetIlliteracyUnhappinessModCapital() const;
-	void ChangeIlliteracyUnhappinessModCapital(int iChange);
-	int GetMinorityUnhappinessModCapital() const;
-	void ChangeMinorityUnhappinessModCapital(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 
@@ -1600,7 +1607,6 @@ public:
 
 	void SetFoodRoutesAllCities(bool bValue);
 	bool IsFoodRoutesAllCities() const;
-#endif
 
 	int getCultureBombTimer() const;
 	void setCultureBombTimer(int iNewValue);
@@ -2949,17 +2955,24 @@ protected:
 	int m_iFaith;
 	int m_iFaithEverGenerated;
 	int m_iHappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int m_iUnhappiness;
 	int m_iHappinessTotal;
-	int m_iEmpireNeedsModifierGlobal;
-	int m_iChangePovertyUnhappinessGlobal;
-	int m_iChangeDefenseUnhappinessGlobal;
-	int m_iChangeUnculturedUnhappinessGlobal;
-	int m_iChangeIlliteracyUnhappinessGlobal;
-	int m_iChangeMinorityUnhappinessGlobal;
-#endif
-#if defined(MOD_BALANCE_CORE)
+	int m_iEmpireSizeModifierReductionGlobal;
+	int m_iDistressFlatReductionGlobal;
+	int m_iPovertyFlatReductionGlobal;
+	int m_iIlliteracyFlatReductionGlobal;
+	int m_iBoredomFlatReductionGlobal;
+	int m_iReligiousUnrestFlatReductionGlobal;
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
+	int m_iBasicNeedsMedianModifierCapital;
+	int m_iGoldMedianModifierCapital;
+	int m_iScienceMedianModifierCapital;
+	int m_iCultureMedianModifierCapital;
+	int m_iReligiousUnrestModifierCapital;
 	int m_iLandmarksTourismPercentGlobal;
 	int m_iGreatWorksTourismModifierGlobal;
 	int m_iCenterOfMassX;
@@ -2970,7 +2983,6 @@ protected:
 	std::vector<int> m_viInstantYieldsTotal;
 	std::tr1::unordered_map<YieldTypes, int> m_miLocalInstantYieldsTotal;
 	std::tr1::unordered_map<YieldTypes, std::vector<int>> m_aiYieldHistory;
-#endif
 	int m_iUprisingCounter;
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnits;
@@ -3116,24 +3128,12 @@ protected:
 	int m_iTourismCostXCitiesMod;
 	int m_iGreatEngineerRateModifier;
 	int m_iGreatPersonExpendGold;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int m_iPovertyUnhappinessMod;
-	int m_iDefenseUnhappinessMod;
-	int m_iUnculturedUnhappinessMod;
-	int m_iIlliteracyUnhappinessMod;
-	int m_iMinorityUnhappinessMod;
-	int m_iPovertyUnhappinessModCapital;
-	int m_iDefenseUnhappinessModCapital;
-	int m_iUnculturedUnhappinessModCapital;
-	int m_iIlliteracyUnhappinessModCapital;
-	int m_iMinorityUnhappinessModCapital;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
-#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhapppinessMod;
 	int m_iXPopulationConscription;
@@ -3780,12 +3780,22 @@ SYNC_ARCHIVE_VAR(int, m_iFaithEverGenerated)
 SYNC_ARCHIVE_VAR(int, m_iHappiness)
 SYNC_ARCHIVE_VAR(int, m_iUnhappiness)
 SYNC_ARCHIVE_VAR(int, m_iHappinessTotal)
-SYNC_ARCHIVE_VAR(int, m_iEmpireNeedsModifierGlobal)
-SYNC_ARCHIVE_VAR(int, m_iChangePovertyUnhappinessGlobal)
-SYNC_ARCHIVE_VAR(int, m_iChangeDefenseUnhappinessGlobal)
-SYNC_ARCHIVE_VAR(int, m_iChangeUnculturedUnhappinessGlobal)
-SYNC_ARCHIVE_VAR(int, m_iChangeIlliteracyUnhappinessGlobal)
-SYNC_ARCHIVE_VAR(int, m_iChangeMinorityUnhappinessGlobal)
+SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iDistressFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iIlliteracyFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iBoredomFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iReligiousUnrestFlatReductionGlobal)
+SYNC_ARCHIVE_VAR(int, m_iBasicNeedsMedianModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iGoldMedianModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iCultureMedianModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iScienceMedianModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iReligiousUnrestModifierGlobal)
+SYNC_ARCHIVE_VAR(int, m_iBasicNeedsMedianModifierCapital)
+SYNC_ARCHIVE_VAR(int, m_iGoldMedianModifierCapital)
+SYNC_ARCHIVE_VAR(int, m_iScienceMedianModifierCapital)
+SYNC_ARCHIVE_VAR(int, m_iCultureMedianModifierCapital)
+SYNC_ARCHIVE_VAR(int, m_iReligiousUnrestModifierCapital)
 SYNC_ARCHIVE_VAR(int, m_iLandmarksTourismPercentGlobal)
 SYNC_ARCHIVE_VAR(int, m_iGreatWorksTourismModifierGlobal)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
@@ -3927,16 +3937,6 @@ SYNC_ARCHIVE_VAR(int, m_iTechCostXCitiesModifier)
 SYNC_ARCHIVE_VAR(int, m_iTourismCostXCitiesMod)
 SYNC_ARCHIVE_VAR(int, m_iGreatEngineerRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iGreatPersonExpendGold)
-SYNC_ARCHIVE_VAR(int, m_iPovertyUnhappinessMod)
-SYNC_ARCHIVE_VAR(int, m_iDefenseUnhappinessMod)
-SYNC_ARCHIVE_VAR(int, m_iUnculturedUnhappinessMod)
-SYNC_ARCHIVE_VAR(int, m_iIlliteracyUnhappinessMod)
-SYNC_ARCHIVE_VAR(int, m_iMinorityUnhappinessMod)
-SYNC_ARCHIVE_VAR(int, m_iPovertyUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iDefenseUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iUnculturedUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iIlliteracyUnhappinessModCapital)
-SYNC_ARCHIVE_VAR(int, m_iMinorityUnhappinessModCapital)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
