@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -692,6 +692,11 @@ bool HaveSettlerInBuildables(const CvWeightedVector<CvCityBuildable>& choices)
 				if (GC.getUnitInfo(eUnitType)->IsFound())
 					return true;
 			}
+			case NOT_A_CITY_BUILDABLE:
+			case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROCESS:
+				break;
 		}
 	}
 
@@ -787,15 +792,8 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		}
 	}
 
-	std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
-	int iLoop;
-	for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-	{
-		const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
-		for (size_t i=0; i<vBuildings.size(); i++)
-			vTotalBuildingCount[ vBuildings[i] ]++;
-	}
-	
+	std::vector<int> vTotalBuildingCount = kPlayer.GetTotalBuildingCount();
+
 	// Loop through adding the available buildings
 	for(int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 	{
@@ -913,116 +911,86 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	m_BuildablesPrecheck.SortItems();
 
 	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
+	SPlotStats plotStats = m_pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(m_pCity->getOwner()).GetTotalBuildingCount();
 
-	if(m_BuildablesPrecheck.size() > 0)
+	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
-		//stats to decide whether to disband a unit
-		int iWaterPriority = m_pCity->GetTradePrioritySea();
-		int iLandPriority = m_pCity->GetTradePriorityLand();
-
-		int iWaterRoutes = -1;
-		int iLandRoutes = -1;
-
-		if(iWaterPriority >= 0)
+		CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
+		switch(selection.m_eBuildableType)
 		{
-			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-		}
-		if(iLandPriority >= 0)
-		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-		}
-
-		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
-		{
-			CvCityBuildable selection = m_BuildablesPrecheck.GetElement(iI);
-			switch(selection.m_eBuildableType)
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // m_BuildablesPrecheck is never supposed to have these items.
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+		case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //promised unit
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				bool bCitySameAsMuster = false;
+				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
+				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					bool bCitySameAsMuster = false;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
-					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
-					{
-						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
-						if (iNewWeight > 0)
-						{
-							selection.m_iValue = iNewWeight;
-							m_Buildables.push_back(selection, iNewWeight);
-						}
-						else
-							LogInvalidItem(selection, iNewWeight);
-					}
-					break;
-				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY: //useful unit
-				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), 0, 0, false, false);
-					if(iNewWeight > 0)
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), false, false);
+					if (iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
 						m_Buildables.push_back(selection, iNewWeight);
 					}
 					else
 						LogInvalidItem(selection, iNewWeight);
-					break;
 				}
-				case CITY_BUILDABLE_UNIT: //any unit
+				break;
+			}
+		case CITY_BUILDABLE_UNIT: //any unit
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), false, false);
+				if(iNewWeight > 0)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, false, false);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-				case CITY_BUILDABLE_BUILDING:
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_BUILDING:
+			{
+				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
+				if(iNewWeight > 0)
 				{
-					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-				case CITY_BUILDABLE_PROCESS:
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_PROCESS:
+			{
+				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
+				int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
+				if(iNewWeight > 0)
 				{
-					ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
-					int iNewWeight = m_pProcessProductionAI->CheckProcessBuildSanity(eProcessType, m_BuildablesPrecheck.GetWeight(iI));
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-				case CITY_BUILDABLE_PROJECT:
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
+			}
+		case CITY_BUILDABLE_PROJECT:
+			{
+				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
+				int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
+				if(iNewWeight > 0)
 				{
-					ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
-					int iNewWeight = m_pProjectProductionAI->CheckProjectBuildSanity(eProjectType, m_BuildablesPrecheck.GetWeight(iI));
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					else
-						LogInvalidItem(selection, iNewWeight);
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
+				else
+					LogInvalidItem(selection, iNewWeight);
+				break;
 			}
 		}
 	}
@@ -1053,9 +1021,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 			switch (m_Buildables.GetElement(i).m_eBuildableType)
 			{
-				case CITY_BUILDABLE_UNIT:
-				case CITY_BUILDABLE_UNIT_FOR_ARMY:
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // m_Buildables is never supposed to have these items.
+			case CITY_BUILDABLE_UNIT:
+			case CITY_BUILDABLE_UNIT_FOR_ARMY:
+			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 				{
 					UnitTypes eUnitType = (UnitTypes)m_Buildables.GetElement(i).m_iIndex;
 					if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnitType)
@@ -1066,7 +1036,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					break;
 				}
 
-				case CITY_BUILDABLE_BUILDING:
+			case CITY_BUILDABLE_BUILDING:
 				{
 					BuildingTypes eBuildingType = (BuildingTypes)m_Buildables.GetElement(i).m_iIndex;
 					if (m_pCity->isProductionBuilding() && !bInterruptBuildings && m_pCity->getProductionBuilding() == eBuildingType)
@@ -1077,7 +1047,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					break;
 				}
 
-				case CITY_BUILDABLE_PROJECT:
+			case CITY_BUILDABLE_PROJECT:
 				{
 					ProjectTypes eProjectType = (ProjectTypes)m_Buildables.GetElement(i).m_iIndex;
 					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProjectType);
@@ -1099,6 +1069,13 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					}
 					break;
 				}
+			
+			case CITY_BUILDABLE_PROCESS:
+				// Don't continue processes.
+				// Recursive has provided two reasons for this:
+				// 1) So the AI doesn't flipflop through production choices without getting anything done.
+				// 2) Because there is randomness to the AI's production choices on lower difficulties - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				break;
 			}
 		}
 
@@ -1115,9 +1092,11 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 		switch(selection.m_eBuildableType)
 		{
-			case CITY_BUILDABLE_UNIT:
-			case CITY_BUILDABLE_UNIT_FOR_ARMY:
-			case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // selection is never supposed to have these items.
+		case CITY_BUILDABLE_UNIT:
+		case CITY_BUILDABLE_UNIT_FOR_ARMY:
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 			{
 				UnitTypes eUnitType = (UnitTypes)selection.m_iIndex;
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
@@ -1134,21 +1113,21 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				break;
 			}
 
-			case CITY_BUILDABLE_BUILDING:
+		case CITY_BUILDABLE_BUILDING:
 			{
 				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, true, false, bRush);
 				break;
 			}
 
-			case CITY_BUILDABLE_PROJECT:
+		case CITY_BUILDABLE_PROJECT:
 			{
 				ProjectTypes eProjectType = (ProjectTypes) selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_CREATE, eProjectType, -1, false, true, false, bRush);
 				break;
 			}
 
-			case CITY_BUILDABLE_PROCESS:
+		case CITY_BUILDABLE_PROCESS:
 			{
 				ProcessTypes eProcessType = (ProcessTypes)selection.m_iIndex;
 				GetCity()->pushOrder(ORDER_MAINTAIN, eProcessType, -1, false, true, false, false); // ignoring rush because we can't rush a process
@@ -1329,94 +1308,78 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	LogPossibleHurries(m_BuildablesPrecheck,"PRE");
 
-	if(m_BuildablesPrecheck.size() > 0)
+	SPlotStats plotStats = m_pCity->getPlotStats();
+	vector<int> allExistingBuildings = GET_PLAYER(m_pCity->getOwner()).GetTotalBuildingCount();
+
+	////Sanity and AI Optimization Check
+	for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
 	{
-		////Sanity and AI Optimization Check
-	
-		//stats to decide whether to disband a unit
-		int iWaterPriority = m_pCity->GetTradePrioritySea();
-		int iLandPriority = m_pCity->GetTradePriorityLand();
-
-		int iWaterRoutes = -1;
-		int iLandRoutes = -1;
-
-		if (iWaterPriority >= 0)
+		selection = m_BuildablesPrecheck.GetElement(iI);
+		switch(selection.m_eBuildableType)
 		{
-			//0 is best, and 1+ = 100% less valuable than top. More routes from better cities, please!
-			iWaterRoutes = 1000 - min(1000, (iWaterPriority * 50));
-		}
-		if (iLandPriority >= 0)
-		{
-			iLandRoutes = 1000 - min(1000, (iLandPriority * 50));
-		}
-
-		for(int iI = 0; iI < m_BuildablesPrecheck.size(); iI++)
-		{
-			selection = m_BuildablesPrecheck.GetElement(iI);
-			switch(selection.m_eBuildableType)
+		case NOT_A_CITY_BUILDABLE:
+		case CITY_BUILDABLE_PROJECT:
+		case CITY_BUILDABLE_PROCESS:
+			UNREACHABLE(); // These items are not expected to be purchasable.
+		case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
 			{
-				case CITY_BUILDABLE_UNIT_FOR_OPERATION: //a unit we have promised to build
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				bool bCitySameAsMuster = false;
+				OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
+				if (thisOperationSlot.IsValid() && bCitySameAsMuster)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					bool bCitySameAsMuster = false;
-					OperationSlot thisOperationSlot = kPlayer.PeekAtNextUnitToBuildForOperationSlot(m_pCity, bCitySameAsMuster);
-					if (thisOperationSlot.IsValid() && bCitySameAsMuster)
-					{
-						CvArmyAI* pThisArmy = kPlayer.getArmyAI(thisOperationSlot.m_iArmyID);
-
-						int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, pThisArmy,  m_BuildablesPrecheck.GetWeight(iI), true);
-						if(iNewWeight > 0)
-						{
-							selection.m_iValue = iNewWeight;
-							m_Buildables.push_back(selection, iNewWeight);
-						}
-					}
-					break;
-				}
-				case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
-				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), true);
+					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), true);
 					if(iNewWeight > 0)
 					{
 						selection.m_iValue = iNewWeight;
 						m_Buildables.push_back(selection, iNewWeight);
 					}
-					break;
 				}
-				case CITY_BUILDABLE_UNIT:
+				break;
+			}
+		case CITY_BUILDABLE_UNIT_FOR_ARMY: //a unit we could use for an army, do not override the sanity checks for this!
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
+				if(iNewWeight > 0)
 				{
-					UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
-					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, NULL, m_BuildablesPrecheck.GetWeight(iI), iWaterRoutes, iLandRoutes, true);
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
-				case CITY_BUILDABLE_BUILDING:
+				break;
+			}
+		case CITY_BUILDABLE_UNIT:
+			{
+				UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+				int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, false, m_BuildablesPrecheck.GetWeight(iI), true);
+				if(iNewWeight > 0)
 				{
-					BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-					int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), iLandRoutes, iWaterRoutes);
-					int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
-					if (AmountComplete > 0)
-					{
-						int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
-						AmountComplete /= AmountNeeded;
-						if (AmountComplete < 50)
-						{
-							iNewWeight *= (100 + AmountComplete);
-							iNewWeight /= max(1, AmountComplete);
-						}
-					}
-					if(iNewWeight > 0)
-					{
-						selection.m_iValue = iNewWeight;
-						m_Buildables.push_back(selection, iNewWeight);
-					}
-					break;
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
 				}
+				break;
+			}
+		case CITY_BUILDABLE_BUILDING:
+			{
+				BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+				int iNewWeight = GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuildingType, m_BuildablesPrecheck.GetWeight(iI), plotStats, allExistingBuildings);
+				int AmountComplete = GetCity()->GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
+				if (AmountComplete > 0)
+				{
+					int AmountNeeded = max(1, GetCity()->getProductionNeeded(eBuildingType));
+					AmountComplete /= AmountNeeded;
+					if (AmountComplete < 50)
+					{
+						iNewWeight *= (100 + AmountComplete);
+						iNewWeight /= max(1, AmountComplete);
+					}
+				}
+				if(iNewWeight > 0)
+				{
+					selection.m_iValue = iNewWeight;
+					m_Buildables.push_back(selection, iNewWeight);
+				}
+				break;
 			}
 		}
 	}
@@ -1946,6 +1909,8 @@ void CvCityStrategyAI::LogPossibleHurries(const CvWeightedVector<CvCityBuildable
 
 			switch(buildable.m_eBuildableType)
 			{
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // builds is never supposed to have these items.
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2066,6 +2031,8 @@ void CvCityStrategyAI::LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>
 
 			switch(buildable.m_eBuildableType)
 			{
+			case NOT_A_CITY_BUILDABLE:
+				UNREACHABLE(); // builds is never supposed to have these items.
 			case CITY_BUILDABLE_BUILDING:
 			{
 				CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2161,6 +2128,8 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		int iEra = -1;
 		switch(buildable.m_eBuildableType)
 		{
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // buildable is never supposed to be this.
 		case CITY_BUILDABLE_BUILDING:
 		{
 			CvBuildingEntry* pInfo = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
@@ -2225,45 +2194,74 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
-		CvString cityName;
 		CvString strDesc;
 
 		// Find the name of this civ and city
-		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-		cityName = m_pCity->getName();
+		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		CvString cityName = m_pCity->getName();
 
-		FILogFile* pLog;
-		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", " + cityName + ", ";
 
+		const char* type = "unknown";
+		const char* reason = "unknown";
 		CvBaseInfo* pEntry = NULL;
 		switch (buildable.m_eBuildableType)
 		{
+		case NOT_A_CITY_BUILDABLE:
+			UNREACHABLE(); // buildable is never supposed to be this item.
 		case CITY_BUILDABLE_BUILDING:
 			pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+			type = "Building";
 			break;
 		case CITY_BUILDABLE_UNIT:
 		case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 		case CITY_BUILDABLE_UNIT_FOR_ARMY:
 			pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+			type = "Unit";
 			break;
 		case CITY_BUILDABLE_PROJECT:
 			pEntry = GC.GetGameProjects()->GetEntry(buildable.m_iIndex);
+			type = "Project";
 			break;
 		case CITY_BUILDABLE_PROCESS:
 			pEntry = GC.getProcessInfo((ProcessTypes)buildable.m_iIndex);
+			type = "Process";
 			break;
+		}
+
+		switch (iVal)
+		{
+		case SR_IMPOSSIBLE:
+			reason = "impossible";
+			break;
+		case SR_UNITSUPPLY:
+			reason = "nosupply";
+			break;
+		case SR_MAINTENCANCE:
+			reason = "tooexpensive";
+			break;
+		case SR_STRATEGY:
+			reason = "badtimeorplace";
+			break;
+		case SR_USELESS:
+			reason = "useless";
+			break;
+		case SR_BALANCE:
+			reason = "unitbalance";
+			break;
+		default:
+			reason = "unknown";
 		}
 
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SKIPPED: %s (%d), Val: %d, TURNS: %d",
-			strDesc.c_str(), buildable.m_iIndex, iVal, buildable.m_iTurnsToConstruct);
+		strTemp.Format("SKIPPED: %s %d, %s, %s, %d",
+			type, buildable.m_iIndex, strDesc.c_str(), reason, buildable.m_iTurnsToConstruct);
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
@@ -2411,7 +2409,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 		CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
 		if (pkLandmass->isWater())
 		{
-			if (pkLandmass->getNumTiles() < /*9*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN))
+			if (pkLandmass->isLake())
 				bHaveLake = true;
 			else
 				bHaveOcean = true;
@@ -2790,7 +2788,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategy
 
 	if (kPlayer.isMajorCiv() && !pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs() && kPlayer.getCapitalCity() != NULL)
 	{
-		if(!pCity->HasSharedAreaWith(kPlayer.getCapitalCity(),true,false))
+		if(!pCity->HasSharedLandmassWith(kPlayer.getCapitalCity(),true,false))
 		{
 			//this call is a bit expensive ...
 			if(kPlayer.HaveGoodSettlePlot(pCity->plot()->getArea()))
@@ -3707,73 +3705,65 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromCulture() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromScience() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromDefense() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromGold() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromConnection() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromPillaged() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromReligion() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0)
 		return true;
-	}
+
 	return false;
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
 {
-	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromStarving() > 0)
-	{
+	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0)
 		return true;
-	}
+
 	return false;
 }
-int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iFlatYield)
+int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+	YieldTypes eYield, int& iFlatYield)
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -3810,7 +3800,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iFlatYield += iValue;
 	}
-#if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->GetYieldChangePerPopInEmpire(eYield) > 0)
 	{
 		//Since this is going to grow, let's boost the pop by Era (earlier more: Anc x6, Cla x3, Med x2, Ren x1.5, Mod x1.2)
@@ -3821,7 +3810,6 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		iFlatYield += iValue;
 	}
-#endif
 	if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0)
 	{
 		int numReligions = pCity->GetCityReligions()->GetNumReligionsWithFollowers();
@@ -3898,58 +3886,21 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eTerrain == NO_TERRAIN)
 			continue;
 
-		if (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) == 0 && pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) == 0)
-			continue;
-
-		int iNumTerrain = pCity->CountTerrain(eTerrain);
-
-		if (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) > 0)
-		{
-			if (eTerrain == TERRAIN_MOUNTAIN)
-			{
-				if (pCity->GetNearbyMountains() > 0)
-				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * pCity->GetNearbyMountains() / 100);
-				}
-			}
-			else
-			{
-				if (iNumTerrain > 0)
-				{
-					iFlatYield += (pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield) * iNumTerrain / 100);
-				}
-			}
-		}
-		if (pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield) > 0)
-		{
-			if (iNumTerrain > 0)
-			{
-				iFlatYield += (iNumTerrain * pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield));
-			}
-		}
+		int iCount = plotStats.vTerrainCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetTerrainYieldChange(eTerrain, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXTerrain(eTerrain, eYield)) / 100;
 	}
+
 	int iNumFeatureInfos = GC.getNumFeatureInfos();
 	for (int iI = 0; iI < iNumFeatureInfos; iI++)
 	{
 		FeatureTypes eFeature = (FeatureTypes)iI;
 		if (eFeature == NO_FEATURE)
 			continue;
-
-		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) == 0 && pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) == 0)
-			continue;
-
-		int iCount = pCity->CountFeature(eFeature);
-		if (iCount <= 0)
-			continue;
 		
-		if (pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) > 0)
-		{	
-			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
-		}
-		if (pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield) > 0)
-		{
-			iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield) * iCount / 100);
-		}
+		int iCount = plotStats.vFeatureCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetFeatureYieldChange(eFeature, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetYieldPerXFeature(eFeature, eYield)) / 100;
 	}
 
 	int iNumResourceInfos = GC.getNumResourceInfos();
@@ -3981,12 +3932,12 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			if (!pCity->isCoastal())
 				continue;
 		}
-		
+
+		//a bit redundant, resource count should be zero anyway
 		if (!kPlayer.IsResourceRevealed(eResource))
 			continue;
 
-		//expensive
-		int iNumResource = pCity->CountResource(eResource);
+		int iNumResource = plotStats.vResourceCount[iI];
 
 		if (eYield == YIELD_CULTURE && pkBuildingInfo->GetResourceCultureChange(eResource) > 0)
 		{
@@ -4027,31 +3978,17 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 
-		if (pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield) == 0 && pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) == 0)
-			continue;
-
-		int iNumImprovement = pCity->CountImprovement(eImprovement);
-		if (pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield) > 0)
-		{
-			if (iNumImprovement > 0)
-			{
-				iFlatYield += (iNumImprovement * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield));
-			}
-		}
-		if (pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield) > 0)
-		{
-			if (iNumImprovement > 0)
-			{
-				iFlatYield += (iNumImprovement * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
-			}
-		}
+		int iCount = plotStats.vImprovementCount[iI];
+		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChange(eImprovement, eYield));
+		iFlatYield += (iCount * pkBuildingInfo->GetImprovementYieldChangeGlobal(eImprovement, eYield)) * kPlayer.getNumCities();
 	}
+
 	if (pkBuildingInfo->GetTradeRouteRecipientBonus() > 0 || pkBuildingInfo->GetTradeRouteTargetBonus() > 0 && eYield == YIELD_GOLD)
 	{
 		iFlatYield += ((kPlayer.GetTrade()->GetTradeValuesAtCityTimes100(pCity, YIELD_GOLD) / 100) * (pkBuildingInfo->GetTradeRouteRecipientBonus() + pkBuildingInfo->GetTradeRouteTargetBonus()));
 	}
 
-	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield);
+	int iYieldPolicyBonus = kPlayer.GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield, allExistingBuildings) + kPlayer.GetPlayerPolicies()->GetBuildingClassYieldChange(pkBuildingInfo->GetBuildingClassType(), eYield);
 	if (iYieldPolicyBonus > 0)
 	{
 		iFlatYield += iYieldPolicyBonus;
@@ -4458,6 +4395,8 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 
 		switch (eYield)
 		{
+		case NO_YIELD:
+			UNREACHABLE(); // Never supposed to be passed to this function.
 		case YIELD_CULTURE:
 			if (eNeedCulture != NO_AICITYSTRATEGY && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNeedCulture))
 			{
@@ -4507,30 +4446,44 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			}
 			break;
 		case YIELD_FAITH:
-			
-			int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-			
-			if (kPlayer.GetPlayerTraits()->IsReligious())
 			{
-				iFlavorReligion *= 3;
-				iFlavorReligion /= 2;
-			}
-			else
-			{
-				iFlavorReligion *= 2;
-				iFlavorReligion /= 3;
-			}
+				int iFlavorReligion = kPlayer.GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			
+				if (kPlayer.GetPlayerTraits()->IsReligious())
+				{
+					iFlavorReligion *= 3;
+					iFlavorReligion /= 2;
+				}
+				else
+				{
+					iFlavorReligion *= 2;
+					iFlavorReligion /= 3;
+				}
 
-			if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
-			{		
-				iYieldValue += max(1, iFlavorReligion);
-			}
+				if (pCity->GetFaithPerTurnFromBuildings() <= 0 && !kPlayer.GetReligions()->HasCreatedPantheon())
+				{		
+					iYieldValue += max(1, iFlavorReligion);
+				}
 			
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
-			{
-				iYieldValue += max(1, iFlavorReligion);
+				if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion))
+				{
+					iYieldValue += max(1, iFlavorReligion);
+				}
+				break;
 			}
-			break;
+		case YIELD_FOOD:
+		case YIELD_GOLD:
+		case YIELD_GOLDEN_AGE_POINTS:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // TODO: These yields have no special scoring behavior.
 		}
 
 		CvDiplomacyAI* pDiplo = kPlayer.GetDiplomacyAI();
@@ -5099,7 +5052,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 		{
 			GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-			if(eGP == -1 || eGP == NULL || !eGP)
+			if(eGP == NO_GREATPERSON)
 				continue;
 
 			if(kPlayer.GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGP) > 0)
@@ -5149,7 +5102,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
 					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == -1 || eGP == NULL || !eGP)
+					if(eGP == NO_GREATPERSON)
 						continue;
 
 					if (pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGP, kPlayer.GetID(), pCity) > 0)
@@ -5194,7 +5147,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 			{
 				GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-				if(eGP == -1 || eGP == NULL || !eGP)
+				if(eGP == NO_GREATPERSON)
 					continue;
 				
 				if(kPlayer.getGreatPersonExpendedYield(eGP, yield) > 0)
@@ -5217,7 +5170,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
 					GreatPersonTypes eGP = (GreatPersonTypes)iJ;
-					if(eGP == -1 || eGP == NULL || !eGP)
+					if(eGP == NO_GREATPERSON)
 						continue;
 
 					for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -5465,7 +5418,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
 			if (pkBuildingInfo)
 			{
-				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, 10, 10, false, true);
+				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, false, true);
 				if (iFreeValue > 0)
 				{
 					iValue += iFreeValue;
@@ -5663,4 +5616,3 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 
 	return iBonus;
 }
-#endif

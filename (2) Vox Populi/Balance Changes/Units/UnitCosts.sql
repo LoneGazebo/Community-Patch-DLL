@@ -13,14 +13,17 @@
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_SHOSHONE_PATHFINDER';
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_WARRIOR';
 	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_AZTEC_JAGUAR';
-	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_ARCHER';
-	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_INCAN_SLINGER';
+	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_VP_SLINGER';
+	UPDATE Units SET Cost = '40' , FaithCost = '100' WHERE Type = 'UNIT_INCAN_SLINGER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_CHARIOT_ARCHER';
 	UPDATE Units SET Cost = '55' , FaithCost = '100' WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_SPEARMAN';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_GREEK_HOPLITE';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_PERSIAN_IMMORTAL';
 	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_CELT_PICTISH_WARRIOR';
+	UPDATE Units SET Cost = '70' , FaithCost = '100' WHERE Type = 'UNIT_ARCHER';
+	UPDATE Units SET Cost = '70',  FaithCost = '100' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
+	UPDATE Units SET Cost = '70' WHERE Type = 'UNIT_BARBARIAN_ARCHER';
 	UPDATE Units SET Cost = '90' , FaithCost = '100' WHERE Type = 'UNIT_HORSEMAN';	
 	UPDATE Units SET Cost = '125', FaithCost = '100' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
@@ -30,9 +33,8 @@
 --- Classical ---
 
 	UPDATE Units SET Cost = '90',  FaithCost = '200' WHERE Type = 'UNIT_SCOUT';
-	UPDATE Units SET Cost = '90',  FaithCost = '200' WHERE Type = 'UNIT_COMPOSITE_BOWMAN';
-	UPDATE Units SET Cost = '80',  FaithCost = '200' WHERE Type = 'UNIT_MAYAN_ATLATLIST';
-	UPDATE Units SET Cost = '90',  FaithCost = '200' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
+	UPDATE Units SET Cost = '110', FaithCost = '200' WHERE Type = 'UNIT_COMPOSITE_BOWMAN';
+	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_MAYAN_ATLATLIST';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_MONGOLIAN_KESHIK';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_SWORDSMAN';
@@ -40,7 +42,7 @@
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_ROMAN_LEGION';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_IROQUOIAN_MOHAWKWARRIOR';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_CATAPULT';
-	UPDATE Units SET Cost = '160', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER'; -- UNIT_LONGSWORDSMAN replacement, available early
+	UPDATE Units SET Cost = '135', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER'; -- UNIT_PIKEMAN replacement, available early
 
 	UPDATE Units SET Cost = '90',  FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
 	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_BYZANTINE_DROMON';
@@ -48,19 +50,19 @@
 --- Medieval ---
 
 	UPDATE Units SET Cost = '135', FaithCost = '300' WHERE Type = 'UNIT_PIKEMAN';
-	UPDATE Units SET Cost = '120', FaithCost = '300' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR'; -- cheaper as benefit, available at adjacent tech
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_CROSSBOWMAN';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_CHINESE_CHUKONU';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_EXPLORER';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_BANDEIRANTES';
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_LONGSWORDSMAN';
+	UPDATE Units SET Cost = '140', FaithCost = '300' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR'; -- cheaper as benefit, available at adjacent tech
 	UPDATE Units SET Cost = '160', FaithCost = '300' WHERE Type = 'UNIT_JAPANESE_SAMURAI';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_MOUNTED_BOWMAN';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_ARABIAN_CAMELARCHER';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_TREBUCHET';
 	UPDATE Units SET Cost = '175', FaithCost = '300' WHERE Type = 'UNIT_KOREAN_HWACHA';
+	UPDATE Units SET Cost = '180', FaithCost = '300' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR'; -- more expensive than explorer, does a lot more.
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_KNIGHT';
-	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_SONGHAI_MUSLIMCAVALRY';
 	UPDATE Units SET Cost = '200', FaithCost = '300' WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 	UPDATE Units SET Cost = '220', FaithCost = '300' WHERE Type = 'UNIT_SIAMESE_WARELEPHANT';

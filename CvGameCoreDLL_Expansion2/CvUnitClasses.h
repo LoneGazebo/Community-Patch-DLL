@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -57,7 +57,10 @@ public:
 	int GetNumFreeTechs() const;
 	int GetBaseBeakersTurnsToCount() const;
 	int GetBaseCultureTurnsToCount() const;
+	int GetBaseGoldTurnsToCount() const;
+	int GetBaseProductionTurnsToCount() const;
 	int GetBaseTurnsForGAPToCount() const;
+	int GetBaseWLTKDTurns() const;
 	int GetBaseHurry() const;
 	int GetHurryMultiplier() const;
 	bool IsRushBuilding() const;
@@ -121,7 +124,7 @@ public:
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
 	bool IsSendCanMoveIntoEvent() const;
 #endif
-	inline DomainTypes CvUnitEntry::GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
+	inline DomainTypes GetDomainType() const { return (DomainTypes)m_iDomainType; } //this is used very often
 	int GetCivilianAttackPriority() const;
 	UnitAITypes GetDefaultUnitAIType() const;
 	int GetPrereqPillageTech() const;
@@ -228,7 +231,6 @@ public:
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetProductionTraits(int i) const;
 	int GetFlavorValue(int i) const;
-	int GetUnitGroupRequired(int i) const;
 	bool GetUpgradeUnitClass(int i) const;
 	bool GetUnitAIType(int i) const;
 	bool GetNotUnitAIType(int i) const;
@@ -289,7 +291,10 @@ private:
 	int m_iNumFreeTechs;
 	int m_iBaseBeakersTurnsToCount;
 	int m_iBaseCultureTurnsToCount;
+	int m_iBaseGoldTurnsToCount;
+	int m_iBaseProductionTurnsToCount;
 	int m_iBaseTurnsForGAPToCount;
+	int m_iBaseWLTKDTurns;
 	int m_iBaseHurry;
 	int m_iHurryMultiplier;
 	bool m_bRushBuilding;
@@ -447,7 +452,6 @@ private:
 	int* m_piResourceQuantityExpended;
 	int* m_piProductionTraits;
 	int* m_piFlavorValue;
-	int* m_piUnitGroupRequired;
 	int* m_piProductionModifierBuildings;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;

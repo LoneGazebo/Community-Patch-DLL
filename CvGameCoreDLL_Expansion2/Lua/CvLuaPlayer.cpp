@@ -288,7 +288,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
 	Method(GetFractionOriginalCapitalsUnderControl);
-	Method(GetTechDeviation);
+	Method(GetTechNeedModifier);
 	Method(GetTourismPenalty);
 	Method(GetTechsToFreePolicy);
 #endif
@@ -348,8 +348,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetHappiness);
 	Method(SetHappiness);
-	Method(GetEmpireHappinessForCity);
-	Method(GetEmpireUnhappinessForCity);
 	Method(GetEmpireHappinessFromCities);
 	Method(GetBonusHappinessFromLuxuriesFlat);
 	Method(GetBonusHappinessFromLuxuriesFlatForUI);
@@ -392,6 +390,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCitySpecialists);
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
+	Method(GetUnhappinessFromPuppetCitySpecialists);
 	Method(GetUnhappinessFromPublicOpinion);
 
 	Method(GetUnhappinessFromWarWeariness);
@@ -765,23 +764,20 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	Method(GetUnhappinessFromCityCulture);
-	Method(GetUnhappinessFromCityScience);
-	Method(GetUnhappinessFromCityDefense);
-	Method(GetUnhappinessFromCityGold);
-	Method(GetUnhappinessFromCityConnection);
-	Method(GetUnhappinessFromCityPillaged);
-	Method(GetUnhappinessFromCityStarving);
-	Method(GetUnhappinessFromCityMinority);
+	Method(GetUnhappinessFromBoredom);
+	Method(GetUnhappinessFromIlliteracy);
+	Method(GetUnhappinessFromDistress);
+	Method(GetUnhappinessFromPoverty);
+	Method(GetUnhappinessFromIsolation);
+	Method(GetUnhappinessFromPillagedTiles);
+	Method(GetUnhappinessFromFamine);
+	Method(GetUnhappinessFromReligiousUnrest);
 #endif
 	Method(GetUnhappinessFromJFDSpecial);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-	Method(GetBonusHappinessFromLuxuries);
-	Method(GetScalingNationalPopulationRequrired);
-#endif
+	Method(GetScalingNationalPopulationRequired);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	Method(GetPuppetUnhappinessMod);
-	Method(GetCapitalUnhappinessModCBP);
+	Method(GetCapitalNeedModifier);
 #endif
 
 	Method(IsAlive);
@@ -1256,6 +1252,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHappinessFromVassals);
 	Method(GetScoreFromVassals);
 	Method(GetMilitaryAggressivePosture);
+	Method(CountAggressiveMilitaryScore);
 	Method(MoveRequestTooSoon);
 	Method(GetPlayerMoveTroopsRequestCounter);
 	Method(GetMyShareOfVassalTaxes);
@@ -1463,6 +1460,18 @@ const char* CvLuaPlayer::GetTypeName()
 	return "Player";
 }
 //------------------------------------------------------------------------------
+static DomainTypes LuaToTradeDomain(lua_State* L, int index)
+{
+	const int iDomain = lua_tointeger(L, index);
+	const DomainTypes eDomain = static_cast<DomainTypes>(iDomain);
+	switch (eDomain) {
+	case DOMAIN_SEA:
+	case DOMAIN_LAND:
+		return eDomain;
+	default:
+		luaL_error(L, "Invalid trade domain index %d", iDomain);
+	}
+}
 
 
 //------------------------------------------------------------------------------
@@ -3303,7 +3312,7 @@ int CvLuaPlayer::lGetFractionOriginalCapitalsUnderControl(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetTechDeviation(lua_State* L)
+int CvLuaPlayer::lGetTechNeedModifier(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -3311,7 +3320,7 @@ int CvLuaPlayer::lGetTechDeviation(lua_State* L)
 		return 0;
 
 	// Mod for City Count
-	int iMod = pkPlayer->GetTechDeviation();	// Default is 15, gets smaller on larger maps
+	int iMod = pkPlayer->GetTechNeedModifier();
 
 	lua_pushinteger(L, iMod);
 	return 1;
@@ -3716,19 +3725,22 @@ int CvLuaPlayer::lGetBeliefsInPantheon(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	// If this player has created a (local) religion, we need to use that instead!
+	ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer(true);
+
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 	int idx = 1;
 
-	// If this player has created a (local) religion, we need to use that instead!
-	ReligionTypes eReligion = pkPlayer->GetReligions()->GetReligionCreatedByPlayer(true);
-
-	CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkPlayer->GetID())->m_Beliefs;
-	for(int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+	if (eReligion != NO_RELIGION)
 	{
-		const BeliefTypes eBelief = beliefs.GetBelief(iI);
-		lua_pushinteger(L, eBelief);
-		lua_rawseti(L, t, idx++);
+		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkPlayer->GetID())->m_Beliefs;
+		for (int iI = 0; iI < beliefs.GetNumBeliefs(); iI++)
+		{
+			const BeliefTypes eBelief = beliefs.GetBelief(iI);
+			lua_pushinteger(L, eBelief);
+			lua_rawseti(L, t, idx++);
+		}
 	}
 
 	return 1;
@@ -3921,23 +3933,6 @@ int CvLuaPlayer::lSetHappiness(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetEmpireHappinessForCity(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetEmpireHappinessForCity();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lGetEmpireUnhappinessForCity(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetEmpireUnhappinessForCity();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
-//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEmpireHappinessFromCities(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayer::GetEmpireHappinessFromCities);
@@ -4032,15 +4027,15 @@ int CvLuaPlayer::lGetHappinessFromResourceMonopolies(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromResourceMonopolies);
 }
 
-//int getUnhappinessFromCitizenNeeds() const;
+//int GetUnhappinessFromCitizenNeeds() const;
 int CvLuaPlayer::lGetUnhappinessFromCitizenNeeds(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getUnhappinessFromCitizenNeeds);
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromCitizenNeeds);
 }
-//int getUnhappinessFromCitizenNeeds() const;
+//int GetHappinessFromCitizenNeeds() const;
 int CvLuaPlayer::lGetHappinessFromCitizenNeeds(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::getHappinessFromCitizenNeeds);
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromCitizenNeeds);
 }
 
 int CvLuaPlayer::lGetBonusHappinessFromLuxuriesFlat(lua_State* L)
@@ -4186,6 +4181,12 @@ int CvLuaPlayer::lGetUnhappinessFromCitySpecialists(lua_State* L)
 int CvLuaPlayer::lGetUnhappinessFromPuppetCityPopulation(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromPuppetCityPopulation);
+}
+
+//int GetUnhappinessFromPuppetCitySpecialists() const;
+int CvLuaPlayer::lGetUnhappinessFromPuppetCitySpecialists(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessFromPuppetCitySpecialists);
 }
 
 //------------------------------------------------------------------------------
@@ -4342,31 +4343,46 @@ int CvLuaPlayer::lGetPuppetYieldPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	CvAssertMsg(eYield > NO_YIELD && eYield < NUM_YIELD_TYPES, "Unexpected yield in lGetPuppetYieldPenalty");
 
 	int iResult = pkPlayer->GetPlayerTraits()->GetPuppetPenaltyReduction() + pkPlayer->GetPuppetYieldPenaltyMod();
 	switch (eYield)
 	{
-		case(YIELD_FOOD) :
+		case YIELD_FOOD:
 			iResult += /*0*/ GD_INT_GET(PUPPET_GROWTH_MODIFIER);
 			break;
-		case(YIELD_PRODUCTION) :
+		case YIELD_PRODUCTION:
 			iResult += /*0*/ GD_INT_GET(PUPPET_PRODUCTION_MODIFIER);
 			break;
-		case(YIELD_SCIENCE) :
-			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
+		case YIELD_SCIENCE:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_SCIENCE_MODIFIER);
 			break;
-		case(YIELD_GOLD) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
+		case YIELD_GOLD:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLD_MODIFIER);
 			break;
-		case(YIELD_FAITH) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
+		case YIELD_FAITH:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_FAITH_MODIFIER);
 			break;
-		case(YIELD_TOURISM) :
-			iResult += /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
+		case YIELD_TOURISM:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
 			break;
-		case(YIELD_CULTURE) :
-			iResult += /*-25 in CP, -80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
+		case YIELD_CULTURE:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_CULTURE_MODIFIER);
 			break;
+		case YIELD_GOLDEN_AGE_POINTS:
+			iResult += /*-80 in VP*/ GD_INT_GET(PUPPET_GOLDEN_AGE_MODIFIER);
+			break;
+		case NO_YIELD:
+		case YIELD_GREAT_GENERAL_POINTS:
+		case YIELD_GREAT_ADMIRAL_POINTS:
+		case YIELD_POPULATION:
+		case YIELD_CULTURE_LOCAL:
+		case YIELD_JFD_HEALTH:
+		case YIELD_JFD_DISEASE:
+		case YIELD_JFD_CRIME:
+		case YIELD_JFD_LOYALTY:
+		case YIELD_JFD_SOVEREIGNTY:
+			break; // Yield unchanged
 	}
 	if (iResult > 0)
 		iResult = 0;
@@ -4783,7 +4799,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteYourBuildingBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4809,7 +4825,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTheirBuildingBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4835,7 +4851,7 @@ int CvLuaPlayer::lGetInternationalTradeRoutePolicyBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity,pDestCity);
@@ -4861,7 +4877,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4888,7 +4904,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -4907,7 +4923,7 @@ int CvLuaPlayer::lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
@@ -4930,7 +4946,7 @@ int CvLuaPlayer::lGetTradeRouteTurns(lua_State* L)
 {
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	int iTurns = GC.getGame().GetGameTrade()->GetTradeRouteTurns(pOriginCity, pDestCity, eDomain, NULL)-1;
 	lua_pushinteger(L, iTurns);
@@ -4941,7 +4957,7 @@ int CvLuaPlayer::lGetTradeConnectionDistance(lua_State* L)
 {
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.SetCities(pOriginCity, pDestCity);
@@ -5103,7 +5119,7 @@ int CvLuaPlayer::lCanCreateFranchiseInCity(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 {
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	int iResult = GC.getGame().GetGameTrade()->GetDomainModifierTimes100(eDomain);
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -5148,7 +5164,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5179,7 +5195,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5210,7 +5226,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCulture(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5241,7 +5257,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteProduction(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5267,7 +5283,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteFood(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5294,7 +5310,7 @@ int CvLuaPlayer::lGetMinorCivGoldBonus(lua_State* L)
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
 	bool bOrigin = lua_toboolean(L, 5);
 
 	TradeConnection kTradeConnection;
@@ -5400,7 +5416,7 @@ int CvLuaPlayer::lGetPotentialAdmiralNewPort(lua_State* L)
 int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
 	int iCount = 0;
@@ -5422,9 +5438,35 @@ int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 int CvLuaPlayer::lGetTradeUnitType(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeUnit(eDomain, pkPlayer));
 	return 1;
+}
+
+//------------------------------------------------------------------------------
+static CvString LocalizeTradeTTYield(YieldTypes eYield, int iYieldQuantity)
+{
+	switch (eYield)
+	{
+	case YIELD_FOOD:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_PRODUCTION:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_GOLD:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_SCIENCE:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_CULTURE:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_FAITH:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_TOURISM:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+	case YIELD_GOLDEN_AGE_POINTS:
+		return GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+	default:
+		UNREACHABLE(); // All other yields cannot be acquired from trade.
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -5462,7 +5504,6 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				continue;
 			}
 
-
 			CvString strOriginYieldsStr = "";
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
@@ -5474,34 +5515,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					{
 						strOriginYieldsStr += ", ";
 					}
-
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strOriginYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -5512,33 +5526,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
 				if (iYieldQuantity != 0)
 				{
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strDestYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -5663,27 +5651,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			//	int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
 			//	if (iYieldQuantity != 0)
 			//	{
-			//		switch (eYield)
-			//		{
-			//		case YIELD_FOOD:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_PRODUCTION:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_GOLD:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_SCIENCE:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_CULTURE:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		case YIELD_FAITH:
-			//			strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-			//			break;
-			//		}
+			//		strOriginYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 			//	}
 			//}
 
@@ -5698,33 +5666,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					{
 						strDestYieldsStr += ", ";
 					}
-					switch (eYield)
-					{
-					case YIELD_FOOD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_PRODUCTION:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_SCIENCE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_CULTURE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_FAITH:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_TOURISM:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
-						break;
-					case YIELD_GOLDEN_AGE_POINTS:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
-						break;
-					}
+					strDestYieldsStr += LocalizeTradeTTYield(eYield, iYieldQuantity);
 				}
 			}
 
@@ -8128,9 +8070,12 @@ int CvLuaPlayer::lGetPersonality(lua_State* L)
 int CvLuaPlayer::lSetPersonality(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (!pkPlayer->isMinorCiv())
+		luaL_error(L, "Player is not a minor civilization");
 	const int iPersonality = lua_tointeger(L, 2);
-
-	pkPlayer->GetMinorCivAI()->SetPersonality((MinorCivPersonalityTypes) iPersonality);
+	if (iPersonality <= NO_MINOR_CIV_PERSONALITY_TYPE || iPersonality >= NUM_MINOR_CIV_PERSONALITY_TYPES)
+		luaL_error(L, "Invalid minor personality index %d", iPersonality);
+	pkPlayer->GetMinorCivAI()->SetPersonality(static_cast<MinorCivPersonalityTypes>(iPersonality));
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -9164,82 +9109,82 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityCulture();
-int CvLuaPlayer::lGetUnhappinessFromCityCulture(lua_State* L)
+//int GetUnhappinessFromBoredom();
+int CvLuaPlayer::lGetUnhappinessFromBoredom(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityCulture();
+	const int iResult = pkPlayer->GetUnhappinessFromBoredom();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityScience();
-int CvLuaPlayer::lGetUnhappinessFromCityScience(lua_State* L)
+//int GetUnhappinessFromIlliteracy();
+int CvLuaPlayer::lGetUnhappinessFromIlliteracy(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityScience();
+	const int iResult = pkPlayer->GetUnhappinessFromIlliteracy();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityDefense();
-int CvLuaPlayer::lGetUnhappinessFromCityDefense(lua_State* L)
+//int GetUnhappinessFromDistress();
+int CvLuaPlayer::lGetUnhappinessFromDistress(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityDefense();
+	const int iResult = pkPlayer->GetUnhappinessFromDistress();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityGold();
-int CvLuaPlayer::lGetUnhappinessFromCityGold(lua_State* L)
+//int GetUnhappinessFromPoverty();
+int CvLuaPlayer::lGetUnhappinessFromPoverty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityGold();
+	const int iResult = pkPlayer->GetUnhappinessFromPoverty();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityConnection();
-int CvLuaPlayer::lGetUnhappinessFromCityConnection(lua_State* L)
+//int GetUnhappinessFromIsolation();
+int CvLuaPlayer::lGetUnhappinessFromIsolation(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityConnection();
+	const int iResult = pkPlayer->GetUnhappinessFromIsolation();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityPillaged();
-int CvLuaPlayer::lGetUnhappinessFromCityPillaged(lua_State* L)
+//int GetUnhappinessFromPillagedTiles();
+int CvLuaPlayer::lGetUnhappinessFromPillagedTiles(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityPillaged();
+	const int iResult = pkPlayer->GetUnhappinessFromPillagedTiles();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityStarving();
-int CvLuaPlayer::lGetUnhappinessFromCityStarving(lua_State* L)
+//int GetUnhappinessFromFamine();
+int CvLuaPlayer::lGetUnhappinessFromFamine(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityStarving();
+	const int iResult = pkPlayer->GetUnhappinessFromFamine();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getUnhappinessFromCityMinority();
-int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
+//int GetUnhappinessFromReligiousUnrest();
+int CvLuaPlayer::lGetUnhappinessFromReligiousUnrest(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityMinority();
+	const int iResult = pkPlayer->GetUnhappinessFromReligiousUnrest();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -9248,53 +9193,30 @@ int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->getUnhappinessFromCityJFDSpecial();
+	const int iResult = pkPlayer->GetUnhappinessFromCityJFDSpecial();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 //------------------------------------------------------------------------------
-//int getBonusHappinessFromLuxuries();
-int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
-//------------------------------------------------------------------------------
-//int GetScalingNationalPopulationRequrired();
-int CvLuaPlayer::lGetScalingNationalPopulationRequrired(lua_State* L)
+//int GetScalingNationalPopulationRequired();
+int CvLuaPlayer::lGetScalingNationalPopulationRequired(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetScalingNationalPopulationRequrired(eBuilding);
+	const int iResult = pkPlayer->GetScalingNationalPopulationRequired(eBuilding);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
-//int GetPuppetUnhappinessMod();
-int CvLuaPlayer::lGetPuppetUnhappinessMod(lua_State* L)
+//int GetCapitalNeedModifier();
+int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->GetPuppetUnhappinessMod();
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetCapitalUnhappinessModCBP();
-int CvLuaPlayer::lGetCapitalUnhappinessModCBP(lua_State* L)
-{
-	const int iResult = /*25*/ GD_INT_GET(BALANCE_HAPPINESS_CAPITAL_MODIFIER);
+	const int iResult = /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -9434,7 +9356,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkPlayerColor == NULL)
 	{
 		luaL_error(L, "Could not find player color at row %d", eColor);
-		return 0;
 	}
 
 	const ColorTypes ePrimaryColor	 = (ColorTypes)pkPlayerColor->GetColorTypePrimary();
@@ -9444,7 +9365,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkPrimaryColor == NULL)
 	{
 		luaL_error(L, "Could not find primary color at row %d", ePrimaryColor);
-		return 0;
 	}
 	const CvColorA& kPrimaryColor = pkPrimaryColor->GetColor();
 
@@ -9452,7 +9372,6 @@ int CvLuaPlayer::lGetPlayerColors(lua_State* L)
 	if(pkSecondaryColor == NULL)
 	{
 		luaL_error(L, "Could not find secondary color at row %d", eSecondaryColor);
-		return 0;
 	}
 	const CvColorA& kSecondaryColor = pkSecondaryColor->GetColor();
 
@@ -9547,10 +9466,10 @@ int CvLuaPlayer::lGetProximityToPlayer(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetProximityToPlayer);
 }
 //------------------------------------------------------------------------------
-//void DoUpdateProximityToPlayer(PlayerTypes  eIndex);
+// DEPRECATED
 int CvLuaPlayer::lDoUpdateProximityToPlayer(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::DoUpdateProximityToPlayer);
+	luaL_error(L, "DoUpdateProximityToPlayer - function is deprecated");
 }
 //------------------------------------------------------------------------------
 //int GetIncomingUnitType(PlayerTypes eFromPlayer);
@@ -9572,7 +9491,6 @@ int CvLuaPlayer::lGetIncomingUnitType(lua_State* L)
 			else
 			{
 				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
-				return 0;
 			}
 		}
 	}
@@ -9601,7 +9519,6 @@ int CvLuaPlayer::lGetIncomingUnitCountdown(lua_State* L)
 			else
 			{
 				luaL_error(L, "Player index %d is not a valid major civilization index.", static_cast<lua_Integer>(eFromPlayer));
-				return 0;
 			}
 		}
 	}
@@ -12909,7 +12826,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case CIV_APPROACH_FRIENDLY:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_FRIENDLY").toUTF8();
 					break;
-				default:
+				case NO_CIV_APPROACH:
+				case CIV_APPROACH_NEUTRAL:
 					str = Localization::Lookup("TXT_KEY_DIPLO_REAL_APPROACH_NEUTRAL").toUTF8();
 					break;
 				}
@@ -13272,7 +13190,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				case THREAT_MAJOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 					break;
-				default:
+				case THREAT_NONE:
+				case THREAT_MINOR:
 					str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 					break;
 				}
@@ -14026,7 +13945,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case THREAT_MAJOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
 				break;
-			default:
+			case THREAT_NONE:
+			case THREAT_MINOR:
 				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
 				break;
 			}
@@ -14319,6 +14239,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 					break;
 				case VASSAL_TREATMENT_ENSLAVED:
 					str = Localization::Lookup("TXT_KEY_DIPLO_VASSAL_TREATMENT_ENSLAVED").toUTF8();
+					break;
+				case NO_VASSAL_TREATMENT:
+					CvAssertMsg(false, "eTreatmentLevel is not expected to be NO_VASSAL_TREATMENT");
 					break;
 				}
 
@@ -15325,7 +15248,10 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			case CIV_APPROACH_FRIENDLY:
 				str = Localization::Lookup("TXT_KEY_DIPLO_FRIENDLY").toUTF8();
 				break;
-			default:
+			case NO_CIV_APPROACH:
+			case CIV_APPROACH_WAR:
+			case CIV_APPROACH_DECEPTIVE:
+			case CIV_APPROACH_NEUTRAL:
 				if (pDiplo->IsActHostileTowardsHuman(ePlayer))
 				{
 					str = Localization::Lookup("TXT_KEY_DIPLO_NEUTRAL_HOSTILE").toUTF8();
@@ -15832,9 +15758,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		case SPY_RANK_SPECIAL_AGENT:
 			lua_pushstring(L, "TXT_KEY_SPY_RANK_2");
 			break;
-		default:
-			CvAssertMsg(false, "pSpy->m_eRank not in case statement");
-			break;
 		}
 		lua_setfield(L, t, "Rank");
 
@@ -15872,9 +15795,6 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 			break;
 		case SPY_STATE_TERMINATED:
 			lua_pushstring(L, "TXT_KEY_SPY_STATE_TERMINATED");
-			break;
-		default:
-			CvAssertMsg(false, "pSpy->m_eSpyState not in case statement");
 			break;
 		}
 		lua_setfield(L, t, "State");
@@ -16203,7 +16123,7 @@ int CvLuaPlayer::lIsOtherDiplomatVisitingMe(lua_State* L)
 int CvLuaPlayer::lGetTradeRouteRange(lua_State* L)
 {
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
-	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 2);
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 3);
 
 	CvPlayerTrade* pkPlayerTrade = pkThisPlayer->GetTrade();
@@ -16425,6 +16345,15 @@ int CvLuaPlayer::lGetMilitaryAggressivePosture(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
 	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->GetMilitaryAggressivePosture(eOtherPlayer));
+	return 1;
+}
+// -------------------
+int CvLuaPlayer::lCountAggressiveMilitaryScore(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetDiplomacyAI()->CountAggressiveMilitaryScore(eOtherPlayer, false));
 	return 1;
 }
 // --------------------

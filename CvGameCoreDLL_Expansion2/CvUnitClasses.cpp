@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -42,7 +42,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iNumFreeTechs(0),
 	m_iBaseBeakersTurnsToCount(0),
 	m_iBaseCultureTurnsToCount(0),
+	m_iBaseGoldTurnsToCount(0),
+	m_iBaseProductionTurnsToCount(0),
 	m_iBaseTurnsForGAPToCount(0),
+	m_iBaseWLTKDTurns(0),
 	m_iBaseHurry(0),
 	m_iHurryMultiplier(0),
 	m_bRushBuilding(false),
@@ -58,10 +61,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bCultureFromExperienceOnDisband(false),
 	m_bFreeUpgrade(false),
 	m_bUnitEraUpgrade(false),
-	m_bWarOnly(0),
+	m_bWarOnly(false),
 	m_bWLTKD(false),
 	m_bGoldenAge(false),
-	m_bCultureBoost(0),
+	m_bCultureBoost(false),
 	m_bExtraAttackHealthOnKill(false),
 	m_bHighSeaRaider(false),
 #endif
@@ -185,7 +188,6 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_piResourceQuantityExpended(NULL),
 	m_piProductionTraits(NULL),
 	m_piFlavorValue(NULL),
-	m_piUnitGroupRequired(NULL),
 	m_pbFreePromotions(NULL),
 	m_paszEarlyArtDefineTags(NULL),
 	m_paszLateArtDefineTags(NULL),
@@ -231,7 +233,6 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_piResourceQuantityExpended);
 	SAFE_DELETE_ARRAY(m_piProductionTraits);
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
-	SAFE_DELETE_ARRAY(m_piUnitGroupRequired);
 	SAFE_DELETE_ARRAY(m_pbFreePromotions);
 	SAFE_DELETE_ARRAY(m_paszEarlyArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszLateArtDefineTags);
@@ -291,7 +292,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumFreeTechs = kResults.GetInt("NumFreeTechs");
 	m_iBaseBeakersTurnsToCount = kResults.GetInt("BaseBeakersTurnsToCount");
 	m_iBaseCultureTurnsToCount = kResults.GetInt("BaseCultureTurnsToCount");
+	m_iBaseGoldTurnsToCount = kResults.GetInt("BaseGoldTurnsToCount");
+	m_iBaseProductionTurnsToCount = kResults.GetInt("BaseProductionTurnsToCount");
 	m_iBaseTurnsForGAPToCount = kResults.GetInt("BaseTurnsForGAPToCount");
+	m_iBaseWLTKDTurns = kResults.GetInt("BaseWLTKDTurns");
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
 	m_bRushBuilding= kResults.GetInt("RushBuilding")>0;
@@ -872,10 +876,28 @@ int CvUnitEntry::GetBaseCultureTurnsToCount() const
 	return m_iBaseCultureTurnsToCount;
 }
 
+/// How many previous turns worth of gold does this Unit give us?
+int CvUnitEntry::GetBaseGoldTurnsToCount() const
+{
+	return m_iBaseGoldTurnsToCount;
+}
+
+/// How many previous turns worth of production (across NUM_HURRY_PRODUCTION_CITIES cities) does this Unit give us?
+int CvUnitEntry::GetBaseProductionTurnsToCount() const
+{
+	return m_iBaseProductionTurnsToCount;
+}
+
 /// How many previous turns worth of culture does this Unit give us?
 int CvUnitEntry::GetBaseTurnsForGAPToCount() const
 {
 	return m_iBaseTurnsForGAPToCount;
+}
+
+/// How many turns of WLTKD does this Unit give us?
+int CvUnitEntry::GetBaseWLTKDTurns() const
+{
+	return m_iBaseWLTKDTurns;
 }
 
 /// What is the base amount of production provided by this unit?
@@ -902,12 +924,12 @@ int CvUnitEntry::GetBaseGold() const
 	return m_iBaseGold;
 }
 
-/// Era boost to gold (for great people)
+/// How much does this great person's instant yield scale with each great work?
 int CvUnitEntry::GetScaleFromNumGWs() const
 {
 	return m_iScaleFromNumGWs;
 }
-/// Era boost to gold (for great people)
+/// How much does this great person's instant yield scale with each theme?
 int CvUnitEntry::GetScaleFromNumThemes() const
 {
 	return m_iScaleFromNumThemes;
@@ -1549,13 +1571,6 @@ int CvUnitEntry::GetFlavorValue(int i) const
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
-}
-
-int CvUnitEntry::GetUnitGroupRequired(int i) const
-{
-	CvAssertMsg(i < GetGroupDefinitions(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piUnitGroupRequired ? m_piUnitGroupRequired[i] : NULL;
 }
 
 /// What can this unit upgrade into?

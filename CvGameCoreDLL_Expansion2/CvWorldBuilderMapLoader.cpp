@@ -428,11 +428,13 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 				break;
 			}
 		}
+ 
+		const TeamTypes eTeam = (TeamTypes)((kPlayer.m_byTeam - uiPlayerCount) + MAX_MAJOR_CIVS);
 
 		CvPreGame::setHandicap(ePlayer, eHandicap);
 
 		CvPreGame::setSlotStatus(ePlayer, SS_COMPUTER);
-		CvPreGame::setTeamType(ePlayer, (TeamTypes)kPlayer.m_byTeam);
+		CvPreGame::setTeamType(ePlayer, eTeam);
 		CvPreGame::setMinorCiv(ePlayer, true);
 	}
 }
@@ -1466,6 +1468,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 					lua_pushstring(L, "");
 				}
 			}
+			default:
+				UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
 			}
 
 			lua_rawset(L, -3);
@@ -1528,6 +1532,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 					lua_pushstring(L, "");
 				}
 			}
+			default:
+				UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
 			}
 		}
 
@@ -1597,6 +1603,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 								}
 							}
 						}
+						default:
+							UNREACHABLE(); // This would typically indicate corruption so termination seems reasonable.
 						}
 					}
 				}
@@ -1856,7 +1864,7 @@ void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayer
 
 			sg_auiPlayerSlots[ePlayerSlot] = uiPlayer;
 
-			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!")
+			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!");
 			if(eOldSlot != NO_PLAYER)
 				sg_auiPlayerSlots[eOldSlot] = uiCurrent;
 		}

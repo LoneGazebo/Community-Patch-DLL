@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -107,7 +107,7 @@ private:
 FDataStream& operator>>(FDataStream&, CvGameCulture&);
 FDataStream& operator<<(FDataStream&, const CvGameCulture&);
 
-enum InfluenceLevelTypes		
+enum CLOSED_ENUM InfluenceLevelTypes		
 {
 	NO_INFLUENCE_LEVEL = -1,
 	INFLUENCE_LEVEL_UNKNOWN,
@@ -118,14 +118,14 @@ enum InfluenceLevelTypes
 	INFLUENCE_LEVEL_DOMINANT,
 };
 
-enum InfluenceLevelTrend		
+enum CLOSED_ENUM InfluenceLevelTrend
 {
 	INFLUENCE_TREND_FALLING = -1,
 	INFLUENCE_TREND_STATIC,
 	INFLUENCE_TREND_RISING,
 };
 
-enum PublicOpinionTypes		
+enum CLOSED_ENUM PublicOpinionTypes
 {
 	NO_PUBLIC_OPINION = -1,
 	PUBLIC_OPINION_CONTENT,
@@ -300,7 +300,6 @@ public:
 	void SetTurnIdeologySwitch(int iTurn);
 	int GetTurnIdeologyAdopted() const;
 	void SetTurnIdeologyAdopted(int iTurn);
-	int GetTourismBlastStrength(int iMultiplier);
 	void AddTourismAllKnownCivs(int iTourism);
 	void AddTourismAllKnownCivsWithModifiers(int iTourism);
 	void AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eOtherPlayer, int iTourism);

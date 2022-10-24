@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1226,7 +1226,7 @@ int CvTacticalAnalysisMap::GetDominanceZoneID(int iPlotIndex)
 	RefreshIfOutdated();
 
 	if (iPlotIndex<0 || iPlotIndex>=(int)m_vPlotZoneID.size())
-		return NULL;
+		return -1;
 
 	return m_vPlotZoneID[iPlotIndex];
 }
@@ -1237,7 +1237,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 	RefreshIfOutdated();
 
 	if (!pPlot || pPlot->GetPlotIndex()>=(int)m_vPlotZoneID.size())
-		return NULL;
+		return false;
 
 	CvTacticalDominanceZone* pZone = GetZoneByID(m_vPlotZoneID[pPlot->GetPlotIndex()]);
 

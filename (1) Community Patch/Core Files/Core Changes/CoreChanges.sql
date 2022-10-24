@@ -492,12 +492,20 @@ SET Flavor = 75
 WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND FlavorType = 'FLAVOR_NAVAL_RECON';
 
 UPDATE AIEconomicStrategies
-SET MinimumNumTurnsExecuted = 50
+SET MinimumNumTurnsExecuted = 10
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
 
 UPDATE AIEconomicStrategies
-SET CheckTriggerTurnCount = 50
+SET CheckTriggerTurnCount = 7
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
+
+UPDATE AIEconomicStrategies
+SET MinimumNumTurnsExecuted = 10
+WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
+
+UPDATE AIEconomicStrategies
+SET CheckTriggerTurnCount = 3
+WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
 
 -- Economic City Strategy Flavors
 

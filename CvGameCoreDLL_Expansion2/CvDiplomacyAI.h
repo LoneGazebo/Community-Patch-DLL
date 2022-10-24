@@ -246,6 +246,8 @@ public:
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
 	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
+	bool IsWantsSneakAttack(PlayerTypes ePlayer) const; // Do we want to launch a Sneak Attack Operation against ePlayer?
+
 	// Approach Values: Cached weight for each approach
 	int GetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach) const;
 	void SetPlayerApproachValue(PlayerTypes ePlayer, CivApproachTypes eApproach, int iValue);
@@ -407,10 +409,6 @@ public:
 	void SetPotentialWarTarget(PlayerTypes ePlayer, bool bValue);
 	void DoResetPotentialWarTargets();
 
-	// Do we want to launch a Sneak Attack Operation against ePlayer?
-	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
-	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
-
 	// Mustering For Attack: Is there Sneak Attack Operation completed and ready to roll against ePlayer?
 	bool IsArmyInPlaceForAttack(PlayerTypes ePlayer) const;
 	void SetArmyInPlaceForAttack(PlayerTypes ePlayer, bool bValue);
@@ -538,8 +536,6 @@ public:
 	// Military Aggressive Posture: How aggressively has ePlayer positioned their Units in relation to us?
 	AggressivePostureTypes GetMilitaryAggressivePosture(PlayerTypes ePlayer) const;
 	void SetMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
-	AggressivePostureTypes GetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer) const;
-	void SetLastTurnMilitaryAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 
 	// Expansion Aggressive Posture: How aggressively has ePlayer settled or conquered in proximity to us?
 	AggressivePostureTypes GetExpansionAggressivePosture(PlayerTypes ePlayer) const;
@@ -1102,6 +1098,7 @@ public:
 	// Aggressive Postures
 	// ------------------------------------
 
+	int CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalveDefenders);
 	void DoUpdateMilitaryAggressivePostures();
 
 	void DoExpansionBickering();
@@ -1768,12 +1765,12 @@ public:
 
 private:
 	/// Helper function to return this player's ID more conveniently
-	inline PlayerTypes CvDiplomacyAI::GetID() const
+	inline PlayerTypes GetID() const
 	{
 		return m_pPlayer->GetID();
 	}
 	/// Helper function to return the Team ID this AI's player is associated with more conveniently
-	inline TeamTypes CvDiplomacyAI::GetTeam() const
+	inline TeamTypes GetTeam() const
 	{
 		return m_pPlayer->getTeam();
 	}
@@ -1940,7 +1937,6 @@ private:
 	// War
 	bool m_abSaneDiplomaticTarget[MAX_CIV_PLAYERS];
 	bool m_abPotentialWarTarget[MAX_CIV_PLAYERS];
-	bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 	bool m_abArmyInPlaceForAttack[MAX_CIV_PLAYERS];
 	bool m_abAggressor[MAX_CIV_PLAYERS];
 	unsigned char m_aiNumWarsFought[MAX_CIV_PLAYERS];
@@ -1970,7 +1966,6 @@ private:
 
 	// Aggressive Postures
 	char m_aeMilitaryAggressivePosture[MAX_CIV_PLAYERS];
-	char m_aeLastTurnMilitaryAggressivePosture[MAX_CIV_PLAYERS];
 	char m_aePlotBuyingAggressivePosture[MAX_MAJOR_CIVS];
 
 	// Dispute Levels

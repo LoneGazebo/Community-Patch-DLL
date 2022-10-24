@@ -58,6 +58,31 @@
 						<Image ID="UnitIcon" Anchor="C,C" Size="32,32" Offset="1,-1" Texture="UnitFlagAtlasWhite.dds" Color="240,199,0,255" />
 					</Image>
 
+					<!-- Unit Promotions -->
+					<!--
+					<Stack ID="PromotionStackV" StackGrowth="Bottom" Anchor="C,B" Padding="-2" Offset="0,-26">
+						<Stack ID="PromotionStackH" StackGrowth="Right" Anchor="C,C" Padding="-2"/>
+					</Stack>
+					-->
+					<Stack Offset="0,-26" StackGrowth="Right" Anchor="C,C" ID="EarnedPromotionStack1" Padding="-2">
+						<Image Size="16,16" Texture="" ID="Promotion1" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion2" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion3" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion4" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion5" Hidden="1"/>
+					</Stack>
+					<Stack Offset="0,-40" StackGrowth="Right" Anchor="C,C" ID="EarnedPromotionStack2" Padding="-2">
+						<Image Size="16,16" Texture="" ID="Promotion6" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion7" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion8" Hidden="1"/>
+						<Image Size="16,16" Texture="" ID="Promotion9" Hidden="1"/>
+					</Stack>
+					<Image Anchor="C,C" Offset="-28,-12" Size="16,16" Texture="" ID="Promotion10" Hidden="1"/>
+					<Image Anchor="C,C" Offset="28,-12"  Size="16,16" Texture="" ID="Promotion11" Hidden="1"/>
+					<Image Anchor="C,C" Offset="-28,4"  Size="16,16" Texture="" ID="Promotion12" Hidden="1"/>
+					<Image Anchor="C,C" Offset="28,4"  Size="16,16" Texture="" ID="Promotion13" Hidden="1"/>
+
+					
 				</Image>
 
 				<!-- Selection or War Highlight -->

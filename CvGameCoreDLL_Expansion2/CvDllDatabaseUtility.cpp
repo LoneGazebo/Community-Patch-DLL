@@ -15,7 +15,7 @@
 //
 #include "CvGameCoreDLLPCH.h"
 #include <algorithm>
-#include "CvDLLDatabaseUtility.h"
+#include "CvDllDatabaseUtility.h"
 #include "CvDllContext.h"
 #include "CvGlobals.h"
 #include "CvGrandStrategyAI.h"
@@ -390,9 +390,8 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	PrefetchCollection(GC.getAchievementInfo(), "Achievements");
-#endif
+	if (MOD_API_ACHIEVEMENTS)
+		PrefetchCollection(GC.getAchievementInfo(), "Achievements");
 
 #if defined(MOD_BALANCE_CORE)
 	// Must be after buildings because this calls from Buildings

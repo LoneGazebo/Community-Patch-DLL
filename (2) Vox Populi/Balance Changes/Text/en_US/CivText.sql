@@ -45,14 +45,14 @@ SET Text = 'Fast Medieval ranged Unit, weak to Pikemen. Only the Arabians may bu
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CAMEL_ARCHER';
 
 UPDATE Language_en_US
-SET Text = 'The Camel Archer is the Arabian unique unit, replacing the Heavy Skirmisher. The Camel Archer is a powerful ranged attack unit that starts with Splash Damage I, allowing it to do damage to groups of enemies 1 hex away. It can move after combat, retreats from melee combat, and does not require [ICON_RES_HORSE] Horses to be constructed. As a mounted unit, the Camel Archer is vulnerable to Pikemen.'
+SET Text = 'The Camel Archer is the Arabian unique unit, replacing the Heavy Skirmisher. The Camel Archer is a powerful ranged attack unit that starts with Splash Damage I, allowing it to do damage to groups of enemies 1 hex away. It retreats from melee combat and does not require [ICON_RES_HORSE] Horses to be constructed. As a mounted unit, the Camel Archer is still vulnerable to Pikemen.'
 WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 
 --------------------
 -- Assyria
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Writing, and comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WORK] Great Work and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Library in the City. Every [ICON_GREAT_WORK] Great Work of Writing you control grants +5 XP to Units created in any City (maximum of 45 XP). 1 Specialist no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Writing, and comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WORK] Great Work and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Library in the City. Every [ICON_GREAT_WORK] Great Work of Writing you control grants +5 XP to Units created in any City (maximum of 45 XP). 1 Specialist no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
  
 UPDATE Language_en_US
@@ -95,11 +95,11 @@ SET Text = 'The Coffee House is a Renaissance-era building unique to Austria, re
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'A fast Mounted Unit used for scouting and hit-and-run attacks. Ignores Zone of Control. Only the Austrians may build it.'
+SET Text = 'A fast Mounted Unit used for scouting, flanking, and hit-and-run attacks. Ignores Zone of Control. Only the Austrians may build it.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_AUSTRIAN_HUSSAR';
 
 UPDATE Language_en_US
-SET Text = 'Hussars are great scouts and flank attackers. They are slightly faster than Cuirassier which they replace. They start with Promotions that give them +1 Sight and allows them to ignore Zone of Control.'
+SET Text = 'Hussars are great scouts and flank attackers. They are slightly faster than Cuirassier which they replace. They start with Promotions improving their sight range and allow them to ignore Zone of Control.'
 WHERE Tag = 'TXT_KEY_UNIT_AUSTRIAN_HUSSAR_STRATEGY';
 
 --------------------
@@ -133,15 +133,15 @@ SET Text = 'Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST]
 WHERE Tag = 'TXT_KEY_TRAIT_INGENIOUS';
 
 UPDATE Language_en_US
-SET Text = 'This Babylonian Unique Unit replaces the Composite Bowman. The Bowman is stronger and can better withstand melee attacks than the standard Composite Bowman. Starts with the [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] promotion.'
+SET Text = 'This Babylonian Unique Unit replaces the Archer. The Bowman is stronger and can better withstand melee attacks than the standard Archer. Starts with the [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] promotion.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Bowman is the Babylonian Unique Unit, replacing the Composite Bowman. This Unit is defensively stronger than the Composite Bowman, allowing placement in the front line. The Bowman''s improved combat prowess helps ameliorate any concern that it may be quickly overrun.'
+SET Text = 'The Bowman is the Babylonian Unique Unit, replacing the Archer. This Unit is defensively stronger than the Archer, allowing placement in the front line. The Bowman''s improved combat prowess helps ameliorate any concern that it may be quickly overrun.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_BOWMAN_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Walls of Babylon increase the damage output of all the city''s ranged attacks and increase the city''s defense. Increases Military Units supplied by this City''s population by 10%. Also helps with managing the Empire Needs Modifier in this City.'
+SET Text = 'The Walls of Babylon increase the damage output of all the city''s ranged attacks and increase the city''s defense. Increases Military Units supplied by this City''s population by 10%. Also helps with managing the Empire Size Modifier in this City.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_INFO';
 
 UPDATE Buildings
@@ -149,17 +149,17 @@ SET Help = 'TXT_KEY_BUILDING_BABYLON_WALLS_HELP'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', 'Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Scientists in this City generate +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.');
+VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', 'Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Scientists in this City generate +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
 
 UPDATE Language_en_US
-SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a city by 15 and Hit Points by 75, both values much higher than standard Walls. Increases Military Unit Supply Cap from City Population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide a Scientist specialist slot and improve the Gold yields of all Scientist specialists in the City. Also helps with managing the Empire Needs Modifier in this City.'
+SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a city by 15 and Hit Points by 75, both values much higher than standard Walls. Increases Military Unit Supply Cap from City Population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide a Scientist specialist slot and improve the Gold yields of all Scientist specialists in the City. Also helps with managing the Empire Size Modifier in this City.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY';
 
 --------------------
 -- Brazil
 --------------------
 UPDATE Language_en_US
-SET Text = 'Has a unique "We Love The King Day", Carnival, that gives +25% [ICON_CULTURE] Culture and -50% [ICON_HAPPINESS_3] Unhappiness from Needs in Cities. When a [ICON_GOLDEN_AGE] Golden Age begins, 30% of [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnival.'
+SET Text = 'Has a unique "We Love The King Day", Carnival, that gives -50% [ICON_HAPPINESS_3] Unhappiness from Needs in Cities. When a [ICON_GOLDEN_AGE] Golden Age begins, 30% of [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnival.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL';
 
 UPDATE Language_en_US
@@ -171,7 +171,7 @@ SET Text = 'This Atomic Era melee unit can use its Survivalism I promotion to he
 WHERE Tag = 'TXT_KEY_UNIT_BRAZILIAN_PRACINHA_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Constructs a Brazilwood Camp, which increases the amount of yields provided by this tile generates 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource, and keeps the Jungle or Forest intact. Can only be constructed adjacent to a Luxury Resource, and cannot be adjacent to another Brazilwood Camp.'
+SET Text = 'Constructs a Brazilwood Camp, which increases the amount of yields provided by this tile generates 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource, and keeps the Jungle or Forest intact. Cannot be constructed near Fresh Water or adjacent to another Brazilwood Camp.'
 WHERE Tag = 'TXT_KEY_BUILD_BRAZILWOOD_CAMP_HELP';
 
 UPDATE Language_en_US
@@ -179,11 +179,11 @@ SET Text = 'It will increase the amount of yields provided by this tile, while k
 WHERE Tag = 'TXT_KEY_BUILD_BRAZILWOOD_CAMP_REC';
 
 UPDATE Language_en_US
-SET Text = 'A Brazilwood Camp can only be built on Jungle or Forest tiles, must be adjacent to a Luxury Resource, and cannot be built adjacent to another Brazilwood Camp.  It provides additional yields, and 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource.'
+SET Text = 'A Brazilwood Camp can only be built on Jungle or Forest tiles without fresh water access, and cannot be built adjacent to another Brazilwood Camp.  It provides additional yields, and 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_BRAZILWOOD_CAMP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Brazilwood Camp can only be built on Jungle or Forest tiles, must be adjacent to a Luxury Resource, and cannot be built adjacent to another Brazilwood Camp.  It provides additional yields, and 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource.[NEWLINE][NEWLINE]Brazilwood is a tropical hardwood whose bark produces a bright crimson and deep purple extract used in dyes. Its wood is dense, and is prized for crafting stringed instruments (especially the bows) and cabinetry. The harvesting of brazilwood did not cease until 1875, by which time synthetic dyes dominated the textile industry and other hardwoods had been found to be better for musical instruments.'
+SET Text = 'A Brazilwood Camp can only be built on Jungle or Forest tiles without fresh water access, and cannot be built adjacent to another Brazilwood Camp.  It provides additional yields, and 1 copy of the [ICON_RES_BRAZILWOOD] Brazilwood Resource.[NEWLINE][NEWLINE]Brazilwood is a tropical hardwood whose bark produces a bright crimson and deep purple extract used in dyes. Its wood is dense, and is prized for crafting stringed instruments (especially the bows) and cabinetry. The harvesting of brazilwood did not cease until 1875, by which time synthetic dyes dominated the textile industry and other hardwoods had been found to be better for musical instruments.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_BRAZILWOOD_CAMP_TEXT';
 
 --------------------
@@ -266,7 +266,11 @@ SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MO
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
-SET Text = 'The Berserker is the Danish Unique Unit, replacing the Longswordsman. This Unit has +1 Movement [ICON_MOVES] compared to the Longswordsman and possesses the Amphibious and Charge promotions, allowing it to attack onto land from a Coast tile with no penalty and punish wounded units. Available after researching Metal Casting instead of Steel.'
+SET Text = 'Strong, front-line land Unit for the Medieval Era that specializes in attacks from the sea. Only Denmark may build it. Replaces the Pikeman, but is available earlier.'
+WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Berserker is the Danish Unique Unit, replacing the Pikeman. This Unit has +1 Movement [ICON_MOVES] compared to the Pikeman and possesses the Amphibious and Charge promotions, allowing it to attack onto land from a Coast tile with no penalty and punish wounded units. Available after researching Metal Casting instead of Steel.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 
 UPDATE Language_en_US
@@ -289,7 +293,7 @@ SET Text = 'The Burial Tomb is a Classical-era building which increases your out
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does not require [ICON_RES_HORSE] Horses to be built, unlike the Chariot Archer which it replaces. It is also stronger than the Chariot Archer, and receives the [COLOR_POSITIVE_TEXT]Gift of the Pharaoh[ENDCOLOR] Promotion for free.'
+SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does not require [ICON_RES_HORSE] Horses to be built, unlike the Chariot Archer which it replaces. It is also stronger than the Chariot Archer, and has the [COLOR_POSITIVE_TEXT]Gift of the Pharaoh[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_EGYPTIAN_WAR_CHARIOT';
 
 UPDATE Language_en_US
@@ -312,15 +316,15 @@ SET Text = 'The Longbowman can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LONGBOWMAN';
 
 UPDATE Language_en_US
-SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack.'
+SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armor Units.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. Starts with the [COLOR_POSITIVE_TEXT]Indomitable[ENDCOLOR] Promotion.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
+SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. The Ship of the Line has a higher [ICON_RANGE_STRENGTH] Ranged Combat Strength than the Frigate, can see further, and deals damage to Enemy Units adjacent to its target.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal tiles.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHIPOFTHELINE';
 
 UPDATE Language_en_US
-SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate. The Ship of the Line has a higher Ranged Combat strength than the Frigate. It can also see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean. Like the frigate, it cannot fire on non-coastal land tiles.'
+SET Text = 'The Ship of the Line is the English unique unit, replacing the Frigate.  Use its [COLOR_POSITIVE_TEXT]Splash[ENDCOLOR] promotions to clear out masses of enemy ships. It can also see one hex farther than the Frigate, allowing it to spot enemies in a significantly larger section of ocean. Like the frigate, it cannot fire on non-coastal land tiles.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE_STRATEGY';
 
 --------------------
@@ -529,7 +533,7 @@ SET Text = '[ICON_CITY_STATE] City-State [ICON_INFLUENCE] Influence degrades at 
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'Ancient Era Unit which specializes in defeating Mounted Units. Only the Greeks may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Spearman which it replaces, and produces Great Generals very quickly. It also starts with the [COLOR_POSITIVE_TEXT]Discipline[ENDCOLOR] promotion.'
+SET Text = 'Ancient Era Unit which specializes in defeating Mounted Units. Only the Greeks may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Spearman which it replaces, and produces Great Generals very quickly. It also starts with the [COLOR_POSITIVE_TEXT]Unity[ENDCOLOR] promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE';
 
 UPDATE Language_en_US
@@ -560,7 +564,7 @@ SET Text = 'The barbarians in this Encampment have joined your army! All hail gl
 WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS';
 
 UPDATE Language_en_US
-SET Text = 'Horse Archers are fast ranged units, deadly on open terrain. They start with the Accuracy I promotion. As a mounted unit, the Horse Archer is vulnerable to Spearmen. Unlike the Skirmisher, the Horse Archer does not require Horses.'
+SET Text = 'Horse Archers are fast ranged units that do not require Horses. They start with the Accuracy I promotion and are strong flankers. As a mounted unit, the Horse Archer is vulnerable to Spearmen.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 
 --------------------
@@ -571,11 +575,15 @@ SET Text = 'Units ignore terrain costs when on Hills and may cross Mountains. Ci
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
-SET Text = 'This Incan Unique Unit replaces the Archer. The Slinger possesses a promotion that gives it a good chance to withdraw to the rear before an enemy melee attack can occur, and can daze enemy units.'
+SET Text = 'Waraq''Ak'
+WHERE Tag = 'TXT_KEY_UNIT_INCAN_SLINGER';
+
+UPDATE Language_en_US
+SET Text = 'This Incan Unique Unit replaces the Slinger. Has increased [ICON_RANGE_STRENGTH] Attack Range and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Slinger is an Ancient Era ranged infantry Unit that can strike foes from afar. This Incan Unique Unit can withdraw before most melee attacks, and can daze enemy units: use it to harass your foes. However the Slinger can be easily defeated if the enemy pins it against obstructions or chases it with fast units.'
+SET Text = 'The Waraq''Ak is an Ancient Era ranged infantry Unit that can strike foes from afar. This Incan Unique Unit can daze enemy units; use it to harass your foes and take down Barbarian camps quickly.'
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
 
 UPDATE Language_en_US
@@ -679,11 +687,11 @@ SET Text = 'Units move through Forest and Jungle as if they were roads, and thes
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food from Forests, Jungles, and Plantations worked by this City. +1 [ICON_PRODUCTION] Production from Camps.'
+SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food from Forests, Jungles, and Plantations worked by this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Longhouse is the Iroquois unique building, replacing the Herbalist. It increases the city''s Food and Production output for each forest within the city''s radius, and improves Plantations and Camps.'
+SET Text = 'The Longhouse is the Iroquois unique building, replacing the Herbalist. It increases the city''s Food and Production output for each forest within the city''s radius, and improves Plantations.'
 WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY';
 
 --------------------
@@ -725,7 +733,7 @@ SET Text = 'The Turtle Ship can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, it may not enter deep ocean hexes outside of the city borders.'
+SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, while it can end its movement in Ocean Tiles, the Turtle Ship still travels at half speed through them.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY';
 
 --------------------
@@ -740,14 +748,14 @@ SET Text = 'Only the Maya may build this unit. It is available sooner than the C
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MAYAN_ATLATLIST';
 
 UPDATE Language_en_US
-SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are cheaper than Composite Bowmen and gain bonus damage from attacking wounded units. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
+SET Text = 'The Atlatlist is the Mayan unique unit, replacing the Composite Bowman. Atlatlists are cheaper and available earlier than Composite Bowmen, and gain bonus damage from attacking wounded units. This advantage allows your archers to engage in hit-and-run skirmish tactics.'
 WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 
 --------------------
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted Ranged Units gain +2 [ICON_MOVES] Movement and ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR]. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
+SET Text = 'Mounted Ranged Units benefit from Flanking [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and gain a +10% Flanking bonus. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -758,16 +766,12 @@ SET Text = 'In the 12th century, nomadic tribes came boiling out of Central Asia
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Skirmishers possess a strong ranged attack and an increased movement rate, allowing them to perform hit and run attacks.'
+SET Text = 'Skirmishers possess a ranged attack, an increased movement rate, and increased flanking potential, allowing them to perform hit and run attacks or support the main force.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike the Chariot before them, they can move through rough terrain without a movement penalty. As a mounted unit, the Skirmisher is vulnerable to units equipped with spears.'
+SET Text = 'Skirmishers are fast ranged units, deadly on open terrain. Unlike the Chariot before them, they can move through rough terrain without a movement penalty and can strengthen the attacks of flanking units. As a mounted unit, the Skirmisher is vulnerable to units equipped with spears.'
 WHERE Tag = 'TXT_KEY_CIV5_MONGOLIA_KESHIK_STRATEGY';
-
-UPDATE Language_en_US
-SET Text = 'Friendly Units in this tile and in adjacent tiles [COLOR_POSITIVE_TEXT]Heal 10 Additional HP[ENDCOLOR] per turn.[NEWLINE]Adjacent Enemy Units take 10 Damage Each Turn.'
-WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_GENERAL_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The Khan is a Mongolian Unique Great Person, replacing the standard Great General.  The same combat bonuses apply, but the Khan moves 5 points per turn, heals stacked and adjacent units for additional HP per turn, and damages adjacent enemies each turn. This beefed up General ensures that his cavalry units will always be in a battle ready state.'
@@ -811,11 +815,11 @@ VALUES ('TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY', 'You intimidated {1_CS}!');
 -- Morocco
 --------------------
 UPDATE Language_en_US
-SET Text = 'A Kasbah can only be built adjacent to a City.  It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. It also provides a +30% defense bonus, deals 5 damage to adjacent enemy units, and connects any Luxury or Strategic resources underneath it to your trade network. Adjacent Fishing Boats and Coastal Tiles gain +2 [ICON_GOLD] or +1 [ICON_CULTURE] Culture, respectively.'
+SET Text = 'A Kasbah can only be built adjacent to a City.  It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. It also provides a +30% defense bonus, deals 5 damage to adjacent enemy units, and connects any Luxury or Strategic resources underneath it to your trade network. Adjacent Fishing Boats and Coastal tiles gain +2 [ICON_GOLD] or +1 [ICON_CULTURE] Culture, respectively.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_KASBAH_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Kasbah can only be built adjacent to an owned City. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. Adjacent Fishing Boats and Coastal Tiles gain +2 [ICON_GOLD] or +1 [ICON_CULTURE] Culture, respectively. It also provides a +30% defense bonus, deals 5 damage to adjacent enemy Military units, and connects any Luxury or Strategic resources underneath it to your trade network.[NEWLINE][NEWLINE]A Kasbah is a type of medina (a walled quarter in a city) found in the countryside, usually a small settlement on a hilltop or hillside. Originally the home for a tribal chieftain or important Islamic imam, the Kasbah is characterized by high-walled, windowless houses and narrow, winding streets. It is usually dominated by a single fortified tower. Kasbahs were common along the North African coast and Middle East until the early 1900s. Building a Kasbah was a mark of wealth, influence, and power for Moroccan and Algerian families of Arab descent.'
+SET Text = 'A Kasbah can only be built adjacent to an owned City. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture. Adjacent Fishing Boats and Coastal tiles gain +2 [ICON_GOLD] or +1 [ICON_CULTURE] Culture, respectively. It also provides a +30% defense bonus, deals 5 damage to adjacent enemy Military units, and connects any Luxury or Strategic resources underneath it to your trade network.[NEWLINE][NEWLINE]A Kasbah is a type of medina (a walled quarter in a city) found in the countryside, usually a small settlement on a hilltop or hillside. Originally the home for a tribal chieftain or important Islamic imam, the Kasbah is characterized by high-walled, windowless houses and narrow, winding streets. It is usually dominated by a single fortified tower. Kasbahs were common along the North African coast and Middle East until the early 1900s. Building a Kasbah was a mark of wealth, influence, and power for Moroccan and Algerian families of Arab descent.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_KASBAH_TEXT';
 
 UPDATE Language_en_US
@@ -914,11 +918,11 @@ SET Text = '+1 Sight when Embarked, can always Embark and move over Oceans. +2 [
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING';
 
 UPDATE Language_en_US
-SET Text = 'Powerful mid-game unit that strikes fear into nearby enemies, making them less effective in combat. Is available at Chivalry, unlike the Pikeman which it replaces. Only Polynesia may build it.'
+SET Text = 'Powerful mid-game unit that strikes fear into nearby enemies, making them less effective in combat. It is available at Chivalry, unlike the Longswordsman which it replaces, and doesn''t require [ICON_RES_IRON] Iron. Only Polynesia may build it.'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Pikeman that only Polynesia may build. The Maori Warrior is similar to a Great General; however instead of increasing the strength of friendly units, it decreases the strength of adjacent enemy units. Build plenty of these units, for their promotion stays with them as they are upgraded.'
+SET Text = 'Unique Longswordsman that only Polynesia may build. The Maori Warrior is similar to a Great General; however instead of increasing the strength of friendly units, it decreases the strength of adjacent enemy units. Build plenty of these units, for their promotion stays with them as they are upgraded and they are not limited by [ICON_RES_IRON] Iron.'
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_STRATEGY';
 
 UPDATE Language_en_US
@@ -972,7 +976,7 @@ SET Text = ' The Ballista is an excellent siege weapon. While still very useful 
 WHERE Tag = 'TXT_KEY_UNIT_ROMAN_BALLISTA_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the [COLOR_POSITIVE_TEXT]Cover II[ENDCOLOR] Promotion for free. It can also construct [COLOR_POSITIVE_TEXT]Forts[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Roads[ENDCOLOR] once you have researched the required technologies, and starts with the [COLOR_POSITIVE_TEXT]Pilum[ENDCOLOR] Promotion, which deals 10 damage to all adjacent Enemy Units every turn while fortified.'
+SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the [COLOR_POSITIVE_TEXT]Cover I[ENDCOLOR] Promotion for free. It can also construct [COLOR_POSITIVE_TEXT]Forts[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Roads[ENDCOLOR] once you have researched the required technologies, and starts with the [COLOR_POSITIVE_TEXT]Pilum[ENDCOLOR] Promotion, which deals 10 damage to all adjacent Enemy Units every turn while fortified.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ROMAN_LEGION';
     
 UPDATE Language_en_US
@@ -983,7 +987,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
 -- Russia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR]. Military Units Supplied by this City''s population increased by 15%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per Tile if they move into a tile worked by this City.[NEWLINE][NEWLINE]Empire [ICON_HAPPINESS_3] Needs Modifier is reduced by 5% in this City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1, and allows [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR]. Military Units Supplied by this City''s population increased by 15%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US
@@ -1026,18 +1030,18 @@ SET Text = 'This Tercio represents the advent of early gunpowder (''Pike and Sho
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_TERCIO_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land and at sea. Replacing the Knight, it is an exceptional scout on land with extra visibility. It also has the ability to found new cities, but only on a foreign continent that does not contain the Spanish capital. When founded, cities built by Conquistadors start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Mission (Castle)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Conquistadors![NEWLINE][NEWLINE]In the water, the Conquistador has the defensive embarkation promotion that allows it to defend itself against naval units. It also suffers no penalty when attacking cities, unlike the Knight.'
+SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land and at sea. It also has the ability to found new cities, but only on a foreign continent that does not contain the Spanish capital. When founded, cities built by Conquistadors start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Mission[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Conquistadores! The Mission is a special religious and defensive building only granted by settling Conquistadores.[NEWLINE][NEWLINE]The Conquistador is much stronger than the Explorer it replaces, with much higher Combat Strength, and large bonuses to Flanking and attacking Cities. Combined with its great mobility, the Conquistador is a formidable unit, able to augment or replace your existing Medieval military.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
  
 UPDATE Language_en_US
-SET Text = 'Medieval Era unit that specializes in scouting and colonizing advanced Cities overseas. Only Spain may build it. Replaces the Knight.'
+SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 
 --------------------
 -- Shoshone
 --------------------
 UPDATE Language_en_US
-SET Text = 'The Comanche Riders is the unique unit of the Shoshone, available earlier than the Cavalry. It is faster than the Cavalry, may pillage tiles for free, is available earlier, and has a chance to retreat when attacked via melee.'
+SET Text = 'The Comanche Riders is the unique unit of the Shoshone. It is faster than the Cavalry and has a chance to retreat when attacked via melee. May pillage tiles for free, and gains [ICON_RESEARCH] Science when pillaging tiles.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_COMANCHE_RIDERS';
 
 UPDATE Language_en_US
@@ -1060,7 +1064,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 -- Siam
 --------------------
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
+SET Text = '+2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
@@ -1095,7 +1099,7 @@ SET Text = 'Adobe, the Spanish word for mud brick, is a natural building materia
 WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA';
 
 UPDATE Language_en_US
-SET Text = 'Triple [ICON_GOLD] Gold from pillaging Encampments and Cities. Land Units gain the [COLOR_POSITIVE_TEXT]War Canoe[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Amphibious[ENDCOLOR] Promotions, and move along Rivers as if they were Roads. Rivers create [ICON_CONNECTED] City Connections.'
+SET Text = 'Triple [ICON_GOLD] Gold from pillaging Encampments and Cities. Land Units gain the [COLOR_POSITIVE_TEXT]Amphibious[ENDCOLOR] Promotion, and move along Rivers as if they were Roads. Rivers create [ICON_CONNECTED] City Connections.'
 WHERE Tag = 'TXT_KEY_TRAIT_AMPHIB_WARLORD';
 
 UPDATE Language_en_US
@@ -1126,7 +1130,7 @@ SET Text = 'The Hakkapeliitta can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SWEDISH_HAKKAPELIITTA';
 
 UPDATE Language_en_US
-SET Text = 'The Hakkapeliitta is much faster and can see one hex farther than the Lancer. It pillages enemy improvements at no additional cost, so foray into enemy lands to knock out key improvements, using its improved sight and speed to minimize retaliatory attacks. Keep the unit healthy by pillaging and defeating weakened units.'
+SET Text = 'The Hakkapeliitta is much faster and can see one hex farther than the Lancer. It pillages enemy improvements at no additional cost, so foray into enemy lands to knock out key improvements, using its improved sight and speed to minimize retaliatory attacks. Keep the unit healthy by pillaging and defeating weakened units, as it has lower [ICON_STRENGTH] Combat Strength than its contemporary Lancers.'
 WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_HAKKAPELIITTA_STRATEGY';
 
 UPDATE Language_en_US
@@ -1141,7 +1145,7 @@ SET Text = 'The Great Galleass can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_GALLEASS';
 
 UPDATE Language_en_US
-SET Text = 'The Great Galleass performs similarly to the Galleass, but is more resilient in battle and has a stronger ranged attack. Starts with the Bombardment I Promotion.'
+SET Text = 'The Great Galleass performs similarly to the Galleass, but is more resilient in battle and has a stronger ranged attack. Starts with the [COLOR_POSITIVE_TEXT]Bombardment I[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_VENETIAN_GALLEASS_STRATEGY';
 
 UPDATE Language_en_US
@@ -1160,7 +1164,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. Increases the Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD]/[ICON_PRODUCTION] Distress.'
+SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. Increases the Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP';
 
 UPDATE Language_en_US

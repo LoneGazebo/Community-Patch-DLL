@@ -1,22 +1,6 @@
 -- Gold Changes
 
 UPDATE Units
-SET NumGoldPerEra= 125
-WHERE Type = 'UNIT_MERCHANT';
-
-UPDATE Units
-SET BaseGold= 400
-WHERE Type = 'UNIT_MERCHANT';
-
-UPDATE Units
-SET NumGoldPerEra= 200
-WHERE Type = 'UNIT_VENETIAN_MERCHANT';
-
-UPDATE Units
-SET BaseGold= 600
-WHERE Type = 'UNIT_VENETIAN_MERCHANT';
-
-UPDATE Units
 SET HurryCostModifier= 40
 WHERE Type = 'UNIT_EMISSARY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_GOLDHURRY' AND Value= 1 );
 

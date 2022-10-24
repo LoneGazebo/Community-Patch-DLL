@@ -135,30 +135,24 @@ int CvWonderProductionAI::GetWeight(BuildingTypes eBldg)
 /// Recommend highest-weighted wonder, also return total weight of all buildable wonders
 BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers */, int& iWonderWeight)
 {
-	int iBldgLoop;
-	int iWeight;
-	int iTurnsRequired;
-	int iEstimatedProductionPerTurn;
 	BuildingTypes eSelection;
-
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
 	m_Buildables.clear();
 
 	// Guess which city will be producing this (doesn't matter that much since weights are all relative)
-	CvCity* pLoopCity;
 	int iLoop;
-	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
+		int iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
 		if(iEstimatedProductionPerTurn < 1)
 		{
 			iEstimatedProductionPerTurn = 1;
 		}
 
 		// Loop through adding the available wonders
-		for (iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
+		for (int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
 			CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
@@ -168,24 +162,19 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
 				continue;
 
-			iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);
+			int iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);
 
 			// if we are forced to restart a wonder, give one that has been started already a huge bump
 			bool bAlreadyStarted = pLoopCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 			int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
 
-			iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
-
-#if defined(MOD_BALANCE_CORE)
-			if(iWeight > 0)
-			{
-				iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, 0, 0, 1);
-			}
-#endif
+			int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
 			if (iWeight <= 0)
 				continue;
 
-			m_Buildables.push_back(iBldgLoop, iWeight);
+			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, false, false, true);
+			if(iWeight > 0)
+				m_Buildables.push_back(iBldgLoop, iWeight);
 		}
 	}
 
@@ -295,11 +284,13 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 /// Check to make sure some city can build this wonder
 bool CvWonderProductionAI::HaveCityToBuild(BuildingTypes eBuilding) const
 {
+	std::vector<int> allBuildingCount = m_pPlayer->GetTotalBuildingCount();
+
 	CvCity* pLoopCity;
 	int iLoop;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
-		if(pLoopCity->canConstruct(eBuilding))
+		if(pLoopCity->canConstruct(eBuilding,allBuildingCount))
 		{
 			return true;
 		}

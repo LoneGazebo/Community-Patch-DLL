@@ -3,28 +3,38 @@ UPDATE PolicyBranchTypes
 SET EraPrereq = 'ERA_INDUSTRIAL'
 WHERE Type = 'POLICY_BRANCH_EXPLORATION';
 
--- Opener -- Now called Imperialism -- Grants +1 Movement and +1 Sight for Naval Units, and speeds production of land units by +5%, with an additional +4% for every policy unlocked in Imperialism. Receive 1 extra happiness for every owned luxury, and 1 Happiness for every garrisoned unit.
+
+-- Opener (now Imperialism)
 
 UPDATE Policies
-SET EmbarkedExtraMoves = '1'
+SET
+	EmbarkedExtraMoves = 1,
+	UnitUpgradeCostMod = -10
 WHERE Type = 'POLICY_EXPLORATION';
 
 
-
--- Maritime Infrastructure -- Now Martial Law
-UPDATE Policies
-SET PuppetYieldPenaltyMod = '20', GarrisonFreeMaintenance = '1', PortraitIndex = '0', IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS', IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
-WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
+-- Maritime Infrastructure (now Martial Law)
 
 DELETE FROM Policy_CoastalCityYieldChanges
 WHERE PolicyType = 'POLICY_MARITIME_INFRASTRUCTURE';
+
+UPDATE Policies
+SET
+	PuppetYieldPenaltyMod = 20,
+	GarrisonFreeMaintenance = 1,
+	PortraitIndex = 0,
+	IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS',
+	IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
+WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
 VALUES
 	('POLICY_MARITIME_INFRASTRUCTURE', 'BUILDINGCLASS_CONSTABLE', 1);
 
--- Merchant Navy -- Now called Exploitation -- +1 Gold and +1 Production from Farms and Plantations
+
+-- Merchant Navy (now Exploitation)
+
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_MERCHANT_NAVY';
 
@@ -32,63 +42,97 @@ DELETE FROM Policy_BuildingClassCultureChanges
 WHERE PolicyType = 'POLICY_MERCHANT_NAVY';
 
 UPDATE Policies
-SET UpgradeCSVassalTerritory = '1'
+SET
+	UpgradeCSVassalTerritory = 1
 WHERE Type = 'POLICY_MERCHANT_NAVY';
 
--- Naval Tradition -- Military Tradition -- Free GA, Improved Embark, and reveals all capitals.
+INSERT INTO Policy_PlotYieldChanges
+	(PolicyType, PlotType, YieldType, Yield)
+VALUES
+	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_SCIENCE', 1),
+	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_PRODUCTION', 1);
+
+
+-- Naval Tradition (now Colonialism)
+
 DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_NAVAL_TRADITION';
 
 UPDATE Policies
-SET MonopolyModFlat = '3', MonopolyModPercent = '10', RevealAllCapitals = '0'
+SET
+	RevealAllCapitals = 0,
+	MonopolyModFlat = 3,
+	MonopolyModPercent = 10
 WHERE Type = 'POLICY_NAVAL_TRADITION';
 
--- Navigation School - Now Exploration --  +33% to Great Admiral and Great General Production -- Barracks, Armories and Military Academies provide +1 Science.
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_BARRACKS', 'YIELD_SCIENCE', 2),
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_ARMORY', 'YIELD_SCIENCE', 2),
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_MILITARY_ACADEMY', 'YIELD_SCIENCE', 2);
+
+INSERT INTO Policy_BuildingClassCultureChanges
+	(PolicyType, BuildingClassType, CultureChange)
+VALUES
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_BARRACKS', 1),
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_ARMORY', 1),
+	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_MILITARY_ACADEMY', 1);
+
+
+-- Navigation School (now Regimental System)
+
 DELETE FROM Policy_FreePromotions
 WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL';
-
-UPDATE Policies
-SET GreatAdmiralRateModifier = '33', GreatGeneralRateModifier = '33', IncludesOneShotFreeUnits = '0'
-WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
 
 DELETE FROM Policy_FreeUnitClasses
 WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL';
 
--- Treasure Fleets -- Now called Civilizing Mission -- Receive a free Factory, and a lump sum of Gold, when you conquer a city. Garrisons are free.
 UPDATE Policies
-SET SeaTradeRouteGoldChange = '0', ConquestPerEraBuildingProductionMod = '10'
+SET
+	IncludesOneShotFreeUnits = 0,
+	GreatAdmiralRateModifier = 33,
+	GreatGeneralRateModifier = 33
+WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
+
+
+-- Treasure Fleets (now Civilizing Mission)
+UPDATE Policies
+SET
+	SeaTradeRouteGoldChange = 0,
+	ConquestPerEraBuildingProductionMod = 10
 WHERE Type = 'POLICY_TREASURE_FLEETS';
 
--- Finisher
---UPDATE Policies
---SET IdeologyPoint = '1'
---WHERE Type = 'POLICY_EXPLORATION_FINISHER';
+INSERT INTO Policy_ConquerorYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 75);
+
 
 --Finisher 
 
 UPDATE Policies
-SET FlatDefenseFromAirUnits = '3'
+SET
+	FlatDefenseFromAirUnits = 3
 WHERE Type = 'POLICY_EXPLORATION_FINISHER';
 
 
--- scaler
+
+----------------------
+-- Combined Insertions
+----------------------
+
+-- Scaler
 
 UPDATE Policies
-SET UnitUpgradeCostMod = '-10'
-WHERE Type = 'POLICY_EXPLORATION';
-
-UPDATE Policies
-SET UnitUpgradeCostMod = '-5'
+SET 
+	UnitUpgradeCostMod = -5
 WHERE Type IN 
-('POLICY_MARITIME_INFRASTRUCTURE',
-'POLICY_NAVAL_TRADITION',
-'POLICY_MERCHANT_NAVY',
-'POLICY_NAVIGATION_SCHOOL',
-'POLICY_TREASURE_FLEETS');
-
--- NEW
-
--- scaler
+	('POLICY_MARITIME_INFRASTRUCTURE',
+	 'POLICY_NAVAL_TRADITION',
+	 'POLICY_MERCHANT_NAVY',
+	 'POLICY_NAVIGATION_SCHOOL',
+	 'POLICY_TREASURE_FLEETS');
 
 INSERT INTO Policy_UnitCombatProductionModifiers
 	(PolicyType, UnitCombatType, ProductionModifier)
@@ -179,10 +223,7 @@ VALUES
 	('POLICY_TREASURE_FLEETS', 'UNITCOMBAT_RECON', 5);
 
 
-INSERT INTO Policy_ConquerorYield
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 75);
+-- Improvement Changes
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
@@ -200,25 +241,8 @@ VALUES
 	('POLICY_NAVAL_TRADITION', 'IMPROVEMENT_CITADEL', 'YIELD_CULTURE', 1),
 	('POLICY_NAVAL_TRADITION', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_CULTURE', 1);
 
-INSERT INTO Policy_PlotYieldChanges
-	(PolicyType, PlotType, YieldType, Yield)
-VALUES
-	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_SCIENCE', 1),
-	('POLICY_MERCHANT_NAVY', 'PLOT_OCEAN', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Policy_BuildingClassYieldChanges
-	(PolicyType, BuildingClassType, YieldType, YieldChange)
-VALUES
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_BARRACKS', 'YIELD_SCIENCE', 2),
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_ARMORY', 'YIELD_SCIENCE', 2),
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_MILITARY_ACADEMY', 'YIELD_SCIENCE', 2);
-
-INSERT INTO Policy_BuildingClassCultureChanges
-	(PolicyType, BuildingClassType, CultureChange)
-VALUES
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_BARRACKS', 1),
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_ARMORY', 1),
-	('POLICY_NAVAL_TRADITION', 'BUILDINGCLASS_MILITARY_ACADEMY', 1);
+-- Promotions
 
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)

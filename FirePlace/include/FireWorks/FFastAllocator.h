@@ -309,8 +309,8 @@ protected:
 	//The actual data
 	VectorType m_vec;
 
-	template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID, class BASE_ALLOC > 
-	friend void* operator new( size_t uiSize, FFastAllocator< T, bPODType, AllocPool, nSubID, BASE_ALLOC >& kAlloc );
+	template< class OtherT, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID, class OTHER_BASE_ALLOC > 
+	friend void* operator new( size_t uiSize, FFastAllocator< OtherT, bOtherPODType, OtherAllocPool, nOtherSubID, OTHER_BASE_ALLOC >& kAlloc );
 };
 
 // Placement new on a FFastAllocator allows allocation and construction to be combined.
@@ -599,8 +599,8 @@ protected:
 	//The actual data
 	T* m_pData;
 
-	template< class T, bool bPODType, unsigned int AllocPool, unsigned int nSubID, class BASE_ALLOC >
-	friend void* operator new( size_t uiSize, FFixedBlockAllocator< T, bPODType, AllocPool, nSubID, BASE_ALLOC >& kAlloc );
+	template< class OtherT, bool bOtherPODType, unsigned int OtherAllocPool, unsigned int nOtherSubID, class OTHER_BASE_ALLOC >
+	friend void* operator new( size_t uiSize, FFixedBlockAllocator< OtherT, bOtherPODType, OtherAllocPool, nOtherSubID, OTHER_BASE_ALLOC >& kAlloc );
 };
 
 // Placement new on a FFastAllocator allows allocation and construction to be combined.

@@ -19,7 +19,7 @@ class CvPlayer;
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct BuilderDirective
 {
-	typedef enum BuilderDirectiveType
+	enum CLOSED_ENUM BuilderDirectiveType
 	{
 	    BUILD_IMPROVEMENT_ON_RESOURCE, // enabling a special resource
 	    BUILD_IMPROVEMENT,			   // improving a tile
@@ -27,7 +27,7 @@ struct BuilderDirective
 	    REPAIR,						   // repairing a pillaged route or improvement
 	    CHOP,						   // remove a feature to improve production
 	    REMOVE_ROAD,				   // remove a road from a plot
-	    NUM_DIRECTIVES
+	    NUM_DIRECTIVES ENUM_META_VALUE
 	};
 
 	BuilderDirective() :
@@ -105,8 +105,8 @@ public:
 	BuildTypes GetRemoveRoute(void);
 	BuildTypes GetBuildRoute(void);
 
-	static void LogInfo(CvString str, CvPlayer* pPlayer, bool bWriteToOutput = false);
-	static void LogYieldInfo(CvString strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
+	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
+	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
 
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:

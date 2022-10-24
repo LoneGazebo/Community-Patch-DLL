@@ -136,8 +136,9 @@ public:
 
 	bool isLake(bool bUseCachedValue=true) const;
 	bool isFreshWater(bool bUseCachedValue=true) const;
-	bool isCoastalLand(int iMinWaterSize = -1, bool bUseCachedValue = true) const;
+	bool isCoastalLand(int iMinWaterSize = -1, bool bUseCachedValue = true, bool bCheckCanals = false) const;
 	bool isAdjacentToLand(bool bUseCachedValue = true) const;
+	bool isAdjacentToWater() const;
 	void updateWaterFlags() const;
 
 	bool isRiverCrossingFlowClockwise(DirectionTypes eDirection) const;
@@ -183,6 +184,7 @@ public:
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining) const;
 	int GetEffectiveFlankingBonus(const CvUnit* pUnit, const CvUnit* pOtherUnit, const CvPlot* pOtherUnitPlot) const;
+	int GetEffectiveFlankingBonusAtRange(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit) const;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	inline int getUnitLimit() const 
@@ -672,7 +674,7 @@ public:
 	int getBuildProgress(BuildTypes eBuild) const;
 	bool changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePlayer = NO_PLAYER, bool bNewBuild = false);
 	bool getAnyBuildProgress() const;
-	void SilentlyResetAllBuildProgress();
+	void SilentlyResetAllBuildProgress(BuildTypes eBuild = NO_BUILD);
 
 	bool isLayoutDirty() const;							// The plot layout contains resources, routes, and improvements
 	void setLayoutDirty(bool bDirty);
@@ -729,7 +731,7 @@ public:
 
 	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
 
-	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
+	bool canTrain(UnitTypes eUnit) const;
 
 	template<typename Plot, typename Visitor>
 	static void Serialize(Plot& plot, Visitor& visitor);
@@ -826,11 +828,11 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
-	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false) const;
 	vector<CvUnit*> GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
 
-	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bCountRanged = true) const;
+	int GetNumFriendlyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, bool bCountRanged, const CvUnit* pUnitToExclude = NULL) const;
 	bool IsFriendlyUnitAdjacent(TeamTypes eMyTeam, bool bCombatUnit) const;
 	int GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 
@@ -960,7 +962,6 @@ protected:
 #endif
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
-	char /*ImprovementTypes*/ m_eImprovementTypeUnderConstruction;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;

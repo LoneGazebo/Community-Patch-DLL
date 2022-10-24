@@ -1,3 +1,26 @@
+-- Slinger
+INSERT INTO UnitClasses
+		(Type, 						Description, 				DefaultUnit)
+VALUES	('UNITCLASS_VP_SLINGER', 	'TXT_KEY_UNIT_VP_SLINGER', 	'UNIT_VP_SLINGER');
+
+INSERT INTO Units 	
+			(Type,				Class,					PrereqTech,			Range,	BaseSightRange, Combat,	RangedCombat,	Cost, 	FaithCost, 	RequiresFaithPurchaseEnabled, Moves, Immobile, CombatClass, Domain, DefaultUnitAI,	ObsoleteTech,		GoodyHutUpgradeUnitClass,	XPValueAttack,	BaseLandAirDefense,	Description, 				Civilopedia, 					Strategy, 							Help, 							Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, UnitArtInfo, 				UnitFlagIconOffset, UnitFlagAtlas,			PortraitIndex, 	IconAtlas,			MoveRate, PurchaseCooldown)
+SELECT		'UNIT_VP_SLINGER',	'UNITCLASS_VP_SLINGER',	'TECH_AGRICULTURE',	1,		BaseSightRange, 6,		6,				45, 	100, 		RequiresFaithPurchaseEnabled, Moves, Immobile, CombatClass, Domain, DefaultUnitAI,	'TECH_CALENDAR',	'UNITCLASS_ARCHER',			XPValueAttack,	BaseLandAirDefense,	'TXT_KEY_UNIT_VP_SLINGER',	'TXT_KEY_UNIT_VP_SLINGER_TEXT',	'TXT_KEY_UNIT_VP_SLINGER_STRATEGY',	'TXT_KEY_UNIT_VP_SLINGER_HELP',	Pillage, MilitarySupport, MilitaryProduction, IgnoreBuildingDefense, Mechanized, AirUnitCap, AdvancedStartCost, RangedCombatLimit, CombatLimit, XPValueDefense, 'ART_DEF_UNIT_VP_SLINGER', 	0,					'SLINGER_FLAG_ATLAS',	63, 			'COMMUNITY_ATLAS',	MoveRate, PurchaseCooldown
+FROM Units WHERE Type = 'UNIT_ARCHER';
+
+INSERT INTO UnitGameplay2DScripts 	
+			(UnitType, 			SelectionSound, FirstSelectionSound)
+SELECT		'UNIT_VP_SLINGER', 	SelectionSound, FirstSelectionSound
+FROM UnitGameplay2DScripts WHERE UnitType = 'UNIT_ARCHER';	
+
+INSERT INTO Unit_ClassUpgrades 	
+			(UnitType, 			UnitClassType)
+VALUES		('UNIT_VP_SLINGER', 'UNITCLASS_ARCHER');
+
+INSERT INTO Civilization_UnitClassOverrides 
+			(CivilizationType, 			UnitClassType, 			UnitType)
+VALUES		('CIVILIZATION_BARBARIAN',	'UNITCLASS_VP_SLINGER', null);
+
 -- Tercio Class, used later
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) 
 VALUES ('UNITCLASS_TERCIO', 'TXT_KEY_UNIT_SPANISH_TERCIO', 'UNIT_SPANISH_TERCIO');
@@ -239,7 +262,7 @@ VALUES
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_FORGE'),
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_WELL'),
 	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_HARBOR'),
-	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_CASTLE'),
+	('UNIT_SPANISH_CONQUISTADOR', 'BUILDINGCLASS_D_FOR_SPAIN_MISSION'),
 	('UNIT_COLONIST', 'BUILDINGCLASS_GROVE'),
 	('UNIT_COLONIST', 'BUILDINGCLASS_GRANARY'),
 	('UNIT_COLONIST', 'BUILDINGCLASS_MARKET'),

@@ -24,14 +24,16 @@
 #define DEBUG_RELEASE_VALUE(a, b) (a)
 #endif
 
-#define UNDEFINED_TYPE -999
+#define UNDEFINED_TYPE (-999)
 
 int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	---------------------------------------------------------------------------
 //	Test the conditions for the ACHIEVEMENT_PSG
 bool CvAchievementUnlocker::Check_PSG()
 {
-#if defined(MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS)
+		return false;
+
 	const int PSG_STAT_MATCH_VALUE = 100;
 
 	int32 iGeneralsStat = 0;
@@ -47,18 +49,19 @@ bool CvAchievementUnlocker::Check_PSG()
 			return true;
 		}
 	}
-#endif
+
 	return false;
 }
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::FarmImprovementPillaged()
 {
-#if defined(MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	ms_iNumImprovementsPillagedPerTurn++;
 
-	if(ms_iNumImprovementsPillagedPerTurn >= 9)
+	if (ms_iNumImprovementsPillagedPerTurn >= 9)
 		gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_PILLAGE);
-#endif
 }
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::EndTurn()
@@ -70,7 +73,9 @@ void CvAchievementUnlocker::EndTurn()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	//Test For Alexander Conquest
 	CvGame& kGame = GC.getGame();
 	if (ePlayer == kGame.getActivePlayer())
@@ -101,15 +106,16 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 			}
 		}
 	}
-#endif
 }
 
-#if defined(MOD_API_ACHIEVEMENTS)
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 void CvAchievementUnlocker::UnlockFromDatabase()
 {
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	GUID guid;
 
 	ExtractGUID("7459BA32-5764-44ae-8E95-01AD0E0EFD48", guid);
@@ -184,7 +190,6 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 		}
 	}
 }
-#endif
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -214,8 +219,7 @@ CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	//Cache value if needed
@@ -256,13 +260,11 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 			}
 		}
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	//Attempt to read from cache
@@ -288,13 +290,11 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 			}
 		}	
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eCarthageType == UNDEFINED_TYPE)
@@ -322,23 +322,19 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_29);
 		}
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (iNumUnits >= 15)
-	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
-	}
-#endif
+	if (!MOD_API_ACHIEVEMENTS || iNumUnits < 15)
+		return;
+
+	gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eByzantinesType == UNDEFINED_TYPE)
@@ -400,13 +396,11 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 			}
 		}
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::StartTurn()
 {
-#if defined(MOD_API_ACHIEVEMENTS)
-	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
 	if(m_eSwedenType == UNDEFINED_TYPE)
@@ -450,9 +444,7 @@ void CvPlayerAchievements::StartTurn()
 				}
 			}
 		}
-		
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::EndTurn()
@@ -461,7 +453,9 @@ void CvPlayerAchievements::EndTurn()
 //-------------------------------------------------------------------------
 void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding)
 {
-#if defined(MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	if(m_eCollossusType == UNDEFINED_TYPE)
 	{
 		m_eCollossusType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_COLOSSUS", true);
@@ -496,7 +490,6 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 			}
 		}
 	}
-#endif
 }
 //------------------------------------------------------------------------------
 template<typename PlayerAchievements, typename Visitor>

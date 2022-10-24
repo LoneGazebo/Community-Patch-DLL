@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -348,43 +348,33 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityAutomatonWorkersChange);
 	Method(ChangeCityAutomatonWorkersChange);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetRemainingFreeSpecialists);
-	Method(GetTheoreticalUnhappinessDecrease);
-	Method(GetStaticTechDeviation);
-	Method(getPopThresholdMod);
-	Method(getEmpireSizeMod);
+	Method(GetBasicNeedsMedian);
+	Method(GetGoldMedian);
+	Method(GetScienceMedian);
+	Method(GetCultureMedian);
+	Method(GetReligiousUnrestPerMinorityFollower);
+	Method(GetTheoreticalNewBasicNeedsMedian);
+	Method(GetTheoreticalNewGoldMedian);
+	Method(GetTheoreticalNewScienceMedian);
+	Method(GetTheoreticalNewCultureMedian);
+	Method(GetTheoreticalNewReligiousUnrestPerMinorityFollower);
+	Method(GetCachedTechNeedModifier);
+	Method(GetCitySizeModifier);
+	Method(GetEmpireSizeModifier);
 	Method(getHappinessDelta);
-	Method(getUnhappinessAggregated);
-	Method(getHappinessThresholdMod);
-	Method(getThresholdSubtractions);
-	Method(getThresholdAdditions);
-	Method(GetUnhappinessFromCultureYield);
-	Method(GetUnhappinessFromCultureNeeded);
-	Method(GetUnhappinessFromCultureDeficit);
-	Method(GetUnhappinessFromYieldRaw);
-	Method(GetUnhappinessFromCulture);
-	Method(GetUnhappinessFromScienceYield);
-	Method(GetUnhappinessFromScienceNeeded);
-	Method(GetUnhappinessFromScienceDeficit);
-	Method(GetUnhappinessFromScience);
-	Method(GetUnhappinessFromDefenseYield);
-	Method(GetUnhappinessFromDefenseNeeded);
-	Method(GetUnhappinessFromDefenseDeficit);
-	Method(GetUnhappinessFromDefense);
-	Method(GetUnhappinessFromGoldYield);
-	Method(GetUnhappinessFromGoldNeeded);
-	Method(GetUnhappinessFromGoldDeficit);
-	Method(GetUnhappinessFromGold);
-	Method(GetUnhappinessFromConnection);
-	Method(GetUnhappinessFromPillaged);
-	Method(GetUnhappinessFromStarving);
-	Method(GetUnhappinessFromMinority);
+	Method(GetUnhappinessAggregated);
+	Method(GetAllNeedsModifier);
+	Method(GetUnhappinessFromYield);
+	Method(GetUnhappinessFromIsolation);
+	Method(GetUnhappinessFromPillagedTiles);
+	Method(GetUnhappinessFromFamine);
+	Method(GetUnhappinessFromReligiousUnrest);
 	Method(getPotentialUnhappinessWithGrowth);
 	Method(GetCityUnhappinessBreakdown);
 	Method(GetCityHappinessBreakdown);
 	Method(getUnhappinessFromSpecialists);
-#endif
 
 	Method(ChangeHealRate);
 
@@ -1839,8 +1829,8 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 								if (eBuildingUnlockedEra == NO_ERA)
 									continue;
 
-								int iEraDivisor = GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra;
-								switch (iEraDivisor)
+								int iEraDifference = GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra;
+								switch (iEraDifference)
 								{
 								case 0:
 									iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
@@ -1849,8 +1839,10 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 									iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
 									break;
 								case 2:
-									iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
+									iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
 									break;
+								default:
+									iNumWorldWonderPercent += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
 								}
 							}
 						}
@@ -2021,6 +2013,7 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 6);
 	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 7);
 
+	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	const bool bResult = pkCity->IsCanPurchase(bTestPurchaseCost, bTestTrainable, eUnitType, eBuildingType, eProjectType, ePurchaseYield);
 
 	lua_pushboolean(L, bResult);
@@ -2036,6 +2029,7 @@ int CvLuaCity::lPurchase(lua_State* L)
 	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
 	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
 
+	// TODO: throw error for non-gold/faith ePurchaseYield input?
 	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
 
 	return 0;
@@ -3707,71 +3701,159 @@ int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
 	lua_pushinteger(L, iTotalSpecialists);
 	return 1;
 }
-int CvLuaCity::lGetTheoreticalUnhappinessDecrease(lua_State* L)
+int CvLuaCity::lGetBasicNeedsMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iMedian = (int)pkCity->GetBasicNeedsMedian(false, 0);
+	lua_pushinteger(L, iMedian);
+	return 1;
+}
+int CvLuaCity::lGetGoldMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iMedian = (int)pkCity->GetGoldMedian(false, 0);
+	lua_pushinteger(L, iMedian);
+	return 1;
+}
+int CvLuaCity::lGetScienceMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iMedian = (int)pkCity->GetScienceMedian(false, 0);
+	lua_pushinteger(L, iMedian);
+	return 1;
+}
+int CvLuaCity::lGetCultureMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iMedian = (int)pkCity->GetCultureMedian(false, 0);
+	lua_pushinteger(L, iMedian);
+	return 1;
+}
+int CvLuaCity::lGetReligiousUnrestPerMinorityFollower(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iReligiousUnrestPerMinorityFollower = 0;
+	if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+	{
+		float fUnhappyPerMinorityPop = 0.00f;
+		fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
+		fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false));
+		fUnhappyPerMinorityPop /= 100;
+		iReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+	}
+
+	lua_pushinteger(L, iReligiousUnrestPerMinorityFollower);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewBasicNeedsMedian(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
-	int iThreshold = 0;
-	if(eBuilding != NO_BUILDING)
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
 	{
-		if(pkCity->canConstruct(eBuilding, false, false, false, false))
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
 		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-			if(pkBuildingInfo)
-			{
-				int iResult = (pkBuildingInfo->GetPovertyHappinessChangeBuilding() + pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal());
-				if(iResult != 0)
-				{				
-					iThreshold = pkCity->getUnhappinessFromGoldNeeded(iResult);
-					lua_pushinteger(L, iThreshold);
-					return 1;
-				}
-				iResult = (pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() + pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal());
-				if(iResult != 0)
-				{
-					iThreshold = pkCity->getUnhappinessFromScienceNeeded(iResult);
-					lua_pushinteger(L, iThreshold);
-					return 1;
-				}
-				iResult = (pkBuildingInfo->GetDefenseHappinessChangeBuilding() + pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal());
-				if(iResult != 0)
-				{
-					iThreshold = pkCity->getUnhappinessFromDefenseNeeded(iResult);
-					lua_pushinteger(L, iThreshold);
-					return 1;
-				}
-				iResult = (pkBuildingInfo->GetUnculturedHappinessChangeBuilding() + pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal());
-				if(iResult != 0)
-				{
-					iThreshold = pkCity->getUnhappinessFromCultureNeeded(iResult);
-					lua_pushinteger(L, iThreshold);
-					return 1;
-				}
-			}
+			int iModifier = pkBuildingInfo->GetBasicNeedsMedianModifier() + pkBuildingInfo->GetBasicNeedsMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetBasicNeedsMedian(false, iModifier);
 		}
 	}
-	lua_pushinteger(L, iThreshold);
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewGoldMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetGoldMedianModifier() + pkBuildingInfo->GetGoldMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetGoldMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewScienceMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetScienceMedianModifier() + pkBuildingInfo->GetScienceMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetScienceMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewCultureMedian(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewMedian = 0;
+	if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetCultureMedianModifier() + pkBuildingInfo->GetCultureMedianModifierGlobal();
+			iNewMedian = (int)pkCity->GetCultureMedian(false, iModifier);
+		}
+	}
+	lua_pushinteger(L, iNewMedian);
+	return 1;
+}
+int CvLuaCity::lGetTheoreticalNewReligiousUnrestPerMinorityFollower(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+	int iNewReligiousUnrestPerMinorityFollower = 0;
+	if (eBuilding != NO_BUILDING && !GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if (pkBuildingInfo && pkCity->canConstruct(eBuilding, false, false, false, false))
+		{
+			int iModifier = pkBuildingInfo->GetReligiousUnrestModifier() + pkBuildingInfo->GetReligiousUnrestModifierGlobal();
+			float fUnhappyPerMinorityPop = 0.00f;
+			fUnhappyPerMinorityPop += /*50.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP) * 100;
+			fUnhappyPerMinorityPop *= (100 + pkCity->GetTotalNeedModifierForYield(YIELD_FAITH, false) + iModifier);
+			fUnhappyPerMinorityPop /= 100;
+			iNewReligiousUnrestPerMinorityFollower = (int)fUnhappyPerMinorityPop;
+		}
+	}
+
+	lua_pushinteger(L, iNewReligiousUnrestPerMinorityFollower);
 	return 1;
 }
 //int getHappinessDelta();
-int CvLuaCity::lgetPopThresholdMod(lua_State* L)
+int CvLuaCity::lGetCitySizeModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getPopThresholdMod());
+	lua_pushinteger(L, pkCity->GetCitySizeModifier());
 	return 1;
 }
 
-int CvLuaCity::lgetEmpireSizeMod(lua_State* L)
+int CvLuaCity::lGetEmpireSizeModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getEmpireSizeMod());
+	lua_pushinteger(L, pkCity->GetEmpireSizeModifier());
 	return 1;
 }
 
-int CvLuaCity::lGetStaticTechDeviation(lua_State* L)
+int CvLuaCity::lGetCachedTechNeedModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->GetStaticTechDeviation());
+	lua_pushinteger(L, pkCity->GetCachedTechNeedModifier());
 	return 1;
 }
 
@@ -3781,254 +3863,73 @@ int CvLuaCity::lgetHappinessDelta(lua_State* L)
 	lua_pushinteger(L, pkCity->getHappinessDelta());
 	return 1;
 }
-int CvLuaCity::lgetUnhappinessAggregated(lua_State* L)
+int CvLuaCity::lGetUnhappinessAggregated(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessAggregated());
+	lua_pushinteger(L, pkCity->GetUnhappinessAggregated());
 	return 1;
 }
 
-//int getHappinessThresholdMod();
-int CvLuaCity::lgetHappinessThresholdMod(lua_State* L)
+//int GetAllNeedsModifier();
+int CvLuaCity::lGetAllNeedsModifier(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	int iResult = pkCity->getHappinessThresholdMod(eYield, 0);
-
-	lua_pushinteger(L, iResult);
+	lua_pushinteger(L, pkCity->GetAllNeedsModifier(false));
 	return 1;
 }
-//int getThresholdSubtractions();
-int CvLuaCity::lgetThresholdSubtractions(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
-	const int iResult = pkCity->getThresholdSubtractions(eYield);
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//int getThresholdAdditions();
-int CvLuaCity::lgetThresholdAdditions(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
-	lua_pushinteger(L, pkCity->GetStaticNeedAdditives(eYield));
-	return 1;
-}
-//int getUnhappinessFromCultureYield();
-int CvLuaCity::lGetUnhappinessFromCultureYield(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromCultureYield());
-	return 1;
-}
-//int getUnhappinessFromCultureNeeded();
-int CvLuaCity::lGetUnhappinessFromCultureNeeded(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromCultureNeeded());
-	return 1;
-}
-//int GetUnhappinessFromCultureDeficit();
-int CvLuaCity::lGetUnhappinessFromCultureDeficit(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	int iPop = pkCity->getPopulation();
-	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromCultureYield();
-	int iNeed = pkCity->getUnhappinessFromCultureNeeded();
-	if(iNeed > iYield)
-	{
-		iResult = iNeed - iYield;
-	}
-	else
-	{
-		iResult = (iYield * iPop) - (iNeed * iPop);
-	}
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-
-int CvLuaCity::lGetUnhappinessFromYieldRaw(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromYield(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 
 	int iValue = 0;
-	if (eIndex == YIELD_GOLD)
-
-		iValue = pkCity->getUnhappinessFromGoldRaw();
-	else if (eIndex == YIELD_PRODUCTION)
-		iValue = pkCity->getUnhappinessFromDefenseRaw();
+	if (eIndex == YIELD_FOOD || eIndex == YIELD_PRODUCTION)
+		iValue = pkCity->GetDistress(false);
+	else if (eIndex == YIELD_GOLD)
+		iValue = pkCity->GetPoverty(false);
 	else if (eIndex == YIELD_SCIENCE)
-		iValue = pkCity->getUnhappinessFromScienceRaw();
+		iValue = pkCity->GetIlliteracy(false);
 	else if (eIndex == YIELD_CULTURE)
-		iValue = pkCity->getUnhappinessFromCultureRaw();
+		iValue = pkCity->GetBoredom(false);
+	else if (eIndex == YIELD_FAITH)
+		iValue = pkCity->GetUnhappinessFromReligiousUnrest();
 
 	lua_pushinteger(L, iValue);
 	return 1;
 }
-//int getUnhappinessFromCulture();
-int CvLuaCity::lGetUnhappinessFromCulture(lua_State* L)
+//int getUnhappinessFromIsolation();
+int CvLuaCity::lGetUnhappinessFromIsolation(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromCulture());
+	lua_pushinteger(L, pkCity->GetUnhappinessFromIsolation());
 	return 1;
 }
-//int getUnhappinessFromScienceYield();
-int CvLuaCity::lGetUnhappinessFromScienceYield(lua_State* L)
+//int GetUnhappinessFromPillagedTiles();
+int CvLuaCity::lGetUnhappinessFromPillagedTiles(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromScienceYield());
+	lua_pushinteger(L, pkCity->GetUnhappinessFromPillagedTiles());
 	return 1;
 }
-//int getUnhappinessFromScienceNeeded();
-int CvLuaCity::lGetUnhappinessFromScienceNeeded(lua_State* L)
+//int GetUnhappinessFromFamine();
+int CvLuaCity::lGetUnhappinessFromFamine(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromScienceNeeded());
+	lua_pushinteger(L, pkCity->GetUnhappinessFromFamine());
 	return 1;
 }
-//int GetUnhappinessFromScienceDeficit();
-int CvLuaCity::lGetUnhappinessFromScienceDeficit(lua_State* L)
+//int GetUnhappinessFromReligiousUnrest();
+int CvLuaCity::lGetUnhappinessFromReligiousUnrest(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iPop = pkCity->getPopulation();
-	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromScienceYield();
-	int iNeed = pkCity->getUnhappinessFromScienceNeeded();
-	if(iNeed > iYield)
-	{
-		iResult = iNeed - iYield;
-	}
-	else
-	{
-		iResult = (iYield * iPop) - (iNeed * iPop);
-	}
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//int getUnhappinessFromScience();
-int CvLuaCity::lGetUnhappinessFromScience(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromScience());
-	return 1;
-}
-//int getUnhappinessFromCultureYield();
-int CvLuaCity::lGetUnhappinessFromDefenseYield(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromDefenseYield());
-	return 1;
-}
-//int getUnhappinessFromDefenseNeeded();
-int CvLuaCity::lGetUnhappinessFromDefenseNeeded(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromDefenseNeeded());
-	return 1;
-}
-//int GetUnhappinessFromDefenseDeficit();
-int CvLuaCity::lGetUnhappinessFromDefenseDeficit(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	int iPop = pkCity->getPopulation();
-	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromDefenseYield();
-	int iNeed = pkCity->getUnhappinessFromDefenseNeeded();
-	if(iNeed > iYield)
-	{
-		iResult = iNeed - iYield;
-	}
-	else
-	{
-		iResult = (iYield * iPop) - (iNeed * iPop);
-	}
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//int getUnhappinessFromDefense();
-int CvLuaCity::lGetUnhappinessFromDefense(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromDefense());
-	return 1;
-}
-//int getUnhappinessFromGoldYield();
-int CvLuaCity::lGetUnhappinessFromGoldYield(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromGoldYield());
-	return 1;
-}
-//int getUnhappinessFromGoldNeeded();
-int CvLuaCity::lGetUnhappinessFromGoldNeeded(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromGoldNeeded());
-	return 1;
-}
-//int GetUnhappinessFromGoldDeficit();
-int CvLuaCity::lGetUnhappinessFromGoldDeficit(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	int iPop = pkCity->getPopulation();
-	int iResult = 0;
-	int iYield = pkCity->getUnhappinessFromGoldYield();
-	int iNeed = pkCity->getUnhappinessFromGoldNeeded();
-	if(iNeed > iYield)
-	{
-		iResult = iNeed - iYield;
-	}
-	else
-	{
-		iResult = (iYield * iPop) - (iNeed * iPop);
-	}
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//int getUnhappinessFromGold();
-int CvLuaCity::lGetUnhappinessFromGold(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromGold());
-	return 1;
-}
-//int getUnhappinessFromConnection();
-int CvLuaCity::lGetUnhappinessFromConnection(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromConnection());
-	return 1;
-}
-//int getUnhappinessFromPillaged();
-int CvLuaCity::lGetUnhappinessFromPillaged(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromPillaged());
-	return 1;
-}
-//int getUnhappinessFromStarving();
-int CvLuaCity::lGetUnhappinessFromStarving(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromStarving());
-	return 1;
-}
-//int getUnhappinessFromMinority();
-int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	lua_pushinteger(L, pkCity->getUnhappinessFromReligion());
+	lua_pushinteger(L, pkCity->GetUnhappinessFromReligiousUnrest());
 	return 1;
 }
 
 int CvLuaCity::lgetPotentialUnhappinessWithGrowth(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	CvString string = pkCity->getPotentialUnhappinessWithGrowth() + pkCity->getPotentialHappinessWithGrowth();
+	CvString string = pkCity->getPotentialUnhappinessWithGrowth() + pkCity->GetPotentialHappinessWithGrowth();
 	lua_pushstring(L, string);
 	return 1;
 }

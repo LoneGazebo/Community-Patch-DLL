@@ -15,7 +15,7 @@ All rights reserved.
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
-#include "cvMilitaryAI.h"
+#include "CvMilitaryAI.h"
 #include "CvTypes.h"
 #include "CvEnumMapSerialization.h"
 
@@ -351,7 +351,7 @@ void CvCityCitizens::DoTurn()
 			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 			bool bWantSettlers = thisPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
 
-			int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->getPotentialHappinessWithGrowthVal();
+			int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->GetPotentialHappinessWithGrowthVal();
 			if (iPotentialUnhappiness > 0 && thisPlayer.IsEmpireUnhappy())
 			{
 				//default value for vanilla happiness
@@ -664,42 +664,42 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bEmphasizeFood)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
 
-		iYieldMod += cache.iUnhappinessFromDistress;
+		iYieldMod += std::max(cache.iFamine, cache.iDistress);
 	}
 	else if (eYield == YIELD_PRODUCTION)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bEmphasizeProduction)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 
-		iYieldMod += cache.iUnhappinessFromDistress;
+		iYieldMod += cache.iDistress;
 	}
 	else if (eYield == YIELD_GOLD)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_GOLD)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_GOLD);
 
-		iYieldMod += cache.iUnhappinessFromGold;
+		iYieldMod += cache.iPoverty;
 	}
 	else if (eYield == YIELD_SCIENCE)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 			iYieldMod += /*16*/ GD_INT_GET(AI_CITIZEN_VALUE_SCIENCE);
 
-		iYieldMod += cache.iUnhappinessFromScience;
+		iYieldMod += cache.iIlliteracy;
 	}
 	else if (eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 			iYieldMod += /*16*/ GD_INT_GET(AI_CITIZEN_VALUE_CULTURE);
 
-		iYieldMod += cache.iUnhappinessFromCulture;
+		iYieldMod += cache.iBoredom;
 	}
 	else if (eYield == YIELD_FAITH || eYield == YIELD_GOLDEN_AGE_POINTS)
 	{
 		if (eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH);
 
-		iYieldMod += cache.iUnhappinessFromReligion;
+		iYieldMod += cache.iReligiousUnrest;
 	}
 
 	//sanity check: do not focus too much on anything else while we need food
@@ -845,7 +845,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	CvPlayer* pPlayer = m_pCity->GetPlayer();
 
 	int iValue = 0;
-
 	CityAIFocusTypes eFocus = GetFocusType();
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -902,30 +901,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	// GPP modifiers
 	int iMod = m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
 
-	bool bWantArt = false;
-	bool bWantScience = false;
-	bool bWantDiplo = false;
-	if (!GetPlayer()->isHuman())
-	{
-		if (GetPlayer()->GetPlayerTraits()->IsTourism() || GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToCultureVictory())
-		{
-			bWantArt = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsNerd() || GetPlayer()->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-		{
-			bWantScience = true;
-		}
-		if (GetPlayer()->GetPlayerTraits()->IsDiplomat() || GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory() || GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
-		{
-			bWantDiplo = true;
-		}
-	}
-
 	// Player and Golden Age mods to this specific class
 	if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{
 		iMod += GetPlayer()->getGreatScientistRateModifier();
-		if (bWantScience)
+		if (cache.bWantScience)
 		{
 			iMod += 20;
 		}
@@ -937,7 +917,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatWriterRateModifier();
 		}
 		iMod += GetPlayer()->getGreatWriterRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -949,7 +929,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatArtistRateModifier();
 		}
 		iMod += GetPlayer()->getGreatArtistRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -961,7 +941,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iMod += GetPlayer()->GetPlayerTraits()->GetGoldenAgeGreatMusicianRateModifier();
 		}
 		iMod += GetPlayer()->getGreatMusicianRateModifier();
-		if (bWantArt)
+		if (cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -969,7 +949,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
 	{
 		iMod += GetPlayer()->getGreatMerchantRateModifier();
-		if (bWantDiplo)
+		if (cache.bWantDiplo)
 		{
 			iMod += 20;
 		}
@@ -977,7 +957,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if ((UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
 	{
 		iMod += GetPlayer()->getGreatEngineerRateModifier();
-		if (bWantScience || bWantArt)
+		if (cache.bWantScience || cache.bWantArt)
 		{
 			iMod += 20;
 		}
@@ -985,7 +965,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	else if (MOD_BALANCE_VP && (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 	{
 		iMod += GetPlayer()->getGreatDiplomatRateModifier();
-		if (bWantDiplo)
+		if (cache.bWantDiplo)
 		{
 			iMod += 20;
 		}
@@ -1098,11 +1078,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			else
 			{
 				iMod += (iEmptySlots * 2);
-			}
-
-			if (bWantArt)
-			{
-				iMod += 10;
 			}
 		}
 	}
@@ -1406,7 +1381,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			break;
 		}
 
-		if (0) // (pLog)
+		if (false) // (pLog)
 		{
 			CvString strOutBuf;
 			strOutBuf.Format("check index %d, plot %d:%d (%df%dp%dg%do), score %d with forced work status %d. current net food %d", 
@@ -1618,7 +1593,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
 				break;
 			}
-			else if (eWorstSpecialistBuilding != NULL)
+			else if (eWorstSpecialistBuilding != NO_BUILDING)
 			{
 				//add the specialist back
 				DoAddSpecialistToBuilding(eWorstSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
@@ -2595,7 +2570,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		//we added the first specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 1)
 		{
-			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
+			GetCity()->UpdateReligiousYieldFromSpecialist(true);
 			GetCity()->UpdateAllNonPlotYields(updateMode==CvCity::YIELD_UPDATE_GLOBAL);
 		}
 
@@ -2641,16 +2616,11 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
 
+		GetCity()->processSpecialist(eSpecialist, -1, updateMode);
+
 		//we removed the last specialist, this may have religious effects
 		if (GetTotalSpecialistCount() == 0)
-		{
-			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
-			GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(), false);
-		}
-		else
-		{
-			GetCity()->processSpecialist(eSpecialist, -1, updateMode);
-		}
+			GetCity()->UpdateReligiousYieldFromSpecialist(false);
 
 		if (updateMode==CvCity::YIELD_UPDATE_GLOBAL)
 		{
@@ -2709,6 +2679,10 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		CvInterfacePtr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
+
+	//we removed the last specialist, this may have religious effects
+	if (iNumSpecialists>0 && GetTotalSpecialistCount() == 0)
+		GetCity()->UpdateReligiousYieldFromSpecialist(false);
 
 	GET_PLAYER(GetCity()->getOwner()).CalculateNetHappiness();
 	GetCity()->updateNetHappiness();
@@ -3481,40 +3455,6 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		newUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(),newUnit->getUnitInfo(),eReligion,m_pCity);
 	}
 
-	if (newUnit->getUnitInfo().GetOneShotTourism() > 0)
-	{
-		newUnit->SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(newUnit->getUnitInfo().GetOneShotTourism()));
-	}
-	if (newUnit->getUnitInfo().GetTourismBonusTurns() > 0)
-	{
-		int iNumTurns = newUnit->getUnitInfo().GetTourismBonusTurns();
-		CvCity *pLoopCity;
-		int iLoop;
-		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
-		{
-			iNumTurns += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumTurns /= 100;
-
-		newUnit->SetTourismBlastLength(iNumTurns);
-	}
-#if defined(MOD_BALANCE_CORE)
-	if (newUnit->getUnitInfo().GetBaseBeakersTurnsToCount() > 0)
-	{
-		newUnit->SetScienceBlastStrength(newUnit->getDiscoverAmount());
-	}
-	if (newUnit->getUnitInfo().GetBaseHurry() > 0)
-	{
-		newUnit->SetHurryStrength(newUnit->getHurryProduction(newUnit->plot()));
-	}
-	if (newUnit->getUnitInfo().GetBaseCultureTurnsToCount() > 0)
-	{
-		newUnit->SetCultureBlastStrength(newUnit->getGivePoliciesCulture());
-	}
-#endif
-
 	// Notification
 	if (GET_PLAYER(GetOwner()).GetNotifications())
 	{
@@ -3527,8 +3467,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 {
 	YieldTypes eTargetYield = NO_YIELD;
+	
 	switch (eFocus)
 	{
+	case NO_CITY_AI_FOCUS_TYPE:
+		eTargetYield = NO_YIELD;
+		break;
 	case CITY_AI_FOCUS_TYPE_PRODUCTION:
 		eTargetYield = YIELD_PRODUCTION;
 		break;
@@ -3547,6 +3491,10 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 	case CITY_AI_FOCUS_TYPE_SCIENCE:
 		eTargetYield = YIELD_SCIENCE;
 		break;
+	case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
+	case CITY_AI_FOCUS_TYPE_PROD_GROWTH:
+	case CITY_AI_FOCUS_TYPE_GOLD_GROWTH:
+		break; // No yield to map too.
 	}
 
 	return eTargetYield;
@@ -3555,23 +3503,27 @@ YieldTypes CvCityCitizens::GetFocusTypeYield(CityAIFocusTypes eFocus)
 SPrecomputedExpensiveNumbers::SPrecomputedExpensiveNumbers() :
 	bonusForXFeature(YIELD_TOURISM, vector<int>(GC.getNumFeatureInfos(),INT_MAX)),
 	bonusForXTerrain(YIELD_TOURISM, vector<int>(GC.getNumTerrainInfos(),INT_MAX)),
-	iUnhappinessFromGold(0),
-	iUnhappinessFromScience(0),
-	iUnhappinessFromCulture(0),
-	iUnhappinessFromReligion(0),
-	iUnhappinessFromDistress(0),
+	iDistress(0),
+	iPoverty(0),
+	iIlliteracy(0),
+	iBoredom(0),
+	iReligiousUnrest(0),
 	iExcessFoodTimes100(0),
-	iFoodCorpMod(0)
+	iFoodCorpMod(0),
+	bWantArt(false),
+	bWantScience(false),
+	bWantDiplo(false)
 {
 }
 
 void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 {
-	iUnhappinessFromGold = pCity->getUnhappinessFromGold();
-	iUnhappinessFromScience = pCity->getUnhappinessFromScience();
-	iUnhappinessFromCulture = pCity->getUnhappinessFromCulture();
-	iUnhappinessFromReligion = pCity->getUnhappinessFromReligion();
-	iUnhappinessFromDistress = max(pCity->getUnhappinessFromDefense(), pCity->getUnhappinessFromStarving());
+	iFamine = pCity->GetUnhappinessFromFamine();
+	iDistress = pCity->GetDistress(false);
+	iPoverty = pCity->GetPoverty(false);
+	iIlliteracy = pCity->GetIlliteracy(false);
+	iBoredom = pCity->GetBoredom(false);
+	iReligiousUnrest = pCity->GetUnhappinessFromReligiousUnrest();
 	iExcessFoodTimes100 = pCity->getYieldRateTimes100(YIELD_FOOD, false) - (pCity->foodConsumptionTimes100());
 	iFoodCorpMod = pCity->GetTradeRouteCityMod(YIELD_FOOD);
 
@@ -3583,4 +3535,18 @@ void SPrecomputedExpensiveNumbers::update(CvCity * pCity)
 	for (size_t i = 0; i < bonusForXTerrain.size(); i++)
 		for (size_t j = 0; j < bonusForXTerrain[i].size(); j++)
 			bonusForXTerrain[i][j] = INT_MAX;
+
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	if (kPlayer.isHuman())
+	{
+		bWantArt = false;
+		bWantScience = false;
+		bWantDiplo = false;
+	}
+	else
+	{
+		bWantArt = kPlayer.GetPlayerTraits()->IsTourism() || kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() || kPlayer.GetDiplomacyAI()->IsCloseToCultureVictory();
+		bWantScience = kPlayer.GetPlayerTraits()->IsNerd() || kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory() || kPlayer.GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+		bWantDiplo = kPlayer.GetPlayerTraits()->IsDiplomat() || kPlayer.GetDiplomacyAI()->IsGoingForDiploVictory() || kPlayer.GetDiplomacyAI()->IsCloseToDiploVictory();
+	}
 }

@@ -676,7 +676,7 @@ void WriteHashedTypeArray(FDataStream& kStream, TType* paArray, uint uiArraySize
 }
 
 #define CVINFO_V0_TAG_COUNT(x)	(sizeof(x) / sizeof(const char*))
-#define CVINFO_V0_TAGS(x)	&x[0], sizeof(x) / sizeof(const char*)
+#define CVINFO_V0_TAGS(x)	&(x)[0], sizeof(x) / sizeof(const char*)
 
 // Declare a basic serialization info helper
 #define DECLARE_SERIALIZATION_INFO_TYPE_HELPER(theType) \
@@ -687,14 +687,14 @@ extern bool WriteHashed(FDataStream& kStream, const theType eType);
 #define IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(theType, theInfoAccess, theNoEnum) \
 bool Write(FDataStream& kStream, const theType eType) \
 { \
-	if(eType != theNoEnum) \
+	if(eType != (theNoEnum)) \
 		return Write(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
 	else \
 		return Write(kStream, (const CvBaseInfo*)NULL); \
 } \
 bool WriteHashed(FDataStream& kStream, const theType eType) \
 { \
-	if(eType != theNoEnum) \
+	if(eType != (theNoEnum)) \
 		return WriteHashed(kStream, (const CvBaseInfo*)GC.theInfoAccess(eType)); \
 	else \
 		return WriteHashed(kStream, (const CvBaseInfo*)NULL); \

@@ -411,12 +411,10 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				-----------------
 				-- Hostile!
 				print("Hello");
-				print(tostring(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer)));
-				print(AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM);
 
-				if(not pAIPlayer:MoveRequestTooSoon(iActivePlayer)) then
-					if(activePlayer:GetMilitaryAggressivePosture(g_iAIPlayer) >= AggressivePostureTypes.AGGRESSIVE_POSTURE_MEDIUM) then
-						if(activePlayer:GetApproachTowardsUsGuess(g_iAIPlayer) == MajorCivApproachTypes.MAJOR_CIV_APPROACH_HOSTILE) then
+				if (not pAIPlayer:MoveRequestTooSoon(iActivePlayer)) then
+					if (activePlayer:CountAggressiveMilitaryScore(g_iAIPlayer) >= 4) then
+						if (pAIPlayer:IsActHostileTowardsHuman(iActivePlayer)) then
 							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS_HOSTILE" );
 						else
 							strButton9Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_MOVE_TROOPS" );

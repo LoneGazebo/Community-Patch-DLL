@@ -47,6 +47,17 @@ local UI_GetUnitFlagIcon = UI.GetUnitFlagIcon
 local UI_GetUnitPortraitIcon = UI.GetUnitPortraitIcon
 local UnitMoving = UnitMoving
 
+-- Cache whether Promotion Flags is active, change settings
+local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1 )
+local isPromotionFlagsEUI = EUI_options.GetValue( "PromotionFlags" ) == 1
+
+print("Promotion Flags: "..tostring(isPromotionFlagsEUI))
+local PromotionFlagsSettings_ShowUnitFreePromos = false
+local PromotionFlagsSettings_ShowLeaderTraitPromos = true
+local PromotionFlagsSettings_ShowForPlayer = true
+local PromotionFlagsSettings_ShowForOthers = true
+local PromotionFlagsSettings_MaxPromosToShow = 13
+
 local GetPlotNumUnits = Map_GetPlot(0,0).GetNumLayerUnits or Map_GetPlot(0,0).GetNumUnits
 local GetPlotUnit = Map_GetPlot(0,0).GetLayerUnit or Map_GetPlot(0,0).GetUnit
 
@@ -84,6 +95,7 @@ local g_colorYellow = Color( 1, 1, 0, 1 )
 local g_colorRed = Color( 1, 0, 0, 1 )
 local g_colorWhite = Color( 1, 1, 1, 1 )
 
+--[[
 local DebugPrint = print;
 
 local function DebugUnit( playerID, unitID, ... )
@@ -98,7 +110,7 @@ local function DebugFlag( flag, ... )
 		DebugPrint( "flag=", flag, ... )
 	end
 end
-
+]]--
 --==========================================================
 -- Manage flag interractions with user
 --==========================================================
@@ -173,7 +185,13 @@ local function UnitFlagToolTip( button )
 						end
 						g_usedPromotions[i] = instance
 					end
-					IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, instance.Promotion )
+                    -- UndeadDevel/FlagPromotions: add default fallback for the 32x32 icons as well
+                    if not IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, instance.Promotion ) then
+                        print("No 32x32 icon for ".. unitPromotion.Type .. " failing back to the yellow triangle")
+                        IconHookup( 59, 32, "PROMOTION_ATLAS", instance.Promotion )
+                    end
+					--IconHookup( unitPromotion.PortraitIndex, 32, unitPromotion.IconAtlas, instance.Promotion )
+                    -- UndeadDevel end
 				end
 			end
 		end
@@ -662,15 +680,166 @@ local function ForceHide( playerID, unitID, isForceHide )
 	end
 end--ForceHide
 
+-- ak/FlagPromotions
+local function AddPromotionIcon(flag, promoID, iconPositionID)
+	local button = flag['Promotion'..iconPositionID]
+	local promo = GameInfo.UnitPromotions[promoID]
+	local player = Players[flag.m_PlayerID]
+	local unit = player:GetUnitByID(flag.m_UnitID)
+	
+	--button:UnloadTexture()
+	if not IconHookup( promo.PortraitIndex, 16, promo.IconAtlas, button ) then
+		print("No 16x16 icon for ".. promo.Type .. " failing back to the yellow triangle")
+		IconHookup( 59, 16, "PROMOTION_ATLAS", button )
+	end
+	
+	local hoverText = ""
+	if promo.SimpleHelpText then
+		hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR]", Locale.ConvertTextKey(promo.Help))
+	else
+		hoverText = string.format("[COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+			Locale.ConvertTextKey(promo.Description),
+			Locale.ConvertTextKey(promo.Help)
+		)
+	end	
+--	if PromotionFlagsSettings.Debug then hoverText = hoverText .. "[NEWLINE]" .. promo.Type end
+	
+	-- add earlier rank promotions to the tooltip (eg add Drill 1 if we have Drill 2)
+	local rankNum = promo.RankNumber - 1
+	while rankNum > 0 do
+		for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = rankNum} do
+			if unit:IsHasPromotion(nextPromo.ID) then
+				if nextPromo.SimpleHelpText then
+					hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR]",
+						hoverText,
+						Locale.ConvertTextKey(nextPromo.Help)
+					)
+				else
+					hoverText = string.format("%s[NEWLINE][COLOR_YELLOW]%s[ENDCOLOR][NEWLINE]%s",
+						hoverText,
+						Locale.ConvertTextKey(nextPromo.Description),
+						Locale.ConvertTextKey(nextPromo.Help)
+					)
+				end
+--				if PromotionFlagsSettings.Debug then hoverText = hoverText .. "[NEWLINE]" .. nextPromo.Type end
+			end
+		end
+		rankNum = rankNum - 1
+	end
+	
+	button:SetToolTipString(hoverText)
+end
+
+local function UpdatePromotions(playerID, unitID)
+	local flag = g_UnitFlags[ playerID ][ unitID ]
+	if flag == nil then 
+		DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
+		return
+	end
+
+	if not PromotionFlagsSettings_ShowForPlayer and g_activePlayerID == playerID then
+		return
+	end
+	if not PromotionFlagsSettings_ShowForOthers and g_activePlayerID ~= playerID then
+		return
+	end
+
+	
+	local player = Players[playerID]
+	local unit = player:GetUnitByID(unitID)
+	if unit == nil then 
+		--that's weird, ah well nevermind!
+		DebugPrint("UpdatePromotions, flag exists but, unit appears to be nil, bailing out... playerID:" .. tostring(playerID) ..  ", unitID:".. tostring(unitID))
+		return
+	end
+
+	local iconPositionID	= 1
+	local promos			= {}	
+	local unitType = GameInfo.Units[unit:GetUnitType()].Type
+
+
+	for promo in GameInfo.UnitPromotions() do
+		local promoID = promo.ID
+		if unit:IsHasPromotion(promoID) and promo.IsVisibleAboveFlag then
+			local showPromo = true
+			
+			--don't show promos from leader traits
+			if not PromotionFlagsSettings_ShowLeaderTraitPromos then
+				local leaderType = player:GetLeaderType();
+				local leaderInfo = GameInfo.Leaders[leaderType];
+				local unitCombatInfoType = GameInfo.UnitCombatInfos[unit:GetUnitCombatType()].Type
+				
+				for l in GameInfo.Leader_Traits{LeaderType = leaderInfo.Type} do 
+					for t in GameInfo.Trait_FreePromotionUnitCombats{TraitType = l.TraitType} do 
+						if unitCombatInfoType == t.UnitCombatType and promo.Type == t.PromotionType then
+							showPromo = false
+						end
+					end				
+				end
+			end
+
+			-- don't show promos that automatically come with the unit
+			for freepromo in GameInfo.Unit_FreePromotions{UnitType=unitType} do
+				if promo.Type == freepromo.PromotionType and not PromotionFlagsSettings_ShowUnitFreePromos then
+					showPromo = false
+				end
+			end
+
+			if promo.RankList then
+				-- hide promotion if the unit has a higher rank of that promotion (eg. hide Drill 1 if we have Drill 2)
+				--for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList, RankNumber = promo.RankNumber + 1} do
+				for nextPromo in GameInfo.UnitPromotions{RankList = promo.RankList} do
+					if unit:IsHasPromotion(nextPromo.ID) and nextPromo.RankNumber > promo.RankNumber then
+						showPromo = false
+						break
+					end					
+				end
+			end
+			
+			if showPromo then
+				table.insert(promos, promoID)
+			end
+		end		
+	end						
+  
+	table.sort(promos, function(a, b)
+		return GameInfo.UnitPromotions[a].FlagPromoOrder < GameInfo.UnitPromotions[b].FlagPromoOrder
+	end)
+
+	local iPromotionsStackMax = math.min(13, (PromotionFlagsSettings_MaxPromosToShow or 13))
+	for iconPositionID = 1, iPromotionsStackMax do
+		local button = flag['Promotion'..iconPositionID]
+		button:UnloadTexture()
+		if promos[iconPositionID] then
+			--local p = GameInfo.UnitPromotions[promos[iconPositionID]]
+			AddPromotionIcon(flag, promos[iconPositionID], iconPositionID)
+			button:SetHide(false)
+		else
+			button:SetHide(true)
+		end
+	end	
+
+	flag.EarnedPromotionStack1:CalculateSize()
+	flag.EarnedPromotionStack1:ReprocessAnchoring()
+	
+	flag.EarnedPromotionStack2:CalculateSize()
+	flag.EarnedPromotionStack2:ReprocessAnchoring()
+end
+
 --==========================================================
 -- On Unit Created
 --==========================================================
 Events.SerialEventUnitCreated.Add(
 function( playerID, unitID, hexPos, unitType, cultureType, civID, primaryColor, secondaryColor, unitFlagIndex, fogState, isSelected, isMilitary, isVisible )
-	-- DebugUnit( playerID, unitID, "SerialEventUnitCreated, fogState=", fogState, "isSelected=", isSelected, "isVisible=", isVisible, "XY=", ToGridFromHex( hexPos.x, hexPos.y ) ) end
+	-- DebugUnit( playerID, unitID, "SerialEventUnitCreated, fogState=", fogState, "isSelected=", isSelected, "isVisible=", isVisible, "XY=", ToGridFromHex( hexPos.x, hexPos.y ) ) 
 	CreateNewFlag( playerID, unitID, isSelected, fogState ~= 2, not isVisible )
-end)
+	-- ak
+--	UpdatePromotions(playerID, unitID)
 
+end)
+if isPromotionFlagsEUI then
+	Events.SerialEventUnitCreated.Add(UpdatePromotions)
+end
 --==========================================================
 -- On Unit Position Changed
 -- sent by the engine while it walks a unit around
@@ -770,6 +939,9 @@ function( playerID, unitID, _, _, _, isSelected )
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag then
 		SetFlagSelected( flag, isSelected )
+		if isPromotionFlagsEUI then
+			UpdatePromotions(playerID, unitID)
+		end
 	else
 		-- DebugUnit( playerID, unitID, "flag not found for UnitSelectionChanged", isSelected ) end
 	end
@@ -1001,6 +1173,38 @@ Events.GameplaySetActivePlayer.Add( function( activePlayerID )--, iPrevActivePla
 	end
 end)
 
+-- Remove this in case of performance issues, see the following comment from FlagPromotions: 
+-- Considered removing this, as flags are updated as the promos are added.
+-- But given that it takes less than a tenth of a second even late game,
+-- it seems worth leaving in to make sure everything is up to date.
+local function RefreshUnitPromotionsGlobally()
+	local swStart = os.clock()
+	local unitCount = 0
+	for playerID,unitList in pairs(g_UnitFlags) do
+		for unitID,flag in pairs(unitList) do
+			UpdatePromotions(playerID, unitID)
+			unitCount = unitCount + 1
+		end
+	end
+	print(string.format("RefreshUnitPromotionsGlobally processed %i units in %.3f seconds", unitCount, os.clock()-swStart))
+end
+
+local function OnPromotionEvent(playerID, unitID, promoType)
+	--DebugPrint( "OnPromotionEvent, playerID:" .. tostring(playerID) .. " unitID:" .. tostring(unitID) .. ", promoType:" .. tostring(promoType))
+	UpdatePromotions(playerID, unitID)
+end
+
+if isPromotionFlagsEUI then
+	Events.ActivePlayerTurnStart.Add( RefreshUnitPromotionsGlobally); 
+
+	GameEvents.UnitPromoted.Add(OnPromotionEvent);
+	Events.SerialEventUnitCreated.Add(UpdatePromotions);
+	
+	LuaEvents.PromoFlagsToggleShowUnitFreePromos.Add(function()
+		PromotionFlagsSettings_ShowUnitFreePromos = not PromotionFlagsSettings_ShowUnitFreePromos; 
+		RefreshUnitPromotionsGlobally()
+	end);
+end
 --==========================================================
 -- on shutdown, we need to get our children back,
 -- or they will get duplicted on future hotload

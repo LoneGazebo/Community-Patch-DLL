@@ -1144,7 +1144,9 @@ local g_SelectionListCallBacks = {
 							end
 						end
 						-- all cities are producing...
-						return ExitCityScreen()
+						if not UI.CtrlKeyDown() then
+							return ExitCityScreen()
+						end
 					end
 				end
 			end
@@ -1765,7 +1767,7 @@ local function UpdateCityViewNow()
 				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() / 100 )
 				-- CBP
 				local iHappinessPerTurn = city:GetLocalHappiness();
-				local iUnhappinessPerTurn = city:getUnhappinessAggregated();
+				local iUnhappinessPerTurn = city:GetUnhappinessAggregated();
 				Controls.HappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn)
 				Controls.UnhappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn)
 				-- END
@@ -2150,7 +2152,7 @@ local function UpdateCityViewNow()
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists )
 		else
-			local defSpecialist = (GameDefines.BALANCE_UNHAPPINESS_PER_SPECIALIST / 100)
+			local defSpecialist = (GameDefines.UNHAPPINESS_PER_SPECIALIST / 100)
 			Controls.FreeSpecialistLabel:SetText(tostring(defSpecialist))
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT")

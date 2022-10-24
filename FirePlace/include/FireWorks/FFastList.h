@@ -284,17 +284,17 @@ public:
 	// Base iterator class which defined all iterator-ness except whether
 	// access is const or non-const.
 	////////////////////////////////////////////////////////////////////////
-	template< class TAIL >
+	template< class IT_TAIL >
 	class base_iterator : 
 		public std::iterator<std::bidirectional_iterator_tag, MultiListNodePolicy<T> >, 
-		public TAIL
+		public IT_TAIL
 	{
 	public:
-		explicit base_iterator() : m_uiCurrPos( ANCHOR_NODE_INDEX ), TAIL(NULL) {};
+		explicit base_iterator() : m_uiCurrPos( ANCHOR_NODE_INDEX ), IT_TAIL(NULL) {};
 		explicit base_iterator( unsigned int uiPos, TYPE* pVec )
-			: m_uiCurrPos( uiPos ), TAIL( pVec ) {};
+			: m_uiCurrPos( uiPos ), IT_TAIL( pVec ) {};
 		explicit base_iterator( unsigned int uiPos, const TYPE* pVec )
-			: m_uiCurrPos( uiPos ), TAIL( pVec ) {};
+			: m_uiCurrPos( uiPos ), IT_TAIL( pVec ) {};
 
 		~base_iterator(){};
 

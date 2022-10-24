@@ -499,6 +499,8 @@ CvPlot* CvArmyAI::GetCurrentPlot()
 {
 	switch (m_eAIState)
 	{
+	case NO_ARMYAISTATE:
+		break;
 	case ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE:
 	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		//stupid but true

@@ -588,7 +588,7 @@ public:
 	RepealProposalList GetRepealProposals() const;
 	RepealProposalList GetRepealProposalsOnHold() const;
 	CvActiveResolution* GetActiveResolution(int iResolutionID, int iValue = -1);
-	ActiveResolutionList GetActiveResolutions() const;
+	const ActiveResolutionList& GetActiveResolutions() const;
 	int GetNumResolutionsEverEnacted() const;
 	int GetNumProposersPerSession() const;
 
@@ -864,16 +864,16 @@ public:
 	~CvLeagueAI(void);
 	
 	// Increments of how much knowledge we have of another player's desires
-	enum KnowledgeLevels {
+	enum CLOSED_ENUM KnowledgeLevels {
 		KNOWLEDGE_NONE,
 		KNOWLEDGE_PARTIAL,
 		KNOWLEDGE_INTIMATE,
 
-		NUM_KNOWLEDGE_LEVELS,
+		NUM_KNOWLEDGE_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we want a certain outcome
-	enum DesireLevels {
+	enum CLOSED_ENUM DesireLevels {
 		DESIRE_NEVER,
 		DESIRE_STRONG_DISLIKE,
 		DESIRE_DISLIKE,
@@ -884,21 +884,21 @@ public:
 		DESIRE_STRONG_LIKE,
 		DESIRE_ALWAYS,
 		
-		NUM_DESIRE_LEVELS,
+		NUM_DESIRE_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we want a diplomat in a civ's capital (for trades, etc.)
-	enum DiplomatUsefulnessLevels {
+	enum CLOSED_ENUM DiplomatUsefulnessLevels {
 		DIPLOMAT_USEFULNESS_NONE,
 		DIPLOMAT_USEFULNESS_LOW,
 		DIPLOMAT_USEFULNESS_MEDIUM,
 		DIPLOMAT_USEFULNESS_HIGH,
 
-		NUM_DIPLOMAT_USEFULNESS_LEVELS,
+		NUM_DIPLOMAT_USEFULNESS_LEVELS ENUM_META_VALUE,
 	};
 
 	// Increments of how much we think our interests are aligned with another player's
-	enum AlignmentLevels {
+	enum CLOSED_ENUM AlignmentLevels {
 		ALIGNMENT_WAR,
 
 		ALIGNMENT_ENEMY,
@@ -916,7 +916,7 @@ public:
 		ALIGNMENT_SELF,
 
 
-		NUM_ALIGNMENT_LEVELS,
+		NUM_ALIGNMENT_LEVELS ENUM_META_VALUE,
 	};
 
 	struct VoteCommitment {

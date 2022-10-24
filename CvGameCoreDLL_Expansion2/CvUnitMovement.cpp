@@ -364,10 +364,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
 		while (pAdjUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = NULL;
-			if ((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
-				pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+			//performance optimization; skip the expensive unit lookup for our own units
+			if (pAdjUnitNode->eOwner == pUnit->getOwner())
+			{
+				pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
+				continue;
+			}
 
+			CvUnit* pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
 			if (!pLoopUnit)
@@ -461,10 +465,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
 		while (pAdjUnitNode != NULL)
 		{
-			CvUnit* pLoopUnit = NULL;
-			if ((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
-				pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
+			//performance optimization; skip the expensive unit lookup for our own units
+			if (pAdjUnitNode->eOwner == pUnit->getOwner())
+			{
+				pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
+				continue;
+			}
 
+			CvUnit* pLoopUnit = GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID);
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
 			if (!pLoopUnit || pLoopUnit->isDelayedDeath())
@@ -530,15 +538,15 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
-	if (pPlot->isHills() && pUnit->isHillsDoubleMove())
+	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
 	{
 		iModifier /= 2;
 	}
-	else if (pPlot->isHills() && pUnit->isTerrainHalfMove(TERRAIN_HILL))
+	else if (pUnit->isTerrainHalfMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier *= 2;
 	}
-	else if (pPlot->isMountain() && pUnit->isMountainsDoubleMove())
+	else if (pUnit->isMountainsDoubleMove() && pPlot->isMountain())
 	{
 		iModifier /= 2;
 	}
@@ -562,7 +570,7 @@ int CvUnitMovement::GetMovementCostAdderFromPromotions(const CvUnit* pUnit, cons
 	TerrainTypes eToTerrain = pPlot->getTerrainType();
 	FeatureTypes eToFeature = pPlot->getFeatureType();
 
-	if (pPlot->isHills() && pUnit->isTerrainExtraMove(TERRAIN_HILL))
+	if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
 	{
 		iModifier += (GD_INT_GET(MOVE_DENOMINATOR) * pUnit->getTerrainExtraMoveCount(TERRAIN_HILL));
 	}

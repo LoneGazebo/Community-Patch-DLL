@@ -446,19 +446,25 @@ public:
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int GetPovertyHappinessChangePolicy() const;
-	int GetDefenseHappinessChangePolicy() const;
-	int GetUnculturedHappinessChangePolicy() const;
-	int GetIlliteracyHappinessChangePolicy() const;
-	int GetMinorityHappinessChangePolicy() const;
 
-	int GetPovertyHappinessChangePolicyCapital() const;
-	int GetDefenseHappinessChangePolicyCapital() const;
-	int GetUnculturedHappinessChangePolicyCapital() const;
-	int GetIlliteracyHappinessChangePolicyCapital() const;
-	int GetMinorityHappinessChangePolicyCapital() const;
-	int GetPuppetUnhappinessMod() const;
+	int GetDistressFlatReductionGlobal() const;
+	int GetPovertyFlatReductionGlobal() const;
+	int GetIlliteracyFlatReductionGlobal() const;
+	int GetBoredomFlatReductionGlobal() const;
+	int GetReligiousUnrestFlatReductionGlobal() const;
+
+	int GetBasicNeedsMedianModifierGlobal() const;
+	int GetGoldMedianModifierGlobal() const;
+	int GetScienceMedianModifierGlobal() const;
+	int GetCultureMedianModifierGlobal() const;
+	int GetReligiousUnrestModifierGlobal() const;
+
+	int GetBasicNeedsMedianModifierCapital() const;
+	int GetGoldMedianModifierCapital() const;
+	int GetScienceMedianModifierCapital() const;
+	int GetCultureMedianModifierCapital() const;
+	int GetReligiousUnrestModifierCapital() const;
+
 	int GetNoUnhappfromXSpecialists() const;
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
@@ -468,7 +474,7 @@ public:
 	int GetWarScoreModifier() const;
 
 	int GetGreatGeneralExtraBonus() const;
-#endif
+
 private:
 	int m_iTechPrereq;
 	int m_iCultureCost;
@@ -669,19 +675,25 @@ private:
 	bool m_bIsOnlyTradeSameIdeology;
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int m_iPovertyHappinessChangePolicy;
-	int m_iDefenseHappinessChangePolicy;
-	int m_iUnculturedHappinessChangePolicy;
-	int m_iIlliteracyHappinessChangePolicy;
-	int m_iMinorityHappinessChangePolicy;
 
-	int m_iPovertyHappinessChangePolicyCapital;
-	int m_iDefenseHappinessChangePolicyCapital;
-	int m_iUnculturedHappinessChangePolicyCapital;
-	int m_iIlliteracyHappinessChangePolicyCapital;
-	int m_iMinorityHappinessChangePolicyCapital;
-	int m_iPuppetUnhappinessModPolicy;
+	int m_iDistressFlatReductionGlobal;
+	int m_iPovertyFlatReductionGlobal;
+	int m_iIlliteracyFlatReductionGlobal;
+	int m_iBoredomFlatReductionGlobal;
+	int m_iReligiousUnrestFlatReductionGlobal;
+
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
+
+	int m_iBasicNeedsMedianModifierCapital;
+	int m_iGoldMedianModifierCapital;
+	int m_iScienceMedianModifierCapital;
+	int m_iCultureMedianModifierCapital;
+	int m_iReligiousUnrestModifierCapital;
+
 	int m_iNoUnhappfromXSpecialists;
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
@@ -690,7 +702,6 @@ private:
 	int m_iWarScoreModifier;
 
 	int m_iGreatGeneralExtraBonus;
-#endif
 
 	CvString m_strWeLoveTheKingKey;
 	CvString m_wstrWeLoveTheKing;
@@ -956,7 +967,7 @@ private:
 	std::vector<CvPolicyBranchEntry*> m_paPolicyBranchEntries;
 };
 
-enum PolicyModifierType
+enum CLOSED_ENUM PolicyModifierType
 {
     POLICYMOD_EXTRA_HAPPINESS = 0,
     POLICYMOD_EXTRA_HAPPINESS_PER_CITY,
@@ -967,7 +978,6 @@ enum PolicyModifierType
     POLICYMOD_GREAT_GENERAL_RATE,
     POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE,
     POLICYMOD_POLICY_COST_MODIFIER,
-    POLICYMOD_RELIGION_PRODUCTION_MODIFIER,
     POLICYMOD_WONDER_PRODUCTION_MODIFIER,
     POLICYMOD_BUILDING_PRODUCTION_MODIFIER,
     POLICYMOD_FREE_EXPERIENCE,

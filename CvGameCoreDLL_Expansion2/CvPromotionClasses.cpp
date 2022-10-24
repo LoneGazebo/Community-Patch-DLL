@@ -71,6 +71,8 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iAttackFullyHealedMod(0),
 	m_iAttackAboveHealthMod(0),
 	m_iAttackBelowHealthMod(0),
+	m_bRangedFlankAttack(false),
+	m_iExtraFlankPower(0),
 	m_iFlankAttackModifier(0),
 	m_iNearbyEnemyCombatMod(0),
 	m_iNearbyEnemyCombatRange(0),
@@ -295,9 +297,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_pbFeatureDoubleMove(NULL),
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	m_pbTerrainHalfMove(NULL),
-	m_piTerrainExtraMove(NULL),
+	m_pbTerrainExtraMove(NULL),
 	m_pbFeatureHalfMove(NULL),
-	m_piFeatureExtraMove(NULL),
+	m_pbFeatureExtraMove(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_pbTerrainDoubleHeal(NULL),
@@ -346,9 +348,9 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_pbFeatureDoubleMove);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	SAFE_DELETE_ARRAY(m_pbTerrainHalfMove);
-	SAFE_DELETE_ARRAY(m_piTerrainExtraMove);
+	SAFE_DELETE_ARRAY(m_pbTerrainExtraMove);
 	SAFE_DELETE_ARRAY(m_pbFeatureHalfMove);
-	SAFE_DELETE_ARRAY(m_piFeatureExtraMove);
+	SAFE_DELETE_ARRAY(m_pbFeatureExtraMove);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbTerrainDoubleHeal);
@@ -582,6 +584,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iAttackFullyHealedMod = kResults.GetInt("AttackFullyHealedMod");
 	m_iAttackAboveHealthMod = kResults.GetInt("AttackAbove50HealthMod");
 	m_iAttackBelowHealthMod = kResults.GetInt("AttackBelowEqual50HealthMod");
+	m_bRangedFlankAttack = kResults.GetBool("RangedFlankAttack");
+	m_iExtraFlankPower = kResults.GetInt("ExtraFlankPower");
 	m_iFlankAttackModifier = kResults.GetInt("FlankAttackModifier");
 	m_iNearbyEnemyCombatMod = kResults.GetInt("NearbyEnemyCombatMod");
 	m_iNearbyEnemyCombatRange = kResults.GetInt("NearbyEnemyCombatRange");
@@ -696,7 +700,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbTerrainDoubleMove, iNumTerrains, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbTerrainHalfMove, iNumTerrains, false);
-		kUtility.InitializeArray(m_piTerrainExtraMove, iNumTerrains, 0);
+		kUtility.InitializeArray(m_pbTerrainExtraMove, iNumTerrains, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbTerrainDoubleHeal, iNumTerrains, false);
@@ -734,8 +738,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbTerrainHalfMove[iTerrainID] = bHalfMove;
 
-			const int iExtraMove = pResults->GetInt("ExtraMove");
-			m_piTerrainExtraMove[iTerrainID] = iExtraMove;
+			const bool bExtraMove = pResults->GetBool("ExtraMove");
+			m_pbTerrainExtraMove[iTerrainID] = bExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
@@ -758,7 +762,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		kUtility.InitializeArray(m_pbFeatureDoubleMove, iNumFeatures, false);
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		kUtility.InitializeArray(m_pbFeatureHalfMove, iNumFeatures, false);
-		kUtility.InitializeArray(m_piFeatureExtraMove, iNumFeatures, 0);
+		kUtility.InitializeArray(m_pbFeatureExtraMove, iNumFeatures, false);
 #endif
 #if defined(MOD_BALANCE_CORE)
 		kUtility.InitializeArray(m_pbFeatureDoubleHeal, iNumFeatures, false);
@@ -796,8 +800,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const bool bHalfMove = pResults->GetBool("HalfMove");
 			m_pbFeatureHalfMove[iFeatureID] = bHalfMove;
 
-			const int iExtraMove = pResults->GetInt("ExtraMove");
-			m_piFeatureExtraMove[iFeatureID] = iExtraMove;
+			const bool bExtraMove = pResults->GetBool("ExtraMove");
+			m_pbFeatureExtraMove[iFeatureID] = bExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 			const bool bDoubleHeal = pResults->GetBool("DoubleHeal");
@@ -1165,6 +1169,61 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		pResults->Reset();
+	}
+
+	//UnitPromotions_YieldFromPillage
+	{
+		std::string sqlKey = "UnitPromotions_YieldFromPillage";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if (pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldsID, Yield, YieldNoScale from UnitPromotions_YieldFromPillage inner join Yields on Yields.Type = YieldType where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szPromotionType);
+
+		while (pResults->Step())
+		{
+			// Note:
+			// * yieldFlat: row[2], pair.first
+			// * yieldEraScaled: row[1], pair.second
+			// 
+			// The columns should still be loaded in the order that they appear as it _may_ have an impact on cache performance.
+			// Once the values are on the stack the access order is likely non-impactful since the compiler will re-order things
+			// to the best of its ability and often try to keep the values loaded into registers.
+			// 
+			// This is a nano-optimization but it's still the correct thing to do :P
+			const int yieldID = pResults->GetInt(0);
+			const int yieldEraScaled = pResults->GetInt(1);
+			const int yieldFlat = pResults->GetInt(2);
+
+			if (yieldFlat != 0 || yieldEraScaled != 0)
+			{
+				const std::map<int, std::pair<int, int>>::iterator it = m_yieldFromPillage.find(yieldID);
+				if (it != m_yieldFromPillage.end())
+				{
+					std::pair<int, int>& yieldValues = it->second;
+					yieldValues.first += yieldFlat;
+					yieldValues.second += yieldEraScaled;
+
+					if (yieldValues.first == 0 && yieldValues.second == 0)
+					{
+						m_yieldFromPillage.erase(it);
+					}
+				}
+				else
+				{
+					const std::pair<int, int> yieldValues = std::make_pair(yieldFlat, yieldEraScaled);
+					m_yieldFromPillage.insert(it, std::make_pair(yieldID, yieldValues));
+				}
+			}
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::map<int, std::pair<int, int>>(m_yieldFromPillage).swap(m_yieldFromPillage);
 	}
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -1571,6 +1630,18 @@ int CvPromotionEntry::GetAttackAboveHealthMod() const
 int CvPromotionEntry::GetAttackBelowHealthMod() const
 {
 	return m_iAttackBelowHealthMod;
+}
+
+/// Accessor: Ranged unit attacks benefit from units flanking target
+bool CvPromotionEntry::IsRangedFlankAttack() const
+{
+	return m_bRangedFlankAttack;
+}
+
+/// Accessor: Counts as additional units when supporting a flank
+int CvPromotionEntry::GetExtraFlankPower() const
+{
+	return m_iExtraFlankPower;
 }
 
 /// Accessor: Bonus when making a flank attack
@@ -2537,7 +2608,7 @@ int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 		return m_piTerrainAttackPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when when defending a tile of a given terrain
@@ -2551,7 +2622,7 @@ int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 		return m_piTerrainDefensePercent[i];
 	}
 
-	return-1;
+	return 0;
 }
 
 /// Percentage bonus when when attacking a tile with a given feature
@@ -2565,7 +2636,7 @@ int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 		return m_piFeatureAttackPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when when defending a tile with a given feature
@@ -2579,7 +2650,7 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 		return m_piFeatureDefensePercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 #if defined(MOD_BALANCE_CORE)
 /// Modifier to yield by type
@@ -2683,7 +2754,7 @@ int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 		return m_piUnitCombatModifierPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when fighting against a specific unit class
@@ -2697,7 +2768,7 @@ int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 		return m_piUnitClassModifierPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when fighting against a unit with a specific domain (LAND/SEA/AIR)
@@ -2711,7 +2782,7 @@ int CvPromotionEntry::GetDomainModifierPercent(int i) const
 		return m_piDomainModifierPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when attacking a specific unit class
@@ -2725,7 +2796,7 @@ int CvPromotionEntry::GetUnitClassAttackModifier(int i) const
 		return m_piUnitClassAttackModifier[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when defending against a specific unit class
@@ -2739,7 +2810,7 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 		return m_piUnitClassDefenseModifier[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when fighting next to friendly unit *combat* classes (increases with more adjacent units)
@@ -2754,7 +2825,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) co
 		return m_piCombatModPerAdjacentUnitCombatModifierPercent[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when attacking next to friendly unit *combat* classes (increases with more adjacent units)
@@ -2768,7 +2839,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) con
 		return m_piCombatModPerAdjacentUnitCombatAttackModifier[i];
 	}
 
-	return -1;
+	return 0;
 }
 
 /// Percentage bonus when defending next to friendly unit *combat* classes (increases with more adjacent units) [not enemy as intended]
@@ -2782,9 +2853,10 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) co
 		return m_piCombatModPerAdjacentUnitCombatDefenseModifier[i];
 	}
 
-	return -1;
+	return 0;
 }
 
+/// Immediately gain these Yields when the promotion is gained
 std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
@@ -2803,7 +2875,7 @@ std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 }
 #endif
 
-/// Returns an array that indicates if a feature type is traversable by the unit
+/// Indicates if a feature type is traversable by the unit
 int CvPromotionEntry::GetFeaturePassableTech(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2817,7 +2889,7 @@ int CvPromotionEntry::GetFeaturePassableTech(int i) const
 	return -1;
 }
 
-/// Returns an array that indicates if a unit can move twice in a type of terrain
+/// Indicates if a unit can move twice as fast in a type of terrain
 bool CvPromotionEntry::GetTerrainDoubleMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
@@ -2831,7 +2903,7 @@ bool CvPromotionEntry::GetTerrainDoubleMove(int i) const
 	return false;
 }
 
-/// Returns an array that indicates if a unit can move twice in a type of terrain feature
+/// Indicates if a unit can move twice as fast in a type of terrain feature
 bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -2860,15 +2932,15 @@ bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 	return false;
 }
 
-/// Indicates if a unit can move twice as fast in a type of terrain
-int CvPromotionEntry::GetTerrainExtraMove(int i) const
+/// Indicates if a unit loses one movement point when entering a given terrain
+bool CvPromotionEntry::GetTerrainExtraMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainExtraMove)
+	if (i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainExtraMove)
 	{
-		return m_piTerrainExtraMove[i];
+		return m_pbTerrainExtraMove[i];
 	}
 
 	return false;
@@ -2888,20 +2960,19 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 	return false;
 }
 
-/// Indicates if a unit can move twice as fast in a type of feature
-int CvPromotionEntry::GetFeatureExtraMove(int i) const
+/// Indicates if a unit loses one movement point when entering a given feature
+bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureExtraMove)
+	if (i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureExtraMove)
 	{
-		return m_piFeatureExtraMove[i];
+		return m_pbFeatureExtraMove[i];
 	}
 
 	return false;
 }
-
 #endif
 #if defined(MOD_BALANCE_CORE)
 /// Indicates if a unit can heal twice as fast in a type of terrain
@@ -3000,6 +3071,26 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 	}
 
 	return false;
+}
+
+/// Returns the amount of a given yield to receive when a unit that has this promotion pillages a tile.
+/// 
+/// The first element of the pair is the flat amount, the second element is the era scaling amount.
+std::pair<int, int> CvPromotionEntry::GetYieldFromPillage(YieldTypes eYield) const
+{
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Yield index out of bounds");
+	CvAssertMsg(eYield > NO_YIELD, "Yield index out of bounds");
+
+	if (eYield < NUM_YIELD_TYPES && eYield > NO_YIELD)
+	{
+		std::map<int, std::pair<int, int>>::const_iterator it = m_yieldFromPillage.find(static_cast<int>(eYield));
+		if (it != m_yieldFromPillage.end())
+		{
+			return it->second;
+		}
+	}
+
+	return std::make_pair(0, 0);
 }
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -3351,7 +3442,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	int iNumChoices = aPossiblePromotions.size();
 	if (iNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->getExperienceTimes100());
+		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->GetID() + pThisUnit->getDamage());
 		return (PromotionTypes)aPossiblePromotions[iChoice];
 	}
 

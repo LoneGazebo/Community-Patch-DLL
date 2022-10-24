@@ -583,6 +583,8 @@ public:
 	int GetIgnorePolicyRequirementsAmount(EraTypes eEra, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCSYieldBonus(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	std::pair<int, int> GetVoteFromOwnedImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+
+	const BeliefList& GetBeliefList() const { return m_ReligionBeliefs; }
 #endif
 
 	// Serialization

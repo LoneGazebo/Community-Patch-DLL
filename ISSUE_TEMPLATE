@@ -1,23 +1,50 @@
-_1. Mod version, and DirectX version if reporting a graphical issue (X.Y.Z, e.g. 2.5.0, DX 10 & 11):_
+<!-- PLEASE READ CAREFULLY AND INCLUDE ALL REQUESTED INFORMATION BEFORE SUBMITTING AN ISSUE REPORT!
+If your issue lacks needed information, you will be asked to provide it and your issue will be CLOSED.
+If you are using an old version, too many additional mods, or your issue cannot be reproduced, your issue may be CLOSED.
+We recommend zipping up all attachments other than screenshots. -->
+
+_1. Mod Version (X.Y.Z). Current Version: 2.7.3_
+<!-- Please also note if you are using the NON-EUI, 43 CIV and/or COMMUNITY PATCH ONLY versions. -->
 
 
-_2. Mod list (if using Vox Populi only, leave blank):_
+
+_2. DirectX Version_
+<!-- This is only needed if you are reporting a graphical issue. For example, DX 10 & 11. -->
 
 
-_3. Error description:_ 
+
+_3. List of Other Mods_
+<!-- List ALL mods other than VP that you are using below, including UI mods such as InfoAddict. -->
 
 
-_4. Steps to reproduce (optional):_
+
+_4. Describe the Issue_
+<!-- Please only report bugs (crashes, unexpected behavior, etc.) or problems with AI decision-making.
+For game balance issues: https://forums.civfanatics.com/forums/community-patch-project.497 -->
 
 
----------------------------
-Supporting information:
-Please note that you can attach .zip files by dragging-and-dropping them. If possible, zip up all supporting data and post that way.
+______________________________________________________________________________________
+_5. Save Game From 1 Turn Before (ALWAYS ATTACH THIS IF POSSIBLE)_
+<!-- Usually located at My Documents/My Games/Sid Meier's Civilization 5/ModdedSaves, but located in Saves if you're using a modpack
+To make sure this is available, we recommend that you set Max Autosaves to 0 (infinite) and Turns Between Autosaves to 1. -->
 
-1. Log files (always attach your Logs folder, located at My Documents/My Games/Sid Meier's Civilization 5. For instructions, go to the repository's main page, under "To enable logging for bug reports"):
 
-2. Save game (always attach a save that was made a turn before the error; located at My Documents/My Games/Sid Meier's Civilization 5/ModdedSaves; you can change autosave frequency in the game's Options menu):
 
-3. CvMiniDump.dmp file (attach if experiencing a game crash. Located at Program Files/Steam/steamapps/common/Sid Meier's Civilization V):
+_6. Logs (ALWAYS ATTACH THESE IF POSSIBLE)_
+<!-- Located at My Documents/My Games/Sid Meier's Civilization 5/Logs
+You MUST have enabled logging BEFORE experiencing the issue or your logs will be useless.
+See https://github.com/LoneGazebo/Community-Patch-DLL#to-enable-logging-for-bug-reports -->
 
-4. Screenshots (optional):
+
+
+_7. CvMiniDump.dmp File (ATTACH IF REPORTING A GAME CRASH)_
+<!-- Located at Program Files/Steam/steamapps/common/Sid Meier's Civilization V -->
+
+
+
+_8. Steps to reproduce the Issue (Optional)_
+<!-- NOTE: Please test that you can reproduce the issue before submitting it. -->
+
+
+
+_9. Screenshots of the Issue (Optional)_

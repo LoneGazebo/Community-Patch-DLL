@@ -7,28 +7,28 @@
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double movement on Marsh and Flood Plain tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Double [ICON_MOVES] Movement on Marsh and Flood Plains Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
-			<Text>Double movement on Snow tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Double [ICON_MOVES] Movement on Snow Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER">
 			<Text>Woods Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER_HELP">
-			<Text>Double movement on Forest and Jungle tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Double [ICON_MOVES] Movement in Forest and Jungle Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER">
 			<Text>Desert Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER_HELP">
-			<Text>Double movement on Desert tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Double [ICON_MOVES] Movement on Desert Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
@@ -42,7 +42,7 @@
 			<Text>Hill Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER_HELP">
-			<Text>Double movement on Hill tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
+			<Text>Double [ICON_MOVES] Movement on Hill Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
 <!-- Naturral Wonder Promotions -->
@@ -58,7 +58,7 @@
 			<Text>Everlasting Youth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVERLASTING_YOUTH_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Heals +5 HP[ENDCOLOR] per turn.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.</Text>
 		</Row>
 
 <!-- World Wonder Promotions -->
@@ -82,7 +82,7 @@
 			<Text>Longboat</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coastal Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coastal Tiles[ENDCOLOR].</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].</Text>
 		</Row>
 	<!-- Huns -->
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
@@ -160,7 +160,7 @@
 			<Text>Steppe Nomads</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+2 [ICON_MOVES] Movement.</Text>
+			<Text>Benefits from Flanking when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
 		</Row>
 	<!-- Sweden -->
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
@@ -262,7 +262,7 @@
 			<Text>Guerilla Fighter</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All tiles cost 1 [ICON_MOVES] Movement.</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All Tiles cost 1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
 <!-- Unit Free Promotions -->
@@ -302,11 +302,17 @@
 			<Text>+30%[ICON_STRENGTH] Combat Strength when attacking Units at full health.</Text>
 		</Row>
 	<!-- Haakkapeliitta -->
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY">
+			<Text>Scout Cavalry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY_HELP">
+			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 Sight and Pillaging costs no [ICON_MOVES] Movement.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE">
 			<Text>Hakkaa Päälle!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE_HELP">
-			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 50 HP after defeating an Enemy Unit.</Text>
+			<Text>+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 30 HP after defeating an Enemy Unit.</Text>
 		</Row>
 	<!-- Impi-->
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_I">
@@ -321,6 +327,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
 			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] at the beginning of every turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+		</Row>
+	<!-- Longbowman -->
+		<Row Tag="TXT_KEY_PROMOTION_ASSIZE_OF_ARMS">
+			<Text>Assize of Arms</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ASSIZE_OF_ARMS_HELP">
+			<Text>+20% [ICON_STRENGTH] Combat Strength vs [COLOR_POSITIVE_TEXT]Armor[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Mounted Units[ENDCOLOR].</Text>
 		</Row>
 	<!-- Mandekalu Cavalry -->
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
@@ -390,7 +403,7 @@
 			<Text>Hovering Unit Embarked</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HOVER_UNIT_HELP">
-			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] tiles and receive +100% [ICON_STRENGTH] Combat Strength when defending.</Text>
+			<Text>Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and receive +100% [ICON_STRENGTH] Combat Strength when defending.</Text>
 		</Row>
 	<!-- Nuclear Missile -->
 		<Row Tag="TXT_KEY_PROMOTION_NUCLEAR_SILO">
@@ -422,6 +435,13 @@
 			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking.</Text>
 		</Row>
 	<!-- Melee Line -->
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_0">
+			<Text>Discipline</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_0_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]+10 Hit Points.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_FIELD_WORKS_1">
 			<Text>Field Works</Text>
 		</Row>
@@ -458,10 +478,16 @@
 		</Row>
 	<!-- Ranged Mounted Line -->
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">
-			<Text>Skirmisher Doctrine</Text>
+			<Text>Beam Axle</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN_HELP">
-      		<Text>-20% [ICON_STRENGTH] Combat Strength while in [COLOR_NEGATIVE_TEXT]Rough Terrain[ENDCOLOR].[NEWLINE]+40% [ICON_STRENGTH] Combat Strength while in [COLOR_POSITIVE_TEXT]Open Terrain[ENDCOLOR].</Text>
+			<Text>Rough Terrain (Forest, Jungle, Hills) costs an additional movement point to cross.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE">
+			<Text>Skirmisher Doctrine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_DOCTRINE_HELP">
+			<Text>Counted twice for Flanking bonuses.[NEWLINE]+50% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].</Text>
 		</Row>
 
 	<!-- Civilian -->
@@ -497,7 +523,7 @@
 			<Text>Engineering Corp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ICE_BREAKERS_HELP">
-			<Text>Allows movement through Ice and Mountain tiles.</Text>
+			<Text>Allows [ICON_MOVES] Movement through Ice and Mountain Tiles.</Text>
 		</Row>
 
 	<!-- Unused -->
@@ -528,14 +554,14 @@
 			<Text>Trailblazer I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_I_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double Movement in Jungles and Forests.</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in Jungles and Forests.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II">
 			<Text>Trailblazer II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_II_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double Movement in Desert and Snow.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Double [ICON_MOVES] Movement in Desert and Snow.[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III">
@@ -686,6 +712,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_SPLASH_II_HELP">
 			<Text>Deals [COLOR_POSITIVE_TEXT]5 Damage[ENDCOLOR] to all Enemy Units [COLOR_POSITIVE_TEXT]Adjacent to[ENDCOLOR] targeted Unit (within [ICON_RANGE_STRENGTH] Range).</Text>
 		</Row>
+	<!-- Naval Units -->
+		<Row Tag="TXT_KEY_PROMOTION_OCEAN_HALF_MOVES">
+			<Text>Shallow Draft</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_OCEAN_HALF_MOVES_HELP">
+			<Text>Half [ICON_MOVES] Movement [COLOR_NEGATIVE_TEXT]through Ocean Tiles[ENDCOLOR].</Text>
+		</Row>
 	<!-- Naval Ranged Line -->
 		<Row Tag="TXT_KEY_PROMOTION_TARGETING_4">
 			<Text>Indomitable</Text>
@@ -740,7 +773,7 @@
 			<Text>Encirclement</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENCIRCLEMENT_HELP">
-			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when attacking.[NEWLINE]Heal +10 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].</Text>
+			<Text>+10% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Unit[ENDCOLOR] when attacking.[NEWLINE]Heal 10 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MINELAYER">
@@ -952,10 +985,10 @@
 			<Text>Free Company</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_FCOMPANY">
-			<Text>This Unit is much cheaper than the Pikeman, can pillage without using any movement points, and receives full XP from the City when purchased. Steals gold when attacking a City. May move immediately after purchase.[NEWLINE][NEWLINE]May only be purchased with [ICON_GOLD] Gold after completing the [COLOR_MAGENTA]Authority[ENDCOLOR] Policy Branch.</Text>
+			<Text>This Unit is much cheaper than the Pikeman, can pillage without spending any Movement, and receives full XP from the City when purchased. Steals gold when attacking a City. May move immediately after purchase.[NEWLINE][NEWLINE]May only be purchased with [ICON_GOLD] Gold after completing the [COLOR_MAGENTA]Authority[ENDCOLOR] Policy Branch.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_FCOMPANY_STRATEGY">
-			<Text>The Free Company are the first mercenary units made available by the completion of the Authority policy tree. Even though they can't be directly produced, they constitute a direct improvement in term of combat prowess over the Pikeman, while gaining some additionnal advantages.[NEWLINE][NEWLINE]Because they can move immediatly and with full experience when bought, you can field a large number of them very quickly if you have the gold. Furthermore, these scoundrels benefit greatly from offensive warfare thanks to their ability to pillage without movement cost and gain gold whenever they inflict damages to cities.</Text>
+			<Text>The Free Company are the first mercenary units made available by the completion of the Authority policy tree. Even though they can't be directly produced, they constitute a direct improvement in term of combat prowess over the Pikeman, while gaining some additional advantages.[NEWLINE][NEWLINE]Because they can move immediatly and with full experience when bought, you can field a large number of them very quickly if you have the gold. Furthermore, these scoundrels benefit greatly from offensive warfare thanks to their ability to pillage without Movement Cost and gain gold whenever they inflict damages to cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_FCOMPANY_TEXT">
 			<Text>Where opportunity meets warfare and lawlessness, the life of a soldier can turn quickly to brigandry.[NEWLINE][NEWLINE]The Free Companies, also known as Great Companies or Companies of Adventurers, were bands of mercenary soldiers that operated throughout Europe from the 12th to the early 15th century. Often employed by nobles, they were known for their disregard for the laws of arms and usefulness as raiders. The Free Companies are most famous for their role during the unending conflicts of the 14th century, employed by the English to terrorize the French countryside during the Hundred Years' War.[NEWLINE][NEWLINE]While the Companies had work during wartime, they could become a scourge in times of peace; they often took to pillaging the lands of their former employers as soon as they stopped being paid to pillage someone else's. After the Peace of Bretigny in 1360, the Free Companies were released from their service and became uncontrollable. They went from fief to fief, attacking farms and castles alike, operating throughout western Europe and even managing to win against armies fielded against them. The peace and the Plague helped these bands grow in size and audacity, gaining wealth and infamy as they went abroad. Notable companies of this time included the White Company in Italy, the Catalan Company in Greece, and the Tard-Venus in France. Many of these adventurers gained considerable political power from their exploits, such as the Englishman John Hawkwood, who became a wealthy condottiere hired by several Italian states and the Pope.[NEWLINE][NEWLINE]The rebuilding of Western European states and the formation of professional armies and effective militias during the 15th century brought an end to the use of mercenaries' power. However, the death and destruction wrought by the Free Companies left a deep scar on the European memory.</Text>

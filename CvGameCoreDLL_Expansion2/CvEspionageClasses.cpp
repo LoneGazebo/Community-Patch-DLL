@@ -22,7 +22,6 @@
 
 // consts to put in enums
 const int iSpyTurnsToTravel = 1;
-const int iSpyTurnsToRevive = /*5 in CP, 10 in VP*/ GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER);
 const int iSpyTurnsToMakeIntroductions = 5;
 const int iIntrigueTurnsValid = 5;
 const int iSpyRankPower = 50;
@@ -35,11 +34,11 @@ PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 CvEspionageSpy::CvEspionageSpy()
 	: m_iName(-1)
 	, m_sName(NULL)
-	, m_eRank(NUM_SPY_RANKS)
+	, m_eRank(SPY_RANK_RECRUIT)
 	, m_iExperience(0)
 	, m_iCityX(-1)
 	, m_iCityY(-1)
-	, m_eSpyState(NUM_SPY_STATES)
+	, m_eSpyState(SPY_STATE_UNASSIGNED)
 	, m_iReviveCounter(0)
 	, m_eSpyFocus(NO_EVENT_CHOICE_CITY)
 	, m_bIsDiplomat(false)
@@ -116,7 +115,7 @@ void CvEspionageSpy::ResetSiphonHistory()
 {
 	m_sSiphonHistory = "";
 }
-void CvEspionageSpy::SetSiphonHistory(CvString string)
+void CvEspionageSpy::SetSiphonHistory(const CvString& string)
 {
 	m_sSiphonHistory = string;
 }
@@ -762,13 +761,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					m_aiNumTechsToStealList[iCityOwner] = 0;
 				}
 
-#if defined(MOD_API_ACHIEVEMENTS)
 				//Achievements!
-				if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-				{
+				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_12);
-				}
-#endif
 
 				LevelUpSpy(uiSpyIndex);
 
@@ -838,7 +833,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		break;
 	case SPY_STATE_DEAD:
 		pSpy->m_iReviveCounter++;
-		if(pSpy->m_iReviveCounter >= iSpyTurnsToRevive)
+		if(pSpy->m_iReviveCounter >= GD_INT_GET(BALANCE_SPY_RESPAWN_TIMER))
 		{
 			GetNextSpyName(pSpy);
 			pSpy->m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
@@ -876,6 +871,8 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 		}
 		break;
+	case SPY_STATE_TERMINATED:
+		break; // Do nothing; A terminated spy doesn't come back.
 	}
 
 	// if we just established surveillance in the city, turn the lights on
@@ -4199,19 +4196,15 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 	}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-	//Achievements!
-	if(bAttemptSuccess && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-	{
-		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
-	}
-#endif
-
 	if (bAttemptSuccess)
 	{
 		LevelUpSpy(uiSpyIndex, /*50*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE));
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
+
+		//Achievements!
+		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
 	}
 
 	// Update City banners and game info
@@ -4301,13 +4294,18 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 	switch(m_aSpyList[uiSpyIndex].m_eSpyState)
 	{
 	case SPY_STATE_UNASSIGNED:
+	case SPY_STATE_COUNTER_INTEL:
+	case SPY_STATE_SCHMOOZE:
+	case SPY_STATE_DEAD:
+	case SPY_STATE_TERMINATED:
 		// no end time
 		return -1;
-		break;
 	case SPY_STATE_TRAVELLING:
 	case SPY_STATE_SURVEILLANCE:
 	case SPY_STATE_GATHERING_INTEL:
 	case SPY_STATE_MAKING_INTRODUCTIONS:
+	case SPY_STATE_BUILDING_NETWORK:
+	{
 		pCity = GetCityWithSpy(uiSpyIndex);
 		if (pCity)
 		{
@@ -4318,7 +4316,11 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 				return (pCityEspionage->m_aiAmount[ePlayer] * 100) / pCityEspionage->m_aiGoal[ePlayer];
 			}
 		}
-		return -1;
+		else
+		{
+			return -1;
+		}
+	}
 	case SPY_STATE_RIG_ELECTION:
 		if(GC.getGame().GetTurnsBetweenMinorCivElections() != 0)
 		{
@@ -4328,20 +4330,6 @@ int CvPlayerEspionage::GetPercentOfStateComplete(uint uiSpyIndex)
 		{
 			return -1;
 		}
-		break;
-	case SPY_STATE_COUNTER_INTEL:
-	case SPY_STATE_SCHMOOZE:
-		// no end time
-		return -1;
-		break;
-	case SPY_STATE_DEAD:
-		// no end time
-		return -1;
-		break;
-	case SPY_STATE_TERMINATED:
-		// no end time
-		return -1;
-		break;
 	}
 
 	return -1;
@@ -4766,14 +4754,10 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strNotification << pCity->getNameKey();
 
 					pNotifications->Add(NOTIFICATION_SPY_KILLED_A_SPY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
-				
-#if defined(MOD_API_ACHIEVEMENTS)
+
 					//Achievements
-					if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-					{
+					if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_15);
-					}
-#endif
 				}
 			}
 			break;
@@ -6799,7 +6783,7 @@ void CvEspionageAI::AttemptCoups()
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
 		if (iChanceOfSuccess >= 50)
 		{
-			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + uiSpy);
+			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + uiSpy);
 			if (iRoll < iChanceOfSuccess)
 			{
 				pEspionage->AttemptCoup(uiSpy);
@@ -7019,19 +7003,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 
 
 			int iDiploModifier = 100;
-			if (pDiploAI->IsWantsSneakAttack(eTargetPlayer))
+			if (GET_TEAM(eTeam).isAtWar(eTargetTeam) || pDiploAI->GetCivApproach(eTargetPlayer) == CIV_APPROACH_WAR)
 			{
-				iDiploModifier += 20;
-			}
-			else if (GET_TEAM(eTeam).isAtWar(eTargetTeam))
-			{
-				// ignore promises
 				// bonus targeting!
 				iDiploModifier += 20;
 			}
-			else // we're not at war with them, so look at other factors
+			else // we're not at war with them, so look at other factors -- FIXME: Why are quests not being considered if at war?
 			{
-				
 				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
 					PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
@@ -7355,6 +7333,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
+			case NO_PLAYER_PROXIMITY:
+				UNREACHABLE(); // Since they have a city there should always be a proximity.
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				iValue += 30;
 				break;

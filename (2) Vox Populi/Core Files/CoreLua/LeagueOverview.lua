@@ -1206,13 +1206,32 @@ function VoteYesNoController.new(voteController, entry)
 	
 	instance.VoteUpButton:RegisterCallback(Mouse.eLClick, function()
 		local votes = entry.Votes;
-		if(votes >= 0) then
-			voteController.VotesAvailable = voteController.VotesAvailable - 1;
-		else
-			voteController.VotesAvailable = voteController.VotesAvailable + 1;
-		end	
-		entry.Votes = votes + 1;	
 		
+		if UI.ShiftKeyDown() then -- shift+lclick adds/removes 10 votes like middle click
+			if(votes >= 0) then
+				if voteController.VotesAvailable >= 10 then
+					entry.Votes = entry.Votes + 10;
+					voteController.VotesAvailable = voteController.VotesAvailable - 10;
+				else 
+					entry.Votes = entry.Votes + voteController.VotesAvailable;
+					voteController.VotesAvailable = voteController.VotesAvailable - voteController.VotesAvailable;
+				end
+			elseif(votes <= -10) then
+				voteController.VotesAvailable = voteController.VotesAvailable + 10;
+				entry.Votes = entry.Votes + 10;
+			elseif(votes < 0) then
+				voteController.VotesAvailable = voteController.VotesAvailable - entry.Votes;
+				entry.Votes = entry.Votes - entry.Votes;
+			end	
+		else
+			if(votes >= 0) then
+				voteController.VotesAvailable = voteController.VotesAvailable - 1;
+			else
+				voteController.VotesAvailable = voteController.VotesAvailable + 1;
+			end	
+			entry.Votes = votes + 1;	
+		end
+
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();
 	end);
@@ -1256,13 +1275,32 @@ function VoteYesNoController.new(voteController, entry)
 	
 	instance.VoteDownButton:RegisterCallback(Mouse.eLClick, function()
 		local votes = entry.Votes;
-		if(votes > 0) then
-			voteController.VotesAvailable = voteController.VotesAvailable + 1;
-		else
-			voteController.VotesAvailable = voteController.VotesAvailable - 1;
-		end	
-		entry.Votes = votes - 1;	
 		
+		if UI.ShiftKeyDown() then
+			if(votes >= 10) then
+				entry.Votes = entry.Votes - 10;
+				voteController.VotesAvailable = voteController.VotesAvailable + 10;
+			elseif(votes > 0) then
+				voteController.VotesAvailable = voteController.VotesAvailable + entry.Votes;
+				entry.Votes = entry.Votes - entry.Votes;
+			elseif(votes <= 0) then
+				if voteController.VotesAvailable >= 10 then
+					entry.Votes = entry.Votes - 10;
+					voteController.VotesAvailable = voteController.VotesAvailable - 10;
+				else 
+					entry.Votes = entry.Votes - voteController.VotesAvailable;
+					voteController.VotesAvailable = voteController.VotesAvailable - voteController.VotesAvailable;
+				end
+			end	
+		else
+			if(votes > 0) then
+				voteController.VotesAvailable = voteController.VotesAvailable + 1;
+			else
+				voteController.VotesAvailable = voteController.VotesAvailable - 1;
+			end	
+			entry.Votes = votes - 1;	
+		end
+
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();
 	end);
@@ -1284,8 +1322,7 @@ function VoteYesNoController.new(voteController, entry)
 				voteController.VotesAvailable = voteController.VotesAvailable - voteController.VotesAvailable;
 			end
 		end	
-			
-		
+					
 		entryController:UpdateVoteInstance();
 		voteController:UpdateVoteState();
 	end);

@@ -150,16 +150,16 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
 	if(eProject == NO_PROJECT)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
 	if(!pkProjectInfo)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	if(iTempWeight < 1)
-		return 0;
+		return SR_IMPOSSIBLE;
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
@@ -167,17 +167,18 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if (pkProjectInfo->IsRepeatable())
 	{
 		if (m_pCity->isUnderSiege() || m_pCity->IsResistance())
-			return 0;
+			return SR_STRATEGY;
 	}
 
 	if(kPlayer.isMinorCiv())
 	{
-		return 0;
+		return SR_IMPOSSIBLE;
 	}
 
+	//no projects in puppets unless venice
 	if(CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 	{
-		return 0;
+		return SR_IMPOSSIBLE;
 	}
 
 	if (pkProjectInfo->IsAllowsNukes())
@@ -193,7 +194,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))
 		{
-			return 0;
+			return SR_IMPOSSIBLE;
 		}
 		else
 		{
@@ -206,7 +207,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 					iTempWeight += 1000 + (m_pCity->getSpaceProductionModifier() * 10);
 				else
-					return 0;
+					return SR_STRATEGY;
 			}
 			else
 			{
@@ -215,7 +216,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 					iTempWeight += 1000;
 				else
-					return 0;
+					return SR_STRATEGY;
 			}
 	
 			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
@@ -235,7 +236,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		if (!GC.getGame().isVictoryValid(ePrereqVictory))
 		{
-			return 0;
+			return SR_IMPOSSIBLE;
 		}
 		else
 		{
@@ -244,7 +245,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
 				iTempWeight += 5000;
 			else
-				return 0;
+				return SR_STRATEGY;
 
 			return iTempWeight;
 		}
@@ -257,10 +258,90 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += (30 * pkProjectInfo->GetHappiness());
 	}
 
-	if (pkProjectInfo->GetEmpireMod() < 0)
+	if (pkProjectInfo->GetEmpireSizeModifierReduction() < 0)
 	{
 		bGoodforHappiness = true;
-		iTempWeight += ((m_pCity->getEmpireSizeMod()/2) * (pkProjectInfo->GetEmpireMod() * -1));
+		iTempWeight += ((m_pCity->GetReducedEmpireSizeModifier(true,false)/2) * (pkProjectInfo->GetEmpireSizeModifierReduction() * -1));
+	}
+
+	if (pkProjectInfo->GetDistressFlatReduction() > 0)
+	{
+		bGoodforHappiness = true;
+		int iDistress = m_pCity->GetDistress(false);
+		if (iDistress > 0)
+			iTempWeight += 75 * pkProjectInfo->GetDistressFlatReduction() * iDistress * iDistress;
+	}
+
+	if (pkProjectInfo->GetPovertyFlatReduction() > 0)
+	{
+		bGoodforHappiness = true;
+		int iPoverty = m_pCity->GetPoverty(false);
+		if (iPoverty > 0)
+			iTempWeight += 75 * pkProjectInfo->GetPovertyFlatReduction() * iPoverty * iPoverty;
+	}
+
+	if (pkProjectInfo->GetIlliteracyFlatReduction() > 0)
+	{
+		bGoodforHappiness = true;
+		int iIlliteracy = m_pCity->GetIlliteracy(false);
+		if (iIlliteracy > 0)
+			iTempWeight += 75 * pkProjectInfo->GetIlliteracyFlatReduction() * iIlliteracy * iIlliteracy;
+	}
+
+	if (pkProjectInfo->GetBoredomFlatReduction() > 0)
+	{
+		bGoodforHappiness = true;
+		int iBoredom = m_pCity->GetBoredom(false);
+		if (iBoredom > 0)
+			iTempWeight += 75 * pkProjectInfo->GetBoredomFlatReduction() * iBoredom * iBoredom;
+	}
+
+	if (pkProjectInfo->GetReligiousUnrestFlatReduction() > 0)
+	{
+		bGoodforHappiness = true;
+		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
+		if (iReligiousUnrest > 0)
+			iTempWeight += 75 * pkProjectInfo->GetReligiousUnrestFlatReduction() * iReligiousUnrest * iReligiousUnrest;
+	}
+
+	if (pkProjectInfo->GetBasicNeedsMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iDistress = m_pCity->GetDistress(false);
+		if (iDistress > 0)
+			iTempWeight += -5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress;
+	}
+
+	if (pkProjectInfo->GetGoldMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iPoverty = m_pCity->GetPoverty(false);
+		if (iPoverty > 0)
+			iTempWeight += -5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty;
+	}
+
+	if (pkProjectInfo->GetScienceMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iIlliteracy = m_pCity->GetIlliteracy(false);
+		if (iIlliteracy > 0)
+			iTempWeight += -5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy;
+	}
+
+	if (pkProjectInfo->GetCultureMedianModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iBoredom = m_pCity->GetBoredom(false);
+		if (iBoredom > 0)
+			iTempWeight += -5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom;
+	}
+
+	if (pkProjectInfo->GetReligiousUnrestModifier() < 0)
+	{
+		bGoodforHappiness = true;
+		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
+		if (iReligiousUnrest > 0)
+			iTempWeight += -5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest;
 	}
 
 	if (pkProjectInfo->GetEspionageMod() < 0)
@@ -269,39 +350,10 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += (iEsp/2);
 	}
 
-	for (int i = 0; i < NUM_YIELD_TYPES; i++)
-	{
-		int iMod = pkProjectInfo->GetHappinessNeedModifier(i) * -1;
-		if (iMod == 0)
-			continue;
-
-		if (i == YIELD_GOLD && m_pCity->getUnhappinessFromGold() > 0)
-		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromGold() * m_pCity->getUnhappinessFromGold();
-		}
-		else if (i == YIELD_PRODUCTION && m_pCity->getUnhappinessFromDefense() > 0)
-		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromDefense() * m_pCity->getUnhappinessFromDefense();
-		}
-		else if (i == YIELD_CULTURE && m_pCity->getUnhappinessFromCulture() > 0)
-		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromCulture() * m_pCity->getUnhappinessFromCulture();
-		}
-		else if (i == YIELD_SCIENCE && m_pCity->getUnhappinessFromScience() > 0)
-		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromScience() * m_pCity->getUnhappinessFromScience();
-		}
-		else if (i == YIELD_FAITH && m_pCity->getUnhappinessFromReligion() > 0)
-		{
-			iTempWeight += 5 * iMod * m_pCity->getUnhappinessFromReligion() * m_pCity->getUnhappinessFromReligion();
-		}
-		bGoodforHappiness = true;
-	}
-
 	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 		iTempWeight /= 50;
 
-	return iTempWeight;
+	return max(1,iTempWeight);
 }
 #endif
 /// Log all potential builds

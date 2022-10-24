@@ -22,7 +22,7 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -48,7 +48,7 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -74,7 +74,7 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -100,7 +100,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 	for (const char* it = p; *it; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
-			args->Push(va_arg(vl, bool));
+			args->Push(!!va_arg(vl, int));
 		} else if (*it == 'i') {
 			// It's an int
 			args->Push(va_arg(vl, int));
@@ -218,7 +218,7 @@ int CustomMods::getOption(const char* szOption, int defValue) {
 	return getOption(string(szOption), defValue);
 }
 
-int CustomMods::getOption(string sOption, int defValue) {
+int CustomMods::getOption(const string& sOption, int defValue) {
 	if (!m_bInit) {
 		const char* szBadPrefix = "MOD_";
 
@@ -559,6 +559,7 @@ int CustomMods::getOption(string sOption, int defValue) {
 		MOD_OPT_CACHE(ATTRITION);
 		MOD_OPT_CACHE(CIVILIANS_RETREAT_WITH_MILITARY);
 		MOD_OPT_CACHE(LINKED_MOVEMENT);
+		MOD_OPT_CACHE(GP_ERA_SCALING);
 
 		m_bInit = true;
 	}

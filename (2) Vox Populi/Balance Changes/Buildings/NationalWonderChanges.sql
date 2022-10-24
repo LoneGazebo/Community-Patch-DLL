@@ -136,11 +136,10 @@ WHERE Type = 'BUILDING_PALACE';
 
 -- Hermitage Remove Culture Mod
 UPDATE Buildings
-SET CultureRateModifier = '10'
+SET CultureRateModifier = '0'
 WHERE Type = 'BUILDING_HERMITAGE';
 
 -- Oxford Change
-
 UPDATE Buildings
 SET FreeTechs = '0'
 WHERE Type = 'BUILDING_OXFORD_UNIVERSITY';
@@ -161,35 +160,7 @@ UPDATE Buildings
 SET GlobalEspionageModifier = '0'
 WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY';
 
--- Visitor Center
-UPDATE Buildings
-SET GlobalLandmarksTourismPercent = '25'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
-UPDATE Buildings
-SET GlobalGreatWorksTourismModifier = '25'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
-UPDATE Buildings
-SET GoldMaintenance = '0'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
-UPDATE Buildings
-SET LandmarksTourismPercent = '0'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
-
-
-UPDATE Buildings
-SET GreatWorksTourismModifier = '0'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
-INSERT INTO Building_ClassesNeededInCity (BuildingClassType, BuildingType) VALUES
-('BUILDINGCLASS_HOTEL', 'BUILDING_TOURIST_CENTER');
-
-
 -- Recycling -- move to 
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_ELECTRONICS'
 WHERE Type = 'BUILDING_RECYCLING_CENTER';
@@ -197,11 +168,9 @@ WHERE Type = 'BUILDING_RECYCLING_CENTER';
 
 
 -- Building Requirement
-
 DELETE FROM Building_PrereqBuildingClasses;
 
 -- Pop Requirement
-
 UPDATE Buildings
 SET NationalPopRequired = '20'
 WHERE Type = 'BUILDING_HEROIC_EPIC';
@@ -242,10 +211,6 @@ UPDATE Buildings
 SET NationalPopRequired = '30'
 WHERE Type = 'BUILDING_GRAND_TEMPLE';
 
-UPDATE Buildings
-SET NationalPopRequired = '70'
-WHERE Type = 'BUILDING_TOURIST_CENTER';
-
 -- City-Based Cost 
 
 -- Pop Requirement
@@ -260,8 +225,7 @@ UPDATE Buildings SET NumCityCostMod = '10' WHERE Type IN
 'BUILDING_OXFORD_UNIVERSITY',
 'BUILDING_HERMITAGE',
 'BUILDING_INTELLIGENCE_AGENCY',
-'BUILDING_GRAND_TEMPLE',
-'BUILDING_TOURIST_CENTER');
+'BUILDING_GRAND_TEMPLE');
 
 -- NEW
 

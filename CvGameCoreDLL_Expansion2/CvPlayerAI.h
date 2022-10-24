@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -69,8 +69,7 @@ public:
 	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pGreatMerchant);
 
 	//For Great Diplomats
-	CvCity* FindBestDiplomatTargetCity(CvUnit* pUnit);
-	CvPlot* ChooseDiplomatTargetPlot(CvUnit* pUnit);
+	CvPlot* FindBestDiplomatTargetPlot(CvUnit* pUnit);
 	//And for messengers
 	CvCity* FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>& vIgnoreCities);
 	int ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit);

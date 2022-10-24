@@ -1037,11 +1037,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						if(pkAttacker->isRangedSupportFire())
 							pkAttacker->setMadeAttack(true);
 
-#if defined(MOD_API_ACHIEVEMENTS)
 						//One Hit
-						if(!pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+						if (MOD_API_ACHIEVEMENTS && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 							gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-#endif
 
 						if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())
 						{
@@ -1423,12 +1421,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-			if( pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_REALLY_SUCK);
 			}
-#endif
 
 			// Barb goes away after ransom
 			pkAttacker->kill(true, NO_PLAYER);
@@ -1740,17 +1736,18 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 		iDefenderTotalDamageInflicted = std::max(kAttacker.getDamage(), kAttacker.getDamage() + iDefenderDamageInflicted);
 
-#if defined(MOD_API_ACHIEVEMENTS)
-		//Achievement for Washington
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(kAttacker.getUnitType());
-		if(pkUnitInfo)
+		if (MOD_API_ACHIEVEMENTS)
 		{
-			if(kAttacker.isHuman() && !GC.getGame().isGameMultiPlayer() && _stricmp(pkUnitInfo->GetType(), "UNIT_AMERICAN_B17") == 0)
+			//Achievement for Washington
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(kAttacker.getUnitType());
+			if(pkUnitInfo)
 			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_B17);
+				if(kAttacker.isHuman() && !GC.getGame().isGameMultiPlayer() && _stricmp(pkUnitInfo->GetType(), "UNIT_AMERICAN_B17") == 0)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_B17);
+				}
 			}
 		}
-#endif
 	}
 	//////////////////////////////////////////////////////////////////////
 
@@ -1870,11 +1867,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			if(pkDefender)
 			{
-#if defined(MOD_API_ACHIEVEMENTS)
 				//One Hit
-				if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+				if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-#endif
 
 				pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
 				pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
@@ -1900,10 +1895,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 					gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
-#if defined(MOD_API_ACHIEVEMENTS)
-					CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
-					kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
-#endif
+					if (MOD_API_ACHIEVEMENTS)
+					{
+						CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
+						kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
+					}
 
 					if(iActivePlayerID == pkAttacker->getOwner())
 					{
@@ -1952,10 +1948,11 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 				// Defender died
 				else if(pkDefender->IsDead())
 				{
-#if defined(MOD_API_ACHIEVEMENTS)
-					CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
-					kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
-#endif
+					if (MOD_API_ACHIEVEMENTS)
+					{
+						CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
+						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+					}
 
 					//if the defender died, there was no interception because it would have aborted the attack!
 					if(iActivePlayerID == pkAttacker->getOwner())
@@ -2339,11 +2336,9 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 		pkDefender->increaseInterceptionCount();
 		if(pkAttacker && pkTargetPlot)
 		{
-#if defined(MOD_API_ACHIEVEMENTS)
 			//One Hit
-			if(iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 				gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
-#endif
 
 			pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
 			pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
@@ -2674,7 +2669,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 						{
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
 							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
-							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationAdjectiveKey();
 							strBuffer << pInterceptionCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
 						}
@@ -2896,7 +2891,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED_S");
 				Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_STRIKE_AFFECTED");
-				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationShortDescription();
+				strBuffer << GET_PLAYER(pkAttacker->getOwner()).getCivilizationAdjectiveKey();
 				pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pkTargetPlot->getX(), pkTargetPlot->getY(), (int)pkAttacker->getUnitType(), pkAttacker->getOwner());
 			}
 		}
@@ -3147,24 +3142,20 @@ void CvUnitCombat::ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint ui
 		{
 			if(ApplyNuclearExplosionDamage(kCombatInfo.getDamageMembers(), kCombatInfo.getDamageMemberCount(), pkAttacker, pkTargetPlot, kCombatInfo.getAttackNuclearLevel() - 1) > 0)
 			{
-#if defined(MOD_API_ACHIEVEMENTS)
-				if(pkAttacker->getOwner() == GC.getGame().getActivePlayer())
+				if (MOD_API_ACHIEVEMENTS && pkAttacker->getOwner() == GC.getGame().getActivePlayer())
 				{
 					// Must damage someone to get the achievement.
 					gDLL->UnlockAchievement(ACHIEVEMENT_DROP_NUKE);
 
-					if(GC.getGame().getGameTurnYear() == 2012)
+					if (GC.getGame().getGameTurnYear() == 2012)
 					{
 						CvPlayerAI& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
 						if(strncmp(kPlayer.getCivilizationTypeKey(), "CIVILIZATION_MAYA", 32) == 0)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_36);
 						}
-
 					}
-
 				}
-#endif
 
 #if defined(MOD_EVENTS_NUCLEAR_DETONATION)
 				// While we should really send the NuclearDetonation event here, we don't still have all the info at this point
@@ -4528,9 +4519,8 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	}
 #endif
 
-#if defined(MOD_API_ACHIEVEMENTS)
 	//Achievements and Stats
-	if(pkWinner->isHuman() && !GC.getGame().isGameMultiPlayer())
+	if (MOD_API_ACHIEVEMENTS && pkWinner->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		CvString szUnitType;
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pkWinner->getUnitType());
@@ -4584,7 +4574,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 		}
 
 	}
-#endif
 }
 
 void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefender, int iAttackerDamageInflicted)

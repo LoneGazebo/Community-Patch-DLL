@@ -80,10 +80,10 @@ public:
 		return m_eOverallDominanceFlag;
 	}
 
-	eTacticalDominanceFlags CvTacticalDominanceZone::GetRangedDominanceFlag(int iDominancePercentage) const;
-	eTacticalDominanceFlags CvTacticalDominanceZone::GetUnitCountDominanceFlag(int iDominancePercentage) const;
-	eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalRangedDominanceFlag(int iDominancePercentage) const;
-	eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalUnitCountDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags GetRangedDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags GetUnitCountDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags GetNavalRangedDominanceFlag(int iDominancePercentage) const;
+	eTacticalDominanceFlags GetNavalUnitCountDominanceFlag(int iDominancePercentage) const;
 
 	inline eTacticalPosture GetPosture() const
 	{

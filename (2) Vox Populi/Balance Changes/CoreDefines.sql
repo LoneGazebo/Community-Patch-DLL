@@ -80,7 +80,7 @@ UPDATE Defines SET Value = '65' WHERE Name = 'INTERNATIONAL_TRADE_CITY_GPT_DIVIS
 UPDATE Defines SET Value = '25' WHERE Name = 'TRADE_ROUTE_BASE_SEA_MODIFIER';
 UPDATE Defines SET Value = '600' WHERE Name = 'TRADE_ROUTE_BASE_FOOD_VALUE';	
 UPDATE Defines SET Value = '600' WHERE Name = 'TRADE_ROUTE_BASE_PRODUCTION_VALUE';
-UPDATE Defines SET Value = '10' WHERE Name = 'TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE';
+UPDATE Defines SET Value = '5' WHERE Name = 'TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE';
 UPDATE Defines SET Value = '125' WHERE Name = 'TRADE_ROUTE_CULTURE_DIVISOR_TIMES100';
 UPDATE Defines SET Value = '125' WHERE Name = 'TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100';
 -- These 5 values change the amount of science earned from trade routes with influence civs. Each is adding to an incremental value (so Familiar is already 1, Popular already 2, etc.)

@@ -13,7 +13,7 @@
 #include "CvDiplomacyAIEnums.h"
 #include "CvWeightedVector.h"
 
-enum TradeableItems
+enum CLOSED_ENUM TradeableItems
 {
     TRADE_ITEM_NONE = -1,
 
@@ -35,7 +35,7 @@ enum TradeableItems
 	TRADE_ITEM_VASSALAGE,
 	TRADE_ITEM_VASSALAGE_REVOKE,
 
-    NUM_TRADEABLE_ITEMS,
+    NUM_TRADEABLE_ITEMS ENUM_META_VALUE,
 };
 FDataStream& operator>>(FDataStream&, TradeableItems&);
 FDataStream& operator<<(FDataStream&, const TradeableItems&);
@@ -86,7 +86,7 @@ typedef vector<CvTradedItem> TradedItemList;
 class CvDeal
 {
 public:
-	enum DealRenewStatus
+	enum CLOSED_ENUM DealRenewStatus
 	{
 	    DEAL_RENEWABLE,
 	    DEAL_NONRENEWABLE,
@@ -304,7 +304,7 @@ public:
 	template<typename GameDeals, typename Visitor>
 	static void Serialize(GameDeals& gameDeals, Visitor& visitor);
 
-	void AddProposedDeal(CvDeal kDeal);
+	void AddProposedDeal(const CvDeal& kDeal);
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	bool RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pDealOut, bool latest);
 	bool FinalizeMPDeal(CvDeal kDeal, bool bAccepted);
@@ -339,6 +339,7 @@ public:
 	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
+	int GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
 	uint CreateDeal();

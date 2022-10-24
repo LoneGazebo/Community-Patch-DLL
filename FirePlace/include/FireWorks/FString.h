@@ -1111,9 +1111,9 @@ bool operator>=( LPCWSTR s1, const FStringW& s2 );
 	#define		FStringSTKA( varname, size )  char varname##_buf[ (4 + size*sizeof( char) + 31) & ~31 ];  FStringA varname( sizeof(varname##_buf), varname##_buf )
 	#define		FStringSTKW( varname, size )  char varname##_buf[ (4 + size*sizeof(wchar) + 31) & ~31 ];  FStringW varname( sizeof(varname##_buf), varname##_buf )
 #else	//	_NDS
-	#define		FStringFixedBuffer( varname, size ) FString varname; FStringFixedBufferObj<size> FStringFixedBuffer_##varname(varname); varname
-	#define		FStringFixedBufferA( varname, size ) FStringA varname; FStringA::FStringAFixedBuffer<size> FStringFixedBuffer_##varname(varname); varname
-	#define		FStringFixedBufferW( varname, size ) FStringW varname; FStringW::FStringWFixedBuffer<size> FStringFixedBuffer_##varname(varname); varname
+	#define		FStringFixedBuffer( varname, size ) FString varname; FStringFixedBufferObj<size> FStringFixedBuffer_##varname(varname)
+	#define		FStringFixedBufferA( varname, size ) FStringA varname; FStringA::FStringAFixedBuffer<size> FStringFixedBuffer_##varname(varname)
+	#define		FStringFixedBufferW( varname, size ) FStringW varname; FStringW::FStringWFixedBuffer<size> FStringFixedBuffer_##varname(varname)
 #endif	//	_NDS
 
 #ifdef  _NDS

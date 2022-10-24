@@ -82,7 +82,7 @@ SET Text = 'God of the Sun'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on [ICON_RES_WHEAT] Wheat, [ICON_RES_MAIZE] Maize or [ICON_RES_RICE] Rice.'
+SET Text = '+3 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Granaries. +3 [ICON_FOOD] Food from Farms on resources.'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 
@@ -172,7 +172,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES';
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps, +1 [ICON_FOOD] Food from Resources on Tundra'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps, +2 [ICON_FOOD] Food from Lodges'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT';
 
 
@@ -242,7 +242,7 @@ SET Text = 'Divine Inheritance'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Holy City produces +20% of its Yields during a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Celestial Throne National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production; +5 [ICON_PEACE] Faith from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'Holy City produces +20% of its Yields when your Empire is in a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Celestial Throne National Wonder[ENDCOLOR] (+2 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production; +5 [ICON_PEACE] Faith from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING';
 
 

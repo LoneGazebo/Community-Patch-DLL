@@ -1541,7 +1541,7 @@ function OnCityViewUpdate()
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT", freeSpecialists );
 		else
 			print("No free specialists...")
-			local defSpecialist = tostring((GameDefines.BALANCE_UNHAPPINESS_PER_SPECIALIST / 100));
+			local defSpecialist = tostring((GameDefines.UNHAPPINESS_PER_SPECIALIST / 100));
 			Controls.FreeSpecialistLabel:SetText(defSpecialist);
 			--Update suffix to use correct plurality.
 			Controls.FreeSpecialistLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT");
@@ -1997,7 +1997,7 @@ function OnCityViewUpdate()
 		-- END
 	
 		-- CBP
-		local iUnhappinessPerTurn = pCity:getUnhappinessAggregated();
+		local iUnhappinessPerTurn = pCity:GetUnhappinessAggregated();
 		Controls.UnhappinessPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_NET_UNHAPPINESS_TEXT", iUnhappinessPerTurn) );
 		-- END
 

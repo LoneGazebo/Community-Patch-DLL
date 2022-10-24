@@ -12,7 +12,7 @@
 //-----------------------------------------------------------------------------
 // Pool Types (tags are pool type specific)
 //-----------------------------------------------------------------------------
-typedef enum eMPoolType
+enum eMPoolType
 {
 	c_eMPoolTypeContainer = 0,	     // container allocations that need to be refactored
 	c_eMPoolTypeSBA,			     // internal small block allocator grabs
@@ -76,7 +76,7 @@ enum eMHeaps
 // Expose The Original Memory Management Functions
 //-----------------------------------------------------------------------------
 
-	#include "FUnDefNew.h"
+	#include "FUndefNew.h"
 
 //-----------------------------------------------------------------------------
 // C Memory Management Hooks

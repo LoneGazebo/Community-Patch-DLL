@@ -97,7 +97,7 @@ class CvBuildingProductionAI;
 class CvUnitProductionAI;
 class CvProcessProductionAI;
 
-enum CityBuildableType
+enum CLOSED_ENUM CityBuildableType
 {
     NOT_A_CITY_BUILDABLE = 0,
     CITY_BUILDABLE_BUILDING,
@@ -106,6 +106,18 @@ enum CityBuildableType
 	CITY_BUILDABLE_PROCESS,
     CITY_BUILDABLE_UNIT_FOR_OPERATION,
     CITY_BUILDABLE_UNIT_FOR_ARMY,
+};
+
+//all negative!
+enum ProductionSkipReason
+{
+	SR_UNKNOWN = 0,
+	SR_IMPOSSIBLE = -1,
+	SR_UNITSUPPLY = -2,		//have too many overall
+	SR_MAINTENCANCE = -3,	//cannot afford
+	SR_STRATEGY = -4,		//under siege, ...
+	SR_USELESS = -5,		//no enemies around, etc
+	SR_BALANCE = -6,		//have too many of the given type
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -313,7 +325,9 @@ bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
 
 
-int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, YieldTypes eYield, int& iFlatYield);
+int GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, 
+	const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
+	YieldTypes eYield, int& iFlatYield);
 int GetBuildingGrandStrategyValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
 int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);

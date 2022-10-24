@@ -362,6 +362,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AttackFullyHealedModifier);
 	Method(AttackAbove50Modifier);
 	Method(AttackBelow50Modifier);
+	Method(IsRangedFlankAttack);
 	Method(FlankAttackModifier);
 	Method(RoughDefenseModifier);
 	Method(RoughFromModifier);
@@ -1853,9 +1854,9 @@ int CvLuaUnit::lGetHurryProduction(lua_State* L)
 int CvLuaUnit::lGetTradeGold(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2); // not used anymore
 
-	const int iResult = pkUnit->getTradeGold(pkPlot);
+	const int iResult = pkUnit->getTradeGold();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1953,7 +1954,7 @@ int CvLuaUnit::lGetGoldenAgeTurns(lua_State* L)
 		iResult = pkUnit->GetGAPBlastStrength();
 	}
 	else
-		iResult = pkUnit->GetGoldenAgeTurns();
+		iResult = pkUnit->getGoldenAgeTurns();
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3974,7 +3975,17 @@ int CvLuaUnit::lAttackBelow50Modifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int FlankAttackModifier();
+//int IsRangedFlankAttack();
+int CvLuaUnit::lIsRangedFlankAttack(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const bool bResult = pkUnit->IsRangedFlankAttack();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetFlankAttackModifier();
 int CvLuaUnit::lFlankAttackModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);

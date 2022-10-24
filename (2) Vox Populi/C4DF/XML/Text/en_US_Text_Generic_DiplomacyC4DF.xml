@@ -99,7 +99,7 @@
 			<Text>Don't be fooled by outward appearances. I plan to rid this earth of {1_PlayerName:textkey}. (Planning War!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_3">
-			<Text>I'm sick of {1_PlayerName:textkey}'s presence and I plan on eliminating him soon. (Planning War!)</Text>
+			<Text>I'm sick of {1_PlayerName:textkey}'s presence and I plan on eliminating them soon. (Planning War!)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_1">
 			<Text>It may appear that I am friendly with {1_PlayerName:textkey} but that's all show. (Deceptive)</Text>

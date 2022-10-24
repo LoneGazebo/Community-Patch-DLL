@@ -13,7 +13,7 @@
 		</Row>
 		<Row>
 			<Tag>TXT_KEY_ITP_HAPPINESS_EXPLANATION</Tag>
-			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_4] Unhappiness in each city. Both are limited by the size of the city, except for urbanization! You have a total of [ICON_HAPPINESS_1] {1_Val} / [ICON_HAPPINESS_3] {2_Val} in your cities.</Text>
+			<Text>This is the empire-wide breakdown. [ICON_HAPPINESS_1] Happiness counters [ICON_HAPPINESS_3] Unhappiness in each city. Unhappiness is limited by the size of the city, except for Urbanization! You have a total of [ICON_HAPPINESS_1] {1_Val} / [ICON_HAPPINESS_3] {2_Val} in your cities.</Text>
 		</Row>
 		<Row>
 			<Tag>TXT_KEY_ITP_HAPPINESS_SUMMARY</Tag>

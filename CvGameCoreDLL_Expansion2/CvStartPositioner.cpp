@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -320,7 +320,7 @@ int CvStartPositioner::GetRegion(int iX, int iY)
 // PRIVATE METHODS
 
 /// Compute the fertility of each tile on the map
-void CvStartPositioner::DivideContinentIntoRegions(CvContinent continent)
+void CvStartPositioner::DivideContinentIntoRegions(const CvContinent& continent)
 {
 	// Create a start region out of the entire continent
 	CvStartRegion region;
@@ -629,7 +629,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 }
 
 /// Pick a start position for a civ within a specific region
-bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, bool bRelaxFoodReq)
+bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& region, bool bRelaxFoodReq)
 {
 	CvString strString;
 	int uiBestFoundValue = 0;
@@ -683,7 +683,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
 					{
 						{
-							if(!pLoopPlot->isCoastalLand(/*9*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+							if(!pLoopPlot->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 							{
 								uiPlotFoundValue /= 2;
 							}
@@ -826,7 +826,7 @@ int CvStartPositioner::StartingPlotRange() const
 }
 
 /// Log current status of the operation
-void CvStartPositioner::LogStartPositionMessage(CvString strMsg)
+void CvStartPositioner::LogStartPositionMessage(const CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{

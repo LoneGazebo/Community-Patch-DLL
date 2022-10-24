@@ -181,6 +181,14 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(BUTTONPOPUP_MODDER_10);
 	RegisterEnum(BUTTONPOPUP_MODDER_11);
 	RegisterEnum(BUTTONPOPUP_MODDER_12);
+	RegisterEnum(BUTTONPOPUP_MODDER_13);
+	RegisterEnum(BUTTONPOPUP_MODDER_14);
+	RegisterEnum(BUTTONPOPUP_MODDER_15);
+	RegisterEnum(BUTTONPOPUP_MODDER_16);
+	RegisterEnum(BUTTONPOPUP_MODDER_17);
+	RegisterEnum(BUTTONPOPUP_MODDER_18);
+	RegisterEnum(BUTTONPOPUP_MODDER_19);
+	RegisterEnum(BUTTONPOPUP_MODDER_20);
 
 	RegisterEnum(BUTTONPOPUP_LEAGUE_OVERVIEW);
 	RegisterEnum(BUTTONPOPUP_DECLAREWAR_PLUNDER_TRADE_ROUTE);
@@ -706,7 +714,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	// ThreatTypes
 	EnumStart(L, "ThreatTypes");
-	RegisterEnum(NO_THREAT_VALUE);
 	RegisterEnum(THREAT_NONE);
 	RegisterEnum(THREAT_MINOR);
 	RegisterEnum(THREAT_MAJOR);
@@ -717,7 +724,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 
 	// DisputeLevelTypes
 	EnumStart(L, "DisputeLevelTypes");
-	RegisterEnum(NO_DISPUTE_LEVEL);
 	RegisterEnum(DISPUTE_LEVEL_NONE);
 	RegisterEnum(DISPUTE_LEVEL_WEAK);
 	RegisterEnum(DISPUTE_LEVEL_STRONG);
@@ -839,7 +845,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 
 	EnumStart(L, "AggressivePostureTypes");
-	RegisterEnum(NO_AGGRESSIVE_POSTURE_TYPE);
 	RegisterEnum(AGGRESSIVE_POSTURE_NONE);
 	RegisterEnum(AGGRESSIVE_POSTURE_LOW);
 	RegisterEnum(AGGRESSIVE_POSTURE_MEDIUM);

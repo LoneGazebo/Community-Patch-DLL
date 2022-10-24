@@ -348,6 +348,10 @@ function UpdateDisplay()
 			
 			local lockName = "Lock"..numString;
 			local thisLock = Controls[lockName];
+
+			local iNumPolicies = player:GetNumPolicies(true, true);
+			local iNeed = policyBranchInfo.NumPolicyRequirement;
+			local iNeeded = iNeed - iNumPolicies;
 			
 			-- Branch is not yet unlocked
 			if not player:IsPolicyBranchUnlocked( i ) then
@@ -356,38 +360,18 @@ function UpdateDisplay()
 				if (policyBranchInfo.LockedWithoutReligion and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_RELIGION");
 
-				elseif (not player:CanUnlockPolicyBranch(i)) then
-					
-					local iNumPolicies = player:GetNumPolicies(true, true);
-					local iNeed = policyBranchInfo.NumPolicyRequirement;
-					local iNeeded = iNeed - iNumPolicies;
+				elseif (not player:CanUnlockPolicyBranch(i)) then	
+					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
+					-- More policies needed
 					if(iNeeded > 0) then
-						strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE", iNeeded);
-					else
-						strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
-					end
-					
-					-- Wrong Era and Need Policies
-					if(bEraLock and iNeeded > 0) then
-						local strEra = GameInfo.Eras[iEraPrereq].Description;
-						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA_ALT", strEra);
-						local strEraTitle = Locale.ConvertTextKey(strEra);
-						thisButton:SetText( strEraTitle );
-
-					-- Not in prereq Era
-					elseif (bEraLock and iNeeded <= 0) then
-						local strEra = GameInfo.Eras[iEraPrereq].Description;
-						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA", strEra);
-						
-						-- Era Label
-						--local strEraTitle = "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey(strEra) .. "[ENDCOLOR]";
-						local strEraTitle = Locale.ConvertTextKey(strEra);
-						thisButton:SetText( strEraTitle );
-						--thisEraLabel:SetText(strEraTitle);
-						--thisEraLabel:SetHide( true );
-						
-						--thisButton:SetHide( true );
-						
+						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE", iNeeded);
+						-- Era requirement not met
+						if(bEraLock) then
+							local strEra = GameInfo.Eras[iEraPrereq].Description;
+							strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_ERA_ALT", strEra);
+							local strEraTitle = Locale.ConvertTextKey(strEra);
+							thisButton:SetText( strEraTitle );
+						end
 					-- Don't have enough Culture Yet
 					else
 						strToolTip = strToolTip .. " " .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost());
@@ -440,8 +424,8 @@ function UpdateDisplay()
 			-- Update tooltips
 			thisButton:SetToolTipString(strToolTip);
 			
-			-- If the player doesn't have the era prereq, then dim out the branch
-			if (bEraLock) then
+			-- If the player doesn't have the era prereq and needs more policies, then dim out the branch
+			if (bEraLock and iNeeded > 0) then
 				thisDisabledBox:SetHide(false);
 				thisLockedBox:SetHide(true);
 			else

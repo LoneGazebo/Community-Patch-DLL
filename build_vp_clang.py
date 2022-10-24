@@ -60,7 +60,6 @@ INCLUDE_DIRS = [
 SHARED_PREDEFS = [
     'FXS_IS_DLL',
     'WIN32',
-    'NDEBUG',
     '_WINDOWS',
     '_USRDLL',
     'EXTERNAL_PAUSING',
@@ -70,45 +69,37 @@ SHARED_PREDEFS = [
     '_CRT_SECURE_NO_WARNINGS',
     '_WINDLL',
 ]
-RELEASE_PREDEFS = SHARED_PREDEFS + []
+RELEASE_PREDEFS = SHARED_PREDEFS + ['STRONG_ASSUMPTIONS', 'NDEBUG']
 DEBUG_PREDEFS = SHARED_PREDEFS + ['VPDEBUG']
 PREDEFS = {
     Config.Release: RELEASE_PREDEFS,
     Config.Debug: DEBUG_PREDEFS,
 }
 CL_SUPPRESS = [
-    'nonportable-include-path',
-    'typename-missing',
-    'undefined-inline',
     'invalid-offsetof',
-    'microsoft-pure-definition',
-    'microsoft-template-shadow',
-    'microsoft-extra-qualification',
-    'microsoft-template',
-    'switch',
-    'missing-declarations',
     'tautological-constant-out-of-range-compare',
+    'comment',
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
 PCH_H = 'CvGameCoreDLLPCH.h'
 PCH = 'CvGameCoreDLLPCH.pch'
 CPP = [
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaArea.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaArgsHandle.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaCity.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaDeal.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaEnums.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaFractal.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaGame.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaGameInfo.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaLeague.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaMap.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaPlayer.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaPlot.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaSupport.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaTeam.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaTeamTech.cpp',
-    'CvGameCoreDLL_Expansion2\Lua\CvLuaUnit.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaArea.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaArgsHandle.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaCity.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaDeal.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaEnums.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaFractal.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGame.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaGameInfo.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaLeague.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaMap.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaPlayer.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaPlot.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaSupport.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaTeam.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaTeamTech.cpp',
+    'CvGameCoreDLL_Expansion2\\Lua\\CvLuaUnit.cpp',
     'CvGameCoreDLL_Expansion2\\stackwalker\\StackWalker.cpp',
     'CvGameCoreDLL_Expansion2\\CustomMods.cpp',
     'CvGameCoreDLL_Expansion2\\CvAchievementInfo.cpp',
@@ -309,7 +300,7 @@ class TaskMan:
         return results
 
 def build_cl_config_args(config: Config) -> list[str]:
-    args = ['-m32', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
+    args = ['-m32', '-msse3', '/c', '/MD', '/GS', '/EHsc', '/fp:precise', '/Zc:wchar_t', '/Z7']
     if config == Config.Release:
         args.append('/Ox')
         args.append('/Ob2')
@@ -325,7 +316,7 @@ def build_cl_config_args(config: Config) -> list[str]:
     return args
 
 def build_link_config_args(config: Config) -> list[str]:
-    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:NO', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
+    args = ['/MACHINE:x86', '/DLL', '/DEBUG', '/LTCG', '/DYNAMICBASE', '/NXCOMPAT', '/SUBSYSTEM:WINDOWS', '/MANIFEST:EMBED', f'/DEF:"{os.path.join(PROJECT_DIR, DEF_FILE)}"']
     if config == Config.Release:
         args += ['/OPT:REF', '/OPT:ICF']
     return args
@@ -353,6 +344,20 @@ def build_clang_cpp(cl: str, cl_args: str, build_dir: Path, log: typing.IO):
         quit()
     end_time = time.time()
     print(f'clang.cpp build finished after {end_time - start_time} seconds')
+
+def update_commit_id(log: typing.IO):
+    print('updating commit id...')
+    start_time = time.time()
+    cp = subprocess.run('update_commit_id.bat', capture_output=True)
+    log.write(str.encode(f'==== update_commit_id.bat ====\n'))
+    log.write(cp.stdout)
+    log.write(cp.stderr)
+    log.flush()
+    if cp.returncode != 0:
+        print('failed to update commit id - see build log')
+        quit()
+    end_time = time.time()
+    print(f'commit id update finished after {end_time - start_time} seconds')
 
 def build_pch(cl: str, cl_args: str, pch_path: Path, build_dir: Path, log: typing.IO):
     print('building precompiled header...')
@@ -453,6 +458,7 @@ prepare_dirs(build_dir, out_dir)
 
 log = open(out_dir.joinpath('build.log'), mode='w+b')
 try:
+    update_commit_id(log)
     build_clang_cpp(cl, cl_args, build_dir, log)
     build_pch(cl, cl_args, pch_path, build_dir, log)
     build_cpps(cl, cl_args, pch_path, build_dir, log)

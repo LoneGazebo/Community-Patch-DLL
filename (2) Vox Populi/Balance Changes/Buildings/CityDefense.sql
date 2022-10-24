@@ -20,8 +20,6 @@ UPDATE Buildings SET Defense = '800' WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 UPDATE Buildings SET Defense = '800' WHERE Type = 'BUILDING_CASTLE';
 
---UPDATE Buildings SET Defense = '800' WHERE Type = 'BUILDING_MISSION';
-
 UPDATE Buildings SET Defense = '2000' WHERE Type IN 
 ('BUILDING_MINEFIELD',
 'BUILDING_MILITARY_BASE',
@@ -48,10 +46,6 @@ WHERE Type = 'BUILDING_CASTLE';
 UPDATE Buildings
 SET ExtraCityHitPoints = '150'
 WHERE Type = 'BUILDING_HARBOR';
-
---UPDATE Buildings
---SET ExtraCityHitPoints = '150'
---WHERE Type = 'BUILDING_MISSION';
 
 UPDATE Buildings
 SET ExtraCityHitPoints = '175'

@@ -46,7 +46,7 @@ namespace FSerialization
 	std::string toString(const std::vector<ValueType> & source)
 	{
 		std::string result = "{";
-		std::vector<ValueType>::const_iterator i;
+		typename std::vector<ValueType>::const_iterator i;
 		for(i = source.begin(); i != source.end(); ++i)
 		{
 			if(i != source.begin())

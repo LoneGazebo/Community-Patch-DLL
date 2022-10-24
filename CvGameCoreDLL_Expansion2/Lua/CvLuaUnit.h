@@ -368,6 +368,7 @@ protected:
 	static int lAttackFullyHealedModifier(lua_State* L);
 	static int lAttackAbove50Modifier(lua_State* L);
 	static int lAttackBelow50Modifier(lua_State* L);
+	static int lIsRangedFlankAttack(lua_State* L);
 	static int lFlankAttackModifier(lua_State* L);
 	static int lOpenDefenseModifier(lua_State* L);
 	static int lRoughDefenseModifier(lua_State* L);
@@ -629,9 +630,9 @@ protected:
 	static int lIsRangedSupportFire(lua_State* L);
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	static int CvLuaUnit::lGetAIOperationInfo(lua_State* L);
-	static int CvLuaUnit::lGetMissionInfo(lua_State* L);
-	static int CvLuaUnit::lGetDanger(lua_State* L);
+	static int lGetAIOperationInfo(lua_State* L);
+	static int lGetMissionInfo(lua_State* L);
+	static int lGetDanger(lua_State* L);
 #endif
 
 	LUAAPIEXTN(AddMessage, void, sMessage, iNotifyPlayer);

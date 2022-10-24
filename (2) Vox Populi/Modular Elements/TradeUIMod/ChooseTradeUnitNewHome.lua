@@ -176,35 +176,30 @@ function RefreshList()
 		if(sTTTrade ~= "") then
 			sTT = sTT .. sTTTradeHeader .. "[NEWLINE]" .. sTTTrade .. "[NEWLINE][NEWLINE]";
 		end
-	
--- CBP
+
 		local sTTHappinessHeader = Locale.Lookup("TXT_KEY_TRADE_UNIT_HAPPINESS");
 		local sTTHappiness = "";
-		local iStarvingUnhappiness = pTargetCity:GetUnhappinessFromStarving();
-		local iPillagedUnhappiness = pTargetCity:GetUnhappinessFromPillaged();
-		local iGoldUnhappiness = pTargetCity:GetUnhappinessFromGold();
-		local iDefenseUnhappiness = pTargetCity:GetUnhappinessFromDefense();
-		local iConnectionUnhappiness = pTargetCity:GetUnhappinessFromConnection();
-		local iMinorityUnhappiness = pTargetCity:GetUnhappinessFromMinority();
-		local iScienceUnhappiness = pTargetCity:GetUnhappinessFromScience();
-		local iCultureUnhappiness = pTargetCity:GetUnhappinessFromCulture();
-		if(iGoldUnhappiness > 0) then
+		local iGoldUnhappiness = pTargetCity:GetUnhappinessFromYield(YieldTypes.YIELD_GOLD);
+		local iScienceUnhappiness = pTargetCity:GetUnhappinessFromYield(YieldTypes.YIELD_SCIENCE);
+		local iCultureUnhappiness = pTargetCity:GetUnhappinessFromYield(YieldTypes.YIELD_CULTURE);
+		local iConnectionUnhappiness = pTargetCity:GetUnhappinessFromIsolation();
+		if (iGoldUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_POVERTY", iGoldUnhappiness);
 		end
-		if(iScienceUnhappiness > 0) then
+		if (iScienceUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ILLITERACY", iScienceUnhappiness);
 		end
-		if(iCultureUnhappiness > 0) then
+		if (iCultureUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_BOREDOM", iCultureUnhappiness);
 		end
-		if(iConnectionUnhappiness > 0) then
+		if (iConnectionUnhappiness > 0) then
 			sTTHappiness = sTTHappiness .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_ISOLATION", iConnectionUnhappiness);
 		end
-		if(sTTHappiness ~= "") then
+		if (sTTHappiness ~= "") then
 			sTT = sTT .. sTTHappinessHeader .. sTTHappiness .. "[NEWLINE][NEWLINE]"
 		end
 		sTT = sTT .. Locale.Lookup("TXT_KEY_CHANGE_TRADE_UNIT_HOME_CITY_ITEM_CITY_TT", pTargetCity:GetName());
--- END 
+
 		local potentialRoutes = pPlayer:GetPotentialInternationalTradeRouteDestinationsFrom(pUnit, pTargetCity);	
 		for _,r in ipairs(potentialRoutes) do
 		  local pDestCity = Map.GetPlot(r.X, r.Y):GetPlotCity()

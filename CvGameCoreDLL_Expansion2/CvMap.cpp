@@ -120,7 +120,7 @@ bool CvLandmass::isWater() const
 //	--------------------------------------------------------------------------------
 bool CvLandmass::isLake() const
 {
-	return (m_bWater && m_iNumTiles < GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN));
+	return (m_bWater && m_iNumTiles < GD_INT_GET(/*10*/ MIN_WATER_SIZE_FOR_OCEAN));
 }
 
 
@@ -201,6 +201,22 @@ int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
 		iResult += GC.getMap().getArea(*it)->getPopulationPerPlayer(eIndex);
+
+	return iResult;
+}
+int CvLandmass::getNumRevealedTiles(TeamTypes eTeam) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumRevealedTiles(eTeam);
+
+	return iResult;
+}
+int CvLandmass::getNumUnrevealedTiles(TeamTypes eTeam) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getArea(*it)->getNumUnrevealedTiles(eTeam);
 
 	return iResult;
 }

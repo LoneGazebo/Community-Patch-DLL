@@ -38,9 +38,8 @@ public:
 	int GetWeight(UnitTypes eUnit);
 
 	// Recommend highest-weighted unit
-	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy, int iTempWeight, 
-		int iWaterRoutes = 0, int iLandRoutes = 0, bool bForPurchase = false, bool bFree = false);
-	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
+	int CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, int iTempWeight, bool bForPurchase = false, bool bFree = false);
+	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bAllowStrategicResource);
 
 	// Logging
 	void LogPossibleBuilds(UnitAITypes eUnitAIType = NO_UNITAI);

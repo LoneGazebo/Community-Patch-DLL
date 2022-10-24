@@ -44,11 +44,13 @@ public:
 
 	// Logging
 	void LogPossibleBuilds();
-#if defined(MOD_BALANCE_CORE)
-	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue,
-		int iNumLandConnection = 0, int iNumSeaConnection = 0, 
-		bool bNationalWonderCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
-#endif
+	// Fast version with precomputed stats
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const std::vector<int>& allExistingBuildings,
+		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+	// Slow version
+	int CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, 
+		bool bNoBestWonderCityCheck = false, bool bFreeBuilding = false, bool bIgnoreSituational = false);
+
 private:
 
 	// Private data

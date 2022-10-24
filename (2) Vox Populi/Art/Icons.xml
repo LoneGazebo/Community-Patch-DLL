@@ -157,6 +157,13 @@
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
+			<Atlas>SLINGER_FLAG_ATLAS</Atlas>
+			<IconSize>32</IconSize>
+			<Filename>Slinger_Flag.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
 			<Atlas>MUSICIAN_SPECIALIST_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>musicianspecialist1024.dds</Filename>
@@ -268,6 +275,11 @@
 			<IconName>ICON_URBANIZATION_GREEN</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>7</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_CITIZEN_RED</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>8</IconMapping>
 		</Row>
 	</IconFontMapping>
 </GameData>

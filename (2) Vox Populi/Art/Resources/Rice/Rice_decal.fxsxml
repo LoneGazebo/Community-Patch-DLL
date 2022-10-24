@@ -1,0 +1,9 @@
+<Asset>
+  <Mesh file="Rice_Decal.gr2" source="Max" />
+  <Texture file="Rice_Random_D.dds" source="Max" />
+  <Texture file="Rice_Random_H.dds" source="Max" />
+  <Texture file="Rice_wisps_DIFF.dds" source="Max" />
+  <Texture file="Rice_wisps_SREF.dds" source="Max" />
+  <Texture file="Improvements_Cubelight.dds" source="Max" />
+  <DecisionTree file="LandmarkDecisionTree.ddtxml" source="Tool" />
+</Asset>

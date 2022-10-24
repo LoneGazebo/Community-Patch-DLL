@@ -59,5 +59,60 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
 			<IconMapping>10</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_UNIT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>11</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_ENGINEER</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>12</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_GENERAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>13</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_SCIENTIST</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>14</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_MERCHANT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>15</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_ARTIST</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>16</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_MUSICIAN</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>17</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_WRITER</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>18</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_ADMIRAL</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>19</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_VENETIAN</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>20</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_ITP_RELIGIOUS_DIPLOMAT</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_ITP</IconFontTexture>
+			<IconMapping>21</IconMapping>
+		</Row>
 	</IconFontMapping>	
 </GameData>

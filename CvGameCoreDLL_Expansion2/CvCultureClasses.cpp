@@ -911,7 +911,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	ResetDigCompletePlots();
 
 	m_iLastTurnLifetimeCulture = 0;
-	m_iLastTurnCPT;
+	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iRawWarWeariness = 0;
@@ -3305,8 +3305,8 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
 	}
 
-	// Otherwise go for Landmark if from Ancient Era, or if have enough other Archaeologists and Antiquity sites to fill all slots
-	else if (pPlot->GetArchaeologicalRecord().m_eEra == 0)
+	// Otherwise go for Landmark if from Medieval Era or earlier, or if have enough other Archaeologists and Antiquity sites to fill all slots
+	else if (pPlot->GetArchaeologicalRecord().m_eEra <= 2)
 	{
 		eRtnValue = ARCHAEOLOGY_LANDMARK;
 	}
@@ -3335,12 +3335,12 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 		}
 	}
 
-	// If chose an artifact, would player 2's be better?
+	// If artifact is chosen, would player 2's be better?
 	if (eRtnValue == ARCHAEOLOGY_ARTIFACT_PLAYER1)
 	{
+		// For now have AI player try to collect their own artifacts
 		if (pPlot->GetArchaeologicalRecord().m_ePlayer2 == m_pPlayer->GetID())
 		{
-			// For now have AI player try to collect their own artifacts
 			eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER2;
 		}
 	}
@@ -3365,6 +3365,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 	switch (eChoice)
 	{
+	case NO_ARCHAEOLOGY_CHOICE:
 	case ARCHAEOLOGY_DO_NOTHING:
 		break;
 	case ARCHAEOLOGY_LANDMARK:
@@ -3693,7 +3694,7 @@ void CvPlayerCulture::DoTurn()
 		m_aiLastTurnCulturalIPT[iLoopPlayer] = m_aiCulturalInfluence[iLoopPlayer] - m_aiLastTurnCulturalInfluence[iLoopPlayer];
 	}
 
-	SetBoredomCache(m_pPlayer->getUnhappinessFromCityCulture());
+	SetBoredomCache(m_pPlayer->GetUnhappinessFromBoredom());
 	
 	DoPublicOpinion();
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -4050,8 +4051,8 @@ void CvPlayerCulture::DoTurn()
 		}
 	}
 #endif
-#if defined(MOD_API_ACHIEVEMENTS)
-	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
+
+	if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		// check for having city-state artifacts
 		std::vector<int> aiCityStateArtifact;
@@ -4171,7 +4172,7 @@ void CvPlayerCulture::DoTurn()
 			}
 		}
 	}	
-#endif
+
 	LogCultureData();
 }
 #if defined(MOD_BALANCE_CORE)
@@ -4620,11 +4621,14 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 
 	int iRtnValue = 0;
 
-	if (ePlayer < MAX_MAJOR_CIVS)
+	if (ePlayer > NO_PLAYER && ePlayer < MAX_MAJOR_CIVS)
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break;
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*200*/ GD_INT_GET(BALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4659,6 +4663,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) cons
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*5*/ GD_INT_GET(BALANCE_GROWTH_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4689,6 +4696,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = /*0 in CP, 2 in VP*/ GD_INT_GET(BALANCE_SCIENCE_INFLUENCE_LEVEL_EXOTIC);
 			break;
@@ -4720,6 +4730,9 @@ int CvPlayerCulture::GetInfluenceCityConquestReduction(PlayerTypes ePlayer) cons
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 		switch (eLevel)
 		{
+		case NO_INFLUENCE_LEVEL:
+		case INFLUENCE_LEVEL_UNKNOWN:
+			break; // No impact.
 		case INFLUENCE_LEVEL_EXOTIC:
 			iRtnValue = 10;
 			break;
@@ -4752,25 +4765,26 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 
 		if (MOD_BALANCE_CORE_SPIES)
 		{
-			if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+			switch (eLevel)
 			{
+			case NO_INFLUENCE_LEVEL:
+			case INFLUENCE_LEVEL_UNKNOWN:
+				break; // No impact.
+			case INFLUENCE_LEVEL_EXOTIC:
 				iRtnValue = /*5*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_EXOTIC);
-			}
-			if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
-			{
+				break;
+			case INFLUENCE_LEVEL_FAMILIAR:
 				iRtnValue = /*4*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_FAMILIAR);
-			}
-			if (eLevel == INFLUENCE_LEVEL_POPULAR)
-			{
+				break;
+			case INFLUENCE_LEVEL_POPULAR:
 				iRtnValue = /*3*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_POPULAR);
-			}
-			if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
-			{
+				break;
+			case INFLUENCE_LEVEL_INFLUENTIAL:
 				iRtnValue = /*2*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL);
-			}
-			if (eLevel == INFLUENCE_LEVEL_DOMINANT)
-			{
+				break;
+			case INFLUENCE_LEVEL_DOMINANT:
 				iRtnValue = /*1*/ GD_INT_GET(BALANCE_SPY_BOOST_INFLUENCE_DOMINANT);
+				break;
 			}
 		}
 		else if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
@@ -4815,6 +4829,11 @@ int CvPlayerCulture::GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePla
 			InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
 			switch (eLevel)
 			{
+			case NO_INFLUENCE_LEVEL:
+			case INFLUENCE_LEVEL_UNKNOWN:
+			case INFLUENCE_LEVEL_EXOTIC:
+			case INFLUENCE_LEVEL_FAMILIAR:
+				break; // No impact.
 			case INFLUENCE_LEVEL_POPULAR:
 				iRtnValue = 1;
 				break;
@@ -4839,6 +4858,12 @@ int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 	InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 	switch (eLevel)
 	{
+	case NO_INFLUENCE_LEVEL:
+	case INFLUENCE_LEVEL_UNKNOWN:
+	case INFLUENCE_LEVEL_EXOTIC:
+	case INFLUENCE_LEVEL_FAMILIAR:
+	case INFLUENCE_LEVEL_POPULAR:
+		break; // No impact.
 	case INFLUENCE_LEVEL_INFLUENTIAL:
 		iRtnValue = 1;
 		break;
@@ -5228,39 +5253,6 @@ void CvPlayerCulture::SetTurnIdeologyAdopted(int iValue)
 	m_iTurnIdeologyAdopted = iValue;
 }
 
-/// How strong will a concert tour be right now?
-int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
-{
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	if (iMultiplier <= 0)
-		return 0;
-
-	int iStrength = 0;
-	if(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	{
-		CvCity *pLoopCity;
-		int iLoop;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			iMultiplier += pLoopCity->GetCityBuildings()->GetNumGreatWorks(CvTypes::getGREAT_WORK_SLOT_MUSIC());
-		}
-		iStrength = m_pPlayer->getYieldPerTurnHistory(YIELD_TOURISM, iMultiplier);
-	}
-	else
-	{
-#endif
-	iStrength = iMultiplier * GetTourism() / 100;
-#if defined(MOD_BALANCE_CORE_NEW_GP_ATTRIBUTES)
-	}
-#endif
-	
-	// Scale by game speed
-	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();
-	iStrength /= 100;
-
-	return max(iStrength, /*100*/ GD_INT_GET(MINIMUM_TOURISM_BLAST_STRENGTH));
-}
-
 /// Add tourism with all known civs
 void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 {
@@ -5454,7 +5446,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	iTargetWarWeariness /= 100;
 
 	// also never more than x% of population...
-	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(BALANCE_WAR_WEARINESS_POPULATION_CAP) / 100;
+	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP) / 100;
 	if (iTargetWarWeariness > iPopLimit)
 		iTargetWarWeariness = iPopLimit;
 
@@ -6507,6 +6499,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 	int iCheapest = MAX_INT;
 	GreatWorkSlotType eRtnValue = NO_GREAT_WORK_SLOT;
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
+	std::vector<int> allBuildingCount = kCityPlayer.GetTotalBuildingCount();
 
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
@@ -6525,7 +6518,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 				int iNumSlots = pkBuilding->GetGreatWorkCount();
 				if (iNumSlots > 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) == 0)
 				{
-					if (m_pCity->canConstruct(eBuilding))
+					if (m_pCity->canConstruct(eBuilding,allBuildingCount))
 					{
 						int iCost = pkBuilding->GetProductionCost();
 						if (iCost < iCheapest)
@@ -7789,12 +7782,10 @@ int CvCityCulture::GetThemingBonus(BuildingClassTypes eBuildingClass) const
 					{
 						iRtnValue = iRtnValue * (100 + iModifier) / 100;
 
-#if defined(MOD_API_ACHIEVEMENTS)
-						if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
+						if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer() && iRtnValue >= 16)
 						{
 							gDLL->UnlockAchievement(ACHIEVEMENT_XP2_40);
 						}
-#endif
 					}
 				}
 			}

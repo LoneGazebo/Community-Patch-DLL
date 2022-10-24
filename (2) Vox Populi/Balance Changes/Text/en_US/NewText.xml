@@ -84,7 +84,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR]: [ICON_GOLD] Poverty reduced by 20% and [ICON_FOOD] Growth increased by 20% in all cities. -20% building maintenance modifier.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR]: -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty and [ICON_FOOD] Growth increased by 20% in all Cities. Building maintenance reduced by 20%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">
 			<Text>Peace, Land, Bread</Text>

@@ -448,7 +448,7 @@ local function UpdateTopPanelNow()
 			local unhappypop = g_activePlayer:GetUnhappinessFromCitizenNeeds()
 			local percent = g_activePlayer:GetExcessHappiness()
 
-			happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_CBO", percent, unhappypop, happypop)
+			happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_VP", percent, unhappypop, happypop)
 			Controls.HappinessString:SetText(happinessText)
 
 			local goldenAgeTurns = g_activePlayer:GetGoldenAgeTurns()
@@ -1214,7 +1214,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", vassalhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", eventhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", tradehappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_CBO", religionhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_VP", religionhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_RESOURCE_CITY", resourcehappiness, perresourcehappiness )
     		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", localcityhappiness )
 			tips:insert( "[ENDCOLOR]" )
@@ -1241,27 +1241,27 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion)
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", iUnhappinessFromWar)	
 			
-			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
-			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
-			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
-			local iUnhappinessFromDefense = g_activePlayer:GetUnhappinessFromCityDefense();
-			local iUnhappinessFromConnection = g_activePlayer:GetUnhappinessFromCityConnection();
-			local iUnhappinessFromMinority = g_activePlayer:GetUnhappinessFromCityMinority();
-			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromCityScience();
-			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromCityCulture();
+			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromFamine();
+			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromPillagedTiles();
+			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromPoverty();
+			local iUnhappinessFromDefense = g_activePlayer:GetUnhappinessFromDistress();
+			local iUnhappinessFromConnection = g_activePlayer:GetUnhappinessFromIsolation();
+			local iUnhappinessFromMinority = g_activePlayer:GetUnhappinessFromReligiousUnrest();
+			local iUnhappinessFromScience = g_activePlayer:GetUnhappinessFromIlliteracy();
+			local iUnhappinessFromCulture = g_activePlayer:GetUnhappinessFromBoredom();
 
 -- COMMUNITY PATCH CHANGES BELOW		
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", unhappinessFromPupetCities / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
 			
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_FAMINE", iUnhappinessFromStarving )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_DEFENSE", iUnhappinessFromDefense )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CONNECTION", iUnhappinessFromConnection )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_POVERTY", iUnhappinessFromGold )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_DISTRESS", iUnhappinessFromDefense )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ISOLATION", iUnhappinessFromConnection )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", iUnhappinessFromMinority )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ILLITERACY", iUnhappinessFromScience )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_BOREDOM", iUnhappinessFromCulture )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", unhappinessFromSpecialists / 100 )
 			tips:insert( "[ENDCOLOR]" )
 --END CHANGES

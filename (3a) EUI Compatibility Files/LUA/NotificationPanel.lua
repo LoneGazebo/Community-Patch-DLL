@@ -578,16 +578,23 @@ end
 local function GenericRightClick ( Id )
 	g_mouseExit = true
 	local instance = g_NotificationButtons[ g_ActiveNotifications[ Id ] ]
-	if instance and #instance > 0 then
-		if UI.ShiftKeyDown() then
-			UI.RemoveNotification( instance[instance.Sequence][1] )
-		else
-			for sequence = 1, #instance do
-				UI.RemoveNotification( instance[sequence][1] )
-			end
+
+	if UI.CtrlKeyDown() then --VP/bal: ctrl+RCLICK removes all notifications
+		for i = 0, #g_ActiveNotifications do
+			UI.RemoveNotification( i )
 		end
 	else
-		UI.RemoveNotification( Id )
+		if instance and #instance > 0 then
+			if UI.ShiftKeyDown() then
+				UI.RemoveNotification( instance[instance.Sequence][1] )
+			else
+				for sequence = 1, #instance do
+					UI.RemoveNotification( instance[sequence][1] )
+				end
+			end
+		else
+			UI.RemoveNotification( Id )
+		end	
 	end
 end
 

@@ -12,8 +12,8 @@
 			<PortraitIndex>0</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>20</StartingLocPercent>
-			<HappinessDefault>12</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>10</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-20</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -44,13 +44,13 @@
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>10</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>10</HumanStrengthPerceptionMod>
 			<AttitudeChange>-15</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -61,6 +61,7 @@
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AICreatePercent>110</AICreatePercent>
 			<AIWorldConstructPercent>110</AIWorldConstructPercent>
 			<AIWorldCreatePercent>110</AIWorldCreatePercent>
@@ -70,13 +71,12 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>110</AITrainPercent>
 			<AIConstructPercent>110</AIConstructPercent>
-			<AIUnitSupplyPercent>0</AIUnitSupplyPercent>
 			<AIPerEraModifier>0</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>0</DifficultyBonusBase>
-			<DifficultyBonusA>300</DifficultyBonusA>
-			<DifficultyBonusB>170</DifficultyBonusB>
-			<DifficultyBonusC>70</DifficultyBonusC>
+			<DifficultyBonusA>0</DifficultyBonusA>
+			<DifficultyBonusB>0</DifficultyBonusB>
+			<DifficultyBonusC>0</DifficultyBonusC>
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>40</EarliestBarbarianReleaseTurn>
@@ -95,8 +95,8 @@
 			<PortraitIndex>1</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>30</StartingLocPercent>
-			<HappinessDefault>11</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-15</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -127,13 +127,13 @@
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>15</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>15</HumanStrengthPerceptionMod>
 			<AttitudeChange>-10</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -144,6 +144,7 @@
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>95</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -153,9 +154,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>100</AITrainPercent>
 			<AIConstructPercent>100</AIConstructPercent>
-			<AIUnitSupplyPercent>5</AIUnitSupplyPercent>
 			<AIPerEraModifier>-2</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>2</DifficultyBonusBase>
 			<DifficultyBonusA>310</DifficultyBonusA>
 			<DifficultyBonusB>180</DifficultyBonusB>
@@ -178,8 +178,8 @@
 			<PortraitIndex>2</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>40</StartingLocPercent>
-			<HappinessDefault>10</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefaultCapital>3</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-10</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -210,13 +210,13 @@
 			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>20</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>20</HumanStrengthPerceptionMod>
 			<AttitudeChange>-5</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -227,6 +227,7 @@
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -236,9 +237,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>100</AITrainPercent>
 			<AIConstructPercent>100</AIConstructPercent>
-			<AIUnitSupplyPercent>10</AIUnitSupplyPercent>
 			<AIPerEraModifier>-4</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>4</DifficultyBonusBase>
 			<DifficultyBonusA>320</DifficultyBonusA>
 			<DifficultyBonusB>190</DifficultyBonusB>
@@ -261,8 +261,8 @@
 			<PortraitIndex>3</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>9</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>8</HappinessDefault>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-10</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -293,13 +293,13 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>25</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>25</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -310,6 +310,7 @@
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>85</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -319,9 +320,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>90</AITrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
-			<AIUnitSupplyPercent>15</AIUnitSupplyPercent>
 			<AIPerEraModifier>-6</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>6</DifficultyBonusBase>
 			<DifficultyBonusA>330</DifficultyBonusA>
 			<DifficultyBonusB>200</DifficultyBonusB>
@@ -344,8 +344,8 @@
 			<PortraitIndex>4</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>8</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>7</HappinessDefault>
+			<HappinessDefaultCapital>2</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>-5</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -376,13 +376,13 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>30</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>30</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -393,6 +393,7 @@
 			<AIBuildingCostPercent>90</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -402,9 +403,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>90</AITrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
-			<AIUnitSupplyPercent>20</AIUnitSupplyPercent>
 			<AIPerEraModifier>-7</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>8</DifficultyBonusBase>
 			<DifficultyBonusA>340</DifficultyBonusA>
 			<DifficultyBonusB>220</DifficultyBonusB>
@@ -428,7 +428,7 @@
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -459,13 +459,13 @@
 			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>35</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>35</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -476,6 +476,7 @@
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>75</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>25</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -485,9 +486,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>80</AITrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
-			<AIUnitSupplyPercent>25</AIUnitSupplyPercent>
 			<AIPerEraModifier>-8</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>10</DifficultyBonusBase>
 			<DifficultyBonusA>350</DifficultyBonusA>
 			<DifficultyBonusB>230</DifficultyBonusB>
@@ -511,7 +511,7 @@
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -542,13 +542,13 @@
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>42</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>42</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -559,6 +559,7 @@
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>70</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -568,9 +569,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>80</AITrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
-			<AIUnitSupplyPercent>30</AIUnitSupplyPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>12</DifficultyBonusBase>
 			<DifficultyBonusA>360</DifficultyBonusA>
 			<DifficultyBonusB>240</DifficultyBonusB>
@@ -593,8 +593,8 @@
 			<PortraitIndex>7</PortraitIndex>
 			<!-- Player Bonuses -->
 			<StartingLocPercent>50</StartingLocPercent>
-			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefault>5</HappinessDefault>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -625,13 +625,13 @@
 			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
 			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
-			<AIHumanStrengthMod>50</AIHumanStrengthMod>
+			<HumanStrengthPerceptionMod>50</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
 			<TechTradeKnownModifier>0</TechTradeKnownModifier>
 			<NoTechTradeModifier>0</NoTechTradeModifier>
 
 			<!-- AI Bonuses -->
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -642,6 +642,7 @@
 			<AIBuildingCostPercent>70</AIBuildingCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
 			<AIUnitUpgradePercent>65</AIUnitUpgradePercent>
+			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
@@ -651,9 +652,8 @@
 			<!-- Per Era Bonuses -->	
 			<AITrainPercent>70</AITrainPercent>
 			<AIConstructPercent>70</AIConstructPercent>
-			<AIUnitSupplyPercent>35</AIUnitSupplyPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
-			<!-- CBO Difficulty Bonus -->
+			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusBase>14</DifficultyBonusBase>
 			<DifficultyBonusA>375</DifficultyBonusA>
 			<DifficultyBonusB>260</DifficultyBonusB>
@@ -677,7 +677,7 @@
 			<!-- These bonuses are applied in addition to any bonuses the AI gets above. -->
 			<StartingLocPercent>50</StartingLocPercent>
 			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<HappinessDefaultCapital>1</HappinessDefaultCapital>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
@@ -687,8 +687,8 @@
 			<InflationPercent>100</InflationPercent>
 			<ProductionFreeUnits>7</ProductionFreeUnits>
 			<ProductionFreeUnitsPerCity>1</ProductionFreeUnitsPerCity>
-			<ProductionFreeUnitsPopulationPercent>20</ProductionFreeUnitsPopulationPercent>
-			<StartingDefenseUnits>0</StartingDefenseUnits>
+			<ProductionFreeUnitsPopulationPercent>15</ProductionFreeUnitsPopulationPercent>
+			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<RouteCostPercent>100</RouteCostPercent>

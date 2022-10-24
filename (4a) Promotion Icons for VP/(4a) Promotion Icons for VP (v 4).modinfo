@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="0f1eab20-b84e-4277-a3cc-f772b952be54" version="4">
+<Mod id="0f1eab20-b84e-4277-a3cc-f772b952be54" version="6">
 
   <Properties>
     <Name>(4a) Promotion Icons for VP</Name>
     <Stability>Beta</Stability>   
     <Teaser>(v 4) Promotion icons designed for Vox Populi</Teaser>
-    <Description>Version 4[NEWLINE][NEWLINE][COLOR_PROJECT_TEXT]. 250+ exclusive icons replace triangles and duplicates[NEWLINE]. Optimized for use with Promotion Flags EUI for VP[NEWLINE]. + 16 temporary Promotion Icons[NEWLINE]. + 64 Extra Promotion Icons you can use in your modmods:[ENDCOLOR] Extra Promo Icons.png[NEWLINE][COLOR_PROJECT_TEXT]. Informations and Credits: [ENDCOLOR]Promotion Icons for VP.txt</Description>
+    <Description>Version 6[NEWLINE][NEWLINE][COLOR_PROJECT_TEXT]. 250+ exclusive icons replace triangles and duplicates[NEWLINE]. Optimized for use with Promotion Flags EUI for VP[NEWLINE]. + 16 temporary Promotion Icons[NEWLINE]. + 64 Extra Promotion Icons you can use in your modmods:[ENDCOLOR] Extra Promo Icons.png[NEWLINE][COLOR_PROJECT_TEXT]. Informations and Credits: [ENDCOLOR]Promotion Icons for VP.txt</Description>
     <Authors>Asterix Rage on civfanatics.com</Authors>
 
     <HideSetupGame>0</HideSetupGame>
@@ -22,7 +22,7 @@
   </Properties>
   
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="108" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="110" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="15" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   
@@ -31,30 +31,36 @@
   <Blocks/>
   
   <Files>
-    <File md5="4a1ba322a37d4ed20f2abfd8f81e5cc4" import="1">dds/promoVP_00_016.dds</File>
-    <File md5="92e49522ca00127e62e6cce7abe567cc" import="1">dds/promoVP_00_032.dds</File>
-    <File md5="8e136c75b0548b21a0fb84b504878d36" import="1">dds/promoVP_00_045.dds</File>
-    <File md5="5dbfe9e17c8765e498185dc0c67a4e20" import="1">dds/promoVP_00_064.dds</File>
-    <File md5="114180dab5ee0e9a5dc057bb5e04f4e0" import="1">dds/promoVP_00_256.dds</File>
+    <File md5="51ac21c1b109126bb17a68bdde77d91a" import="1">dds/promoVP_00_016.dds</File>
+    <File md5="8fea4c187f2de97abcb8a16ab161beb9" import="1">dds/promoVP_00_032.dds</File>
+    <File md5="0fb9793be3b9931613e9eafc190dacb8" import="1">dds/promoVP_00_045.dds</File>
+    <File md5="0ed3ef48bad4f51352f1e08775b6643e" import="1">dds/promoVP_00_064.dds</File>
+    <File md5="1fff8656b3f28452f690a2251fb495eb" import="1">dds/promoVP_00_256.dds</File>
     
-    <File md5="37e19eb2bf5f42f5ca5402d83c3759da" import="1">dds/promoVP_01_016.dds</File>
-    <File md5="babffaa3ac13948a424073baa57b0623" import="1">dds/promoVP_01_032.dds</File>
-    <File md5="3e5024e3ffe2fb52c53bb62b528230dd" import="1">dds/promoVP_01_045.dds</File>
-    <File md5="e7e5478b93246b37d2062db2d8e5e4f0" import="1">dds/promoVP_01_064.dds</File>
-    <File md5="6e6a3d261e394a6f60fc53ba5e3b542d" import="1">dds/promoVP_01_256.dds</File>
+    <File md5="41389759d9bd4e011d7a318b0141165e" import="1">dds/promoVP_01_016.dds</File>
+    <File md5="7ace0f53ba3e0d4016c101dbd5130548" import="1">dds/promoVP_01_032.dds</File>
+    <File md5="7b34c7701e20d95eb551d075f68a4315" import="1">dds/promoVP_01_045.dds</File>
+    <File md5="e41cf9c78556214be8062564e6341021" import="1">dds/promoVP_01_064.dds</File>
+    <File md5="ca7b1ee8764c8dc398d73f8443506d96" import="1">dds/promoVP_01_256.dds</File>
     
-    <File md5="bd5f6b68ff28604b3157eb2c38927b20" import="1">dds/promoVP_02_016.dds</File>
-    <File md5="317c5dc40b202343b72de3e958ea0907" import="1">dds/promoVP_02_032.dds</File>
-    <File md5="03077e36c5d629e96eec8323932f48bf" import="1">dds/promoVP_02_045.dds</File>
-    <File md5="feaec827e82a011ea45c196c02fe6f21" import="1">dds/promoVP_02_064.dds</File>
-    <File md5="e8824861ad8c2d17e735a45abcf92294" import="1">dds/promoVP_02_256.dds</File>
+    <File md5="b9b8cfc434da113b167c3f4941038d47" import="1">dds/promoVP_02_016.dds</File>
+    <File md5="9a9bb56ad02b859880f3bda91827fb03" import="1">dds/promoVP_02_032.dds</File>
+    <File md5="78e9b0fa1f508abd62a6d1374c366c38" import="1">dds/promoVP_02_045.dds</File>
+    <File md5="158e6189db618b83275bd3cce032b0f4" import="1">dds/promoVP_02_064.dds</File>
+    <File md5="6689408c2796e7530c489cd4e086239b" import="1">dds/promoVP_02_256.dds</File>
     
-    <File md5="a93a7e3b664d4d4268e6ec668788cf72" import="1">dds/promoVP_03_016.dds</File>
-    <File md5="42725be40b5df3fb182c851d07749d9e" import="1">dds/promoVP_03_032.dds</File>
-    <File md5="2d107e24c6410f3f9baddc6a3b31b619" import="1">dds/promoVP_03_045.dds</File>
-    <File md5="8e959e2718f7e9bc98b4de290816e3d9" import="1">dds/promoVP_03_064.dds</File>
-    <File md5="3eb802481872c4c7f4330e9143b3871d" import="1">dds/promoVP_03_256.dds</File>
-    
+    <File md5="0cc86315f794983da3b409c614802d8b" import="1">dds/promoVP_03_016.dds</File>
+    <File md5="32410c75c4f43935cd84e4054b4e4222" import="1">dds/promoVP_03_032.dds</File>
+    <File md5="eb788c00a49398503841bd6eda639a7d" import="1">dds/promoVP_03_045.dds</File>
+    <File md5="9a7db5868f5b5a0fa3a3767c697ad838" import="1">dds/promoVP_03_064.dds</File>
+    <File md5="88a551ea1d0d3fd8900d6a77a8ac2760" import="1">dds/promoVP_03_256.dds</File>
+
+    <File md5="6a7d8549eac4d538fec2e16de42c7b95" import="1">dds/promoVP_04_016.dds</File>
+    <File md5="17dc173e2c90f35e94d809851b3e6149" import="1">dds/promoVP_04_032.dds</File>
+    <File md5="3af5ed1bdb6910c57f10f1c3c5654c15" import="1">dds/promoVP_04_045.dds</File>
+    <File md5="cda0f91898cec393f0c68ffee4e7f6ea" import="1">dds/promoVP_04_064.dds</File>
+    <File md5="33234857d791d372cac5eed049b5c868" import="1">dds/promoVP_04_256.dds</File>
+
     <File md5="23d32db7956af35953dd896f6bdac929" import="1">dds/extraPromo_016.dds</File>
     <File md5="61c1c97da4bc3242d5cf9cf9a82a069b" import="1">dds/extraPromo_032.dds</File>
     <File md5="5015c3fa07d87e5ffb57b523251e67f3" import="1">dds/extraPromo_045.dds</File>

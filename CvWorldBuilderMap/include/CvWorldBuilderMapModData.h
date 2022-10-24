@@ -106,7 +106,7 @@ class ModType
 	friend ModDataEntry;
 
 public:
-	enum FieldType
+	enum CLOSED_ENUM FieldType
 	{
 		TYPE_INVALID = -1,
 		TYPE_BOOL = 0,

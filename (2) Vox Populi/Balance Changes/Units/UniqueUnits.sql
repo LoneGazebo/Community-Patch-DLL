@@ -68,11 +68,11 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_SPEARMAN' WHERE UnitTyp
 -- Babylon
 ---------------------------
 -- Bowman now a UU composite bowman
-UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CROSSBOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_ARCHER' WHERE UnitType = 'UNIT_BABYLONIAN_BOWMAN';
 
-UPDATE Units SET Class = 'UNITCLASS_COMPOSITE_BOWMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_CROSSBOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
+UPDATE Units SET Class = 'UNITCLASS_ARCHER', GoodyHutUpgradeUnitClass = 'UNITCLASS_COMPOSITE_BOWMAN' WHERE Type = 'UNIT_BABYLONIAN_BOWMAN';
 
 ---------------------------
 -- Brazil
@@ -149,9 +149,12 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MUSKETMAN' WHERE UnitTy
 ---------------------------
 -- Denmark
 ---------------------------
--- Removed ski infantry, buffed berserker
+-- Removed ski infantry; buffed berserker, now an early pikeman UU
+DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_DANISH_BERSERKER';
 
-UPDATE Units SET GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
+UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_PIKEMAN' WHERE UnitType = 'UNIT_DANISH_BERSERKER';
+
+UPDATE Units SET Class = 'UNITCLASS_PIKEMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_DANISH_BERSERKER';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_DANISH_BERSERKER';
 
@@ -277,7 +280,17 @@ VALUES
 ---------------------------
 -- Inca
 ---------------------------
--- Slinger modified below
+-- Slinger
+UPDATE Units SET
+	Class 			= 'UNITCLASS_VP_SLINGER',
+	PrereqTech 		= 'TECH_AGRICULTURE', 
+	ObsoleteTech 	= 'TECH_CURRENCY',
+	Range 			= 2,
+	GoodyHutUpgradeUnitClass = 'UNITCLASS_ARCHER'
+WHERE Type = 'UNIT_INCAN_SLINGER';
+
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_VP_SLINGER' WHERE UnitType = 'UNIT_INCAN_SLINGER';
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_ARCHER' WHERE UnitType = 'UNIT_INCAN_SLINGER';
 
 ---------------------------
 -- India
@@ -371,9 +384,9 @@ UPDATE Units SET Class = 'UNITCLASS_HORSE_ARCHER', Moves = '4', UnitFlagAtlas = 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MOUNTED_BOWMAN' WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK';
 
 INSERT INTO UnitPromotions
-	(Type, Description, Help, Sound, OrderPriority, PortraitIndex, IconAtlas, PediaType, IgnoreZOC, MovesChange, CannotBeChosen, PediaEntry)
+	(Type, Description, Help, Sound, OrderPriority, PortraitIndex, IconAtlas, PediaType, RangedFlankAttack, FlankAttackModifier, CannotBeChosen, PediaEntry)
 VALUES
-	('PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR_HELP', 'AS2D_IF_LEVELUP', 99, 1, 'EXPANSION2_PROMOTION_ATLAS', 'PEDIA_ATTRIBUTES', 1, 2, 1, 'TXT_KEY_PROMOTION_MONGOL_TERROR');
+	('PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR_HELP', 'AS2D_IF_LEVELUP', 99, 1, 'EXPANSION2_PROMOTION_ATLAS', 'PEDIA_ATTRIBUTES', 1, 10, 1, 'TXT_KEY_PROMOTION_MONGOL_TERROR');
 
 INSERT INTO Trait_FreePromotionUnitClass
 	(TraitType, UnitClassType, PromotionType)
@@ -433,12 +446,12 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_WWI_TANK' WHERE UnitTyp
 ---------------------------
 -- Polynesia
 ---------------------------
--- Maori Warrior now a pikeman UU
-UPDATE Units SET Class = 'UNITCLASS_PIKEMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+-- Maori Warrior now a longswordsman UU
+UPDATE Units SET Class = 'UNITCLASS_LONGSWORDSMAN', GoodyHutUpgradeUnitClass = 'UNITCLASS_TERCIO' WHERE Type = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
-UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_PIKEMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
+UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_LONGSWORDSMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
 INSERT INTO Trait_BuildsUnitClasses
 	(TraitType, UnitClassType, BuildType)
@@ -517,10 +530,34 @@ DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_SPANISH_TERCI
 
 UPDATE Units SET Class = 'UNITCLASS_TERCIO', IconAtlas = 'COMMUNITY_2_ATLAS', PortraitIndex = 23 WHERE Type = 'UNIT_SPANISH_TERCIO';
 
-UPDATE Units SET FoundMid = '1', GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER', DefaultUnitAI = 'UNITAI_FAST_ATTACK' WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
+UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_EXPLORER' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
 
-UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_LANCER' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
+UPDATE Units SET 
+	FoundMid = '1', 
+	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
+	GoodyHutUpgradeUnitClass = 'UNITCLASS_COMMANDO',
+	Class = 'UNITCLASS_EXPLORER',
+	Combat = 23,
+	Cost = 180,
+	FaithCost = 300,
+	Moves = 3,
+	BaseSightRange = 3,
+	PrereqTech = 'TECH_COMPASS',
+	ObsoleteTech = 'TECH_FLIGHT',
+	CombatClass = 'UNITCOMBAT_RECON'
+WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
 
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_COMMANDO' WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
+DELETE FROM Unit_ResourceQuantityRequirements WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
+
+DELETE FROM ArtDefine_UnitInfoMemberInfos WHERE UnitInfoType = 'ART_DEF_UNIT_U_SPANISH_CONQUISTADOR';
+INSERT INTO ArtDefine_UnitInfoMemberInfos	 
+		(UnitInfoType,		  					UnitMemberInfoType,		  							NumMembers)
+VALUES  ('ART_DEF_UNIT_U_SPANISH_CONQUISTADOR', 'ART_DEF_UNIT_MEMBER_U_SPANISH_CONQUISTADOR',		2),
+		('ART_DEF_UNIT_U_SPANISH_CONQUISTADOR',	'ART_DEF_UNIT_MEMBER_SCOUT',						1),
+		('ART_DEF_UNIT_U_SPANISH_CONQUISTADOR',	'ART_DEF_UNIT_MEMBER_U_SPANISH_TERCIO_PIQUERO',		1),
+		('ART_DEF_UNIT_U_SPANISH_CONQUISTADOR', 'ART_DEF_UNIT_MEMBER_U_SPANISH_CONQUISTADOR',		1),
+		('ART_DEF_UNIT_U_SPANISH_CONQUISTADOR',	'ART_DEF_UNIT_MEMBER_U_SPANISH_TERCIO_PIQUERO',		2);
 ---------------------------
 -- Sweden
 ---------------------------

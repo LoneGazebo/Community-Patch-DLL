@@ -1260,6 +1260,7 @@
 	</Achievements>
 
 	<!-- Recursive: Default is now 0. Change to 1 to enable all achievements-related code in the DLL. Functionality not guaranteed. -->
+	<!-- Affects savegame format! Do not change midgame! -->
 	<CustomModDbUpdates>
 		<Row Name="API_ACHIEVEMENTS" Value="0"/>
 	</CustomModDbUpdates>

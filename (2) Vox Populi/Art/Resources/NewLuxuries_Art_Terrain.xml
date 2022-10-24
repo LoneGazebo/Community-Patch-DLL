@@ -691,7 +691,7 @@
 			<ImprovementType>ART_DEF_IMPROVEMENT_NONE</ImprovementType>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<ResourceType>ART_DEF_RESOURCE_MAIZE</ResourceType>
-			<Model>resource_maize.fxsxml</Model>
+			<Model>corn_decal.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>
@@ -782,7 +782,7 @@
 			<ImprovementType>ART_DEF_IMPROVEMENT_NONE</ImprovementType>
 			<LayoutHandler>SNAPSHOT</LayoutHandler>
 			<ResourceType>ART_DEF_RESOURCE_RICE</ResourceType>
-			<Model>resource_rice.fxsxml</Model>
+			<Model>Rice_decal.fxsxml</Model>
 			<TerrainContour>1</TerrainContour>
 		</Row>
 		<Row>

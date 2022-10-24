@@ -562,6 +562,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			switch(eWarState)
 			{
+			case NO_WAR_STATE_TYPE:
+				break; // Do nothing; We can't provide useful info.
 			case WAR_STATE_NEARLY_DEFEATED:
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
@@ -710,6 +712,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			switch(eMilitaryStrengthComparedToUs)
 			{
+			case NO_STRENGTH_VALUE:
+				break; // Do nothing; We can't provide useful info.
 			case STRENGTH_PATHETIC:
 			{
 				int iRating = 60;
@@ -1986,6 +1990,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			AdvisorTypes eAdvisorTypes = (AdvisorTypes)ui;
 			switch(eAdvisorTypes)
 			{
+			case NO_ADVISOR_TYPE:
+				UNREACHABLE();
 			case ADVISOR_SCIENCE:
 				strLoc = Localization::Lookup("TXT_KEY_BASESTRATEGY_NOTHING_TO_SAY_SCIENCE");
 				break;

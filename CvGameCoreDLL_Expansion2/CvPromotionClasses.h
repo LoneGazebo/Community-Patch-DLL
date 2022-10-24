@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -95,8 +95,10 @@ public:
 	int  GetAttackFortifiedMod() const;
 	int  GetAttackWoundedMod() const;
 	int  GetAttackFullyHealedMod() const;
-	int GetAttackAboveHealthMod() const;
-	int GetAttackBelowHealthMod() const;
+	int  GetAttackAboveHealthMod() const;
+	int  GetAttackBelowHealthMod() const;
+	bool IsRangedFlankAttack() const;
+	int  GetExtraFlankPower() const;
 	int  GetFlankAttackModifier() const;
 	int  GetNearbyEnemyCombatMod() const;
 	int  GetNearbyEnemyCombatRange() const;
@@ -105,10 +107,10 @@ public:
 	int  GetExtraAttacks() const;
 	bool IsGreatGeneral() const;
 	bool IsGreatAdmiral() const;
-	int GetAuraRangeChange() const;
-	int GetAuraEffectChange() const;
-	int GetNumRepairCharges() const;
-	int GetMilitaryCapChange() const;
+	int  GetAuraRangeChange() const;
+	int  GetAuraEffectChange() const;
+	int  GetNumRepairCharges() const;
+	int  GetMilitaryCapChange() const;
 	int  GetGreatGeneralModifier() const;
 	bool IsGreatGeneralReceivesMovement() const;
 	int  GetGreatGeneralCombatModifier() const;
@@ -332,9 +334,9 @@ public:
 	bool GetFeatureDoubleMove(int i) const;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	bool GetTerrainHalfMove(int i) const;
-	int GetTerrainExtraMove(int i) const;
+	bool GetTerrainExtraMove(int i) const;
 	bool GetFeatureHalfMove(int i) const;
-	int GetFeatureExtraMove(int i) const;
+	bool GetFeatureExtraMove(int i) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool GetTerrainDoubleHeal(int i) const;
@@ -345,6 +347,7 @@ public:
 	bool GetFeatureImpassable(int i) const;
 	bool GetUnitCombatClass(int i) const;
 	bool GetCivilianUnitType(int i) const;
+	std::pair<int, int> GetYieldFromPillage(YieldTypes eYield) const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	bool IsUnitNaming(int i) const;
 	void GetUnitName(UnitTypes eUnit, CvString& sUnitName) const;
@@ -411,6 +414,8 @@ protected:
 	int m_iAttackFullyHealedMod;
 	int m_iAttackAboveHealthMod;
 	int m_iAttackBelowHealthMod;
+	bool m_bRangedFlankAttack;
+	int m_iExtraFlankPower;
 	int m_iFlankAttackModifier;
 	int m_iNearbyEnemyCombatMod;
 	int m_iNearbyEnemyCombatRange;
@@ -645,9 +650,9 @@ protected:
 	bool* m_pbFeatureDoubleMove;
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 	bool* m_pbTerrainHalfMove;
-	int* m_piTerrainExtraMove;
+	bool* m_pbTerrainExtraMove;
 	bool* m_pbFeatureHalfMove;
-	int* m_piFeatureExtraMove;
+	bool* m_pbFeatureExtraMove;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbTerrainDoubleHeal;
@@ -661,6 +666,7 @@ protected:
 	bool* m_pbUnitName;
 #endif
 	bool* m_pbPostCombatRandomPromotion;
+	std::map<int, std::pair<int, int>> m_yieldFromPillage;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

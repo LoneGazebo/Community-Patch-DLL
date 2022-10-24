@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -142,14 +142,11 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer, CvUnit*
 					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
 					CancelActivePlayerEndTurn();
 
-#if defined(MOD_API_ACHIEVEMENTS)
 					//Increment Stat
-					if (kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
+					if (MOD_API_ACHIEVEMENTS && kPlayer.isHuman() && !GC.getGame().isGameMultiPlayer())
 					{
 						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBARIANCAMPS, 100, ACHIEVEMENT_100CAMPS);
 					}
-#endif
-
 				}
 			}
 
@@ -571,12 +568,12 @@ void CvBarbarians::DoCamps()
 			if (pLoopPlot->isOwned() || pLoopPlot->isAdjacentOwned())
 				continue;
 
-			// No camps on 1-tile islands
-			if(pLoopPlot->getArea()==-1 || kMap.getArea(pLoopPlot->getArea())->getNumTiles() == 1)
+			// No camps on n-tile islands
+			if (pLoopPlot->getLandmass() == -1 || kMap.getLandmass(pLoopPlot->getLandmass())->getNumTiles() <= /*1*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE))
 				continue;
 
-			// No camps on resources or improvements
-			if(/*pLoopPlot->getResourceType() != NO_RESOURCE || */ pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			// No camps on improvements
+			if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 				continue;
 
 			// Don't look at Tiles that can't have an improvement
@@ -867,34 +864,9 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eU
 			else
 				continue; //no civilians!
 
-			// Resource Requirements
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			if (GC.getUnitInfo(eLoopUnit)->GetResourceType() != NO_RESOURCE)
 			{
-				const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if (pkResourceInfo)
-				{
-					const int iNumResource = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityRequirement(eResource);
-
-					if (iNumResource > 0)
-					{
-						iValue += 100;
-						break;
-					}
-
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-					{
-						int iNumResourceTotal = GC.getUnitInfo(eLoopUnit)->GetResourceQuantityTotal(eResource);
-
-						if (iNumResourceTotal > 0)
-						{
-							iValue += 100;
-							break;
-						}
-					}
-#endif
-				}
+				iValue += 100;
 			}
 
 			if(kUnit.GetUnitAIType(eUnitAI))

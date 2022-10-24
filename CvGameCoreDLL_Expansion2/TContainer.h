@@ -88,14 +88,14 @@ template <class T>
 TContainer<T>::~TContainer()
 {
 	//free all items
-	for (std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
+	for (typename std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
 		delete it->second;
 }
 
 template <class T>
 T* TContainer<T>::Get(int iID) const
 {
-	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
+	typename std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
 
 	if (it!=m_items.end())
 		return it->second;
@@ -115,7 +115,7 @@ T* TContainer<T>::GetAt(int iIndex) const
 template <class T>
 bool TContainer<T>::Remove(int iID)
 {
-	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
+	typename std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find(iID);
 
 	if (it!=m_items.end())
 	{
@@ -148,7 +148,7 @@ template <class T>
 void TContainer<T>::RemoveAll()
 {
 	//free all items
-	for (std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
+	for (typename std::tr1::unordered_map<int,T*>::iterator it=m_items.begin(); it!=m_items.end(); ++it)
 		delete it->second;
 
 	m_items.clear();
@@ -158,10 +158,10 @@ void TContainer<T>::RemoveAll()
 template <class T>
 int TContainer<T>::GetIndexForID(const int iID) const
 {
-	std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( iID );
+	typename std::tr1::unordered_map<int,T*>::const_iterator it=m_items.find( iID );
 	if (it != m_items.end())
 	{
-		std::vector<T*>::const_iterator it2 = std::find(m_order.begin(), m_order.end(), it->second);
+		typename std::vector<T*>::const_iterator it2 = std::find(m_order.begin(), m_order.end(), it->second);
 		if (it2 != m_order.end())
 			return (int)(it2 - m_order.begin());
 	}

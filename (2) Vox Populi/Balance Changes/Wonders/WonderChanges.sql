@@ -112,12 +112,12 @@ INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
 VALUES ('BUILDING_GREAT_LIGHTHOUSE' , 'YIELD_PRODUCTION' , '2');
 
 UPDATE Buildings
-SET FreePromotion = 'PROMOTION_NAVAL_SENTRY_II', Cost = '200', MinAreaSize = -1
+SET FreePromotion = 'PROMOTION_NAVAL_SENTRY_II', Cost = '200', MinAreaSize = '10'
 WHERE Type = 'BUILDING_GREAT_LIGHTHOUSE';
 
 -- Colossus
 UPDATE Buildings
-SET PrereqTech = 'TECH_METAL_CASTING', Cost = '250', MinAreaSize = -1
+SET PrereqTech = 'TECH_METAL_CASTING', Cost = '250', MinAreaSize = '10'
 WHERE Type = 'BUILDING_COLOSSUS';
 
 -- Terracotta Army
@@ -183,7 +183,7 @@ VALUES ('BUILDING_ANGKOR_WAT' , 'YIELD_FAITH' , '1');
 -- Alhambra
 
 UPDATE Buildings
-SET PolicyType = 'POLICY_HONOR_FINISHER', Cost = '400', CultureRateModifier = '10', FreePromotion = 'PROMOTION_ALHAMBRA', TrainedFreePromotion = NULL
+SET PolicyType = 'POLICY_HONOR_FINISHER', Cost = '400', CultureRateModifier = '0', FreePromotion = 'PROMOTION_ALHAMBRA', TrainedFreePromotion = NULL
 WHERE Type = 'BUILDING_ALHAMBRA';
 
 -- Mosque of Djenne
@@ -385,7 +385,7 @@ VALUES ('BUILDING_CRISTO_REDENTOR' , 'YIELD_TOURISM' , '25');
 
 -- Prora
 UPDATE Buildings
-SET Cost = '1700', UnmoddedHappiness = '0', Happiness = '1', MinAreaSize = -1
+SET Cost = '1700', UnmoddedHappiness = '0', Happiness = '1', MinAreaSize = '10'
 WHERE Type = 'BUILDING_PRORA_RESORT';
 
 INSERT INTO Building_YieldFromPillageGlobal
@@ -435,8 +435,16 @@ WHERE Type = 'BUILDING_BLETCHLEY_PARK';
 -- Information
 
 -- CN Tower
-UPDATE Buildings
-SET Cost = '2300', FreeBuilding = NULL, FreeBuildingThisCity = 'BUILDINGCLASS_BROADCAST_TOWER', LandmarksTourismPercent = '50', GreatWorksTourismModifier = '50', HappinessPerCity = '1', GlobalPopulationChange = '0'
+UPDATE Buildings SET 
+	Cost = 2300, 
+	FreeBuilding = NULL, 
+	FreeBuildingThisCity = 'BUILDINGCLASS_BROADCAST_TOWER', 
+	LandmarksTourismPercent = 25, 
+	GreatWorksTourismModifier = 25,
+	GlobalLandmarksTourismPercent = 25, 
+	GlobalGreatWorksTourismModifier = 25,
+	HappinessPerCity = '1', 
+	GlobalPopulationChange = '0'
 WHERE Type = 'BUILDING_CN_TOWER';
 
 INSERT INTO Building_GreatWorkYieldChanges
@@ -447,7 +455,7 @@ VALUES
 
 -- Sydney Opera House
 UPDATE Buildings
-SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '25', MinAreaSize = -1
+SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '0', MinAreaSize = '10'
 WHERE Type = 'BUILDING_SYDNEY_OPERA_HOUSE';
 
 -- Move Apollo 

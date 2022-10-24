@@ -23,10 +23,10 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 -- Game Options
 
 INSERT INTO Language_en_US
-			(Tag,											Text)
-VALUES		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
-			('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
-			
+		(Tag,											Text)
+VALUES	('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
+		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
+
 UPDATE Language_en_US
 SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
@@ -40,8 +40,8 @@ WHERE Tag = 'TXT_KEY_DIPLOSTRATEGY_MILITARY_STRENGTH_COMPARED_TO_US_PATHETIC';
 
 -- Assyria UA
 INSERT INTO Language_en_US
-			(Tag,										Text)
-SELECT		'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
+		(Tag,										Text)
+SELECT	'TXT_KEY_SCIENCE_BOOST_CONQUEST_ASSYRIA',	'Your soldiers found [ICON_RESEARCH] Science during the conquest of {1_Name}!'
 WHERE EXISTS (SELECT * FROM CustomModOptions WHERE Name='ALTERNATE_ASSYRIA_TRAIT' AND Value= 1 );
 
 
@@ -88,7 +88,7 @@ SET Text = 'Move a unit to a tile where it can end the turn.'
 WHERE Tag = 'TXT_KEY_MOVE_STACKED_UNIT_TT';
 
 UPDATE Language_en_US
-SET Text = 'Allows land units to embark and cross water tiles.'
+SET Text = 'Allows land units to embark and cross water Tiles.'
 WHERE Tag = 'TXT_KEY_ALLOWS_EMBARKING';
 
 -- Capture Chance
@@ -122,20 +122,24 @@ WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
 
 -- Ocean travel change
 UPDATE Language_en_US
-SET Text = 'Can never end turn on an Ocean tile. May move through Ocean tiles if ending on a Coastal tile.'
-WHERE Tag = 'TXT_KEY_PEDIA_PROMOTION_OCEAN_IMPASSABLE_HELP';
+SET Text = 'Cannot End Turn on Ocean Tile'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
-UPDATE Language_en_US
-SET Text = 'Cannot end turn on an Ocean tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean tiles if ending on a Coastal tile.'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+INSERT INTO Language_en_US
+		(Tag,										Text)
+VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through Ocean Tiles if ending on a Coastal Tile.');
+
+UPDATE UnitPromotions
+SET Help = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP'
+WHERE Type = 'PROMOTION_OCEAN_IMPASSABLE';
 
 UPDATE Language_en_US
 SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO';
 
 UPDATE Language_en_US
-SET Text = 'Cannot End Turn on Ocean Tile'
-WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
+SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean Tiles if ending on a Coastal Tile.'
+WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 -- Siege Units
 UPDATE Language_en_US
@@ -317,8 +321,8 @@ SET Text = 'Someone demanded tribute very recently'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
 
 INSERT INTO Language_en_US
-			(Tag,										Text)
-SELECT		'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';
+		(Tag,										Text)
+SELECT	'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';
 
 -- Fixed quest text - transitioned to new 'quest rewards' panel
 UPDATE Language_en_US
@@ -631,27 +635,63 @@ WHERE Tag = 'TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM';
 -- Civilopedia Refresh
 
 UPDATE Language_en_US
+SET Text = 'Welcome to the Civilopedia! Here you will find detailed descriptions of all aspects of the game. Use the "Search" field to search for articles on any specific subject. Clicking on the tabs on the top edge of the screen will take you to the various major sections of the Civilopedia. The Navigation Bar on the left side of the screen will display the various entries within a section. Click on an entry to go directly there.[NEWLINE][NEWLINE]In the upper left-hand portion of the screen you will find the forward and back buttons which will help you navigate between pages. Click on the "X" on the upper right portion of the screen to return to the game.[NEWLINE][NEWLINE]Welcome to the Community Patch, a mod containing several bugfixes and AI improvements. [COLOR_YELLOW]Game Concepts that have been changed in the Community Patch are highlighted in yellow in the Civilopedia.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_PEDIA_HOME_PAGE_HELP_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'Civilization V examines all of human history - from the deep past to the day after tomorrow. The "Game Concepts" portion of the Civilopedia explains some of the more important parts of the game - how to build and manage cities, how to fight wars, how to research technology, and so forth. The left Navigation Bar displays the major concepts; click on an entry to see the subsections within the concepts.[NEWLINE][NEWLINE][COLOR_YELLOW]Game Concepts that have been changed in the Community Patch are highlighted in yellow.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_PEDIA_GAME_CONCEPT_HELP_TEXT';
+
+UPDATE Language_en_US
 SET Text = 'Forces defender to retreat if it inflicts more damage than it receives. A defender who cannot retreat takes 50% extra damage.'
 WHERE Tag = 'TXT_KEY_PROMOTION_HEAVY_CHARGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Only one combat unit may occupy a city at a time. That military unit is said to "Garrison" the city, and it adds a significant defensive bonus to the city. If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)'
+SET Text = 'Only one land and one naval unit may occupy a city at a time. A military unit in a city is said to "Garrison" the city, and it adds a significant defensive bonus to the city. [COLOR_YELLOW]If a city is attacked while a Garrison is in the city, the Garrison will deflect some of the damage onto itself, thus offering the city even more protection. Be careful, however, as a Garrison can be destroyed this way.[ENDCOLOR][NEWLINE][NEWLINE]Additional combat units may move through the city, but they cannot end their turn there. (So if you build a combat unit in a city with a garrison, you have to move one of the two units out before you end your turn.)[NEWLINE][NEWLINE][COLOR_YELLOW]Note also that naval units cannot perform any attacks while they are stationed in a city.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. The garrisoned will divert part of the all damage to a city when the city is attacked. This can destroy the garrison, so be careful! If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE]A unit stationed in the city may attack surrounding enemy units, but if it does so the city loses its garrison bonus, and, if it is a melee attack, the unit may take damage during the combat as normal.'
+SET Text = '[COLOR_YELLOW]Combat Units in Cities[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CITIES_COMBATUNITS_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Garrison Units in Cities[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'A city''s owner may "garrison" a military unit inside the city to bolster its defenses. A portion of the garrisoned unit''s combat strength is added to the city''s strength. [COLOR_YELLOW]The garrisoned will divert part of the damage to a city when the city is attacked. This can destroy the garrison, so be careful![ENDCOLOR] If the city is captured, the garrisoned unit is destroyed.[NEWLINE][NEWLINE]'
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'At the end of melee combat, one or both units may have sustained damage and lost "hit points." If a unit''s hit points are reduced to 0, that unit is destroyed. If after melee combat the defending unit has been destroyed and the attacker survives, the attacking unit moves into the defender''s hex [COLOR_POSITIVE_TEXT]unless[ENDCOLOR] defending a Citadel, Fort, or City, at which point the melee unit remains in place. If it moves, the winner will capture any non-military units in that hex. If the defending unit survives, it retains possession of its hex and any other units in the hex.[NEWLINE][NEWLINE]Most units use up all of their movement when attacking. Some however have the ability to move after combat - if they survive the battle and have movement points left to expend.[NEWLINE][NEWLINE]Any surviving units involved in the combat will receive "experience points" (XPs), which may be expended to give the unit promotions.'
+SET Text = '[COLOR_YELLOW]Fort[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_FORT_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Once a civ has acquired the Engineering technology, workers can construct "forts" in friendly or neutral territory. Forts provide a hefty defensive bonus to units occupying them. Forts cannot be constructed in enemy territory. They can be constructed atop resources. [COLOR_YELLOW]Melee Units attacking from a Fort don''t leave the Fort even if they destroy the attacked enemy unit.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_FORT_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Siege Weapons[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_SEIGEWEAPONS_HEADING2_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'Certain ranged weapons are classified as "siege weapons" - catapults, ballistae, trebuchets, and so forth. These units get combat bonuses when attacking enemy cities. They are extremely vulnerable to melee combat, and should be accompanied by melee units to fend off enemy assault.[NEWLINE][NEWLINE][COLOR_YELLOW]In Vox Populi and the Community Patch, siege units don''t have to be "set up" anymore. Instead, they move at half-speed in enemy territory.[ENDCOLOR][NEWLINE][NEWLINE]Siege weapons are important. It''s really difficult to capture a well-defended city without them!'
+WHERE Tag = 'TXT_KEY_COMBAT_SEIGEWEAPONS_HEADING2_BODY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Melee Combat Results[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_MELEERESULTS_HEADING3_TITLE';
+
+UPDATE Language_en_US
+SET Text = 'At the end of melee combat, one or both units may have sustained damage and lost "hit points." If a unit''s hit points are reduced to 0, that unit is destroyed. If after melee combat the defending unit has been destroyed and the attacker survives, the attacking unit moves into the defender''s hex [COLOR_YELLOW]unless defending a Citadel, Fort, or City, at which point the melee unit remains in place[ENDCOLOR]. If it moves, the winner will capture any non-military units in that hex. If the defending unit survives, it retains possession of its hex and any other units in the hex.[NEWLINE][NEWLINE]Most units use up all of their movement when attacking. Some however have the ability to move after combat - if they survive the battle and have movement points left to expend.[NEWLINE][NEWLINE]Any surviving units involved in the combat will receive "experience points" (XPs), which may be expended to give the unit promotions.'
 WHERE Tag = 'TXT_KEY_COMBAT_MELEERESULTS_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 20% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
+SET Text = 'Great Generals are "Great People" skilled in the art of warfare. They provide combat bonuses - offensive and defensive bonuses both - to any friendly units within two tiles of their location. A Great General itself is a non-combat unit, so it may be stacked with a combat unit for protection. If an enemy unit ever enters the tile containing a Great General, the General is destroyed.[NEWLINE][NEWLINE]A Great General gives a combat bonus of 15% to units in the General''s tile and all friendly units within 2 tiles of the General.[NEWLINE][NEWLINE]Great Generals are created when your units have been in battle and also can be acquired from buildings, policies, beliefs, and tenets. See the section on "Great People" for more details.'
 WHERE Tag = 'TXT_KEY_COMBAT_GREATGENERALS_HEADING2_BODY';
 
 UPDATE Language_en_US
-SET Text = 'War Score'
+SET Text = '[COLOR_GREEN]War Score[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLOMACY_PEACE_HEADING3_TITLE';
 
 UPDATE Language_en_US
@@ -667,8 +707,12 @@ SET Text = 'The ruin provides a map of the nearest unrevealed City (lifting the 
 WHERE Tag = 'TXT_KEY_BARBARIAN_MAP_HEADING4_BODY';
 
 UPDATE Language_en_US
-SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired 45 XPs (or has exchanged that many for promotions) no longer gains XPs from fighting barbarians.'
+SET Text = 'When they fight barbarian units, your less well-trained units will gain experience points. However, any unit that has already acquired [COLOR_YELLOW]45 XPs[ENDCOLOR] (or has exchanged that many for promotions) no longer gains XPs from fighting barbarians.'
 WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_BODY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Experience Points Limitations[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_BARBARIAN_POINTLIMITS_HEADING3_TITLE';
 
 UPDATE Language_en_US
 SET Text = 'Each civilization in Civilization V has one or more special "national units." These units are unique to that civilization, and they are in some way superior to the standard version of that unit. The American civilization, for example, has a Minuteman unit, which is superior to the standard Musketman available to other civs. The Greek civ has the Hoplite unit, which replaces the Spearman.[NEWLINE][NEWLINE]See each civilization''s Civilopedia entry to discover its special unit.'

@@ -133,7 +133,7 @@ public:
 #endif
 	int GetPolicyBranchType() const;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int GetPolicyType() const;
+	PolicyTypes GetPolicyType() const;
 	CivilizationTypes GetCivType() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -314,20 +314,18 @@ public:
 	int GetDPToVotes() const;
 	bool IsIgnoreDefensivePactLimit() const;
 	int GetGPExpendInfluence() const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int GetEmpireNeedsModifier() const;
-	int GetEmpireNeedsModifierGlobal() const;
-	int GetPovertyHappinessChangeBuilding() const;
-	int GetDefenseHappinessChangeBuilding() const;
-	int GetUnculturedHappinessChangeBuilding() const;
-	int GetIlliteracyHappinessChangeBuilding() const;
-	int GetMinorityHappinessChangeBuilding() const;
-	int GetPovertyHappinessChangeBuildingGlobal() const;
-	int GetDefenseHappinessChangeBuildingGlobal() const;
-	int GetUnculturedHappinessChangeBuildingGlobal() const;
-	int GetIlliteracyHappinessChangeBuildingGlobal() const;
-	int GetMinorityHappinessChangeBuildingGlobal() const;
-#endif
+	int GetEmpireSizeModifierReduction() const;
+	int GetEmpireSizeModifierReductionGlobal() const;
+	int GetBasicNeedsMedianModifier() const;
+	int GetGoldMedianModifier() const;
+	int GetScienceMedianModifier() const;
+	int GetCultureMedianModifier() const;
+	int GetReligiousUnrestModifier() const;
+	int GetBasicNeedsMedianModifierGlobal() const;
+	int GetGoldMedianModifierGlobal() const;
+	int GetScienceMedianModifierGlobal() const;
+	int GetCultureMedianModifierGlobal() const;
+	int GetReligiousUnrestModifierGlobal() const;
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
 	bool IsTeamShare() const;
@@ -397,10 +395,19 @@ public:
 	const char* GetWonderSplashAudio() const;
 	CvString GetThemingBonusHelp() const;
 
-	// Accessor Functions (Arrays)
-	int GetUnhappinessNeedsFlatReduction(int i) const;
-	int* GetUnhappinessNeedsFlatReductionArray() const;
+	int GetDistressFlatReduction() const;
+	int GetPovertyFlatReduction() const;
+	int GetIlliteracyFlatReduction() const;
+	int GetBoredomFlatReduction() const;
+	int GetReligiousUnrestFlatReduction() const;
 
+	int GetDistressFlatReductionGlobal() const;
+	int GetPovertyFlatReductionGlobal() const;
+	int GetIlliteracyFlatReductionGlobal() const;
+	int GetBoredomFlatReductionGlobal() const;
+	int GetReligiousUnrestFlatReductionGlobal() const;
+
+	// Accessor Functions (Arrays)
 	int GetGrowthExtraYield(int i) const;
 	int* GetGrowthExtraYieldArray() const;
 
@@ -614,7 +621,9 @@ public:
 #endif
 
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
-	int GetNumThemingBonuses() const {return m_iNumThemingBonuses;};
+	int GetNumThemingBonuses() const { return m_iNumThemingBonuses; }
+	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
+	void UpdateUnitTypesUnlocked();
 
 private:
 	int m_iBuildingClassType;
@@ -634,7 +643,7 @@ private:
 	int m_iPrereqAndTech;
 	int m_iPolicyBranchType;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iPolicyType;
+	PolicyTypes m_iPolicyType;
 	CivilizationTypes m_eCivType;
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -790,21 +799,28 @@ private:
 	int m_iDPToVotesBase;
 	bool m_bIgnoreDefensivePactLimit;
 	int m_iGPExpendInfluenceBase;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int m_iEmpireNeedsModifier;
-	int m_iEmpireNeedsModifierGlobal;
-	int m_iPovertyHappinessChangeBuilding;
-	int m_iDefenseHappinessChangeBuilding;
-	int m_iUnculturedHappinessChangeBuilding;
-	int m_iIlliteracyHappinessChangeBuilding;
-	int m_iMinorityHappinessChangeBuilding;
-	int m_iPovertyHappinessChangeBuildingGlobal;
-	int m_iDefenseHappinessChangeBuildingGlobal;
-	int m_iUnculturedHappinessChangeBuildingGlobal;
-	int m_iIlliteracyHappinessChangeBuildingGlobal;
-	int m_iMinorityHappinessChangeBuildingGlobal;
-	int* m_piUnhappinessNeedsFlatReduction;
-#endif
+	int m_iEmpireSizeModifierReduction;
+	int m_iEmpireSizeModifierReductionGlobal;
+	int m_iBasicNeedsMedianModifier;
+	int m_iGoldMedianModifier;
+	int m_iScienceMedianModifier;
+	int m_iCultureMedianModifier;
+	int m_iReligiousUnrestModifier;
+	int m_iBasicNeedsMedianModifierGlobal;
+	int m_iGoldMedianModifierGlobal;
+	int m_iScienceMedianModifierGlobal;
+	int m_iCultureMedianModifierGlobal;
+	int m_iReligiousUnrestModifierGlobal;
+	int m_iDistressFlatReduction;
+	int m_iPovertyFlatReduction;
+	int m_iIlliteracyFlatReduction;
+	int m_iBoredomFlatReduction;
+	int m_iReligiousUnrestFlatReduction;
+	int m_iDistressFlatReductionGlobal;
+	int m_iPovertyFlatReductionGlobal;
+	int m_iIlliteracyFlatReductionGlobal;
+	int m_iBoredomFlatReductionGlobal;
+	int m_iReligiousUnrestFlatReductionGlobal;
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
 
@@ -1028,6 +1044,7 @@ private:
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
 	int m_iNumThemingBonuses;
+	vector<UnitTypes> m_vUnitTypesUnlocked; //not serialized
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -340,43 +340,33 @@ protected:
 	LUAAPIEXTN(GetCityAutomatonWorkersChange, int);
 	LUAAPIEXTN(ChangeCityAutomatonWorkersChange, void, iChange);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	LUAAPIEXTN(GetRemainingFreeSpecialists, int);
-	LUAAPIEXTN(GetTheoreticalUnhappinessDecrease, int);
+	LUAAPIEXTN(GetBasicNeedsMedian, int);
+	LUAAPIEXTN(GetGoldMedian, int);
+	LUAAPIEXTN(GetScienceMedian, int);
+	LUAAPIEXTN(GetCultureMedian, int);
+	LUAAPIEXTN(GetReligiousUnrestPerMinorityFollower, int);
+	LUAAPIEXTN(GetTheoreticalNewBasicNeedsMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewGoldMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewScienceMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewCultureMedian, int);
+	LUAAPIEXTN(GetTheoreticalNewReligiousUnrestPerMinorityFollower, int);
 	LUAAPIEXTN(getHappinessDelta, int);
-	LUAAPIEXTN(getUnhappinessAggregated, int);
-	LUAAPIEXTN(getPopThresholdMod, int);
-	LUAAPIEXTN(getEmpireSizeMod, int);
-	LUAAPIEXTN(GetStaticTechDeviation, int);
-	LUAAPIEXTN(getHappinessThresholdMod, int);
-	LUAAPIEXTN(getThresholdSubtractions, int);
-	LUAAPIEXTN(getThresholdAdditions, int);
-	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
-	LUAAPIEXTN(GetUnhappinessFromCultureNeeded, int);
-	LUAAPIEXTN(GetUnhappinessFromCultureDeficit, int);
-	LUAAPIEXTN(GetUnhappinessFromYieldRaw, int);
-	LUAAPIEXTN(GetUnhappinessFromCulture, int);
-	LUAAPIEXTN(GetUnhappinessFromScienceYield, int);
-	LUAAPIEXTN(GetUnhappinessFromScienceNeeded, int);
-	LUAAPIEXTN(GetUnhappinessFromScienceDeficit, int);
-	LUAAPIEXTN(GetUnhappinessFromScience, int);
-	LUAAPIEXTN(GetUnhappinessFromDefenseYield, int);
-	LUAAPIEXTN(GetUnhappinessFromDefenseNeeded, int);
-	LUAAPIEXTN(GetUnhappinessFromDefenseDeficit, int);
-	LUAAPIEXTN(GetUnhappinessFromDefense, int);
-	LUAAPIEXTN(GetUnhappinessFromGoldYield, int);
-	LUAAPIEXTN(GetUnhappinessFromGoldNeeded, int);
-	LUAAPIEXTN(GetUnhappinessFromGoldDeficit, int);
-	LUAAPIEXTN(GetUnhappinessFromGold, int);
-	LUAAPIEXTN(GetUnhappinessFromConnection, int);
-	LUAAPIEXTN(GetUnhappinessFromPillaged, int);
-	LUAAPIEXTN(GetUnhappinessFromStarving, int);
-	LUAAPIEXTN(GetUnhappinessFromMinority, int);
+	LUAAPIEXTN(GetUnhappinessAggregated, int);
+	LUAAPIEXTN(GetCitySizeModifier, int);
+	LUAAPIEXTN(GetEmpireSizeModifier, int);
+	LUAAPIEXTN(GetCachedTechNeedModifier, int);
+	LUAAPIEXTN(GetAllNeedsModifier, int);
+	LUAAPIEXTN(GetUnhappinessFromYield, int);
+	LUAAPIEXTN(GetUnhappinessFromIsolation, int);
+	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
+	LUAAPIEXTN(GetUnhappinessFromFamine, int);
+	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
 	LUAAPIEXTN(getPotentialUnhappinessWithGrowth, int);
 	LUAAPIEXTN(GetCityUnhappinessBreakdown, int);
 	LUAAPIEXTN(GetCityHappinessBreakdown, int);
 	LUAAPIEXTN(getUnhappinessFromSpecialists, int);
-#endif
 
 	static int lChangeHealRate(lua_State* L);
 

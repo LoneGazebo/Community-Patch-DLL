@@ -9,7 +9,7 @@
 #include "CvGameCoreUtils.h"
 #include "CvPreGame.h"
 #include "FIGameIniParser.h"
-#include "FLua/Include/FLua.h"
+#include "FLua/include/FLua.h"
 #include "FStlContainerSerialization.h"
 #include "FFileStream.h"
 #include "ICvDLLDatabaseUtility.h"
@@ -36,6 +36,8 @@ const char* ConvertGameOptionTypeToString(GameOptionTypes eOption)
 {
 	switch(eOption)
 	{
+	case NO_GAMEOPTION:
+		break; // Use return at end, see comment beneath.
 	case GAMEOPTION_NO_CITY_RAZING:
 		return "GAMEOPTION_NO_CITY_RAZING";
 	case GAMEOPTION_NO_BARBARIANS:
@@ -68,6 +70,8 @@ const char* ConvertGameOptionTypeToString(GameOptionTypes eOption)
 		return "GAMEOPTION_END_TURN_TIMER_ENABLED";
 	case GAMEOPTION_QUICK_COMBAT:
 		return "GAMEOPTION_QUICK_COMBAT";
+	case GAMEOPTION_DISABLE_START_BIAS:
+		return "GAMEOPTION_DISABLE_START_BIAS";
 	case GAMEOPTION_NO_SCIENCE:
 		return "GAMEOPTION_NO_SCIENCE";
 	case GAMEOPTION_NO_POLICIES:
@@ -80,6 +84,12 @@ const char* ConvertGameOptionTypeToString(GameOptionTypes eOption)
 		return "GAMEOPTION_NO_RELIGION";
 	}
 
+	// Option is unrecognized but we still want to return a value because this function
+	// may be called from the engine or by network callbacks.
+	//
+	// A more strict approach would be to use `UNREACHABLE` here but there could be
+	// consequences to that if a packet is somehow corrupt or if a malicous client
+	// intentionally sends a bad game option index (or if the engine is just broke).
 	return NULL;
 }
 

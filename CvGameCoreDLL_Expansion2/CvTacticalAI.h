@@ -222,14 +222,14 @@ public:
 		m_iZoneID = iZone;
 	};
 
-	bool IsReadyForCapture();
-	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer);
-	bool IsTargetValidInThisDomain(DomainTypes eDomain);
+	bool IsReadyForCapture() const;
+	bool IsTargetStillAlive(PlayerTypes eAttackingPlayer) const;
+	bool IsTargetValidInThisDomain(DomainTypes eDomain) const;
 
 	void SetLastAggLvl(eAggressionLevel lvl) { m_eAggLvl = lvl; }
 	eAggressionLevel GetLastAggLvl() const { return m_eAggLvl; }
 
-	inline CvUnit* GetUnitPtr()
+	inline CvUnit* GetUnitPtr() const
 	{
 		return m_pUnit;
 	}
@@ -242,7 +242,7 @@ public:
 	// For defensive items used to SORT targets in priority order
 	//    Set to the weight for defensive bastions
 	//    Set to the danger for cities to be garrisoned
-	inline int GetAuxIntData()
+	inline int GetAuxIntData() const
 	{
 		return m_iAuxData;
 	}
@@ -442,7 +442,6 @@ private:
 	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
-	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	void ExecuteHeals(bool bFirstPass);
@@ -465,12 +464,13 @@ private:
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot, bool bCheckDanger);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
+	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
 
 	int GetRecruitRange() const;
 
 	void FindAirUnitsToAirSweep(CvPlot* pTarget);
 
-	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
+	int ComputeTotalExpectedDamage(const CvTacticalTarget& target);
 	int ComputeTotalExpectedCityBombardDamage(CvUnit* pTarget);
 	bool IsExpectedToDamageWithRangedAttack(CvUnit* pAttacker, CvPlot* pTarget, int iMinDamage=0);
 
@@ -517,9 +517,9 @@ private:
 FDataStream& operator>>(FDataStream&, CvTacticalAI&);
 FDataStream& operator<<(FDataStream&, const CvTacticalAI&);
 
-enum eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
-enum eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
-enum eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH, 
+enum CLOSED_ENUM eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
+enum CLOSED_ENUM eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
+enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH,
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_FINISH_TEMP };
 
 class CvTacticalPosition;
@@ -952,14 +952,15 @@ namespace TacticalAIHelpers
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
 
-	bool GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied, std::vector<CvPlot*>& vPlots);
+	std::vector<CvPlot*> GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	bool KillLoneEnemyIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
-	bool IsSuicideMeleeAttack(CvUnit* pAttacker, CvPlot* pTarget);
-	CvPlot* GetFirstTargetInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
+	bool IsSuicideMeleeAttack(const CvUnit* pAttacker, CvPlot* pTarget);
+	bool CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget);
+	vector<pair<CvPlot*,bool>> GetTargetsInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
 	bool IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes eOwner);

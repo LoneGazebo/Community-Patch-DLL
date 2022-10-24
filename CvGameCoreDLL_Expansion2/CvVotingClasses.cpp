@@ -208,8 +208,8 @@ ResolutionTypes LeagueHelpers::IsResolutionForTriggerActive(ResolutionTypes eTyp
 	if(eType != NO_RESOLUTION)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		ActiveResolutionList vActiveResolutions = pLeague->GetActiveResolutions();
-		for (ActiveResolutionList::iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
+		const ActiveResolutionList& vActiveResolutions = pLeague->GetActiveResolutions();
+		for (ActiveResolutionList::const_iterator it = vActiveResolutions.begin(); it != vActiveResolutions.end(); ++it)
 		{
 			if (it->GetType() == eType)
 			{
@@ -847,6 +847,10 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
 
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	int iTotalVotes = 0;
 	int iVotes = 0;
 
@@ -886,6 +890,10 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if (!pLeague) return 0;
 
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	int iTotalVotes = 0;
 	int iVotes = 0;
 
@@ -918,6 +926,10 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 {
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
@@ -931,6 +943,10 @@ std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingAgainstChoice(int iChoice)
 {
+	// If the vote was a tie, treat people who voted NAY as supporting the outcome
+	if (iChoice == LeagueHelpers::CHOICE_NONE)
+		iChoice = LeagueHelpers::CHOICE_NO;
+
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
 	{
@@ -2641,9 +2657,8 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 			m_vRepealProposals.push_back(proposal);
 			iFound++;
 
-#if defined(MOD_API_ACHIEVEMENTS)
 			// XP2 Achievement
-			if (!GC.getGame().isGameMultiPlayer())
+			if (MOD_API_ACHIEVEMENTS && !GC.getGame().isGameMultiPlayer())
 			{
 				PlayerTypes eOriginalProposer = it->GetProposerDecision()->GetProposer();
 				if (eOriginalProposer != NO_PLAYER && eOriginalProposer == eProposer)
@@ -2654,7 +2669,6 @@ void CvLeague::DoProposeRepeal(int iResolutionID, PlayerTypes eProposer)
 					}
 				}
 			}
-#endif
 		}
 
 	}
@@ -3725,7 +3739,7 @@ CvActiveResolution* CvLeague::GetActiveResolution(int iResolutionID, int iValue)
 	return NULL;
 }
 
-ActiveResolutionList CvLeague::GetActiveResolutions() const
+const ActiveResolutionList& CvLeague::GetActiveResolutions() const
 {
 	return m_vActiveResolutions;
 }
@@ -4492,6 +4506,12 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
 					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+				case CvLeagueAI::DESIRE_DISLIKE:
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				case CvLeagueAI::DESIRE_NEVER:
+					UNREACHABLE();
 				}
 			}
 			else if (eDesire < CvLeagueAI::DESIRE_NEUTRAL)
@@ -4513,6 +4533,12 @@ void CvLeague::DoEnactProposalDiplomacy(ResolutionTypes eResolution, PlayerTypes
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+				case CvLeagueAI::DESIRE_LIKE:
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+				case CvLeagueAI::DESIRE_ALWAYS:
+					UNREACHABLE();
 				}
 			}
 		}
@@ -4573,6 +4599,12 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 				case CvLeagueAI::DESIRE_WEAK_LIKE:
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*-15*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_WEAK));
 					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+				case CvLeagueAI::DESIRE_DISLIKE:
+				case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				case CvLeagueAI::DESIRE_NEVER:
+					UNREACHABLE();
 				}
 			}
 			else if (eDesire < CvLeagueAI::DESIRE_NEUTRAL)
@@ -4594,6 +4626,12 @@ void CvLeague::DoRepealProposalDiplomacy(int iTargetResolutionID, PlayerTypes eP
 				case CvLeagueAI::DESIRE_WEAK_DISLIKE:
 					GET_PLAYER(it->ePlayer).GetDiplomacyAI()->SetLikedTheirProposalValue(eProposer, /*15*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL));
 					break;
+				case CvLeagueAI::DESIRE_NEUTRAL:
+				case CvLeagueAI::DESIRE_WEAK_LIKE:
+				case CvLeagueAI::DESIRE_LIKE:
+				case CvLeagueAI::DESIRE_STRONG_LIKE:
+				case CvLeagueAI::DESIRE_ALWAYS:
+					UNREACHABLE();
 				}
 			}
 		}
@@ -7026,12 +7064,10 @@ void CvLeague::CheckProjectAchievements()
 				}
 			}
 
-#if defined(MOD_API_ACHIEVEMENTS)
-			if (iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
+			if (MOD_API_ACHIEVEMENTS && iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_44);
 			}
-#endif
 		}
 	}
 }
@@ -7284,6 +7320,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 
 								// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
@@ -7364,6 +7402,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 
 								// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
@@ -7446,6 +7486,8 @@ void CvLeague::FinishSession()
 							case CvLeagueAI::DESIRE_ALWAYS:
 								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 								break;
+							case CvLeagueAI::DESIRE_NEUTRAL:
+								break; // No multiplier.
 							}
 						}
 
@@ -7522,6 +7564,8 @@ void CvLeague::FinishSession()
 							case CvLeagueAI::DESIRE_ALWAYS:
 								iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 								break;
+							case CvLeagueAI::DESIRE_NEUTRAL:
+								break; // No multiplier.
 							}
 						}
 
@@ -7621,6 +7665,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 
 								// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
@@ -7706,6 +7752,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 
 								// Exception: If desire multiplier is negative and this player is the proposer (AI has changed their mind), do nothing.
@@ -7815,6 +7863,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 							}
 
@@ -7891,6 +7941,8 @@ void CvLeague::FinishSession()
 								case CvLeagueAI::DESIRE_ALWAYS:
 									iDesireMultiplier = /*400*/ GD_INT_GET(VOTING_HISTORY_SCORE_DESIRE_MULTIPLIER_OVERWHELMING);
 									break;
+								case CvLeagueAI::DESIRE_NEUTRAL:
+									break; // No multiplier.
 								}
 							}
 
@@ -10648,6 +10700,11 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		switch (pDiplo->GetDoFType(ePlayer))
 		{
+		case NO_DOF_TYPE:
+			UNREACHABLE();
+		case DOF_TYPE_UNTRUSTWORTHY:
+		case DOF_TYPE_NEW:
+			break;
 		case DOF_TYPE_FRIENDS:
 			iAlignment += 1;
 			break;
@@ -10675,6 +10732,8 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		{
 			switch (eTreatmentLevel)
 			{
+			case NO_VASSAL_TREATMENT:
+				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
 				iAlignment += 4;
 				break;
@@ -10696,6 +10755,8 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 		{
 			switch (eTreatmentLevel)
 			{
+			case NO_VASSAL_TREATMENT:
+				UNREACHABLE();
 			case VASSAL_TREATMENT_CONTENT:
 				iAlignment += 2;
 				break;
@@ -10732,10 +10793,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	}
 
 	// Competing for City-States?
-	if (pDiplo->GetMinorCivDisputeLevel(ePlayer) != NO_DISPUTE_LEVEL)
-	{
-		iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);
-	}
+	iAlignment -= pDiplo->GetMinorCivDisputeLevel(ePlayer);
 
 
 	switch (pDiplo->GetCivApproach(ePlayer))
@@ -10748,6 +10806,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	case CIV_APPROACH_GUARDED:
 		iAlignment -= 1;
 		break;
+	case NO_CIV_APPROACH:
 	case CIV_APPROACH_AFRAID:
 	case CIV_APPROACH_NEUTRAL:
 		iAlignment += 0;
@@ -10845,7 +10904,7 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 CvLeagueAI::KnowledgeLevels CvLeagueAI::GetKnowledgeGivenToOtherPlayer(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	// Teammates or Debug Mode
-	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
+	bool bOverride = GetPlayer()->getTeam() == GET_PLAYER(eToPlayer).getTeam() || GET_PLAYER(eToPlayer).isObserver() || GC.getGame().IsDiploDebugModeEnabled() || DEBUG_LEAGUES;
 
 	// Shared Ideology
 	PolicyBranchTypes eMyIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -12110,10 +12169,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					{
 						iExtra += (GetPlayer()->GetDiplomacyAI()->GetPlayerTargetValue(eTargetPlayer) - TARGET_VALUE_AVERAGE) * 100;
 					}
-					if (GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) != NO_THREAT_VALUE)
-					{
-						iExtra += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) * 150;
-					}
+					iExtra += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eTargetPlayer) * 150;
 				}
 
 				if (GetPlayer()->IsAtWarWith(eTargetPlayer))
@@ -12193,10 +12249,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 					if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GetPlayer()->getTeam() != GET_PLAYER(eLoopPlayer).getTeam())
 					{
-						if (pDiploAI->GetWarmongerThreat(eLoopPlayer) != NO_THREAT_VALUE)
-						{
-							iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-						}
+						iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 						// At war
 						if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 						{
@@ -12263,10 +12316,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv() && GET_PLAYER(eLoopPlayer).getNumCities() > 0 && GET_TEAM(GetPlayer()->getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()))
 			{
-				if (pDiploAI->GetWarmongerThreat(eLoopPlayer) != NO_THREAT_VALUE)
-				{
-					iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
-				}
+				iWarmongerThreat += GetPlayer()->GetDiplomacyAI()->GetWarmongerThreat(eLoopPlayer);
 				// At war
 				if (GetPlayer()->IsAtWarWith(eLoopPlayer))
 				{
@@ -12339,6 +12389,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							switch (eVassalTreatmentLevel)
 							{
+							case NO_VASSAL_TREATMENT:
+								UNREACHABLE();
 							case VASSAL_TREATMENT_CONTENT:
 								iExtra -= 500;
 								break;
@@ -12360,6 +12412,8 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							switch (eVassalTreatmentLevel)
 							{
+							case NO_VASSAL_TREATMENT:
+								UNREACHABLE();
 							case VASSAL_TREATMENT_CONTENT:
 								iExtra -= 500;
 								break;
@@ -12869,6 +12923,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				iProximity = 250;
 				break;
+			case NO_PLAYER_PROXIMITY:
+			case PLAYER_PROXIMITY_DISTANT:
+			case PLAYER_PROXIMITY_FAR:
+				break; // No change.
 			}
 			// Do they have a resource we lack?
 			int iResourceDesire = 100 * GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetNumResourcesMajorLacks(ePlayer);
@@ -13182,6 +13240,10 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				case PLAYER_PROXIMITY_NEIGHBORS:
 					iAllyDesire += 400;
 					break;
+				case NO_PLAYER_PROXIMITY:
+				case PLAYER_PROXIMITY_DISTANT:
+				case PLAYER_PROXIMITY_FAR:
+					break; // No change.
 				}
 			}
 			// Do they have a resource we lack?

@@ -53,7 +53,7 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 
-	if (ePlayer == NO_PLAYER || ePlayer >= MAX_PLAYERS)
+	if (ePlayer <= NO_PLAYER || ePlayer >= MAX_PLAYERS)
 		ePlayer = BARBARIAN_PLAYER;
 
 	return s_players[ePlayer];
@@ -1152,7 +1152,6 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 		CvAIOperation* pThisOperation = m_AIOperations[i].second;
 		if(pThisOperation)
 		{
-#if defined(MOD_BALANCE_CORE)
 			bCitySameAsMuster = false;
 
 			CvPlot *pMusterPlot = pThisOperation->GetMusterPlot();
@@ -1160,14 +1159,13 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 			if (!pMusterPlot)
 				continue;
 
-			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToArea(pMusterPlot->getArea()))
+			if (pCity == pMusterPlot->getOwningCity() && pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
 				bCitySameAsMuster = true;
 
-			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToArea(pMusterPlot->getArea()))
+			if (pThisOperation->IsNavalOperation() && !pCity->HasAccessToLandmass(pMusterPlot->getLandmass()))
 				continue;
-#endif
-			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 
+			OperationSlot thisSlot = pThisOperation->PeekAtNextUnitToBuild();
 			if (!thisSlot.IsValid())
 				continue;
 
@@ -1299,6 +1297,8 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		case UNITAI_DIPLOMAT:
 			eDirective = GetDirectiveDiplomat(pLoopUnit);
 			break;
+		default:
+			continue; // Not a great person.
 		}
 
 		pLoopUnit->SetGreatPeopleDirective(eDirective);
@@ -1505,7 +1505,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if (eYield == NULL)
+		if (eYield == NO_YIELD)
 			continue;
 		iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eManufactory, eYield);
 	}
@@ -1605,7 +1605,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
-			if (eYield == NULL)
+			if (eYield == NO_YIELD)
 				continue;
 			iFlavor += GetPlayerTraits()->GetYieldChangePerImprovementBuilt(eAcademy, eYield);
 		}
@@ -1663,12 +1663,16 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		{
 			switch (pLoopUnit->GetGreatPeopleDirective())
 			{
+			case NO_GREAT_PEOPLE_DIRECTIVE_TYPE:
+				break;
 			case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
 				iCitadels++;
 				break;
 			case GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND:
 				iCommanders++;
 				break;
+			default:
+				UNREACHABLE(); // Great generals shouldn't have directives other than these.
 			}
 		}
 	}
@@ -1799,30 +1803,17 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
 {
-	bool bTheVeniceException = false;
-	if (GetPlayerTraits()->IsNoAnnexing())
-	{
-		bTheVeniceException = true;
-	}
-
-	bool bTheAustriaException = false;
-	if (GetPlayerTraits()->IsAbleToAnnexCityStates())
-	{
-		bTheAustriaException = true;
-	}
+	bool bTheVeniceException = GetPlayerTraits()->IsNoAnnexing();
+	bool bTheAustriaException = GetPlayerTraits()->IsAbleToAnnexCityStates();
 	
 	int iFlavorDiplo =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = max(1, ((iFlavorDiplo * 2) - 3));
 	int iNumMinors = GC.getGame().GetNumMinorCivsAlive();
-	if (iDesiredEmb > iNumMinors)
-	{
-		iDesiredEmb = iNumMinors;
-	}
 	int iEmbassies = GetImprovementLeagueVotes();
+	int iDesiredEmb = range(iFlavorDiplo*2 - 3, 1, iNumMinors);
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
-	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
-	if (pCity && !bTheAustriaException && !bTheVeniceException)
+	CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);
+	if (pPlot && !bTheAustriaException && !bTheVeniceException)
 	{
 		if ((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
@@ -1938,49 +1929,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	return NULL;
 }
 
-bool WantEmbassyAt(PlayerTypes ePlayer, CvCity* pCity)
-{
-	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
-
-	if(!pCity->isRevealed(kPlayer.getTeam(),false,true))
-		return false;
-
-	if (!kPlayer.GetDiplomacyAI()->IsHasMet(pCity->getOwner()))
-		return false;
-
-	if(atWar(kPlayer.getTeam(), kCityPlayer.getTeam()))
-		return false;
-
-	if (!pCity->isCapital())
-		return false;
-
-	//Danger
-	if(kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_HORDE) || 
-		kCityPlayer.GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_REBELLION) ||
-		kCityPlayer.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(ePlayer))
-		return false;
-
-	//Are we planning on conquering them?
-	if(kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
-		return false;
-
-	// Does somebody already have an embassy here?
-	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
-	// Iterate all plots owned by a city
-	ImprovementTypes eEmbassy = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
-	for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-	{
-		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if(pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
-			if(pCityPlot->getImprovementType() == eEmbassy)
-				return false;
-	}
-
-	return true;
-}
-
-CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
+CvPlot* CvPlayerAI::FindBestDiplomatTargetPlot(CvUnit* pUnit)
 {
 	if (!pUnit)
 		return NULL;
@@ -1990,7 +1939,6 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 	data.iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY;
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	set<PlayerTypes> badTargets;
-	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
 
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
@@ -2005,32 +1953,11 @@ CvCity* CvPlayerAI::FindBestDiplomatTargetCity(CvUnit* pUnit)
 			//we iterate by distance, so take the first one we find
 			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
 
-			bool bInvalid = false;
-			bool bCanPlaceEmbassy = false;
-			if (pCity != NULL)
-			{
-				for (int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
-				{
-					CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-					if (pCityPlot != NULL && pCityPlot->getOwner() == pCity->getOwner())
-					{
-						if (pCityPlot->IsImprovementEmbassy())
-							bInvalid = true;
-
-						if (pUnit->canBuild(pCityPlot,eEmbassy))
-							bCanPlaceEmbassy = true;
-					}
-				}
-			}
-
-			if (bInvalid || !bCanPlaceEmbassy)
-				continue;
-
-			if (WantEmbassyAt(GetID(), pCity))
-				return pCity;
-
-			badTargets.insert(pPlot->getOwner());
+			CvPlot* pBuildPlot = HomelandAIHelpers::GetPlotForEmbassy(pUnit, pCity);
+			if (pBuildPlot)
+				return pBuildPlot;
+			else
+				badTargets.insert(pPlot->getOwner());
 		}
 	}
 
@@ -2124,7 +2051,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		return 0;
 
 	//Return if we can't embark and they aren't on our landmass.
-	if (!pCity->HasAccessToArea(pUnit->getArea()) && !CanEmbark())
+	if (!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !CanEmbark())
 		return 0;
 
 	//are we at war with a player close to this CS? Don't go near here!
@@ -2453,7 +2380,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		iDistance *= 3;
 
 	//Let's downplay far/distant minors without full embarkation.
-	if(!pCity->HasAccessToArea(pUnit->getArea()) && !GET_PLAYER(GetID()).CanCrossOcean())
+	if(!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !GET_PLAYER(GetID()).CanCrossOcean())
 		iDistance *= 3;
 
 	//If this is way too far away, let's not penalize it too much.
@@ -2463,75 +2390,15 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	return max(1,iScore);
 }
 
-CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(CvUnit* pUnit)
-{
-	if(pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
-		return NULL;
-
-	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
-
-	if(pCity == NULL)
-		return NULL;
-
-	BuildTypes eEmbassy = (BuildTypes)GC.getInfoTypeForString("BUILD_EMBASSY");
-	int iBestDistance = MAX_INT;
-	CvPlot* pBestTarget = NULL;
-
-	// Find suitable adjacent plot
-	for(int iI = RING0_PLOTS; iI<RING2_PLOTS; iI++)
-	{
-		// Stay in ring 1 if there is a candidate
-		if (pBestTarget != NULL && iI >= RING1_PLOTS)
-			break;
-
-		CvPlot* pLoopPlot = iterateRingPlots(pCity->plot(), iI);
-		if (pLoopPlot == NULL)
-			continue;
-
-		if(pLoopPlot->isWater() || !pLoopPlot->isValidMovePlot(GetID(), true))
-			continue;
-
-		if(pLoopPlot->getResourceType() != NO_RESOURCE)
-			continue;
-
-		// Make sure this is still owned by target and is revealed to us
-		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
-		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
-		if(!bRightOwner || !bIsRevealed)
-			continue;
-
-		// Don't be captured but allow some fog danger
-		if (pUnit->GetDanger(pLoopPlot) > 10)
-			continue;
-
-		// Anything here that blocks us?
-		if (!pUnit->canBuild(pLoopPlot, eEmbassy))
-			continue;
-
-		int	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-		if(iDistance < iBestDistance)
-		{
-			iBestDistance = iDistance;
-			pBestTarget = pLoopPlot;
-		}
-	}
-
-	return pBestTarget;
-}
-
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities)
 {
 	//this function is used for diplomat influence spread as well (embassies go through ChooseDiplomatTargetPlot)
 	if(pUnit->AI_getUnitAIType() != UNITAI_MESSENGER && pUnit->AI_getUnitAIType() != UNITAI_DIPLOMAT)
-	{
 		return NULL;
-	}
 
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit, pvIgnoreCities ? *pvIgnoreCities : vector<int>());
 	if(pCity == NULL)
-	{
 		return NULL;
-	}
 
 	//remember this city
 	if (pvIgnoreCities)

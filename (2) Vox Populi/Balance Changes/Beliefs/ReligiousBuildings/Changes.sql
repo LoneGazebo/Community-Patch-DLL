@@ -84,11 +84,6 @@ INSERT INTO Building_WLTKDYieldMod
 VALUES
 	('BUILDING_SYNAGOGUE', 'YIELD_SCIENCE', 10);
 
-INSERT INTO Building_YieldModifiers
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_MANDIR', 'YIELD_FOOD', 10);
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
