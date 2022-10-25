@@ -19728,11 +19728,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					iYieldHandicap *= 3;
 					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->changeFood(iYieldForCities);
-							pLoopCity->changeProduction(iYieldForCities);
-						}
+						pLoopCity->changeFood(iYieldForCities);
 					}
 					GetTreasury()->ChangeGold(iYieldHandicap);
 					ChangeGoldenAgeProgressMeter(iYieldHandicap);
@@ -19747,7 +19743,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					{
 						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 					}
-					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: ERA - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: ERA - Received Handicap Bonus (%d in Yields): FOOD, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
 					break;
 				}
 				case HISTORIC_EVENT_WONDER:
@@ -19768,11 +19764,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->changeFood(iYieldForCities);
-							pLoopCity->changeProduction(iYieldForCities);
-						}
+						pLoopCity->changeFood(iYieldForCities);
 					}
 					GetTreasury()->ChangeGold(iYieldHandicap);
 					ChangeGoldenAgeProgressMeter(iYieldHandicap);
@@ -19787,18 +19779,14 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					{
 						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 					}
-					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: WAR - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: WAR - Received Handicap Bonus (%d in Yields): FOOD, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
 					break;
 				}
 				case HISTORIC_EVENT_GA:
 				{
 					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->changeFood(iYieldForCities);
-							pLoopCity->changeProduction(iYieldForCities);
-						}
+						pLoopCity->changeFood(iYieldForCities);
 					}
 					GetTreasury()->ChangeGold(iYieldHandicap);
 					changeJONSCulture(iYieldHandicap);
@@ -19812,7 +19800,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					{
 						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 					}
-					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, CULTURE, SCIENCE.", iYieldHandicap);
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus (%d in Yields): FOOD, GOLD, CULTURE, SCIENCE.", iYieldHandicap);
 					break;
 				}
 				case HISTORIC_EVENT_DIG:
@@ -19850,11 +19838,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 				{
 					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->changeFood(iYieldForCities);
-							pLoopCity->changeProduction(iYieldForCities);
-						}
+						pLoopCity->changeFood(iYieldForCities);
 					}
 					GetTreasury()->ChangeGold(iYieldHandicap);
 					ChangeGoldenAgeProgressMeter(iYieldHandicap);
@@ -19869,7 +19853,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					{
 						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldHandicap, GetID());
 					}
-					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CITY - Received Handicap Bonus (%d in Yields): FOOD, PRODUCTION, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
+					strLogString.Format("CBP AI DIFFICULTY BONUS FROM HISTORIC EVENT: FOUND CITY - Received Handicap Bonus (%d in Yields): FOOD, GOLD, GAP, CULTURE, SCIENCE.", iYieldHandicap);
 					break;
 				}
 			}
