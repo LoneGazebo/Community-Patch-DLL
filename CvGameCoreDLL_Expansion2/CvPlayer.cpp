@@ -30920,7 +30920,7 @@ int CvPlayer::GetDominationResistance(PlayerTypes ePlayer)
 	if (iResistance == 0)
 		return 0;
 
-	int iHandicapCap = max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap());
+	int iHandicapCap = GET_PLAYER(ePlayer).isHuman() ? std::max(0, GET_PLAYER(ePlayer).getHandicapInfo().getResistanceCap()) : std::max(0, GC.getGame().getHandicapInfo().getAIResistanceCap());
 
 	return min(iHandicapCap, iResistance/25);
 }

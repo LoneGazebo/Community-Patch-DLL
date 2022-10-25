@@ -214,6 +214,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAUL
 ALTER TABLE HandicapInfos ADD COLUMN 'AICivilianPercent' INTEGER DEFAULT 100; -- Discount on production cost for AI civilian units
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0; -- Extra sight for AI units.
 ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against this player (%)
+ALTER TABLE HandicapInfos ADD COLUMN 'AIResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against the AI at this difficulty level (%)
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0; -- Periodic instant yields bonus when AI players complete certain triggers. Yield Amount = Base * (A + (B * Game Era) + (C * Game Era * Game Era)) / 100
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;

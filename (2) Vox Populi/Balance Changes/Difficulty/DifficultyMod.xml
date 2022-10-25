@@ -67,10 +67,11 @@
 			<AICreatePercent>110</AICreatePercent>
 			<AIWorldConstructPercent>110</AIWorldConstructPercent>
 			<AIWorldCreatePercent>110</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>0</AIFreeXP>
 			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>110</AITrainPercent>
 			<AIConstructPercent>110</AIConstructPercent>
 			<AIPerEraModifier>0</AIPerEraModifier>
@@ -152,10 +153,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>5</AIFreeXP>
 			<AIFreeXPPercent>10</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>100</AITrainPercent>
 			<AIConstructPercent>100</AIConstructPercent>
 			<AIPerEraModifier>-2</AIPerEraModifier>
@@ -237,10 +239,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>10</AIFreeXP>
 			<AIFreeXPPercent>25</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>100</AITrainPercent>
 			<AIConstructPercent>100</AIConstructPercent>
 			<AIPerEraModifier>-4</AIPerEraModifier>
@@ -322,10 +325,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>15</AIFreeXP>
 			<AIFreeXPPercent>33</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>90</AITrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
 			<AIPerEraModifier>-6</AIPerEraModifier>
@@ -407,10 +411,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>90</AITrainPercent>
 			<AIConstructPercent>90</AIConstructPercent>
 			<AIPerEraModifier>-7</AIPerEraModifier>
@@ -492,10 +497,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>20</AIFreeXP>
 			<AIFreeXPPercent>66</AIFreeXPPercent>
 			<VisionBonus>0</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>80</AITrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
 			<AIPerEraModifier>-8</AIPerEraModifier>
@@ -577,10 +583,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>25</AIFreeXP>
 			<AIFreeXPPercent>75</AIFreeXPPercent>
 			<VisionBonus>1</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>80</AITrainPercent>
 			<AIConstructPercent>80</AIConstructPercent>
 			<AIPerEraModifier>-9</AIPerEraModifier>
@@ -662,10 +669,11 @@
 			<AICreatePercent>100</AICreatePercent>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIResistanceCap>50</AIResistanceCap>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
 			<VisionBonus>2</VisionBonus>
-			<!-- Per Era Bonuses -->	
+			<!-- Per Era Bonuses -->
 			<AITrainPercent>70</AITrainPercent>
 			<AIConstructPercent>70</AIConstructPercent>
 			<AIPerEraModifier>-10</AIPerEraModifier>
@@ -713,7 +721,6 @@
 			<ImprovementCostPercent>100</ImprovementCostPercent>
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
-			<ResistanceCap>50</ResistanceCap>
 			<!-- These values shouldn't be used, but just in case... -->
 			<AIDeclareWarProb>200</AIDeclareWarProb>
 			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
