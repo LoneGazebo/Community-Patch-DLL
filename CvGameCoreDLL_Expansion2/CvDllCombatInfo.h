@@ -12,7 +12,7 @@ class CvDllCombatInfo : public ICvCombatInfo1
 {
 public:
 	CvDllCombatInfo(_In_ CvCombatInfo* pCombatInfo);
-	~CvDllCombatInfo();
+	virtual ~CvDllCombatInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

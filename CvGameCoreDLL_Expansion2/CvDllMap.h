@@ -12,7 +12,7 @@ class CvDllMap : public ICvMap1
 {
 public:
 	CvDllMap(_In_ CvMap* pMap);
-	~CvDllMap();
+	virtual ~CvDllMap();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

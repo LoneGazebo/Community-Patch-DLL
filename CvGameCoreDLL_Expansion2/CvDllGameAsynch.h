@@ -12,7 +12,7 @@ class CvDllGameAsynch : public ICvGameAsynch1
 {
 public:
 	CvDllGameAsynch(CvGame* pGame);
-	~CvDllGameAsynch();
+	virtual ~CvDllGameAsynch();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

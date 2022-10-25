@@ -185,13 +185,13 @@ IDInfo CvDllCity::GetIDInfo() const
 //------------------------------------------------------------------------------
 bool CvDllCity::IsWorkingPlot(ICvPlot1* pPlot) const
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	return (NULL != pkPlot)? m_pCity->GetCityCitizens()->IsWorkingPlot(pkPlot) : false;
 }
 //------------------------------------------------------------------------------
 bool CvDllCity::CanWork(ICvPlot1* pPlot) const
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	return (NULL != pkPlot)? m_pCity->GetCityCitizens()->IsCanWork(pkPlot) : false;
 }
 //------------------------------------------------------------------------------

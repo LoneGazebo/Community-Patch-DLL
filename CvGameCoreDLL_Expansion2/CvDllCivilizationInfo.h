@@ -14,7 +14,7 @@ class CvDllCivilizationInfo : public ICvCivilizationInfo1
 {
 public:
 	CvDllCivilizationInfo(_In_ CvCivilizationInfo* pCivilizationInfo);
-	~CvDllCivilizationInfo();
+	virtual ~CvDllCivilizationInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

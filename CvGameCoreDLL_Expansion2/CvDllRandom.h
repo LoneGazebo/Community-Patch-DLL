@@ -12,7 +12,7 @@ class CvDllRandom : public ICvRandom1
 {
 public:
 	CvDllRandom(_In_ CvRandom* pRandom);
-	~CvDllRandom();
+	virtual ~CvDllRandom();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

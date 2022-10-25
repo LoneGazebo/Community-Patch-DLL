@@ -25,7 +25,7 @@ class CvBeliefEntry: public CvBaseInfo
 {
 public:
 	CvBeliefEntry(void);
-	~CvBeliefEntry(void);
+	virtual ~CvBeliefEntry(void);
 
 	int GetMinPopulation() const;
 	int GetMinFollowers() const;

@@ -11,7 +11,7 @@
 void  CvLoggerCSV::WriteCSVLog(const char* strLogName, const char* strHeader)
 	{
 
-		FILogFile *pLog;
+		FILogFile *pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
@@ -25,7 +25,7 @@ void  CvLoggerCSV::WriteCSVLog(const char* strLogName, const char* strHeader)
 	{
 		CvAssert(strLogName != NULL);
 
-		FILogFile *pLog;
+		FILogFile *pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 

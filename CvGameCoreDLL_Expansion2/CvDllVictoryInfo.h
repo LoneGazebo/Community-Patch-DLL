@@ -14,7 +14,7 @@ class CvDllVictoryInfo : public ICvVictoryInfo1
 {
 public:
 	CvDllVictoryInfo(_In_ CvVictoryInfo* pVictoryInfo);
-	~CvDllVictoryInfo();
+	virtual ~CvDllVictoryInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -13,7 +13,7 @@ class CvDllNetMessageHandler : public ICvNetMessageHandler3
 {
 public:
 	CvDllNetMessageHandler();
-	~CvDllNetMessageHandler();
+	virtual ~CvDllNetMessageHandler();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

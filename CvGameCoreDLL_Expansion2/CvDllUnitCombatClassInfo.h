@@ -14,7 +14,7 @@ class CvDllUnitCombatClassInfo : public ICvUnitCombatClassInfo1
 {
 public:
 	CvDllUnitCombatClassInfo(_In_ CvBaseInfo* pUnitCombatClassInfo);
-	~CvDllUnitCombatClassInfo();
+	virtual ~CvDllUnitCombatClassInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

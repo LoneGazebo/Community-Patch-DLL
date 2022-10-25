@@ -15,7 +15,7 @@ class CvDllBuildingInfo : public ICvBuildingInfo1
 {
 public:
 	CvDllBuildingInfo(_In_ CvBuildingEntry* pBuildingInfo);
-	~CvDllBuildingInfo();
+	virtual ~CvDllBuildingInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

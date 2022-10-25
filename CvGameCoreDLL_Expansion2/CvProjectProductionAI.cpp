@@ -76,7 +76,7 @@ void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
-	int iProject;
+	int iProject = 0;
 	CvProjectEntry* entry(NULL);
 
 	// Loop through all projects
@@ -104,9 +104,9 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 	if(!m_pCity)
 		return NO_PROJECT;
 
-	int iProjectLoop;
-	int iWeight;
-	int iTurnsLeft;
+	int iProjectLoop = 0;
+	int iWeight = 0;
+	int iTurnsLeft = 0;
 
 	// Reset list of all the possible projects
 	m_Buildables.clear();
@@ -377,7 +377,7 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
 		if(!pLog) return;

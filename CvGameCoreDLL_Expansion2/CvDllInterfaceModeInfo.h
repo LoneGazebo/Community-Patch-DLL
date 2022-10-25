@@ -14,7 +14,7 @@ class CvDllInterfaceModeInfo : public ICvInterfaceModeInfo1
 {
 public:
 	CvDllInterfaceModeInfo(_In_ CvInterfaceModeInfo* pInterfaceModeInfo);
-	~CvDllInterfaceModeInfo();
+	virtual ~CvDllInterfaceModeInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

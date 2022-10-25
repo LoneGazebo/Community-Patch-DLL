@@ -14,7 +14,7 @@ class CvDllTerrainInfo : public ICvTerrainInfo1
 {
 public:
 	CvDllTerrainInfo(_In_ CvTerrainInfo* pTerrainInfo);
-	~CvDllTerrainInfo();
+	virtual ~CvDllTerrainInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

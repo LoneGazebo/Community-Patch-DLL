@@ -13,7 +13,7 @@ class CvDllNetworkSyncronization : public ICvNetworkSyncronization1
 {
 public:
 	CvDllNetworkSyncronization();
-	~CvDllNetworkSyncronization();
+	virtual ~CvDllNetworkSyncronization();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

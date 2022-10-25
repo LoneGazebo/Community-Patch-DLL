@@ -29,7 +29,7 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 	//---------------------------------------------------------------------------------------------
 	// just return the closest suitable unit, no bookkeeping required
 	//---------------------------------------------------------------------------------------------
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	int iMinDist = INT_MAX;
 	CvUnit* pClosestUnit = NULL;
 	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iUnitLoop); pLoopUnit; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iUnitLoop))

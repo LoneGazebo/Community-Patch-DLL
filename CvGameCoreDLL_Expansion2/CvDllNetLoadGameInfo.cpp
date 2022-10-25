@@ -11,7 +11,7 @@
 #include "CvDllContext.h"
 
 CvDllNetLoadGameInfo::CvDllNetLoadGameInfo()
-	: m_uiRefCount(1)
+	: m_slotStatus(), m_uiRefCount(1)
 {
 	m_slotStatus = CvPreGame::GetSlotStatus();
 }

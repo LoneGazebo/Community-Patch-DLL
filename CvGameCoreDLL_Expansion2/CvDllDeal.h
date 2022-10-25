@@ -12,7 +12,7 @@ class CvDllDeal : public ICvDeal1
 {
 public:
 	CvDllDeal(_In_ CvDeal* pDeal);
-	~CvDllDeal();
+	virtual ~CvDllDeal();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

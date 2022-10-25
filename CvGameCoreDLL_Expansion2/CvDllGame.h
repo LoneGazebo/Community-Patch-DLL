@@ -12,7 +12,7 @@ class CvDllGame : public ICvGame2
 {
 public:
 	CvDllGame(CvGame* pGame);
-	~CvDllGame();
+	virtual ~CvDllGame();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

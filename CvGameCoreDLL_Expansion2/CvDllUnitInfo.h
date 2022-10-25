@@ -12,7 +12,7 @@ class CvDllUnitInfo : public ICvUnitInfo1
 {
 public:
 	CvDllUnitInfo(_In_ CvUnitEntry* pUnitInfo);
-	~CvDllUnitInfo();
+	virtual ~CvDllUnitInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

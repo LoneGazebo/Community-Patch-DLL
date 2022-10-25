@@ -69,7 +69,7 @@ bool CvMapGenerator::GetMapInitData(CvMapInitData& kData, WorldSizeTypes eWorldS
 	kData.m_iGridH = kWorldInfo.getGridHeight();
 	kData.m_iGridW = kWorldInfo.getGridWidth();
 
-	GetMapInitDataArgs args;
+	GetMapInitDataArgs args = {};
 	args.pkScriptSystem = pkScriptSystem;
 	args.pkMapInitData = &kData;
 	args.WorldSize = kWorldInfo.GetID();
@@ -92,7 +92,7 @@ bool CvMapGenerator::GetGameInitialItemsOverrides(CvGameInitialItemsOverrides& k
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 
-	GetGameInitialItemsOverridesArgs args;
+	GetGameInitialItemsOverridesArgs args = {};
 	args.pkScriptSystem = pkScriptSystem;
 	args.pkOverrides = &kOverrides;
 	args.bSuccess = false;

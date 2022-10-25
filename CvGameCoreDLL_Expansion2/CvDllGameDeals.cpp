@@ -80,7 +80,7 @@ CvGameDeals* CvDllGameDeals::GetInstance()
 //------------------------------------------------------------------------------
 void CvDllGameDeals::AddProposedDeal(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	if(pkDeal != NULL)
 	{
 		m_pGameDeals->AddProposedDeal(*pkDeal);
@@ -110,7 +110,7 @@ ICvDeal1* CvDllGameDeals::GetTempDeal()
 //------------------------------------------------------------------------------
 void CvDllGameDeals::SetTempDeal(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	m_pGameDeals->SetTempDeal(pkDeal);
 }
 //------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eTo
 ICvDeal1* CvDllGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 #if defined(MOD_ACTIVE_DIPLOMACY)
-	CvDeal* pDeal;
+	CvDeal* pDeal = NULL;
 	if((!GET_PLAYER(eFromPlayer).isHuman() || !GET_PLAYER(eToPlayer).isHuman()) && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 	{
 		pDeal = m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false);

@@ -15,7 +15,7 @@ class CvDllDiplomacyAI : public ICvDiplomacyAI1
 {
 public:
 	CvDllDiplomacyAI(_In_ CvDiplomacyAI* pDiplomacyAI);
-	~CvDllDiplomacyAI();
+	virtual ~CvDllDiplomacyAI();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

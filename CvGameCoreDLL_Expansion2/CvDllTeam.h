@@ -12,7 +12,7 @@ class CvDllTeam : public ICvTeam1
 {
 public:
 	CvDllTeam(_In_ CvTeam* pTeam);
-	~CvDllTeam();
+	virtual ~CvDllTeam();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

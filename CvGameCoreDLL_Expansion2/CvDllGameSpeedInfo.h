@@ -14,7 +14,7 @@ class CvDllGameSpeedInfo : public ICvGameSpeedInfo1
 {
 public:
 	CvDllGameSpeedInfo(_In_ CvGameSpeedInfo* pGameSpeedInfo);
-	~CvDllGameSpeedInfo();
+	virtual ~CvDllGameSpeedInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -35,7 +35,7 @@ bool CvAchievementInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 	return true;
 }
 
-CvAchievementXMLEntries::CvAchievementXMLEntries(void)
+CvAchievementXMLEntries::CvAchievementXMLEntries(void) : m_paAchievementEntries()
 {
 
 }

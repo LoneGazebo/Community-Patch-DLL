@@ -19,7 +19,7 @@
 
 #define NUM_COUNSEL_SLOTS 50
 
-CvAdvisorCounsel::CvAdvisorCounsel(void)
+CvAdvisorCounsel::CvAdvisorCounsel(void) : m_aCounsel()
 {
 	Init();
 }
@@ -83,7 +83,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	if(GET_PLAYER(ePlayer).getNumCities() == 0)
 	{
-		bool bSuccess;
+		bool bSuccess = false;
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_ECONOMIC");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 99);
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
@@ -163,9 +163,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	}
 
 	// go through city strategies
-	int iLoop;
-	CvCity* pLoopCity;
-	CvCityStrategyAI* pCityStrategyAI;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
+	CvCityStrategyAI* pCityStrategyAI = NULL;
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		pCityStrategyAI = pLoopCity->GetCityStrategyAI();
@@ -1380,8 +1380,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				PlayerTypes eCheckPlayer = (PlayerTypes)ui2;
 
-				int iCityIndex;
-				CvCity* pCapCity;
+				int iCityIndex = 0;
+				CvCity* pCapCity = NULL;
 				for(pCapCity = GET_PLAYER(eCheckPlayer).firstCity(&iCityIndex); pCapCity != NULL; pCapCity = GET_PLAYER(eCheckPlayer).nextCity(&iCityIndex))
 				{
 					if(pCapCity->getOriginalOwner() == eMinorPlayer)

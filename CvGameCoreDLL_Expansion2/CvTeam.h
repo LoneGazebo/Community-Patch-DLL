@@ -25,7 +25,7 @@ private:
 
 public:
 	CvTeam();
-	~CvTeam();
+	virtual ~CvTeam();
 
 	// inlined for performance reasons, only in the dll
 	static CvTeam& getTeam(TeamTypes eTeam);

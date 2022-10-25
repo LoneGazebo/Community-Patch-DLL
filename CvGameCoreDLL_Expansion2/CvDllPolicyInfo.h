@@ -14,7 +14,7 @@ class CvDllPolicyInfo : public ICvPolicyInfo1
 {
 public:
 	CvDllPolicyInfo(_In_ CvPolicyEntry* pPolicyInfo);
-	~CvDllPolicyInfo();
+	virtual ~CvDllPolicyInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

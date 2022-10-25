@@ -14,7 +14,7 @@ class CvDllResourceInfo : public ICvResourceInfo1
 {
 public:
 	CvDllResourceInfo(_In_ CvResourceInfo* pResourceInfo);
-	~CvDllResourceInfo();
+	virtual ~CvDllResourceInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

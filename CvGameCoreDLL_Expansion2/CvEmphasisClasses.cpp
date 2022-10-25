@@ -65,7 +65,7 @@ int CvEmphasisEntry::GetYieldChange(int i) const
 // CvEmphasisXMLEntries
 //=====================================
 /// Constructor
-CvEmphasisXMLEntries::CvEmphasisXMLEntries(void)
+CvEmphasisXMLEntries::CvEmphasisXMLEntries(void) : m_paEmphasisEntries()
 {
 
 }
@@ -113,7 +113,7 @@ CvEmphasisEntry* CvEmphasisXMLEntries::GetEntry(int index)
 // CvCityEmphases
 //=====================================
 /// Constructor
-CvCityEmphases::CvCityEmphases()
+CvCityEmphases::CvCityEmphases() : m_iEmphasizeAvoidGrowthCount(), m_iEmphasizeGreatPeopleCount(), m_aiEmphasizeYieldCount(), m_pbEmphasize(), m_pCity()
 {
 }
 
