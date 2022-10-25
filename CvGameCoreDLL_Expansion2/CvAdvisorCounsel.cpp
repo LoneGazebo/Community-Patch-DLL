@@ -83,7 +83,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	if(GET_PLAYER(ePlayer).getNumCities() == 0)
 	{
-		bool bSuccess = 0;
+		bool bSuccess = false;
 		strLoc = Localization::Lookup("TXT_KEY_BUILD_A_CITY_MCFLY_ECONOMIC");
 		bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 99);
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");

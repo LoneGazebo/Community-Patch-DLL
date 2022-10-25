@@ -120,7 +120,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 int CustomMods::eventHook(const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if (pkScriptSystem) {
-		bool bResult = 0;
+		bool bResult = false;
 		if (LuaSupport::CallHook(pkScriptSystem, szName, args.get(), bResult)) {
 			return GAMEEVENTRETURN_HOOK;
 		}

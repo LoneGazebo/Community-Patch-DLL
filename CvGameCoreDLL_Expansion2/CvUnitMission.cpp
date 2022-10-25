@@ -1342,9 +1342,9 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 /// Initiate a mission
 void CvUnitMission::StartMission(CvUnit* hUnit)
 {
-	bool bDelete = 0;
-	bool bAction = 0;
-	bool bNotify = 0;
+	bool bDelete = false;
+	bool bAction = false;
+	bool bNotify = false;
 
 	static int stackDepth = 0;
 	++stackDepth; // JAR debugging
