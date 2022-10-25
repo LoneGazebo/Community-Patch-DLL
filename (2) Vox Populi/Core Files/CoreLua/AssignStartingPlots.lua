@@ -5872,6 +5872,15 @@ function AssignStartingPlots:CanBeThisNaturalWonderType(x, y, wn, rn)
 	-- Checks a candidate plot for eligibility to host the supplied wonder type.
 	-- "rn" = the row number for this wonder type within the xml Placement data table.
 	local plot = Map.GetPlot(x, y);
+
+	-- Check whether adjacent plots are valid
+	for loop, direction in ipairs(self.direction_types) do
+		local adjPlot = Map.PlotDirection(x, y, direction);
+		if adjPlot == nil then
+			return
+		end
+	end
+
 	-- Use Custom Eligibility method if indicated.
 	if self.EligibilityMethodNumber[wn] ~= -1 then
 		local method_number = self.EligibilityMethodNumber[wn];
@@ -7021,6 +7030,11 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 	end
 
 	if plot:IsWater() or plot:IsMountain() then
+		return false
+	end
+
+	-- Must not be on map borders
+	if (not Map:IsWrapX() and (x < 1 or x >= iW - 1)) or (not Map:IsWrapY() and (y < 1 or y >= iH - 1)) then
 		return false
 	end
 
