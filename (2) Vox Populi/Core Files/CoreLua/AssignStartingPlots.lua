@@ -5829,7 +5829,18 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	if self.impactData[ImpactLayers.LAYER_NATURAL_WONDER][plotIndex] > 0 then
 		return false, false;
 	end
-	
+
+	-- Must have land in workable range
+	local hasLand = false;
+	for nearPlot in self:Plot_GetPlotsInCircle(plot, 1, 3) do
+		if nearPlot:GetPlotType() == PlotTypes.PLOT_LAND then
+			hasLand = true;
+		end
+	end
+	if not hasLand then
+		return false, false;
+	end
+
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
 	local fertility = self:Plot_GetFertilityInRange(plot, 3);
