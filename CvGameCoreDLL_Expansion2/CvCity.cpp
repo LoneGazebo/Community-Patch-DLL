@@ -11427,7 +11427,7 @@ int CvCity::getProductionNeeded() const
 int CvCity::getProductionNeeded(UnitTypes eUnit) const
 {
 	VALIDATE_OBJECT
-	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit);
+	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eUnit, false);
 
 	if (eUnit != NO_UNIT)
 	{

@@ -2321,7 +2321,7 @@ int CvLuaPlayer::lGetUnitProductionNeeded(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const UnitTypes iIndex = (UnitTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->getProductionNeeded(iIndex);
+	const int iResult = pkPlayer->getProductionNeeded(iIndex, false);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

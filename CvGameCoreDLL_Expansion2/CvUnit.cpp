@@ -14781,13 +14781,13 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	int iProductionBase = kPlayer.getProductionNeeded(getUnitType());
+	int iProductionBase = kPlayer.getProductionNeeded(getUnitType(), MOD_BALANCE_CORE_DIFFICULTY);
 	if (iProductionBase == 0)
 	{
-		iProductionBase = kPlayer.getProductionNeeded(eUnit) / 2;
+		iProductionBase = kPlayer.getProductionNeeded(eUnit, MOD_BALANCE_CORE_DIFFICULTY) / 2;
 	}
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, MOD_BALANCE_CORE_DIFFICULTY) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
@@ -14802,14 +14802,17 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iPrice = int(iPrice * fMultiplier);
 	}
 
-	if(!isHuman() && !isBarbarian())
+	if (!isHuman() && !isBarbarian())
 	{
 		iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
 		iPrice /= 100;
 
-		iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GET_TEAM(getTeam()).GetCurrentEra()) + 100));
 		// This applies the Per Era discount twice since it is already applied once in the getProductionNeeded() call
-		iPrice /= 100;
+		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		{
+			iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GET_TEAM(getTeam()).GetCurrentEra()) + 100));
+			iPrice /= 100;
+		}
 	}
 
 	// Discount

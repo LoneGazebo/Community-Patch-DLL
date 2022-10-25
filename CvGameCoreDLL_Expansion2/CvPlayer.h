@@ -338,7 +338,7 @@ public:
 	bool isProductionMaxedUnitClass(UnitClassTypes eUnitClass) const;
 	bool isProductionMaxedBuildingClass(BuildingClassTypes eBuildingClass, bool bAcquireCity = false) const;
 	bool isProductionMaxedProject(ProjectTypes eProject) const;
-	int getProductionNeeded(UnitTypes eUnit) const;
+	int getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const;
 	int getProductionNeeded(BuildingTypes eBuilding) const;
 	int getProductionNeeded(ProjectTypes eProject) const;
 	int getProductionNeeded(SpecialistTypes eSpecialist) const;

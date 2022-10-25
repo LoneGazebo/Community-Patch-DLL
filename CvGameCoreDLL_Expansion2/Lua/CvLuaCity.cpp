@@ -1937,7 +1937,7 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 	if(pkCity->IsUnitInvestment(eUnitClass))
 	{
-		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType);
+		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType, false);
 		iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
 		iResult *= (iTotalDiscount + 100);
 		iResult /= 100;

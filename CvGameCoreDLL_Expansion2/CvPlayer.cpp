@@ -16082,7 +16082,7 @@ bool CvPlayer::isProductionMaxedProject(ProjectTypes eProject) const
 
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
+int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 {
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 
@@ -16144,7 +16144,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit) const
 	iProductionNeeded /= 100;
 #endif
 
-	if (!isBarbarian())
+	if (!bIgnoreDifficulty && !isBarbarian())
 	{
 		if (isHuman())
 		{
@@ -42637,7 +42637,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 		return -1;
 	}
 
-	int iCost = (getProductionNeeded(eUnit) * pkUnitInfo->GetAdvancedStartCost()) / 100;
+	int iCost = (getProductionNeeded(eUnit, false) * pkUnitInfo->GetAdvancedStartCost()) / 100;
 	if(iCost < 0)
 	{
 		return -1;
