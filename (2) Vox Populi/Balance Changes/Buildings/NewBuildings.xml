@@ -287,8 +287,8 @@
 			<GreatWorkCount>1</GreatWorkCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<NukeImmune>true</NukeImmune>
-			<GoldenAgeModifier>25</GoldenAgeModifier>
-			<CitySupplyFlat>4</CitySupplyFlat>
+			<CityWorkingChange>1</CityWorkingChange>
+			<CitySupplyFlat>0</CitySupplyFlat>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -323,10 +323,11 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<Defense>300</Defense>
+			<Defense>200</Defense>
 			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<CitySupplyModifier>20</CitySupplyModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -803,8 +804,8 @@
 		<Row>
 			<Type>BUILDING_HERBALIST</Type>
 			<BuildingClass>BUILDINGCLASS_HERBALIST</BuildingClass>
-			<Cost>110</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<Cost>65</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<Description>TXT_KEY_BUILDING_HERBALIST</Description>

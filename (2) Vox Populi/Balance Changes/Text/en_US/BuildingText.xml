@@ -312,7 +312,7 @@
 			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
-			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle and Forest tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
+			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle, Forest, and Marsh tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
 			<Text>The Well can only be constructed in a city not on a river. The Well increases the city's Production based on the city's population, but less efficiently than the Water Mill.</Text>
@@ -348,7 +348,7 @@
 			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
-			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Plantations.</Text>
+			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Marshes and Plantations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
 			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Can only be built in a City next to fresh water.</Text>
