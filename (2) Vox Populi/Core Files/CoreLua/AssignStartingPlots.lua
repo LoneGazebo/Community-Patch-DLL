@@ -5829,7 +5829,18 @@ function AssignStartingPlots:ExaminePlotForNaturalWondersEligibility(x, y)
 	if self.impactData[ImpactLayers.LAYER_NATURAL_WONDER][plotIndex] > 0 then
 		return false, false;
 	end
-	
+
+	-- Must have land in workable range
+	local hasLand = false;
+	for nearPlot in self:Plot_GetPlotsInCircle(plot, 1, 3) do
+		if nearPlot:GetPlotType() == PlotTypes.PLOT_LAND then
+			hasLand = true;
+		end
+	end
+	if not hasLand then
+		return false, false;
+	end
+
 	-- Check the location is a decent city site, otherwise the wonderID is pointless
 	local plot = Map.GetPlot(x, y);
 	local fertility = self:Plot_GetFertilityInRange(plot, 3);
@@ -5872,6 +5883,15 @@ function AssignStartingPlots:CanBeThisNaturalWonderType(x, y, wn, rn)
 	-- Checks a candidate plot for eligibility to host the supplied wonder type.
 	-- "rn" = the row number for this wonder type within the xml Placement data table.
 	local plot = Map.GetPlot(x, y);
+
+	-- Check whether adjacent plots are valid
+	for loop, direction in ipairs(self.direction_types) do
+		local adjPlot = Map.PlotDirection(x, y, direction);
+		if adjPlot == nil then
+			return
+		end
+	end
+
 	-- Use Custom Eligibility method if indicated.
 	if self.EligibilityMethodNumber[wn] ~= -1 then
 		local method_number = self.EligibilityMethodNumber[wn];
@@ -7021,6 +7041,11 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 	end
 
 	if plot:IsWater() or plot:IsMountain() then
+		return false
+	end
+
+	-- Must not be on map borders
+	if (not Map:IsWrapX() and (x < 1 or x >= iW - 1)) or (not Map:IsWrapY() and (y < 1 or y >= iH - 1)) then
 		return false
 	end
 
@@ -11004,12 +11029,12 @@ end
 function AssignStartingPlots:GetMajorStrategicResourceQuantityValues()
 	-- This function determines quantity per tile for each strategic resource's major deposit size.
 	-- Note: scripts that cannot place Oil in the sea need to increase amounts on land to compensate.
-	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 2, 3, 6, 3, 4, 7;
+	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 2, 3, 5, 3, 4, 7;
 	-- Check the strategic deposit size setting.
 	if self.resSize == 1 then -- Small
 		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 2, 2, 3, 2, 2, 3;
 	elseif self.resSize == 3 then -- Large
-		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 4, 6, 9, 6, 7, 10;
+		uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = 4, 6, 8, 6, 7, 10;
 	end
 
 	if self:IsReducedSupplyActive() then

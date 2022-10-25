@@ -37,6 +37,9 @@ function NWCustomEligibility(x, y, method_number)
 			DirectionTypes.DIRECTION_SOUTHEAST,
 			DirectionTypes.DIRECTION_SOUTHWEST};
 		local SEPlot = Map.PlotDirection(x, y, DirectionTypes.DIRECTION_SOUTHEAST)
+		if SEPlot == nil then
+			return false
+		end
 		local southeastX = SEPlot:GetX();
 		local southeastY = SEPlot:GetY();
 		for loop, direction in ipairs(extra_direction_types) do -- The three plots extending another plot past the SE plot.
