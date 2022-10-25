@@ -84,38 +84,37 @@ UPDATE Language_en_US
 SET Text = 'If they have [COLOR_POSITIVE_TEXT]two[ENDCOLOR] Tier 3 Tenets of an Ideology, and their population is Content, an unmet civilization only needs their culture to become Influential with 2 more civilizations to construct the Citizen Earth Protocol and win a Culture Victory.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_UNMET_TT';
 
--- Difficulty Names
-
+-- Difficulty Level Tooltips
 UPDATE Language_en_US
-SET Text = 'Easy. The AI is at a slight disadvantage.'
+SET Text = 'Beginner. The AI is at a significant disadvantage.'
 WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A standard challenge. The AI receives a few bonuses.'
+SET Text = 'Easy. The AI is at a slight disadvantage.'
 WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A little challenging. The AI receives noticeable bonuses.'
+SET Text = 'Normal. The AI is on equal footing with human players.'
 WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A good test of skill. The AI has many advantages.'
+SET Text = 'Intermediate. The AI has noticeable bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Quite hard. The AI has major bonuses.'
+SET Text = 'Hard. The AI has substantial bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Very difficult. The AI has substantial bonuses.'
+SET Text = 'Expert. The AI has large bonuses.'
 WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Extremely challenging. AI players have very large advantages.'
+SET Text = 'The AI has massive bonuses at all stages of the game. You have been warned!'
 WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The AI has massive bonuses at all stages of the game. You have been warned!'
+SET Text = 'Only the best players in the world will beat this level.'
 WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';
 
 -- Top Panel Tooltip Adjustment (make generic for more than just founder beliefs)
@@ -541,17 +540,17 @@ WHERE Type = 'CONCEPT_HAPPINESS_CAUSES_UNHAPPINESS';
 
 UPDATE Language_en_US
 SET Text = 'The Unhappiness a city produces is no longer equal to the number of citizens in it, although population still strongly affects Unhappiness. Unhappiness in Vox Populi is caused by several sources, each of them contributing to the total Unhappiness a city has. A detailed overview of the sources of Unhappiness in a city can be seen by hovering over the "[ICON_HAPPINESS_3] Unhappiness" tab in the City Screen. The total amount of Unhappiness in a city cannot exceed the city''s population, no matter how much Unhappiness is generated from the different sources. The only exception to this is Unhappiness from Urbanization, which always applies, even if it puts the total Unhappiness of your city above its population. The possible sources of Unhappiness are the following: [NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Unhappiness from Needs[ENDCOLOR]: Often, most of the Unhappiness in a city is caused by various Needs. A Need arises in a city if its output of a certain yield per citizen (like gold per citizen, science per citizen, etc.) is lower than the respective Needs Threshold, a reference value which is calculated based on the yields in other cities worldwide. The lower the city''s yield output per citizen is, the higher the generated Unhappiness will be. It is therefore necessary to keep yields in your cities increasing, as your population will become more and more demanding over time due to the stronger competition (other cities grow as well, increasing the Needs Thresholds). Avoiding population growth can help in keeping Unhappiness from Needs manageable, and certain Building and Policies reduce Unhappiness from Needs by a fixed amount. There are four types of Unhappiness from Needs, each one based on a different yield type:[NEWLINE]
+[COLOR_NEGATIVE_TEXT]Distress[ENDCOLOR]: Distress is based on the sum of your [ICON_FOOD] food and [ICON_PRODUCTION] production yields. Internal trade-routes can be used to increase a city''s food or production output, and thus counter Distress.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]Poverty[ENDCOLOR]: Poverty is based on the [ICON_GOLD] gold yields of a city. To counteract Poverty, increase the city''s gold output, for example by working tiles that provide gold or by constructing buildings like the Market. International trade-routes give their gold to their city of origin, so sending trade-routes from impoverished cities can also help counter Poverty.[NEWLINE]
-[COLOR_NEGATIVE_TEXT]Distress[ENDCOLOR]: Distress is based on the average of your [ICON_FOOD] food and [ICON_PRODUCTION] production yields. Large cities that consume most of their food may have difficulty in counteracting Distress. Internal trade-routes can be used to increase a city''s food or production output, and thus counter Distress.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]Illiteracy[ENDCOLOR]: Illiteracy is based on the [ICON_RESEARCH] science yields of a city. Constructing science buildings or establishing trade routes to much-advanced civilization can help reduce Illiteracy.[NEWLINE]
-[COLOR_NEGATIVE_TEXT]Boredom[ENDCOLOR]: Boredom is based on the [ICON_CULTURE] culture yields of a city. Boredom is especially important, as other civilizations get a tourism bonus toward you if you have high levels of Boredom. Buildings providing culture per turn and trade routes to more cultured civilizations can counteract Boredom. Great works can also be moved to bored cities to increase their culture output.
+[COLOR_NEGATIVE_TEXT]Boredom[ENDCOLOR]: Boredom is based on the [ICON_CULTURE] culture yields of a city. Boredom is especially concerning, as other civilizations get a tourism bonus toward you if you have high levels of Boredom. Buildings providing culture per turn and trade routes to more cultured civilizations can counteract Boredom. Great works can also be moved to bored cities to increase their culture output.
 
 
 [NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Other sources of Unhappiness[ENDCOLOR]: In addition to Unhappiness from Needs, there are also some other sources of Unhappiness that can affect a city.[NEWLINE]
-[COLOR_NEGATIVE_TEXT]Starvation[ENDCOLOR]: If a city''s food output is below zero, it gains 1 Unhappiness for each food it loses per turn. Thus, a starving city can increase Unhappiness tremendously. This often happens when enemy units start pillaging and blocking yields from being worked causing mass starvation.[NEWLINE]
+[COLOR_NEGATIVE_TEXT]Famine[ENDCOLOR]: If a city''s food output is below zero, it gains 1 Unhappiness for each food it loses per turn. Thus, a starving city can increase Unhappiness tremendously. This often happens when enemy units start pillaging and blocking tiles from being worked, causing mass starvation.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]Pillaged Tiles[ENDCOLOR]: A city gains 1 Unhappiness for every two pillaged tiles in its vicinity. People don''t like seeing their houses burning and will start generating Unhappiness until you do something about it.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]Isolation[ENDCOLOR]: An isolated city produces 1 Unhappiness for every 3 Citizens. A city is isolated if it lacks a connection to the capital, either through a road/lighthouse, or through a trade-route. Note that Isolation can occur if a road or lighthouse connection is broken because of a military blockade. Trade-routes are not directly affected by blockades, but may be pillaged by the enemy units if not protected.[NEWLINE]
-[COLOR_NEGATIVE_TEXT]Religious Tension[ENDCOLOR]: Religious Tension is produced by religious diversity in a city. If a city has a majority religion, Unhappiness is generated if too many citizens don''t follow the majority religion. This can be reduced by using Missionaries or Inquisitors to remove religious minorities.[NEWLINE]
+[COLOR_NEGATIVE_TEXT]Religious Unrest[ENDCOLOR]: Religious Unrest is produced by religious diversity in a city. If a city has a majority religion, Unhappiness is generated if too many citizens don''t follow the majority religion. This can be reduced by using Missionaries or Inquisitors to remove religious minorities.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]Urbanization[ENDCOLOR]: Each Specialist in the city produces 1 Unhappiness, representing the effects of people living in large cities such as pollution and a high population density. Unlike the other sources of Unhappiness, Unhappiness from Urbanization is always added to the total Unhappiness a city has, even if this puts the total Unhappiness of a city above its population.[NEWLINE]
 [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]: If you are in a prolonged conflict or suffer high losses in war, your citizens will be unhappy due to War Weariness. War Weariness develops in every city and can significantly increase the empire''s total unhappiness. For more details on War Weariness, see the corresponding entry in the Combat Rules Section.'
 WHERE Tag = 'TXT_KEY_HAPPINESS_CAUSESUNHAPPINESS_HEADING2_BODY';
