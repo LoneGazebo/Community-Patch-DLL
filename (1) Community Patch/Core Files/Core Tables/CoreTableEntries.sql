@@ -73,131 +73,6 @@ DROP TABLE Leader_MinorCivApproachBiases;
 ALTER TABLE Leader_MinorCivApproachBiases_NEW RENAME TO Leader_MinorCivApproachBiases;
 
 
--- IF the Community Balance Overhaul is enabled, this code will override all custom civs' non-diplomacy flavors (if they're loaded afterwards)!
--- To use the non-diplomacy flavors (Expansion, Offense, Religion, etc.) specified by the custom civ's XML instead, comment it out.
-CREATE TRIGGER Leaders_Personality
-AFTER INSERT ON Leaders
-WHEN EXISTS ( SELECT Type FROM Leaders WHERE Type = NEW.Type )
-BEGIN
-
-UPDATE Leaders SET Personality = 'PERSONALITY_CONQUEROR' WHERE Type = NEW.Type;
-
-UPDATE Leaders SET Personality=CASE
-WHEN (DoFWillingness >= 7 OR Loyalty >= 7) THEN 'PERSONALITY_COALITION'
-WHEN (DiploBalance >= 7 OR MinorCivCompetitiveness >= 7) THEN 'PERSONALITY_DIPLOMAT'
-WHEN (Loyalty <= 3 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST'
-ELSE Personality END
-WHERE Type = NEW.Type;
-
-END;
--- End override section
-
-
--- Sets default victory pursuits for all the default Civ V leaders.
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_AHMAD_ALMANSUR'; -- Morocco
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_AHMAD_ALMANSUR';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_ALEXANDER'; -- Greece
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ALEXANDER';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ASHURBANIPAL'; -- Assyria
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_ASHURBANIPAL';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ASKIA'; -- Songhai
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ATTILA'; -- The Huns
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_AUGUSTUS'; -- Rome
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_BISMARCK'; -- Germany
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_BISMARCK';
-
--- Omitted The Celts (bonuses are too general)
-
--- Omitted Poland (bonuses are too general)
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_CATHERINE'; -- Russia
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_CATHERINE';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_DARIUS'; -- Persia
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_DARIUS';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_DIDO'; -- Carthage
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_DIDO';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ELIZABETH'; -- England
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_ELIZABETH';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_ENRICO_DANDOLO'; -- Venice
-
--- Omitted Indonesia (bonuses are too general)
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_GANDHI'; -- India
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_GANDHI';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_GENGHIS_KHAN'; -- Mongolia
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS'; -- Sweden
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_SELASSIE'; -- Ethiopia
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_HARALD'; -- Denmark
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_HARUN_AL_RASHID'; -- Arabia
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_HARUN_AL_RASHID';
-
--- Omitted The Iroquois (bonuses are too general)
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ISABELLA'; -- Spain
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_ISABELLA';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_KAMEHAMEHA'; -- Polynesia
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_MARIA_I'; -- Portugal
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_MARIA'; -- Austria
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_MONTEZUMA'; -- The Aztecs
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_MONTEZUMA';
-
--- Omitted France (bonuses are too general)
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_NEBUCHADNEZZAR'; -- Babylon
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_ODA_NOBUNAGA'; -- Japan
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACAL'; -- Maya
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACHACUTI'; -- The Inca
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_PACHACUTI';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_PEDRO'; -- Brazil
-
--- Omitted The Shoshone (bonuses are too general)
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_RAMESSES'; -- Egypt
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_RAMKHAMHAENG'; -- Siam
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_SEJONG'; -- Korea
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_SHAKA'; -- The Zulus
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_SULEIMAN'; -- The Ottomans
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_THEODORA'; -- Byzantium
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_THEODORA';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_WASHINGTON'; -- America
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_WASHINGTON';
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_WILLIAM'; -- The Netherlands
-
-UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DOMINATION' WHERE Type = 'LEADER_WU_ZETIAN'; -- China
-UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_WU_ZETIAN';
-
-
-
 -- Unified Yields Stuff
 ALTER TABLE Yields ADD ColorString TEXT DEFAULT '[COLOR_WHITE]';
 
@@ -336,6 +211,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0; -- Bonus Warriors at game start (City-States)
 ALTER TABLE HandicapInfos ADD COLUMN 'BeliefNumOptionsConsidered' INTEGER DEFAULT 90; -- % cutoff threshold when scoring beliefs (AI will randomly choose from options with x% of the top score)
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAULT 0; -- % increase to AI perception of human military strength.
+ALTER TABLE HandicapInfos ADD COLUMN 'AICivilianPercent' INTEGER DEFAULT 100; -- Discount on production cost for AI civilian units
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0; -- Extra sight for AI units.
 ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against this player (%)
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0; -- Periodic instant yields bonus when AI players complete certain triggers. Yield Amount = Base * (A + (B * Game Era) + (C * Game Era * Game Era)) / 100

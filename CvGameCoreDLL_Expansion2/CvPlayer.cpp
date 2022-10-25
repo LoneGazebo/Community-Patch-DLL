@@ -16172,7 +16172,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, bool bIgnoreDifficulty) const
 				iProductionNeeded *= std::max(0, GC.getGame().getHandicapInfo().getAIPerEraModifier() * GC.getGame().getCurrentEra() + 100);
 				iProductionNeeded /= 100;
 			}
-			else if (MOD_ALTERNATIVE_DIFFICULTY)
+			else
 			{
 				iProductionNeeded *= GC.getGame().getHandicapInfo().getAICivilianPercent();
 				iProductionNeeded /= 100;
