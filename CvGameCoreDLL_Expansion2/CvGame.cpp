@@ -13881,6 +13881,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		eEraWeights.push_back(i,iWeight);
 		iMaxEraWeight += iWeight;
 	}
+	eEraWeights.SortItems();
 
 	RandomNumberDelegate fcn;
 	fcn = MakeDelegate(this, &CvGame::getJonRandNum);
@@ -13924,7 +13925,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			{
 				if(pPlot->GetArchaeologicalRecord().m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
 				{
-					// pick an era before this one			
+					// pick an era before this one
 					EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(&fcn, "Choosing an era by weight"));
 					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 

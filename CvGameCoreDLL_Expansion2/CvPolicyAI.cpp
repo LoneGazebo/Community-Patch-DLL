@@ -232,33 +232,22 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	m_AdoptablePolicies.SortItems();
 	LogPossiblePolicies();
 
-	// If total weight is above 0, choose one above a threshold
-	if(m_AdoptablePolicies.GetTotalWeight() > 0)
+	// Make our policy choice from the top choices
+	if (m_AdoptablePolicies.size() > 0)
 	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
-		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
-	}
-	else if (m_AdoptablePolicies.size() > 0)
-	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetPolicyNumOptions(), 1);
-		iRtnValue = m_AdoptablePolicies.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing policy from Top Choices");
-	}
-	// Total weight may be 0 if the only branches and policies left are ones that are ineffective in our game, but we gotta pick something
-	else if(m_AdoptablePolicies.GetTotalWeight() == 0 && m_AdoptablePolicies.size() > 0)
-	{
-		iRtnValue = m_AdoptablePolicies.ChooseAtRandom(&fcn, "Choosing policy at random (no good choices)");
-	}
+		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetPolicyChoiceCutoffThreshold(), &fcn, "Choosing policy from Top Choices");
 
-	// Log our choice
-	if(iRtnValue != (int)NO_POLICY)
-	{
-		if(iRtnValue >= GC.getNumPolicyBranchInfos())
+		// Log our choice
+		if (iRtnValue != (int)NO_POLICY)
 		{
-			LogPolicyChoice((PolicyTypes)(iRtnValue - GC.getNumPolicyBranchInfos()));
-		}
-		else
-		{
-			LogBranchChoice((PolicyBranchTypes)iRtnValue);
+			if (iRtnValue >= GC.getNumPolicyBranchInfos())
+			{
+				LogPolicyChoice((PolicyTypes)(iRtnValue - GC.getNumPolicyBranchInfos()));
+			}
+			else
+			{
+				LogBranchChoice((PolicyBranchTypes)iRtnValue);
+			}
 		}
 	}
 

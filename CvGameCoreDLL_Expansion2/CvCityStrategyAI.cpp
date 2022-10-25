@@ -768,14 +768,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	// Loop through adding the available units
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
-	{	
-#if defined(MOD_BALANCE_CORE)
+	{
 		// Puppets and automated cities cannot build units
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated())
 		{
 			continue;
 		}
-#endif
 
 		// Make sure this unit can be built now
 		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
@@ -832,11 +830,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					continue;
 			}
 
-		// no wonders in automated human cities
+			// no wonders in automated human cities
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
 			if (isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
 				continue;
-
 		}
 
 		// Make sure this building can be built now
@@ -1005,7 +1002,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		m_Buildables = m_BuildablesPrecheck;
 
 	bool bPushedOrderForSettler = false;
-	if(m_Buildables.size() > 0)
+	if (m_Buildables.size() > 0)
 	{
 		int iRushIfMoreThanXTurns = /*15*/ GD_INT_GET(AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD);
 		iRushIfMoreThanXTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -1074,7 +1071,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 				// Don't continue processes.
 				// Recursive has provided two reasons for this:
 				// 1) So the AI doesn't flipflop through production choices without getting anything done.
-				// 2) Because there is randomness to the AI's production choices on lower difficulties - CityProductionNumOptionsConsidered in DifficultyMod.xml.
+				// 2) Because there is randomness to the AI's production choices - CityProductionNumOptionsConsidered in DifficultyMod.xml.
 				break;
 			}
 		}
@@ -1082,8 +1079,25 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		//pick something new
 		if (!bContinueWithCurrentBuild)
 		{
-			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
-			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
+			bool bTopChoiceIsDefenseProcess = false;
+			if (MOD_BALANCE_VP && m_Buildables.GetElement(0).m_eBuildableType == CITY_BUILDABLE_PROCESS)
+			{
+				ProcessTypes eProcessType = (ProcessTypes)m_Buildables.GetElement(0).m_iIndex;
+				CvProcessInfo* pProcess = GC.getProcessInfo(eProcessType);
+				if (pProcess->getDefenseValue() > 0)
+					bTopChoiceIsDefenseProcess = true;
+			}
+
+			// if top choice is the Defense process, always choose that
+			if (bTopChoiceIsDefenseProcess)
+			{
+				selection = m_Buildables.GetElement(0);
+			}
+			// otherwise, pick using weighted randomization from the top choices
+			else
+			{
+				selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city build from Top Choices");
+			}
 		}
 
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
@@ -1388,18 +1402,9 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	LogPossibleHurries(m_Buildables,"POST");
 
-	if(m_Buildables.GetTotalWeight() > 0)
+	if (m_Buildables.GetTotalWeight() > 0)
 	{
-		// Choose from the best options (currently 2)
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
-		if (m_pCity->isBarbarian())
-		{
-			selection = m_Buildables.GetElement(0);
-		}
-		else
-		{
-			selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city hurry from Top Choices");
-		}
+		selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city hurry from Top Choices");
 		return selection;
 	}
 

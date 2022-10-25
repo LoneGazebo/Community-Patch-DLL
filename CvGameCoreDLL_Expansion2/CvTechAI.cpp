@@ -143,14 +143,14 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	m_ResearchableTechs.clear();
 
 	// Loop through adding the researchable techs
-	for(int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
+	for (int iTechLoop = 0; iTechLoop < m_pCurrentTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		if(m_pCurrentTechs->CanResearch((TechTypes)iTechLoop))
+		if (m_pCurrentTechs->CanResearch((TechTypes)iTechLoop))
 		{
 			// For free techs, need an additional check
-			if(bFreeTech)
+			if (bFreeTech)
 			{
-				if(m_pCurrentTechs->CanResearchForFree((TechTypes)iTechLoop))
+				if (m_pCurrentTechs->CanResearchForFree((TechTypes)iTechLoop))
 				{
 					m_ResearchableTechs.push_back(iTechLoop, m_TechAIWeights.GetWeight(iTechLoop));
 				}
@@ -168,18 +168,10 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	m_ResearchableTechs.SortItems();
 	LogPossibleResearch();
 
-	// If total weight is above 0, choose one above a threshold
-	if(m_ResearchableTechs.GetTotalWeight() > 0)
+	// Make and log our tech choice
+	if (m_ResearchableTechs.size() > 0)
 	{
-		int iNumChoices = max(GC.getGame().getHandicapInfo().GetTechNumOptions(), 1);
-		if (pPlayer->isBarbarian())
-		{
-			rtnValue = (TechTypes)m_ResearchableTechs.GetElement(0);
-		}
-		else
-		{
-			rtnValue = (TechTypes)m_ResearchableTechs.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing tech from Top Choices");
-		}
+		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetTechChoiceCutoffThreshold(), &fcn, "Choosing tech from Top Choices");
 		LogResearchChoice(rtnValue);
 	}
 

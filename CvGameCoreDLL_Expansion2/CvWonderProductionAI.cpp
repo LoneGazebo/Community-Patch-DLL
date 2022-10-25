@@ -135,7 +135,6 @@ int CvWonderProductionAI::GetWeight(BuildingTypes eBldg)
 /// Recommend highest-weighted wonder, also return total weight of all buildable wonders
 BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers */, int& iWonderWeight)
 {
-	BuildingTypes eSelection;
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset list of all the possible wonders
@@ -146,10 +145,8 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
-		if(iEstimatedProductionPerTurn < 1)
-		{
+		if (iEstimatedProductionPerTurn < 1)
 			iEstimatedProductionPerTurn = 1;
-		}
 
 		// Loop through adding the available wonders
 		for (int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
@@ -173,32 +170,23 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 				continue;
 
 			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, false, false, true);
-			if(iWeight > 0)
+			if (iWeight > 0)
 				m_Buildables.push_back(iBldgLoop, iWeight);
 		}
 	}
 
 	// Sort items and grab the first one
-	if(m_Buildables.size() > 0)
+	if (m_Buildables.size() > 0)
 	{
 		m_Buildables.SortItems();
 		LogPossibleWonders();
 
-		if(m_Buildables.GetTotalWeight() > 0)
+		if (m_Buildables.GetTotalWeight() > 0)
 		{
-			int iNumChoices = max(GC.getGame().getHandicapInfo().GetCityProductionNumOptions(), 1);
-			if (m_pPlayer->isBarbarian())
-			{
-				eSelection = (BuildingTypes)m_Buildables.GetElement(0);
-			}
-			else
-			{
-				eSelection = (BuildingTypes)m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing wonder from Top Choices");
-			}
 			iWonderWeight = m_Buildables.GetTotalWeight();
+			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing wonder from Top Choices");
 			return eSelection;
 		}
-
 		// Nothing with any weight
 		else
 		{
@@ -207,10 +195,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	}
 
 	// Unless we didn't find any
-	else
-	{
-		return NO_BUILDING;
-	}
+	return NO_BUILDING;
 }
 
 /// Log all potential builds

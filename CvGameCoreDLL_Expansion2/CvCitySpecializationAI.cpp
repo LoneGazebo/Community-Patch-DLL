@@ -320,22 +320,16 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 void CvCitySpecializationAI::DoTurn()
 {
 	// No city specializations for humans!
-	if(m_pPlayer->isHuman())
-	{
+	if (m_pPlayer->isHuman())
 		return;
-	}
 
 	// No city specializations for minor civs
-	if(m_pPlayer->isMinorCiv())
-	{
+	if (m_pPlayer->isMinorCiv())
 		return;
-	}
 
 	// No city specializations early in the game
-	if(GC.getGame().getGameTurn() < /*25*/ GD_INT_GET(AI_CITY_SPECIALIZATION_EARLIEST_TURN))
-	{
+	if (GC.getGame().getGameTurn() < /*25*/ GD_INT_GET(AI_CITY_SPECIALIZATION_EARLIEST_TURN))
 		return;
-	}
 
 	int iCityLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
@@ -363,9 +357,7 @@ void CvCitySpecializationAI::DoTurn()
 
 	// No city specialization if we don't have enough cities
 	if (m_pPlayer->getNumCities() < 2)
-	{
 		return;
-	}
 
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + /*35*/ GD_INT_GET(AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL)) <= GC.getGame().getGameTurn()))

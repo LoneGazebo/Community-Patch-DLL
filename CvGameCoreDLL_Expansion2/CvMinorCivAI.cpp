@@ -16262,6 +16262,7 @@ void CvMinorCivAI::DoElection()
 
 	if(wvVotes.size() > 0)
 	{
+		wvVotes.SortItems();
 		RandomNumberDelegate fcn;
 		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(&fcn, "Choosing CS election winner by weight");

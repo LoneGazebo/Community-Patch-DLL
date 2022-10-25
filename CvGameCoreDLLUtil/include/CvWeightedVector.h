@@ -154,36 +154,53 @@ public:
 		std::stable_sort(m_items.begin(), m_items.end());
 	}
 
-	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage chance)
+	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage of the top score)
 	T ChooseAbovePercentThreshold(int iPercent, RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
+		// the easy case
+		if (GC.getGame().isReallyNetworkMultiPlayer())
+			return m_items[0].m_Element;
+
+		iPercent = range(iPercent, 0, 100);
+
+		// First, calculate the highest weight
+		int iHighestWeight = 0;
+		for (unsigned int i = 0; i < m_items.size(); i++)
+		{
+			WeightedElement elem = m_items[i];
+			if (elem.m_iWeight >= iHighestWeight)
+			{
+				iHighestWeight = elem.m_iWeight;
+			}
+		}
+
+		// If nothing has any weight, choose at random
+		if (iHighestWeight == 0)
+		{
+			return ChooseAtRandom(rndFcn, szRollName);
+		}
+		// 0% = consider all choices, with no cutoff.
+		else if (iPercent == 0)
+		{
+			return ChooseByWeight(rndFcn, szRollName);
+		}
+
 		// Compute cutoff for the requested percentage
-		int iCutoff = GetTotalWeight() * iPercent / 100;
+		int iCutoff = iHighestWeight * iPercent / 100;
 
-		// Create a new weighted vector for this decision
-		vector<T> tempVector;
-
-		// Loop through until adding each item that is above threshold
-		for (unsigned int i = 0; i < m_pItems.size(); i++)
+		// Create a temporary vector with only the items that meet the cutoff
+		CvWeightedVector<T> tempVector;
+		for (unsigned int i = 0; i < m_items.size(); i++)
 		{
 			WeightedElement elem = m_items[i];
 			if (elem.m_iWeight >= iCutoff)
 			{
-				tempVector.push_back (elem.m_Element, elem.m_iWeight);
+				tempVector.push_back(elem.m_Element, elem.m_iWeight);
 			}
 		}
 
-		// If have something in the temp vector, do a regular weighted choice from the temporary vector
-		if (tempVector.size() > 0)
-		{
-			return tempVector.ChooseByWeight (rndFcn, szRollName);
-		}
-
-		// Otherwise ignore the cutoff percentage and go back to the original items
-		else
-		{
-			return ChooseByWeight (rndFcn, szRollName);
-		}
+		// Make the choice!
+		return tempVector.ChooseByWeight(rndFcn, szRollName);
 	};
 
 	/// Return a random entry (ignoring weight)
@@ -224,29 +241,22 @@ public:
 	/// Pick an element from the top iNumChoices
 	T ChooseFromTopChoices(int iNumChoices, RandomNumberDelegate *rndFcn, const char *szRollName)
 	{
+		// the easy case
+		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
+			return m_items[0].m_Element;
+
 		// Loop through the top choices, or the total vector size, whichever is smaller
 		if (iNumChoices > (int) m_items.size())
 			iNumChoices = (int) m_items.size();
 
-		assert(iNumChoices > 0);
+		ASSERT(iNumChoices > 0);
 
-		// Get the total weight (as long as the weights are in a similar range)
-		int iTotalTopChoicesWeight = m_items[0].m_iWeight;
-		for (int i = 1; i < iNumChoices; i++)
+		// Get the total weight
+		int iTotalTopChoicesWeight = 0;
+		for (int i = 0; i < iNumChoices; i++)
 		{
-			if (m_items[i].m_iWeight*2 < m_items[i-1].m_iWeight)
-			{
-				//ignore the rest
-				iNumChoices = i;
-				break;
-			}
-
 			iTotalTopChoicesWeight += m_items[i].m_iWeight;
 		}
-
-		// the easy case
-		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
-			return m_items[0].m_Element;
 
 		// All of the choices have a weight of 0 so pick randomly
 		if (iTotalTopChoicesWeight == 0)

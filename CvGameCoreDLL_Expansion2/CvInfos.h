@@ -968,9 +968,10 @@ public:
 	int getResearchPercent() const;
 	int getPolicyPercent() const;
 	int getImprovementCostPercent() const;
-	int GetCityProductionNumOptions() const;
-	int GetTechNumOptions() const;
-	int GetPolicyNumOptions() const;
+	int GetCityProductionChoiceCutoffThreshold() const;
+	int GetTechChoiceCutoffThreshold() const;
+	int GetPolicyChoiceCutoffThreshold() const;
+	int GetBeliefChoiceCutoffThreshold() const;
 	int getInflationPercent() const;
 	int getFreeCulturePerTurn() const;
 	int getAttitudeChange() const;
@@ -1058,9 +1059,10 @@ protected:
 	int m_iResearchPercent;
 	int m_iPolicyPercent;
 	int m_iImprovementCostPercent;
-	int m_iCityProductionNumOptions;
-	int m_iTechNumOptions;
-	int m_iPolicyNumOptions;
+	int m_iCityProductionChoiceCutoffThreshold;
+	int m_iTechChoiceCutoffThreshold;
+	int m_iPolicyChoiceCutoffThreshold;
+	int m_iBeliefChoiceCutoffThreshold;
 	int m_iInflationPercent;
 	int m_iFreeCulturePerTurn;
 	int m_iAttitudeChange;

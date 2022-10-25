@@ -2980,9 +2980,10 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iResearchPercent(0),
 	m_iPolicyPercent(0),
 	m_iImprovementCostPercent(0),
-	m_iCityProductionNumOptions(0),
-	m_iPolicyNumOptions(0),
-	m_iTechNumOptions(0),
+	m_iCityProductionChoiceCutoffThreshold(0),
+	m_iTechChoiceCutoffThreshold(0),
+	m_iPolicyChoiceCutoffThreshold(0),
+	m_iBeliefChoiceCutoffThreshold(0),
 	m_iInflationPercent(0),
 	m_iFreeCulturePerTurn(0),
 	m_iAttitudeChange(0),
@@ -3145,19 +3146,24 @@ int CvHandicapInfo::getImprovementCostPercent() const
 	return m_iImprovementCostPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::GetCityProductionNumOptions() const
+int CvHandicapInfo::GetCityProductionChoiceCutoffThreshold() const
 {
-	return m_iCityProductionNumOptions;
+	return m_iCityProductionChoiceCutoffThreshold;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::GetTechNumOptions() const
+int CvHandicapInfo::GetTechChoiceCutoffThreshold() const
 {
-	return m_iTechNumOptions;
+	return m_iTechChoiceCutoffThreshold;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::GetPolicyNumOptions() const
+int CvHandicapInfo::GetPolicyChoiceCutoffThreshold() const
 {
-	return m_iPolicyNumOptions;
+	return m_iPolicyChoiceCutoffThreshold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::GetBeliefChoiceCutoffThreshold() const
+{
+	return m_iBeliefChoiceCutoffThreshold;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getInflationPercent() const
@@ -3497,9 +3503,10 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iResearchPercent = kResults.GetInt("ResearchPercent");
 	m_iPolicyPercent = kResults.GetInt("PolicyPercent");
 	m_iImprovementCostPercent = kResults.GetInt("ImprovementCostPercent");
-	m_iCityProductionNumOptions = kResults.GetInt("CityProductionNumOptionsConsidered");
-	m_iTechNumOptions = kResults.GetInt("TechNumOptionsConsidered");
-	m_iPolicyNumOptions = kResults.GetInt("PolicyNumOptionsConsidered");
+	m_iCityProductionChoiceCutoffThreshold = kResults.GetInt("CityProductionNumOptionsConsidered");
+	m_iTechChoiceCutoffThreshold = kResults.GetInt("TechNumOptionsConsidered");
+	m_iPolicyChoiceCutoffThreshold = kResults.GetInt("PolicyNumOptionsConsidered");
+	m_iBeliefChoiceCutoffThreshold = kResults.GetInt("BeliefNumOptionsConsidered");
 	m_iInflationPercent = kResults.GetInt("InflationPercent");
 	m_iFreeCulturePerTurn = kResults.GetInt("FreeCulturePerTurn");
 	m_iAttitudeChange = kResults.GetInt("AttitudeChange");

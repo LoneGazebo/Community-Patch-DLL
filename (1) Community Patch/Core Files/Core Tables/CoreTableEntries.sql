@@ -334,6 +334,7 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
 -- New Handicap Values
 ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0; -- Local Happiness Bonus to Capital
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0; -- Bonus Warriors at game start (City-States)
+ALTER TABLE HandicapInfos ADD COLUMN 'BeliefNumOptionsConsidered' INTEGER DEFAULT 90; -- % cutoff threshold when scoring beliefs (AI will randomly choose from options with x% of the top score)
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAULT 0; -- % increase to AI perception of human military strength.
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0; -- Extra sight for AI units.
 ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against this player (%)

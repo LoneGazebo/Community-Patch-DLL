@@ -40,9 +40,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>100</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>10</HumanStrengthPerceptionMod>
 			<AttitudeChange>-15</AttitudeChange>
@@ -123,9 +124,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>120</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>15</HumanStrengthPerceptionMod>
 			<AttitudeChange>-10</AttitudeChange>
@@ -206,9 +208,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>140</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>3</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>3</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>3</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>20</HumanStrengthPerceptionMod>
 			<AttitudeChange>-5</AttitudeChange>
@@ -289,9 +292,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>160</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>25</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
@@ -372,9 +376,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>180</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>30</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
@@ -455,9 +460,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>200</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>2</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>2</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>2</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>35</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
@@ -538,9 +544,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>225</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>42</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
@@ -621,9 +628,10 @@
 
 			<!-- AI Behavior Modifiers -->
 			<AIDeclareWarProb>250</AIDeclareWarProb>
-			<CityProductionNumOptionsConsidered>1</CityProductionNumOptionsConsidered>
-			<TechNumOptionsConsidered>1</TechNumOptionsConsidered>
-			<PolicyNumOptionsConsidered>1</PolicyNumOptionsConsidered>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 			<!-- The settings below only affect behavior towards humans! -->
 			<HumanStrengthPerceptionMod>50</HumanStrengthPerceptionMod>
 			<AttitudeChange>0</AttitudeChange>
@@ -698,6 +706,12 @@
 			<PolicyPercent>100</PolicyPercent>
 			<ResearchPercent>100</ResearchPercent>
 			<ResistanceCap>50</ResistanceCap>
+			<!-- These values shouldn't be used, but just in case... -->
+			<AIDeclareWarProb>200</AIDeclareWarProb>
+			<CityProductionNumOptionsConsidered>90</CityProductionNumOptionsConsidered>
+			<TechNumOptionsConsidered>90</TechNumOptionsConsidered>
+			<PolicyNumOptionsConsidered>90</PolicyNumOptionsConsidered>
+			<BeliefNumOptionsConsidered>90</BeliefNumOptionsConsidered>
 		</Row>
 	</HandicapInfos>
 </GameData>

@@ -691,3 +691,9 @@ SET MilitaryRatingDecayPercent = 20 WHERE Type = 'GAMESPEED_STANDARD';
 
 UPDATE Gamespeeds
 SET MilitaryRatingDecayPercent = 30 WHERE Type = 'GAMESPEED_QUICK';
+
+-- Compatibility fix for AI intelligence
+UPDATE HandicapInfos SET CityProductionNumOptionsConsidered = 90;
+UPDATE HandicapInfos SET TechNumOptionsConsidered = 90;
+UPDATE HandicapInfos SET PolicyNumOptionsConsidered = 90;
+UPDATE HandicapInfos SET BeliefNumOptionsConsidered = 90;
