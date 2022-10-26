@@ -107,7 +107,7 @@ void CvSparseIDInfoGrid::Remove(const IDInfo& kInfo, int iX, int iY)
 //////////////////////////////////////////////////////////////////////////
 
 //	---------------------------------------------------------------------------
-CvPlotManager::CvPlotManager()
+CvPlotManager::CvPlotManager() : m_aLayers()
 {
 	m_uiWidth = 0;
 	m_uiHeight = 0;

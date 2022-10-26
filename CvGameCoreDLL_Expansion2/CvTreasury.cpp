@@ -27,7 +27,7 @@ CvTreasury::CvTreasury():
 	m_iCityConnectionTradeRouteGoldChange(0),
 	m_iBaseBuildingGoldMaintenance(0),
 	m_iBaseImprovementGoldMaintenance(0),
-	m_iLifetimeGrossGoldIncome(0),
+	m_iLifetimeGrossGoldIncome(0), m_GoldBalanceForTurnTimes100(), m_GoldChangeForTurnTimes100(),
 #if defined(MOD_BALANCE_CORE)
 	m_iInternalTradeGoldBonus(0),
 #endif

@@ -32,7 +32,7 @@
 // PUBLIC FUNCTIONS
 
 /// Constructor
-CvAIOperation::CvAIOperation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, AIOperationTypes eType, ArmyType eMoveType)
+CvAIOperation::CvAIOperation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, AIOperationTypes eType, ArmyType eMoveType) : m_iLastTurnMoved(), m_iTurnStarted(), m_iMusterX(), m_iMusterY(), m_iTargetX(), m_iTargetY(), m_iDistanceMusterToTarget()
 {
 	m_iID = iID;
 	m_eOwner = eOwner;

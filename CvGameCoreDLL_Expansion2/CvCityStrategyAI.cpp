@@ -187,7 +187,7 @@ int CvAICityStrategyEntry::GetAdvisorCounselImportance() const
 //=====================================
 
 /// Constructor
-CvAICityStrategies::CvAICityStrategies(void)
+CvAICityStrategies::CvAICityStrategies(void) : m_paAICityStrategyEntries()
 {
 
 }
@@ -236,7 +236,7 @@ CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 //=====================================
 
 /// Constructor
-CvCityStrategyAI::CvCityStrategyAI():
+CvCityStrategyAI::CvCityStrategyAI(): m_pCity(), m_pAICityStrategies(), m_pabUsingCityStrategy(), m_paiTurnCityStrategyAdopted(), m_aiTempFlavors(),
 	m_pBuildingProductionAI(NULL),
 	m_pUnitProductionAI(NULL),
 	m_pProjectProductionAI(NULL),

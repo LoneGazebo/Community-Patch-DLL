@@ -28,7 +28,7 @@
 // Public Functions...
 
 /// Constructor
-CvArmyAI::CvArmyAI()
+CvArmyAI::CvArmyAI() : m_iID(), m_iOperationID(), m_iGoalX(), m_iGoalY(), m_FormationEntries()
 {
 	Reset();
 }

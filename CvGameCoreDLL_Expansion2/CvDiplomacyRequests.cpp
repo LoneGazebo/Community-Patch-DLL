@@ -60,7 +60,7 @@ void CvDiplomacyRequests::Request::Clear()
 }
 
 /// Constructor
-CvDiplomacyRequests::CvDiplomacyRequests(void)
+CvDiplomacyRequests::CvDiplomacyRequests(void) : m_aRequests(), m_bRequestActive()
 {
 	Uninit();
 }

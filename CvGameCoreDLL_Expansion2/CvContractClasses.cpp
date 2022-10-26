@@ -181,7 +181,7 @@ bool CvContractEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 // CvContractXMLEntries
 //=====================================
 /// Constructor
-CvContractXMLEntries::CvContractXMLEntries(void)
+CvContractXMLEntries::CvContractXMLEntries(void) : m_paContractEntries()
 {
 
 }
@@ -627,7 +627,7 @@ CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 // CvGameContracts
 //=====================================
 /// Constructor
-CvGameContracts::CvGameContracts(void)
+CvGameContracts::CvGameContracts(void) : m_ActiveContracts(), m_InactiveContracts()
 {
 }
 

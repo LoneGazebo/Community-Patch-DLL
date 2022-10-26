@@ -71,7 +71,7 @@ void CvTeam::freeStatics()
 
 // Public Functions...
 //	--------------------------------------------------------------------------------
-CvTeam::CvTeam()
+CvTeam::CvTeam() : m_members(), m_cacheCanDeclareWar(), m_bIsMinorTeam(), m_bIsObserverTeam(), m_iCorporationsEnabledCount(), m_iAliveCount(), m_iEverAliveCount(), m_iNumCities(), m_iTotalPopulation(), m_iTotalLand(), m_iNukeInterception(), m_iExtraWaterSeeFromCount(), m_iMapTradingCount(), m_iTechTradingCount(), m_iGoldTradingCount(), m_iAllowEmbassyTradingAllowedCount(), m_iOpenBordersTradingAllowedCount(), m_iDefensivePactTradingAllowedCount(), m_iResearchAgreementTradingAllowedCount(), m_iCityWorkingChange(), m_iCityAutomatonWorkersChange(), m_iBridgeBuildingCount(), m_iCityLessEmbarkCost(), m_iCityNoEmbarkCost(), m_iWaterWorkCount(), m_iRiverTradeCount(), m_iBorderObstacleCount(), m_iVictoryPoints(), m_iEmbarkedExtraMoves(), m_iCanEmbarkCount(), m_iDefensiveEmbarkCount(), m_iEmbarkedAllWaterPassageCount(), m_iNumNaturalWondersDiscovered(), m_iNumLandmarksBuilt(), m_iBestPossibleRoute(), m_iNumMinorCivsAttacked(), m_bMapCentering(), m_bHomeOfUnitedNations(), m_bHasTechForWorldCongress(), m_BatchData(), m_iVassalageTradingAllowedCount(), m_bIsVoluntaryVassal(), m_iNumTurnsIsVassal(), m_iNumCitiesWhenVassalMade(), m_iTotalPopulationWhenVassalMade(), m_pavProjectArtTypes(), m_aeRevealedResources()
 {
 	m_abCanLaunch = NULL;
 	m_abVictoryAchieved = NULL;

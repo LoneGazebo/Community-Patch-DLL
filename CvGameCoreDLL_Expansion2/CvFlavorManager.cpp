@@ -14,7 +14,7 @@
 #include "LintFree.h"
 
 /// Constructor
-CvFlavorRecipient::CvFlavorRecipient()
+CvFlavorRecipient::CvFlavorRecipient() : m_bIsCity(), m_piLatestFlavorValues()
 {
 
 }
@@ -121,7 +121,7 @@ int CvFlavorRecipient::GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNega
 }
 
 /// Constructor
-CvFlavorManager::CvFlavorManager(void)
+CvFlavorManager::CvFlavorManager(void) : m_piPersonalityFlavor(), m_piActiveFlavor(), m_pPlayer(), m_FlavorTargetList()
 {
 
 }

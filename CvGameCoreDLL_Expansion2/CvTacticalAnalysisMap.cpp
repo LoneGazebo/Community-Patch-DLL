@@ -22,7 +22,7 @@ bool g_bLogZones = false;
 // CvTacticalDominanceZone
 //=====================================
 /// Constructor
-CvTacticalDominanceZone::CvTacticalDominanceZone(void)
+CvTacticalDominanceZone::CvTacticalDominanceZone(void) : m_vNeighboringZones()
 {
 	m_iZoneID = -1;
 	m_eTerritoryType = TACTICAL_TERRITORY_NONE;
@@ -222,7 +222,7 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 /// Constructor
 CvTacticalAnalysisMap::CvTacticalAnalysisMap(void) :
 	m_ePlayer(NO_PLAYER),
-	m_iLastUpdate(-1)
+	m_iLastUpdate(-1), m_vPlotZoneID(), m_IdLookup(), m_vDominanceZones()
 {
 }
 

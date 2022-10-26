@@ -30,7 +30,7 @@
 OBJECT_VALIDATE_DEFINITION(CvCityAI)
 
 // Public Functions...
-CvCityAI::CvCityAI()
+CvCityAI::CvCityAI() : m_bChooseProductionDirty(), m_iCachePlayerClosenessTurn(), m_iCachePlayerClosenessDistance(), m_mapPlotsAcquiredByOtherPlayers()
 {
 	OBJECT_ALLOCATED
 	AI_reset();

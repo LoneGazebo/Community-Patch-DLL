@@ -242,7 +242,7 @@ float CvTechAI::GetTechRatio()
 			continue;
 		}
 
-		LeaderWithNumTechs kEvalChunk;
+		LeaderWithNumTechs kEvalChunk = {};
 		kEvalChunk.m_iLeader = ui;
 		kEvalChunk.m_iNumTechs = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
 		aLeaderWithNumTechs.push_back(kEvalChunk);

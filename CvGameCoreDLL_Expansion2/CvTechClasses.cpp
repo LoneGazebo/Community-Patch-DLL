@@ -643,7 +643,7 @@ int CvTechEntry::GetEurekaPerMillion() const
 // CvTechXMLEntries
 //=====================================
 /// Constructor
-CvTechXMLEntries::CvTechXMLEntries(void)
+CvTechXMLEntries::CvTechXMLEntries(void) : m_paTechEntries()
 {
 
 }
@@ -2215,14 +2215,14 @@ void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)
 // CvTeamTechs
 //=====================================
 /// Constructor
-CvTeamTechs::CvTeamTechs():
+CvTeamTechs::CvTeamTechs(): m_iNumTechs(),
 	m_pabHasTech(NULL),
 	m_pabNoTradeTech(NULL),
 	m_paiResearchProgress(NULL),
 #if defined(MOD_CIV6_EUREKA)
 	m_paiEurekaCounter(NULL),
 #endif
-	m_paiTechCount(NULL)
+	m_paiTechCount(NULL), m_pTechs(), m_pTeam()
 {
 }
 

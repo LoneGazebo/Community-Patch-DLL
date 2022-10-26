@@ -17,7 +17,7 @@
 #include "LintFree.h"
 
 /// Constructor
-CvCityConnections::CvCityConnections(void)
+CvCityConnections::CvCityConnections(void) : m_connectionState(), m_plotsWithConnectionToCapital(), m_plotIdsToConnect(), m_aBuildingsAllowWaterRoutes(), m_pPlayer(), m_bDirty(), dummy()
 {
 	Reset();
 }

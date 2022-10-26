@@ -20,7 +20,7 @@ void CvEventLog::EventLogEntry::Clear()
 }
 
 /// Constructor
-CvEventLog::CvEventLog(void)
+CvEventLog::CvEventLog(void) : m_aEvents(), m_iEventsBeginIndex(), m_iEventsEndIndex(), m_iCurrentLookupIndex()
 {
 	Uninit();
 }

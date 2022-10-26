@@ -192,7 +192,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvEspionageSpy& readFrom)
 // CvPlayerEspionage
 //=====================================
 /// Default Constructor
-CvPlayerEspionage::CvPlayerEspionage()
+CvPlayerEspionage::CvPlayerEspionage() : m_aSpyList(), m_aiSpyListNameOrder(), m_iSpyListNameOrderIndex(), m_aaPlayerStealableTechList(), m_aiNumTechsToStealList(), m_aSpyNotificationMessages(), m_aIntrigueNotificationMessages(), m_aiNumSpyActionsDone(), m_pPlayer()
 {
 	Reset();
 }
@@ -4632,7 +4632,7 @@ void CvPlayerEspionage::AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttac
 	}
 
 	// no matching message found so adding it to the back of the list
-	SpyNotificationMessage kMessage;
+	SpyNotificationMessage kMessage = {};
 	kMessage.m_iCityX = iCityX;
 	kMessage.m_iCityY = iCityY;
 	kMessage.m_eAttackingPlayer = eAttackingPlayer;
@@ -6026,7 +6026,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 	loadFrom >> iNumMessages;
 	for(int i = 0; i < iNumMessages; i++)
 	{
-		SpyNotificationMessage kMessage;
+		SpyNotificationMessage kMessage = {};
 		loadFrom >> kMessage.m_iCityX;
 		loadFrom >> kMessage.m_iCityY;
 		loadFrom >> kMessage.m_eAttackingPlayer;
@@ -6136,7 +6136,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 }
 
 // Constructor
-CvCityEspionage::CvCityEspionage(void)
+CvCityEspionage::CvCityEspionage(void) : m_pCity()
 {
 	Reset();
 }
@@ -6436,7 +6436,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityEspionage& readFrom)
 //=====================================
 /// Constructor
 CvEspionageAI::CvEspionageAI(void):
-	m_pPlayer(NULL),
+	m_pPlayer(NULL), m_aiCivOutOfTechTurn(), m_aiNumSpiesCaught(), m_aiNumSpiesKilled(), m_aiNumSpiesDied(), m_aiTurnLastSpyCaught(), m_aiTurnLastSpyKilled(), m_aiTurnLastSpyDied(),
 	m_bUNCountdownStarted(false),
 	m_iTurnEspionageStarted(-1)
 {
@@ -6830,7 +6830,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 
 		iNumPlayers++;
 
-		ScoreCityEntry kEntry;
+		ScoreCityEntry kEntry = {};
 
 		kEntry.m_pCity = pCapitalCity;
 
@@ -7094,7 +7094,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			//spam is boring
 			iDiploModifier -= pLoopCity->GetCityEspionage()->m_aiNumTimesCityRobbed[eTargetPlayer] * 2;
 
-			ScoreCityEntry kEntry;
+			ScoreCityEntry kEntry = {};
 			kEntry.m_pCity = pLoopCity;
 
 			iValue *= iDiploModifier;
@@ -7156,7 +7156,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		ScoreCityEntry kEntry;
+		ScoreCityEntry kEntry = {};
 		kEntry.m_pCity = pLoopCity;
 
 		CvEspionageSpy* pSpy = m_pPlayer->GetEspionage()->GetSpyByID(m_pPlayer->GetEspionage()->GetSpyIndexInCity(pLoopCity));
@@ -7327,7 +7327,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			}
 			bAlreadyScoredCity = true;
 
-			ScoreCityEntry kEntry;
+			ScoreCityEntry kEntry = {};
 			kEntry.m_pCity = pLoopCity;
 
 			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);

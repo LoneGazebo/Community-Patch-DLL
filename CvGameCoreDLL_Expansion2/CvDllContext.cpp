@@ -56,8 +56,8 @@ HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 CvDllGameContext::CvDllGameContext()
-	: m_uiRngCounter(0)
-	, m_uiNetInitInfoCounter(0)
+	: m_RandomNumberGenerators(), m_uiRngCounter(0), m_NetInitInfos()
+	, m_uiNetInitInfoCounter(0), m_NetLoadGameInfos()
 	, m_uiNetLoadGameInfoCounter(0)
 {
 	m_pNetworkSyncronizer = new CvDllNetworkSyncronization();
@@ -1102,7 +1102,7 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 		// now fill out the event array
 		for (int i=0; i<size; i++)
 		{
-			CvDllPathFinderUpdateListData update;
+			CvDllPathFinderUpdateListData update = {};
 			update.iX = path.vPlots[i].x;
 			update.iY = path.vPlots[i].y;
 

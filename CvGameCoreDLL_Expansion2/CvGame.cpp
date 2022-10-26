@@ -113,7 +113,7 @@ CvGameInitialItemsOverrides::CvGameInitialItemsOverrides()
 
 //------------------------------------------------------------------------------
 CvGame::CvGame() :
-	m_jonRand("GameRng")
+	m_jonRand("GameRng"), m_iNumSessions(), m_iEarliestBarbarianReleaseTurn(), m_iLastMouseoverUnitID()
 	, m_mapRand("PreGameRng")
 	, m_endTurnTimer()
 	, m_endTurnTimerSemaphore(0)
@@ -123,11 +123,11 @@ CvGame::CvGame() :
 	, m_sentAutoMoves(false)
 	, m_bForceEndingTurn(false)
 	, m_pDiploResponseQuery(NULL)
-	, m_bFOW(true)
+	, m_firstActivationOfPlayersAfterLoad(), m_iGlobalAssetCounterAllPreviousTurns(), m_iGlobalAssetCounterCurrentTurn(), m_iEndTurnMessagesSent(), m_iElapsedGameTurns(), m_iStartTurn(), m_iWinningTurn(), m_iStartYear(), m_iEstimateEndTurn(), m_iDefaultEstimateEndTurn(), m_iTurnSlice(), m_iCutoffSlice(), m_iNumCities(), m_iTotalPopulation(), m_iTotalEconomicValue(), m_iHighestEconomicValue(), m_iMedianEconomicValue(), m_iNoNukesCount(), m_iNukesExploded(), m_iMaxPopulation(), m_iInitPopulation(), m_iInitLand(), m_iInitTech(), m_iInitWonders(), m_iAIAutoPlay(), m_iTotalReligionTechCost(), m_iCachedWorldReligionTechProgress(), m_iUnitedNationsCountdown(), m_iNumVictoryVotesTallied(), m_iNumVictoryVotesExpected(), m_iVotesNeededForDiploVictory(), m_iMapScoreMod(), m_uiInitialTime(), m_bScoreDirty(), m_bCircumnavigated(), m_bDebugMode(), m_bDebugModeCache(), m_bFinalInitialized(), m_bPbemTurnSent(), m_bHotPbemBetweenTurns(), m_bPlayerOptionsSent(), m_bNukesValid(), m_bEndGameTechResearched(), m_bTunerEverConnected(), m_bDynamicTurnsSimultMode(), m_bFOW(true)
 #ifdef EA_EVENT_GAME_SAVE
-	, m_bSavedOnce(false)
+	, m_bSavedOnce(false), m_bStaticTutorialActive(), m_bTutorialEverAttacked(), m_bEverRightClickMoved(), m_bCombatWarned()
 #endif
-	, m_bArchaeologyTriggered(false)
+	, m_bArchaeologyTriggered(false), m_eTeamThatCircumnavigated(), m_bVictoryRandomization(), m_iMedianTechsResearched(), m_iBasicNeedsMedian(), m_iGoldMedian(), m_iScienceMedian(), m_iCultureMedian(), m_iLastTurnCSSurrendered()
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!

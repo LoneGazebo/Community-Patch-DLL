@@ -321,7 +321,7 @@ void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& s
 				lua_createtable(L, 0, 0);
 				for(int i = pkReplay->getInitialTurn(); i <= pkReplay->getFinalTurn(); ++i)
 				{
-					CvReplayInfo::PlotState plotState;
+					CvReplayInfo::PlotState plotState = {};
 					if(pkReplay->getPlotState(uiX, uiY, i, plotState))
 					{
 						lua_createtable(L, 6, 0);

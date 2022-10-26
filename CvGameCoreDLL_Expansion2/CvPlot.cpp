@@ -111,7 +111,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 //////////////////////////////////////////////////////////////////////////
 CvPlot::CvPlot()
 	: m_syncArchive()
-	, m_szScriptData(NULL)
+	, m_iX(), m_iY(), m_iPlotIndex(), m_eOwner(), m_ePlotType(), m_eTerrainType(), m_bIsCity(), m_bfRevealed(), m_units(), m_aiYield(), m_aiPlayerCityRadiusCount(), m_aiVisibilityCount(), m_aiVisibilityCountThisTurnMax(), m_aiRevealedOwner(), m_aeRevealedImprovementType(), m_aeRevealedRouteType(), m_abResourceForceReveal(), m_abStrategicRoute(), m_abIsImpassable(), m_bIsTradeUnitRoute(), m_iLastTurnBuildChanged(), m_vExtraYields(), m_szScriptData(NULL), m_buildProgress(), m_pCenterUnit(), m_vInvisibleVisibilityUnitCount(), m_vInvisibleVisibilityCount(), m_iArea(), m_iLandmass(), m_iOwnershipDuration(), m_iImprovementDuration(), m_iUpgradeProgress(), m_eFeatureType(), m_iUnitPlotExperience(), m_iUnitPlotGAExperience(), m_iPlotChangeMoves(), m_eResourceType(), m_eImprovementType(), m_ePlayerBuiltImprovement(), m_ePlayerResponsibleForImprovement(), m_ePlayerResponsibleForRoute(), m_ePlayerThatClearedBarbCampHere(), m_ePlayerThatClearedDigHere(), m_ePlayerThatDestroyedCityHere(), m_eRouteType(), m_eUnitIncrement(), m_eWorldAnchor(), m_cWorldAnchorData(), m_eRiverEFlowDirection(), m_eRiverSEFlowDirection(), m_eRiverSWFlowDirection(), m_iNumMajorCivsRevealed(), m_iCityRadiusCount(), m_iReconCount(), m_iRiverCrossingCount(), m_iResourceNum(), m_cContinentType(), m_cRiverCrossing()
 {
 	if (GC.getGame().isNetworkMultiPlayer())
 	{
