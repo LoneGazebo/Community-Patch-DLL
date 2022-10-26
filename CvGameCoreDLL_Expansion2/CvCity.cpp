@@ -2413,8 +2413,6 @@ void CvCity::doTurn()
 		ChangeNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop, (-1 * GetNumTimesAttackedThisTurn((PlayerTypes)iPlayerLoop)));
 	}
 
-	//Do bad barb stuff!
-	DoBarbIncursion();
 	updateEconomicValue();
 	UpdateGrowthFromTourism();
 
@@ -26695,35 +26693,6 @@ bool CvCity::isBorderCity() const
 {
 	VALIDATE_OBJECT
 	return plot()->IsBorderLand(m_eOwner);
-}
-
-void CvCity::DoBarbIncursion()
-{
-	if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
-		return;
-
-	//No barb incursions before 'release' point.
-	if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
-		return;
-
-	// Found a CS city to spawn near
-	if (MOD_BALANCE_VP && GET_PLAYER(getOwner()).isBarbarian() && GET_PLAYER(getOriginalOwner()).isMinorCiv())
-	{
-		if (CvBarbarians::ShouldSpawnBarbFromCity(plot()))
-		{
-			CvBarbarians::DoSpawnBarbarianUnit(plot(), false, true);
-			CvBarbarians::DoCityActivationNotice(plot());
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Unit spawned in barbarian city of %s at X: %d, Y: %d", getName().c_str(), getX(), getY());
-				if (GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
-				{
-					GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-				}
-			}
-		}
-	}
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

@@ -4574,7 +4574,7 @@ bool CvPlot::isVisibleOtherUnit(PlayerTypes ePlayer) const
 	return false;
 }
 
-bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs, bool bIgnoreEmbarked) const
+bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs, bool bIgnoreEmbarked) const
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -4600,7 +4600,7 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibilit
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				//airplanes not included
-				if (bCombat && !pLoopUnit->IsCanDefend())
+				if (bCombatOnly && !pLoopUnit->IsCanDefend())
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())
@@ -6019,8 +6019,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					setImprovementType(NO_IMPROVEMENT);
 					CvBarbarians::DoBarbCampCleared(this, eNewValue);
 					SetPlayerThatClearedBarbCampHere(eNewValue);
-
-					// Don't give gold for Camps cleared by settling
 				}
 
 				// Transfer responsibility of routes and improvements if the plot is now owned by someone else
@@ -7543,18 +7541,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 
 		// Reset who cleared a Barb camp here last (if we're putting a new one down)
-		if(eNewValue == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
+		if (eNewValue == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
 			SetPlayerThatClearedBarbCampHere(NO_PLAYER);
 			
 			// Alert the barbarian spawning code to this new camp
-			CvBarbarians::DoCampActivationNotice(this);
+			CvBarbarians::ActivateBarbSpawner(this);
 
-#if defined(MOD_EVENTS_BARBARIANS)
-			if (MOD_EVENTS_BARBARIANS) {
+			if (MOD_EVENTS_BARBARIANS)
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_BarbariansCampFounded, getX(), getY());
-			}
-#endif
 		}
 
 		setUpgradeProgress(0);
@@ -14675,6 +14670,38 @@ bool CvPlot::IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) 
 			if(GET_TEAM(eMyTeam).isAtWar(pCity->getTeam()))
 			{
 				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+///-------------------------------------
+/// Is an enemy unit next to us?
+bool CvPlot::IsEnemyUnitAdjacent(TeamTypes eMyTeam) const
+{
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		if (!pLoopPlot)
+			continue;
+
+		IDInfo* pUnitNode = pLoopPlot->headUnitNode();
+
+		// Loop through all units on this plot
+		while (pUnitNode != NULL)
+		{
+			CvUnit* pLoopUnit = ::GetPlayerUnit(*pUnitNode);
+			pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+
+			if (pLoopUnit && !pLoopUnit->isDelayedDeath())
+			{
+				TeamTypes eTheirTeam = pLoopUnit->getTeam();
+
+				// This team which this unit belongs to must be at war with us
+				if (GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
+					return true;
 			}
 		}
 	}

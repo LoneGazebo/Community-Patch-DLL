@@ -26048,8 +26048,7 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 	if (ePlayer == NO_PLAYER)
 		return 0;
 
-	int iCount = 0;
-	int iUnitLoop;
+	int iCount = 0, iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		if (!pLoopUnit->IsCanAttack() || pLoopUnit->isDelayedDeath() || pLoopUnit->isProjectedToDieNextTurn())

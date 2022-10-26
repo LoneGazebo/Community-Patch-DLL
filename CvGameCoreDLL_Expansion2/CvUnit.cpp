@@ -29214,9 +29214,9 @@ CvUnit::MoveResult CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 	{
 		CvUnitCombat::AttackCity(*this, *pPathPlot, (iFlags &  MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 
-		if (MOD_BALANCE_VP && pPathPlot->isCity() && pPathPlot->isBarbarian())
+		if (pPathPlot->isCity() && pPathPlot->isBarbarian())
 		{
-			CvBarbarians::DoCityAttacked(pPathPlot);
+			CvBarbarians::DoBarbSpawnerAttacked(pPathPlot);
 		}
 
 		return CvUnit::MOVE_RESULT_ATTACK;
@@ -29229,7 +29229,7 @@ CvUnit::MoveResult CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 		// Barb camp here that was attacked?
 		if (pPathPlot->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
-			CvBarbarians::DoCampAttacked(pPathPlot);
+			CvBarbarians::DoBarbSpawnerAttacked(pPathPlot);
 		}
 
 		return CvUnit::MOVE_RESULT_ATTACK;

@@ -1000,7 +1000,7 @@ void CvTacticalAI::ExecuteBarbarianTheft()
 		CvCity* pCity = pUnit->plot()->GetAdjacentCity();
 		if (pCity)
 		{
-			if (CvBarbarians::DoTakeOverCity(pCity) || CvBarbarians::DoStealFromCity(pUnit, pCity))
+			if (CvBarbarians::DoTakeOverCityState(pCity) || CvBarbarians::DoStealFromCity(pUnit, pCity))
 				vUsedUnits.push_back(pUnit);
 		}
 	}

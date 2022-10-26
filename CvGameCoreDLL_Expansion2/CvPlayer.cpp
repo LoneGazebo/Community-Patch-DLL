@@ -3752,7 +3752,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		GET_PLAYER(eOldOwner).GetCorporations()->ClearAllCorporationsFromCity(pCity);
 
 	// If city was Barbarian-owned, turn off the spawn counter
-	if (MOD_BALANCE_VP && pCity->isBarbarian())
+	if (pCity->isBarbarian())
 		CvBarbarians::DoBarbCityCleared(pCityPlot);
 
 	// If city was City-State-owned, update resource bonuses for allies
@@ -4661,8 +4661,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		GC.getMap().updateDeferredFog();
 
 	// City acquired by Barbarians? Start the spawn counter.
-	if (pNewCity && MOD_BALANCE_VP && isBarbarian())
-		CvBarbarians::DoCityActivationNotice(pCityPlot);
+	if (pNewCity && isBarbarian())
+		CvBarbarians::ActivateBarbSpawner(pCityPlot);
 
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
@@ -11221,7 +11221,6 @@ void CvPlayer::doTurnPostDiplomacy()
 		}
 		else
 		{
-			CvBarbarians::DoCampSpawnCounter();
 			CvBarbarians::DoCamps();
 			CvBarbarians::DoUnits();
 			DoUpdateWarPeaceTurnCounters();
@@ -12671,6 +12670,7 @@ void CvPlayer::unraze(CvCity* pCity)
 void CvPlayer::disband(CvCity* pCity)
 {
 	CvPlot* pPlot = pCity->plot();
+	bool bIsBarbarian = pPlot && pPlot->getOwner() == BARBARIAN_PLAYER;
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityRazed, GetID(), pPlot->getX(), pPlot->getY());
 
@@ -12733,6 +12733,9 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if (pPlot)
 	{
+		if (bIsBarbarian)
+			CvBarbarians::DoBarbCityCleared(pPlot);
+
 		pPlot->SetPlayerThatDestroyedCityHere(GetID());
 		IDInfoVector currentUnits;
 		if (pPlot->getUnits(&currentUnits) > 0)
@@ -26695,7 +26698,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 
 					iValue += iPassYield;
-
 					break;
 				}
 				case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
@@ -26704,7 +26706,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 
 					iValue += iPassYield;
-
 					break;
 				}
 				case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:

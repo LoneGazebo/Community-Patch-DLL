@@ -3,6 +3,7 @@ UPDATE Defines SET Value = '10' WHERE Name = 'BALANCE_BARBARIAN_HEAL_RATE' AND E
 UPDATE Defines SET Value = '15' WHERE Name = 'BALANCE_BARBARIAN_HEAL_RATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BARBARIAN_HEAL' AND Value= 2 );
 
 -- Barbarian Promotions
+INSERT INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_BARBARIAN_CAMP', 'TERRAIN_SNOW');
 
 UPDATE Features
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODS_WALKER'
