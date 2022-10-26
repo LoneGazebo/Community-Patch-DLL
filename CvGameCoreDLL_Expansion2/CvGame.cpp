@@ -797,7 +797,19 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	initFreeUnits(kInitialItemOverrides);
 
-	m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release");
+	if (MOD_BALANCE_CORE_DIFFICULTY)
+	{
+		int iPlusMinus = /*2*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION);
+		if (iPlusMinus == 0)
+			m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn();
+		else
+		{
+			int iRand = GC.getGame().getJonRandNum((iPlusMinus*2)+1, "barb release");
+			m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + iRand - iPlusMinus;
+		}
+	}		
+	else
+		m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release");
 
 	UpdateGameEra();
 	// What route type forms an industrial connection
