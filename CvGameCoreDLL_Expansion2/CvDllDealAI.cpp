@@ -88,33 +88,33 @@ ICvPlayer1* CvDllDealAI::GetPlayer()
 //------------------------------------------------------------------------------
 int CvDllDealAI::DoHumanOfferDealToThisAI(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	return m_pDealAI->DoHumanOfferDealToThisAI(pkDeal);
 }
 //------------------------------------------------------------------------------
 void CvDllDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, ICvDeal1* pDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	if(pkDeal != NULL)
 		m_pDealAI->DoAcceptedDeal(eFromPlayer, *pkDeal, iDealValueToMe, iValueImOffering, iValueTheyreOffering);
 }
 //------------------------------------------------------------------------------
 int CvDllDealAI::DoHumanDemand(ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	return m_pDealAI->DoHumanDemand(pkDeal);
 }
 //------------------------------------------------------------------------------
 void CvDllDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, ICvDeal1* pDeal)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	if(pkDeal != NULL)
 		m_pDealAI->DoAcceptedDemand(eFromPlayer, *pkDeal);
 }
 //------------------------------------------------------------------------------
 bool CvDllDealAI::DoEqualizeDealWithHuman(ICvDeal1* pDeal, PlayerTypes eOtherPlayer, bool bDontChangeMyExistingItems, bool bDontChangeTheirExistingItems, bool& bDealGoodToBeginWith, bool& bCantMatchOffer)
 {
-	CvDeal* pkDeal = (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 	return m_pDealAI->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bDealGoodToBeginWith, bCantMatchOffer);
 }
 //------------------------------------------------------------------------------
