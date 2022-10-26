@@ -108,7 +108,7 @@ class CvBuildingEntry: public CvBaseInfo
 {
 public:
 	CvBuildingEntry(void);
-	~CvBuildingEntry(void);
+	virtual ~CvBuildingEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

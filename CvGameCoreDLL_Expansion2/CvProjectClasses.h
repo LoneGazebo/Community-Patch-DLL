@@ -23,7 +23,7 @@ class CvProjectEntry: public CvBaseInfo
 {
 public:
 	CvProjectEntry(void);
-	~CvProjectEntry(void);
+	virtual ~CvProjectEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

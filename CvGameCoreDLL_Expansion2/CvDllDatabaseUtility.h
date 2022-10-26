@@ -27,7 +27,7 @@ class CvDllDatabaseUtility: public ICvDLLDatabaseUtility1
 {
 public:
 	CvDllDatabaseUtility(Database::Connection& db);
-	~CvDllDatabaseUtility();
+	virtual ~CvDllDatabaseUtility();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -26,7 +26,7 @@ class CvPolicyEntry: public CvBaseInfo
 {
 public:
 	CvPolicyEntry(void);
-	~CvPolicyEntry(void);
+	virtual ~CvPolicyEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -884,7 +884,7 @@ class CvPolicyBranchEntry: public CvBaseInfo
 {
 public:
 	CvPolicyBranchEntry(void);
-	~CvPolicyBranchEntry(void);
+	virtual ~CvPolicyBranchEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

@@ -12,7 +12,7 @@ class CvDllDealAI : public ICvDealAI1
 {
 public:
 	CvDllDealAI(_In_ CvDealAI* pDealAI);
-	~CvDllDealAI();
+	virtual ~CvDllDealAI();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

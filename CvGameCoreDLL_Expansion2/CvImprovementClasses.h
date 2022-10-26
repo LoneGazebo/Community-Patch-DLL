@@ -48,7 +48,7 @@ class CvImprovementEntry: public CvBaseInfo
 {
 public:
 	CvImprovementEntry(void);
-	~CvImprovementEntry(void);
+	virtual ~CvImprovementEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

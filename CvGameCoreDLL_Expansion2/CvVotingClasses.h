@@ -211,7 +211,7 @@ class CvProposerDecision : public CvResolutionDecision
 public:
 	CvProposerDecision(void);
 	CvProposerDecision(ResolutionDecisionTypes eType, PlayerTypes eProposer, int iChoice);
-	~CvProposerDecision(void);
+	virtual ~CvProposerDecision(void);
 
 	template<typename ProposerDecision, typename Visitor>
 	static void Serialize(ProposerDecision& proposerDecision, Visitor& visitor);
@@ -240,7 +240,7 @@ class CvVoterDecision : public CvResolutionDecision
 public:
 	CvVoterDecision(void);
 	CvVoterDecision(ResolutionDecisionTypes eType);
-	~CvVoterDecision(void);
+	virtual ~CvVoterDecision(void);
 
 	template<typename VoterDecision, typename Visitor>
 	static void Serialize(VoterDecision& voterDecision, Visitor& visitor);
@@ -282,7 +282,7 @@ class CvResolution
 public:
 	CvResolution(void);
 	CvResolution(int iID, ResolutionTypes eType, LeagueTypes eLeague);
-	~CvResolution(void);
+	virtual ~CvResolution(void);
 
 	// Pure virtual functions
 	virtual void Init() = 0;
@@ -335,7 +335,7 @@ class CvProposal : public CvResolution
 public:
 	CvProposal(void);
 	CvProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer);
-	~CvProposal(void);
+	virtual ~CvProposal(void);
 
 	template<typename Proposal, typename Visitor>
 	static void Serialize(Proposal& proposal, Visitor& visitor);
@@ -376,7 +376,7 @@ class CvEnactProposal : public CvProposal
 public:
 	CvEnactProposal(void);
 	CvEnactProposal(int iID, ResolutionTypes eType, LeagueTypes eLeague, PlayerTypes eProposalPlayer, int iChoice = LeagueHelpers::CHOICE_NONE);
-	~CvEnactProposal(void);
+	virtual ~CvEnactProposal(void);
 
 	template<typename EnactProposal, typename Visitor>
 	static void Serialize(EnactProposal& enactProposal, Visitor& visitor);
@@ -407,7 +407,7 @@ class CvActiveResolution : public CvResolution
 public:
 	CvActiveResolution(void);
 	CvActiveResolution(CvEnactProposal* pResolution);
-	~CvActiveResolution(void);
+	virtual ~CvActiveResolution(void);
 
 	template<typename ActiveResolution, typename Visitor>
 	static void Serialize(ActiveResolution& activeResolution, Visitor& visitor);
@@ -442,7 +442,7 @@ class CvRepealProposal : public CvProposal
 public:
 	CvRepealProposal(void);
 	CvRepealProposal(CvActiveResolution* pResolution, PlayerTypes eProposalPlayer);
-	~CvRepealProposal(void);
+	virtual ~CvRepealProposal(void);
 
 	void Init();
 	template<typename RepealProposal, typename Visitor>
@@ -1062,7 +1062,7 @@ class CvLeagueSpecialSessionEntry: public CvBaseInfo
 {
 public:
 	CvLeagueSpecialSessionEntry(void);
-	~CvLeagueSpecialSessionEntry(void);
+	virtual ~CvLeagueSpecialSessionEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1135,7 +1135,7 @@ class CvLeagueNameEntry
 {
 public:
 	CvLeagueNameEntry(void);
-	~CvLeagueNameEntry(void);
+	virtual ~CvLeagueNameEntry(void);
 
 	int GetID() const
 	{
@@ -1205,7 +1205,7 @@ class CvLeagueProjectRewardEntry: public CvBaseInfo
 {
 public:
 	CvLeagueProjectRewardEntry(void);
-	~CvLeagueProjectRewardEntry(void);
+	virtual ~CvLeagueProjectRewardEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1282,7 +1282,7 @@ class CvLeagueProjectEntry: public CvBaseInfo
 {
 public:
 	CvLeagueProjectEntry(void);
-	~CvLeagueProjectEntry(void);
+	virtual ~CvLeagueProjectEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1344,7 +1344,7 @@ class CvResolutionEntry: public CvBaseInfo
 {
 public:
 	CvResolutionEntry(void);
-	~CvResolutionEntry(void);
+	virtual ~CvResolutionEntry(void);
 	
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

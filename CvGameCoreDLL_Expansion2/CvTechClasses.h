@@ -29,7 +29,7 @@ class CvTechEntry: public CvBaseInfo
 {
 public:
 	CvTechEntry(void);
-	~CvTechEntry(void);
+	virtual ~CvTechEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

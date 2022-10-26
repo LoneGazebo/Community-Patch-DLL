@@ -25,7 +25,7 @@ class CvNotificationEntry
 {
 public:
 	CvNotificationEntry(void);
-	~CvNotificationEntry(void);
+	virtual ~CvNotificationEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

@@ -12,7 +12,7 @@ class CvDllNetInitInfo : public ICvNetInitInfo1
 {
 public:
 	CvDllNetInitInfo();
-	~CvDllNetInitInfo();
+	virtual ~CvDllNetInitInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 
