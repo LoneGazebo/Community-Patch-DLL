@@ -687,7 +687,7 @@ SET Text = 'Units move through Forest and Jungle as if they were roads, and thes
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food from Forests, Jungles, and Plantations worked by this City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_FOOD] Food from Forests, Jungles, Marshes, and Plantations worked by this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP';
 
 UPDATE Language_en_US
