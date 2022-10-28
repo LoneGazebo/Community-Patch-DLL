@@ -13,7 +13,7 @@ class CvDllPreGame : public ICvPreGame2
 {
 public:
 	CvDllPreGame();
-	~CvDllPreGame();
+	virtual ~CvDllPreGame();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

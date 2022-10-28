@@ -14,7 +14,7 @@ class CvDllDlcPackageInfo : public ICvDlcPackageInfo1
 {
 public:
 	CvDllDlcPackageInfo(const GUID& kPackageID);
-	~CvDllDlcPackageInfo();
+	virtual ~CvDllDlcPackageInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 
@@ -38,7 +38,7 @@ class CvDllDlcPackageInfoList : public ICvEnumerator
 {
 public:
 	CvDllDlcPackageInfoList(const PackageIDList& packageIDs);
-	~CvDllDlcPackageInfoList();
+	virtual ~CvDllDlcPackageInfoList();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

@@ -13,7 +13,7 @@ class CvDllPathFinderUpdate : public ICvPathFinderUpdate1
 {
 public:
 	CvDllPathFinderUpdate(int iX, int iY, int iTurnNumber);
-	~CvDllPathFinderUpdate();
+	virtual ~CvDllPathFinderUpdate();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 
@@ -50,7 +50,7 @@ class CvDllPathFinderUpdateList : public ICvEnumerator
 {
 public:
 	CvDllPathFinderUpdateList(const std::vector<CvDllPathFinderUpdateListData>& updates);
-	~CvDllPathFinderUpdateList();
+	virtual ~CvDllPathFinderUpdateList();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

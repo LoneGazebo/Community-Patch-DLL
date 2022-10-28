@@ -111,7 +111,7 @@ class CvTraitEntry: public CvBaseInfo
 {
 public:
 	CvTraitEntry(void);
-	~CvTraitEntry(void);
+	virtual ~CvTraitEntry(void);
 
 	int GetLevelExperienceModifier() const;
 	int GetGreatPeopleRateModifier() const;

@@ -2288,7 +2288,7 @@ void CvGlobals::uninit()
 //------------------------------------------------------------------------------
 CvCity* CvGlobals::UnwrapCityPointer(ICvCity1* pCity)
 {
-	return (NULL != pCity)? static_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
+	return (NULL != pCity)? dynamic_cast<CvDllCity*>(pCity)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
@@ -2298,7 +2298,7 @@ CvInterfacePtr<ICvCity1> CvGlobals::WrapCityPointer(CvCity* pCity)
 //------------------------------------------------------------------------------
 CvDeal* CvGlobals::UnwrapDealPointer(ICvDeal1* pDeal)
 {
-	return (NULL != pDeal)? static_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
+	return (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
@@ -2308,7 +2308,7 @@ CvInterfacePtr<ICvDeal1> CvGlobals::WrapDealPointer(CvDeal* pDeal)
 //------------------------------------------------------------------------------
 CvPlot* CvGlobals::UnwrapPlotPointer(ICvPlot1* pPlot)
 {
-	return (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	return (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
@@ -2318,7 +2318,7 @@ CvInterfacePtr<ICvPlot1> CvGlobals::WrapPlotPointer(CvPlot* pPlot)
 //------------------------------------------------------------------------------
 CvRandom* CvGlobals::UnwrapRandomPointer(ICvRandom1* pRandom)
 {
-	return (NULL != pRandom)? static_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
+	return (NULL != pRandom)? dynamic_cast<CvDllRandom*>(pRandom)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvInterfacePtr<ICvRandom1> CvGlobals::WrapRandomPointer(CvRandom* pRandom)
@@ -2333,7 +2333,7 @@ CvInterfacePtr<ICvUnit1> CvGlobals::WrapUnitPointer(CvUnit* pUnit)
 //------------------------------------------------------------------------------
 CvUnit* CvGlobals::UnwrapUnitPointer(ICvUnit1* pUnit)
 {
-	return (NULL != pUnit)? static_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
+	return (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
 }
 //------------------------------------------------------------------------------
 CvGlobals& CvGlobals::getInstance()

@@ -25,7 +25,7 @@ class CvFlavorRecipient
 {
 public:
 	CvFlavorRecipient();
-	~CvFlavorRecipient();
+	virtual ~CvFlavorRecipient();
 	virtual void Init();
 	virtual void Uninit();
 

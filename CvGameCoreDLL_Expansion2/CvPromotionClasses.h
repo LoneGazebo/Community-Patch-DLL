@@ -24,7 +24,7 @@ class CvPromotionEntry: public CvHotKeyInfo
 {
 public:
 	CvPromotionEntry(void);
-	~CvPromotionEntry(void);
+	virtual ~CvPromotionEntry(void);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

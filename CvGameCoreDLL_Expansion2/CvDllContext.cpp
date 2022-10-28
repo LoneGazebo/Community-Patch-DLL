@@ -694,7 +694,7 @@ float CvDllGameContext::GetHexDebugLayerScale(const char* szLayerName)
 //------------------------------------------------------------------------------
 bool CvDllGameContext::GetHexDebugLayerString(ICvPlot1* pPlot, const char* szLayerName, PlayerTypes ePlayer, char* szBuffer, unsigned int uiBufferLength)
 {
-	CvPlot* pkPlot = (NULL != pPlot)? static_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
+	CvPlot* pkPlot = (NULL != pPlot)? dynamic_cast<CvDllPlot*>(pPlot)->GetInstance() : NULL;
 	if(pkPlot != NULL)
 	{
 		return GC.GetHexDebugLayerString(pkPlot, szLayerName, ePlayer, szBuffer, uiBufferLength);

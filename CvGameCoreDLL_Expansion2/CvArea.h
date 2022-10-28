@@ -37,7 +37,7 @@ class CvArea
 public:
 
 	CvArea();
-	~CvArea();
+	virtual ~CvArea();
 
 	void init(int iID, bool bWater);
 	void uninit();

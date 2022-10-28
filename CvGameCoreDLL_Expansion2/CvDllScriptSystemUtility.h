@@ -14,7 +14,7 @@ class CvDllScriptSystemUtility : public ICvScriptSystemUtility1
 {
 public:
 	CvDllScriptSystemUtility();
-	~CvDllScriptSystemUtility();
+	virtual ~CvDllScriptSystemUtility();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);
 

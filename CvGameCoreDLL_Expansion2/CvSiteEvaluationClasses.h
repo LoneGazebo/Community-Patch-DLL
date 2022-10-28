@@ -29,7 +29,7 @@ class CvCitySiteEvaluator
 {
 public:
 	CvCitySiteEvaluator(void);
-	~CvCitySiteEvaluator(void);
+	virtual ~CvCitySiteEvaluator(void);
 
 	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
 	virtual bool CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
@@ -68,7 +68,7 @@ class CvSiteEvaluatorForSettler: public CvCitySiteEvaluator
 {
 public:
 	CvSiteEvaluatorForSettler(void);
-	~CvSiteEvaluatorForSettler(void);
+	virtual ~CvSiteEvaluatorForSettler(void);
 
 	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
