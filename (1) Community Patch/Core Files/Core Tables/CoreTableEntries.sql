@@ -1609,6 +1609,9 @@ ALTER TABLE Units ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
 -- Units gains this promotion when its Unit Entry is a HighSeaRaider
 ALTER TABLE UnitPromotions ADD COLUMN 'HighSeaRaider' BOOLEAN DEFAULT 0;
 
+-- Unit gets a CS modifier if not adjacent to any Friendly Unit
+ALTER TABLE UnitPromotions ADD COLUMN 'NoAdjacentUnitMod' INTEGER DEFAULT 0;
+
 -- Zulu Pikeman Class Upgrade immediately to Impi's upon discovering Impi tech, assuming Impi is not a Pikeman, but a Renaissance Unit.
 ALTER TABLE Traits ADD COLUMN 'FreeZuluPikemanToImpi' BOOLEAN DEFAULT 0;
 

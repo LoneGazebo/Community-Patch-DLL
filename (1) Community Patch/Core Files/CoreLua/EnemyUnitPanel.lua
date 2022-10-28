@@ -819,6 +819,21 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				end
 			end
 
+			-- No Adjacent Unit Modifier
+			iModifier = pMyUnit:GetNoAdjacentUnitModifier();
+			if (iModifier ~= 0) then
+				local bCombatUnit = true;
+				if (pMyUnit:IsNoFriendlyUnitAdjacent(bCombatUnit) and bonusCount < maxBonusDisplay) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (pMyUnit:IsNoFriendlyUnitAdjacent(bCombatUnit)) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
+			end
+
 -- CBP
 			-- PerAdjacentUnitCombatModifier
 			iModifier = pMyUnit:PerAdjacentUnitCombatModifier() + pMyUnit:PerAdjacentUnitCombatAttackMod();
@@ -1602,6 +1617,21 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+			-- No Adjacent Unit Modifier
+			iModifier = pMyUnit:GetNoAdjacentUnitModifier();
+			if (iModifier ~= 0) then
+				local bCombatUnit = true;
+				if (pMyUnit:IsNoFriendlyUnitAdjacent(bCombatUnit) and bonusCount < maxBonusDisplay) then
+					controlTable = g_MyCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					bonusCount = bonusCount + 1;
+				elseif (pMyUnit:IsNoFriendlyUnitAdjacent(bCombatUnit)) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
+			end
+
 			-- UnitClassModifier & UnitClassAttackModifier
 			iModifier = pMyUnit:GetUnitClassModifier(pTheirUnit:GetUnitClassType()) + pMyUnit:UnitClassAttackModifier(pTheirUnit:GetUnitClassType());
 			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -2232,6 +2262,21 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 						bonusCount = bonusCount + 1;
 					elseif (pTheirUnit:IsFriendlyUnitAdjacent(bCombatUnit) ) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;
+					end
+				end
+
+				-- No Adjacent Unit Modifier
+				iModifier = pTheirUnit:GetNoAdjacentUnitModifier();
+				if (iModifier ~= 0) then
+					local bCombatUnit = true;
+					if (pTheirUnit:IsNoFriendlyUnitAdjacent(bCombatUnit) and bonusCount < maxBonusDisplay) then
+						controlTable = g_TheirCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						bonusCount = bonusCount + 1;
+					elseif (pTheirUnit:IsNoFriendlyUnitAdjacent(bCombatUnit)) then
 						bonusSum = bonusSum + iModifier;
 						bonusCount = bonusCount + 1;
 					end
@@ -2936,6 +2981,21 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 				bonusCount = bonusCount + 1;
 			end
 		end
+
+		-- No Adjacent Unit Modifier
+			iModifier = theirUnit:GetNoAdjacentUnitModifier();
+			if (iModifier ~= 0) then
+				local bCombatUnit = true;
+				if (theirUnit:IsNoFriendlyUnitAdjacent(bCombatUnit) and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (theirUnit:IsNoFriendlyUnitAdjacent(bCombatUnit)) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
+			end
 
 -- CBP
 		-- PerAdjacentUnitCombatModifier

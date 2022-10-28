@@ -100,6 +100,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iUpgradeDiscount(0),
 	m_iExperiencePercent(0),
 	m_iAdjacentMod(0),
+	m_iNoAdjacentUnitMod(0),
 	m_iAttackMod(0),
 	m_iDefenseMod(0),
 	m_iGetGroundAttackDamage(0),
@@ -610,6 +611,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iUpgradeDiscount = kResults.GetInt("UpgradeDiscount");
 	m_iExperiencePercent = kResults.GetInt("ExperiencePercent");
 	m_iAdjacentMod = kResults.GetInt("AdjacentMod");
+	m_iNoAdjacentUnitMod = kResults.GetInt("NoAdjacentUnitMod");
 	m_iAttackMod = kResults.GetInt("AttackMod");
 	m_iDefenseMod = kResults.GetInt("DefenseMod");
 	m_iGetGroundAttackDamage = kResults.GetInt("GetGroundAttackDamage");
@@ -1796,6 +1798,12 @@ int CvPromotionEntry::GetExperiencePercent() const
 int CvPromotionEntry::GetAdjacentMod() const
 {
 	return m_iAdjacentMod;
+}
+
+/// Accessor: Bonus when not adjacent to friendly Units
+int CvPromotionEntry::GetNoAdjacentUnitMod() const
+{
+	return m_iNoAdjacentUnitMod;
 }
 
 /// Accessor: Percent attack change

@@ -963,7 +963,9 @@ public:
 	bool IsCoveringFriendlyCivilian() const;
 
 	int GetAdjacentModifier() const;
+	int GetNoAdjacentUnitModifier() const;
 	void ChangeAdjacentModifier(int iValue);
+	void ChangeNoAdjacentUnitModifier(int iValue);
 	int GetRangedAttackModifier() const;
 	void ChangeRangedAttackModifier(int iValue);
 	int GetInterceptionCombatModifier() const;
@@ -2110,6 +2112,7 @@ protected:
 	int m_iSameTileHeal;
 	int m_iAdjacentTileHeal;
 	int m_iAdjacentModifier;
+	int m_iNoAdjacentUnitModifier;
 	int m_iRangedAttackModifier;
 	int m_iInterceptionCombatModifier;
 	int m_iInterceptionDefenseDamageModifier;
@@ -2551,6 +2554,7 @@ SYNC_ARCHIVE_VAR(int, m_iNearbyEnemyCombatRange)
 SYNC_ARCHIVE_VAR(int, m_iSameTileHeal)
 SYNC_ARCHIVE_VAR(int, m_iAdjacentTileHeal)
 SYNC_ARCHIVE_VAR(int, m_iAdjacentModifier)
+SYNC_ARCHIVE_VAR(int, m_iNoAdjacentUnitModifier)
 SYNC_ARCHIVE_VAR(int, m_iRangedAttackModifier)
 SYNC_ARCHIVE_VAR(int, m_iInterceptionCombatModifier)
 SYNC_ARCHIVE_VAR(int, m_iInterceptionDefenseDamageModifier)

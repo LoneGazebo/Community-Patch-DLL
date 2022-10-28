@@ -351,6 +351,7 @@ protected:
 	static int lWithdrawalProbability(lua_State* L);
 
 	static int lGetAdjacentModifier(lua_State* L);
+	static int lGetNoAdjacentUnitModifier(lua_State* L);
 	static int lGetAttackModifier(lua_State* L);
 	static int lGetDefenseModifier(lua_State* L);
 	static int lGetRangedDefenseModifier(lua_State* L);
@@ -543,6 +544,7 @@ protected:
 #endif
 	static int lGetNearbyImprovementModifier(lua_State* L);
 	static int lIsFriendlyUnitAdjacent(lua_State* L);
+	static int lIsNoFriendlyUnitAdjacent(lua_State* L);
 	static int lGetNumEnemyUnitsAdjacent(lua_State* L);
 	static int lIsEnemyCityAdjacent(lua_State* L);
 
