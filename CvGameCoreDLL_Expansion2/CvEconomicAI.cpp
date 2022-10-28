@@ -215,7 +215,7 @@ int CvEconomicAIStrategyXMLEntry::GetAdvisorCounselImportance() const
 // CvEconomicAIStrategyXMLEntries
 //=====================================
 /// Constructor
-CvEconomicAIStrategyXMLEntries::CvEconomicAIStrategyXMLEntries(void) : m_paAIStrategyEntries()
+CvEconomicAIStrategyXMLEntries::CvEconomicAIStrategyXMLEntries(void)
 {
 
 }
@@ -264,9 +264,9 @@ CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index
 //=====================================
 
 /// Constructor
-CvEconomicAI::CvEconomicAI(): m_pPlayer(), m_pAIStrategies(),
+CvEconomicAI::CvEconomicAI():
 	m_pabUsingStrategy(NULL),
-	m_paiTurnStrategyAdopted(NULL), m_aiTempFlavors(), m_iExplorersDisbanded(), m_iLastTurnWorkerDisbanded(), m_iVisibleAntiquitySites(), m_iExplorersNeeded(), m_iNavalExplorersNeeded(), m_iVisibleAntiquitySitesOwn(), m_iVisibleHiddenAntiquitySitesOwn(), m_iVisibleAntiquitySitesNeutral(), m_vPlotsToExploreLand(), m_vPlotsToExploreSea(), m_RequestedSavings()
+	m_paiTurnStrategyAdopted(NULL)
 {
 }
 

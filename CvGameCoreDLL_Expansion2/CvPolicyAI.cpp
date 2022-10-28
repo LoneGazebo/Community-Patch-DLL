@@ -20,7 +20,7 @@
 
 /// Constructor
 CvPolicyAI::CvPolicyAI(CvPlayerPolicies* currentPolicies):
-	m_pCurrentPolicies(currentPolicies), m_iPolicyWeightPropagationLevels(), m_iPolicyWeightPercentDropNewBranch()
+	m_pCurrentPolicies(currentPolicies)
 {
 }
 

@@ -20,7 +20,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 // CvStartPositioner
 //=====================================
 /// Constructor
-CvStartPositioner::CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator) : m_ContinentVector(), m_StartRegionVector()
+CvStartPositioner::CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator)
 {
 	m_iRequiredSeparation = 0;
 	m_iBestFoundValueOnMap = 0;
@@ -843,7 +843,7 @@ struct SStartRegion
 	vector<int> vNeighbors; //indices of neighboring regions (not plots)
 	int iTotalWorth;
 
-	SStartRegion(int iIndex = 0, int iPlotWorth = 0) : vPlots(), vNeighbors()
+	SStartRegion(int iIndex = 0, int iPlotWorth = 0)
 	{  
 		iID = iIndex;
 		vPlots = vector<int>(1, iIndex);

@@ -1959,7 +1959,7 @@ void UnitClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int iArra
 //					CvCivilizationBaseInfo
 //======================================================================================================
 CvCivilizationBaseInfo::CvCivilizationBaseInfo():
-	m_bPlayable(false), m_kPackageID(),
+	m_bPlayable(false),
 	m_bAIPlayable(false)
 {
 	memset((void*)&m_kPackageID, 0, sizeof(m_kPackageID));
@@ -3640,7 +3640,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iInflationPercent(0),
 	m_iReligiousPressureAdjacentCity(0),
 	m_iVictoryDelayPercent(0),
-	m_iMinorCivElectionFreqMod(0), m_iOpinionDurationPercent(), m_iSpyRatePercent(), m_iPeaceDealDuration(), m_iRelationshipDuration(),
+	m_iMinorCivElectionFreqMod(0),
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	m_iTradeRouteSpeedMod(100),
 #endif
@@ -4889,7 +4889,7 @@ CvResourceInfo::CvResourceInfo() :
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness(0),
 	m_iMonopolyGALength(0),
-	m_bIsMonopoly(false), m_iMonopolyAttackBonus(), m_iMonopolyDefenseBonus(), m_iMonopolyMovementBonus(), m_iMonopolyHealBonus(), m_iMonopolyXPBonus(),
+	m_bIsMonopoly(false),
 #endif
 	m_bPresentOnAllValidPlots(false),
 	m_bOneArea(false),
@@ -5980,7 +5980,7 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piHillsYieldChange(NULL),
 	m_piCoastalLandYieldChange(NULL),
 	m_piFreshWaterChange(NULL),
-	m_ppiTechYieldChanges(NULL), m_piEraYieldChange(),
+	m_ppiTechYieldChanges(NULL),
 	m_pi3DAudioScriptFootstepIndex(NULL),
 	m_pbTerrain(NULL),
 	m_bClearable(false)
@@ -8527,7 +8527,7 @@ CvModEventInfo::CvModEventInfo() :
 	 m_iRandomChance(0),
 	 m_iRandomChanceDelta(0),
 	 m_bGlobal(false),
-	 m_bEraScaling(false), m_bIgnoresGlobalCooldown(),
+	 m_bEraScaling(false),
 	 m_iPrereqTech(-1),
 	 m_iObsoleteTech(-1),
 	 m_iMinimumNationalPopulation(0),
@@ -9028,12 +9028,12 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_ppiTerrainYield(NULL),
 	 m_ppiFeatureYield(NULL),
 	 m_ppiImprovementYield(NULL),
-	 m_ppiResourceYield(NULL), m_ppiSpecialistYield(),
+	 m_ppiResourceYield(NULL),
 	 m_iCoastal(0),
 	 m_bCoastalOnly(false),
 	 m_bTradeCapped(false),
 	 m_bCapitalEffectOnly(false),
-	 m_bInstantYieldAllCities(false), m_paNotificationInfo(), m_iNotificationInfos(),
+	 m_bInstantYieldAllCities(false),
 	 m_paLinkerInfo(NULL),
 	 m_iLinkerInfos(0),
 	 m_iBasicNeedsMedianModifierGlobal(0),
@@ -10536,7 +10536,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_ppiBuildingClassYield(NULL),
 	 m_ppiBuildingClassYieldModifier(NULL),
 	 m_ppiTerrainYield(NULL),
-	 m_ppiFeatureYield(NULL), m_ppiSpecialistYield(),
+	 m_ppiFeatureYield(NULL),
 	 m_ppiImprovementYield(NULL),
 	 m_ppiResourceYield(NULL),
 	 m_piCityYield(NULL),
@@ -10576,7 +10576,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bHasPlayerReligion(false),
 	 m_bLacksPlayerReligion(false),
 	 m_bHasPlayerMajority(false),
-	 m_bLacksPlayerMajority(false), m_paCityNotificationInfo(), m_iCityNotificationInfos(),
+	 m_bLacksPlayerMajority(false),
 	 m_iSpyLevelRequired(0),
 	 m_iDifficultyModEsp(0),
 	 m_iSpyExperience(0),

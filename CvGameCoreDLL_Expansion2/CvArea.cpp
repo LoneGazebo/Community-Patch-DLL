@@ -25,7 +25,7 @@
 
 // Public Functions...
 //	--------------------------------------------------------------------------------
-CvArea::CvArea() : m_iID(), m_iNumTiles(), m_iNumOwnedTiles(), m_iNumRiverEdges(), m_iNumUnits(), m_iNumCities(), m_iTotalPopulation(), m_iNumStartingPlots(), m_iNumNaturalWonders(), m_iBadPlots(), m_iTotalFoundValue(), m_aiUnitsPerPlayer(), m_aiCitiesPerPlayer(), m_aiPopulationPerPlayer(), m_aiFreeSpecialist(), m_aiNumRevealedTiles(), m_aTargetCities(), m_aaiYieldRateModifier(), m_aiNumResources(), m_aiNumImprovements(), m_bWater(), m_bMountains()
+CvArea::CvArea()
 {
 	reset(0, false);
 }

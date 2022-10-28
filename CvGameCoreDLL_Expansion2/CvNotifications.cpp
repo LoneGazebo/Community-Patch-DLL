@@ -77,7 +77,7 @@ void CvNotifications::Notification::Clear()
 }
 
 /// Constructor
-CvNotifications::CvNotifications(void) : m_iNotificationsBeginIndex(), m_iNotificationsEndIndex(), m_iCurrentLookupIndex()
+CvNotifications::CvNotifications(void)
 {
 	Uninit();
 }

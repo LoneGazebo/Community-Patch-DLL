@@ -1,7 +1,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvAStarNode.h"
 
-CvAStarNode::CvAStarNode() : m_iKnownCost(), m_iHeuristicCost(), m_iTotalCost(), m_iMoves(), m_iTurns(), m_iStartMovesForTurn(), m_bIsOpen(), m_pParent(), m_apNeighbors()
+CvAStarNode::CvAStarNode()
 {
 	m_iX = -1;
 	m_iY = -1;

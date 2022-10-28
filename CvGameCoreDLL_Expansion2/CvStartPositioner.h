@@ -95,7 +95,7 @@ private:
 class CvStartRegion
 {
 public:
-	CvStartRegion() : m_Boundaries()
+	CvStartRegion()
 	{
 		m_uiFertility = 0;
 		m_iAreaID = -1;

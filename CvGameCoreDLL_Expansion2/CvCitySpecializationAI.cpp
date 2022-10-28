@@ -126,7 +126,7 @@ bool CvCitySpecializationXMLEntry::IsOperationUnitProvider() const
 // CvCitySpecializationXMLEntries
 //=====================================
 /// Constructor
-CvCitySpecializationXMLEntries::CvCitySpecializationXMLEntries(void) : m_paCitySpecializationEntries(), m_CurrentIndex()
+CvCitySpecializationXMLEntries::CvCitySpecializationXMLEntries(void)
 {
 
 }
@@ -217,7 +217,7 @@ void CvCitySpecializationXMLEntries::DeleteArray()
 //=====================================
 
 /// Constructor
-CvCitySpecializationAI::CvCitySpecializationAI(): m_pPlayer(), m_pSpecializations(),
+CvCitySpecializationAI::CvCitySpecializationAI():
 	m_bSpecializationsDirty(false),
 	m_bInterruptWonders(false),
 #if defined(MOD_BALANCE_CORE)

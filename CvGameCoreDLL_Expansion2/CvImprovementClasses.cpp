@@ -97,7 +97,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iWonderProductionModifier(0),
 	m_iUnitPlotExperience(0),
 	m_iGAUnitPlotExperience(0),
-	m_eCreatesFeature(NO_FEATURE), m_eRandResourceChance(), m_eRemovesSelf(),
+	m_eCreatesFeature(NO_FEATURE),
 	m_bNewOwner(false),
 	m_bOwnerOnly(true),
 #endif
@@ -1600,7 +1600,7 @@ int CvImprovementEntry::GetFlavorValue(int i) const
 // CvPromotionEntryXMLEntries
 //=====================================
 /// Constructor
-CvImprovementXMLEntries::CvImprovementXMLEntries(void) : m_paImprovementEntries()
+CvImprovementXMLEntries::CvImprovementXMLEntries(void)
 {
 
 }

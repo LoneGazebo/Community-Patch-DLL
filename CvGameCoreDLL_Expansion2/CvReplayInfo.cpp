@@ -27,13 +27,13 @@ CvReplayInfo::CvReplayInfo() :
 	m_eClimate(NO_CLIMATE),
 	m_eSeaLevel(NO_SEALEVEL),
 	m_eEra(NO_ERA),
-	m_eGameSpeed(NO_GAMESPEED), m_listGameOptions(), m_listVictoryTypes(),
+	m_eGameSpeed(NO_GAMESPEED),
 	m_iInitialTurn(0),
 	m_iFinalTurn(0),
 	m_eVictoryType(NO_VICTORY),
 	m_iMapHeight(0),
-	m_iMapWidth(0), m_listPlots(),
-	m_iNormalizedScore(0), m_listPlayerInfo(), m_listReplayMessages(), m_dataSetMap(), m_listPlayerDataSets(),
+	m_iMapWidth(0),
+	m_iNormalizedScore(0),
 	m_iStartYear(0)
 {
 }
@@ -200,7 +200,7 @@ void CvReplayInfo::createInfo()
 
 	for(int i = 0; i < numPlots; i++)
 	{
-		PlotState plotState = {};
+		PlotState plotState;
 
 		CvPlot* pkPlot = kMap.plotByIndexUnchecked(i);
 		plotState.m_ePlotType = pkPlot->getPlotType();

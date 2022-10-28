@@ -33,7 +33,7 @@ CvHomelandUnit::CvHomelandUnit() :
 //=====================================
 
 /// Constructor
-CvHomelandAI::CvHomelandAI(void) : m_TargetedSentryPoints(), m_TargetedNavalSentryPoints(), m_pPlayer(), m_CurrentTurnUnits(), m_automatedTargetPlots(), m_TargetedCities(), m_TargetedNavalResources(), m_TargetedAntiquitySites()
+CvHomelandAI::CvHomelandAI(void)
 {
 }
 

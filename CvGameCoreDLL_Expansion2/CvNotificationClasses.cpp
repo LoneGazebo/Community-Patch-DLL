@@ -41,7 +41,7 @@ const char* CvNotificationEntry::GetType()
 // CvNotificationXMLEntries
 //=====================================
 /// Constructor
-CvNotificationXMLEntries::CvNotificationXMLEntries(void) : m_paNotificationEntries(), m_mEntries()
+CvNotificationXMLEntries::CvNotificationXMLEntries(void)
 {
 
 }

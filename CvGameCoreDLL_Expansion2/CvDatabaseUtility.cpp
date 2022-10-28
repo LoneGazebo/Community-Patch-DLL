@@ -12,7 +12,7 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-CvDatabaseUtility::CvDatabaseUtility() : m_storedResults()
+CvDatabaseUtility::CvDatabaseUtility()
 {
 
 }
