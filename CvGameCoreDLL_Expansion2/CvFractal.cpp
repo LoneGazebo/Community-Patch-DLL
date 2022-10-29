@@ -75,12 +75,12 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	FAssert(iNewXs < FRACTAL_MAX_DIMS);
 	FAssert(iNewYs < FRACTAL_MAX_DIMS);
 
-	int iSmooth;
-	int iScreen;  // This screens out already marked spots in m_aaiFrac[][];
-	int iPass;
-	int iSum;
-	int iX, iY;
-	int iI;
+	int iSmooth = 0;
+	int iScreen = 0;  // This screens out already marked spots in m_aaiFrac[][];
+	int iPass = 0;
+	int iSum = 0;
+	int iX = 0, iY = 0;
+	int iI = 0;
 
 	reset();
 
@@ -335,11 +335,11 @@ int CvFractal::getHeight(int iX, int iY)
 
 int CvFractal::getHeightFromPercent(int iPercent)
 {
-	int iEstimate;
-	int iLowerBound;
-	int iUpperBound;
-	int iSum;
-	int iX, iY;
+	int iEstimate = 0;
+	int iLowerBound = 0;
+	int iUpperBound = 0;
+	int iSum = 0;
+	int iX = 0, iY = 0;
 
 	iLowerBound = 0;
 	iUpperBound = 255;
@@ -450,7 +450,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 		thisVoronoiSeed.m_iDirectionalBiasStrength = std::max(0L,static_cast<long>(random.get(8, "Ridge Gen 5")) - 4); // ??? do we want to parameterize this???
 
 		// check to see if we are too close to an existing seed
-		bool bNeedToRecheck;
+		bool bNeedToRecheck = 0;
 		do
 		{
 			bNeedToRecheck = false;

@@ -162,7 +162,7 @@ void CvPlayerAI::AI_doTurnPost()
 
 void CvPlayerAI::AI_doTurnUnitsPre()
 {
-	int iLoop;
+	int iLoop = 0;
 
 	//order is important. when a unit was killed, an army might become invalid, which might invalidate an operation
 
@@ -206,8 +206,8 @@ void CvPlayerAI::AI_doTurnUnitsPre()
 
 void CvPlayerAI::AI_doTurnUnitsPost()
 {
-	CvUnit* pLoopUnit;
-	int iLoop;
+	CvUnit* pLoopUnit = NULL;
+	int iLoop = 0;
 
 	if(!isHuman())
 	{
@@ -261,7 +261,7 @@ void CvPlayerAI::AI_unitUpdate()
 		CvLuaArgsHandle args;
 		args->Push(GetID());
 
-		bool bResult;
+		bool bResult = 0;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerPreAIUnitUpdate", args.get(), bResult);
 	}
 
@@ -566,7 +566,7 @@ void CvPlayerAI::AI_chooseResearch()
 	AI_PERF("AI-perf.csv", "AI_chooseResearch");
 
 	TechTypes eBestTech = NO_TECH;
-	int iI;
+	int iI = 0;
 
 	clearResearchQueue();
 
@@ -767,7 +767,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString playerName;
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				CvString strBaseString;
 				CvString strOutBuf;
 				CvString strFileName = "EventLogging.csv";
@@ -824,7 +824,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					if(pkEventChoiceInfo != NULL)
 					{
 						CvString playerName;
-						FILogFile* pLog;
+						FILogFile* pLog = NULL;
 						CvString strBaseString;
 						CvString strOutBuf;
 						CvString strFileName = "EventLogging.csv";
@@ -878,7 +878,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				if(pkEventChoiceInfo != NULL)
 				{
 					CvString playerName;
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EventLogging.csv";
@@ -914,7 +914,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString playerName;
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				CvString strBaseString;
 				CvString strOutBuf;
 				CvString strFileName = "EspionageLog.csv";
@@ -1005,7 +1005,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 					if (pkEventChoiceInfo != NULL)
 					{
 						CvString playerName;
-						FILogFile* pLog;
+						FILogFile* pLog = NULL;
 						CvString strBaseString;
 						CvString strOutBuf;
 						CvString strFileName = "EspionageLog.csv";
@@ -1060,7 +1060,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 				if (pkEventChoiceInfo != NULL)
 				{
 					CvString playerName;
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EspionageLog.csv";
@@ -1237,7 +1237,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 	if(!isAlive())
 		return;
 
-	int iLoop;
+	int iLoop = 0;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -1444,8 +1444,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	{
 		BuildingTypes eNextWonderDesired = GetCitySpecializationAI()->GetNextWonderDesired();
 		
-		int iLoop;
-		CvCity* pLoopCity;
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
 		int iOurPower = pGreatEngineer->GetHurryStrength();
 		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
@@ -1656,7 +1656,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	//we might have multiple generals ... first get an overview
 	int iCommanders = 0;
 	int iCitadels = 0;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsGreatGeneral())
@@ -1783,7 +1783,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 
 	int iGreatAdmiralCount = 0;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER) // should not count the admirals set for use_power as it expends all at the same turn
@@ -1975,8 +1975,8 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 		if(kPlayer.isAlive() && kPlayer.isMinorCiv() && !GET_TEAM(kPlayer.getTeam()).isAtWar(getTeam()))
 		{
 			//Loop through each city
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				//want to have at least on revealed plot as target for pathfinding
@@ -2215,7 +2215,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 		}
 
 		//Will they give us a WLTKD for their resource?
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 		{
 			if (pLoopCity != NULL)

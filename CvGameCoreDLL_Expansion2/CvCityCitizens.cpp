@@ -80,7 +80,7 @@ void CvCityCitizens::Reset()
 
 	m_eCityAIFocusTypes = NO_CITY_AI_FOCUS_TYPE;
 
-	int iI;
+	int iI = 0;
 
 	m_vWorkedPlots.clear();
 	CvAssertMsg((0 < MAX_CITY_PLOTS), "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
@@ -3183,8 +3183,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isWLKTKDOnBirth())
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL)
@@ -3391,8 +3391,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		}
 		if (newUnit->isWLKTKDOnBirth())
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL)

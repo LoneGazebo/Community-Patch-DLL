@@ -22,9 +22,9 @@
 UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom /* = false */)
 {
 	CvWeightedVector<int> UnitClassesVector;
-	int iWeight;
+	int iWeight = 0;
 
-	bool bValid;
+	bool bValid = 0;
 
 	for (int i = 0; i < GC.getNumUnitClassInfos(); i++)
 	{
@@ -180,7 +180,7 @@ int CvGameQueries::GetTeamClosenessScore(int** aaiDistances, int* aiStartingLocs
 				}
 			}
 
-			int iTeamScore;
+			int iTeamScore = 0;
 			if(iNumEdges == 0)
 			{
 				iTeamScore = 0;

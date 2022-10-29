@@ -427,7 +427,7 @@ void CvTechAI::LogResearchChoice(TechTypes eTech)
 		// Find the name of this civ
 		playerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -460,7 +460,7 @@ void CvTechAI::LogResearchCompleted(TechTypes eTech)
 		// Find the name of this civ
 		playerName = m_pCurrentTechs->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line

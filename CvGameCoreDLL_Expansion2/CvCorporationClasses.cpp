@@ -473,7 +473,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CorporationTypes& readFrom)
 }
 FDataStream& operator>>(FDataStream& loadFrom, CorporationTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<CorporationTypes>(v);
 	return loadFrom;
@@ -730,8 +730,8 @@ void CvPlayerCorporations::SetNoForeignCorpsInCities(bool bValue)
 		m_bIsNoForeignCorpsInCities = bValue;
 		if (bValue)
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 			for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL)
@@ -813,8 +813,8 @@ void CvPlayerCorporations::RecalculateNumOffices()
 		return;
 	
 	int iOffices = 0;
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 	for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pLoopCity != NULL)
@@ -852,8 +852,8 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 			PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
 			if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
-				CvCity* pLoopCity;
-				int iLoop;
+				CvCity* pLoopCity = NULL;
+				int iLoop = 0;
 				for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 				{
 					if (pLoopCity != NULL)
@@ -886,8 +886,8 @@ void CvPlayerCorporations::RecalculateNumFranchises()
 
 	m_iNumFranchises = iFranchises;
 
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		YieldTypes eYield;
@@ -1051,7 +1051,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() != m_pPlayer->getTeam() && GET_PLAYER(ePlayer).GetCorporations()->IsNoForeignCorpsInCities())
 			continue;
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			if (pLoopCity != NULL)
@@ -1067,7 +1067,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 
 				int iScore = 500 - iChance;
 
-				int iLoop2;
+				int iLoop2 = 0;
 				for (CvCity* pLoopCity2 = m_pPlayer->firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = m_pPlayer->nextCity(&iLoop2))
 				{
 					if (pLoopCity2 != NULL)
@@ -1103,8 +1103,8 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					pBestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
 						if (pLoopCity != NULL)
@@ -1171,7 +1171,7 @@ void CvPlayerCorporations::LogCorporationMessage(const CvString& strMsg)
 		CvString strBaseString;
 		CvString strTemp, szTemp2;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
@@ -1336,8 +1336,8 @@ int CvPlayerCorporations::GetMaxNumFranchises() const
 					if (m_pPlayer->GetCulture()->GetInfluenceLevel(ePlayer) < INFLUENCE_LEVEL_POPULAR)
 						continue;
 
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 					for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 					{
 						if (pLoopCity != NULL)
@@ -1798,8 +1798,8 @@ int CvPlayerCorporations::GetFranchiseTourismMod(PlayerTypes ePlayer, bool bJust
 
 	int iNumFranchises = 0;
 
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		if (pLoopCity != NULL)

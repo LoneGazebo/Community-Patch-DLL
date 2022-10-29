@@ -183,14 +183,14 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	vector<CvPlot*> vDestPlots;
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
-		int iCity;
+		int iCity = 0;
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			if (pDestCity->plot()->isCity()) //idiot proofing
 				vDestPlots.push_back(pDestCity->plot());
 	}
 
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
 		//throw away the old data before adding the new
@@ -442,11 +442,11 @@ bool CvGameTrade::CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDe
 {
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	CvCity* pOriginLoopCity = NULL;
 	for(pOriginLoopCity = GET_PLAYER(eOriginPlayer).firstCity(&iOriginCityLoop); pOriginLoopCity != NULL; pOriginLoopCity = GET_PLAYER(eOriginPlayer).nextCity(&iOriginCityLoop))
 	{
-		int iDestCityLoop;
+		int iDestCityLoop = 0;
 		CvCity* pDestLoopCity = NULL;
 		for(pDestLoopCity = GET_PLAYER(eDestPlayer).firstCity(&iDestCityLoop); pDestLoopCity != NULL; pDestLoopCity = GET_PLAYER(eDestPlayer).nextCity(&iDestCityLoop))
 		{
@@ -2084,7 +2084,7 @@ CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain)
 {
-	int iOriginX,iOriginY;
+	int iOriginX = 0,iOriginY = 0;
 	PlayerTypes eOriginPlayer;
 
 	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -2157,7 +2157,7 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
 
@@ -2728,7 +2728,7 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 		{
 			if (eYield == YIELD_GOLD)
 			{
-				int iX, iY;
+				int iX = 0, iY = 0;
 				if (bOriginCity)
 				{
 					iX = kTradeConnection.m_iOriginX;
@@ -4252,12 +4252,12 @@ bool CvPlayerTrade::CanCreateTradeRoute(PlayerTypes eOtherPlayer, DomainTypes eD
 {
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
-	int iCityLoop;
-	CvCity* pLoopCity;
+	int iCityLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		int iCityLoop2;
-		CvCity* pLoopCity2;
+		int iCityLoop2 = 0;
+		CvCity* pLoopCity2 = NULL;
 		for (pLoopCity2 = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop2); pLoopCity2 != NULL; pLoopCity2 = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop2))
 		{
 			for (uint uiConnectionTypes = 0; uiConnectionTypes < NUM_TRADE_CONNECTION_TYPES; uiConnectionTypes++)
@@ -4285,7 +4285,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain)
 {
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Get a sorted list of nearby cities 
@@ -4608,7 +4608,7 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 			continue;
 		}
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			int iDistance = ::plotDistance(pFromCity->getX(), pFromCity->getY(), pLoopCity->getX(), pLoopCity->getY());
@@ -5143,7 +5143,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 	// Check the route, but not the path
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
 	{
-		int iCity;
+		int iCity = 0;
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 		{
@@ -5467,10 +5467,10 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt)
 {
 	int iReturnValue = 0;
-	int iLoop;
+	int iLoop = 0;
 
 	// look for units on the map
-	CvUnit* pLoopUnit;
+	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pLoopUnit->isTrade())
@@ -5482,7 +5482,7 @@ int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt)
 	// look inside cities
 	if (bIncludeBeingBuilt)
 	{
-		CvCity* pLoopCity;
+		CvCity* pLoopCity = NULL;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			iReturnValue += pLoopCity->getNumTrainUnitAI(UNITAI_TRADE_UNIT);
@@ -5970,7 +5970,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 	// build trade route list
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	CvCity* pOriginCity = NULL;
 	for (pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
 	{
@@ -5988,7 +5988,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 			if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 				continue;
 
-			int iDestCityLoop;
+			int iDestCityLoop = 0;
 			CvCity* pDestCity = NULL;
 			for (pDestCity = GET_PLAYER(eOtherPlayer).firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = GET_PLAYER(eOtherPlayer).nextCity(&iDestCityLoop))
 			{
@@ -6554,8 +6554,8 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 		}
 		if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 		{
-			int iCityLoop;
-			CvCity* pLoopCity;
+			int iCityLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
 				if(pLoopCity != NULL)
@@ -7150,7 +7150,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 	{
 		// - Find avg city size
 		int iAvgFood = 0;
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
 			iAvgFood += pCity->getBaseYieldRate(YIELD_FOOD);
@@ -7192,7 +7192,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		apProductionTargetCities.push_back(pWonderCity);
 	}
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	for (CvCity* pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		UnitTypes eUnit = pCity->getProductionUnit();
@@ -7252,7 +7252,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		if (eWonderResource != NO_RESOURCE) {
 			std::vector<CvCity*> apWonderTargetCities;
 			CvCity* pCity = NULL;
-			int iCityLoop;
+			int iCityLoop = 0;
 			for (pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop)) {
 				// Only interested in cities that don't have the wonder resource locally and are actually building a wonder!
 				if (!pCity->IsHasResourceLocal(eWonderResource, true))
@@ -7507,7 +7507,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 		}
 	}
 	//Reset values.
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	CvCity* pOriginLoopCity = NULL;
 	for(pOriginLoopCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginLoopCity != NULL; pOriginLoopCity = m_pPlayer->nextCity(&iOriginCityLoop))
 	{

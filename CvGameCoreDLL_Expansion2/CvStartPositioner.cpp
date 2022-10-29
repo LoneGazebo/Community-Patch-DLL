@@ -50,7 +50,7 @@ void CvStartPositioner::Run(int iNumRegions)
 void CvStartPositioner::DivideMapIntoRegions(int iNumRegions)
 {
 	CUSTOMLOG("CvStartPositioner::DivideMapIntoRegions(%i)", iNumRegions);
-	int iLoop;
+	int iLoop = 0;
 	int iNumRegionsPlaced = 0;
 
 	// Initialize
@@ -347,7 +347,7 @@ void CvStartPositioner::DivideContinentIntoRegions(const CvContinent& continent)
 void CvStartPositioner::ComputeTileFertilityValues()
 {
 	// Set all area fertilities to 0
-	int iLoop;
+	int iLoop = 0;
 	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
 	{
 		pLoopArea->setTotalFoundValue(0);
@@ -524,7 +524,7 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 	CvAssert(secondRegion);
 	if(!secondRegion) return;
 
-	int uiTargetFertility;
+	int uiTargetFertility = 0;
 	int uiFertilitySoFar = 0;
 
 	// Do some initialization on second region
@@ -633,7 +633,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 {
 	CvString strString;
 	int uiBestFoundValue = 0;
-	int uiPlotFoundValue;
+	int uiPlotFoundValue = 0;
 	CvPlot* pBestPlot = NULL;
 	CvPlot* pLoopPlot = NULL;
 	int iMinorFoodReq = /*2*/ GD_INT_GET(MINOR_CIV_FOOD_REQUIREMENT);
@@ -797,9 +797,9 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 /// How far apart should our civs start?
 int CvStartPositioner::StartingPlotRange() const
 {
-	int iRange;
-	int iNumMinors, iNumMajors;
-	int iExpectedCities;
+	int iRange = 0;
+	int iNumMinors = 0, iNumMajors = 0;
+	int iExpectedCities = 0;
 
 	// Start with the range as a percentage of the maximum path length across the map
 	iRange = (GC.getMap().maxPlotDistance() + 10);
@@ -830,7 +830,7 @@ void CvStartPositioner::LogStartPositionMessage(const CvString& strMsg)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog("StartPositionLog.csv", FILogFile::kDontTimeStamp);
 		pLog->Msg(strMsg);
 	}

@@ -646,7 +646,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 					if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_DEFENSE || !MOD_AI_UNIT_PRODUCTION && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_COUNTER || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK)
 					{
-						CvUnit* pLoopUnit2;
+						CvUnit* pLoopUnit2 = NULL;
 						for (int iUnitLoop = 0; iUnitLoop < m_pCity->plot()->getNumUnits(); iUnitLoop++)
 						{
 							pLoopUnit2 = m_pCity->plot()->getUnitByIndex(iUnitLoop);
@@ -1261,7 +1261,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iBonus += (1000 * iUnimprovedAround * (m_pCity->getPopulation() + kPlayer.GetCurrentEra()));
 
 			//additional loop to help coastal and non-coastal cities nearby.
-			int iCityLoop;
+			int iCityLoop = 0;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
 			{
 				if (pLoopCity->HasSharedAreaWith(m_pCity,true,false))

@@ -1052,9 +1052,9 @@ void CvDllDatabaseUtility::orderHotkeyInfo(int** ppiSortedIndex, T* pHotkeyInfos
 
 void CvDllDatabaseUtility::orderHotkeyInfo(int** ppiSortedIndex, int* pHotkeyIndex, int iLength)
 {
-	int iI;
-	int* piSortedIndex;
 	std::vector<OrderIndex> viOrderPriority;
+	int iI = 0;
+	int* piSortedIndex = NULL;
 
 	viOrderPriority.resize(iLength);
 	piSortedIndex = *ppiSortedIndex;
@@ -1089,7 +1089,7 @@ void CvDllDatabaseUtility::LogMsg(const char* format, ...) const
 	static char buf[kBuffSize];
 	const uint uiFlags = 0;    // Default (0) is to not write to console and to time stamp
 
-	va_list vl;
+	va_list vl = NULL;
 	va_start(vl,format);
 	vsprintf_s(buf, format, vl);
 	va_end(vl);

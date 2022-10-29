@@ -156,7 +156,7 @@ void CvGrandStrategyAI::Uninit()
 /// Reset AIStrategy status array to all false
 void CvGrandStrategyAI::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	m_iNumTurnsSinceActiveSet = 0;
 
@@ -241,9 +241,9 @@ void CvGrandStrategyAI::DoTurn()
 {
 	DoGuessOtherPlayersActiveGrandStrategy();
 
-	int iGrandStrategiesLoop;
+	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy;
-	CvAIGrandStrategyXMLEntry* pGrandStrategy;
+	CvAIGrandStrategyXMLEntry* pGrandStrategy = NULL;
 	CvString strGrandStrategyName;
 
 	//Only run this on turns we need it.
@@ -354,7 +354,7 @@ void CvGrandStrategyAI::DoTurn()
 		// Now see which Grand Strategy should be active, based on who has the highest Priority right now
 		// Grand Strategy must be run for at least 10 turns
 		int iBestPriority = -1;
-		int iPriority;
+		int iPriority = 0;
 
 		AIGrandStrategyTypes eBestGrandStrategy = NO_AIGRANDSTRATEGY;
 
@@ -684,7 +684,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 		}
 	}
 	//Look for Buildings and grab flavors.
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pLoopCity != NULL)
@@ -930,7 +930,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 		}
 	}
 	//Look for Buildings and grab flavors.
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
 		if(pLoopCity != NULL)
@@ -1128,7 +1128,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 		}
 	}
 	//Look for Buildings and grab flavors.
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
 		if(pLoopCity != NULL)
@@ -1464,7 +1464,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 		}
 	}
 	//Look for Buildings and grab flavors.
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
 		if(pLoopCity != NULL)
@@ -2002,7 +2002,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	}
 
 	int iCulturePriority = 0;
-	int iRatio;
+	int iRatio = 0;
 
 	// Compare their Culture to the world average; Possible range is 75 to -75
 	if(iWorldCultureAverage > 0)
@@ -2172,7 +2172,7 @@ void CvGrandStrategyAI::LogGrandStrategies(const vector<int>& vModifiedGrandStra
 			strLogName = "GrandStrategyAI_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		AIGrandStrategyTypes eGrandStrategy;
@@ -2230,11 +2230,11 @@ void CvGrandStrategyAI::LogGuessOtherPlayerGrandStrategy(const vector<int>& vGra
 			strLogName = "GrandStrategyAI_Guess_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		AIGrandStrategyTypes eGrandStrategy;
-		int iPriority;
+		int iPriority = 0;
 
 		// Loop through Grand Strategies
 		for(int iGrandStrategyLoop = 0; iGrandStrategyLoop < GC.getNumAIGrandStrategyInfos(); iGrandStrategyLoop++)

@@ -56,7 +56,7 @@ CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
 
 CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
 {
-	int hexRange;
+	int hexRange = 0;
 
 	// I'm assuming iDX and iDY are in hex-space
 	if((iDX >= 0) == (iDY >= 0))  // the signs match
@@ -1067,9 +1067,9 @@ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, G
 
 int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
-	int iTurnMonth;
-	int iTurnCount;
-	int iI;
+	int iTurnMonth = 0;
+	int iTurnCount = 0;
+	int iI = 0;
 
 	CvGameSpeedInfo* pkGameSpeedInfo = GC.getGameSpeedInfo(eSpeed);
 	if(pkGameSpeedInfo == NULL)
@@ -1146,7 +1146,7 @@ int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, 
 void boolsToString(const bool* pBools, int iNumBools, CvString* szOut)
 {
 	*szOut = "";
-	int i;
+	int i = 0;
 	for(i=0; i<iNumBools; i++)
 	{
 		*szOut += pBools[i] ? "1" : "0";
@@ -1163,7 +1163,7 @@ void stringToBools(const char* szString, int* iNumBools, bool** ppBools)
 	{
 		*iNumBools = strlen(szString);
 		*ppBools = FNEW(bool[*iNumBools], c_eCiv5GameplayDLL, 0);
-		int i;
+		int i = 0;
 		for(i=0; i<*iNumBools; i++)
 		{
 			(*ppBools)[i] = (szString[i]=='1');

@@ -195,7 +195,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 
 	int iDealValue = GetDealValue(pDeal);
 
-	bool bCantMatchOffer;
+	bool bCantMatchOffer = 0;
 
 	//if a human sent this, don't modify their offer, that's annoying.
 	if (iDealValue > 0)
@@ -673,8 +673,8 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 		int iValueDemanded = 0;
 
 		int iGPT = GetPlayer()->GetTreasury()->CalculateBaseNetGold();
-		int iTempGold;
-		int iModdedGoldValue;
+		int iTempGold = 0;
+		int iModdedGoldValue = 0;
 
 		// Loop through items in this deal
 		TradedItemList::iterator it;
@@ -1171,7 +1171,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 
 	int iItemValue = -1;
 
-	bool bFromMe;
+	bool bFromMe = 0;
 	PlayerTypes eOtherPlayer;
 
 	eOtherPlayer = pDeal->m_eFromPlayer == eMyPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
@@ -1352,8 +1352,8 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Gold with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iMultiplier;
-	int iDivisor;
+	int iMultiplier = 0;
+	int iDivisor = 0;
 
 	// We passed in Value, we want to know how much Gold we get for it
 	if (bNumGoldFromValue)
@@ -1643,7 +1643,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 
 			// Are any of our cities demanding this resource?
-			int iLoop;
+			int iLoop = 0;
 			int iTotalModifier = 0;
 			for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
 			{
@@ -2331,7 +2331,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 
 	//If not as good as any of our cities, we don't want it.
 	int iBetterThanCount = 0;
-	int iCityLoop;
+	int iCityLoop = 0;
 	for(CvCity* pLoopCity = assumedOwner.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = assumedOwner.nextCity(&iCityLoop))
 	{
 		int iScore = (pLoopCity->getEconomicValue(eAssumedOwner) / (max(1, pLoopCity->getPopulation())));
@@ -4141,10 +4141,10 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-		int iItemValue;
+		int iItemValue = 0;
 
 		ResourceTypes eResource;
-		int iResourceQuantity;
+		int iResourceQuantity = 0;
 
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
@@ -4572,7 +4572,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	CvWeightedVector<int> viCityPriceRatio;
 
 	// Loop through all of our cities
-	int iCityLoop;
+	int iCityLoop = 0;
 	CvPlayer* pSellingPlayer = GetPlayer();
 	for(CvCity* pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
@@ -4601,7 +4601,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	viCityPriceRatio.SortItems();
 
 	// Loop through sorted Cities
-	int iSortedCityID;
+	int iSortedCityID = 0;
 	for(int iSortedCityIndex = 0; iSortedCityIndex < viCityPriceRatio.size(); iSortedCityIndex++)
 	{
 		iSortedCityID = viCityPriceRatio.GetElement(iSortedCityIndex);
@@ -4652,7 +4652,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	CvWeightedVector<int> viCityPriceRatio;
 
 	// Loop through all of the their Cities
-	int iCityLoop;
+	int iCityLoop = 0;
 	CvPlayer* pSellingPlayer  = &GET_PLAYER(eThem);
 	for(CvCity* pLoopCity = pSellingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pSellingPlayer->nextCity(&iCityLoop))
 	{
@@ -4681,7 +4681,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	viCityPriceRatio.SortItems();
 
 	// Loop through sorted Cities.
-	int iSortedCityID;
+	int iSortedCityID = 0;
 	for (int iSortedCityIndex = 0; iSortedCityIndex < viCityPriceRatio.size(); iSortedCityIndex++)
 	{
 		iSortedCityID = viCityPriceRatio.GetElement(iSortedCityIndex);
@@ -5344,8 +5344,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	pDeal->AddPeaceTreaty(eLosingPlayer, GC.getGame().getGameSpeedInfo().getPeaceDealDuration());
 	DoAddPlayersAlliesToTreaty(eOtherPlayer, pDeal);
 
-	CvCity* pLoopCity;
-	int iCityLoop;
+	CvCity* pLoopCity = NULL;
+	int iCityLoop = 0;
 	// If the player only has one city then we can't get any more from him
 	if (bGiveUpCities && iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
 	{
@@ -5371,7 +5371,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 		// Sort the vector based on distance from winner's capital
 		viCityValue.SortItems();
-		int iSortedCityID;
+		int iSortedCityID = 0;
 
 		// Determine the value of Cities to be given up
 		int iCityValueToSurrender = iTotalCityValue * iPercentCitiesGiveUp / 100;
@@ -5616,7 +5616,7 @@ void CvDealAI::DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal)
 {
 	int iPeaceDuration = GC.getGame().getGameSpeedInfo().getPeaceDealDuration();
 	PlayerTypes eMinor;
-	CvPlayer* pMinor;
+	CvPlayer* pMinor = NULL;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		eMinor = (PlayerTypes) iMinorLoop;
@@ -5812,8 +5812,8 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -5913,8 +5913,8 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -5965,8 +5965,8 @@ bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -6016,8 +6016,8 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -6063,8 +6063,8 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6107,8 +6107,8 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
@@ -6129,7 +6129,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 		return false;
 	}
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	CvCity* pBestBuyCity = NULL;
 	int iBestBuyCity = 120; //initial value, deal must be good to justify building a courthouse 
 	CvCity* pBestSellCity = NULL;
@@ -6205,8 +6205,8 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6322,8 +6322,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6419,8 +6419,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6506,8 +6506,8 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6750,7 +6750,7 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 	if(eResponse == NO_DEMAND_RESPONSE_TYPE)
 	{
 		int iGoldRequested = 0, iGPTRequested = 0, iLuxuriesRequested = 0, iStrategicsRequested = 0, iTechsRequested = 0;
-		int iTempGold;
+		int iTempGold = 0;
 
 		TradedItemList::iterator it;
 		for(it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
@@ -7021,7 +7021,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	//important, don't want to recalculate for every potential tech
 	UpdateResearchRateCache(eOtherPlayer);
 
-	int iTurnsLeft;
+	int iTurnsLeft = 0;
 	int iTechEra = pkTechInfo->GetEra();
 
 	if(bFromMe)
@@ -7033,7 +7033,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		iTurnsLeft = GetPlayer()->GetPlayerTechs()->GetResearchTurnsLeft(eTech, true, m_vResearchRates[GetPlayer()->GetID()].second);
 	}
 
-	int iI, iTechMod = 0;
+	int iI = 0, iTechMod = 0;
 
 	for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
@@ -7717,8 +7717,8 @@ bool CvDealAI::IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -7751,7 +7751,7 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		return false;
 	}
 
-	int iTechLoop;
+	int iTechLoop = 0;
 	TechTypes eTech;
 	TechTypes eTechWeWant = NO_TECH;
 
@@ -7811,8 +7811,8 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -7914,8 +7914,8 @@ bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal
 	}
 	else
 	{
-		bool bUselessReferenceVariable;
-		bool bCantMatchOffer;
+		bool bUselessReferenceVariable = 0;
+		bool bCantMatchOffer = 0;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -7994,8 +7994,8 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 		else
 		{
-			bool bUselessReferenceVariable;
-			bool bCantMatchOffer;
+			bool bUselessReferenceVariable = 0;
+			bool bCantMatchOffer = 0;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 	}
@@ -8084,9 +8084,9 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-			int iItemValue;
+			int iItemValue = 0;
 
-			int iTechLoop;
+			int iTechLoop = 0;
 			TechTypes eTech;
 
 			// Loop through each Tech
@@ -8149,9 +8149,9 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-			int iItemValue;
+			int iItemValue = 0;
 
-			int iTechLoop;
+			int iTechLoop = 0;
 			TechTypes eTech;
 
 			// Loop through each Tech
@@ -8190,7 +8190,7 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-		int iItemValue;
+		int iItemValue = 0;
 
 		if (IsMakeOfferToBecomeVassal(eThem, pDeal))
 		{
@@ -8217,7 +8217,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 
 	if (iTotalValue > 0)
 	{
-		int iItemValue;
+		int iItemValue = 0;
 
 		if (IsMakeOfferForVassalage(eThem, pDeal))
 		{
@@ -8244,7 +8244,7 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 
 	if (iTotalValue > 0)
 	{
-		int iItemValue;
+		int iItemValue = 0;
 
 		if (IsMakeOfferForRevokeVassalage(eThem, pDeal))
 		{

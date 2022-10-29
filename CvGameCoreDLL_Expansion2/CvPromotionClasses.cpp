@@ -3455,7 +3455,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer)
 {
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
-	int iValueLoop;
+	int iValueLoop = 0;
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iValueLoop))
 	{
 		if (pLoopUnit->isHasPromotion(eIndex))
@@ -3470,9 +3470,9 @@ bool CvUnitPromotions::IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlaye
 // Read the saved promotions.  Entries are saved as string values, all entries are saved.
 void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 	FStringFixedBuffer(sTemp, 64);
-	int iType;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -3483,7 +3483,7 @@ void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions
 		kStream >> sTemp;
 		if(sTemp == "PROMOTION_OLIGARCHY")
 		{
-			bool bTemp;
+			bool bTemp = 0;
 			kStream >> bTemp;
 		}
 		else
@@ -3491,7 +3491,7 @@ void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions
 			iType = GC.getInfoTypeForString(sTemp);
 			if(iType != -1)
 			{
-				bool bValue;
+				bool bValue = 0;
 				kStream >> bValue;
 				kPromotions.SetBit(iType, bValue);
 			}
@@ -3501,7 +3501,7 @@ void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions
 				szError.Format("LOAD ERROR: Promotion Type not found: %s", sTemp.c_str());
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
-				bool bDummy;
+				bool bDummy = 0;
 				kStream >> bDummy;
 			}
 		}
@@ -3511,21 +3511,21 @@ void PromotionArrayHelpers::ReadV3(FDataStream& kStream, CvBitfield& kPromotions
 // Read the saved promotions.  Entries are saved as hash values
 void PromotionArrayHelpers::Read(FDataStream& kStream, CvBitfield& kPromotions)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
 	kPromotions.SetSize( iNumEntries );
 
-	uint uiHashTemp;
+	uint uiHashTemp = 0;
 	uint uiOligarchyHash = FString::Hash("PROMOTION_OLIGARCHY");
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
 		kStream >> uiHashTemp;
 		if(uiHashTemp == uiOligarchyHash)
 		{
-			bool bTemp;
+			bool bTemp = 0;
 			kStream >> bTemp;
 		}
 		else
@@ -3533,7 +3533,7 @@ void PromotionArrayHelpers::Read(FDataStream& kStream, CvBitfield& kPromotions)
 			iType = GC.getInfoTypeForHash(uiHashTemp);
 			if(iType != -1)
 			{
-				bool bValue;
+				bool bValue = 0;
 				kStream >> bValue;
 				kPromotions.SetBit(iType, bValue);
 			}
@@ -3543,7 +3543,7 @@ void PromotionArrayHelpers::Read(FDataStream& kStream, CvBitfield& kPromotions)
 				szError.Format("LOAD ERROR: Promotion Type not found for hash: %u", uiHashTemp);
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
-				bool bDummy;
+				bool bDummy = 0;
 				kStream >> bDummy;
 			}
 		}

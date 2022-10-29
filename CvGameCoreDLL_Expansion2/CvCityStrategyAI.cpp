@@ -89,7 +89,7 @@ bool CvAICityStrategyEntry::CacheResults(Database::Results& kResults, CvDatabase
 	m_iAdvisorCounselImportance = kResults.GetInt("AdvisorCounselImportance");
 
 	//References
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("TechObsolete");
 	m_iTechObsolete = GC.getInfoTypeForString(szTextVal, true);
 
@@ -380,7 +380,7 @@ FDataStream& operator<<(FDataStream& stream, const CvCityStrategyAI& cityStrateg
 /// Runs through all active player strategies and propagates Flavors down to this City
 void CvCityStrategyAI::UpdateFlavorsForNewCity()
 {
-	int iFlavorLoop;
+	int iFlavorLoop = 0;
 
 	// Clear out Temp array
 	for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
@@ -473,7 +473,7 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 		CvCitySpecializationXMLEntry* pSpecialization = GC.getCitySpecializationInfo(eSpecialization);
 		if(pSpecialization)
 		{
-			int iFlavorLoop;
+			int iFlavorLoop = 0;
 
 			// Clear out Temp array
 			for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
@@ -1162,7 +1162,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 /// Pick the next build for a city (unit, building)
 CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchase)
 {
-	int iBldgLoop, iUnitLoop, iTempWeight;
+	int iBldgLoop = 0, iUnitLoop = 0, iTempWeight = 0;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
 	UnitTypes eUnitForOperation;
@@ -1281,7 +1281,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 	if (!bUnitOnly)
 	{
 		std::vector<int> vTotalBuildingCount( GC.getNumBuildingInfos(), 0);
-		int iLoop;
+		int iLoop = 0;
 		for(const CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			const std::vector<BuildingTypes>& vBuildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
@@ -1684,7 +1684,7 @@ void CvCityStrategyAI::DoTurn()
 			// Flavor propagation
 			if(bAdoptOrEndStrategy)
 			{
-				int iFlavorLoop;
+				int iFlavorLoop = 0;
 
 				// We should adopt this CityStrategy
 				if(bTestCityStrategyStart)
@@ -1767,7 +1767,7 @@ void CvCityStrategyAI::LogHurry(HurryTypes iHurryType, int iHurryAmount, int iHu
 		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1822,7 +1822,7 @@ void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
 		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -1998,7 +1998,7 @@ void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
 		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetHurryLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -2121,7 +2121,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
 		cityName = m_pCity->getName();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetProductionLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -2591,7 +2591,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTyp
 	int iNumOceanPlots = 0;
 	int iNumTotalWorkablePlots = 0;
 
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 
 	// Look at all Tiles this City could potentially work
 
@@ -2638,7 +2638,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 {
 	int iNumUnimprovedWaterResources = 0;
 
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 
 	// Look at all Tiles this City could potentially work to see if there are any Water Resources that could be improved
 
@@ -2707,7 +2707,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 		//No improved, no impassable, water only.
 		if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT && !pLoopPlot->isImpassable() && pLoopPlot->isWater())
 		{
-			CvUnit* pLoopUnit;
+			CvUnit* pLoopUnit = NULL;
 			for(int iUnitLoop = 0; iUnitLoop < pLoopPlot->getNumUnits(); iUnitLoop++)
 			{
 				//Workers nearby?
@@ -4647,9 +4647,9 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	int iCultureValue = 0;
 	int iTourismValue = 0;
 
-	int iGrandStrategiesLoop;
+	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy;
-	CvAIGrandStrategyXMLEntry* pGrandStrategy;
+	CvAIGrandStrategyXMLEntry* pGrandStrategy = NULL;
 	CvString strGrandStrategyName;
 
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later

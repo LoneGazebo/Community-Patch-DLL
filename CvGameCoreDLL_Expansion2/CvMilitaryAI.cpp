@@ -1345,7 +1345,7 @@ void CvMilitaryAI::LogDeclarationOfWar(PlayerTypes eOpponent)
 		CvString opponentName;
 		CvString playerName;
 		CvString strTemp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		playerName = GetPlayer()->getCivilizationShortDescription();
@@ -1374,7 +1374,7 @@ void CvMilitaryAI::LogCityCaptured(CvCity* pCity, PlayerTypes eOldOwner)
 		CvString strOldOwnerName;
 		CvString strCityName;
 		CvString strTemp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();
@@ -1405,7 +1405,7 @@ void CvMilitaryAI::LogCityRazed(CvCity* pCity, PlayerTypes eOldOwner)
 		CvString strOldOwnerName;
 		CvString strCityName;
 		CvString strTemp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();
@@ -1435,7 +1435,7 @@ void CvMilitaryAI::LogPeace(PlayerTypes eOpponent)
 		CvString strOpponentName;
 		CvString strPlayerName;
 		CvString strTemp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();
@@ -1463,7 +1463,7 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 		CvString strOpponentName;
 		CvString strPlayerName;
 		CvString strTemp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();
@@ -1561,7 +1561,7 @@ void CvMilitaryAI::UpdateBaseData()
 	m_iNumMissileUnits = 0;
 	m_iNumActiveUniqueUnits = 0;
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't count civilians or exploration units
@@ -1661,7 +1661,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	iNumUnitsWantedDefense += min(5, (m_pPlayer->GetNumWonders() / 3));
 
 	int iNumCoastalCities = 0;
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		//need this later
@@ -1757,7 +1757,7 @@ void CvMilitaryAI::UpdateDefenseState()
 
 	if (m_eLandDefenseState <= DEFENSE_STATE_NEUTRAL)
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
 			if (pLoopCity->isUnderSiege())
@@ -1787,7 +1787,7 @@ void CvMilitaryAI::UpdateDefenseState()
 
 	if (m_eNavalDefenseState <= DEFENSE_STATE_NEUTRAL)
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
 			if (pLoopCity->isCoastal() && pLoopCity->isUnderSiege())
@@ -2075,7 +2075,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 			// Flavor propagation
 			if(bAdoptOrEndStrategy)
 			{
-				int iFlavorLoop;
+				int iFlavorLoop = 0;
 
 				// We should adopt this Strategy
 				if(bTestStrategyStart)
@@ -2366,7 +2366,7 @@ void CvMilitaryAI::UpdateOperations()
 	}
 
 	//if we have an idle carrier, try to start a strike group. the carrier may be empty!
-	int iLoop;
+	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if(pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
@@ -2486,7 +2486,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 {
 	vector<CvUnit*> candidates;
 
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		if (!pLoopUnit->IsCombatUnit())
@@ -2552,7 +2552,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
 CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iReturnedScore, bool bOverSupplyCap, bool bInDeficit)
 {
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	CvUnit* pBestUnit = NULL;
 	int iBestScore = MAX_INT;
 
@@ -2664,7 +2664,7 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 
 bool CvMilitaryAI::IsBuildingArmy(ArmyType eType) const
 {
-	int iLoop;
+	int iLoop = 0;
 	for (CvArmyAI* pLoopArmyAI = m_pPlayer->firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = m_pPlayer->nextArmyAI(&iLoop))
 	{
 		if (pLoopArmyAI->GetType() == eType || eType == ARMY_TYPE_ANY)
@@ -2681,7 +2681,7 @@ UnitTypes CvMilitaryAI::GetUnitTypeForArmy(CvCity* pCity) const
 	UnitTypes eBestUnit = NO_UNIT;
 	size_t leastOpenSlots = INT_MAX;
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvArmyAI* pLoopArmyAI = m_pPlayer->firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = m_pPlayer->nextArmyAI(&iLoop))
 	{
 		vector<size_t> vOpenSlots = pLoopArmyAI->GetOpenSlots(true);
@@ -2760,8 +2760,8 @@ CvPlot *CvMilitaryAI::GetBestAirSweepTarget(CvUnit* pFighter) const
 			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
 			{
 				// Loop through each of their cities
-				int iLoop;
-				CvCity* pLoopCity;
+				int iLoop = 0;
+				CvCity* pLoopCity = NULL;
 				for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 				{
 					CvPlot *pCityPlot = pLoopCity->plot();
@@ -2838,7 +2838,7 @@ void CvMilitaryAI::LogStrategy(MilitaryAIStrategyTypes eStrategy, bool bValue)
 		CvString strTemp;
 		CvString playerName;
 		CvString strLogName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file - strategies are logged to the flavor log, not the military one
 		playerName = GetPlayer()->getCivilizationShortDescription();
@@ -2874,8 +2874,8 @@ void CvMilitaryAI::LogStrategy(MilitaryAIStrategyTypes eStrategy, bool bValue)
 
 			CvString cityName;
 
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			for(pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
 			{
@@ -2904,8 +2904,8 @@ void CvMilitaryAI::LogMilitaryStatus()
 		CvString strBaseString;
 		CvString strTemp;
 		CvString playerName;
-		CvCity* pCity;
-		FILogFile* pLog;
+		CvCity* pCity = NULL;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		playerName = GetPlayer()->getCivilizationShortDescription();
@@ -3033,7 +3033,7 @@ void CvMilitaryAI::LogWarStateChange(PlayerTypes ePlayer, WarStateTypes eNewWarS
 		CvString strTemp;
 		CvString playerName;
 		CvString opponentName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		playerName = GetPlayer()->getCivilizationShortDescription();
@@ -3109,7 +3109,7 @@ void CvMilitaryAI::LogScrapUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		CvString strOutBuf;
 		CvString strTemp;
 		CvString playerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		playerName = m_pPlayer->getCivilizationShortDescription();
@@ -3156,7 +3156,7 @@ void CvMilitaryAI::LogGiftUnit(CvUnit* pUnit, bool bDeficit, bool bSupply)
 		CvString strOutBuf;
 		CvString strTemp;
 		CvString playerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Open the right file
 		playerName = m_pPlayer->getCivilizationShortDescription();
@@ -3257,7 +3257,7 @@ void CvMilitaryAI::UpdateWarType()
 	int iEnemyLand = 0;
 	int iEnemyWaterCities = 0;
 	int iEnemyLandCities = 0;
-	int iLoop;
+	int iLoop = 0;
 
 	int iFriendlyLand = 0;
 	int iFriendlySea = 0;
@@ -3393,7 +3393,7 @@ void CvMilitaryAI::UpdateWarType()
 						}
 					}
 				}
-				CvCity* pLoopCity;
+				CvCity* pLoopCity = NULL;
 				int iLoopCity = 0;
 				for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoopCity))
 				{
@@ -3733,7 +3733,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 
 	// We ARE getting our guys back
 	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
 	{
 		if (pLoopUnit->GetOriginalOwner() == pPlayer->GetID() && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER))
@@ -3784,7 +3784,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 /// "Eradicate Barbarians" Player Strategy: If there is a large group of barbarians units or camps near our civilization, increase OFFENSE
 bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount)
 {
-	int iStrategyWeight;
+	int iStrategyWeight = 0;
 
 	CvMilitaryAIStrategyXMLEntry* pStrategy = pPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetEntry(eStrategy);
 	CvAssert(pStrategy != NULL);

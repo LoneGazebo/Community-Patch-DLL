@@ -1598,11 +1598,11 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	bool bBarbarian = false;
 	int iMaxXP = 0;
 
-	int iAttackerDamageInflicted;
-	int iDefenderDamageInflicted;
+	int iAttackerDamageInflicted = 0;
+	int iDefenderDamageInflicted = 0;
 
-	int iAttackerTotalDamageInflicted;
-	int iDefenderTotalDamageInflicted;
+	int iAttackerTotalDamageInflicted = 0;
+	int iDefenderTotalDamageInflicted = 0;
 
 	PlayerTypes eDefenderOwner;
 
@@ -2549,7 +2549,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 
 	CvString strBuffer;
 	bool abTeamsAffected[MAX_TEAMS];
-	int iI;
+	int iI = 0;
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		abTeamsAffected[iI] = kAttacker.isNukeVictim(&plot, ((TeamTypes)iI));
@@ -2602,7 +2602,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		args->Push(bWar);
 		args->Push(bBystander);
 
-		bool bResult;
+		bool bResult = 0;
 		LuaSupport::CallHook(pkScriptSystem, "NuclearDetonation", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_NUCLEAR_DETONATION)
@@ -2844,7 +2844,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					// Unlike the city hit points, the population damage is calculated when the pre-calculated damage is applied.
 					// This is simply to save space in the damage array, since the combat visualization does not need it.
 					// It can be moved into the pre-calculated damage array if needed.
-					int iBaseDamage, iRandDamage1, iRandDamage2;
+					int iBaseDamage = 0, iRandDamage1 = 0, iRandDamage2 = 0;
 					// How much destruction is unleashed on nearby Cities?
 					if(iDamageLevel == 1)
 					{
@@ -3010,7 +3010,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 						{
 							if(!pLoopUnit->isNukeImmune() && !pLoopUnit->isDelayedDeath())
 							{
-								int iNukeDamage;
+								int iNukeDamage = 0;
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
@@ -3073,7 +3073,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 						}
 					}
 
-					int iTotalDamage;
+					int iTotalDamage = 0;
 					if(bKillCity)
 					{
 						iTotalDamage = pLoopCity->GetMaxHitPoints();
@@ -3630,7 +3630,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				args->Push(plotX);
 				args->Push(plotY);
 
-				bool bResult;
+				bool bResult = 0;
 				LuaSupport::CallHook(pkScriptSystem, "CombatEnded", args.get(), bResult);
 			}
 		}

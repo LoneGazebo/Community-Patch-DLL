@@ -225,7 +225,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			continue;
 
 		//for each unit
-		int iLoop;
+		int iLoop = 0;
 		for(CvUnit* pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
 			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
@@ -428,7 +428,7 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
 	{
 		CvPlayer* pMinor = NULL;
-		CvPlayer* pMajor;
+		CvPlayer* pMajor = NULL;
 
 		if(GET_PLAYER(m_ePlayer).isMinorCiv())
 		{

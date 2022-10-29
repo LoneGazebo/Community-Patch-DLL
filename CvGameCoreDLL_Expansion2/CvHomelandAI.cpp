@@ -100,7 +100,7 @@ void CvHomelandAI::RecruitUnits()
 	m_automatedTargetPlots.clear();
 
 	// Loop through our units
-	int iLoop;
+	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Sanity check
@@ -158,7 +158,7 @@ void CvHomelandAI::RecruitUnits()
 /// Mark all the units that will be under tactical AI control this turn
 void CvHomelandAI::FindAutomatedUnits()
 {
-	int iLoop;
+	int iLoop = 0;
 
 	m_CurrentTurnUnits.clear();
 	m_automatedTargetPlots.clear();
@@ -184,7 +184,7 @@ void CvHomelandAI::Update()
 	//no homeland for barbarians
 	if(m_pPlayer->GetID() == BARBARIAN_PLAYER)
 	{
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
 			if (!pLoopUnit->TurnProcessed())
@@ -1163,7 +1163,7 @@ void CvHomelandAI::ExecuteUnitGift()
 	{
 		vector<int> vUnitIDs;
 		bool bFoundOne = false;
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
 			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
@@ -1266,7 +1266,7 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 	{
 		vector<int> vUnitIDs;
 		bool bFoundOne = false;
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
 			if (pUnit->IsCombatUnit() && pUnit->getDomainType() == eDomain && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
@@ -1519,7 +1519,7 @@ void CvHomelandAI::PlotUpgradeMoves()
 	ClearCurrentMoveUnits(AI_HOMELAND_MOVE_UPGRADE);
 
 	// Loop through ALL units, not just homeland units - units need to be upgraded!
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't try and upgrade a human player's unit
@@ -2788,7 +2788,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	//todo: what about great people?
 	if (m_pPlayer->isHuman())
 	{
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
@@ -3391,8 +3391,8 @@ void CvHomelandAI::ExecuteScientistMoves()
 /// Expends an engineer to gain a wonder (or a very emergency build)
 void CvHomelandAI::ExecuteEngineerMoves()
 {
-	CvCity* pWonderCity;
-	int iTurnsToTarget;
+	CvCity* pWonderCity = NULL;
+	int iTurnsToTarget = 0;
 
 	CHomelandUnitArray::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
@@ -4627,7 +4627,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 {
 	WeightedPlotVector aBestPlotList;
-	int iLoopCity;
+	int iLoopCity = 0;
 	for(CvCity *pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
 	{
 		if(pLoopCity->isInDangerOfFalling())
@@ -5348,7 +5348,7 @@ void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 		CvString strBaseString;
 		CvString strTemp, szTemp2;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
 		strPlayerName.Replace(' ', '_'); //no spaces
@@ -5412,7 +5412,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,Reachab
 			{
 				// Open the log file
 				CvString strFileName = "BuilderTaskingLog.csv";
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
 				// write in data
