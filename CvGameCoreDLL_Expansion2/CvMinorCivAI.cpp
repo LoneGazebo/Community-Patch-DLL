@@ -959,7 +959,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	if (GetGPGlobal() > 0)
 	{
 		// Loop through all Cities
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			for (int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
@@ -990,7 +990,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer)
 	}
 	if (GetExperience() > 0)
 	{
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 		{
 			if (pLoopUnit && !pLoopUnit->IsCivilianUnit())
@@ -1331,7 +1331,7 @@ bool CvMinorCivQuest::IsComplete()
 		UnitTypes eUnit = (UnitTypes)m_iData1;
 
 		// Player has the Great Person?
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = pAssignedPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pAssignedPlayer->nextUnit(&iLoop))
 		{
 			if (pLoopUnit->getUnitType() == eUnit)
@@ -1569,7 +1569,7 @@ bool CvMinorCivQuest::IsExpired()
 		if (pMinorsPlot == NULL)
 			return true;
 
-		int iLoop;
+		int iLoop = 0;
 		bool bInRange = false;
 		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iLoop))
 		{
@@ -2608,7 +2608,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		{
 			PlayerTypes eTeamPlayer;
 
-			int iPlayerLoop;
+			int iPlayerLoop = 0;
 			// Loop through all players to see if they're on our team
 			for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -4284,7 +4284,7 @@ void CvMinorCivAI::Reset()
 
 	if(GetPlayer()->isMinorCiv())
 	{
-		CvPlot* pLoopPlot;
+		CvPlot* pLoopPlot = NULL;
 		TeamTypes eTeam = GetPlayer()->getTeam();
 		int iNumPlotsInEntireWorld = GC.getMap().numPlots();
 		for(int iLoopPlot = 0; iLoopPlot < iNumPlotsInEntireWorld; iLoopPlot++)
@@ -5023,11 +5023,11 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 										pBestCity = pPlayer->getCapitalCity();
 									} else {
 										// Ripped from CvPlayer::receiveGoody()
-										int iDistance;
+										int iDistance = 0;
 										int iBestCityDistance = -1;
 
-										CvCity* pLoopCity;
-										int iLoop;
+										CvCity* pLoopCity = NULL;
+										int iLoop = 0;
 										// Find the closest City to us
 										for (pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop)) {
 											iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
@@ -5156,9 +5156,9 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 		return;
 
 	PlayerTypes eOtherMinor;
-	int iOtherMinorLoop;
+	int iOtherMinorLoop = 0;
 	PlayerTypes eOtherAlly;
-	bool bForcedWar;
+	bool bForcedWar = false;
 
 	TeamTypes eLoopTeam;
 	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -5335,8 +5335,8 @@ void CvMinorCivAI::DoTurnStatus()
 
 	PlayerProximityTypes eProximity;
 
-	CvPlayer* pPlayer;
-	CvTeam* pTeam;
+	CvPlayer* pPlayer = NULL;
+	CvTeam* pTeam = NULL;
 	PlayerTypes ePlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -5595,7 +5595,7 @@ int CvMinorCivAI::GetNumThreateningBarbarians()
 {
 	int iCount = 0;
 
-	int iLoop;
+	int iLoop = 0;
 	for(CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 		if(pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
 			iCount++;
@@ -5624,7 +5624,7 @@ int CvMinorCivAI::GetNumThreateningMajors()
 		if (!kPlayer.IsAtWarWith(GetPlayer()->GetID()))
 			continue;
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			if (pLoopUnit->plot()->isAdjacentTeam(GetPlayer()->getTeam()))
 				iCount++;
@@ -5642,7 +5642,7 @@ int CvMinorCivAI::GetNumBarbariansInBorders(bool bOnlyAdjacentToCity)
 
 	int iCount = 0;
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iLoop))
 	{
 		if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getOwner() == m_pPlayer->GetID())
@@ -6120,7 +6120,7 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 
 	vector<MinorCivQuestTypes> veValidQuests;
 
-	int iCount, iCountLoop;
+	int iCount = 0, iCountLoop = 0;
 
 	MinorCivQuestTypes eQuest;
 	for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -6820,8 +6820,8 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if(pMinorsPlot == NULL)
 			return false;
 
-		int iLoop;
-		CvCity* pLoopCity;
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
 		bool bInRange = false;
 		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
@@ -8777,10 +8777,10 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 
 	int iRange = /*12*/ GD_INT_GET(MINOR_CIV_QUEST_KILL_CAMP_RANGE);
 
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 
 	// Loop in all plots in range
-	int iDX, iDY;
+	int iDX = 0, iDY = 0;
 	for(iDX = -(iRange); iDX <= iRange; iDX++)
 	{
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -8843,10 +8843,10 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 
 	int iRange = 12;
 
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 
 	// Loop in all plots in range
-	int iDX, iDY;
+	int iDX = 0, iDY = 0;
 	for(iDX = -(iRange); iDX <= iRange; iDX++)
 	{
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -9338,13 +9338,13 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 
 	vector<BuildingTypes> veValidBuildings;
 
-	int iWorldPlayerLoop;
+	int iWorldPlayerLoop = 0;
 	PlayerTypes eWorldPlayer;
-	CvCity* pLoopCity;
-	int iCityLoop;
-	int iWonderProgress;
+	CvCity* pLoopCity = NULL;
+	int iCityLoop = 0;
+	int iWonderProgress = 0;
 	int iCompletionThreshold = /*25*/ GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD);
-	bool bFoundWonderTooFarAlong;
+	bool bFoundWonderTooFarAlong = false;
 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 	// Loop through all Buildings and see if they're useful
@@ -9423,7 +9423,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 
 	vector<BuildingTypes> veValidBuildings; // 50 wonders should be overkill
 
-	int iWorldPlayerLoop;
+	int iWorldPlayerLoop = 0;
 	PlayerTypes eWorldPlayer;
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 
@@ -9522,7 +9522,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 	vector<PlayerTypes> veValidTargets;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
-	int iTargetLoop;
+	int iTargetLoop = 0;
 	PlayerTypes eTarget;
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 	{
@@ -9691,7 +9691,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		bool bAlreadyHasUnit = false;
 
 		// Player can't already have this Unit
-		int iLoop;
+		int iLoop = 0;
 		for(CvUnit* pLoopUnit = GET_PLAYER(ePlayer).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(ePlayer).nextUnit(&iLoop))
 		{
 			if(pLoopUnit->getUnitType() == eUnit)
@@ -9733,7 +9733,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 	PlayerProximityTypes eClosestProximity = PLAYER_PROXIMITY_DISTANT;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
-	int iTargetLoop;
+	int iTargetLoop = 0;
 	PlayerTypes eTarget;
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 	{
@@ -9891,7 +9891,7 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 		if (GetAlly() == ePlayer)
 			continue;
 
-		int iLoopCity;
+		int iLoopCity = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTarget).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTarget).nextCity(&iLoopCity, true))
 		{
 			if(!pLoopCity->isCapital() && pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
@@ -9976,7 +9976,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 
-		int iLoopCity;
+		int iLoopCity = 0;
 		bool bBad = false;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity, true))
 		{
@@ -10017,7 +10017,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestValue = 0;
 	int iValue = 0;
-	int iBonusValue;
+	int iBonusValue = 0;
 	bool bValid = false;
 	bool bNaval = GetPlayer()->getCapitalCity()->isCoastal(10) && GET_PLAYER(ePlayer).getCapitalCity()->isCoastal(10);
 
@@ -10098,7 +10098,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 				}
 			}
 
-			int iLoop;
+			int iLoop = 0;
 			for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 			{
 				// Don't count civilians or exploration units
@@ -10380,12 +10380,12 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 	}
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-	CvArea* pLoopArea;
+	CvArea* pLoopArea = NULL;
 	CvArea* pBestArea = NULL;
-	int iLoop;
+	int iLoop = 0;
 
 	int iBestAreaValue = 0;
-	CvPlot* pPlot;
+	CvPlot* pPlot = NULL;
 	CvPlot* pBestPlot = NULL;
 
 	int iWorldWidth = GC.getMap().getGridWidth();
@@ -10660,7 +10660,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 	PlayerProximityTypes eClosestProximity = PLAYER_PROXIMITY_CLOSE;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
-	int iTargetLoop;
+	int iTargetLoop = 0;
 	PlayerTypes eTarget;
 	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 	{
@@ -10885,7 +10885,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		// Bonus Influence from unit gifts
 		if (iUnitGiftInfluence != 0)
 		{
-			int iLoop;
+			int iLoop = 0;
 			for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iLoop))
 			{
 				if (!pLoopUnit->IsCombatUnit() || pLoopUnit->isDelayedDeath())
@@ -11212,7 +11212,7 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 	// Change gifted Resources
 	ResourceTypes eResource;
 	ResourceUsageTypes eUsage;
-	int iResourceQuantity;
+	int iResourceQuantity = 0;
 
 	PlayerTypes TechTestPlayer = NO_PLAYER;
 	if (eNewAlly != NO_PLAYER)
@@ -11279,7 +11279,7 @@ int CvMinorCivAI::GetMostFriendshipWithAnyMajor(PlayerTypes& eBestPlayer)
 	int iMostFriendship = 0;
 	PlayerTypes eMajor;
 
-	int iFriendship;
+	int iFriendship = 0;
 
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
@@ -11503,7 +11503,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		args->Push(eOldAlly);
 		args->Push(eNewAlly);
 
-		bool bResult;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
 	}
 
@@ -11920,7 +11920,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
 		TeamTypes eNewAllyTeam = GET_PLAYER(ePlayer).getTeam();
-		const char* strNewBestPlayersNameKey;
+		const char* strNewBestPlayersNameKey = NULL;
 
 		// Notify player has met the new Ally
 		if(pNotifyTeam->isHasMet(eNewAllyTeam))
@@ -11997,7 +11997,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 						// Only show this message for normal friendship decay
 						if(!bPassedBySomeone)
 						{
-							const char* strOldAllyNameKey;
+							const char* strOldAllyNameKey = NULL;
 
 							// Notify player has met the old Ally
 							if(pNotifyTeam->isHasMet(eOldAllyTeam))
@@ -12828,7 +12828,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Friends
 		if(IsFriends(ePlayer))
 		{
-			int iOldFood, iNewFood;
+			int iOldFood = 0, iNewFood = 0;
 
 			// Capital
 			iOldFood = GetFriendsCapitalFoodBonus(ePlayer);
@@ -12854,7 +12854,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Allies
 		if(IsAllies(ePlayer))
 		{
-			int iOldFood, iNewFood;
+			int iOldFood = 0, iNewFood = 0;
 
 			// Capital
 			iOldFood = GetAlliesCapitalFoodBonus(ePlayer);
@@ -12912,7 +12912,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Friends
 		if(IsFriends(ePlayer))
 		{
-			int iOldHappiness, iNewHappiness;
+			int iOldHappiness = 0, iNewHappiness = 0;
 
 			iOldHappiness = GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
 			iNewHappiness = GetHappinessFlatFriendshipBonus(ePlayer, eNewEra) + GetHappinessPerLuxuryFriendshipBonus(ePlayer, eNewEra);
@@ -12927,7 +12927,7 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Allies
 		if(IsAllies(ePlayer))
 		{
-			int iOldHappiness, iNewHappiness;
+			int iOldHappiness = 0, iNewHappiness = 0;
 
 			iOldHappiness = GetHappinessFlatAlliesBonus(ePlayer) + GetHappinessPerLuxuryAlliesBonus(ePlayer);
 			iNewHappiness = GetHappinessFlatAlliesBonus(ePlayer, eNewEra) + GetHappinessPerLuxuryAlliesBonus(ePlayer, eNewEra);
@@ -13835,7 +13835,7 @@ int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
 // Food bonus when Friends with a minor - additive with general city bonus
 int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
-	int iBonus;
+	int iBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
 	if(eCurrentEra == NO_ERA)
@@ -13884,7 +13884,7 @@ int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssu
 // Food bonus when Friends with a minor
 int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
-	int iBonus;
+	int iBonus = 0;
 
 	EraTypes eCurrentEra = eAssumeEra;
 	if(eCurrentEra == NO_ERA)
@@ -14183,7 +14183,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	// What's their closest city? If they have at least one coastal city, allow spawning naval units
 	int iLowestDistance = 1000;
 	int iLowestCoastalDistance = 1000;
-	int iCityLoop;
+	int iCityLoop = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 	{
 		if (pLoopCity->plot() == NULL)
@@ -14579,7 +14579,7 @@ int CvMinorCivAI::GetBuyoutCost(PlayerTypes eMajor)
 	iGold /= 100;
 
 	// Add in the scrap cost of all this minor's units
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		iGold += pLoopUnit->GetScrapGold();
@@ -14609,7 +14609,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 		return;
 
 	// Locate our current capital (for the notification)
-	int iLoop;
+	int iLoop = 0;
 	int iCapitalX = -1;
 	int iCapitalY = -1;
 	int iNumUnits = 0;
@@ -14715,7 +14715,7 @@ int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor)
 	SetMajorBoughtOutBy(eMajor);
 
 	// Transfer all units
-	int iLoop;
+	int iLoop = 0;
 	int iNumUnits = 0;
 	for (CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iLoop))
 	{
@@ -15622,7 +15622,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				{
 					PlayerTypes ePlayer;
 					const char* strMinorsNameKey = GetPlayer()->getNameKey();
-					const char* strBullyName;
+					const char* strBullyName = NULL;
 					Localization::String strMessageOthers;
 					Localization::String strSummaryOthers;
 					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -16214,7 +16214,7 @@ void CvMinorCivAI::DoElection()
 		PlayerTypes eEspionagePlayer = (PlayerTypes)ui;
 		CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(eEspionagePlayer).GetEspionage();
 		int iVotes = 0;
-		int iLoop;
+		int iLoop = 0;
 		apSpy[ui] = NULL;
 
 		if (!GET_PLAYER(eEspionagePlayer).isAlive())
@@ -16975,7 +16975,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 {
 	CvTeam* pEnemyTeam = &GET_TEAM(eEnemyTeam);
 	CivsList veMinorsNowWary;
-	int iRand;
+	int iRand = 0;
 	bool bOthersDontUpdateWariness = false;
 
 	// Since eEnemyTeam was the aggressor, drop the base influence to the minimum
@@ -17039,15 +17039,15 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	// See if other minors will declare war
 	if(pEnemyTeam->IsMinorCivAggressor() && !bOthersDontUpdateWariness)
 	{
-		int iChance;
+		int iChance = 0;
 
 		PlayerProximityTypes eProximity;
 
-		int iAttackingMajorPlayer;
+		int iAttackingMajorPlayer = 0;
 		PlayerTypes eAttackingMajorPlayer;
-		bool bAttackerIsAlly;
+		bool bAttackerIsAlly = false;
 
-		CvPlayer* pOtherMinorCiv;
+		CvPlayer* pOtherMinorCiv = NULL;
 		PlayerTypes eOtherMinorCiv;
 		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
@@ -17530,7 +17530,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	CvWeightedVector<int> TechVector;
-	int iValue, iProgress;
+	int iValue = 0, iProgress = 0;
 
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -17597,7 +17597,7 @@ bool CvMinorCivAI::IsSameReligionAsMajor(PlayerTypes eMajor)
 	if(pkPlayer)
 	{
 		//don't use the capital, this is faster and mostly equivalent for a minor
-		int dummy;
+		int dummy = 0;
 		const CvCity* pkCity = pkPlayer->firstCity(&dummy);
 		if(pkCity)
 		{
@@ -17895,7 +17895,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 				vector<ResourceTypes> veResources;
 				ResourceTypes eResource;
 				ResourceUsageTypes eUsage;
-				int iResourceQuantity;
+				int iResourceQuantity = 0;
 				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 				{
 					eResource = (ResourceTypes)iResourceLoop;
@@ -18234,7 +18234,7 @@ FDataStream& operator<<(FDataStream& saveTo, const MinorCivStatusTypes& readFrom
 }
 FDataStream& operator>>(FDataStream& loadFrom, MinorCivStatusTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<MinorCivStatusTypes>(v);
 	return loadFrom;
@@ -18247,7 +18247,7 @@ FDataStream& operator<<(FDataStream& saveTo, const MinorCivPersonalityTypes& rea
 }
 FDataStream& operator>>(FDataStream& loadFrom, MinorCivPersonalityTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<MinorCivPersonalityTypes>(v);
 	return loadFrom;
@@ -18260,7 +18260,7 @@ FDataStream& operator<<(FDataStream& saveTo, const MinorCivQuestTypes& readFrom)
 }
 FDataStream& operator>>(FDataStream& loadFrom, MinorCivQuestTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<MinorCivQuestTypes>(v);
 	return loadFrom;

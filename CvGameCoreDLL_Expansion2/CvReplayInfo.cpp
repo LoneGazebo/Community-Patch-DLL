@@ -586,7 +586,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::OldPlotState& r
 
 FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::OldPlotState& writeTo)
 {
-	unsigned char ucTempVal;
+	unsigned char ucTempVal = 0;
 	loadFrom >> ucTempVal;
 	writeTo.m_eTerrain = (TerrainTypes)ucTempVal;
 
@@ -619,7 +619,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlotState& read
 
 FDataStream& operator>>(FDataStream& loadFrom, CvReplayInfo::PlotState& writeTo)
 {
-	unsigned char ucTempVal;
+	unsigned char ucTempVal = 0;
 
 	loadFrom >> ucTempVal;
 	writeTo.m_ePlotType = (PlotTypes)ucTempVal;

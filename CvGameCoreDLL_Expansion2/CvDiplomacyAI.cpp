@@ -3767,8 +3767,8 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 					CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
 					if (iCurPlayer != ePlayer && iCurPlayer != GetID() && pNotifications)
 					{
-						const char* strThisPlayerName;
-						const char* strOtherPlayerName;
+						const char* strThisPlayerName = NULL;
+						const char* strOtherPlayerName = NULL;
 
 						CvTeam* pCurTeam = &GET_TEAM(kCurPlayer.getTeam());
 
@@ -4826,8 +4826,8 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue, bool bSkipTra
 				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
 				if (iCurPlayer != ePlayer && iCurPlayer !=GetID() && pNotifications)
 				{
-					const char* strThisPlayerName;
-					const char* strOtherPlayerName;
+					const char* strThisPlayerName = NULL;
+					const char* strOtherPlayerName = NULL;
 
 					CvTeam* pCurTeam = &GET_TEAM(kCurPlayer.getTeam());
 
@@ -5278,8 +5278,8 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 	if (!IsPlayerValid(ePlayer) || !GET_PLAYER(ePlayer).isMajorCiv() || GetPlayer()->getNumCities() <= 0)
 		return AGGRESSIVE_POSTURE_NONE;
 
-	int iCityLoop;
-	int iCityLoop2;
+	int iCityLoop = 0;
+	int iCityLoop2 = 0;
 	int iMinDistance = INT_MAX;
 
 	CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
@@ -7461,8 +7461,8 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 	// Remember previous support or opposition! This will get a little complicated, but it makes the AI smarter.
 	else if (iSetValue != 0)
 	{
-		int iTurn;
-		int iDuration;
+		int iTurn = 0;
+		int iDuration = 0;
 
 		// Previously opposed us
 		if (iCurrentValue > 0)
@@ -7524,7 +7524,7 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 		iOpinionWeight /= 100;
 
 		// Now reverse the calculation to find the corresponding current value %
-		int iNewCurrentValue;
+		int iNewCurrentValue = 0;
 		iOpinionWeight -= iMinOpinionWeight;
 
 		// Did this bring us down to zero?
@@ -8813,7 +8813,7 @@ void CvDiplomacyAI::DoUpdateConquestStats()
 {
 	// What players do we know exist?
 	vector<PlayerTypes> vKnownPlayers;
-	int iLoop;
+	int iLoop = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -10087,7 +10087,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 	int iStateAllWars = 0;   // Used to assess overall war state in this function
 	SetStateAllWars(STATE_ALL_WARS_NEUTRAL);
 	ReligionTypes eMyReligion = GetPlayer()->GetReligions()->GetOwnedReligion();
-	int iLoop;
+	int iLoop = 0;
 
 	// Loop through all (known) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -11879,7 +11879,7 @@ int CvDiplomacyAI::CountAggressiveMilitaryScore(PlayerTypes ePlayer, bool bHalve
 
 	// Loop through the other guy's units
 	int iScore = 0;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 	{
 		// Don't be scared of noncombat Units!
@@ -11975,7 +11975,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 	if (GetPlayer()->isHuman())
 		return;
 
-	int iLoop, iLoop2;
+	int iLoop = 0, iLoop2 = 0;
 	int iGameTurn = GC.getGame().getGameTurn();
 	int iExpansionBickerRange = GetExpansionBickerRange();
 
@@ -12124,7 +12124,7 @@ void CvDiplomacyAI::DoUpdatePlotBuyingAggressivePostures()
 			AggressivePostureTypes ePosture = AGGRESSIVE_POSTURE_NONE;
 			AggressivePostureTypes eCurrentPosture = GetPlotBuyingAggressivePosture(ePlayer);
 			int iAggressionScore = 0;
-			int iCityLoop;
+			int iCityLoop = 0;
 
 			// Loop through all of our Cities to see if this player has bought land near them
 			for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iCityLoop))
@@ -12204,7 +12204,7 @@ void CvDiplomacyAI::DoUpdateLandDisputeLevels()
 			int iContestedScore = 0;
 
 			// Loop through all of this player's Cities
-			int iCityLoop;
+			int iCityLoop = 0;
 			for (const CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 			{
 				iContestedScore += pLoopCity->GetContestedPlotScore(ePlayer);
@@ -18218,7 +18218,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bFriendUnderAttack = false;
 	bool bCompetitorUnderAttack = false;
 	bool bAllowDogpiling = true;
-	bool bOtherWarPlayerCloseToTarget;
+	bool bOtherWarPlayerCloseToTarget = false;
 
 	if (bWantsOpportunityAttack)
 	{
@@ -24467,7 +24467,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	if (vApproachScores[CIV_APPROACH_WAR] > 0)
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			for (int iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
@@ -24592,7 +24592,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 {
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	bool bLog = bMyTurn && GC.getLogging() && GC.getAILogging(); // Only log this once per turn to prevent log spam
-	int iLoop;
+	int iLoop = 0;
 
 	if (!pCapital || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
 	{
@@ -24622,7 +24622,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				strLogName = "DiplomacyAI_Peace_Log.csv";
 			}
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line
@@ -24681,7 +24681,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							strLogName = "DiplomacyAI_Peace_Log.csv";
 						}
 
-						FILogFile* pLog;
+						FILogFile* pLog = NULL;
 						pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 						// Get the leading info for this line
@@ -24758,7 +24758,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 							strLogName = "DiplomacyAI_Peace_Log.csv";
 						}
 
-						FILogFile* pLog;
+						FILogFile* pLog = NULL;
 						pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 						// Get the leading info for this line
@@ -24816,7 +24816,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 								strLogName = "DiplomacyAI_Peace_Log.csv";
 							}
 
-							FILogFile* pLog;
+							FILogFile* pLog = NULL;
 							pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 							// Get the leading info for this line
@@ -27188,7 +27188,7 @@ bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWe
 
 	ResourceTypes eLuxuryToAskFor = NO_RESOURCE;
 
-	int iResourceLoop;
+	int iResourceLoop = 0;
 
 	// See if the other player has a Resource to trade
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -27526,7 +27526,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	}
 	if (m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedNavalRecon))
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			if (pLoopCity->isCoastal())
@@ -27539,7 +27539,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	if (GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
 	{
 		AICityStrategyTypes ePocketCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_POCKET_CITY");
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			if (pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(ePocketCity))
@@ -28609,9 +28609,9 @@ void CvDiplomacyAI::DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPl
 	{
 		// Catch up on Public Declarations
 		PublicDeclarationTypes eDeclaration;
-		int iData1;
-		int iData2;
-		bool bActive;
+		int iData1 = 0;
+		int iData2 = 0;
+		bool bActive = false;
 
 		for (int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
 		{
@@ -28773,10 +28773,10 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		if(!GET_PLAYER(ePlayer).isMinorCiv())
 		{
 			PublicDeclarationTypes eDeclaration;
-			int iData1;
-			int iData2;
+			int iData1 = 0;
+			int iData2 = 0;
 			PlayerTypes eMustHaveMetPlayer;
-			bool bActive;
+			bool bActive = false;
 
 			for(int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
 			{
@@ -28898,7 +28898,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	CvAssertMsg(eStatement >= 0, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eStatement < NUM_DIPLO_LOG_STATEMENT_TYPES, "DIPLOMACY_AI: Invalid DiploStatementType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	const char* szText;
+	const char* szText = NULL;
 	bool bHuman = GET_PLAYER(ePlayer).isHuman();
 
 	// Aggressive Military warning
@@ -29056,7 +29056,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		SetEverRequestedExpansionPromise(ePlayer, true);
 
 		// Flag all of their cities as ignored for future bickering
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			pLoopCity->SetIgnoredForExpansionBickering(GetID(), true);
@@ -30205,9 +30205,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	{
 		if(bHuman)
 		{
-			int iDealValueToMe;
+			int iDealValueToMe = 0;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
-			bool bCantMatchOffer;
+			bool bCantMatchOffer = false;
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, &bCantMatchOffer, false);
 
 			if(bDealAcceptable)
@@ -30330,7 +30330,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 
 				if(bHuman)
 				{
-					const char* szPlayerName;
+					const char* szPlayerName = NULL;
 					if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlotterPlayer).isHuman())
 					{
 						szPlayerName = GET_PLAYER(ePlotterPlayer).getNickName();
@@ -31461,15 +31461,15 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	if (GET_PLAYER(ePlayer).isHuman() && GC.getGame().IsAllDiploStatementsDisabled())
 		return;
 
-	int iDiploLogStatement;
+	int iDiploLogStatement = 0;
 	DiploStatementTypes eStatement;
 
 	// We can use this deal pointer to form a trade offer
 	CvDeal* pDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
 	// These can be used for info about deal items, e.g. what Minor Civ we're telling the guy to stay away from, etc.
-	int iData1;
-	int iData2;
+	int iData1 = 0;
+	int iData2 = 0;
 
 	// If this is the same turn we've met a player, don't send anything his way quite yet - wait until we've said hello at least
 	if (GET_TEAM(GetTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0)
@@ -31950,7 +31950,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// How many units does the city-state have?
 					int iMinorMilitaryUnits = 0;
 					int iMinorUnits = 0;
-					int iLoop;
+					int iLoop = 0;
 					for (CvUnit* pLoopUnit = pMinor->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pMinor->nextUnit(&iLoop))
 					{
 						if(pLoopUnit->IsCanAttack() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
@@ -32952,7 +32952,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 				// We don't even want to bother with you again, so do nothing
 				if (GetCivApproach(ePlayer) <= CIV_APPROACH_HOSTILE)
 				{
-					const char* strText;
+					const char* strText = NULL;
 					bool bActivePlayer = GC.getGame().getActivePlayer() == ePlayer;
 					if (DeclareWar(ePlayer))
 					{
@@ -33465,7 +33465,7 @@ void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploS
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		bool bRandFailed;
+		bool bRandFailed = false;
 
 		PlayerTypes eTarget = GetRequestFriendToDenounce(ePlayer, bRandFailed);
 		if(eTarget != NO_PLAYER)
@@ -33659,8 +33659,8 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					}
 					else
 					{
-						bool bUselessReferenceVariable;
-						bool bCantMatchOffer;
+						bool bUselessReferenceVariable = false;
+						bool bCantMatchOffer = false;
 						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 					}
 					if(bDealAcceptable)
@@ -34075,7 +34075,7 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
 		        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST_RANDFAILED) >= 15)
 		{
-			bool bRandPassed;	// This is used to see if we WOULD have made a request, but the rand roll failed (so add an entry to the log)
+			bool bRandPassed = false;	// This is used to see if we WOULD have made a request, but the rand roll failed (so add an entry to the log)
 			bool bMakeRequest = IsMakeRequest(ePlayer, pDeal, bRandPassed);
 
 			// Want to make a request of ePlayer? Pass pDeal in to see if there's actually anything we want
@@ -35918,7 +35918,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 	int iMessage = 0;
 
-	const char* strText;
+	const char* strText = NULL;
 	switch(eDiploMessage)
 	{
 		//////////////////////////////////////////////////////////////
@@ -38530,7 +38530,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetPlayerBorderPromiseState(eFromPlayer, PROMISE_STATE_IGNORED);
 
 			//Reset city tile numbers so that this can't fire again immediately after the plot warning is up.
-			int iLoop;
+			int iLoop = 0;
 			for (CvCity* pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
 			{
 				if (pLoopCity != NULL)
@@ -43292,8 +43292,8 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
 		if(pNotifications)
 		{
-			const char* strThisPlayerName;
-			const char* strOtherPlayerName;
+			const char* strThisPlayerName = NULL;
+			const char* strOtherPlayerName = NULL;
 
 			CvTeam* pNotifyTeam = &GET_TEAM(kCurPlayer.getTeam());
 
@@ -44263,9 +44263,9 @@ int CvDiplomacyAI::AdjustModifierValue(int iValue, int iDuration, int iTurn, Mod
 void CvDiplomacyAI::DoTestOpinionModifiers()
 {
 	int iTurn = GC.getGame().getGameTurn();
-	int iTurnDifference;
-	int iDuration;
-	int iStacks;
+	int iTurnDifference = 0;
+	int iDuration = 0;
+	int iStacks = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -44560,7 +44560,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		// They foiled our proposals! 
 		if (iSupportValue > 0)
 		{
-			int iProposalTurn;
+			int iProposalTurn = 0;
 			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDiploBalance());
 
 			if (IsFoiledOurProposalAndThenSupportedUs(ePlayer))
@@ -44593,7 +44593,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		// They supported our proposals!
 		else if (iSupportValue < 0)
 		{
-			int iProposalTurn;
+			int iProposalTurn = 0;
 			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDiploBalance());
 
 			if (IsSupportedOurProposalAndThenFoiledUs(ePlayer))
@@ -47875,7 +47875,7 @@ int CvDiplomacyAI::GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePla
 int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>& aOpinions)
 {
 	int iValue = 0;
-	int iModifier;
+	int iModifier = 0;
 
 	iModifier = GetScenarioModifier1(eToPlayer);
 	if (iModifier != 0) 
@@ -48523,7 +48523,7 @@ void CvDiplomacyAI::LogMinorCivGiftTile(PlayerTypes eMinor)
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48573,7 +48573,7 @@ void CvDiplomacyAI::LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, 
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48643,7 +48643,7 @@ void CvDiplomacyAI::LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipT
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48713,7 +48713,7 @@ void CvDiplomacyAI::LogMinorCivBullyHeavy(PlayerTypes eMinor, int iOldFriendship
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48783,7 +48783,7 @@ void CvDiplomacyAI::LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipT
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48854,7 +48854,7 @@ void CvDiplomacyAI::LogMinorCivQuestReceived(PlayerTypes eMinor, int iOldFriends
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48910,7 +48910,7 @@ void CvDiplomacyAI::LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriends
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -48966,7 +48966,7 @@ void CvDiplomacyAI::LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriend
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -49022,7 +49022,7 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 		else
 			strLogName = "DiplomacyAI_MinorCiv_Log.csv";
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -49567,7 +49567,7 @@ int CvDiplomacyAI::GetEstimatePlayerMajorCivApproachBias(PlayerTypes ePlayer, Ci
 	}
 
 	// AI? Use the other player's base XML value.
-	int iRtnValue;
+	int iRtnValue = 0;
 
 	switch (eApproach)
 	{
@@ -49624,7 +49624,7 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivApproachBias(PlayerTypes ePlayer, Ci
 	}
 
 	// AI? Use the other player's base XML value.
-	int iRtnValue;
+	int iRtnValue = 0;
 
 	switch (eApproach)
 	{
@@ -49726,7 +49726,7 @@ void CvDiplomacyAI::LogPublicDeclaration(PublicDeclarationTypes eDeclaration, in
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -49812,7 +49812,7 @@ void CvDiplomacyAI::LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight)
 			strLogName = "DiplomacyAI_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -49877,7 +49877,7 @@ void CvDiplomacyAI::LogPeaceMade(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -49935,7 +49935,7 @@ void CvDiplomacyAI::LogDoF(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -49977,7 +49977,7 @@ void CvDiplomacyAI::LogBrokenDoF(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50015,7 +50015,7 @@ void CvDiplomacyAI::LogDenounce(PlayerTypes ePlayer, bool bBackstab, bool bRefus
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50131,7 +50131,7 @@ void CvDiplomacyAI::LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eA
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50176,7 +50176,7 @@ void CvDiplomacyAI::LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, 
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50236,7 +50236,7 @@ void CvDiplomacyAI::LogWantRA(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50275,7 +50275,7 @@ void CvDiplomacyAI::LogWantDP(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50316,7 +50316,7 @@ void CvDiplomacyAI::LogApproachValueDeltas(PlayerTypes ePlayer, const int* aiApp
 			strLogName = "DiplomacyAI_Approach_Deltas_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50422,7 +50422,7 @@ void CvDiplomacyAI::LogMajorCivWarmongerUpdate(PlayerTypes ePlayer, int iValue, 
 			strLogName = "DiplomacyAI_WarmongerStatus_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50505,7 +50505,7 @@ void CvDiplomacyAI::LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 			strLogName = "DiplomacyAI_Approach_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50614,7 +50614,7 @@ void CvDiplomacyAI::LogMinorCivApproachUpdate(PlayerTypes ePlayer, const int* ai
 			strLogName = "DiplomacyAI_Approach_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50706,7 +50706,7 @@ void CvDiplomacyAI::LogPersonality()
 			strLogName = "AI_Personality_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -50961,7 +50961,7 @@ void CvDiplomacyAI::LogStatus()
 			strLogName = "DiplomacyAI_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -51113,14 +51113,14 @@ void CvDiplomacyAI::LogWarStatus()
 			strLogName = "DiplomacyAI_War_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName;
 
-		bool bLogPlayer;
+		bool bLogPlayer = false;
 
 		// Loop through all (known) Players
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -51271,7 +51271,7 @@ void CvDiplomacyAI::LogStatements()
 			strLogName = "DiplomacyAI_Statement_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -51280,9 +51280,9 @@ void CvDiplomacyAI::LogStatements()
 
 		CvString strStatementLine;
 
-		int iItem;
+		int iItem = 0;
 		DiploStatementTypes eStatement;
-		int iTurn;
+		int iTurn = 0;
 
 		// Loop through all (known) Players
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -52211,7 +52211,7 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Turn number
@@ -52651,7 +52651,7 @@ void CvDiplomacyAI::LogOpenEmbassy(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -52690,7 +52690,7 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 			strLogName = "DiplomacyAI_Messages_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -54758,7 +54758,7 @@ bool CvDiplomacyAI::IsCapitulationAcceptable(PlayerTypes ePlayer)
 	}
 
 	// Are any of our cities about to be lost? Try to maintain as many of our cities as we can if we're going to lose anyway.
-	int iCityLoop;
+	int iCityLoop = 0;
 	int iNumCitiesInDanger = 0;
 	vector<PlayerTypes> vTheirWarAllies = GET_PLAYER(ePlayer).GetWarAllies(GetID());
 	for (CvCity* pLoopCity = GetPlayer()->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iCityLoop))
@@ -56043,7 +56043,7 @@ bool CvDiplomacyAI::IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 
 	TechTypes eTechToAskFor = NO_TECH;
 
-	int iTechLoop;
+	int iTechLoop = 0;
 
 	int iNumTechsWeHave = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown();
 	int iNumTechsTheyHave = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
@@ -56237,7 +56237,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 {
 	ResourceTypes eLuxuryToOffer = NO_RESOURCE;
 
-	int iResourceLoop;
+	int iResourceLoop = 0;
 
 	// See if there's any Luxuries WE can trade
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -56307,7 +56307,7 @@ bool CvDiplomacyAI::IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 	
 	TechTypes eTechToOffer = NO_TECH;
 
-	int iTechLoop;
+	int iTechLoop = 0;
 
 	// See if the other player is lagging in science
 	int iOurScience = GetPlayer()->GetScience();
@@ -57076,7 +57076,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	}
 
 	// And a random weight from 1-5 to each value
-	int iRand;
+	int iRand = 0;
 
 	for(int i=0; i < NUM_MOVE_TROOPS_RESPONSES; i++)
 	{

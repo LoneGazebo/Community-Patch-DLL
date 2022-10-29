@@ -247,7 +247,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString playerName;
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				CvString strBaseString;
 				CvString strOutBuf;
 				CvString strFileName = "EventCityLogging.csv";
@@ -303,7 +303,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 					if(pkEventChoiceInfo != NULL)
 					{
 						CvString playerName;
-						FILogFile* pLog;
+						FILogFile* pLog = NULL;
 						CvString strBaseString;
 						CvString strOutBuf;
 						CvString strFileName = "EventCityLogging.csv";
@@ -357,7 +357,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				if(pkEventChoiceInfo != NULL)
 				{
 					CvString playerName;
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EventCityLogging.csv";

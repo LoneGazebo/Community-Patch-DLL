@@ -1853,8 +1853,8 @@ bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUt
 /// Helper function to read in an integer array of data sized according to number of building class types
 void BuildingClassArrayHelpers::Read(FDataStream& kStream, int* paiArray)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -1874,7 +1874,7 @@ void BuildingClassArrayHelpers::Read(FDataStream& kStream, int* paiArray)
 				szError.Format("LOAD ERROR: Building Class Type not found");
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;	// Skip it.
 			}
 		}
@@ -1905,8 +1905,8 @@ void BuildingClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int i
 /// Helper function to read in an integer array of data sized according to number of unit class types
 void UnitClassArrayHelpers::Read(FDataStream& kStream, int* paiArray)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -1927,7 +1927,7 @@ void UnitClassArrayHelpers::Read(FDataStream& kStream, int* paiArray)
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
 
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;
 			}
 		}
@@ -4421,8 +4421,8 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 /// Helper function to read in an integer array of data sized according to number of build types
 void BuildArrayHelpers::Read(FDataStream& kStream, short* paiBuildArray)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -4443,7 +4443,7 @@ void BuildArrayHelpers::Read(FDataStream& kStream, short* paiBuildArray)
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
 
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;
 			}
 		}
@@ -6324,7 +6324,7 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInBorderHappiness = kResults.GetInt("InBorderHappiness");
 	m_iOccurrenceFrequency = kResults.GetInt("OccurrenceFrequency");
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
 	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
@@ -8501,7 +8501,7 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	m_iVoteInterval = kResults.GetInt("VoteInterval");
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("PopupText");
 	m_strPopupText = GetLocalizedText(szTextVal);
 
@@ -8828,7 +8828,7 @@ bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	m_bIgnoresGlobalCooldown = kResults.GetBool("IgnoresGlobalCooldown");
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 
 	szTextVal = kResults.GetText("EventClass");
 	m_iEventClass = GC.getInfoTypeForString(szTextVal, true);
@@ -9551,7 +9551,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 
 	const char* szEventType = GetType();
 	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "Events", "Event_ParentEvents", "EventType", "EventChoiceType", szEventType);
@@ -10335,7 +10335,7 @@ bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bHasPlayerMajority = kResults.GetBool("CityHasPlayerMajorityReligion");
 	m_bLacksPlayerMajority = kResults.GetBool("CityLacksPlayerMajorityReligion");
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 
 	szTextVal = kResults.GetText("EventClass");
 	m_iEventClass = GC.getInfoTypeForString(szTextVal, true);
@@ -11294,7 +11294,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 
 	const char* szEventType = GetType();
 	kUtility.PopulateArrayByExistence(m_pbParentEventIDs, "CityEvents", "CityEvent_ParentEvents", "CityEventType", "CityEventChoiceType", szEventType);
@@ -11747,14 +11747,14 @@ int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
 /// Helper function to read in an integer array of data sized according to number of building types
 void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	int iArraySize = GC.getNumFeatureInfos();
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		uint uiHash;
+		uint uiHash = 0;
 		kStream >> uiHash;
 		if (uiHash != 0 && uiHash != (uint)NO_FEATURE)
 		{
@@ -11770,7 +11770,7 @@ void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
 
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;
 			}
 		}
@@ -11801,13 +11801,13 @@ void FeatureArrayHelpers::Write(FDataStream& kStream, int* paiFeatureArray, int 
 /// Helper function to read in an integer array of data sized according to number of building types
 void FeatureArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiFeatureYieldArray, int iNumYields)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		int iHash;
+		int iHash = 0;
 		kStream >> iHash;
 		if(iHash != (int)0)
 		{
@@ -11828,7 +11828,7 @@ void FeatureArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiFeatur
 
 				for(int jJ = 0; jJ < iNumYields; jJ++)
 				{
-					int iDummy;
+					int iDummy = 0;
 					kStream >> iDummy;
 				}
 			}
@@ -11864,14 +11864,14 @@ void FeatureArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiFeatu
 /// Helper function to read in an integer array of data sized according to number of building types
 void TerrainArrayHelpers::Read(FDataStream& kStream, int* paiTerrainArray)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	int iArraySize = GC.getNumTerrainInfos();
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		uint uiHash;
+		uint uiHash = 0;
 		kStream >> uiHash;
 		if (uiHash != 0 && uiHash != (uint)NO_TERRAIN)
 		{
@@ -11887,7 +11887,7 @@ void TerrainArrayHelpers::Read(FDataStream& kStream, int* paiTerrainArray)
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
 
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;
 			}
 		}
@@ -11918,13 +11918,13 @@ void TerrainArrayHelpers::Write(FDataStream& kStream, int* paiTerrainArray, int 
 /// Helper function to read in an integer array of data sized according to number of building types
 void TerrainArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iNumYields)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		int iHash;
+		int iHash = 0;
 		kStream >> iHash;
 		if(iHash != (int)0)
 		{
@@ -11945,7 +11945,7 @@ void TerrainArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiTerrai
 
 				for(int jJ = 0; jJ < iNumYields; jJ++)
 				{
-					int iDummy;
+					int iDummy = 0;
 					kStream >> iDummy;
 				}
 			}

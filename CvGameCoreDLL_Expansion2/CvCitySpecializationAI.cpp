@@ -440,8 +440,8 @@ CvCity* CvCitySpecializationAI::GetWonderBuildCity() const
 	}
 	else
 	{
-		int iLoop;
-		CvCity* pLoopCity;
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
 		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			BuildingTypes eCurrentBuilding = pLoopCity->getProductionBuilding();
@@ -675,7 +675,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 	vector<CitySpecializationTypes>::iterator it;
 
 	// OBVIOUS ASSIGNMENTS: Loop through our cities making obvious assignments
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->IsPuppet() && pLoopCity->getPopulation()<5)
@@ -916,7 +916,7 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 /// Find the specialization type for building wonders
 CitySpecializationTypes CvCitySpecializationAI::GetWonderSpecialization() const
 {
-	CvCitySpecializationXMLEntry* pEntry;
+	CvCitySpecializationXMLEntry* pEntry = NULL;
 
 	for(int iI = 0; iI < GC.getNumCitySpecializationInfos(); iI++)
 	{
@@ -933,7 +933,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetWonderSpecialization() const
 /// Find the specialization type for building wonders
 CitySpecializationTypes CvCitySpecializationAI::GetEconomicDefaultSpecialization() const
 {
-	CvCitySpecializationXMLEntry* pEntry;
+	CvCitySpecializationXMLEntry* pEntry = NULL;
 
 	for(int iI = 0; iI < GC.getNumCitySpecializationInfos(); iI++)
 	{
@@ -950,7 +950,7 @@ CitySpecializationTypes CvCitySpecializationAI::GetEconomicDefaultSpecialization
 /// Find the production subtype for wonders
 int CvCitySpecializationAI::GetWonderSubtype() const
 {
-	CvCitySpecializationXMLEntry* pEntry;
+	CvCitySpecializationXMLEntry* pEntry = NULL;
 	int iSubType = -1;
 
 	for(int iI = 0; iI < GC.getNumCitySpecializationInfos(); iI++)
@@ -973,8 +973,8 @@ int CvCitySpecializationAI::GetWonderSubtype() const
 CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 {
 	CvCity* pBestCity = NULL;
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 
 	if (m_eNextWonderDesired != NO_BUILDING)
 	{
@@ -1206,7 +1206,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 /// Should this player worry about assigning cities to build spaceship parts?
 bool CvCitySpecializationAI::CanBuildSpaceshipParts()
 {
-	int iLoop;
+	int iLoop = 0;
 
 	// Find a city to test with
 	CvCity* pCity = m_pPlayer->firstCity(&iLoop);
@@ -1241,7 +1241,7 @@ void CvCitySpecializationAI::LogSpecializationWeights(CvWeightedVector<Productio
 		CvString strYieldString;
 		CvString strWeightString;
 		CvString strOutBuf;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Find the name of this civ
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();
@@ -1381,7 +1381,7 @@ void CvCitySpecializationAI::LogMsg(const CvString& msg)
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		// Find the name of this civ
 		strPlayerName = GetPlayer()->getCivilizationShortDescription();

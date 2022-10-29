@@ -309,7 +309,7 @@ void CvEconomicAI::Uninit()
 /// Reset AIStrategy status array to all false
 void CvEconomicAI::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < m_pAIStrategies->GetNumEconomicAIStrategies(); iI++)
 	{
@@ -477,7 +477,7 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 		CvString strBaseString;
 		CvString strTemp, szTemp2;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
@@ -730,7 +730,7 @@ void CvEconomicAI::DoTurn()
 			// Flavor propagation
 			if(bAdoptOrEndStrategy)
 			{
-				int iFlavorLoop;
+				int iFlavorLoop = 0;
 
 				// We should adopt this Strategy
 				if(bTestStrategyStart)
@@ -814,7 +814,7 @@ CvCity* CvEconomicAI::GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGr
 	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(eGreatWork);
 	if (m_pPlayer->GetCulture()->HasAvailableGreatWorkSlot(eGreatWorkSlot))
 	{
-		int iLoop;
+		int iLoop = 0;
 		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2) && m_pPlayer->GetPlotDanger(pLoopCity)==0 )
@@ -1175,7 +1175,7 @@ void CvEconomicAI::LogMonitor(void)
 		strLogName = "EconomicMonitorLog.csv";
 	}
 
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 	CvString str;
@@ -1243,8 +1243,8 @@ void CvEconomicAI::LogMonitor(void)
 
 	// workers
 	int iWorkerCount = 0;
-	CvUnit* pLoopUnit;
-	int iLoopUnit;
+	CvUnit* pLoopUnit = NULL;
+	int iLoopUnit = 0;
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
 		if(pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER)
@@ -1611,7 +1611,7 @@ void CvEconomicAI::LogPossibleHurries(CvWeightedVector<CvCityBuildable> const& m
 			strLogName = "HurryCityPriorities_" + playerName + ".csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName.c_str(), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -2034,8 +2034,8 @@ void CvEconomicAI::DoReconState()
 	if (m_pPlayer->isMinorCiv())
 		return;
 
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
+	int iUnitLoop = 0;
+	CvUnit* pLoopUnit = NULL;
 
 	//important. do this exactly once per turn.
 	UpdateExplorePlotsFromScratch();
@@ -2150,7 +2150,7 @@ void CvEconomicAI::DoReconState()
 	// NAVAL RECON ACROSS THE ENTIRE MAP
 
 	// No coastal cities?  Moot point...
-	int iCityLoop;
+	int iCityLoop = 0;
 	bool bFoundCoastalCity = false;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bFoundCoastalCity; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		if(pLoopCity->isCoastal())
@@ -2518,7 +2518,7 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 		}
 	}
 	
-	CvUnit* pUnit;
+	CvUnit* pUnit = NULL;
 	UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST", true);
 
 	if (eArch == NO_UNIT)
@@ -2647,7 +2647,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		return;
 	}
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pCity == pCapital)
@@ -2680,7 +2680,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 // Check for very long obsolete units that didn't get an upgrade (usual suspects are triremes and warriors)
 void CvEconomicAI::DisbandLongObsoleteUnits()
 {
-	int iLoop;
+	int iLoop = 0;
 	// Treat information era as atomic for this checking.
 	int playerCurrentEra = min(6,(int)m_pPlayer->GetCurrentEra());
 
@@ -2986,8 +2986,8 @@ void CvEconomicAI::LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue)
 
 			CvString cityName;
 
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			for(pLoopCity = GetPlayer()->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iLoop))
 			{
@@ -3102,9 +3102,9 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 	{
 		if(pPlayer->CanCrossOcean())  // get a caravel out there NOW!
 		{
-			CvUnit* pLoopUnit;
-			CvCity* pLoopCity;
-			int iLoop;
+			CvUnit* pLoopUnit = NULL;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			// Current Units
 			for(pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
@@ -3153,7 +3153,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer)
 		}
 		else if(pPlayer->CanEmbark())  // get a trireme out there NOW!
 		{
-			int iLoop;
+			int iLoop = 0;
 
 			// Current Units
 			for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoop))
@@ -3516,8 +3516,8 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalGrowth(EconomicAIStrategyT
 {
 	int iNumCitiesNeedNavalGrowth = 0;
 
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 
 	AICityStrategyTypes eStrategyNeedNavalGrowth = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_GROWTH");
 
@@ -3562,8 +3562,8 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAI
 {
 	int iNumCitiesNeedNavalTileImprovement = 0;
 
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 
 	AICityStrategyTypes eStrategyNeedNavalTileImprovement = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_NAVAL_TILE_IMPROVEMENT");
 
@@ -3679,7 +3679,7 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 
 	// Look at map for loose merchants
 	int iLooseMerchant = 0;
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for(CvUnit* pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
 	{
 		if(pLoopUnit != NULL)
@@ -3711,8 +3711,8 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 /// "Influence City State" Player Strategy: If there is a diplomat who isn't in an operation?  If so, find him a city state
 bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
+	int iUnitLoop = 0;
+	CvUnit* pLoopUnit = NULL;
 	int iLooseDiplomat = 0;
 	int iStrategyWeight = 0;
 
@@ -3752,8 +3752,8 @@ bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyType
 /// "Concert Tour" Player Strategy: If there is a musician who isn't in an operation?  If so, find him a major civ to target
 bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
-	int iUnitLoop;
-	CvUnit* pLoopUnit;
+	int iUnitLoop = 0;
+	CvUnit* pLoopUnit = NULL;
 	int iLooseMusician = 0;
 	int iStrategyWeight = 0;
 
@@ -3863,7 +3863,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
-	int iBuildIndex;
+	int iBuildIndex = 0;
 	for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
 		eBuild = (BuildTypes)iBuildIndex;
@@ -3974,10 +3974,10 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 	{
 		return true;
 	}
-	int iFreeUnits;
-	int iPaidUnits;
-	int iBaseUnitCost;
-	int iExtraCost;
+	int iFreeUnits = 0;
+	int iPaidUnits = 0;
+	int iBaseUnitCost = 0;
+	int iExtraCost = 0;
 	if(pPlayer->GetTreasury()->AverageIncome100(15) <= -1500)
 	{
 		if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
@@ -4296,8 +4296,8 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 	int iNumAllies = 0;
 	int iNumFriends = 0;
 
-	CvUnit* pLoopUnit;
-	int iLoopUnit;
+	CvUnit* pLoopUnit = NULL;
+	int iLoopUnit = 0;
 	CvUnit* TestUnit = NULL;
 	for (pLoopUnit = pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iLoopUnit))
 	{
@@ -4627,7 +4627,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 	BuildingTypes eArtistsGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
 	BuildingTypes eMusiciansGuild = MOD_BUILDINGS_THOROUGH_PREREQUISITES ? (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD")) : (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
 
-	CvBuildingEntry *pkBuilding;
+	CvBuildingEntry *pkBuilding = NULL;
 	pkBuilding = GC.getBuildingInfo(eWritersGuild);
 	if (pkBuilding)
 	{

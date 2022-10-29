@@ -562,8 +562,8 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 		if(!bFirstCall)
 		{
 			// Assign all citizens
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				pLoopCity->GetCityCitizens()->DoTurn();

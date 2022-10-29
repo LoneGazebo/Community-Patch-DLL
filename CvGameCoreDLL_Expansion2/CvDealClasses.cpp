@@ -26,7 +26,7 @@
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, TradeableItems& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<TradeableItems>(v);
 	return loadFrom;
@@ -341,7 +341,7 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 		iGoldAvailable -= GetGoldTrade(ePlayer);
 	}
 
-	int iGoldCost;
+	int iGoldCost = 0;
 
 	// Loop through all trade items to see if they have a cost
 	TradedItemList::iterator it;
@@ -3436,7 +3436,7 @@ bool CvDeal::ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount)
 {
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iOldValue;
+	int iOldValue = 0;
 
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -5509,7 +5509,7 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 	if(m_CurrentDeals.size() > 0)
 	{
 		PlayerTypes eFromPlayer, eToPlayer;
-		int iPlayerLoop1, iPlayerLoop2;
+		int iPlayerLoop1 = 0, iPlayerLoop2 = 0;
 
 		// Loop through first set of players
 		for(iPlayerLoop1 = 0; iPlayerLoop1 < MAX_MAJOR_CIVS; iPlayerLoop1++)
@@ -6010,7 +6010,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		PlayerTypes eFromPlayer;
@@ -6207,7 +6207,7 @@ void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted,
 			strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		PlayerTypes eFromPlayer;

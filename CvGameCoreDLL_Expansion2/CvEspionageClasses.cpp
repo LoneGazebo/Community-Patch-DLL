@@ -123,24 +123,24 @@ void CvEspionageSpy::SetSiphonHistory(const CvString& string)
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 {
-	uint uiVersion;
+	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 	loadFrom >> writeTo.m_iName;
 	MOD_SERIALIZE_READ(53, loadFrom, writeTo.m_sName, NULL);
-	int iSpyRank;
+	int iSpyRank = 0;
 	loadFrom >> iSpyRank;
 	writeTo.m_eRank = (CvSpyRank)iSpyRank;
 	loadFrom >> writeTo.m_iExperience;
 	loadFrom >> writeTo.m_iCityX;
 	loadFrom >> writeTo.m_iCityY;
 
-	int iSpyState;
+	int iSpyState = 0;
 	loadFrom >> iSpyState;
 	writeTo.m_eSpyState = (CvSpyState)iSpyState;
 
-	int iSpyFocus;
+	int iSpyFocus = 0;
 	loadFrom >> iSpyFocus;
 	writeTo.m_eSpyFocus = (CityEventChoiceTypes)iSpyFocus;
 
@@ -324,7 +324,7 @@ void CvPlayerEspionage::CreateSpy()
 void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	bool bLastQualified;
+	bool bLastQualified = false;
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
 	CvCityEspionage* pCityEspionage = NULL;
@@ -4224,8 +4224,8 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 	}
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
-	CvCity* pCity;
-	CvCityEspionage* pCityEspionage;
+	CvCity* pCity = NULL;
+	CvCityEspionage* pCityEspionage = NULL;
 	int iAmountLeft = 0;
 	int iTurnsLeft = 0;
 
@@ -4397,7 +4397,7 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 	int iOpenWritingSlots = 0;
 	int iOpenMusicSlots = 0;
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		iOpenArtSlots += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
@@ -5946,7 +5946,7 @@ void CvPlayerEspionage::LogEspionageMsg(CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
 
@@ -5962,11 +5962,11 @@ void CvPlayerEspionage::LogEspionageMsg(CvString& strMsg)
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 {
-	uint uiVersion;
+	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	int iNumSpies;
+	int iNumSpies = 0;
 	loadFrom >> iNumSpies;
 
 	CvEspionageSpy kTempSpy;
@@ -5977,25 +5977,25 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		writeTo.m_aSpyList.push_back(kTempSpy);
 	}
 
-	int iNumSpyNames;
+	int iNumSpyNames = 0;
 	loadFrom >> iNumSpyNames;
 	for(int i = 0; i < iNumSpyNames; i++)
 	{
-		int iSpyNameIndex;
+		int iSpyNameIndex = 0;
 		loadFrom >> iSpyNameIndex;
 		writeTo.m_aiSpyListNameOrder.push_back(iSpyNameIndex);
 	}
 
 	loadFrom >> writeTo.m_iSpyListNameOrderIndex;
 
-	uint uiNumCivs;
+	uint uiNumCivs = 0;
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 	{
 		TechList aTechList;
 		writeTo.m_aaPlayerStealableTechList.push_back(aTechList);
 
-		uint uiNumTechs;
+		uint uiNumTechs = 0;
 		loadFrom >> uiNumTechs;
 		for(uint uiTech = 0; uiTech < uiNumTechs; uiTech++)
 		{
@@ -6008,7 +6008,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 	{
-		int iNumTechsToSteal;
+		int iNumTechsToSteal = 0;
 		loadFrom >> iNumTechsToSteal;
 		writeTo.m_aiNumTechsToStealList.push_back(iNumTechsToSteal);
 	}
@@ -6016,13 +6016,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 	loadFrom >> uiNumCivs;
 	for(uint uiCiv = 0; uiCiv < uiNumCivs; uiCiv++)
 	{
-		int iNumSpyActionsDone;
+		int iNumSpyActionsDone = 0;
 		loadFrom >> iNumSpyActionsDone;
 		writeTo.m_aiNumSpyActionsDone.push_back(iNumSpyActionsDone);
 	}
 #endif
 
-	int iNumMessages;
+	int iNumMessages = 0;
 	loadFrom >> iNumMessages;
 	for(int i = 0; i < iNumMessages; i++)
 	{
@@ -6043,7 +6043,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> kMessage.m_eSourcePlayer;
 		loadFrom >> kMessage.m_eTargetPlayer;
 		loadFrom >> kMessage.m_eBuilding;
-		int iProjectType;
+		int iProjectType = 0;
 		loadFrom >> iProjectType;
 		kMessage.m_eProject = (ProjectTypes)iProjectType;
 		loadFrom >> kMessage.m_iIntrigueType;
@@ -6270,11 +6270,11 @@ bool CvCityEspionage::HasCounterSpy()
 // serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 {
-	uint uiVersion;
+	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	uint uiNumSpyAssignment;
+	uint uiNumSpyAssignment = 0;
 	loadFrom >> uiNumSpyAssignment;
 	for(uint ui = 0; ui < uiNumSpyAssignment; ui++)
 	{
@@ -6282,7 +6282,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// amount
-	uint uiNumAmounts;
+	uint uiNumAmounts = 0;
 	loadFrom >> uiNumAmounts;
 	for(uint ui = 0; ui < uiNumAmounts; ui++)
 	{
@@ -6290,7 +6290,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// rate
-	uint uiNumRates;
+	uint uiNumRates = 0;
 	loadFrom >> uiNumRates;
 	for(uint ui = 0; ui < uiNumRates; ui++)
 	{
@@ -6298,7 +6298,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// goal
-	uint uiNumGoals;
+	uint uiNumGoals = 0;
 	loadFrom >> uiNumGoals;
 	for(uint ui = 0; ui < uiNumGoals; ui++)
 	{
@@ -6306,7 +6306,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// last progress
-	int iNumLastProgresses;
+	int iNumLastProgresses = 0;
 	loadFrom >> iNumLastProgresses;
 	for(int i = 0; i < iNumLastProgresses; i++)
 	{
@@ -6314,7 +6314,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// last potential
-	int iNumLastPotential;
+	int iNumLastPotential = 0;
 	loadFrom >> iNumLastPotential;
 	for (int i = 0; i < iNumLastPotential; i++)
 	{
@@ -6322,7 +6322,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// last base potential
-	int iNumLastBasePotential;
+	int iNumLastBasePotential = 0;
 	loadFrom >> iNumLastBasePotential;
 	for (int i = 0; i < iNumLastBasePotential; i++)
 	{
@@ -6330,7 +6330,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 	}
 
 	// results
-	int iNumResults;
+	int iNumResults = 0;
 	loadFrom >> iNumResults;
 	for(int i = 0; i < iNumResults; i++)
 	{
@@ -6971,7 +6971,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 		TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 		CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eTargetPlayer).GetDiplomacyAI();
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
@@ -7746,13 +7746,13 @@ void CvEspionageAI::EvaluateDiplomatSpies(void)
 // serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvEspionageAI& writeTo)
 {
-	uint uiVersion;
+	uint uiVersion = 0;
 	loadFrom >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
-	uint uiCount;
+	uint uiCount = 0;
 	loadFrom >> uiCount;
-	int iValue;
+	int iValue = 0;
 	for(uint ui = 0; ui < uiCount; ui++)
 	{
 		loadFrom >> iValue;

@@ -501,7 +501,7 @@ void CvMap::PrecalcNeighbors()
 	if (!pNeighbors)
 		return;
 
-	int iNX, iNY, iHX, iHY;
+	int iNX = 0, iNY = 0, iHX = 0, iHY = 0;
 
 	for(int iY = 0; iY < iH; iY++)
 	{
@@ -846,12 +846,12 @@ void CvMap::verifyUnitValidPlot()
 //	--------------------------------------------------------------------------------
 CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTimeout)
 {
-	CvPlot* pPlot;
-	CvPlot* pTestPlot;
-	CvPlot* pLoopPlot;
-	bool bValid;
-	int iCount;
-	int iDX, iDY;
+	CvPlot* pPlot = NULL;
+	CvPlot* pTestPlot = NULL;
+	CvPlot* pLoopPlot = NULL;
+	bool bValid = false;
+	int iCount = 0;
+	int iDX = 0, iDY = 0;
 
 	pPlot = NULL;
 
@@ -1007,7 +1007,7 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 			{
 				if((eTeam == NO_TEAM) || (thisPlayer.getTeam() == eTeam))
 				{
-					int iLoop;
+					int iLoop = 0;
 					for(CvCity* pLoopCity = thisPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoop))
 					{
 						if(!bSameArea || pLoopCity->HasAccessToArea(pCheckPlot->getArea()))
@@ -1055,7 +1055,7 @@ CvUnit* CvMap::findUnit(int iX, int iY, PlayerTypes eOwner, bool bReadyToSelect,
 		{
 			if((eOwner == NO_PLAYER) || (iI == eOwner))
 			{
-				int iLoop;
+				int iLoop = 0;
 				for(CvUnit* pLoopUnit = thisPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = thisPlayer.nextUnit(&iLoop))
 				{
 					if(!bReadyToSelect || pLoopUnit->ReadyToSelect())
@@ -1114,7 +1114,7 @@ CvArea* CvMap::findBiggestArea(bool bWater)
 {
 	CvArea* pBestArea = NULL;
 	int iBestValue = 0;
-	int iLoop;
+	int iLoop = 0;
 	for(CvArea* pLoopArea = firstArea(&iLoop); pLoopArea != NULL; pLoopArea = nextArea(&iLoop))
 	{
 		if(pLoopArea->isWater() == bWater)
@@ -1156,8 +1156,8 @@ int CvMap::getMapFractalFlags()
 //	Check plots for wetlands or seaWater.  Returns true if found
 bool CvMap::findWater(CvPlot* pPlot, int iRange, bool bFreshWater)
 {
-	CvPlot* pLoopPlot;
-	int iDX, iDY;
+	CvPlot* pLoopPlot = NULL;
+	int iDX = 0, iDY = 0;
 	int iPlotX = pPlot->getX();
 	int iPlotY = pPlot->getY();
 
@@ -1393,9 +1393,9 @@ int CvMap::getNumAreas()
 //	--------------------------------------------------------------------------------
 int CvMap::getNumLandAreas()
 {
-	CvArea* pLoopArea;
-	int iNumLandAreas;
-	int iLoop;
+	CvArea* pLoopArea = NULL;
+	int iNumLandAreas = 0;
+	int iLoop = 0;
 
 	iNumLandAreas = 0;
 
@@ -1821,23 +1821,23 @@ void CvMap::DoPlaceNaturalWonders()
 
 	int iCount = 0;
 
-	int iPlotRand;
-	CvPlot* pRandPlot;
+	int iPlotRand = 0;
+	CvPlot* pRandPlot = NULL;
 
-	int iPlotLoopX;
-	int iPlotLoopY;
-	CvPlot* pLoopPlot;
+	int iPlotLoopX = 0;
+	int iPlotLoopY = 0;
+	CvPlot* pLoopPlot = NULL;
 
 	int iNumMapPlots = numPlots();
 
 	// Determine the max number of NWs we can have in a single Area
-	CvArea* pLoopArea;
-	int iLoop;
+	CvArea* pLoopArea = NULL;
+	int iLoop = 0;
 	int iNumValidAreas = 0;
 
 	int iMaxLatitudeForNW = 65;
 
-	int iBottomLatitude;
+	int iBottomLatitude = 0;
 
 	for(pLoopArea = firstArea(&iLoop); pLoopArea != NULL; pLoopArea = nextArea(&iLoop))
 	{
@@ -1913,7 +1913,7 @@ void CvMap::DoPlaceNaturalWonders()
 			continue;
 		}
 
-		bool bValid;
+		bool bValid = false;
 
 		// Does it have to be close to the coast?
 		if(iCoastDistance != -1)
@@ -2151,15 +2151,15 @@ void CvMap::DefaultContinentStamper()
 
 	recalculateLandmasses();
 
-	CvLandmass* pLoopMass;
-	int iLoop;
+	CvLandmass* pLoopMass = NULL;
+	int iLoop = 0;
 
 	// find the 4 (because that is how many art styles we have) biggest continents - if there aren't 4, oh well
 	for(pLoopMass = firstLandmass(&iLoop); pLoopMass != NULL; pLoopMass = nextLandmass(&iLoop))
 	{
 		if(!pLoopMass->isWater())
 		{
-			int iBestContinent;
+			int iBestContinent = 0;
 			int iNumTiles = pLoopMass->getNumTiles();
 			for(iBestContinent=0; iBestContinent<iNumContinentTypes; iBestContinent++)
 			{
@@ -2257,9 +2257,9 @@ int CvMap::getNumLandmasses()
 //	--------------------------------------------------------------------------------
 int CvMap::getNumLandLandmasses()
 {
-	CvLandmass* pLoopLandmass;
-	int iNumLandLandmasses;
-	int iLoop;
+	CvLandmass* pLoopLandmass = NULL;
+	int iNumLandLandmasses = 0;
+	int iLoop = 0;
 
 	iNumLandLandmasses = 0;
 
@@ -2347,9 +2347,9 @@ void CvMap::recalculateLandmasses()
 //	--------------------------------------------------------------------------------
 void CvMap::calculateLandmasses()
 {
-	CvPlot* pLoopPlot;
-	CvLandmass* pLandmass;
-	int iLandmassID;
+	CvPlot* pLoopPlot = NULL;
+	CvLandmass* pLandmass = NULL;
+	int iLandmassID = 0;
 
 	for(int iI = 0; iI < numPlots(); iI++)
 	{

@@ -350,7 +350,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
 	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("UnitFreePromotion");
 	if(szTextVal != NULL)
 	{
@@ -1662,14 +1662,14 @@ void CvImprovementXMLEntries::DeleteArray()
 /// Helper function to read in an integer array of data sized according to number of building types
 void ImprovementArrayHelpers::Read(FDataStream& kStream, int* paiImprovementArray)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	int iArraySize = GC.getNumImprovementInfos();
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		uint uiHash;
+		uint uiHash = 0;
 		kStream >> uiHash;
 		if (uiHash != 0 && uiHash != (uint)NO_IMPROVEMENT)
 		{
@@ -1685,7 +1685,7 @@ void ImprovementArrayHelpers::Read(FDataStream& kStream, int* paiImprovementArra
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
 
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy;
 			}
 		}
@@ -1716,13 +1716,13 @@ void ImprovementArrayHelpers::Write(FDataStream& kStream, int* paiImprovementArr
 /// Helper function to read in an integer array of data sized according to number of building types
 void ImprovementArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiImprovementYieldArray, int iNumYields)
 {
-	int iNumEntries;
+	int iNumEntries = 0;
 
 	kStream >> iNumEntries;
 
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
-		int iHash;
+		int iHash = 0;
 		kStream >> iHash;
 		if(iHash != (int)0)
 		{
@@ -1743,7 +1743,7 @@ void ImprovementArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiIm
 
 				for(int jJ = 0; jJ < iNumYields; jJ++)
 				{
-					int iDummy;
+					int iDummy = 0;
 					kStream >> iDummy;
 				}
 			}

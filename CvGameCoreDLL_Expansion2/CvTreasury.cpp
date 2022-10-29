@@ -209,9 +209,9 @@ int CvTreasury::GetGoldFromCitiesTimes100(bool bExcludeTradeRoutes) const
 {
 	int iGold = 0;
 
-	CvCity* pLoopCity;
+	CvCity* pLoopCity = NULL;
 
-	int iLoop;
+	int iLoop = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		iGold += pLoopCity->getYieldRateTimes100(YIELD_GOLD, bExcludeTradeRoutes);
@@ -283,9 +283,9 @@ void CvTreasury::DoUpdateCityConnectionGold()
 	// Must have a capital before we can check if other Cities are connected to it!
 	if(pCapitalCity != NULL && m_pPlayer->getNumCities() > 1)
 	{
-		CvCity* pLoopCity;
+		CvCity* pLoopCity = NULL;
 
-		int iLoop;
+		int iLoop = 0;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if(pLoopCity != pCapitalCity)
@@ -411,7 +411,7 @@ int CvTreasury::CalculateGrossGold()
 /// Gross income for turn
 int CvTreasury::CalculateGrossGoldTimes100()
 {
-	int iNetGold;
+	int iNetGold = 0;
 
 	// Gold from Cities
 	iNetGold = GetGoldFromCitiesTimes100();
@@ -633,10 +633,10 @@ int CvTreasury::CalculateUnitSupply()
 /// Costs to the player (prior to applying inflation)
 int CvTreasury::CalculatePreInflatedCosts()
 {
-	int iFreeUnits;
-	int iPaidUnits;
-	int iBaseUnitCost;
-	int iExtraCost;
+	int iFreeUnits = 0;
+	int iPaidUnits = 0;
+	int iBaseUnitCost = 0;
+	int iExtraCost = 0;
 
 	m_iExpensePerTurnUnitMaintenance = CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost);
 	m_iExpensePerTurnUnitSupply = CalculateUnitSupply(); // HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
@@ -740,8 +740,8 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
 	{
-		CvCity* pLoopCity;
-		int iLoop;
+		CvCity* pLoopCity = NULL;
+		int iLoop = 0;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if(pLoopCity->GetExtraBuildingMaintenance() > 0)
@@ -888,7 +888,7 @@ void CvTreasury::LogExpenditure(const CvString& strExpenditure, int iAmount, int
 	}
 
 
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 	CvString str;
@@ -1085,7 +1085,7 @@ int CvTreasury::GetVassalGoldMaintenance() const
 			&& !GET_PLAYER((PlayerTypes)iI).isBarbarian()
 			&& GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
-			int iLoop, iCityPop;
+			int iLoop = 0, iCityPop = 0;
 			// This player is our vassal
 			if(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(m_pPlayer->getTeam()))
 			{

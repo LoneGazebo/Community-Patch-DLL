@@ -296,8 +296,8 @@ void CvGameReligions::SpreadReligion()
 		if(kPlayer.isAlive() && !kPlayer.isBarbarian())
 		{
 			// Loop through each of their cities
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				SpreadReligionToOneCity(pLoopCity);
@@ -338,8 +338,8 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 			}
 
 			// Loop through each of their cities
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				// Ignore the same city
@@ -357,8 +357,8 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 
 					if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
 					{
-						bool bConnectedWithTrade;
-						int iRelativeDistancePercent;
+						bool bConnectedWithTrade = false;
+						int iRelativeDistancePercent = 0;
 						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iRelativeDistancePercent))
 							continue;
 
@@ -666,7 +666,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 		}
 		else
 		{
-			CvNotifications* pNotifications;
+			CvNotifications* pNotifications = NULL;
 			pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{
@@ -1112,7 +1112,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			if (!pCapital)
 			{
 				//just take the first city
-				int iIdx;
+				int iIdx = 0;
 				pCapital = kPlayer.firstCity(&iIdx);
 			}
 			args->Push(pCapital ? pCapital->GetID() : 0);
@@ -1122,7 +1122,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			args->Push(RELIGION_PANTHEON);
 			args->Push(eBelief);
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "PantheonFounded", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -1130,8 +1130,8 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 #endif
 
 	// Spread the pantheon into each of their cities
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		// Add enough pressure to make this the likely majority religion
@@ -1261,8 +1261,8 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 
 	if (kPlayer.GetPlayerTraits()->IsPopulationBoostReligion())
 	{
-		int iLoop;
-		CvCity* pLoopCity;
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
 		for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
 			if (pkHolyCity == pLoopCity)
@@ -1283,7 +1283,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
 	// In case we have another prophet sitting around, make sure he's set to this religion
-	int iLoopUnit;
+	int iLoopUnit = 0;
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
@@ -1308,7 +1308,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		args->Push(eBelief3);
 		args->Push(eBelief4);
 
-		bool bResult;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "ReligionFounded", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -1548,7 +1548,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 			args->Push(eBelief1);
 			args->Push(eBelief2);
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
 		}
 	}
@@ -1856,7 +1856,7 @@ int CvGameReligions::GetFoundYear(ReligionTypes eReligion)
 /// After a religion is enhanced, the newly chosen beliefs need to be turned on in all cities
 void CvGameReligions::UpdateAllCitiesThisReligion(ReligionTypes eReligion)
 {
-	int iLoop;
+	int iLoop = 0;
 
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
 	{
@@ -2208,8 +2208,8 @@ int CvGameReligions::GetNumFollowers(ReligionTypes eReligion) const
 				continue;
 #endif
 			// Loop through each of their cities
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iRtnValue += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
@@ -2231,7 +2231,7 @@ int CvGameReligions::GetNumCitiesFollowing(ReligionTypes eReligion) const
 		if (kPlayer.isAlive())
 		{
 			// Loop through each of their cities
-			int iLoop;
+			int iLoop = 0;
 			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
@@ -2253,7 +2253,7 @@ int CvGameReligions::GetNumDomesticCitiesFollowing(ReligionTypes eReligion, Play
 		return 0;
 
 	// Loop through each of their cities
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		if (pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
@@ -3061,9 +3061,9 @@ int CvGameReligions::GetBeliefYieldForKill(YieldTypes eYield, int iX, int iY, Pl
 {
 	int iRtnValue = 0;
 	int iMultiplier = 0;
-	int iLoop;
+	int iLoop = 0;
 	int iDistance = 0;
-	CvCity* pLoopCity;
+	CvCity* pLoopCity = NULL;
 	ReligionTypes eReligion = NO_RELIGION;
 
 	// Only Faith supported for now
@@ -3319,10 +3319,10 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		{		
 			int iBestWeight = 0;
 
-			int iTempWeight;
+			int iTempWeight = 0;
 
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 			CvGame& theGame = GC.getGame();
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
@@ -3448,7 +3448,7 @@ void CvGameReligions::LogReligionMessage(CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
 
@@ -4018,8 +4018,8 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 		}
 		else
 		{
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				if(pLoopCity != NULL)
@@ -4034,8 +4034,8 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 	}
 	else
 	{
-		int iLoop;
-			CvCity* pLoopCity;
+		int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				if(pLoopCity != NULL)
@@ -4159,8 +4159,8 @@ int CvPlayerReligions::GetSpyPressure(PlayerTypes ePlayer) const
 /// How many foreign cities are following a religion we founded?
 int CvPlayerReligions::GetNumForeignCitiesFollowing(ReligionTypes eReligion) const
 {
-	CvCity *pLoopCity;
-	int iCityLoop;
+	CvCity *pLoopCity = NULL;
+	int iCityLoop = 0;
 	int iRtnValue = 0;
 
 	if (eReligion > RELIGION_PANTHEON)
@@ -4187,8 +4187,8 @@ int CvPlayerReligions::GetNumForeignCitiesFollowing(ReligionTypes eReligion) con
 /// How many foreign citizens are following a religion we founded?
 int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const
 {
-	CvCity *pLoopCity;
-	int iCityLoop;
+	CvCity *pLoopCity = NULL;
+	int iCityLoop = 0;
 	int iRtnValue = 0;
 	
 	if (eReligion > RELIGION_PANTHEON)
@@ -4218,7 +4218,7 @@ int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 	
 	if (eReligion > RELIGION_PANTHEON)
 	{
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 		{
 			if (pLoopCity->IsIgnoreCityForHappiness())
@@ -4723,8 +4723,8 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 		if(kPlayer.isAlive())
 		{
 			// Loop through each of their cities
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				// Ignore the same city
@@ -4739,8 +4739,8 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 
 				//it would be nice to use CvGameTrade::GetAllPotentialTradeRoutesFromCity() for each of our cities
 				//to save the loop over all players, but unfortunately we also need to check incoming trade routes
-				bool bConnectedWithTrade;
-				int iRelativeDistancePercent;
+				bool bConnectedWithTrade = false;
+				int iRelativeDistancePercent = 0;
 				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))
 					continue;
 
@@ -4819,8 +4819,8 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	
 	int iNumTradeRoutes = 0;
 
-	bool bConnectedWithTrade;
-	int iRelativeDistancePercent;
+	bool bConnectedWithTrade = false;
+	int iRelativeDistancePercent = 0;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
 
 	int iWithTR = GC.getGame().GetGameReligions()->GetAdjacentCityReligiousPressure(eReligion, m_pCity, pTargetCity, iNumTradeRoutes, false, true, bConnectedWithTrade, iRelativeDistancePercent);
@@ -5491,7 +5491,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 void CvCityReligions::SimulateFollowers()
 {
 	int iUnassignedFollowers = m_pCity->getPopulation();
-	int iPressurePerFollower;
+	int iPressurePerFollower = 0;
 
 	// Find total pressure
 	int iTotalPressure = 0;
@@ -5837,7 +5837,7 @@ void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 		CvString strOutBuf;
 		CvString strReasonString = GetFollowerChangeString(eReason);
 		CvString temp;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		CvCityReligions* pCityRel = m_pCity->GetCityReligions();
 
 		pLog = LOGFILEMGR.GetLog(GC.getGame().GetGameReligions()->GetLogFileName(), FILogFile::kDontTimeStamp);
@@ -6087,7 +6087,7 @@ void CvReligionAI::DoTurn()
 		CvWeightedVector<int> m_aFaithPriorities;
 
 		//Sort by faith production
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			if (pLoopCity && !pLoopCity->IsResistance() && !pLoopCity->isUnderSiege() && pLoopCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
@@ -6395,7 +6395,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 				continue;
 
 			// Loop through each of their cities
-			int iLoop;
+			int iLoop = 0;
 			for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				//ignore mere fog danger ... it's volatile, leading to missionaries going back and forth
@@ -6447,7 +6447,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
 
 	// Loop through each of my cities
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pUnit->GetDanger(pLoopCity->plot()) > 0)
@@ -6522,8 +6522,8 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	std::vector<SPlotWithScore> vCandidates;
 
 	// Look at our cities first, checking them for followers of other religions
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		ReligionTypes eMajorityReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
@@ -6575,7 +6575,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		if (m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(kLoopPlayer.GetID(), THEFT_TYPE_CONVERSION))
 			continue;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).nextCity(&iCityLoop))
 		{
 			//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
@@ -7001,7 +7001,7 @@ bool CvReligionAI::DoReligionDefenseInCities()
 	bool bResult = false;
 
 	//Sort by faith production
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		//ignore cities which have the wrong religion to begin with
@@ -7127,7 +7127,7 @@ bool CvReligionAI::DoFaithPurchases()
 
 	// Count missionaries / prophets
 	int iNumMissionaries = 0;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) > 0)
@@ -7472,8 +7472,8 @@ bool CvReligionAI::BuyAnyAvailableNonFaithUnit()
 		return false;
 	}
 	bool bPurchased = false;
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -7509,8 +7509,8 @@ bool CvReligionAI::BuyAnyAvailableNonFaithBuilding()
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -7555,8 +7555,8 @@ bool CvReligionAI::BuyAnyAvailableFaithBuilding()
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		ReligionTypes eReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
@@ -7588,7 +7588,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus, bool bConsi
 	int iScorePlayer = 0;
 
 	// Add in value at city level
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		for (int i = 0; i < pLoopCity->GetNumWorkablePlots(); i++)
@@ -7707,7 +7707,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus, bool bConsi
 		playerName = m_pPlayer->getCivilizationShortDescription();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog("TotalBeliefScoringReligionLog.csv", FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -7927,9 +7927,9 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool b
 int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 {
 	int iRtnValue = 0;
-	int iTempValue;
-	int iMinPop;
-	int iMinFollowers;
+	int iTempValue = 0;
+	int iMinPop = 0;
+	int iMinFollowers = 0;
 	int iHappinessMultiplier = 3;
 
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
@@ -8056,8 +8056,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 	bool bIsHolyCity = pCity->GetCityReligions()->IsHolyCityForReligion(eReligion);
 	if (!bIsHolyCity)
 	{
-		int iLoopUnit;
-		CvUnit* pLoopUnit;
+		int iLoopUnit = 0;
+		CvUnit* pLoopUnit = NULL;
 		for (pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 		{
 			if (pLoopUnit == NULL)
@@ -8331,8 +8331,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 				}
 				else
 				{
-					CvPlot* pPlot;
-					int iK;
+					CvPlot* pPlot = NULL;
+					int iK = 0;
 					CvCityCitizens* pCityCitizens = pCity->GetCityCitizens();
 					for (iK = 0; iK < pCity->GetNumWorkablePlots(); iK++)
 					{
@@ -8389,8 +8389,8 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			FeatureTypes eFeature = (FeatureTypes) iJ;
 			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeatureTimes100(iJ, iI) > 0)
 			{
-				CvPlot* pPlot;
-				int iK;
+				CvPlot* pPlot = NULL;
+				int iK = 0;
 				CvCityCitizens* pCityCitizens = pCity->GetCityCitizens();
 				for (iK = 0; iK < pCity->GetNumWorkablePlots(); iK++)
 				{
@@ -8570,8 +8570,8 @@ int CvReligionAI::GetNumCitiesWithReligionCalculator(ReligionTypes eReligion, bo
 			if (!m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoConvertPromise(kLoopPlayer.GetID()))
 			{
 				int iNumCities = 0;
-				int iLoop;
-				CvCity* pLoopCity;
+				int iLoop = 0;
+				CvCity* pLoopCity = NULL;
 				for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
 					if (eReligion == NO_RELIGION)
@@ -8644,9 +8644,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	int iScienceInterest = 0;
 	int iCultureInterest = 0;
 
-	int iGrandStrategiesLoop;
+	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy;
-	CvAIGrandStrategyXMLEntry* pGrandStrategy;
+	CvAIGrandStrategyXMLEntry* pGrandStrategy = NULL;
 	CvString strGrandStrategyName;
 
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
@@ -8904,8 +8904,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		if (!bForeignSpreadImmune)
 		{
 			int iForeignReligions = 0;
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity == NULL)
@@ -9449,8 +9449,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				}
 				if (pEntry->GetBuildingClassTourism(iI) > 0)
 				{
-					int iLoop;
-					CvCity* pLoopCity;
+					int iLoop = 0;
+					CvCity* pLoopCity = NULL;
 					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
 						iBuildingTemp += max(1, (pEntry->GetBuildingClassTourism(iI) * pLoopCity->GetCityBuildings()->GetNumBuildingClass((BuildingClassTypes)iI) * 5));
@@ -9460,8 +9460,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 
 			if (pEntry->GetFaithBuildingTourism() > 0)
 			{
-				int iLoop;
-				CvCity* pLoopCity;
+				int iLoop = 0;
+				CvCity* pLoopCity = NULL;
 				for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
 					if (pLoopCity->GetCityBuildings()->GetNumBuildingsFromFaith() > 0)
@@ -9471,8 +9471,8 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 				}
 			}
 
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 			for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
 				if (pLoopCity == NULL)
@@ -9853,7 +9853,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		playerName = m_pPlayer->getCivilizationShortDescription();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog("PlayerBeliefReligionLog.csv", FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -10131,8 +10131,8 @@ bool CvReligionAI::AreAllOurCitiesConverted(ReligionTypes eReligion, bool bInclu
 {
 	bool bRtnValue = true;
 
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->GetCityReligions()->GetReligiousMajority() != eReligion)
@@ -10157,7 +10157,7 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 	bool bRtnValue = true;
 	BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->GetCityReligions()->GetReligiousMajority() == eReligion)
@@ -10215,7 +10215,7 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 		if (bStartedOwnReligion && !bCanIncludeReligionStarter)
 			continue;
 
-		int iLoop;
+		int iLoop = 0;
 		for(CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
 		{
 			if (m_pPlayer->GetCityDistanceInPlots(pCity->plot()) > iMaxRange)
@@ -10275,7 +10275,7 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 
 	// Count Inquisitors of our religion
 	int iNumInquisitors = 0;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pUnit->getUnitInfo().IsRemoveHeresy())
@@ -10430,7 +10430,7 @@ bool CvReligionAI::CanBuyNonFaithUnit() const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
-	int iLoop;
+	int iLoop = 0;
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -10459,8 +10459,8 @@ bool CvReligionAI::CanBuyNonFaithBuilding() const
 {
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -10691,7 +10691,7 @@ void CvReligionAI::LogBeliefChoices(CvWeightedVector<BeliefTypes>& beliefChoices
 		playerName = m_pPlayer->getCivilizationShortDescription();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GC.getGame().GetGameReligions()->GetLogFileName(), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -10724,8 +10724,8 @@ CvCity *CvReligionAIHelpers::GetBestCityFaithUnitPurchase(CvPlayer &kPlayer, Uni
 	bool bReligious = false;
 	CvCity *pHolyCity = NULL;
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, kPlayer.GetID());
@@ -10836,8 +10836,8 @@ CvCity *CvReligionAIHelpers::GetBestCityFaithBuildingPurchase(CvPlayer &kPlayer,
 	}
 
 	// Now see if there is another city with our majority religion
-	int iLoop;
-	CvCity* pLoopCity;
+	int iLoop = 0;
+	CvCity* pLoopCity = NULL;
 	for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 	{
 		if(pLoopCity == pHolyCity)
@@ -10872,8 +10872,8 @@ bool CvReligionAIHelpers::DoesUnitPassFaithPurchaseCheck(CvPlayer &kPlayer, Unit
 
 			// Religious unit, have to find a city with the majority religion we started
 			// Now see if there is another city with our majority religion
-			int iLoop;
-			CvCity* pLoopCity;
+			int iLoop = 0;
+			CvCity* pLoopCity = NULL;
 
 			ReligionTypes eReligion = GET_PLAYER(kPlayer.GetID()).GetReligions()->GetOwnedReligion();
 

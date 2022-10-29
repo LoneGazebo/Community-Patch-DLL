@@ -3741,7 +3741,7 @@ bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUt
 
 		pResults->Bind(1, szPolicyBranchType, false);
 
-		int iID;
+		int iID = 0;
 		while(pResults->Step())
 		{
 			iID = pResults->GetInt(0);
@@ -4012,7 +4012,7 @@ void CvPlayerPolicies::Uninit()
 /// Reset policy status array to all false
 void CvPlayerPolicies::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < m_pPolicies->GetNumPolicies(); iI++)
 	{
@@ -4234,7 +4234,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 
 		if(eThisBranch != NO_POLICY_BRANCH_TYPE)
 		{
-			bool bBranchFinished;
+			bool bBranchFinished = false;
 
 			// We don't have this Policy, so this branch is definitely not finished
 			if(!bNewValue)
@@ -5286,7 +5286,7 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_POLICY_UNLOCK, false, NO_GREATPERSON, NO_BUILDING, 0, false);
 	m_pPlayer->doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_POLICY_UNLOCK);
 
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop)) 
 	{
 		pLoopCity->GetCityCitizens()->SetDirty(true);
@@ -5551,7 +5551,7 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 	// Does THIS Branch block any other branch?
-	int iBranchLoop;
+	int iBranchLoop = 0;
 	for(iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
 	{
 		const PolicyBranchTypes eDisableBranch = static_cast<PolicyBranchTypes>(iBranchLoop);
@@ -5567,7 +5567,7 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 //	std::vector<PolicyBranchTypes> veOtherPoliciesToUnblock;
-	bool bUnlockBranch;
+	bool bUnlockBranch = false;
 
 	// Do a pass over the Policies to see if there are any we can safely unblock
 	for(iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
@@ -5765,7 +5765,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	}
 
 	//Buildings enabled by the old policy branch should be destroyed.
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pLoopCity != NULL)
@@ -6136,7 +6136,7 @@ PolicyBranchTypes CvPlayerPolicies::GetDominantPolicyBranchForTitle() const
 	std::vector<int> viPolicyBranchCounts;
 
 	// Init vector
-	int iBranchLoop;
+	int iBranchLoop = 0;
 	for(iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)
 	{
 		viPolicyBranchCounts.push_back(0);
@@ -6470,7 +6470,7 @@ void CvPlayerPolicies::DoChooseIdeology()
 // Internal method to add all of this leaderheads' flavors as strategies for policy AI
 void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 {
-	int iFlavorValue;
+	int iFlavorValue = 0;
 
 	// Start by resetting the AI
 	m_pPolicyAI->Reset();

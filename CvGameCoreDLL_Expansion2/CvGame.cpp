@@ -178,10 +178,10 @@ CvGame::~CvGame()
 //	--------------------------------------------------------------------------------
 void CvGame::init(HandicapTypes eHandicap)
 {
-	bool bValid;
-	int iStartTurn;
-	int iEstimateEndTurn;
-	int iI;
+	bool bValid = false;
+	int iStartTurn = 0;
+	int iEstimateEndTurn = 0;
+	int iI = 0;
 
 	//--------------------------------
 	// Init saved data
@@ -600,8 +600,8 @@ void PrintPlayerInfo(int iIndex)
 void CvGame::InitPlayers()
 {
 	PlayerColorTypes aePlayerColors[REALLY_MAX_PLAYERS];
-	bool bValid;
-	int iI, iJ, iK, iL;
+	bool bValid = false;
+	int iI = 0, iJ = 0, iK = 0, iL = 0;
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -919,7 +919,7 @@ void CvGame::CheckGenerateArchaeology()
 //	--------------------------------------------------------------------------------
 void CvGame::regenerateMap()
 {
-	int iI;
+	int iI = 0;
 
 	if(CvPreGame::isWBMapScript())
 	{
@@ -1526,7 +1526,7 @@ void CvGame::update()
 		if(pkScriptSystem)
 		{
 			CvLuaArgsHandle args;
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateBegin", args.get(), bResult);
 		}
 	}
@@ -1626,7 +1626,7 @@ void CvGame::update()
 		if(pkScriptSystem)
 		{
 			CvLuaArgsHandle args;
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
 		}
 	}
@@ -1750,11 +1750,11 @@ void CvGame::updateScore(bool bForce)
 
 	bool abPlayerScored[MAX_CIV_PLAYERS];
 	bool abTeamScored[MAX_CIV_TEAMS];
-	int iScore;
-	int iBestScore;
+	int iScore = 0;
+	int iBestScore = 0;
 	PlayerTypes eBestPlayer;
 	TeamTypes eBestTeam;
-	int iI, iJ, iK;
+	int iI = 0, iJ = 0, iK = 0;
 
 	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -1876,7 +1876,7 @@ void CvGame::DoCacheMapScoreMod()
 //	--------------------------------------------------------------------------------
 void CvGame::updateCitySight(bool bIncrement)
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -2049,7 +2049,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 
 					args->Push(getActivePlayer());
 
-					bool bResult;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -2119,7 +2119,7 @@ void CvGame::updateTestEndTurn()
 
 								args->Push(getActivePlayer());
 
-								bool bResult;
+								bool bResult = false;
 								LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 							}
 						}
@@ -2222,7 +2222,7 @@ void CvGame::updateTestEndTurn()
 
 											args->Push(getActivePlayer());
 
-											bool bResult;
+											bool bResult = false;
 											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 										}
 									}
@@ -2254,7 +2254,7 @@ void CvGame::updateTestEndTurn()
 //	--------------------------------------------------------------------------------
 void CvGame::testExtendedGame()
 {
-	int iI;
+	int iI = 0;
 
 	if(getGameState() != GAMESTATE_OVER)
 	{
@@ -2281,12 +2281,12 @@ void CvGame::testExtendedGame()
 //	--------------------------------------------------------------------------------
 CvUnit* CvGame::getPlotUnit(CvPlot* pPlot, int iIndex)
 {
-	IDInfo* pUnitNode1;
-	IDInfo* pUnitNode2;
-	CvUnit* pLoopUnit1;
-	CvUnit* pLoopUnit2;
-	int iCount;
-	int iPass;
+	IDInfo* pUnitNode1 = NULL;
+	IDInfo* pUnitNode2 = NULL;
+	CvUnit* pLoopUnit1 = NULL;
+	CvUnit* pLoopUnit2 = NULL;
+	int iCount = 0;
+	int iPass = 0;
 	PlayerTypes activePlayer = getActivePlayer();
 	TeamTypes activeTeam = getActiveTeam();
 
@@ -2354,11 +2354,11 @@ void CvGame::getPlotUnits(CvPlot* pPlot, std::vector<CvUnit*>& plotUnits)
 {
 	plotUnits.erase(plotUnits.begin(), plotUnits.end());
 
-	IDInfo* pUnitNode1;
-	IDInfo* pUnitNode2;
-	CvUnit* pLoopUnit1;
-	CvUnit* pLoopUnit2;
-	int iPass;
+	IDInfo* pUnitNode1 = NULL;
+	IDInfo* pUnitNode2 = NULL;
+	CvUnit* pLoopUnit1 = NULL;
+	CvUnit* pLoopUnit2 = NULL;
+	int iPass = 0;
 	PlayerTypes activePlayer = getActivePlayer();
 	TeamTypes activeTeam = getActiveTeam();
 
@@ -2464,7 +2464,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 //	--------------------------------------------------------------------------------
 void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 {
-	CvUnit* pNextUnit;
+	CvUnit* pNextUnit = NULL;
 	CvCity* pCycleCity = NULL;
 	bool bWrap = false;
 	bool bProcessed = false;
@@ -2528,8 +2528,8 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 // Returns true if unit was cycled...
 bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount)
 {
-	IDInfo* pUnitNode;
-	CvUnit* pSelectedUnit;
+	IDInfo* pUnitNode = NULL;
+	CvUnit* pSelectedUnit = NULL;
 	CvUnit* pLoopUnit = NULL;
 
 	CvAssertMsg(iCount >= -1, "iCount expected to be >= -1");
@@ -2716,7 +2716,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 								args->Push(pPlot->getY());
 								args->Push(iData2);
 
-								bool bResult;
+								bool bResult = false;
 								LuaSupport::CallHook(pkScriptSystem, "PushingMissionTo", args.get(), bResult);
 							}
 						}
@@ -2747,8 +2747,8 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 //	--------------------------------------------------------------------------------
 void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, int iData4, bool bOption, bool bAlt, bool bShift, bool bCtrl)
 {
-	const IDInfo* pSelectedCityNode;
-	CvCity* pSelectedCity;
+	const IDInfo* pSelectedCityNode = NULL;
+	CvCity* pSelectedCity = NULL;
 
 	pSelectedCityNode = GC.GetEngineUserInterface()->headSelectedCitiesNode();
 
@@ -2875,7 +2875,7 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 //	--------------------------------------------------------------------------------
 static void IfTradeUnit_DisplayPopupTradeRoute(CvUnit *pUnit)
 {
-	int iRouteIndex;
+	int iRouteIndex = 0;
 
 	iRouteIndex = -1;
 	if (pUnit && pUnit->isTrade())
@@ -2888,7 +2888,7 @@ static void IfTradeUnit_DisplayPopupTradeRoute(CvUnit *pUnit)
 }
 void CvGame::mouseoverUnit(CvUnit *pUnit, bool bEnter)
 {
-	CvUnit *pkSelectedUnit;
+	CvUnit *pkSelectedUnit = NULL;
 
 	if (pUnit)
 	{
@@ -2911,9 +2911,9 @@ void CvGame::mouseoverUnit(CvUnit *pUnit, bool bEnter)
 //	--------------------------------------------------------------------------------
 void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 {
-	IDInfo* pUnitNode;
-	CvPlot* pUnitPlot;
-	bool bGroup;
+	IDInfo* pUnitNode = NULL;
+	CvPlot* pUnitPlot = NULL;
+	bool bGroup = false;
 
 	CvAssertMsg(pUnit != NULL, "pUnit == NULL unexpectedly");
 
@@ -2996,7 +2996,7 @@ void CvGame::SelectSettler(void)
 	CvPlayerAI* pActivePlayer = &(GET_PLAYER(getActivePlayer()));
 
 	CvUnit* pLoopUnit = NULL;
-	int iUnitIndex;
+	int iUnitIndex = 0;
 	for(pLoopUnit = pActivePlayer->firstUnit(&iUnitIndex); pLoopUnit != NULL; pLoopUnit = pActivePlayer->nextUnit(&iUnitIndex))
 	{
 		if(pLoopUnit->isFound())
@@ -3054,7 +3054,7 @@ bool CvGame::selectionListIgnoreBuildingDefense()
 //	--------------------------------------------------------------------------------
 bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 {
-	CvPlot* pMissionPlot;
+	CvPlot* pMissionPlot = NULL;
 	bool bShift = gDLL->shiftKey();
 
 	CvActionInfo* pActionInfo = GC.getActionInfo(iAction);
@@ -3132,9 +3132,9 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 //	Handle an action initiated by the local human player
 void CvGame::handleAction(int iAction)
 {
-	bool bAlt;
-	bool bShift;
-	bool bSkip;
+	bool bAlt = false;
+	bool bShift = false;
+	bool bSkip = false;
 
 	bAlt = gDLL->altKey();
 	bShift = false;//gDLL->shiftKey();
@@ -3618,7 +3618,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 					args->Push(getActivePlayer());
 
-					bool bResult;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -3657,7 +3657,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 					args->Push(getActivePlayer());
 
-					bool bResult;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -3864,10 +3864,10 @@ void CvGame::SetForceEndingTurn(bool bValue)
 //	--------------------------------------------------------------------------------
 int CvGame::getAdjustedPopulationPercent(VictoryTypes eVictory) const
 {
-	int iPopulation;
-	int iBestPopulation;
-	int iNextBestPopulation;
-	int iI;
+	int iPopulation = 0;
+	int iBestPopulation = 0;
+	int iNextBestPopulation = 0;
+	int iI = 0;
 
 	CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
 	if(pkVictoryInfo == NULL)
@@ -3946,8 +3946,8 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivPlayersAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -3966,8 +3966,8 @@ int CvGame::countCivPlayersAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivPlayersEverAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -3986,8 +3986,8 @@ int CvGame::countCivPlayersEverAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivTeamsAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4006,8 +4006,8 @@ int CvGame::countCivTeamsAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivTeamsEverAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4026,8 +4026,8 @@ int CvGame::countCivTeamsEverAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countHumanPlayersAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4049,8 +4049,8 @@ int CvGame::countHumanPlayersAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countHumanPlayersEverAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4163,8 +4163,8 @@ int CvGame::countMajorCivsAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countMajorCivsEverAlive() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4185,8 +4185,8 @@ int CvGame::countMajorCivsEverAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countTotalCivPower()
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4205,8 +4205,8 @@ int CvGame::countTotalCivPower()
 //	--------------------------------------------------------------------------------
 int CvGame::countTotalNukeUnits()
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4225,8 +4225,8 @@ int CvGame::countTotalNukeUnits()
 //	--------------------------------------------------------------------------------
 int CvGame::countKnownTechNumTeams(TechTypes eTech)
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -4247,7 +4247,7 @@ int CvGame::countKnownTechNumTeams(TechTypes eTech)
 //	--------------------------------------------------------------------------------
 int CvGame::goldenAgeLength(int iManualLength) const
 {
-	int iLength;
+	int iLength = 0;
 	
 	// Sometimes we need to alter a manual number of golden age turns by the game speed
 	if (iManualLength >= 0)
@@ -4939,8 +4939,8 @@ int CvGame::getNumGameTurnActive()
 //	--------------------------------------------------------------------------------
 int CvGame::countNumHumanGameTurnActive()
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -5370,7 +5370,7 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 		args->Push(iArg1);
 		args->Push(iArg2);
 
-		bool bResult;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_DIPLO_EVENTS)
@@ -5747,7 +5747,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 #if defined(MOD_NO_RANDOM_TEXT_CIVS)
     std::vector<int> biasList;
 
-    Database::Results* tempDatabase;
+    Database::Results* tempDatabase = NULL;
     const char* callTemp = "select Tag, Bias from Diplomacy_Responses, Language_en_US where LeaderType = ? and ResponseType = ? and Tag like Response";
     tempDatabase = new Database::Results();
     if(!GC.GetGameDatabase()->Execute(*tempDatabase, callTemp, strlen(callTemp)))
@@ -5771,8 +5771,8 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
     tempDatabase->Reset();
     delete tempDatabase; //Just to be safe
 
-    int tempRand;
-    unsigned int choice;
+    int tempRand = 0;
+    unsigned int choice = 0;
 
     if(!probabilities.empty())
     {
@@ -9006,7 +9006,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 	UnitTypes eBestUnit = NO_UNIT;
 	int iBestValue = 0;
 	int iValue = 0;
-	int iBonusValue;
+	int iBonusValue = 0;
 
 	// Loop through all Unit Classes
 	for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
@@ -9678,7 +9678,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 //	--------------------------------------------------------------------------------
 void CvGame::updateWar()
 {
-	int iI, iJ;
+	int iI = 0, iJ = 0;
 
 	if(isOption(GAMEOPTION_ALWAYS_WAR))
 	{
@@ -9719,8 +9719,8 @@ void CvGame::updateWar()
 void CvGame::updateMoves()
 {
 	CvUnit* pLoopUnit = NULL;
-	int iLoop;
-	int iI;
+	int iLoop = 0;
+	int iI = 0;
 
 	// Process all AI first, then process players.
 	// Processing of the AI 'first' only occurs when the AI are activated first
@@ -10302,8 +10302,8 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 		{
 			bool bReligionInAllCities = true;
 
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			PlayerTypes eLoopPlayer;
 
@@ -10429,7 +10429,7 @@ void CvGame::testVictory()
 	if(pkScriptSystem)
 	{
 		CvLuaArgsHandle args;
-		bool bResult;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "GameCoreTestVictory", args.get(), bResult);
 	}
 
@@ -10508,7 +10508,7 @@ void CvGame::testVictory()
 		// Any (non game-ending) Competition placers?
 		if(iNumCompetitionWinners > 0)
 		{
-			int iRand;
+			int iRand = 0;
 
 			do
 			{
@@ -10556,7 +10556,7 @@ void CvGame::testVictory()
 
 			// Find out who is in the lead with VPs
 			int iBestVPNum = 0;
-			int iVPs;
+			int iVPs = 0;
 			for(iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 			{
 				iVPs = GET_TEAM((TeamTypes) iTeamLoop).getVictoryPoints();
@@ -10611,7 +10611,7 @@ void CvGame::testVictory()
 
 			// Find out who is in the lead with VPs
 			int iBestVPNum = 0;
-			int iVPs;
+			int iVPs = 0;
 			for(iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 			{
 				iVPs = GET_TEAM((TeamTypes) iTeamLoop).GetScore();
@@ -10778,7 +10778,7 @@ void CvGame::doVictoryRandomization()
 
 			strLogName = "RandomVictory_Log.csv";
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line
@@ -10893,7 +10893,7 @@ int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 		const size_t uiOutputSize = 512;
 		char szOutput[uiOutputSize];
 
-		va_list vl;
+		va_list vl = NULL;
 		va_start(vl, pszLog);
 		vsprintf_s(szOutput, uiOutputSize, pszLog, vl);
 		va_end(vl);
@@ -11011,11 +11011,11 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
 //	--------------------------------------------------------------------------------
 int CvGame::calculateSyncChecksum()
 {
-	CvUnit* pLoopUnit;
-	unsigned int iMultiplier;
-	unsigned long long iValue;
-	int iLoop;
-	int iI, iJ;
+	CvUnit* pLoopUnit = NULL;
+	unsigned int iMultiplier = 0;
+	unsigned long long iValue = 0;
+	int iLoop = 0;
+	int iI = 0, iJ = 0;
 
 	iValue = 0;
 
@@ -11179,8 +11179,8 @@ void CvGame::debugSyncChecksum()
 //	--------------------------------------------------------------------------------
 int CvGame::calculateOptionsChecksum()
 {
-	int iValue;
-	int iI, iJ;
+	int iValue = 0;
+	int iI = 0, iJ = 0;
 
 	iValue = 0;
 
@@ -11312,8 +11312,8 @@ int CvGame::CalculateMedianNumWondersConstructed()
 
 void CvGame::updateEconomicTotal()
 {
-	CvCity* pLoopCity;
-	int iCityLoop;
+	CvCity* pLoopCity = NULL;
+	int iCityLoop = 0;
 	PlayerTypes eLoopPlayer;
 
 	std::vector<int> viEconValues;
@@ -11356,12 +11356,12 @@ void CvGame::updateGlobalMedians()
 	if (!MOD_BALANCE_VP)
 		return;
 
-	int iCityLoop;
 	std::vector<float> vfBasicNeedsYield;
 	std::vector<float> vfGoldYield;
 	std::vector<float> vfScienceYield;
 	std::vector<float> vfCultureYield;
 	std::vector<int> viTechsResearched;
+	int iCityLoop = 0;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -11824,13 +11824,13 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 //	--------------------------------------------------------------------------------
 void CvGame::Read(FDataStream& kStream)
 {
-	int iI;
+	int iI = 0;
 
 	reset(NO_HANDICAP);
 
 	// Save header information
 	{
-		uint32 saveVersion;
+		uint32 saveVersion = 0;
 		kStream >> saveVersion;
 		GC.setSaveVersion(saveVersion);
 		
@@ -12529,7 +12529,7 @@ int CvGame::GetTurnsUntilMinorCivElection()
 /// Returns: the action info index or -1.
 int CvGame::GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl)
 {
-	int i;
+	int i = 0;
 	int iActionIndex = -1;
 	int iPriority = -1;
 
@@ -12569,7 +12569,7 @@ int CvGame::GetAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl)
 /// Returns: the action info index or -1.
 int CvGame::IsAction(int iKeyStroke, bool bAlt, bool bShift, bool bCtrl)
 {
-	int i;
+	int i = 0;
 	int iActionIndex = -1;
 	int iPriority = -1;
 
@@ -13696,8 +13696,8 @@ int CvGame::GetNumArchaeologySites() const
 	}
 
 	int iRtnValue = 0;
-	int iPlotLoop;
-	CvPlot *pPlot;
+	int iPlotLoop = 0;
+	CvPlot *pPlot = NULL;
 	for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
@@ -13717,8 +13717,8 @@ int CvGame::GetNumHiddenArchaeologySites() const
 	}
 
 	int iRtnValue = 0;
-	int iPlotLoop;
-	CvPlot *pPlot;
+	int iPlotLoop = 0;
+	CvPlot *pPlot = NULL;
 	for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);

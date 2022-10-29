@@ -80,7 +80,7 @@ void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	if (iWeight==0)
 		return;
 
-	int iProcess;
+	int iProcess = 0;
 	CvProcessInfo* entry(NULL);
 
 	// Loop through all projects
@@ -511,7 +511,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
 		if(!pLog) return;

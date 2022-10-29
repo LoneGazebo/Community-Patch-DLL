@@ -249,7 +249,7 @@ FDataStream& operator<<(FDataStream& stream, const CvTacticalAI& tacticalAI)
 /// Mark all the units that will be under tactical AI control this turn
 void CvTacticalAI::RecruitUnits()
 {
-	int iLoop;
+	int iLoop = 0;
 	m_CurrentTurnUnits.clear();
 
 	// Loop through our units
@@ -2753,7 +2753,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 	std::map<int,ReachablePlots> unitMovePlots;
 
 	// Loop through each of our cities
-	int iCityLoop;
+	int iCityLoop = 0;
 	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		// Compile a list of units that can attack it this turn and what their expected damage is
@@ -2904,7 +2904,7 @@ void CvTacticalAI::DumpTacticalTargets(const char* hint)
 {
 	for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextUnitTarget())
 	{
-		const char* prio;
+		const char* prio = NULL;
 		switch (pTarget->GetTargetType())
 		{
 		case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
@@ -5825,7 +5825,7 @@ void CvTacticalAI::LogTacticalMessage(const CvString& strMsg)
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
 		strPlayerName.Replace(' ', '_'); //no spaces

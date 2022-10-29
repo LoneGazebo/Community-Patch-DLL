@@ -158,7 +158,7 @@ int CvArmyAI::GetMovementRate()
 	int iMovementAverage = 2;   // A reasonable default
 	int iNumUnits = 0;
 	int iTotalMovementAllowance = 0;
-	CvUnit* pUnit;
+	CvUnit* pUnit = NULL;
 
 	pUnit = GetFirstUnit();
 	while(pUnit)
@@ -762,7 +762,7 @@ FDataStream& operator<<(FDataStream& saveTo, const MultiunitFormationTypes& read
 
 FDataStream& operator>>(FDataStream& loadFrom, MultiunitFormationTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<MultiunitFormationTypes>(v);
 	return loadFrom;

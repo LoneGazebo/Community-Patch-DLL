@@ -306,7 +306,7 @@ inline CvString GetLocalizedText(const char* szString)
 
 	size_t bytes = 0;
 	const char* szComposedString = text.toUTF8(bytes);
-	CvString str;
+	CvString str = 0;
 	str.assign(szComposedString, bytes);
 
 	//fallback

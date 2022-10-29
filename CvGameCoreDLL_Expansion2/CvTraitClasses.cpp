@@ -3540,7 +3540,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	}
 	// TerrainClaimBoost
 	{
-		int iTerrainLoop;
+		int iTerrainLoop = 0;
 		for (iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
 		{
 			m_abTerrainClaimBoost.push_back(false);
@@ -3642,7 +3642,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 	// NoTrain
 	{
-		int iUnitClassLoop;
+		int iUnitClassLoop = 0;
 		for (iUnitClassLoop = 0; iUnitClassLoop < GC.getNumUnitClassInfos(); iUnitClassLoop++)
 		{
 			m_abNoTrainUnitClass.push_back(false);
@@ -3667,7 +3667,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	// FreeResourceXCities
 	{
 		// Init vector
-		int iResourceLoop;
+		int iResourceLoop = 0;
 		for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			FreeResourceXCities temp;
@@ -5662,7 +5662,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_aiiAlternateResourceTechs.clear();
 #endif
-	int iResourceLoop;
+	int iResourceLoop = 0;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		FreeResourceXCities temp;
@@ -6438,7 +6438,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		
 	//first round. place on owned non-city, non-resource plots without improvement
 	int iNumResourceGiven = 0;
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 	for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 	{
 		pLoopPlot = iterateRingPlots(pCity->getX(), pCity->getY(), iCityPlotLoop);
@@ -6505,7 +6505,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 
 void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 {
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 	UnitTypes eBestLandUnit = NO_UNIT;
 	int iStrengthBestLandCombat = 0;
 	UnitTypes eWarrior = (UnitTypes)GC.getInfoTypeForString("UNIT_WARRIOR");
@@ -6700,8 +6700,8 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 #endif
 {
 	// Loop through all adjacent plots
-	CvPlot* pAdjacentPlot;
-	int iI;
+	CvPlot* pAdjacentPlot = NULL;
+	int iI = 0;
 	bool bRtnValue = false;
 
 	if(pPlot->isWater() && GetSeaBarbarianConversionPercent() > 0)
@@ -7751,7 +7751,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 #endif
 {
-	CvUnit* pGiftUnit;
+	CvUnit* pGiftUnit = NULL;
 
 	// Has this camp already decided not to convert?
 	if(pPlot->IsBarbarianCampNotConverting())
@@ -7841,7 +7841,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 #endif
 {
-	CvUnit* pGiftUnit;
+	CvUnit* pGiftUnit = NULL;
 
 	// Has this unit already decided not to convert?
 	if(pUnit->IsNotConverting())

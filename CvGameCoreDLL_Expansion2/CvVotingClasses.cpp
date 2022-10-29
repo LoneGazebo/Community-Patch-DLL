@@ -188,8 +188,8 @@ BuildingTypes LeagueHelpers::GetBuildingForTrigger(BuildingTypes eBuilding)
 			{
 				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)i);
 				
-				CvCity* pLoopCity;
-				int iLoop;
+				CvCity* pLoopCity = NULL;
+				int iLoop = 0;
 				for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 				{
 					if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -1558,7 +1558,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			}
 		}
 
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
 			GET_PLAYER(eTargetPlayer).GetCorporations()->ClearCorporationFromCity(pLoopCity, GET_PLAYER(eTargetPlayer).GetCorporations()->GetFoundedCorporation(), true);
@@ -1576,8 +1576,8 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
 					pPlayer->CheckForMonopoly(eResourceLoop);
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 					for (pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
 					{
 						if (pLoopCity->GetResourceDemanded() == eResourceLoop)
@@ -9809,7 +9809,7 @@ void CvGameLeagues::LogLeagueMessage(CvString& kMessage)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
 
@@ -11874,7 +11874,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		else if (eInternationalSpaceStation == eProject)
 		{
 			int iTeams = 0;
-			int iTechs;
+			int iTechs = 0;
 			int iTotalTechs = 0;
 			int iOurTechs = 0;
 			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
@@ -12274,7 +12274,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 		int iCivs = 0;
-		int iMight;
+		int iMight = 0;
 		int iTotalMight = 0;
 		int iOurMight = 0;
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)	// Looping over all MAJOR teams
@@ -12461,7 +12461,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	{
 		int iMostTechsKnown = 0;
 		int iTeams = 0;
-		int iTechs;
+		int iTechs = 0;
 		int iTotalTechs = 0;
 		int iOurTechs = 0;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
@@ -13068,7 +13068,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		if (bScienceVictoryEnabled)
 		{
 			int iTeams = 0;
-			int iTechs;
+			int iTechs = 0;
 			int iTotalTechs = 0;
 			int iOurTechs = 0;
 			for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams

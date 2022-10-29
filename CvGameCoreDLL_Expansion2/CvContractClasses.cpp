@@ -277,7 +277,7 @@ FDataStream& operator<<(FDataStream& saveTo, const ContractTypes& readFrom)
 }
 FDataStream& operator>>(FDataStream& loadFrom, ContractTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<ContractTypes>(v);
 	return loadFrom;
@@ -471,9 +471,9 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 				int iNumUnits = GC.getGame().GetContractUnits(eContract, eUnit);
 				if(iNumUnits > 0)
 				{
-					CvCity* pLoopCity;
+					CvCity* pLoopCity = NULL;
 					CvCity* pBestCity = NULL;
-					int iLoop;
+					int iLoop = 0;
 					int iBestPop = 0;
 					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 					{
@@ -551,7 +551,7 @@ void CvPlayerContracts::DisbandContractUnits(ContractTypes eContract)
 	if(eContract == NO_CONTRACT)
 		return;
 
-	CvUnit* pLoopUnit;
+	CvUnit* pLoopUnit = NULL;
 	int iLoop = 0;
 
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))

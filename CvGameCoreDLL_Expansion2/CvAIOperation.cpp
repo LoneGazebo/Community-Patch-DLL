@@ -552,7 +552,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 	if (!path)
 		return NULL;
 
-	int iNodeIndex;
+	int iNodeIndex = 0;
 	if (bForward)
 		iNodeIndex = std::min( path.length()-1, iStep );
 	else
@@ -1110,7 +1110,7 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 		CvString strBaseString;
 		CvString strTemp, szTemp2, szTemp3;
 		CvString strPlayerName;
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 
 		strPlayerName = GET_PLAYER(m_eOwner).getCivilizationShortDescription();
 		strPlayerName.Replace(' ', '_'); //no spaces
@@ -1679,7 +1679,7 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 	CvPlayerAI& kEnemyPlayer = GET_PLAYER(m_eEnemy);
 	CvPlayerAI& kPlayer = GET_PLAYER(m_eOwner);
 
-	int iLoop;
+	int iLoop = 0;
 	int iBestValue = 0;
 	for(CvCity* pLoopCity = kEnemyPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kEnemyPlayer.nextCity(&iLoop))
 	{
@@ -1861,7 +1861,7 @@ void CvAIOperationCivilian::UnitWasRemoved(int iArmyID, int iSlotID)
 /// Find the civilian we want to use
 CvUnit* CvAIOperationCivilian::FindBestCivilian()
 {
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iUnitLoop))
 	{
 		if (pLoopUnit->AI_getUnitAIType() == GetCivilianType())
@@ -1903,7 +1903,7 @@ bool CvAIOperationCivilian::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 
 CvUnit* CvAIOperationCivilianFoundCity::FindBestCivilian()
 {
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iUnitLoop))
 	{
 		if (pLoopUnit->getArmyID() != -1)
@@ -2292,7 +2292,7 @@ void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	//find ourselves an idle carrier
 	CvUnit* pCarrier = NULL;
-	int iLoop;
+	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 	{
 		if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
@@ -2767,7 +2767,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget(CvPlot** ppMuster) const
 	
 				// will we hit any units here?
 				const IDInfo* pUnitNode = pLoopPlot->headUnitNode();
-				const CvUnit* pInnerLoopUnit;
+				const CvUnit* pInnerLoopUnit = NULL;
 				while(pUnitNode != NULL)
 				{
 					pInnerLoopUnit = ::GetPlayerUnit(*pUnitNode);
@@ -2852,7 +2852,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	CvPlayerAI& ownerPlayer = GET_PLAYER(m_eOwner);
 
 	// check all of our units to find the nuke
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iUnitLoop))
 	{
 		if(pLoopUnit && pLoopUnit->canNuke() && pLoopUnit->plot()==GetMusterPlot() && pLoopUnit->getArmyID()==-1)
@@ -2995,7 +2995,7 @@ FDataStream& operator<<(FDataStream& saveTo, const AIOperationTypes& readFrom)
 
 FDataStream& operator>>(FDataStream& loadFrom, AIOperationTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<AIOperationTypes>(v);
 	return loadFrom;
@@ -3012,7 +3012,7 @@ FDataStream& operator<<(FDataStream& saveTo, const AIOperationAbortReason& readF
 
 FDataStream& operator>>(FDataStream& loadFrom, AIOperationAbortReason& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<AIOperationAbortReason>(v);
 	return loadFrom;
@@ -3029,7 +3029,7 @@ FDataStream& operator<<(FDataStream& saveTo, const ArmyAIState& readFrom)
 
 FDataStream& operator>>(FDataStream& loadFrom, ArmyAIState& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<ArmyAIState>(v);
 	return loadFrom;
@@ -3046,7 +3046,7 @@ FDataStream& operator<<(FDataStream& saveTo, const ArmyType& readFrom)
 
 FDataStream& operator>>(FDataStream& loadFrom, ArmyType& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<ArmyType>(v);
 	return loadFrom;
@@ -3063,7 +3063,7 @@ FDataStream& operator<<(FDataStream& saveTo, const AIOperationState& readFrom)
 
 FDataStream& operator>>(FDataStream& loadFrom, AIOperationState& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<AIOperationState>(v);
 	return loadFrom;
@@ -3106,7 +3106,7 @@ CvPlot* OperationalAIHelpers::FindClosestBarbarianCamp(PlayerTypes ePlayer, CvPl
 			// bonus for captured civilians (settlers and workers, not missionaries)
 			int iBonus = pPlot->getNumUnitsOfAIType(UNITAI_SETTLE) * 3 + pPlot->getNumUnitsOfAIType(UNITAI_WORKER) * 2;
 
-			int iCityLoop;
+			int iCityLoop = 0;
 			// Loop through each of our cities
 			for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
@@ -3277,7 +3277,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 	int iMaxEnemyPower = 0;
 
 	CvPlayer& enemyPlayer = GET_PLAYER(eEnemy);
-	int iUnitLoop;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit=enemyPlayer.firstUnit(&iUnitLoop); pLoopUnit; pLoopUnit=enemyPlayer.nextUnit(&iUnitLoop))
 	{
 		CvPlot *pLoopPlot = pLoopUnit->plot();
@@ -3319,7 +3319,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 
 	CvCity* pBestCoastalCity = NULL;
 	int iBestDistance = MAX_INT;
-	int iLoop;
+	int iLoop = 0;
 
 	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
@@ -3346,7 +3346,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 		return result;
 
 	int iBestDistance = MAX_INT;
-	int iLoopA, iLoopB;
+	int iLoopA = 0, iLoopB = 0;
 	for(CvCity* pLoopCityA = GET_PLAYER(ePlayerA).firstCity(&iLoopA); pLoopCityA != NULL; pLoopCityA = GET_PLAYER(ePlayerA).nextCity(&iLoopA))
 	{
 		if(pLoopCityA->isCoastal())

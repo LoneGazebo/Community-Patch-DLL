@@ -645,7 +645,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 	if(handicapTypes.size() == MAX_PLAYERS)
 		s_handicaps = handicapTypes;
 
-	size_t i;
+	size_t i = 0;
 	for(i = 0; i < s_nicknames.size(); ++i)
 	{
 		PlayerTypes p = static_cast<PlayerTypes>(i);
@@ -917,7 +917,7 @@ int s_EnumBasedGameOptions[NUM_GAMEOPTION_TYPES];
 //! are set.
 void SyncGameOptionsWithEnumList()
 {
-	const char* str;
+	const char* str = NULL;
 	for(int i = 0; i < NUM_GAMEOPTION_TYPES; i++)
 	{
 		int value = 0;
@@ -1195,7 +1195,7 @@ bool isNetworkMultiplayerGame()
 
 bool isPitBoss()
 {
-	int iValue;
+	int iValue = 0;
 	if(GetGameOption(GAMEOPTION_PITBOSS, iValue))
 		return iValue != 0;
 	return false;
@@ -1384,7 +1384,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 	FString szHolder;
 	CvString tempString;
 
-	int iHolder;
+	int iHolder = 0;
 	iniParser.GetKeyValue("GAME", "QuickCombat", &iHolder, "Force quick combat animations", 0);
 	setQuickCombatDefault(iHolder != 0);
 	setQuickCombat(quickCombatDefault());
@@ -1425,8 +1425,8 @@ void loadFromIni(FIGameIniParser& iniParser)
 	setGameSpeed(tempString);
 	// Quick Handicap
 
-	int iNumBools;
-	bool* pbBools;
+	int iNumBools = 0;
+	bool* pbBools = NULL;
 
 	// Victory Conditions
 	iniParser.GetKeyValue("GAME", "VictoryConditions", &szHolder, "Victory Conditions", "11111111");
@@ -1434,8 +1434,8 @@ void loadFromIni(FIGameIniParser& iniParser)
 	{
 		StringToBools(szHolder, &iNumBools, &pbBools);
 		iNumBools = std::min(iNumBools, s_numVictoryInfos);
-		int i;
 		std::vector<bool> tempVBool;
+		int i = 0;
 		for (i = 0; i < iNumBools; i++)
 		{
 			tempVBool.push_back(pbBools[i]);
@@ -1452,7 +1452,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 		{
 			StringToBools(szHolder, &iNumBools, &pbBools);
 			iNumBools = std::min(iNumBools, static_cast<int>(NUM_GAMEOPTION_TYPES));
-			int i;
+			int i = 0;
 			for (i = 0; i < iNumBools; i++)
 			{
 				SetGameOption(((GameOptionTypes)i), pbBools[i]);
@@ -1722,7 +1722,7 @@ bool quickCombatDefault()
 
 bool quickMovement()
 {
-	int iValue;
+	int iValue = 0;
 	if(GetGameOption(GAMEOPTION_QUICK_MOVEMENT_KEY, iValue))
 		return iValue != 0;
 	return false;
@@ -1807,7 +1807,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 		    NUM_GAMETYPES
 		};
 
-		int iDummy;
+		int iDummy = 0;
 		loadFrom >> iDummy;
 		GameType eGameType = static_cast<GameType>(iDummy);
 
@@ -1840,7 +1840,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_isInternetGame;
 	if(uiVersion == 0)
 	{
-		bool bNetworkMultiplayerGame;
+		bool bNetworkMultiplayerGame = false;
 		loadFrom >> bNetworkMultiplayerGame;
 		if(bNetworkMultiplayerGame && s_gameType != GAME_HOTSEAT_MULTIPLAYER)
 		{
@@ -3126,7 +3126,7 @@ void StringToBools(const char* szString, int* iNumBools, bool** ppBools)
 	{
 		*iNumBools = strlen(szString);
 		*ppBools = FNEW(bool[*iNumBools], c_eCiv5GameplayDLL, 0);
-		int i;
+		int i = 0;
 		for(i=0; i<*iNumBools; i++)
 		{
 			(*ppBools)[i] = (szString[i]=='1');

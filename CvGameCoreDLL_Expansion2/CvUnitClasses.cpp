@@ -1882,7 +1882,7 @@ int CvUnitEntry::GetPower() const
 /// Update military Power
 void CvUnitEntry::DoUpdatePower()
 {
-	int iPower;
+	int iPower = 0;
 
 // ***************
 // Main Factors - Strength & Moves
@@ -1928,8 +1928,8 @@ void CvUnitEntry::DoUpdatePower()
 // Promotion modifiers
 // ***************
 
-	int iTemp;
-	int iLoop;
+	int iTemp = 0;
+	int iLoop = 0;
 	int iBasePower = iPower;
 	int iBonusPower = 0;
 

@@ -421,9 +421,9 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 //	--------------------------------------------------------------------------------
 void CvTeam::addTeam(TeamTypes eTeam)
 {
-	CvPlot* pLoopPlot;
+	CvPlot* pLoopPlot = NULL;
 	CvString strBuffer;
-	int iI, iJ;
+	int iI = 0, iJ = 0;
 
 	CvAssert(eTeam != NO_TEAM);
 	CvAssert(eTeam != GetID());
@@ -622,9 +622,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 void CvTeam::shareItems(TeamTypes eTeam)
 {
-	CvCity* pLoopCity;
-	int iLoop;
-	int iI, iJ, iK;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
+	int iI = 0, iJ = 0, iK = 0;
 
 	CvAssert(eTeam != NO_TEAM);
 	CvAssert(eTeam != GetID());
@@ -695,7 +695,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 //	--------------------------------------------------------------------------------
 void CvTeam::shareCounters(TeamTypes eTeam)
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
@@ -790,8 +790,8 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst)
 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 		if(kPlayer.getTeam() == m_eID && kPlayer.isAlive())
 		{
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
@@ -919,7 +919,7 @@ void CvTeam::doTurn()
 /// Barbarian Tech Progress
 void CvTeam::DoBarbarianTech()
 {
-	int iCount;
+	int iCount = 0;
 
 	TechTypes eTech;
 	TeamTypes eTeam;
@@ -927,7 +927,7 @@ void CvTeam::DoBarbarianTech()
 	int iPossibleCount = 0;
 
 	// See how many majors are still around
-	int iTeamLoop;
+	int iTeamLoop = 0;
 	for(iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
 		eTeam = (TeamTypes) iTeamLoop;
@@ -985,7 +985,7 @@ void CvTeam::DoBarbarianTech()
 /// Minor Civ Tech Progress
 void CvTeam::DoMinorCivTech()
 {
-	int iCount;
+	int iCount = 0;
 
 	TechTypes eTech;
 	TeamTypes eTeam;
@@ -993,7 +993,7 @@ void CvTeam::DoMinorCivTech()
 	int iPossibleCount = 0;
 
 	// See how many majors are still around
-	int iTeamLoop;
+	int iTeamLoop = 0;
 	for(iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 	{
 		eTeam = (TeamTypes) iTeamLoop;
@@ -1050,7 +1050,7 @@ void CvTeam::DoMinorCivTech()
 //	--------------------------------------------------------------------------------
 void CvTeam::updateYield()
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -1259,7 +1259,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact, PlayerTypes eOrigi
 void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 {
 	Localization::String locString;
-	int iI;
+	int iI = 0;
 
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
@@ -1296,7 +1296,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 			args->Push(GetID());
 			args->Push(eTeam);
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
@@ -1651,8 +1651,8 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					// Best unit on an improvement DOW?
 					if(kAttackingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
 					{
-						CvCity* pLoopCity;
-						int iLoop;
+						CvCity* pLoopCity = NULL;
+						int iLoop = 0;
 						for(pLoopCity = kAttackingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kAttackingPlayer.nextCity(&iLoop))
 						{
 							kAttackingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
@@ -1660,8 +1660,8 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					}
 					if(kDefendingPlayer.GetPlayerTraits()->IsBestUnitSpawnOnImprovementDOW())
 					{
-						CvCity* pLoopCity;
-						int iLoop;
+						CvCity* pLoopCity = NULL;
+						int iLoop = 0;
 						for(pLoopCity = kDefendingPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kDefendingPlayer.nextCity(&iLoop))
 						{
 							kDefendingPlayer.GetPlayerTraits()->SpawnBestUnitsOnImprovementDOW(pLoopCity);
@@ -1674,9 +1674,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
 						if(pkUnitClassInfo)
 						{
-							CvPlot* pNewUnitPlot;
+							CvPlot* pNewUnitPlot = NULL;
 							UnitTypes eLoopUnit;
-							int iDefaultAI;
+							int iDefaultAI = 0;
 							int iUnitAttackerClass = kAttackingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
 							int iUnitDefenderClass = kDefendingPlayer.GetPlayerTraits()->GetFreeUnitClassesDOW(eUnitClass);
 							for(int iJ = 0; iJ < iUnitAttackerClass; iJ++)
@@ -2075,7 +2075,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				args->Push(GetID());
 				args->Push(eTeam);
 
-				bool bResult;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
 			}
 		}
@@ -2179,18 +2179,18 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 			if(GET_TEAM(eTeamWeMadePeaceWith).isMinorCiv())
 			{
 				PlayerTypes eOurMinor;
-				int iMinorLoop;
+				int iMinorLoop = 0;
 
 				PlayerTypes eOurPlayer;
-				int iPlayerLoop;
+				int iPlayerLoop = 0;
 
 				PlayerTypes eThirdParty;
-				int iThirdPartyLoop;
+				int iThirdPartyLoop = 0;
 
 				PlayerTypes eMakingPeaceWithMinor;
-				int iMakingPeaceWithMinorLoop;
+				int iMakingPeaceWithMinorLoop = 0;
 
-				bool bPeaceBlocked;
+				bool bPeaceBlocked = false;
 
 				// Loop through all players to see if they're on our team
 				for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -2287,7 +2287,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 		}
 
 		// What does it mean when we make peace
-		CvPlayer* pOurPlayer;
+		CvPlayer* pOurPlayer = NULL;
 		PlayerTypes eOurPlayer;
 		for(int iOurPlayerLoop = 0; iOurPlayerLoop < MAX_CIV_PLAYERS; iOurPlayerLoop++)
 		{
@@ -2368,7 +2368,7 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 			args->Push(eTeam);
 			args->Push(GetID());
 
-			bool bResult;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "TeamMeet", args.get(), bResult);
 		}
 	}
@@ -2378,8 +2378,8 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 //	--------------------------------------------------------------------------------
 int CvTeam::getPower() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2402,8 +2402,8 @@ int CvTeam::getPower() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getDefensivePower() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2447,8 +2447,8 @@ int CvTeam::getEnemyPower() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getNumNukeUnits() const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2682,8 +2682,8 @@ int CvTeam::GetTotalSecuredVotes() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getAtWarCount(bool bIgnoreMinors) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2709,8 +2709,8 @@ int CvTeam::getAtWarCount(bool bIgnoreMinors) const
 //	--------------------------------------------------------------------------------
 int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2739,7 +2739,7 @@ int CvTeam::getHasMetCivCount(bool bIgnoreMinors) const
 //	--------------------------------------------------------------------------------
 bool CvTeam::hasMetHuman() const
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_CIV_TEAMS; iI++)
 	{
@@ -2766,8 +2766,8 @@ bool CvTeam::hasMetHuman() const
 //	--------------------------------------------------------------------------------
 int CvTeam::getDefensivePactCount(TeamTypes eTeam) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2794,8 +2794,8 @@ int CvTeam::getDefensivePactCount(TeamTypes eTeam) const
 //	--------------------------------------------------------------------------------
 int CvTeam::getUnitClassMaking(UnitClassTypes eUnitClass) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2825,8 +2825,8 @@ int CvTeam::getUnitClassCountPlusMaking(UnitClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 int CvTeam::getBuildingClassMaking(BuildingClassTypes eBuildingClass) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2855,8 +2855,8 @@ int CvTeam::getBuildingClassCountPlusMaking(BuildingClassTypes eIndex) const
 //	--------------------------------------------------------------------------------
 int CvTeam::countNumUnitsByArea(CvArea* pArea) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2879,8 +2879,8 @@ int CvTeam::countNumUnitsByArea(CvArea* pArea) const
 //	--------------------------------------------------------------------------------
 int CvTeam::countNumCitiesByArea(CvArea* pArea) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2903,8 +2903,8 @@ int CvTeam::countNumCitiesByArea(CvArea* pArea) const
 //	--------------------------------------------------------------------------------
 int CvTeam::countTotalPopulationByArea(CvArea* pArea) const
 {
-	int iCount;
-	int iI;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -2927,9 +2927,9 @@ int CvTeam::countTotalPopulationByArea(CvArea* pArea) const
 //	--------------------------------------------------------------------------------
 int CvTeam::countEnemyDangerByArea(CvArea* pArea) const
 {
-	CvPlot* pLoopPlot;
-	int iCount;
-	int iI;
+	CvPlot* pLoopPlot = NULL;
+	int iCount = 0;
+	int iI = 0;
 
 	iCount = 0;
 
@@ -3083,7 +3083,7 @@ PlayerTypes CvTeam::getLeaderID() const
 //	--------------------------------------------------------------------------------
 PlayerTypes CvTeam::getSecretaryID() const
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -3106,9 +3106,9 @@ PlayerTypes CvTeam::getSecretaryID() const
 //	--------------------------------------------------------------------------------
 HandicapTypes CvTeam::getHandicapType() const
 {
-	int iGameHandicap;
-	int iCount;
-	int iI;
+	int iGameHandicap = 0;
+	int iCount = 0;
+	int iI = 0;
 
 	iGameHandicap = 0;
 	iCount = 0;
@@ -3615,8 +3615,8 @@ void CvTeam::changeCityWorkingChange(int iChange)
 			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 			if (kLoopPlayer.isAlive()) {
 				if (kLoopPlayer.getTeam() == GetID()) {
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 		
 					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
 						int iOldPlots = pLoopCity->GetNumWorkablePlots();
@@ -3660,8 +3660,8 @@ void CvTeam::changeCityAutomatonWorkersChange(int iChange)
 			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 			if (kLoopPlayer.isAlive()) {
 				if (kLoopPlayer.getTeam() == GetID()) {
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 		
 					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
 						pLoopCity->changeAutomatons(iChange);
@@ -3954,8 +3954,8 @@ void CvTeam::changeDefensiveEmbarkCount(int iChange)
 
 		if(canDefensiveEmbark())
 		{
-			int iLoop;
-			CvUnit* pLoopUnit;
+			int iLoop = 0;
+			CvUnit* pLoopUnit = NULL;
 
 			// Give embarkation promotion to all units who can currently embark
 			for(int iI = 0; iI < MAX_PLAYERS; iI++)
@@ -4011,7 +4011,7 @@ void CvTeam::UpdateEmbarkGraphics()
 		CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 		{
-			int iLoop;
+			int iLoop = 0;
 			for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
 				// Land Unit
@@ -4409,7 +4409,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 bool CvTeam::HasCommonEnemy(TeamTypes eOtherTeam) const
 {
 	CvTeam& kOtherTeam = GET_TEAM(eOtherTeam);
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -5191,9 +5191,9 @@ void CvTeam::finalizeProjectArtTypes()
 //	--------------------------------------------------------------------------------
 void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 {
-	bool bChangeProduction;
-	int iOldProjectCount;
-	int iI, iJ;
+	bool bChangeProduction = false;
+	int iOldProjectCount = 0;
+	int iI = 0, iJ = 0;
 
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -5602,10 +5602,10 @@ bool CvTeam::isObsoleteBuilding(BuildingTypes eIndex) const
 //	--------------------------------------------------------------------------------
 void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
 {
-	CvCity* pLoopCity;
-	bool bOldObsoleteBuilding;
-	int iLoop;
-	int iI;
+	CvCity* pLoopCity = NULL;
+	bool bOldObsoleteBuilding = false;
+	int iLoop = 0;
+	int iI = 0;
 
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -5643,8 +5643,8 @@ void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 {
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumBuildingInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -5898,17 +5898,17 @@ void CvTeam::DoTestSmallAwards()
 		return;
 	}
 
-	int iPlayerLoop;
+	int iPlayerLoop = 0;
 	PlayerTypes ePlayer;
 
-	CvCity* pLoopCity;
-	int iCityLoop;
+	CvCity* pLoopCity = NULL;
+	int iCityLoop = 0;
 
-	int iAwardRequirement;
+	int iAwardRequirement = 0;
 
-	bool bShouldShowNotification;
-	int iNotificationData;
-	int iNotificationX, iNotificationY;
+	bool bShouldShowNotification = false;
+	int iNotificationData = 0;
+	int iNotificationX = 0, iNotificationY = 0;
 
 	for(int iSmallAwardLoop = 0; iSmallAwardLoop < GC.getNumSmallAwardInfos(); iSmallAwardLoop++)
 	{
@@ -6066,11 +6066,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce)
 #endif
 {
-	CvCity* pCapitalCity;
-	CvCity* pCity;
+	CvCity* pCapitalCity = NULL;
+	CvCity* pCity = NULL;
 	CvString strBuffer;
 	UnitTypes eFreeUnit;
-	bool bFirstResource;
+	bool bFirstResource = false;
 	
 	if(eIndex == NO_TECH)
 	{
@@ -6183,8 +6183,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 #endif
 
 			// Tech progress affects city strength, so update
-			CvCity* pLoopCity;
-			int iLoop;
+			CvCity* pLoopCity = NULL;
+			int iLoop = 0;
 
 			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
@@ -6597,7 +6597,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								bool bChange = false;
 								// Look at all Cities
-								int iLoop;
+								int iLoop = 0;
 								for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 								{
 									for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -6753,7 +6753,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										{
 											bool bChange = false;
 											// Look at all Cities
-											int iLoop;
+											int iLoop = 0;
 											for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 											{
 												for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -7057,8 +7057,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 
 					// Cities demand a Resource that's been newly revealed
-					CvCity* pLoopCity;
-					int iLoop;
+					CvCity* pLoopCity = NULL;
+					int iLoop = 0;
 					PlayerTypes eLoopPlayer = GC.getGame().getActivePlayer();
 					ResourceTypes eResourceDemanded;
 
@@ -7134,7 +7134,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 
 			// Cities that are owed a culture building are granted a culture building
-			int iLoop;
+			int iLoop = 0;
 
 			// Check all players on this team
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -7399,9 +7399,9 @@ void CvTeam::changeImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, Yi
 //	--------------------------------------------------------------------------------
 void CvTeam::updateTechShare(TechTypes eTech)
 {
-	int iBestShare;
-	int iCount;
-	int iI;
+	int iBestShare = 0;
+	int iCount = 0;
+	int iI = 0;
 
 	if(GetTeamTechs()->HasTech(eTech))
 	{
@@ -7448,7 +7448,7 @@ void CvTeam::updateTechShare(TechTypes eTech)
 //	--------------------------------------------------------------------------------
 void CvTeam::updateTechShare()
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < GC.getNumTechInfos(); iI++)
 	{
@@ -7459,10 +7459,10 @@ void CvTeam::updateTechShare()
 //	---------------------------------------------------------------------------
 void CvTeam::testCircumnavigated()
 {
-	CvPlot* pPlot;
+	CvPlot* pPlot = NULL;
 	CvString strBuffer;
-	bool bFoundVisible;
-	int iX, iY;
+	bool bFoundVisible = false;
+	int iX = 0, iY = 0;
 
 	if(isBarbarian())
 	{
@@ -7610,10 +7610,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
 void CvTeam::processTech(TechTypes eTech, int iChange)
 #endif
 {
-	CvCity* pCity;
-	CvPlot* pLoopPlot;
+	CvCity* pCity = NULL;
+	CvPlot* pLoopPlot = NULL;
 	ResourceTypes eResource;
-	int iI, iJ;
+	int iI = 0, iJ = 0;
 
 	CvTechEntry* pTech = GC.getTechInfo(eTech);
 
@@ -7859,7 +7859,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		}
 	}
 #endif
-	CvPlot* pNewUnitPlot;
+	CvPlot* pNewUnitPlot = NULL;
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
@@ -7895,8 +7895,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
 
 					//For civilians
-					int iLoop;
-					CvUnit* pLoopUnit;
+					int iLoop = 0;
+					CvUnit* pLoopUnit = NULL;
 					// Loop through existing units, because they have no way to earn it later
 					for(int iI = 0; iI < MAX_PLAYERS; iI++)
 					{
@@ -7930,7 +7930,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 
 			// Does our trait give us a new unit when we reach this tech?
 			UnitTypes eLoopUnit;
-			int iDefaultAI;
+			int iDefaultAI = 0;
 			int iUnitClass = kPlayer.GetPlayerTraits()->GetFirstFreeUnit(eTech);
 			while(iUnitClass != NO_UNITCLASS)
 			{
@@ -7952,8 +7952,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
-			int iLoop;
-			CvUnit* pLoopUnit;
+			int iLoop = 0;
+			CvUnit* pLoopUnit = NULL;
 			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 			{
 				if(pLoopUnit->isFreeUpgrade() || kPlayer.GetPlayerTraits()->IsFreeUpgrade())
@@ -7985,8 +7985,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				//Free Happiness
 				if (pTech->GetHappiness() != 0)
 				{
-					int iLoop;
-					CvCity* pLoopCity;
+					int iLoop = 0;
+					CvCity* pLoopCity = NULL;
 					for (pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					{
 						pLoopCity->ChangeUnmoddedHappinessFromBuildings(pTech->GetHappiness());
@@ -8012,7 +8012,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 #endif
 #if defined(MOD_BALANCE_CORE)
 			// Free buildings (once unlocked via tech)
-			CvCity* pLoopCity;
+			CvCity* pLoopCity = NULL;
 			const CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
 			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
 			{
@@ -8033,7 +8033,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 							if(pkBuildingInfo)
 							{
-								int iLoop;
+								int iLoop = 0;
 								for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 								{
 									bool bHasBuildingClass = pLoopCity->HasBuildingClass((BuildingClassTypes)iI);
@@ -8111,7 +8111,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE)
-			int iLoop2;
+			int iLoop2 = 0;
 			for(CvCity* pLoopCity2 = kPlayer.firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = kPlayer.nextCity(&iLoop2))
 				pLoopCity2->UpdateAllNonPlotYields(false);
 #endif
@@ -8209,7 +8209,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		args->Push(eTech);
 		args->Push(iChange);
 
-		bool bResult;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "TeamTechResearched", args.get(), bResult);
 	}
 
@@ -8224,7 +8224,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 //	--------------------------------------------------------------------------------
 void CvTeam::cancelDefensivePacts()
 {
-	int iI;
+	int iI = 0;
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -8459,8 +8459,8 @@ EraTypes CvTeam::GetCurrentEra() const
 /// Sets what Era we're in
 void CvTeam::SetCurrentEra(EraTypes eNewValue)
 {
-	CvPlot* pLoopPlot;
-	int iI;
+	CvPlot* pLoopPlot = NULL;
+	int iI = 0;
 
 	if(GetCurrentEra() != eNewValue)
 	{
@@ -8489,8 +8489,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			if(GC.getGame().isFinalInitialized())
 			{
-				bool bMinorBonusesChanged;
-				bool bTemp;
+				bool bMinorBonusesChanged = false;
+				bool bTemp = false;
 				Localization::String strMessage;
 				Localization::String strSummary;
 
@@ -8556,7 +8556,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 
 				// Apply Minor Civ changes BEFORE setting the new era
 				PlayerTypes eLoopMinor;
-				int iMinorLoop;
+				int iMinorLoop = 0;
 
 				PlayerTypes eLoopPlayer;
 				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -8836,7 +8836,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 			if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 			{
-				int iLoop;
+				int iLoop = 0;
 				for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoop))
 				{
 					if(pLoopUnit->isUnitEraUpgrade())
@@ -9207,8 +9207,8 @@ void CvTeam::AcquireMap(TeamTypes eTeam, bool bTerritoryOnly)
 	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvMap& kMap = GC.getMap();
-	CvPlot* pPlot;
-	int iI;
+	CvPlot* pPlot = NULL;
+	int iI = 0;
 
 	// Loop through every plot on the map
 	for(iI = 0; iI < GC.getMap().numPlots(); iI++)

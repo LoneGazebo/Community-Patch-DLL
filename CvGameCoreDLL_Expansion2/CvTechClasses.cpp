@@ -1162,9 +1162,9 @@ ImprovementTypes CvPlayerTechs::GetCivTechUniqueImprovement(TechTypes eIndex) co
 /// Recompute weights taking into account tech cost
 void CvPlayerTechs::SetLocalePriorities()
 {
-	int iLoop;
-	CvCity* pCity;
-	int iI;
+	int iLoop = 0;
+	CvCity* pCity = NULL;
+	int iI = 0;
 
 	for(iI = 0; iI < m_pTechs->GetNumTechs(); iI++)
 	{
@@ -1213,7 +1213,7 @@ void CvPlayerTechs::SetLocalePriorities()
 					// Loop through the build types to find one that we can use
 					ImprovementTypes eCorrectImprovement = NO_IMPROVEMENT;
 					BuildTypes eCorrectBuild = NO_BUILD;
-					int iBuildIndex;
+					int iBuildIndex = 0;
 					for(iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 					{
 						const BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
@@ -1488,9 +1488,9 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 /// Accessor: Is it possible to research this tech?
 bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 {
-	bool bFoundPossible;
-	bool bFoundValid;
-	int iI;
+	bool bFoundPossible = false;
+	bool bFoundValid = false;
+	int iI = 0;
 
 	CvTechEntry* pkTechEntry = GC.getTechInfo(eTech);
 	if(pkTechEntry == NULL)
@@ -1595,7 +1595,7 @@ bool CvPlayerTechs::CanResearchForFree(TechTypes eTech) const
 /// Accessor: Which tech are we researching?
 TechTypes CvPlayerTechs::GetCurrentResearch() const
 {
-	CLLNode<TechTypes>* pResearchNode;
+	CLLNode<TechTypes>* pResearchNode = NULL;
 
 	pResearchNode = m_pPlayer->headResearchQueueNode();
 
@@ -1630,7 +1630,7 @@ bool CvPlayerTechs::IsCurrentResearchRepeat() const
 /// Accessor: Is there anything left to research?
 bool CvPlayerTechs::IsNoResearchAvailable() const
 {
-	int iI;
+	int iI = 0;
 
 	if(GetCurrentResearch() != NO_TECH)
 	{
@@ -1668,7 +1668,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 				{
 					if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
 					{
-						int iJ;
+						int iJ = 0;
 						int iNumPlayersWith = 0;
 						for(iJ = 0; iJ < MAX_MAJOR_CIVS; iJ++)
 						{
@@ -1734,8 +1734,8 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow,
 {
 	int iResearchRate = 0;
 	int iOverflow = 0;
-	int iTurnsLeft;
-	int iI;
+	int iTurnsLeft = 0;
+	int iI = 0;
 
 	if (iAssumedResearchRate>0)
 	{
@@ -2185,7 +2185,7 @@ void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)
 			strLogName = "TechAILog.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -2270,7 +2270,7 @@ void CvTeamTechs::Uninit()
 /// Reset tech status arrays
 void CvTeamTechs::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	m_eLastTechAcquired = NO_TECH;
 	m_iNumTechs = 0;
@@ -2292,7 +2292,7 @@ void CvTeamTechs::Reset()
 void CvTeamTechs::Read(FDataStream& kStream)
 {
 	// Version number to maintain backwards compatibility
-	uint uiVersion;
+	uint uiVersion = 0;
 	kStream >> uiVersion;
 	MOD_SERIALIZE_INIT_READ(kStream);
 
@@ -2300,7 +2300,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 	kStream >> m_iNumTechs;
 
 	// Read the number of techs
-	int iNumSavedTechs;
+	int iNumSavedTechs = 0;
 	kStream >> iNumSavedTechs;
 
 	if(iNumSavedTechs)
@@ -2556,7 +2556,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 
 			// Culture bonus for Player researching a Tech
 			PlayerTypes eLoopPlayer;
-			int iCulture;
+			int iCulture = 0;
 			TeamTypes eTeamID = m_pTeam->GetID();
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{

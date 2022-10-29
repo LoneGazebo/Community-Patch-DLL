@@ -324,9 +324,9 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 
 	//Grand Strategy Considerations - if valid, it doubles our initial weighting.
 	// == Grand Strategy ==
-	int iGrandStrategiesLoop;
+	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy;
-	CvAIGrandStrategyXMLEntry* pGrandStrategy;
+	CvAIGrandStrategyXMLEntry* pGrandStrategy = NULL;
 	CvString strGrandStrategyName;
 
 	// Loop through all GrandStrategies and get priority. Since these are usually 100+, we will divide by 10 later
@@ -550,7 +550,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iHappinessModifier = /*10*/ GD_INT_GET(IDEOLOGY_SCORE_HAPPINESS);
 
 	// -- Happiness we could add through tenets
-	int iHappinessDelta;
+	int iHappinessDelta = 0;
 #if defined(MOD_BALANCE_CORE)
 	// Loop through adding the adoptable policies
 	for (int iPolicyBranchLoop = 0; iPolicyBranchLoop < GC.getNumPolicyBranchInfos(); iPolicyBranchLoop++)
@@ -572,7 +572,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 #endif
 	//This was a dumb reason to weigh an ideology branch.
 
-	int iHappinessPoliciesInBranch;
+	int iHappinessPoliciesInBranch = 0;
 	iHappinessDelta = GetBranchBuildingHappiness(pPlayer, eFreedomBranch);
 	iHappinessPoliciesInBranch = GetNumHappinessPolicies(pPlayer, eFreedomBranch);
 	if (iHappinessPoliciesInBranch > 0)
@@ -853,7 +853,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 {
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
-	int iBuildingClassLoop;
+	int iBuildingClassLoop = 0;
 	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
@@ -884,7 +884,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 						}
 						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome || eBuilding != NO_BUILDING)
 						{
-							int iLoop;
+							int iLoop = 0;
 							for (CvCity* pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 							{
 								if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome)
@@ -913,7 +913,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 {
 	int iRtnValue = 0;
-	int iBuildingClassLoop;
+	int iBuildingClassLoop = 0;
 	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
@@ -3958,7 +3958,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		int NumSpecialists = 0;
 
-		int iLoopCity;
+		int iLoopCity = 0;
 		for (CvCity* pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity)) 
 		{
 			NumSpecialists += pLoopCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
@@ -4052,7 +4052,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 	int NumSpecialists = 0;
 
-	int iLoopCity;
+	int iLoopCity = 0;
 	for (CvCity* pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
 	{
 		NumSpecialists += pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
@@ -4524,9 +4524,9 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	int iConquestValue = 0;
 	int iCultureValue = 0;
 
-	int iGrandStrategiesLoop;
+	int iGrandStrategiesLoop = 0;
 	AIGrandStrategyTypes eGrandStrategy;
-	CvAIGrandStrategyXMLEntry* pGrandStrategy;
+	CvAIGrandStrategyXMLEntry* pGrandStrategy = NULL;
 	CvString strGrandStrategyName;
 
 	CvPlayerTraits* pPlayerTraits = pPlayer->GetPlayerTraits();
@@ -4989,7 +4989,7 @@ void CvPolicyAI::LogPolicyAttributeYields(CvPlayer* pPlayer, PolicyTypes ePolicy
 		// Find the name of this civ and city
 		playerName = pPlayer->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -5036,7 +5036,7 @@ void CvPolicyAI::LogPossiblePolicies()
 		// Find the name of this civ and city
 		playerName = m_pCurrentPolicies->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -5082,7 +5082,7 @@ void CvPolicyAI::LogPolicyChoice(PolicyTypes ePolicy)
 		// Find the name of this civ and city
 		playerName = m_pCurrentPolicies->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -5112,7 +5112,7 @@ void CvPolicyAI::LogBranchChoice(PolicyBranchTypes eBranch)
 		// Find the name of this civ and city
 		playerName = m_pCurrentPolicies->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
@@ -5139,7 +5139,7 @@ void CvPolicyAI::LogIdeologyChoice(CvString &decisionState, int iWeightFreedom, 
 		// Find the name of this civ
 		playerName = m_pCurrentPolicies->GetPlayer()->getCivilizationShortDescription();
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line

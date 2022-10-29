@@ -141,7 +141,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	m_Buildables.clear();
 
 	// Guess which city will be producing this (doesn't matter that much since weights are all relative)
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
@@ -271,8 +271,8 @@ bool CvWonderProductionAI::HaveCityToBuild(BuildingTypes eBuilding) const
 {
 	std::vector<int> allBuildingCount = m_pPlayer->GetTotalBuildingCount();
 
-	CvCity* pLoopCity;
-	int iLoop;
+	CvCity* pLoopCity = NULL;
+	int iLoop = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if(pLoopCity->canConstruct(eBuilding,allBuildingCount))

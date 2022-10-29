@@ -536,7 +536,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 			strLogName = "FlavorAILog.csv";
 		}
 
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line

@@ -1305,7 +1305,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTacticalDominanceZone& read
 }
 FDataStream& operator>>(FDataStream& loadFrom, CvTacticalDominanceZone& writeTo)
 {
-	int tmp;
+	int tmp = 0;
 
 	loadFrom >> writeTo.m_iZoneID;
 	loadFrom >> tmp; writeTo.m_eTerritoryType = (eDominanceTerritoryTypes)tmp;

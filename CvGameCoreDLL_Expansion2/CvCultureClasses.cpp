@@ -175,7 +175,7 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	cultureString = "";
 	char const* sPrefix = "";
 	int iTourismPerWork = /*2 in CP, 3 in VP*/ GD_INT_GET(BASE_TOURISM_PER_GREAT_WORK) + GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_TOURISM);
-	int iValue;
+	int iValue = 0;
 	
 	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
 		YieldTypes eYield = (YieldTypes) iYield;
@@ -361,7 +361,7 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 	{
 		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
 			for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -430,7 +430,7 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 	{
 		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pCity = NULL;
 		for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
@@ -486,7 +486,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 	{
 		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
 
-		int iCityLoop;
+		int iCityLoop = 0;
 		CvCity* pCity = NULL;
 		for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
@@ -655,7 +655,7 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	BuildingClassTypes eBuildingClass2 = NO_BUILDINGCLASS;
 	int iSwapIndex2 = -1;
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	CvCity* pCity = NULL;
 	for (uint ui = 0; ui < 2; ui++)
 	{
@@ -810,7 +810,7 @@ FDataStream& operator<<(FDataStream& saveTo, const PublicOpinionTypes& readFrom)
 }
 FDataStream& operator>>(FDataStream& loadFrom, PublicOpinionTypes& writeTo)
 {
-	int v;
+	int v = 0;
 	loadFrom >> v;
 	writeTo = static_cast<PublicOpinionTypes>(v);
 	return loadFrom;
@@ -945,7 +945,7 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 /// Is there a Great Work slot of the appropriate type somewhere?
 bool CvPlayerCulture::HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot)
 {
-	int iLoop;
+	int iLoop = 0;
 	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pCity->GetCityBuildings()->HasAvailableGreatWorkSlot(eGreatWorkSlot))
@@ -959,7 +959,7 @@ bool CvPlayerCulture::HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot
 /// How many open Great Work slots do we have of a certain type?
 int CvPlayerCulture::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const
 {
-	int iLoop;
+	int iLoop = 0;
 	int iCount = 0;
 
 	for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
@@ -972,7 +972,7 @@ int CvPlayerCulture::GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkS
 /// Return the city (and building/slot) of the city that can provide the closest Great Work slot)
 CvCity *CvPlayerCulture::GetClosestAvailableGreatWorkSlot(int iX, int iY, GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const
 {
-	int iLoop;
+	int iLoop = 0;
 	int iBestDistance = MAX_INT;
 	CvCity *pBestCity = NULL;
 	BuildingClassTypes eBuildingClassReturned = NO_BUILDINGCLASS; // Passed by reference below
@@ -3088,9 +3088,9 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 {
 	CvBuildingEntry *pkToEntry = GC.getBuildingInfo(eBuilding);
 
-	int iFromCityID;
+	int iFromCityID = 0;
 	BuildingTypes eFromBuildingType;
-	int iFromSlot;
+	int iFromSlot = 0;
 	GetGreatWorkLocation(kWork.m_iGreatWorkIndex, iFromCityID, eFromBuildingType, iFromSlot);
 
 	CvBuildingEntry *pkFromEntry = GC.getBuildingInfo(eFromBuildingType);
@@ -3212,8 +3212,8 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 
 	if (pPlot)
 	{
-		int iLoop;
-		CvUnit *pLoopUnit;
+		int iLoop = 0;
+		CvUnit *pLoopUnit = NULL;
 		for (pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
@@ -3353,9 +3353,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 {
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 	BuildingClassTypes eBuildingToHouse;
-	int iSlot;
-	CvCity *pHousingCity;
-	CvPlot *pPlot;
+	int iSlot = 0;
+	CvCity *pHousingCity = NULL;
+	CvPlot *pPlot = NULL;
 	CvUnit *pUnit = GetNextDigCompleteArchaeologist(&pPlot);
 	
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
@@ -3441,8 +3441,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 			if (iWLTKD > 0)
 			{
-				CvCity* pLoopCity;
-				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				int iCityLoop = 0;
 
 				// Loop through owner's cities.
 				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
@@ -3504,8 +3504,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 			if (iWLTKD > 0)
 			{
-				CvCity* pLoopCity;
-				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				int iCityLoop = 0;
 
 				// Loop through owner's cities.
 				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
@@ -3563,8 +3563,8 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 			if (iWLTKD > 0)
 			{
-				CvCity* pLoopCity;
-				int iCityLoop;
+				CvCity* pLoopCity = NULL;
+				int iCityLoop = 0;
 
 				// Loop through owner's cities.
 				for (pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
@@ -4056,7 +4056,7 @@ void CvPlayerCulture::DoTurn()
 	{
 		// check for having city-state artifacts
 		std::vector<int> aiCityStateArtifact;
-		int iLoop;
+		int iLoop = 0;
 		CvCity* pLoopCity = NULL;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -4325,8 +4325,8 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 		// check to see if the other player has the Great Firewall
 		bool bTargetHasGreatFirewall = m_pPlayer->IsNullifyInfluenceModifier();
 
-		int iLoopCity;
-		CvCity *pLoopCity;
+		int iLoopCity = 0;
+		CvCity *pLoopCity = NULL;
 
 		// only check for firewall if the internet influence spread modifier is > 0
 		int iTechSpreadModifier = m_pPlayer->GetInfluenceSpreadModifier();
@@ -4924,7 +4924,7 @@ int CvPlayerCulture::GetTourism()
 	
 	if ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra))
 	{
-		int iLoop;
+		int iLoop = 0;
 		for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 		{
 			iRtnValue += pCity->GetBaseTourism();
@@ -5470,7 +5470,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 		CvString strTemp;
 
 		CvString strFileName = "WarWearinessLog.csv";
-		FILogFile* pLog;
+		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
 		CvString strPlayerName;
@@ -5582,7 +5582,7 @@ void CvPlayerCulture::DoPublicOpinion()
 			PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 			if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE)
 			{
-				int iCulturalDominanceOverUs;
+				int iCulturalDominanceOverUs = 0;
 				int iTheirInfluenceLevel = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID());
 				int iOurInfluenceLevel = m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
 
@@ -6059,8 +6059,8 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 {
 	int iRtnValue = 0;
 
-	CvCity *pCity;
-	int iLoop;
+	CvCity *pCity = NULL;
+	int iLoop = 0;
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
@@ -6143,12 +6143,12 @@ void CvPlayerCulture::LogCultureData()
 	}
 
 	CvString strLog;
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
 	CvString str;
-	CvCity *pCity;
+	CvCity *pCity = NULL;
 	int iSpecialists = 0;
 
 	// civ name
@@ -6211,8 +6211,8 @@ void CvPlayerCulture::LogCultureData()
 	}
 	pLog->Msg(strLog);
 
-	CvCity *pLoopCity;
-	int iLoop;
+	CvCity *pLoopCity = NULL;
+	int iLoop = 0;
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pLoopCity->GetCityCulture()->GetNumGreatWorks() > 0)
@@ -6257,7 +6257,7 @@ void CvPlayerCulture::LogThemedBuilding(int iCityID, BuildingTypes eBuilding, in
 	}
 
 	CvString strLog;
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
@@ -6283,7 +6283,7 @@ void CvPlayerCulture::LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDi
 	}
 
 	CvString strLog;
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
@@ -6303,7 +6303,7 @@ void CvPlayerCulture::LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWo
 	}
 
 	CvString strLog;
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
@@ -6324,7 +6324,7 @@ void CvPlayerCulture::LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded,
 	}
 
 	CvString strLog;
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	CvString strPlayerName = m_pPlayer->getCivilizationShortDescription();
 	pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
 
@@ -7255,7 +7255,7 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	// City level yield modifiers (eg from buildings, policies, etc)
 	bool bHasCityModTooltip = false;
-	int iTempMod;
+	int iTempMod = 0;
 	iTempMod = m_pCity->getYieldRateModifier(YIELD_TOURISM);
 	if (iTempMod != 0)
 	{
