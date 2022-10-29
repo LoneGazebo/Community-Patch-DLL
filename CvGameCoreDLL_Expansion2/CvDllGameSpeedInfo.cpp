@@ -52,7 +52,7 @@ unsigned int CvDllGameSpeedInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllGameSpeedInfo::GetReferenceCount()
+unsigned int CvDllGameSpeedInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

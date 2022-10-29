@@ -166,10 +166,10 @@ public:
 	// Handle rewards
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
 	void DoRewards(PlayerTypes ePlayer);
-	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish);
+	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
 
 	// Contest helper functions
-	int GetContestValueForPlayer(PlayerTypes ePlayer);
+	int GetContestValueForPlayer(PlayerTypes ePlayer) const;
 	int GetContestValueForLeader();
 	CivsList GetContestLeaders();
 
@@ -179,7 +179,7 @@ public:
 	bool IsRevoked(bool bWar = false);
 	bool IsExpired();
 	bool IsObsolete(bool bWar = false);
-	bool IsHandled();
+	bool IsHandled() const;
 	void SetHandled(bool bValue);
 
 	// Starting and finishing
@@ -445,7 +445,7 @@ public:
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
 	bool IsPersonalQuest(MinorCivQuestTypes eQuest) const;
 	int GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const;
-	int GetPersonalityQuestBias(MinorCivQuestTypes eQuest);
+	int GetPersonalityQuestBias(MinorCivQuestTypes eQuest) const;
 
 	int GetNumActiveGlobalQuests() const;
 	int GetNumActiveQuestsForAllPlayers() const;
@@ -461,7 +461,7 @@ public:
 	bool IsDisplayedQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 
 	void DoTestSeedGlobalQuestCountdown(bool bForceSeed = false);
-	int GetGlobalQuestCountdown();
+	int GetGlobalQuestCountdown() const;
 	void SetGlobalQuestCountdown(int iValue);
 	void ChangeGlobalQuestCountdown(int iChange);
 	void DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool bForceSeed = false);
@@ -494,7 +494,7 @@ public:
 	PlayerTypes SpawnHorde();
 	PlayerTypes SpawnRebels();
 	//Ends
-	bool IsRebellion();
+	bool IsRebellion() const;
 	void SetRebellion(bool bValue);
 	//Countdown
 	void ChangeTurnsSinceRebellion(int iChange);
@@ -504,9 +504,9 @@ public:
 	void DoRebellion();
 	bool IsValidRebellion();
 	void SetRebellionActive(bool bValue);
-	bool IsRebellionActive();
+	bool IsRebellionActive() const;
 	void SetHordeActive(bool bValue);
-	bool IsHordeActive();
+	bool IsHordeActive() const;
 	//Cooldown
 	void ChangeCooldownSpawn(int iChange);
 	int GetCooldownSpawn() const;
@@ -544,10 +544,10 @@ public:
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
 	bool IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer);
-	bool IsGoodTimeForGiveGoldQuest();
-	bool IsGoodTimeForPledgeToProtectQuest();
-	bool IsGoodTimeForDenounceMajorQuest();
-	bool IsGoodTimeForWarMajorQuest();
+	bool IsGoodTimeForGiveGoldQuest() const;
+	bool IsGoodTimeForPledgeToProtectQuest() const;
+	bool IsGoodTimeForDenounceMajorQuest() const;
+	bool IsGoodTimeForWarMajorQuest() const;
 
 	// ******************************
 	// ***** Friendship *****
@@ -613,7 +613,7 @@ public:
 	void DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConquerorTeam);
 #if defined(MOD_BALANCE_CORE)
 	void SetTurnLiberated(int iValue);
-	int GetTurnLiberated();
+	int GetTurnLiberated() const;
 	void TestChangeProtectionFromMajor(PlayerTypes eMajor);
 	CvString GetPledgeProtectionInvalidReason(PlayerTypes eMajor);
 #endif

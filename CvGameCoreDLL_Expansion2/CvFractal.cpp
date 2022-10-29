@@ -404,7 +404,7 @@ void CvFractal::tectonicAction(CvFractal* pRifts)  //  Assumes FRAC_WRAP_X is on
 }
 
 
-int CvFractal::yieldX(int iBadX)  //  Assumes FRAC_WRAP_X is on.
+int CvFractal::yieldX(int iBadX) const  //  Assumes FRAC_WRAP_X is on.
 {
 	if(iBadX < 0)
 	{

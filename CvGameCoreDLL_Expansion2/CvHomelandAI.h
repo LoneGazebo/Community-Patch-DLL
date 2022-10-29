@@ -145,7 +145,7 @@ public:
 	{
 		m_eTargetType = eTargetType;
 	}
-	inline int GetTargetX()
+	inline int GetTargetX() const
 	{
 		return m_iTargetX;
 	}
@@ -153,7 +153,7 @@ public:
 	{
 		m_iTargetX = iValue;
 	}
-	inline int GetTargetY()
+	inline int GetTargetY() const
 	{
 		return m_iTargetY;
 	}
@@ -166,7 +166,7 @@ public:
 	//    Set to the BuildType for improvement targets
 	//    Set to the weight for sentry points
 	//    Set to the danger for cities to be garrisoned
-	inline int GetAuxIntData()
+	inline int GetAuxIntData() const
 	{
 		return m_iAuxData;
 	}

@@ -53,7 +53,7 @@ unsigned int CvDllDiplomacyAI::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllDiplomacyAI::GetReferenceCount()
+unsigned int CvDllDiplomacyAI::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

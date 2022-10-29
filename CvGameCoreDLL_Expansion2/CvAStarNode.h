@@ -174,7 +174,7 @@ struct SPathNode
 		moves = p ? p->m_iMoves : 0;
 	}
 
-	bool operator==(const SPathNode& other)
+	bool operator==(const SPathNode& other) const
 	{
 		return x==other.x && y==other.y && turns==other.turns && moves==other.moves;
 	}
@@ -204,7 +204,7 @@ struct SPath
 
 	static int getNormalizedDistanceBase();
 
-	bool operator==(const SPath& other)
+	bool operator==(const SPath& other) const
 	{
 		return iTotalCost==other.iTotalCost && iNormalizedDistanceRaw==other.iNormalizedDistanceRaw && 
 				iTotalTurns==other.iTotalTurns && vPlots.size()==other.vPlots.size();

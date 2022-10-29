@@ -52,7 +52,7 @@ unsigned int CvDllHandicapInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllHandicapInfo::GetReferenceCount()
+unsigned int CvDllHandicapInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

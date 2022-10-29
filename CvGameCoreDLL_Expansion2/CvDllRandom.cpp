@@ -55,7 +55,7 @@ unsigned int CvDllRandom::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllRandom::GetReferenceCount()
+unsigned int CvDllRandom::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

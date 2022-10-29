@@ -54,7 +54,7 @@ unsigned int CvDllMinorCivInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllMinorCivInfo::GetReferenceCount()
+unsigned int CvDllMinorCivInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

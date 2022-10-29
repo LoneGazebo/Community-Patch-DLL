@@ -19,7 +19,7 @@ public:
 
 	unsigned int IncrementReference();
 	unsigned int DecrementReference();
-	unsigned int GetReferenceCount();
+	unsigned int GetReferenceCount() const;
 
 	static void operator delete(void* p);
 	static void* operator new(size_t bytes);

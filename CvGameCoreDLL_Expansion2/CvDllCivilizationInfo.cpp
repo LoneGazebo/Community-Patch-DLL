@@ -52,7 +52,7 @@ unsigned int CvDllCivilizationInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllCivilizationInfo::GetReferenceCount()
+unsigned int CvDllCivilizationInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

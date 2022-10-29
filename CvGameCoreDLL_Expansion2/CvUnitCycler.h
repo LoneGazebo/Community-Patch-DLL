@@ -16,7 +16,7 @@ class CvUnitCycler
 public:
 
 	CvUnitCycler();
-	CvUnit*	Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap);
+	static CvUnit*	Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap);
 };
 
 #endif

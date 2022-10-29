@@ -55,7 +55,7 @@ unsigned int CvDllDealAI::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllDealAI::GetReferenceCount()
+unsigned int CvDllDealAI::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

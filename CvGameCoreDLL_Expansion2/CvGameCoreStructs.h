@@ -355,7 +355,7 @@ public:
 	CvCombatMemberEntry* getDamageMembers();
 	const CvCombatMemberEntry* getDamageMembers() const;
 	int getDamageMemberCount() const;
-	int getMaxDamageMemberCount() const;
+	static int getMaxDamageMemberCount() ;
 	void setDamageMemberCount(int iDamageMemberCount);
 
 protected:

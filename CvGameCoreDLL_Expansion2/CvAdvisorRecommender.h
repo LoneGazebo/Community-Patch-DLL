@@ -34,7 +34,7 @@ public:
 	void UpdateTechRecommendations(PlayerTypes ePlayer);
 	bool IsTechRecommended(TechTypes eTech, AdvisorTypes eAdvisor);
 
-	int AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorTypes eFlavor);
+	static int AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorTypes eFlavor);
 	AdvisorTypes FindUnassignedAdvisorForTech(PlayerTypes ePlayer, TechTypes eTech);
 	AdvisorTypes FindUnassignedAdvisorForBuildable(PlayerTypes ePlayer, CvCityBuildable& buildable);
 

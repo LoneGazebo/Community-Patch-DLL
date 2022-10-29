@@ -52,7 +52,7 @@ unsigned int CvDllTerrainInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllTerrainInfo::GetReferenceCount()
+unsigned int CvDllTerrainInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

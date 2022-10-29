@@ -78,7 +78,7 @@ public:
 	// Calculations ported over from CvPlayer
 	int CalculateGrossGold();
 	int CalculateGrossGoldTimes100();
-	int GetLifetimeGrossGold();
+	int GetLifetimeGrossGold() const;
 	int CalculateBaseNetGold();
 	int CalculateBaseNetGoldTimes100();
 	int CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost);
@@ -86,11 +86,11 @@ public:
 	int CalculatePreInflatedCosts();
 	int CalculateInflationRate();
 	int CalculateInflatedCosts();
-	int GetExpensePerTurnUnitMaintenance()
+	int GetExpensePerTurnUnitMaintenance() const
 	{
 		return m_iExpensePerTurnUnitMaintenance;
 	}
-	int GetExpensePerTurnUnitSupply()
+	int GetExpensePerTurnUnitSupply() const
 	{
 		return m_iExpensePerTurnUnitSupply;
 	}

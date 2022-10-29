@@ -318,7 +318,7 @@ public:
 	// Declaration of Friendship
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
-	int GetNumDoF(bool bVassalageException = false);
+	int GetNumDoF(bool bVassalageException = false) const;
 	bool IsDoFMessageTooSoon(PlayerTypes ePlayer) const;
 
 	int GetDoFAcceptedTurn(PlayerTypes ePlayer) const;
@@ -339,8 +339,8 @@ public:
 	int GetTurnsSinceDenouncedPlayer(PlayerTypes ePlayer) const;
 	bool IsDenouncingPlayer(PlayerTypes ePlayer) const;
 
-	int GetNumDenouncements();
-	int GetNumDenouncementsOfPlayer();
+	int GetNumDenouncements() const;
+	int GetNumDenouncementsOfPlayer() const;
 
 	// Trade
 	bool IsCantMatchDeal(PlayerTypes ePlayer);
@@ -385,7 +385,7 @@ public:
 
 	CoopWarStates GetGlobalCoopWarAgainstState(PlayerTypes ePlayer) const;
 	CoopWarStates GetGlobalCoopWarWithState(PlayerTypes ePlayer, bool bExcludeOngoing = false) const;
-	int GetNumCoopWarTargets();
+	int GetNumCoopWarTargets() const;
 
 	int GetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer) const;
 	void SetCoopWarStateChangeTurn(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer, int iTurn);
@@ -491,7 +491,7 @@ public:
 	void SetFriendDenouncedUs(PlayerTypes ePlayer, bool bValue);
 	int GetFriendDenouncedUsTurn(PlayerTypes ePlayer) const;
 	void SetFriendDenouncedUsTurn(PlayerTypes ePlayer, int iTurn);
-	int GetNumFriendsDenouncedBy();
+	int GetNumFriendsDenouncedBy() const;
 	int GetWeDenouncedFriendCount();
 
 	// They declared war on us while we were friends!
@@ -611,7 +611,7 @@ public:
 	int GetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
-	int GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer);
+	int GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
 
@@ -1260,7 +1260,7 @@ public:
 	bool IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
 
 	bool IsEmbassyExchangeAcceptable(PlayerTypes ePlayer);
-	bool WantsEmbassyAtPlayer(PlayerTypes ePlayer);
+	bool WantsEmbassyAtPlayer(PlayerTypes ePlayer) const;
 	bool IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer);
 	bool IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer);
 	bool IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer);
@@ -1302,7 +1302,7 @@ public:
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 
-	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
+	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const;
 
 	/////////////////////////////////////////////////////////
 	// Contact
@@ -1355,7 +1355,7 @@ public:
 	void DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	void DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement) const;
 	void DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
@@ -1451,7 +1451,7 @@ public:
 	int GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
 
 	CoopWarStates RespondToCoopWarRequest(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
-	bool IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
+	bool IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const;
 	void DoWarnCoopWarTarget(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
 
 	void CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotify);
@@ -1472,8 +1472,8 @@ public:
 	bool IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentDoF = false);
 	bool IsTooEarlyForDoF(PlayerTypes ePlayer);
 
-	int GetNumRA();
-	int GetNumDefensePacts();
+	int GetNumRA() const;
+	int GetNumDefensePacts() const;
 
 	int GetNumSamePolicies(PlayerTypes ePlayer);
 
@@ -1581,7 +1581,7 @@ public:
 	// Opinion modifiers
 	/////////////////////////////////////////////////////////
 
-	int AdjustModifierDuration(bool bGood, int iDuration, int iFlavorValue = 0, bool bGamespeed = true);
+	int AdjustModifierDuration(bool bGood, int iDuration, int iFlavorValue = 0, bool bGamespeed = true) const;
 	int AdjustModifierValue(int iValue, int iDuration, int iTurn, ModifierTypes eModifierType, int iStacks = 1, int iFirstStackValue = 0);
 	void DoTestOpinionModifiers();
 	int GetBaseOpinionScore(PlayerTypes ePlayer);
@@ -1592,8 +1592,8 @@ public:
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
 	int GetTechBlockLevelScore(PlayerTypes ePlayer);
 	int GetPolicyBlockLevelScore(PlayerTypes ePlayer);
-	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
-	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
+	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const;
+	int GetVictoryBlockLevelScore(PlayerTypes ePlayer) const;
 	int GetRecklessExpanderScore(PlayerTypes ePlayer);
 	int GetWonderSpammerScore(PlayerTypes ePlayer);
 
@@ -1601,19 +1601,19 @@ public:
 	int GetMilitaryAggressivePostureScore(PlayerTypes ePlayer);
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetTradeRoutesPlunderedScore(PlayerTypes ePlayer);
-	int GetCivilianKillerScore(PlayerTypes ePlayer);
+	int GetCivilianKillerScore(PlayerTypes ePlayer) const;
 	int GetCivilianKillerGlobalScore(PlayerTypes ePlayer);
-	int GetNukedByScore(PlayerTypes ePlayer);
+	int GetNukedByScore(PlayerTypes ePlayer) const;
 	int GetHolyCityCapturedByScore(PlayerTypes ePlayer);
 	int GetCapitalCapturedByScore(PlayerTypes ePlayer);
 
 	// Player has done nice stuff
-	int GetRecentTradeScore(PlayerTypes ePlayer);
-	int GetRecentAssistScore(PlayerTypes ePlayer);
-	int GetCommonFoeScore(PlayerTypes ePlayer);
+	int GetRecentTradeScore(PlayerTypes ePlayer) const;
+	int GetRecentAssistScore(PlayerTypes ePlayer) const;
+	int GetCommonFoeScore(PlayerTypes ePlayer) const;
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
 	int GetLandmarksBuiltForMeScore(PlayerTypes ePlayer);
-	int GetResurrectedScore(PlayerTypes ePlayer);
+	int GetResurrectedScore(PlayerTypes ePlayer) const;
 	int GetLiberatedCapitalScore(PlayerTypes ePlayer);
 	int GetLiberatedHolyCityScore(PlayerTypes ePlayer);
 	int GetLiberatedCitiesScore(PlayerTypes ePlayer);
@@ -1625,7 +1625,7 @@ public:
 	int GetTimesIntrigueSharedScore(PlayerTypes ePlayer);
 
 	// Player has done mean stuff
-	int GetTimesCultureBombedScore(PlayerTypes ePlayer);
+	int GetTimesCultureBombedScore(PlayerTypes ePlayer) const;
 	int GetTimesRobbedScore(PlayerTypes ePlayer);
 	int GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer);
 	int GetTimesPerformedCoupScore(PlayerTypes ePlayer);
@@ -1637,20 +1637,20 @@ public:
 	int GetDemandMadeScore(PlayerTypes ePlayer);
 
 	// Denouncing
-	int GetDenouncedScore(PlayerTypes ePlayer);
-	int GetDenouncedFriendScore(PlayerTypes ePlayer);
-	int GetDenouncedEnemyScore(PlayerTypes ePlayer);
-	int GetDenouncedByOurFriendScore(PlayerTypes ePlayer);
+	int GetDenouncedScore(PlayerTypes ePlayer) const;
+	int GetDenouncedFriendScore(PlayerTypes ePlayer) const;
+	int GetDenouncedEnemyScore(PlayerTypes ePlayer) const;
+	int GetDenouncedByOurFriendScore(PlayerTypes ePlayer) const;
 
 	// Promises
-	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer);
+	int GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer) const;
 	int GetBrokenMilitaryPromiseWithAnybodyScore(PlayerTypes ePlayer);
 	int GetIgnoredMilitaryPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredExpansionPromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBorderPromiseScore(PlayerTypes ePlayer);
 	int GetIgnoredBorderPromiseScore(PlayerTypes ePlayer);
-	int GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer);
+	int GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer) const;
 	int GetBrokenAttackCityStatePromiseWithAnybodyScore(PlayerTypes ePlayer);
 	int GetIgnoredAttackCityStatePromiseScore(PlayerTypes ePlayer);
 	int GetBrokenBullyCityStatePromiseScore(PlayerTypes ePlayer);
@@ -1677,27 +1677,27 @@ public:
 	int GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer);
 
 	// Declaration of Friendship
-	int GetDOFAcceptedScore(PlayerTypes ePlayer);
-	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer);
-	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer);
+	int GetDOFAcceptedScore(PlayerTypes ePlayer) const;
+	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer) const;
+	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer) const;
 
 	// Trade Agreements
-	int GetDPAcceptedScore(PlayerTypes ePlayer);
-	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
-	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
+	int GetDPAcceptedScore(PlayerTypes ePlayer) const;
+	int GetDPWithAnyFriendScore(PlayerTypes ePlayer) const;
+	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer) const;
 	int GetOpenBordersScore(PlayerTypes ePlayer);
 	int GetResearchAgreementScore(PlayerTypes ePlayer);
 
 	// Traitor Opinion
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
 	int GetPlayerDenouncedFriendScore(PlayerTypes ePlayer);
-	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
+	int GetFriendDenouncedUsScore(PlayerTypes ePlayer) const;
 	int GetPlayerAttackedVassalScore(PlayerTypes ePlayer);
-	int GetMasterAttackedUsScore(PlayerTypes ePlayer);
+	int GetMasterAttackedUsScore(PlayerTypes ePlayer) const;
 	int GetPlayerAttackedFriendScore(PlayerTypes ePlayer);
-	int GetFriendAttackedUsScore(PlayerTypes ePlayer);
+	int GetFriendAttackedUsScore(PlayerTypes ePlayer) const;
 	int GetPlayerAttackedResurrectedCivScore(PlayerTypes ePlayer);
-	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer);
+	int GetResurrectorAttackedUsScore(PlayerTypes ePlayer) const;
 
 	// World Congress
 	int GetVotingHistoryOpinionScore(PlayerTypes ePlayer);
@@ -1708,21 +1708,21 @@ public:
 	int GetSanctionedUsScore(PlayerTypes ePlayer);
 
 	// Vassalage
-	int GetVassalScore(PlayerTypes ePlayer);
+	int GetVassalScore(PlayerTypes ePlayer) const;
 	int GetVassalTreatedScore(PlayerTypes ePlayer);
 	int GetVassalDemandScore(PlayerTypes ePlayer);
 	int GetVassalTheftScore(PlayerTypes ePlayer);
-	int GetVassalDenouncementScore(PlayerTypes ePlayer);
+	int GetVassalDenouncementScore(PlayerTypes ePlayer) const;
 	int GetVassalTaxScore(PlayerTypes ePlayer);
-	int GetVassalProtectScore(PlayerTypes ePlayer);
-	int GetVassalFailedProtectScore(PlayerTypes ePlayer);
+	int GetVassalProtectScore(PlayerTypes ePlayer) const;
+	int GetVassalFailedProtectScore(PlayerTypes ePlayer) const;
 	int GetVassalTradeRouteScore(PlayerTypes ePlayer);
-	int GetVassalOpenBordersScore(PlayerTypes ePlayer);
+	int GetVassalOpenBordersScore(PlayerTypes ePlayer) const;
 	int GetVassalReligionScore(PlayerTypes ePlayer);
-	int GetMasterScore(PlayerTypes ePlayer);
-	int GetTooManyVassalsScore(PlayerTypes ePlayer);
+	int GetMasterScore(PlayerTypes ePlayer) const;
+	int GetTooManyVassalsScore(PlayerTypes ePlayer) const;
 	int GetSameMasterScore(PlayerTypes ePlayer);
-	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer);
+	int GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const;
 	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
 	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
 
@@ -1741,7 +1741,7 @@ public:
 
 	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 
-	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer);
+	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer) const;
 
 	// Minor Civ Log
 	void LogMinorCivGiftTile(PlayerTypes ePlayer);
@@ -1822,21 +1822,21 @@ private:
 	void LogMajorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach, CivApproachTypes eSurfaceApproach);
 	void LogMinorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach);
 	void LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes eQuestType);
-	void LogOpinion(CvString& strString, PlayerTypes ePlayer);
+	void LogOpinion(CvString& strString, PlayerTypes ePlayer) const;
 	void LogWarmongerThreat(CvString& strString, PlayerTypes ePlayer);
-	void LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer);
-	void LogTargetValue(CvString& strString, PlayerTypes ePlayer);
-	void LogEconomicStrength(CvString& strString, PlayerTypes ePlayer);
-	void LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer);
-	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer);
+	void LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer) const;
+	void LogTargetValue(CvString& strString, PlayerTypes ePlayer) const;
+	void LogEconomicStrength(CvString& strString, PlayerTypes ePlayer) const;
+	void LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer) const;
+	void LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer) const;
 	void LogWarState(CvString& strString, PlayerTypes ePlayer);
-	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer);
-	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
-	void LogLandDispute(CvString& strString, PlayerTypes ePlayer);
-	void LogVictoryDispute(CvString& strString, PlayerTypes ePlayer);
-	void LogVictoryBlock(CvString& strString, PlayerTypes ePlayer);
-	void LogWonderDispute(CvString& strString, PlayerTypes ePlayer);
-	void LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer);
+	void LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer) const;
+	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer) const;
+	void LogLandDispute(CvString& strString, PlayerTypes ePlayer) const;
+	void LogVictoryDispute(CvString& strString, PlayerTypes ePlayer) const;
+	void LogVictoryBlock(CvString& strString, PlayerTypes ePlayer) const;
+	void LogWonderDispute(CvString& strString, PlayerTypes ePlayer) const;
+	void LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer) const;
 	void LogProximity(CvString& strString, PlayerTypes ePlayer);
 
 	void LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eMessage);

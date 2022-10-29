@@ -764,7 +764,7 @@ CvAreaBoundaries CvArea::getAreaBoundaries() const
 
 //	--------------------------------------------------------------------------------
 /// What are the top and bottom latitudes of this Area (passed by reference)
-void CvArea::GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude)
+void CvArea::GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude) const
 {
 	int iGridHeight = GC.getMap().getGridHeight();
 	if(GC.getMap().isWrapX() || !(GC.getMap().isWrapY()))

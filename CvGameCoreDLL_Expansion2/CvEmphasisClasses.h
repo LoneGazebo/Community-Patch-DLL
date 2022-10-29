@@ -95,7 +95,7 @@ public:
 	void Reset();
 
 	// Accessor functions
-	int GetEmphasizeAvoidGrowthCount();
+	int GetEmphasizeAvoidGrowthCount() const;
 	bool IsEmphasizeAvoidGrowth();
 	int GetEmphasizeYieldCount(YieldTypes eIndex);
 	bool IsEmphasizeYield(YieldTypes eIndex);

@@ -52,7 +52,7 @@ unsigned int CvDllFeatureInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllFeatureInfo::GetReferenceCount()
+unsigned int CvDllFeatureInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

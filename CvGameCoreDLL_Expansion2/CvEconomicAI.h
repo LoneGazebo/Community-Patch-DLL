@@ -209,7 +209,7 @@ public:
 	{
 		m_iExplorersDisbanded++;
 	};
-	int GetExplorersDisbanded()
+	int GetExplorersDisbanded() const
 	{
 		return m_iExplorersDisbanded;
 	};

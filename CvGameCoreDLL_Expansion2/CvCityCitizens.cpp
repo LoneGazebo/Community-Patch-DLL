@@ -180,7 +180,7 @@ CvCity* CvCityCitizens::GetCity()
 }
 
 /// Returns the Player object this City belongs to
-CvPlayer* CvCityCitizens::GetPlayer()
+CvPlayer* CvCityCitizens::GetPlayer() const
 {
 	return &GET_PLAYER(GetOwner());
 }
@@ -1664,7 +1664,7 @@ void CvCityCitizens::SetDirty(bool bValue)
 	}
 }
 
-bool CvCityCitizens::IsDirty()
+bool CvCityCitizens::IsDirty() const
 {
 	return m_bIsDirty;
 }

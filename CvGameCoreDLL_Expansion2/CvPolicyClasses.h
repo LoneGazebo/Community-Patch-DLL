@@ -1158,7 +1158,7 @@ public:
 	PolicyBranchTypes GetLateGamePolicyTree() const;
 	bool IsTimeToChooseIdeology() const;
 	std::vector<PolicyTypes> GetAvailableTenets(PolicyBranchTypes eBranch, int iLevel);
-	PolicyTypes GetTenet(PolicyBranchTypes eBranch, int iLevel, int iIndex);
+	PolicyTypes GetTenet(PolicyBranchTypes eBranch, int iLevel, int iIndex) const;
 	int GetNumTenetsOfLevel(PolicyBranchTypes eBranch, int iLevel) const;
 	bool CanGetAdvancedTenet() const;
 

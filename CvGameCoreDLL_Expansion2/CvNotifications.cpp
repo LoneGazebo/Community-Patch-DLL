@@ -670,7 +670,7 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 }
 
 //	---------------------------------------------------------------------------
-int CvNotifications::GetNumNotifications(void)
+int CvNotifications::GetNumNotifications(void) const
 {
 	if(m_iNotificationsEndIndex >= m_iNotificationsBeginIndex)
 	{
@@ -2154,7 +2154,7 @@ bool CvNotifications::IsNotificationEndOfTurnExpired(int iIndex)
 }
 
 //	---------------------------------------------------------------------------
-bool CvNotifications::IsArrayFull()
+bool CvNotifications::IsArrayFull() const
 {
 	int iAdjustedEndIndex = m_iNotificationsEndIndex + 1;
 	if(iAdjustedEndIndex >= int(MaxNotifications))

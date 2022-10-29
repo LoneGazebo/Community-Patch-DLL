@@ -2401,7 +2401,7 @@ CvInterfaceModeInfo* CvGlobals::getInterfaceModeInfo(InterfaceModeTypes e)
 		return NULL;
 }
 
-bool CvGlobals::getLogging()
+bool CvGlobals::getLogging() const
 {
 	return m_bLogging;
 }
@@ -2411,7 +2411,7 @@ void CvGlobals::setLogging(bool bLoggingEnabled)
 	m_bLogging = bLoggingEnabled;
 }
 
-int CvGlobals::getRandLogging()
+int CvGlobals::getRandLogging() const
 {
 	return m_iRandLogging;
 }
@@ -2421,7 +2421,7 @@ void CvGlobals::setRandLogging(int iRandLoggingFlags)
 	m_iRandLogging = iRandLoggingFlags;
 }
 
-bool CvGlobals::getAILogging()
+bool CvGlobals::getAILogging() const
 {
 	return m_bAILogging;
 }
@@ -2431,7 +2431,7 @@ void CvGlobals::setAILogging(bool bEnable)
 	m_bAILogging = bEnable;
 }
 
-bool CvGlobals::getAIPerfLogging()
+bool CvGlobals::getAIPerfLogging() const
 {
 	return m_bAIPerfLogging;
 }
@@ -2441,7 +2441,7 @@ void CvGlobals::setAIPerfLogging(bool bEnable)
 	m_bAIPerfLogging = bEnable;
 }
 
-bool CvGlobals::GetBuilderAILogging()
+bool CvGlobals::GetBuilderAILogging() const
 {
 	return m_bBuilderAILogging;
 }
@@ -2451,7 +2451,7 @@ void CvGlobals::SetBuilderAILogging(bool bEnable)
 	m_bBuilderAILogging = bEnable;
 }
 
-bool CvGlobals::getPlayerAndCityAILogSplit()
+bool CvGlobals::getPlayerAndCityAILogSplit() const
 {
 	return m_bPlayerAndCityAILogSplit;
 }
@@ -2461,7 +2461,7 @@ void CvGlobals::setPlayerAndCityAILogSplit(bool bEnable)
 	m_bPlayerAndCityAILogSplit = bEnable;
 }
 
-bool CvGlobals::GetTutorialLogging()
+bool CvGlobals::GetTutorialLogging() const
 {
 	return m_bTutorialLogging;
 }
@@ -2471,7 +2471,7 @@ void CvGlobals::SetTutorialLogging(bool bEnable)
 	m_bTutorialLogging = bEnable;
 }
 
-bool CvGlobals::GetTutorialDebugging()
+bool CvGlobals::GetTutorialDebugging() const
 {
 	return m_bTutorialDebugging;
 }
@@ -2481,7 +2481,7 @@ void CvGlobals::SetTutorialDebugging(bool bEnable)
 	m_bTutorialDebugging = bEnable;
 }
 
-bool CvGlobals::GetAllowRClickMovementWhileScrolling()
+bool CvGlobals::GetAllowRClickMovementWhileScrolling() const
 {
 	return m_bAllowRClickMovementWhileCameraScrolling;
 }
@@ -2491,7 +2491,7 @@ void CvGlobals::SetAllowRClickMovementWhileScrolling(bool bAllow)
 	m_bAllowRClickMovementWhileCameraScrolling = bAllow;
 }
 
-bool CvGlobals::GetPostTurnAutosaves()
+bool CvGlobals::GetPostTurnAutosaves() const
 {
 	return m_bPostTurnAutosaves;
 }

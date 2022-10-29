@@ -112,7 +112,7 @@ public:
 	virtual void Write(FDataStream& kStream) const;
 
 	// Accessors
-	int GetID();
+	int GetID() const;
 	void SetID(int iID);
 
 	TeamTypes GetTeam() const;

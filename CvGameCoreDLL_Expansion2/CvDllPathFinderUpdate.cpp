@@ -54,7 +54,7 @@ unsigned int CvDllPathFinderUpdate::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllPathFinderUpdate::GetReferenceCount()
+unsigned int CvDllPathFinderUpdate::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }
@@ -132,7 +132,7 @@ unsigned int CvDllPathFinderUpdateList::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllPathFinderUpdateList::GetReferenceCount()
+unsigned int CvDllPathFinderUpdateList::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

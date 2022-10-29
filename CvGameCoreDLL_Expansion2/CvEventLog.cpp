@@ -152,7 +152,7 @@ int CvEventLog::GetData4(int iZeroBasedIndex) const
 }
 
 //	---------------------------------------------------------------------------
-bool CvEventLog::IsLogFull()
+bool CvEventLog::IsLogFull() const
 {
 	int iAdjustedEndIndex = m_iEventsEndIndex + 1;
 	if (iAdjustedEndIndex >= (int)m_aEvents.size())

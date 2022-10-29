@@ -6358,7 +6358,7 @@ std::vector<PolicyTypes> CvPlayerPolicies::GetAvailableTenets(PolicyBranchTypes 
 }
 
 /// Get the nth tenets owned of an Ideology at a certain level
-PolicyTypes CvPlayerPolicies::GetTenet(PolicyBranchTypes eBranch, int iLevel, int iIndex)
+PolicyTypes CvPlayerPolicies::GetTenet(PolicyBranchTypes eBranch, int iLevel, int iIndex) const
 {
 	int iNumFound = 0;
 

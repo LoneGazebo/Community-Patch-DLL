@@ -51,7 +51,7 @@ public:
 	void AlliedWithCityState(PlayerTypes eCityStateAlly);
 	void AddUnit(CvUnit* pUnit);
 	void AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit);
-	void BoughtCityState(int iNumUnits);
+	static void BoughtCityState(int iNumUnits);
 	void KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit);
 	void StartTurn();
 	void EndTurn();
