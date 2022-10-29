@@ -772,7 +772,7 @@ function HappinessTipHandler( control )
 
 		-- First do Happiness
 		local TotalHappiness = pPlayer:GetHappinessFromCitizenNeeds();
-		strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", TotalHappiness);
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", TotalHappiness);
 		if (TotalHappiness ~= 0) then
 			local ResourceHappiness = pPlayer:GetBonusHappinessFromLuxuriesFlat();
 			if (ResourceHappiness ~= 0) then

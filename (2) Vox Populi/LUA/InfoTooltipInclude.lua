@@ -239,7 +239,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	if (iBasicNeedsMedianModifierBuilding ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_BASIC_NEEDS_MEDIAN_MODIFIER", iBasicNeedsMedianModifierBuilding));
 	end
-	local iGoldMedianModifierBuilding = Game.GetPovertyHappinessChangeBuilding(iBuildingID); 
+	local iGoldMedianModifierBuilding = Game.GetGoldMedianModifierBuilding(iBuildingID); 
 	if (iGoldMedianModifierBuilding ~= 0) then
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_BUILDING_GOLD_MEDIAN_MODIFIER", iGoldMedianModifierBuilding));
 	end
