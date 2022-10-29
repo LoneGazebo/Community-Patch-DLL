@@ -16,7 +16,7 @@
 #ifndef CVGAMECOREDLLPCH_H
 #define CVGAMECOREDLLPCH_H
 
-#include <assert.h>
+#include <cassert>
 
 /// Displays a platform specific assertion related dialogue.
 /// 
@@ -126,12 +126,12 @@
 #include <MMSystem.h>
 
 #include <algorithm>
-#include <vector>
+#include <cassert>
+#include <cmath>
 #include <list>
-#include <math.h>
-#include <tchar.h>
-#include <assert.h>
 #include <map>
+#include <tchar.h>
+#include <vector>
 #define _SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS
 #include <hash_map>
 #include <limits>
