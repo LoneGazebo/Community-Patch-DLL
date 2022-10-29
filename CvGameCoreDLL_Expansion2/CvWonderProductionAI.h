@@ -48,8 +48,8 @@ public:
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
 	void LogPossibleWonders();
 
-	bool IsWonder(const CvBuildingEntry& kBuilding) const;
-	bool IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const;
+	static bool IsWonder(const CvBuildingEntry& kBuilding) ;
+	static bool IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) ;
 
 private:
 	bool HaveCityToBuild(BuildingTypes eBuilding) const;

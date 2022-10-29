@@ -33,7 +33,7 @@ public:
 	_Check_return_ static void* Allocate(size_t bytes);
 	static void Free(_In_ void* p);
 
-	HANDLE GetHeap();
+	static HANDLE GetHeap();
 	HANDLE DLLCALL Debug_GetHeap() const;
 
 	GUID DLLCALL GetDLLGUID();

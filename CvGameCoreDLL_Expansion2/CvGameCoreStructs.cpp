@@ -504,7 +504,7 @@ int CvCombatInfo::getDamageMemberCount() const
 	return m_iDamageMemberCount;
 }
 
-int CvCombatInfo::getMaxDamageMemberCount() const
+int CvCombatInfo::getMaxDamageMemberCount() 
 {
 	return MAX_DAMAGE_MEMBER_COUNT;
 }

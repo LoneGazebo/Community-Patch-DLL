@@ -237,7 +237,7 @@ void CvWonderProductionAI::LogFlavors(FlavorTypes)
 }
 
 /// Check to make sure this is one of the buildings we consider to be a wonder
-bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) const
+bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) 
 {
 	const CvBuildingClassInfo& kBuildingClass = kBuilding.GetBuildingClassInfo();
 
@@ -251,7 +251,7 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding) const
 }
 
 /// Check wonders excluding national wonders you can only have one of.
-bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) const
+bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBuilding) 
 {
 	const CvBuildingClassInfo& kBuildingClass = kBuilding.GetBuildingClassInfo();
 

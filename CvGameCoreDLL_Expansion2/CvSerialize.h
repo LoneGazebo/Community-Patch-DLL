@@ -52,12 +52,12 @@ public:
 		return *this;
 	}
 
-	inline bool isSaving() const
+	static inline bool isSaving() 
 	{
 		return true;
 	}
 
-	inline bool isLoading() const
+	static inline bool isLoading() 
 	{
 		return false;
 	}
@@ -123,12 +123,12 @@ public:
 		return *this;
 	}
 
-	inline bool isSaving() const
+	static inline bool isSaving() 
 	{
 		return false;
 	}
 
-	inline bool isLoading() const
+	static inline bool isLoading() 
 	{
 		return true;
 	}
