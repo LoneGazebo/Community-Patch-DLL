@@ -143,7 +143,7 @@ int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) c
 	return iPercent;
 }
 
-bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue)
+bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const
 {
 	int iLeewayPercent = GetDealPercentLeeway(ePlayer,iNetValue>0);
 	// Make trades at low max value easier
@@ -5600,7 +5600,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 }
 
 /// What are we willing to give/receive for peace with the active human player?
-int CvDealAI::GetCachedValueOfPeaceWithHuman()
+int CvDealAI::GetCachedValueOfPeaceWithHuman() const
 {
 	return m_iCachedValueOfPeaceWithHuman;		// NOT SERIALIZED
 }

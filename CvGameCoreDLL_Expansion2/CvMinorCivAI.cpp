@@ -1017,7 +1017,7 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 		itr_quest->CalculateRewards(ePlayer, true);
 }
 
-CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish)
+CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
 {
 	CvString szTooltip = "";
 	CvString szTooltipHeader = "";
@@ -1139,7 +1139,7 @@ CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish)
 
 // Assumes that only one contest of a particular Type is active from this minor at any given time.
 // Otherwise, the results across different spans of contest will be calculated together here.
-int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer)
+int CvMinorCivQuest::GetContestValueForPlayer(PlayerTypes ePlayer) const
 {
 	int iValue = -1;
 
@@ -2006,7 +2006,7 @@ bool CvMinorCivQuest::IsObsolete(bool bWar)
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
-bool CvMinorCivQuest::IsHandled()
+bool CvMinorCivQuest::IsHandled() const
 {
 	return m_bHandled;
 }
@@ -7650,7 +7650,7 @@ int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
 }
 
 /// How more or less likely is this minor to offer a particular quest type based on its personality?
-int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
+int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest) const
 {
 	int iWeight = 1000; // 10 copies is the base amount; x100 for greater fidelity
 	MinorCivPersonalityTypes ePersonality = GetPersonality();
@@ -8436,7 +8436,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 	SetGlobalQuestCountdown(iNumTurns);
 }
 
-int CvMinorCivAI::GetGlobalQuestCountdown()
+int CvMinorCivAI::GetGlobalQuestCountdown() const
 {
 	return m_iGlobalQuestCountdown;
 }
@@ -9119,7 +9119,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	return NO_PLAYER;
 }
 
-bool CvMinorCivAI::IsRebellion()
+bool CvMinorCivAI::IsRebellion() const
 {
 	return m_bIsRebellion;
 }
@@ -9210,7 +9210,7 @@ bool CvMinorCivAI::IsValidRebellion()
 	return true;
 }
 
-bool CvMinorCivAI::IsRebellionActive()
+bool CvMinorCivAI::IsRebellionActive() const
 {
 	return m_bIsRebellionActive;
 }
@@ -9223,7 +9223,7 @@ void CvMinorCivAI::SetRebellionActive(bool bValue)
 	}
 }
 
-bool CvMinorCivAI::IsHordeActive()
+bool CvMinorCivAI::IsHordeActive() const
 {
 	return m_bIsHordeActive;
 }
@@ -10723,7 +10723,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes eForPlayer)
 }
 
 /// The minor civ has been bullied recently and could use some help?
-bool CvMinorCivAI::IsGoodTimeForGiveGoldQuest()
+bool CvMinorCivAI::IsGoodTimeForGiveGoldQuest() const
 {
 	if(IsRecentlyBulliedByAnyMajor())
 	{
@@ -10734,7 +10734,7 @@ bool CvMinorCivAI::IsGoodTimeForGiveGoldQuest()
 }
 
 /// The minor civ has been bullied recently and could use some help?
-bool CvMinorCivAI::IsGoodTimeForPledgeToProtectQuest()
+bool CvMinorCivAI::IsGoodTimeForPledgeToProtectQuest() const
 {
 	if(IsRecentlyBulliedByAnyMajor())
 	{
@@ -10745,7 +10745,7 @@ bool CvMinorCivAI::IsGoodTimeForPledgeToProtectQuest()
 }
 
 /// The minor civ has been bullied recently and could use some help?
-bool CvMinorCivAI::IsGoodTimeForDenounceMajorQuest()
+bool CvMinorCivAI::IsGoodTimeForDenounceMajorQuest() const
 {
 	if(IsRecentlyBulliedByAnyMajor())
 	{
@@ -10756,7 +10756,7 @@ bool CvMinorCivAI::IsGoodTimeForDenounceMajorQuest()
 }
 
 /// The minor civ has been bullied recently and could use some help?
-bool CvMinorCivAI::IsGoodTimeForWarMajorQuest()
+bool CvMinorCivAI::IsGoodTimeForWarMajorQuest() const
 {
 	if (IsRecentlyBulliedByAnyMajor())
 	{
@@ -12305,7 +12305,7 @@ void CvMinorCivAI::SetTurnLiberated(int iValue)
 		m_iTurnLiberated = iValue;
 	}
 }
-int CvMinorCivAI::GetTurnLiberated()
+int CvMinorCivAI::GetTurnLiberated() const
 {
 	return m_iTurnLiberated;
 }

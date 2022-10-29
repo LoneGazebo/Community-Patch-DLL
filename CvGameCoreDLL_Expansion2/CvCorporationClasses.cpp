@@ -427,7 +427,7 @@ CvCorporation::CvCorporation(CorporationTypes eCorporation, PlayerTypes eFounder
 	m_iTurnFounded = GC.getGame().getGameTurn();
 }
 
-bool CvCorporation::IsCorporationBuilding(BuildingClassTypes eBuildingClass)
+bool CvCorporation::IsCorporationBuilding(BuildingClassTypes eBuildingClass) const
 {
 	CvBuildingClassInfo* pBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 	if (pBuildingClassInfo == NULL)
@@ -719,7 +719,7 @@ void CvPlayerCorporations::SetCorporationFreeFranchiseAbovePopular(int iValue)
 		m_iCorporationFreeFranchiseAbovePopular += iValue;
 }
 
-bool CvPlayerCorporations::IsNoForeignCorpsInCities()
+bool CvPlayerCorporations::IsNoForeignCorpsInCities() const
 {
 	return m_bIsNoForeignCorpsInCities;
 }
@@ -742,7 +742,7 @@ void CvPlayerCorporations::SetNoForeignCorpsInCities(bool bValue)
 		}
 	}
 }
-bool CvPlayerCorporations::IsNoFranchisesInForeignCities()
+bool CvPlayerCorporations::IsNoFranchisesInForeignCities() const
 {
 	return m_bIsNoFranchisesInForeignCities;
 }

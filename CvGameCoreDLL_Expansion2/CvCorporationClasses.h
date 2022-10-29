@@ -118,7 +118,7 @@ public:
 	CvCorporation();
 	CvCorporation(CorporationTypes eCorporation, PlayerTypes eFounder, CvCity* pHeadquarters);
 
-	bool IsCorporationBuilding(BuildingClassTypes eBuildingClass);
+	bool IsCorporationBuilding(BuildingClassTypes eBuildingClass) const;
 
 	template<typename Corporation, typename Visitor>
 	static void Serialize(Corporation& corporation, Visitor& visitor);
@@ -260,10 +260,10 @@ public:
 	int GetCorporationFreeFranchiseAbovePopular() const;
 	void SetCorporationFreeFranchiseAbovePopular(int iValue);
 
-	bool IsNoForeignCorpsInCities();
+	bool IsNoForeignCorpsInCities() const;
 	void SetNoForeignCorpsInCities(bool bValue);
 
-	bool IsNoFranchisesInForeignCities();
+	bool IsNoFranchisesInForeignCities() const;
 	void SetNoFranchisesInForeignCities(bool bValue);
 
 	int GetFranchisesPerImprovement(ImprovementTypes eIndex) const;

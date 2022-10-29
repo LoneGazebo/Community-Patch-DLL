@@ -199,10 +199,10 @@ public:
 	bool StepUnit (int iIndex); // move a trade unit a single step along its path (called by MoveUnit)
 
 	void DisplayTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type, DomainTypes eDomain);
-	void HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type);
+	void HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type) const;
 
 	CvString GetLogFileName() const;
-	void LogTradeMsg(CvString& strMsg);
+	void LogTradeMsg(CvString& strMsg) const;
 
 	const vector<int>& GetTradeConnectionsForPlayer(PlayerTypes ePlayer) const;
 	size_t GetNumTradeConnections() const { return m_aTradeConnections.size(); }
@@ -270,21 +270,21 @@ public:
 	void DoTurn(void);
 	void MoveUnits(void);
 
-	int GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
+	int GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionGPTValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer, bool bOriginCity);
 	int GetTradeConnectionResourceValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	int GetTradeConnectionYourBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 #if defined(MOD_BALANCE_CORE)
 	int GetMinorCivGoldBonus(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 #endif
-	int GetTradeConnectionTheirBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
+	int GetTradeConnectionTheirBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionExclusiveValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
-	int GetTradeConnectionPolicyValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
+	int GetTradeConnectionPolicyValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const;
 	int GetTradeConnectionOtherTraitValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 #if defined(MOD_BALANCE_CORE)
-	int GetTradeConnectionDistanceValueModifierTimes100(const TradeConnection& kTradeConnection);
+	int GetTradeConnectionDistanceValueModifierTimes100(const TradeConnection& kTradeConnection) const;
 	int GetTradeConnectionCorporationModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	int GetTradeConnectionOpenBordersModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 #endif
@@ -297,26 +297,26 @@ public:
 
 	int GetTradeValuesAtCityTimes100 (const CvCity* const pCity, YieldTypes eYield);
 
-	int GetAllTradeValueTimes100 (YieldTypes eYield);
-	int GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer);
-	int GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer);
+	int GetAllTradeValueTimes100 (YieldTypes eYield) const;
+	int GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer) const;
+	int GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer) const;
 
-	bool IsConnectedToPlayer(PlayerTypes eOtherPlayer);
+	bool IsConnectedToPlayer(PlayerTypes eOtherPlayer) const;
 
-	bool CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true);
+	bool CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true) const;
 	bool CanCreateTradeRoute(PlayerTypes eOtherPlayer, DomainTypes eDomain);
-	bool CanCreateTradeRoute(DomainTypes eDomain);
+	bool CanCreateTradeRoute(DomainTypes eDomain) const;
 
-	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
+	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const;
 
-	const TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity);
+	const TradeConnection* GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity) const;
 	int GetNumberOfCityStateTradeRoutes();
-	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity);
+	int GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity) const;
 
 	int GetNumberOfTradeRoutesFromCity(const CvCity* pCity);
 	int GetNumberOfTradeRoutesCity(const CvCity* pCity);
 
-	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity);
+	bool IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetNumberOfInternalTradeRoutes();
 	int GetNumberOfInternationalTradeRoutes(bool bOutgoing);
@@ -340,17 +340,17 @@ public:
 
 	bool PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit);
 	void UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange);
-	int GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity);
-	int GetTradeRouteSpeed (DomainTypes eDomain);
-	int GetTradeRouteTurnMod(CvCity* pOriginCity);
+	int GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity) const;
+	int GetTradeRouteSpeed (DomainTypes eDomain) const;
+	int GetTradeRouteTurnMod(CvCity* pOriginCity) const;
 
-	uint GetNumTradeRoutesPossible (void);
-	int GetNumTradeUnits (bool bIncludeBeingBuilt);
+	uint GetNumTradeRoutesPossible (void) const;
+	int GetNumTradeUnits (bool bIncludeBeingBuilt) const;
 	int GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt);
 
-	int GetNumDifferentTradingPartners (void);
+	int GetNumDifferentTradingPartners (void) const;
 #if defined(MOD_BALANCE_CORE)
-	int GetNumDifferentMajorCivTradingPartners(void);
+	int GetNumDifferentMajorCivTradingPartners(void) const;
 #endif
 
 	void UpdateTradeConnectionWasPlundered();
@@ -417,7 +417,7 @@ public:
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 	void GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionList, bool bSkipExisting);
 
-	TRSortElement ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism);
+	TRSortElement ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism) const;
 
 	//generic method
 	int ScoreInternalTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
@@ -429,7 +429,7 @@ public:
 	int ScoreWonderTR (const TradeConnection& kTradeConnection, const std::vector<CvCity*>& aTargetCityList);
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
-	TRSortElement ScoreGoldInternalTR(const TradeConnection& kTradeConnection);
+	TRSortElement ScoreGoldInternalTR(const TradeConnection& kTradeConnection) const;
 #endif
 
 	int m_iRemovableValue;

@@ -52,7 +52,7 @@ unsigned int CvDllNetLoadGameInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllNetLoadGameInfo::GetReferenceCount()
+unsigned int CvDllNetLoadGameInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

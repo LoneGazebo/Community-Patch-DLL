@@ -3841,7 +3841,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 }
 
 /// How many Declarations of Friendship do we currently have with other players?
-int CvDiplomacyAI::GetNumDoF(bool bVassalageException)
+int CvDiplomacyAI::GetNumDoF(bool bVassalageException) const
 {
 	int iRtnValue = 0;
 
@@ -4006,7 +4006,7 @@ bool CvDiplomacyAI::IsDenouncingPlayer(PlayerTypes ePlayer) const
 }
 
 /// How many players have we currently denounced?
-int CvDiplomacyAI::GetNumDenouncements()
+int CvDiplomacyAI::GetNumDenouncements() const
 {
 	int iRtnValue = 0;
 
@@ -4024,7 +4024,7 @@ int CvDiplomacyAI::GetNumDenouncements()
 }
 
 /// How many players have denounced US?
-int CvDiplomacyAI::GetNumDenouncementsOfPlayer()
+int CvDiplomacyAI::GetNumDenouncementsOfPlayer() const
 {
 	int iRtnValue = 0;
 
@@ -4381,7 +4381,7 @@ CoopWarStates CvDiplomacyAI::GetGlobalCoopWarAgainstState(PlayerTypes ePlayer) c
 }
 
 /// How many players are we currently planning a coop war against?
-int CvDiplomacyAI::GetNumCoopWarTargets()
+int CvDiplomacyAI::GetNumCoopWarTargets() const
 {
 	int iCount = 0;
 
@@ -4958,7 +4958,7 @@ void CvDiplomacyAI::SetFriendDenouncedUsTurn(PlayerTypes ePlayer, int iTurn)
 }
 
 /// How many former friends have denounced US???
-int CvDiplomacyAI::GetNumFriendsDenouncedBy()
+int CvDiplomacyAI::GetNumFriendsDenouncedBy() const
 {
 	int iNum = 0;
 
@@ -5630,7 +5630,7 @@ bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
 }
 
 /// Return the number of turns since ePlayer has made a military promise to us
-int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const
 {
 	// Did they make a military promise?
 	if (!IsPlayerMadeMilitaryPromise(ePlayer))
@@ -27427,7 +27427,7 @@ bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
 }
 
 /// Do we want to have an embassy in the player's capital? - this is only used for when to trigger an AI request, not whether or not the AI will accept a deal period
-bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer)
+bool CvDiplomacyAI::WantsEmbassyAtPlayer(PlayerTypes ePlayer) const
 {
 	// May want to make this logic more sophisticated eventually. This will do for now.
 	return GetCivApproach(ePlayer) > CIV_APPROACH_HOSTILE;
@@ -28640,7 +28640,7 @@ void CvDiplomacyAI::DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPl
 }
 
 /// Return the value of the warmonger amount adjusted by how much this player hates warmongers
-int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetOtherPlayerWarmongerScore(PlayerTypes ePlayer) const
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
 
@@ -33404,7 +33404,7 @@ void CvDiplomacyAI::DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatemen
 }
 
 /// Possible Contact Statement - We're ending our Declaration of Friendship with them
-void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement)
+void CvDiplomacyAI::DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -41711,7 +41711,7 @@ CoopWarStates CvDiplomacyAI::RespondToCoopWarRequest(PlayerTypes eAskingPlayer, 
 }
 
 /// We rejected eAskingPlayer's request to go to war with eTargetPlayer, but should we warn the target?
-bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer)
+bool CvDiplomacyAI::IsCoopWarRequestUnacceptable(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer) const
 {
 	// Don't warn humans - no dialogue for this
 	if (GET_PLAYER(eTargetPlayer).isHuman())
@@ -42608,7 +42608,7 @@ bool CvDiplomacyAI::IsTooEarlyForDoF(PlayerTypes ePlayer)
 }
 
 /// How many Research Agreements do we currently have with other players?
-int CvDiplomacyAI::GetNumRA()
+int CvDiplomacyAI::GetNumRA() const
 {
 	int iRtnValue = 0;
 
@@ -42626,7 +42626,7 @@ int CvDiplomacyAI::GetNumRA()
 }
 
 /// How many Defensive Pacts do we currently have with other players?
-int CvDiplomacyAI::GetNumDefensePacts()
+int CvDiplomacyAI::GetNumDefensePacts() const
 {
 	int iRtnValue = 0;
 
@@ -44085,7 +44085,7 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 /////////////////////////////////////////////////////////
 
 /// Adjusts the duration of a temporary opinion modifier based on flavors and game speed
-int CvDiplomacyAI::AdjustModifierDuration(bool bGood, int iDuration, int iFlavorValue, bool bGamespeed)
+int CvDiplomacyAI::AdjustModifierDuration(bool bGood, int iDuration, int iFlavorValue, bool bGamespeed) const
 {
 	if (iDuration <= 0)
 		return 0;
@@ -45025,7 +45025,7 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45060,7 +45060,7 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45257,7 +45257,7 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetCivilianKillerScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetCivilianKillerScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45304,7 +45304,7 @@ int CvDiplomacyAI::GetCivilianKillerGlobalScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetNukedByScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45372,7 +45372,7 @@ int CvDiplomacyAI::GetCapitalCapturedByScore(PlayerTypes ePlayer)
 // Player has done nice stuff
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45395,7 +45395,7 @@ int CvDiplomacyAI::GetRecentTradeScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45429,7 +45429,7 @@ int CvDiplomacyAI::GetRecentAssistScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetCommonFoeScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45492,7 +45492,7 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetResurrectedScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetResurrectedScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45746,7 +45746,7 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 // Player has done mean stuff
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetTimesCultureBombedScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45897,7 +45897,7 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 // DENOUNCING
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetDenouncedScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDenouncedScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -45918,7 +45918,7 @@ int CvDiplomacyAI::GetDenouncedScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iNumFriendsDenounced = GetNumFriendsDenounced(ePlayer);
@@ -45949,7 +45949,7 @@ int CvDiplomacyAI::GetDenouncedFriendScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iNumEnemiesDenounced = GetNumEnemiesDenounced(ePlayer);
@@ -45986,7 +45986,7 @@ int CvDiplomacyAI::GetDenouncedEnemyScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer) const
 {
 	// This penalty only applies if we're not friends or allies.
 	if (IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
@@ -46046,7 +46046,7 @@ int CvDiplomacyAI::GetDenouncedByOurFriendScore(PlayerTypes ePlayer)
 // PROMISES
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetBrokenMilitaryPromiseScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -46174,7 +46174,7 @@ int CvDiplomacyAI::GetIgnoredBorderPromiseScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetBrokenAttackCityStatePromiseScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -46768,7 +46768,7 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 // DECLARATION OF FRIENDSHIP
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -46805,7 +46805,7 @@ int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDOFWithAnyFriendScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDOFWithAnyFriendScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iMutualFriends = GetNumMutualFriends(ePlayer);
@@ -46836,7 +46836,7 @@ int CvDiplomacyAI::GetDOFWithAnyFriendScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDOFWithAnyEnemyScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDOFWithAnyEnemyScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iEnemyFriends = GetNumEnemyFriends(ePlayer);
@@ -46877,7 +46877,7 @@ int CvDiplomacyAI::GetDOFWithAnyEnemyScore(PlayerTypes ePlayer)
 // TRADE AGREEMENTS
 //////////////////////////////////////
 
-int CvDiplomacyAI::GetDPAcceptedScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDPAcceptedScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -46895,7 +46895,7 @@ int CvDiplomacyAI::GetDPAcceptedScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDPWithAnyFriendScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDPWithAnyFriendScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iMutualDefensePacts = GetNumMutualDefensePacts(ePlayer);
@@ -46926,7 +46926,7 @@ int CvDiplomacyAI::GetDPWithAnyFriendScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetDPWithAnyEnemyScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetDPWithAnyEnemyScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 	int iEnemyDefensePacts = GetNumEnemyDefensePacts(ePlayer);
@@ -47099,7 +47099,7 @@ int CvDiplomacyAI::GetPlayerDenouncedFriendScore(PlayerTypes ePlayer)
 	return iTraitorOpinion;
 }
 
-int CvDiplomacyAI::GetFriendDenouncedUsScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetFriendDenouncedUsScore(PlayerTypes ePlayer) const
 {
 	int iTraitorOpinion = 0;
 
@@ -47149,7 +47149,7 @@ int CvDiplomacyAI::GetPlayerAttackedVassalScore(PlayerTypes ePlayer)
 	return iTraitorOpinion;
 }
 
-int CvDiplomacyAI::GetMasterAttackedUsScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetMasterAttackedUsScore(PlayerTypes ePlayer) const
 {
 	int iTraitorOpinion = 0;
 
@@ -47199,7 +47199,7 @@ int CvDiplomacyAI::GetPlayerAttackedFriendScore(PlayerTypes ePlayer)
 	return iTraitorOpinion;
 }
 
-int CvDiplomacyAI::GetFriendAttackedUsScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetFriendAttackedUsScore(PlayerTypes ePlayer) const
 {
 	int iTraitorOpinion = 0;
 
@@ -47249,7 +47249,7 @@ int CvDiplomacyAI::GetPlayerAttackedResurrectedCivScore(PlayerTypes ePlayer)
 	return iTraitorOpinion;
 }
 
-int CvDiplomacyAI::GetResurrectorAttackedUsScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetResurrectorAttackedUsScore(PlayerTypes ePlayer) const
 {
 	int iTraitorOpinion = 0;
 
@@ -47518,7 +47518,7 @@ int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
 //////////////////////////////////////
 
 /// Opinion weight change based on being vassal
-int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVassalScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer))
 		return 0;
@@ -47588,7 +47588,7 @@ int CvDiplomacyAI::GetVassalTheftScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVassalDenouncementScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVassalDenouncementScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer))
 		return 0;
@@ -47637,7 +47637,7 @@ int CvDiplomacyAI::GetVassalTaxScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer))
 		return 0;
@@ -47657,7 +47657,7 @@ int CvDiplomacyAI::GetVassalProtectScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVassalFailedProtectScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer))
 		return 0;
@@ -47704,7 +47704,7 @@ int CvDiplomacyAI::GetVassalTradeRouteScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetVassalOpenBordersScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetVassalOpenBordersScore(PlayerTypes ePlayer) const
 {
 	if (!IsVassal(ePlayer))
 		return 0;
@@ -47766,7 +47766,7 @@ int CvDiplomacyAI::GetVassalReligionScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetMasterScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetMasterScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -47778,7 +47778,7 @@ int CvDiplomacyAI::GetMasterScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetTooManyVassalsScore(PlayerTypes ePlayer) const
 {
 	// Vassals, friends and Defensive Pacts aren't too concerned
 	if (IsVassal(ePlayer) || IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer))
@@ -47828,7 +47828,7 @@ int CvDiplomacyAI::GetSameMasterScore(PlayerTypes ePlayer)
 	return iOpinionWeight;
 }
 
-int CvDiplomacyAI::GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetMasterLiberatedMeFromVassalageScore(PlayerTypes ePlayer) const
 {
 	int iOpinionWeight = 0;
 
@@ -48475,7 +48475,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 }
 
 /// How many players that we're Competitive or more with is ePlayer at war with?
-int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer)
+int CvDiplomacyAI::GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer) const
 {
 	int iAtWarCount = 0;
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
@@ -51542,7 +51542,7 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 }
 
 /// Log Current Opinion of Major
-void CvDiplomacyAI::LogOpinion(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogOpinion(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51616,7 +51616,7 @@ void CvDiplomacyAI::LogWarmongerThreat(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Military Strength
-void CvDiplomacyAI::LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51653,7 +51653,7 @@ void CvDiplomacyAI::LogMilitaryStrength(CvString& strString, PlayerTypes ePlayer
 }
 
 /// Log Economic Strength
-void CvDiplomacyAI::LogEconomicStrength(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogEconomicStrength(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51690,7 +51690,7 @@ void CvDiplomacyAI::LogEconomicStrength(CvString& strString, PlayerTypes ePlayer
 }
 
 /// Log Target Value
-void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51720,7 +51720,7 @@ void CvDiplomacyAI::LogTargetValue(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Peace Treaty Willing to Offer
-void CvDiplomacyAI::LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51774,7 +51774,7 @@ void CvDiplomacyAI::LogWarPeaceWillingToOffer(CvString& strString, PlayerTypes e
 }
 
 /// Log Peace Treaty Willing to Accept
-void CvDiplomacyAI::LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogWarPeaceWillingToAccept(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51919,7 +51919,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Military Aggressive Posture
-void CvDiplomacyAI::LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogMilitaryAggressivePosture(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51949,7 +51949,7 @@ void CvDiplomacyAI::LogMilitaryAggressivePosture(CvString& strString, PlayerType
 }
 
 /// Log Plot Buying Aggressive Posture
-void CvDiplomacyAI::LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -51979,7 +51979,7 @@ void CvDiplomacyAI::LogPlotBuyingAggressivePosture(CvString& strString, PlayerTy
 }
 
 /// Log Land Dispute
-void CvDiplomacyAI::LogLandDispute(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogLandDispute(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -52014,7 +52014,7 @@ void CvDiplomacyAI::LogLandDispute(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Victory Dispute
-void CvDiplomacyAI::LogVictoryDispute(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogVictoryDispute(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -52050,7 +52050,7 @@ void CvDiplomacyAI::LogVictoryDispute(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Victory Block
-void CvDiplomacyAI::LogVictoryBlock(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogVictoryBlock(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -52086,7 +52086,7 @@ void CvDiplomacyAI::LogVictoryBlock(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Wonder Dispute
-void CvDiplomacyAI::LogWonderDispute(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogWonderDispute(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 
@@ -52122,7 +52122,7 @@ void CvDiplomacyAI::LogWonderDispute(CvString& strString, PlayerTypes ePlayer)
 }
 
 /// Log Minor Civ Dispute
-void CvDiplomacyAI::LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer)
+void CvDiplomacyAI::LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer) const
 {
 	CvString strTemp;
 

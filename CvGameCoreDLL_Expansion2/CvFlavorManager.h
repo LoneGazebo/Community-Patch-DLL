@@ -29,7 +29,7 @@ public:
 	virtual void Init();
 	virtual void Uninit();
 
-	bool IsCity();
+	bool IsCity() const;
 
 	void SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues);
 	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontLog = false);

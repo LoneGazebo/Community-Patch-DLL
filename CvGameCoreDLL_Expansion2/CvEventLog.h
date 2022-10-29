@@ -44,7 +44,7 @@ public:
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
-	bool IsLogFull();
+	bool IsLogFull() const;
 	void RemoveOldestEvent();
 	void IncrementBeginIndex();
 	void IncrementEndIndex();

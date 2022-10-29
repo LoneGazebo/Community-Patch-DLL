@@ -52,7 +52,7 @@ unsigned int CvDllPlayerOptionInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllPlayerOptionInfo::GetReferenceCount()
+unsigned int CvDllPlayerOptionInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

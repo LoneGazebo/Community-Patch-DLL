@@ -52,7 +52,7 @@ unsigned int CvDllDlcPackageInfo::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllDlcPackageInfo::GetReferenceCount()
+unsigned int CvDllDlcPackageInfo::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }
@@ -120,7 +120,7 @@ unsigned int CvDllDlcPackageInfoList::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllDlcPackageInfoList::GetReferenceCount()
+unsigned int CvDllDlcPackageInfoList::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

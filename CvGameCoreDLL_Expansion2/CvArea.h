@@ -114,7 +114,7 @@ public:
 	CvAreaBoundaries getAreaBoundaries() const;
 	void FindBoundaries(const vector<bool>& occupiedCols, const vector<bool>& occupiedRows);
 
-	void GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude);
+	void GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude) const;
 	int GetAreaMaxLatitude();
 	int GetAreaMinLatitude();
 

@@ -51,7 +51,7 @@ unsigned int CvDllMissionData::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllMissionData::GetReferenceCount()
+unsigned int CvDllMissionData::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

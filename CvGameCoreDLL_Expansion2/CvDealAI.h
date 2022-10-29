@@ -42,7 +42,7 @@ public:
 
 	int GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const;
 
-	bool WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue);
+	bool WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNetValue) const;
 	bool BothSidesIncluded(CvDeal* pDeal);
 	bool TooMuchAdded(PlayerTypes ePlayer, int iMaxValue, int iNetValue, int iItemValue, bool bFromUs);
 
@@ -128,7 +128,7 @@ public:
 	// Possible deals the AI can offer
 	bool IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqualizingDeals);
 	void DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* pDeal, PeaceTreatyTypes eTreaty, bool bMeSurrendering);
-	int GetCachedValueOfPeaceWithHuman();
+	int GetCachedValueOfPeaceWithHuman() const;
 	void SetCachedValueOfPeaceWithHuman(int iValue);
 
 	void DoAddPlayersAlliesToTreaty(PlayerTypes eToPlayer, CvDeal* pDeal);

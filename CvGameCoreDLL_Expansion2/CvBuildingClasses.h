@@ -39,19 +39,19 @@ public:
 
 	  };
 
-	int GetBonus() {return m_iBonus;};
+	int GetBonus() const {return m_iBonus;};
 	CvString GetDescription() {return m_strDescription;};
-	bool IsSameEra() {return m_bSameEra;};
+	bool IsSameEra() const {return m_bSameEra;};
 	bool IsUniqueEras() {return m_bUniqueEras || IsConsecutiveEras();};
-	bool IsConsecutiveEras() {return m_bConsecutiveEras;};
-	bool IsMustBeArt() {return m_bMustBeArt;};
-	bool IsMustBeArtifact() {return m_bMustBeArtifact;};
-	bool IsMustBeEqualArtArtifact() {return m_bMustBeEqualArtArtifact;};
-	bool IsRequiresOwner() {return m_bRequiresOwner;};
-	bool IsRequiresAnyButOwner() {return m_bRequiresAnyButOwner;};
-	bool IsRequiresSamePlayer() {return m_bRequiresSamePlayer;};
-	bool IsRequiresUniquePlayers() {return m_bRequiresUniquePlayers;};
-	int GetAIPriority() {return m_iAIPriority;};
+	bool IsConsecutiveEras() const {return m_bConsecutiveEras;};
+	bool IsMustBeArt() const {return m_bMustBeArt;};
+	bool IsMustBeArtifact() const {return m_bMustBeArtifact;};
+	bool IsMustBeEqualArtArtifact() const {return m_bMustBeEqualArtArtifact;};
+	bool IsRequiresOwner() const {return m_bRequiresOwner;};
+	bool IsRequiresAnyButOwner() const {return m_bRequiresAnyButOwner;};
+	bool IsRequiresSamePlayer() const {return m_bRequiresSamePlayer;};
+	bool IsRequiresUniquePlayers() const {return m_bRequiresUniquePlayers;};
+	int GetAIPriority() const {return m_iAIPriority;};
 
 protected:
 	int m_iBonus;
@@ -87,7 +87,7 @@ public:
 
 	YieldTypes GetYieldIn() { return m_iYieldIn; };
 	YieldTypes GetYieldOut() { return m_iYieldOut; };
-	int GetValue() { return m_iValue; };
+	int GetValue() const { return m_iValue; };
 
 protected:
 	YieldTypes m_iYieldIn;

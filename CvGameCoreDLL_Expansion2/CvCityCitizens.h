@@ -66,7 +66,7 @@ public:
 	void Write(FDataStream& kStream) const;
 
 	CvCity* GetCity();
-	CvPlayer* GetPlayer();
+	CvPlayer* GetPlayer() const;
 	PlayerTypes GetOwner() const;
 	TeamTypes GetTeam() const;
 
@@ -108,7 +108,7 @@ public:
 	bool DoRemoveWorstCitizen(CvCity::eUpdateMode updateMode, bool bRemoveForcedStatus = false, SpecialistTypes eDontChangeSpecialist = NO_SPECIALIST);
 
 	void SetDirty(bool bValue);
-	bool IsDirty();
+	bool IsDirty() const;
 	void DoReallocateCitizens(bool bForce = false, bool bLogging = false);
 
 	void OptimizeWorkedPlots(bool bLogging);

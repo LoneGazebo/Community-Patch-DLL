@@ -91,8 +91,8 @@ public:
 
 	void selectUnit(CvUnit* pUnit, bool bClear, bool bToggle = false, bool bSound = false);
 	void mouseoverUnit(CvUnit* pUnit, bool bEnter);
-	void selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt);
-	void selectAll(CvPlot* pPlot);
+	void selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) const;
+	void selectAll(CvPlot* pPlot) const;
 	void SelectSettler(void);
 
 	bool selectionListIgnoreBuildingDefense();
@@ -132,8 +132,8 @@ public:
 	EraTypes getCurrentEra() const;
 	void UpdateGameEra();
 
-	TeamTypes getActiveTeam();
-	CivilizationTypes getActiveCivilizationType();
+	TeamTypes getActiveTeam() const;
+	CivilizationTypes getActiveCivilizationType() const;
 
 	bool isReallyNetworkMultiPlayer() const;
 	bool isNetworkMultiPlayer() const;
@@ -151,21 +151,21 @@ public:
 	int getGameTurn() const;
 	void setGameTurn(int iNewValue);
 	void incrementGameTurn();
-	int getTurnYear(int iGameTurn);
+	int getTurnYear(int iGameTurn) const;
 	int getGameTurnYear();
 
 	int getElapsedGameTurns() const;
 	void incrementElapsedGameTurns();
 
 	int getMaxTurns() const;
-	void setMaxTurns(int iNewValue);
+	void setMaxTurns(int iNewValue) const;
 	void changeMaxTurns(int iChange);
 
 	int getMaxCityElimination() const;
-	void setMaxCityElimination(int iNewValue);
+	void setMaxCityElimination(int iNewValue) const;
 
 	int getNumAdvancedStartPoints() const;
-	void setNumAdvancedStartPoints(int iNewValue);
+	void setNumAdvancedStartPoints(int iNewValue) const;
 
 	int getStartTurn() const;
 	void setStartTurn(int iNewValue);
@@ -187,7 +187,7 @@ public:
 	void changeTurnSlice(int iChange);
 
 	void resetTurnTimer(bool resetGameTurnStart = true);
-	int getMaxTurnLen();
+	int getMaxTurnLen() const;
 
 	bool IsStaticTutorialActive() const;
 	void SetStaticTutorialActive(bool bStaticTutorialActive);
@@ -199,7 +199,7 @@ public:
 	bool CanOpenCityScreen(PlayerTypes eOpener, CvCity* pCity);
 
 	int getTargetScore() const;
-	void setTargetScore(int iNewValue);
+	void setTargetScore(int iNewValue) const;
 
 	int getNumGameTurnActive();
 	int countNumHumanGameTurnActive();
@@ -235,11 +235,11 @@ public:
 	int getInitWonders() const;
 	void initScoreCalculation();
 
-	int getAIAutoPlay();
+	int getAIAutoPlay() const;
 	void setAIAutoPlay(int iNewValue, PlayerTypes eReturnPlayer);
 	void changeAIAutoPlay(int iChange);
 
-	unsigned int getInitialTime();
+	unsigned int getInitialTime() const;
 	void setInitialTime(unsigned int uiNewValue);
 
 	bool isScoreDirty() const;
@@ -285,7 +285,7 @@ public:
 	void updateDebugModeCache();
 
 	void setFOW(bool bMode);
-	bool getFOW();
+	bool getFOW() const;
 
 #ifdef EA_EVENT_GAME_SAVE
 	void SetGameEventsSaveGame(bool bNewValue)
@@ -391,8 +391,8 @@ public:
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 
-	void LogTurnScores();
-	void LogGameResult(const char* victoryTypeText, const char* victoryCivText);
+	void LogTurnScores() const;
+	void LogGameResult(const char* victoryTypeText, const char* victoryCivText) const;
 #if defined(MOD_BALANCE_CORE)
 	bool isVictoryRandomizationDone() const;
 	void setVictoryRandomizationDone(bool bValue);
@@ -504,8 +504,8 @@ public:
 
 #if defined(MOD_CORE_REDUCE_RANDOMNESS)
 	//get random number from gamestate without a seed in the generator
-	int	getSmallFakeRandNum(int iNum, const CvPlot& input);
-	int	getSmallFakeRandNum(int iNum, int iExtraSeed);
+	int	getSmallFakeRandNum(int iNum, const CvPlot& input) const;
+	int	getSmallFakeRandNum(int iNum, int iExtraSeed) const;
 #endif
 
 	int calculateSyncChecksum();
@@ -541,7 +541,7 @@ public:
 	void SetGoldMedian(int iValue);
 	void SetScienceMedian(int iValue);
 	void SetCultureMedian(int iValue);
-	void DoGlobalMedianLogging();
+	void DoGlobalMedianLogging() const;
 
 	int GetMedianTechsResearched() const;
 	int GetBasicNeedsMedian() const;
@@ -555,7 +555,7 @@ public:
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
-	int GetLastTurnCSAnnexed();
+	int GetLastTurnCSAnnexed() const;
 
 	template<typename Game, typename Visitor>
 	static void Serialize(Game& game, Visitor& visitor);
@@ -637,7 +637,7 @@ public:
 	void DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 	void DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);
 
-	int GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2);
+	int GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;
 
 	// Victory Stuff
 	void DoTestConquestVictory();
@@ -671,8 +671,8 @@ public:
 	int GetTurnsBetweenMinorCivElections();
 	int GetTurnsUntilMinorCivElection();
 
-	void LogGameState(bool bLogHeaders = false);
-	void unitIsMoving();
+	void LogGameState(bool bLogHeaders = false) const;
+	void unitIsMoving() const;
 
 	void BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey = "") const;
 	void BuildCannotPerformActionHelpText(CvString* toolTipSink, const char* strTextKey, const char* strExtraKey1 = "", const char* strExtraKey2 = "", int iValue = -666) const;
@@ -683,9 +683,9 @@ public:
 	void TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
 	void GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
 
-	int GetDealDuration();
-	int GetRelationshipDuration();
-	int GetPeaceDuration();
+	int GetDealDuration() const;
+	int GetRelationshipDuration() const;
+	int GetPeaceDuration() const;
 
 	CombatPredictionTypes GetCombatPrediction(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit);
 
@@ -757,7 +757,7 @@ public:
 	//------------------------------------------------------------
 	//------------------------------------------------------------
 
-	bool isFirstActivationOfPlayersAfterLoad();
+	bool isFirstActivationOfPlayersAfterLoad() const;
 
 protected:
 
@@ -881,7 +881,7 @@ protected:
 
 	CvEnumMap<VictoryTypes, TeamTypes*> m_ppaaiTeamVictoryRank;
 #if defined(MOD_BALANCE_CORE_JFD)
-	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int>> m_ppaiContractUnits;
+	CvEnumMap<ContractTypes, CvEnumMap<UnitTypes, int> > m_ppaiContractUnits;
 #endif
 
 	Database::Results* m_pDiploResponseQuery;
@@ -941,7 +941,7 @@ protected:
 	//----------------------------------------------------------------
 
 	void initDiplomacy();
-	void initFreeState(CvGameInitialItemsOverrides& kOverrides);
+	void initFreeState(CvGameInitialItemsOverrides& kOverrides) const;
 	void initFreeUnits(CvGameInitialItemsOverrides& kOverrides);
 
 	bool InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides);
@@ -961,9 +961,9 @@ protected:
 
 	void doTurn();
 
-	void updateWar();
+	void updateWar() const;
 	void updateMoves();
-	void updateTimers();
+	void updateTimers() const;
 	void UpdatePlayers();
 	void testAlive();
 

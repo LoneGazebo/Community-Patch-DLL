@@ -118,7 +118,7 @@ void CvArmyAI::Write(FDataStream& kStream) const
 // ACCESSORS
 
 /// Retrieve this army's ID
-int CvArmyAI::GetID()
+int CvArmyAI::GetID() const
 {
 	return m_iID;
 }

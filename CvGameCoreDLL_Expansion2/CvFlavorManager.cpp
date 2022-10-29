@@ -38,7 +38,7 @@ void CvFlavorRecipient::Uninit()
 }
 
 /// Returns whether or not this Recipient is a City
-bool CvFlavorRecipient::IsCity()
+bool CvFlavorRecipient::IsCity() const
 {
 	return m_bIsCity;
 }

@@ -55,7 +55,7 @@ unsigned int CvDllPlot::DecrementReference()
 	}
 }
 //------------------------------------------------------------------------------
-unsigned int CvDllPlot::GetReferenceCount()
+unsigned int CvDllPlot::GetReferenceCount() const
 {
 	return m_uiRefCount;
 }

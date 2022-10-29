@@ -93,7 +93,7 @@ protected:
 	int m_aaiFrac[FRACTAL_MAX_DIMS+1][FRACTAL_MAX_DIMS+1]; //[FRAC_X + 1][FRAC_Y + 1];
 	void fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& random, byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts, int iFracXExp, int iFracYExp);
 	void tectonicAction(CvFractal* pRifts);
-	int yieldX(int iBadX);
+	int yieldX(int iBadX) const;
 
 };
 

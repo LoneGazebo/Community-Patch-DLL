@@ -449,7 +449,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	return iNetGold;
 }
 /// Gross income across entire game
-int CvTreasury::GetLifetimeGrossGold()
+int CvTreasury::GetLifetimeGrossGold() const
 {
 	return m_iLifetimeGrossGoldIncome;
 }

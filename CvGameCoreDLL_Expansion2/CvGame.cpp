@@ -1367,7 +1367,7 @@ void CvGame::initDiplomacy()
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides)
+void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides) const
 {
 	for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
 	{
@@ -2909,7 +2909,7 @@ void CvGame::mouseoverUnit(CvUnit *pUnit, bool bEnter)
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
+void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) const
 {
 	IDInfo* pUnitNode = NULL;
 	CvPlot* pUnitPlot = NULL;
@@ -2968,7 +2968,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::selectAll(CvPlot* pPlot)
+void CvGame::selectAll(CvPlot* pPlot) const
 {
 	CvUnit* pSelectUnit = NULL;
 
@@ -4410,7 +4410,7 @@ void CvGame::UpdateGameEra()
 
 
 //	--------------------------------------------------------------------------------
-TeamTypes CvGame::getActiveTeam()
+TeamTypes CvGame::getActiveTeam() const
 {
 	PlayerTypes eActivePlayer = getActivePlayer();
 	if(eActivePlayer == NO_PLAYER)
@@ -4425,7 +4425,7 @@ TeamTypes CvGame::getActiveTeam()
 
 
 //	--------------------------------------------------------------------------------
-CivilizationTypes CvGame::getActiveCivilizationType()
+CivilizationTypes CvGame::getActiveCivilizationType() const
 {
 	PlayerTypes eActivePlayer = getActivePlayer();
 	if(eActivePlayer == NO_PLAYER)
@@ -4619,7 +4619,7 @@ void CvGame::incrementGameTurn()
 
 
 //	--------------------------------------------------------------------------------
-int CvGame::getTurnYear(int iGameTurn)
+int CvGame::getTurnYear(int iGameTurn) const
 {
 	// moved the body of this method to Game Core Utils so we have access for other games than the current one (replay screen in HOF)
 	return getTurnYearForGame(iGameTurn, getStartYear(), getCalendar(), getGameSpeedType());
@@ -4655,7 +4655,7 @@ int CvGame::getMaxTurns() const
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::setMaxTurns(int iNewValue)
+void CvGame::setMaxTurns(int iNewValue) const
 {
 	CvPreGame::setMaxTurns(iNewValue);
 	CvAssert(getMaxTurns() >= 0);
@@ -4677,7 +4677,7 @@ int CvGame::getMaxCityElimination() const
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::setMaxCityElimination(int iNewValue)
+void CvGame::setMaxCityElimination(int iNewValue) const
 {
 	CvPreGame::setMaxCityElimination(iNewValue);
 	CvAssert(getMaxCityElimination() >= 0);
@@ -4691,7 +4691,7 @@ int CvGame::getNumAdvancedStartPoints() const
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::setNumAdvancedStartPoints(int iNewValue)
+void CvGame::setNumAdvancedStartPoints(int iNewValue) const
 {
 	CvPreGame::setAdvancedStartPoints(iNewValue);
 	CvAssert(getNumAdvancedStartPoints() >= 0);
@@ -4802,7 +4802,7 @@ void CvGame::resetTurnTimer(bool resetGameTurnStart)
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::getMaxTurnLen()
+int CvGame::getMaxTurnLen() const
 {//returns the amount of time players are being given for this turn.
 	if(getPitbossTurnTime() != 0)
 	{//manually set turn time.
@@ -4914,7 +4914,7 @@ int CvGame::getTargetScore() const
 
 
 //	--------------------------------------------------------------------------------
-void CvGame::setTargetScore(int iNewValue)
+void CvGame::setTargetScore(int iNewValue) const
 {
 	CvPreGame::setTargetScore(iNewValue);
 	CvAssert(getTargetScore() >= 0);
@@ -5189,7 +5189,7 @@ void CvGame::initScoreCalculation()
 
 
 //	--------------------------------------------------------------------------------
-int CvGame::getAIAutoPlay()
+int CvGame::getAIAutoPlay() const
 {
 	return m_iAIAutoPlay;
 }
@@ -5285,7 +5285,7 @@ void CvGame::changeAIAutoPlay(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-unsigned int CvGame::getInitialTime()
+unsigned int CvGame::getInitialTime() const
 {
 	return m_uiInitialTime;
 }
@@ -5865,7 +5865,7 @@ void CvGame::setFOW(bool bMode)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvGame::getFOW()
+bool CvGame::getFOW() const
 {
 	return m_bFOW;
 }
@@ -7730,7 +7730,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	}
 }
 
-void CvGame::LogTurnScores()
+void CvGame::LogTurnScores() const
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -7774,7 +7774,7 @@ void CvGame::LogTurnScores()
 	}
 }
 
-void CvGame::LogGameResult(const char* victoryTypeText, const char* victoryCivText)
+void CvGame::LogGameResult(const char* victoryTypeText, const char* victoryCivText) const
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -9676,7 +9676,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::updateWar()
+void CvGame::updateWar() const
 {
 	int iI = 0, iJ = 0;
 
@@ -10024,7 +10024,7 @@ void CvGame::updateMoves()
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvGame::updateTimers()
+void CvGame::updateTimers() const
 {
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -10944,7 +10944,7 @@ unsigned long hash32(unsigned long x)
 
 static unsigned long giLastState = 0;
 
-int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
+int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input) const
 {
 	//do not use turnslice here, it changes after reload!
 	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*37 + getActivePlayer()*73;
@@ -10975,7 +10975,7 @@ int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input)
 	return iResult;
 }
 
-int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed)
+int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed) const
 {
 	//do not use turnslice here, it changes after reload!
 	unsigned long iState = getGameTurn()*11 + getActivePlayer()*19 + abs(iExtraSeed);
@@ -11464,7 +11464,7 @@ void CvGame::SetCultureMedian(int iValue)
 	m_iCultureMedian = iValue;
 }
 //	--------------------------------------------------------------------------------
-void CvGame::DoGlobalMedianLogging()
+void CvGame::DoGlobalMedianLogging() const
 {
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -11658,7 +11658,7 @@ void CvGame::SetLastTurnCSAnnexed(int iValue)
 {
 	m_iLastTurnCSSurrendered = iValue;
 }
-int CvGame::GetLastTurnCSAnnexed()
+int CvGame::GetLastTurnCSAnnexed() const
 {
 	return m_iLastTurnCSSurrendered;
 }
@@ -12798,7 +12798,7 @@ void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTyp
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+int CvGame::GetResearchAgreementCost(PlayerTypes ePlayer1, PlayerTypes ePlayer2) const
 {
 	CvAssertMsg(ePlayer1 > NO_PLAYER, "Invalid player. Please show Jon this.");
 	CvAssertMsg(ePlayer1 <= MAX_MAJOR_CIVS, "Invalid player. Please show Jon this.");
@@ -13196,7 +13196,7 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 }
 
 //	--------------------------------------------------------------------------------
-void CvGame::LogGameState(bool bLogHeaders)
+void CvGame::LogGameState(bool bLogHeaders) const
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -13501,7 +13501,7 @@ void CvGame::LogGameState(bool bLogHeaders)
 }
 
 //	------------------------------------------------------------------------------------------------
-void CvGame::unitIsMoving()
+void CvGame::unitIsMoving() const
 {
 	s_unitMoveTurnSlice = getTurnSlice();
 }
@@ -13521,18 +13521,18 @@ bool CvGame::allUnitAIProcessed() const
 
 //	--------------------------------------------------------------------------------
 /// How long are deals in this game (based on game speed)
-int CvGame::GetDealDuration()
+int CvGame::GetDealDuration() const
 {
 	return getGameSpeedInfo().GetDealDuration();
 }
 
-int CvGame::GetRelationshipDuration()
+int CvGame::GetRelationshipDuration() const
 {
 	return getGameSpeedInfo().getRelationshipDuration();
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetPeaceDuration()
+int CvGame::GetPeaceDuration() const
 {
 	return getGameSpeedInfo().getPeaceDealDuration();
 }
@@ -14919,7 +14919,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	return true;
 }
 #endif
-bool CvGame::isFirstActivationOfPlayersAfterLoad()
+bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 {
 	return m_firstActivationOfPlayersAfterLoad;
 }

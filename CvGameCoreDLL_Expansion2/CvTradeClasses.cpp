@@ -2131,7 +2131,7 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 }
 
 //	----------------------------------------------------------------------------
-void CvGameTrade::HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type)
+void CvGameTrade::HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type) const
 {
 	if (iPlotX == m_CurrentTemporaryPopupRoute.iPlotX &&
 		iPlotY == m_CurrentTemporaryPopupRoute.iPlotY &&
@@ -2151,7 +2151,7 @@ CvString CvGameTrade::GetLogFileName() const
 }
 
 //	----------------------------------------------------------------------------
-void CvGameTrade::LogTradeMsg(CvString& strMsg)
+void CvGameTrade::LogTradeMsg(CvString& strMsg) const
 {
 	if(GC.getLogging())
 	{
@@ -2579,7 +2579,7 @@ void CvPlayerTrade::MoveUnits (void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
+int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
 {
 	if (bAsOriginPlayer)
 	{
@@ -2957,7 +2957,7 @@ int CvPlayerTrade::GetMinorCivGoldBonus(const TradeConnection& kTradeConnection,
 }
 #endif
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionTheirBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
+int CvPlayerTrade::GetTradeConnectionTheirBuildingValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
 {
 	// this only applies to international trade routes, so otherwise, buzz off!
 	// por favor, don't buzz off please, gold internal trade routes
@@ -3059,7 +3059,7 @@ int CvPlayerTrade::GetTradeConnectionExclusiveValueTimes100(const TradeConnectio
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield)
+int CvPlayerTrade::GetTradeConnectionPolicyValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const
 {
 	int iValue = 0;
 
@@ -3209,7 +3209,7 @@ int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConn
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeConnection& kTradeConnection)
+int CvPlayerTrade::GetTradeConnectionDistanceValueModifierTimes100(const TradeConnection& kTradeConnection) const
 {
 	if (!MOD_BALANCE_CORE_SCALING_TRADE_DISTANCE)
 		return 0;
@@ -4131,7 +4131,7 @@ int CvPlayerTrade::GetTradeValuesAtCityTimes100 (const CvCity *const pCity, Yiel
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetAllTradeValueTimes100 (YieldTypes eYield)
+int CvPlayerTrade::GetAllTradeValueTimes100 (YieldTypes eYield) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTotal = 0;
@@ -4159,7 +4159,7 @@ int CvPlayerTrade::GetAllTradeValueTimes100 (YieldTypes eYield)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer)
+int CvPlayerTrade::GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTotal = 0;
@@ -4187,7 +4187,7 @@ int CvPlayerTrade::GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, Player
 }
 
 //  --------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer)
+int CvPlayerTrade::GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iGold = 0;
@@ -4215,14 +4215,14 @@ int CvPlayerTrade::GetTradeGPTLostFromWarTimes100(PlayerTypes ePlayer)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayerTrade::IsConnectedToPlayer(PlayerTypes eOtherPlayer)
+bool CvPlayerTrade::IsConnectedToPlayer(PlayerTypes eOtherPlayer) const
 {
 	return GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), eOtherPlayer);
 }
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath /* = true */)
+bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath /* = true */) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
@@ -4281,7 +4281,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(PlayerTypes eOtherPlayer, DomainTypes eD
 
 //	--------------------------------------------------------------------------------
 //	Can the player create any trade routes in the domain, even with itself.
-bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain)
+bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 {
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
 
@@ -4314,7 +4314,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType)
+bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const
 {
 	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
 
@@ -4413,7 +4413,7 @@ bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Dom
 }
 
 //	--------------------------------------------------------------------------------
-const TradeConnection* CvPlayerTrade::GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity)
+const TradeConnection* CvPlayerTrade::GetTradeConnection(CvCity* pOriginCity, CvCity* pDestCity) const
 {
 	int iOriginX = pOriginCity->getX();
 	int iOriginY = pOriginCity->getY();
@@ -4479,7 +4479,7 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 	return m_tradeStats.iMinorTRs;
 }
 
-int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity)
+int CvPlayerTrade::GetNumberOfCityStateTradeRoutesFromCity(CvCity* pCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iNumConnections = 0;
@@ -4520,7 +4520,7 @@ int CvPlayerTrade::GetNumberOfTradeRoutesCity(const CvCity* pCity)
 	return m_tradeStats.nRoutesToCity[pCity->GetID()] + m_tradeStats.nRoutesFromCity[pCity->GetID()];
 }
 
-bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity)
+bool CvPlayerTrade::IsCityAlreadyConnectedByTrade(CvCity* pOtherCity) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	for (uint ui = 0; ui < pTrade->GetNumTradeConnections(); ui++)
@@ -5165,7 +5165,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 	pOriginCity->SetLongestPotentialTradeRoute(iLongestRoute == 0 ? iMaxRange : iLongestRoute, eDomain);
 }
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
+int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity) const
 {
 	int iRange = 0;
 	int iBaseRange = 0;
@@ -5257,7 +5257,7 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
+int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain) const
 {
 #if defined(MOD_TRADE_ROUTE_SCALING)
 	UnitTypes eUnitType = GetTradeUnit(eDomain, m_pPlayer);
@@ -5304,7 +5304,7 @@ int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity)
+int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity) const
 {
 	int iTurnChange = 0;
 
@@ -5359,7 +5359,7 @@ int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity)
 }
 
 //	--------------------------------------------------------------------------------
-uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
+uint CvPlayerTrade::GetNumTradeRoutesPossible (void) const
 {
 	int iNumRoutes = 0;
 
@@ -5464,7 +5464,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt)
+int CvPlayerTrade::GetNumTradeUnits(bool bIncludeBeingBuilt) const
 {
 	int iReturnValue = 0;
 	int iLoop = 0;
@@ -5499,7 +5499,7 @@ int CvPlayerTrade::GetNumTradeUnitsRemaining (bool bIncludeBeingBuilt)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumDifferentTradingPartners (void)
+int CvPlayerTrade::GetNumDifferentTradingPartners (void) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
@@ -5544,7 +5544,7 @@ int CvPlayerTrade::GetNumDifferentTradingPartners (void)
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumDifferentMajorCivTradingPartners(void)
+int CvPlayerTrade::GetNumDifferentMajorCivTradingPartners(void) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 
@@ -6033,7 +6033,7 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList, bool b
 }
 
 /// Score 
-CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism)
+CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection, bool bHaveTourism) const
 {
 	TRSortElement ret;
 	ret.m_kTradeConnection = kTradeConnection;
@@ -6889,7 +6889,7 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, const std
 
 #if defined(MOD_BALANCE_CORE) && defined(MOD_BALANCE_CORE_GOLD_INTERNAL_TRADE_ROUTES)
 /// Score gold internal trade route
-CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection)
+CvTradeAI::TRSortElement CvTradeAI::ScoreGoldInternalTR(const TradeConnection& kTradeConnection) const
 {
 	TRSortElement ret;
 	ret.m_kTradeConnection = kTradeConnection;

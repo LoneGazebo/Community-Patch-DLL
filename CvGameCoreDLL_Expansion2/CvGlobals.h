@@ -230,34 +230,34 @@ public:
 	std::vector<CvInterfaceModeInfo*>& getInterfaceModeInfo();
 	CvInterfaceModeInfo* getInterfaceModeInfo(InterfaceModeTypes e);
 
-	bool getLogging();
+	bool getLogging() const;
 	void setLogging(bool bEnable);
 
-	int getRandLogging();
+	int getRandLogging() const;
 	void setRandLogging(int iRandLoggingFlags);
 
-	bool getAILogging();
+	bool getAILogging() const;
 	void setAILogging(bool bEnable);
 
-	bool getAIPerfLogging();
+	bool getAIPerfLogging() const;
 	void setAIPerfLogging(bool bEnable);
 
-	bool GetBuilderAILogging();
+	bool GetBuilderAILogging() const;
 	void SetBuilderAILogging(bool bEnable);
 
-	bool getPlayerAndCityAILogSplit();
+	bool getPlayerAndCityAILogSplit() const;
 	void setPlayerAndCityAILogSplit(bool bEnable);
 
-	bool GetTutorialLogging();
+	bool GetTutorialLogging() const;
 	void SetTutorialLogging(bool bEnable);
 
-	bool GetTutorialDebugging();
+	bool GetTutorialDebugging() const;
 	void SetTutorialDebugging(bool bEnable);
 
-	bool GetAllowRClickMovementWhileScrolling();
+	bool GetAllowRClickMovementWhileScrolling() const;
 	void SetAllowRClickMovementWhileScrolling(bool bAllow);
 
-	bool GetPostTurnAutosaves();
+	bool GetPostTurnAutosaves() const;
 	void SetPostTurnAutosaves(bool bEnable);
 
 	void LogMessage(const char* szMessage);
@@ -644,7 +644,7 @@ public:
 	{
 		m_iNumFlavorTypes = iTypes;
 	}
-	int        getNumFlavorTypes()
+	int        getNumFlavorTypes() const
 	{
 		return m_iNumFlavorTypes;
 	}

@@ -153,7 +153,7 @@ void CvCityEmphases::Reset()
 }
 
 /// How much does this city emphasize avoiding growth?
-int CvCityEmphases::GetEmphasizeAvoidGrowthCount()
+int CvCityEmphases::GetEmphasizeAvoidGrowthCount() const
 {
 	return m_iEmphasizeAvoidGrowthCount;
 }
