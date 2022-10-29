@@ -2602,7 +2602,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		args->Push(bWar);
 		args->Push(bBystander);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "NuclearDetonation", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_NUCLEAR_DETONATION)
@@ -3630,7 +3630,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 				args->Push(plotX);
 				args->Push(plotY);
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "CombatEnded", args.get(), bResult);
 			}
 		}

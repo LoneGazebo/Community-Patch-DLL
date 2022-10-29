@@ -849,7 +849,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 	CvPlot* pPlot = NULL;
 	CvPlot* pTestPlot = NULL;
 	CvPlot* pLoopPlot = NULL;
-	bool bValid = 0;
+	bool bValid = false;
 	int iCount = 0;
 	int iDX = 0, iDY = 0;
 
@@ -1913,7 +1913,7 @@ void CvMap::DoPlaceNaturalWonders()
 			continue;
 		}
 
-		bool bValid = 0;
+		bool bValid = false;
 
 		// Does it have to be close to the coast?
 		if(iCoastDistance != -1)

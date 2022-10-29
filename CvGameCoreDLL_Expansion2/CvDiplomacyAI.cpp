@@ -18218,7 +18218,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	bool bFriendUnderAttack = false;
 	bool bCompetitorUnderAttack = false;
 	bool bAllowDogpiling = true;
-	bool bOtherWarPlayerCloseToTarget = 0;
+	bool bOtherWarPlayerCloseToTarget = false;
 
 	if (bWantsOpportunityAttack)
 	{
@@ -28611,7 +28611,7 @@ void CvDiplomacyAI::DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPl
 		PublicDeclarationTypes eDeclaration;
 		int iData1 = 0;
 		int iData2 = 0;
-		bool bActive = 0;
+		bool bActive = false;
 
 		for (int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
 		{
@@ -28776,7 +28776,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 			int iData1 = 0;
 			int iData2 = 0;
 			PlayerTypes eMustHaveMetPlayer;
-			bool bActive = 0;
+			bool bActive = false;
 
 			for(int iLoop = 0; iLoop < MAX_DIPLO_LOG_STATEMENTS; iLoop++)
 			{
@@ -30207,7 +30207,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		{
 			int iDealValueToMe = 0;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
-			bool bCantMatchOffer = 0;
+			bool bCantMatchOffer = false;
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, &bCantMatchOffer, false);
 
 			if(bDealAcceptable)
@@ -33465,7 +33465,7 @@ void CvDiplomacyAI::DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploS
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		bool bRandFailed = 0;
+		bool bRandFailed = false;
 
 		PlayerTypes eTarget = GetRequestFriendToDenounce(ePlayer, bRandFailed);
 		if(eTarget != NO_PLAYER)
@@ -33659,8 +33659,8 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					}
 					else
 					{
-						bool bUselessReferenceVariable = 0;
-						bool bCantMatchOffer = 0;
+						bool bUselessReferenceVariable = false;
+						bool bCantMatchOffer = false;
 						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 					}
 					if(bDealAcceptable)
@@ -34075,7 +34075,7 @@ void CvDiplomacyAI::DoRequest(PlayerTypes ePlayer, DiploStatementTypes& eStateme
 		if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= 60 &&
 		        GetNumTurnsSinceStatementSent(ePlayer, DIPLO_STATEMENT_REQUEST_RANDFAILED) >= 15)
 		{
-			bool bRandPassed = 0;	// This is used to see if we WOULD have made a request, but the rand roll failed (so add an entry to the log)
+			bool bRandPassed = false;	// This is used to see if we WOULD have made a request, but the rand roll failed (so add an entry to the log)
 			bool bMakeRequest = IsMakeRequest(ePlayer, pDeal, bRandPassed);
 
 			// Want to make a request of ePlayer? Pass pDeal in to see if there's actually anything we want
@@ -51120,7 +51120,7 @@ void CvDiplomacyAI::LogWarStatus()
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName;
 
-		bool bLogPlayer = 0;
+		bool bLogPlayer = false;
 
 		// Loop through all (known) Players
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

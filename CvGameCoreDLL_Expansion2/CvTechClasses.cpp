@@ -1488,8 +1488,8 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 /// Accessor: Is it possible to research this tech?
 bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 {
-	bool bFoundPossible = 0;
-	bool bFoundValid = 0;
+	bool bFoundPossible = false;
+	bool bFoundValid = false;
 	int iI = 0;
 
 	CvTechEntry* pkTechEntry = GC.getTechInfo(eTech);

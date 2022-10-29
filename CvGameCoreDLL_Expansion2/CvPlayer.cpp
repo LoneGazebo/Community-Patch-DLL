@@ -2706,7 +2706,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		{
 			DirectionTypes eDirection;
 
-			bool bDirectionValid = 0;
+			bool bDirectionValid = false;
 			int iCount = 0;
 
 			// Find a random direction
@@ -4382,7 +4382,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		args->Push((int)vcGreatWorkData.size());
 		args->Push(iCaptureGreatWorks);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "CityCaptureComplete", args.get(), bResult);
 	}
 
@@ -11175,7 +11175,7 @@ void CvPlayer::doTurn()
 		CvLuaArgsHandle args;
 		args->Push(GetID());
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerDoTurn", args.get(), bResult);
 	}
 
@@ -12760,7 +12760,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 {
 	CvCity* pCity = NULL;
 	UnitTypes eUnit;
-	bool bTechFound = 0;
+	bool bTechFound = false;
 	int iI = 0;
 
 	Database::SingleResult kResult;
@@ -13831,7 +13831,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 					args->Push(pNewUnit->GetID());
 					args->Push(true); // bGoodyHut
 
-					bool bScriptResult = 0;
+					bool bScriptResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bScriptResult);
 				}
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -13925,7 +13925,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			args->Push(GetID());
 			args->Push(eBestTech);
 
-			bool bScriptResult = 0;
+			bool bScriptResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "GoodyHutTechResearched", args.get(), bScriptResult);
 		}
 #if defined(MOD_EVENTS_GOODY_TECH)
@@ -14113,7 +14113,7 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 		{
 			// Make a list of valid Goodies to pick randomly from
 			int iValidGoodiesLoop = 0;
-			bool bValid = 0;
+			bool bValid = false;
 
 			std::vector<GoodyTypes> avValidGoodies;
 			for(int iGoodyLoop = 0; iGoodyLoop < playerHandicapInfo.getNumGoodies(); iGoodyLoop++)
@@ -14573,7 +14573,7 @@ void CvPlayer::foundCity(int iX, int iY)
 		args->Push(pCity->getX());
 		args->Push(pCity->getY());
 		
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerCityFounded", args.get(), bResult);
 	}
 }
@@ -17955,7 +17955,7 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		if(kLoopTeam.isAlive() && !kLoopTeam.isMinorCiv() && kLoopTeam.GetID() != getTeam())
 		{
 #if defined(MOD_DIPLOMACY_TECH_BONUSES)
-			bool bCouldBorrowTech = 0;
+			bool bCouldBorrowTech = false;
 			
 			if (MOD_DIPLOMACY_TECH_BONUSES)
 			{
@@ -22218,7 +22218,7 @@ int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pA
 	int iUnhappiness = 0;
 	int iUnhappinessPerCity = /*3*/ GD_INT_GET(UNHAPPINESS_PER_CITY) * 100;
 
-	bool bCityValid = 0;
+	bool bCityValid = false;
 
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -22290,7 +22290,7 @@ int CvPlayer::GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed, Cv
 	int iUnhappiness = 0;
 	int iUnhappinessPerCapturedCity = /*5*/ GD_INT_GET(UNHAPPINESS_PER_CAPTURED_CITY) * 100;
 
-	bool bCityValid = 0;
+	bool bCityValid = false;
 
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -22348,7 +22348,7 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 	int iPopulation = 0;
 	int iSpecialistCount = 0;
 
-	bool bCityValid = 0;
+	bool bCityValid = false;
 
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -22490,7 +22490,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 	float iUnhappinessPerPop = /*1*/ (/*1*/ GD_INT_GET(UNHAPPINESS_PER_POPULATION) + GD_FLOAT_GET(UNHAPPINESS_PER_POPULATION_FLOAT)) * 100;
 	int iPopulation = 0;
 
-	bool bCityValid = 0;
+	bool bCityValid = false;
 
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -25791,7 +25791,7 @@ void CvPlayer::DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlaye
 		args->Push(eUnitType);
 		args->Push(pKillingUnit ? pKillingUnit->GetID() : -1);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "UnitKilledInCombat", args.get(), bResult);
 	}
 }
@@ -28443,7 +28443,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		args->Push(GetID());
 		args->Push(eGreatPersonUnit);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "GreatPersonExpended", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
@@ -33690,7 +33690,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 					args->Push(GetID());
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "PlayerEndTurnInitiated", args.get(), bResult);
 				}
 			}
@@ -33752,7 +33752,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 					args->Push(GetID());
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "PlayerEndTurnCompleted", args.get(), bResult);
 				}
 			}
@@ -40461,7 +40461,7 @@ bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
 	int i = 0;
 	int iNumSteps = 0;
 	int iShortestPath = 0;
-	bool bOrPrereqFound = 0;
+	bool bOrPrereqFound = false;
 	TechTypes ePreReq;
 	TechTypes eShortestOr;
 
@@ -42073,7 +42073,7 @@ void CvPlayer::doResearch()
 	{
 		return;
 	}
-	bool bForceResearchChoice = 0;
+	bool bForceResearchChoice = false;
 	int iOverflowResearch = 0;
 
 	if(GetPlayerTechs()->IsResearch())
@@ -49671,7 +49671,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		CvLuaArgsHandle args;
 		args->Push(GetID());
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "GatherPerTurnReplayStats", args.get(), bResult);
 	}
 

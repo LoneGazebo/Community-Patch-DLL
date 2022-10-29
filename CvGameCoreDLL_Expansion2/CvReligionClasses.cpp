@@ -357,7 +357,7 @@ void CvGameReligions::SpreadReligionToOneCity(CvCity* pCity)
 
 					if (pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
 					{
-						bool bConnectedWithTrade = 0;
+						bool bConnectedWithTrade = false;
 						int iRelativeDistancePercent = 0;
 						if (!IsCityConnectedToCity(eReligion, pLoopCity, pCity, bConnectedWithTrade, iRelativeDistancePercent))
 							continue;
@@ -1122,7 +1122,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 			args->Push(RELIGION_PANTHEON);
 			args->Push(eBelief);
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "PantheonFounded", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -1308,7 +1308,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 		args->Push(eBelief3);
 		args->Push(eBelief4);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "ReligionFounded", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -1548,7 +1548,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 			args->Push(eBelief1);
 			args->Push(eBelief2);
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
 		}
 	}
@@ -4739,7 +4739,7 @@ int CvCityReligions::GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourc
 
 				//it would be nice to use CvGameTrade::GetAllPotentialTradeRoutesFromCity() for each of our cities
 				//to save the loop over all players, but unfortunately we also need to check incoming trade routes
-				bool bConnectedWithTrade = 0;
+				bool bConnectedWithTrade = false;
 				int iRelativeDistancePercent = 0;
 				if (!GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, pLoopCity, m_pCity, bConnectedWithTrade, iRelativeDistancePercent))
 					continue;
@@ -4819,7 +4819,7 @@ bool CvCityReligions::WouldExertTradeRoutePressureToward (CvCity* pTargetCity, R
 	
 	int iNumTradeRoutes = 0;
 
-	bool bConnectedWithTrade = 0;
+	bool bConnectedWithTrade = false;
 	int iRelativeDistancePercent = 0;
 	GC.getGame().GetGameReligions()->IsCityConnectedToCity(eReligion, m_pCity, pTargetCity, bConnectedWithTrade, iRelativeDistancePercent);
 

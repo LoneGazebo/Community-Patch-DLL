@@ -178,7 +178,7 @@ CvGame::~CvGame()
 //	--------------------------------------------------------------------------------
 void CvGame::init(HandicapTypes eHandicap)
 {
-	bool bValid = 0;
+	bool bValid = false;
 	int iStartTurn = 0;
 	int iEstimateEndTurn = 0;
 	int iI = 0;
@@ -600,7 +600,7 @@ void PrintPlayerInfo(int iIndex)
 void CvGame::InitPlayers()
 {
 	PlayerColorTypes aePlayerColors[REALLY_MAX_PLAYERS];
-	bool bValid = 0;
+	bool bValid = false;
 	int iI = 0, iJ = 0, iK = 0, iL = 0;
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
@@ -1526,7 +1526,7 @@ void CvGame::update()
 		if(pkScriptSystem)
 		{
 			CvLuaArgsHandle args;
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateBegin", args.get(), bResult);
 		}
 	}
@@ -1626,7 +1626,7 @@ void CvGame::update()
 		if(pkScriptSystem)
 		{
 			CvLuaArgsHandle args;
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
 		}
 	}
@@ -2049,7 +2049,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 
 					args->Push(getActivePlayer());
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -2119,7 +2119,7 @@ void CvGame::updateTestEndTurn()
 
 								args->Push(getActivePlayer());
 
-								bool bResult = 0;
+								bool bResult = false;
 								LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 							}
 						}
@@ -2222,7 +2222,7 @@ void CvGame::updateTestEndTurn()
 
 											args->Push(getActivePlayer());
 
-											bool bResult = 0;
+											bool bResult = false;
 											LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 										}
 									}
@@ -2716,7 +2716,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 								args->Push(pPlot->getY());
 								args->Push(iData2);
 
-								bool bResult = 0;
+								bool bResult = false;
 								LuaSupport::CallHook(pkScriptSystem, "PushingMissionTo", args.get(), bResult);
 							}
 						}
@@ -2913,7 +2913,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 {
 	IDInfo* pUnitNode = NULL;
 	CvPlot* pUnitPlot = NULL;
-	bool bGroup = 0;
+	bool bGroup = false;
 
 	CvAssertMsg(pUnit != NULL, "pUnit == NULL unexpectedly");
 
@@ -3132,9 +3132,9 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 //	Handle an action initiated by the local human player
 void CvGame::handleAction(int iAction)
 {
-	bool bAlt = 0;
-	bool bShift = 0;
-	bool bSkip = 0;
+	bool bAlt = false;
+	bool bShift = false;
+	bool bSkip = false;
 
 	bAlt = gDLL->altKey();
 	bShift = false;//gDLL->shiftKey();
@@ -3618,7 +3618,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 					args->Push(getActivePlayer());
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -3657,7 +3657,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 					args->Push(getActivePlayer());
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "TurnComplete", args.get(), bResult);
 				}
 			}
@@ -5370,7 +5370,7 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 		args->Push(iArg1);
 		args->Push(iArg2);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_DIPLO_EVENTS)
@@ -10429,7 +10429,7 @@ void CvGame::testVictory()
 	if(pkScriptSystem)
 	{
 		CvLuaArgsHandle args;
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "GameCoreTestVictory", args.get(), bResult);
 	}
 

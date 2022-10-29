@@ -2624,7 +2624,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			args->Push(bDelay);
 			args->Push(ePlayer);
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_UNIT_PREKILL)
@@ -8796,7 +8796,7 @@ bool CvUnit::paradrop(int iX, int iY)
 		args->Push(pPlot->getX());
 		args->Push(pPlot->getY());
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "ParadropAt", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_PARADROPS)
@@ -10119,7 +10119,7 @@ bool CvUnit::rebase(int iX, int iY, bool bForced)
 		args->Push(iX);
 		args->Push(iY);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "RebaseTo", args.get(), bResult);
 	}
 #if defined(MOD_EVENTS_REBASE)
@@ -13677,7 +13677,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 bool CvUnit::build(BuildTypes eBuild)
 {
 	VALIDATE_OBJECT
-	bool bFinished = 0;
+	bool bFinished = false;
 
 	CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -14265,7 +14265,7 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 				args->Push(GetID());
 				args->Push(ePromotion);
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "UnitPromoted", args.get(), bResult);
 			}
 		}
@@ -14888,7 +14888,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 				args->Push(pNewUnit->GetID());
 				args->Push(false); // bGoodyHut
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 			}
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -20800,7 +20800,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		args->Push(getX());
 		args->Push(getY());
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "UnitSetXY", args.get(), bResult);
 	}
 

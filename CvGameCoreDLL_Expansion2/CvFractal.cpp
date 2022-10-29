@@ -450,7 +450,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 		thisVoronoiSeed.m_iDirectionalBiasStrength = std::max(0L,static_cast<long>(random.get(8, "Ridge Gen 5")) - 4); // ??? do we want to parameterize this???
 
 		// check to see if we are too close to an existing seed
-		bool bNeedToRecheck = 0;
+		bool bNeedToRecheck = false;
 		do
 		{
 			bNeedToRecheck = false;

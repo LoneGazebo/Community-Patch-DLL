@@ -1840,7 +1840,7 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_isInternetGame;
 	if(uiVersion == 0)
 	{
-		bool bNetworkMultiplayerGame = 0;
+		bool bNetworkMultiplayerGame = false;
 		loadFrom >> bNetworkMultiplayerGame;
 		if(bNetworkMultiplayerGame && s_gameType != GAME_HOTSEAT_MULTIPLAYER)
 		{

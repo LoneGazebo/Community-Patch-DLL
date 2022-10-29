@@ -195,7 +195,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 
 	int iDealValue = GetDealValue(pDeal);
 
-	bool bCantMatchOffer = 0;
+	bool bCantMatchOffer = false;
 
 	//if a human sent this, don't modify their offer, that's annoying.
 	if (iDealValue > 0)
@@ -1171,7 +1171,7 @@ int CvDealAI::GetDealValue(CvDeal* pDeal, bool bLogging)
 
 	int iItemValue = -1;
 
-	bool bFromMe = 0;
+	bool bFromMe = false;
 	PlayerTypes eOtherPlayer;
 
 	eOtherPlayer = pDeal->m_eFromPlayer == eMyPlayer ? pDeal->m_eToPlayer : pDeal->m_eFromPlayer;
@@ -5812,8 +5812,8 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -5913,8 +5913,8 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -5965,8 +5965,8 @@ bool CvDealAI::IsMakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -6016,8 +6016,8 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -6063,8 +6063,8 @@ bool CvDealAI::IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal*
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6107,8 +6107,8 @@ bool CvDealAI::IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDe
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
@@ -6205,8 +6205,8 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6322,8 +6322,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6419,8 +6419,8 @@ bool CvDealAI::IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* p
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -6506,8 +6506,8 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -7717,8 +7717,8 @@ bool CvDealAI::IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -7811,8 +7811,8 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
@@ -7914,8 +7914,8 @@ bool CvDealAI::IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal
 	}
 	else
 	{
-		bool bUselessReferenceVariable = 0;
-		bool bCantMatchOffer = 0;
+		bool bUselessReferenceVariable = false;
+		bool bCantMatchOffer = false;
 		bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 	}
 
@@ -7994,8 +7994,8 @@ bool CvDealAI::IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* p
 		}
 		else
 		{
-			bool bUselessReferenceVariable = 0;
-			bool bCantMatchOffer = 0;
+			bool bUselessReferenceVariable = false;
+			bool bCantMatchOffer = false;
 			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 	}

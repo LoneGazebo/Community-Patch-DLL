@@ -1296,7 +1296,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 			args->Push(GetID());
 			args->Push(eTeam);
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
@@ -2075,7 +2075,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				args->Push(GetID());
 				args->Push(eTeam);
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
 			}
 		}
@@ -2190,7 +2190,7 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 				PlayerTypes eMakingPeaceWithMinor;
 				int iMakingPeaceWithMinorLoop = 0;
 
-				bool bPeaceBlocked = 0;
+				bool bPeaceBlocked = false;
 
 				// Loop through all players to see if they're on our team
 				for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -2368,7 +2368,7 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 			args->Push(eTeam);
 			args->Push(GetID());
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "TeamMeet", args.get(), bResult);
 		}
 	}
@@ -5191,7 +5191,7 @@ void CvTeam::finalizeProjectArtTypes()
 //	--------------------------------------------------------------------------------
 void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 {
-	bool bChangeProduction = 0;
+	bool bChangeProduction = false;
 	int iOldProjectCount = 0;
 	int iI = 0, iJ = 0;
 
@@ -5603,7 +5603,7 @@ bool CvTeam::isObsoleteBuilding(BuildingTypes eIndex) const
 void CvTeam::changeObsoleteBuildingCount(BuildingTypes eIndex, int iChange)
 {
 	CvCity* pLoopCity = NULL;
-	bool bOldObsoleteBuilding = 0;
+	bool bOldObsoleteBuilding = false;
 	int iLoop = 0;
 	int iI = 0;
 
@@ -5906,7 +5906,7 @@ void CvTeam::DoTestSmallAwards()
 
 	int iAwardRequirement = 0;
 
-	bool bShouldShowNotification = 0;
+	bool bShouldShowNotification = false;
 	int iNotificationData = 0;
 	int iNotificationX = 0, iNotificationY = 0;
 
@@ -6070,7 +6070,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 	CvCity* pCity = NULL;
 	CvString strBuffer;
 	UnitTypes eFreeUnit;
-	bool bFirstResource = 0;
+	bool bFirstResource = false;
 	
 	if(eIndex == NO_TECH)
 	{
@@ -7461,7 +7461,7 @@ void CvTeam::testCircumnavigated()
 {
 	CvPlot* pPlot = NULL;
 	CvString strBuffer;
-	bool bFoundVisible = 0;
+	bool bFoundVisible = false;
 	int iX = 0, iY = 0;
 
 	if(isBarbarian())
@@ -8209,7 +8209,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 		args->Push(eTech);
 		args->Push(iChange);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "TeamTechResearched", args.get(), bResult);
 	}
 
@@ -8489,8 +8489,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			if(GC.getGame().isFinalInitialized())
 			{
-				bool bMinorBonusesChanged = 0;
-				bool bTemp = 0;
+				bool bMinorBonusesChanged = false;
+				bool bTemp = false;
 				Localization::String strMessage;
 				Localization::String strSummary;
 

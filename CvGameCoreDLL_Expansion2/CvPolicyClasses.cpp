@@ -4234,7 +4234,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 
 		if(eThisBranch != NO_POLICY_BRANCH_TYPE)
 		{
-			bool bBranchFinished = 0;
+			bool bBranchFinished = false;
 
 			// We don't have this Policy, so this branch is definitely not finished
 			if(!bNewValue)
@@ -5567,7 +5567,7 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	}
 
 //	std::vector<PolicyBranchTypes> veOtherPoliciesToUnblock;
-	bool bUnlockBranch = 0;
+	bool bUnlockBranch = false;
 
 	// Do a pass over the Policies to see if there are any we can safely unblock
 	for(iBranchLoop = 0; iBranchLoop < m_pPolicies->GetNumPolicyBranches(); iBranchLoop++)

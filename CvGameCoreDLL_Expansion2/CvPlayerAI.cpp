@@ -261,7 +261,7 @@ void CvPlayerAI::AI_unitUpdate()
 		CvLuaArgsHandle args;
 		args->Push(GetID());
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerPreAIUnitUpdate", args.get(), bResult);
 	}
 

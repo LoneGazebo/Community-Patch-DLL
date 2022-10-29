@@ -2118,7 +2118,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlayer, bool) const
 {
 	CvPlot* pLoopPlot = NULL;
-	bool bValid = 0;
+	bool bValid = false;
 	int iI = 0;
 
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
@@ -4991,7 +4991,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 //	--------------------------------------------------------------------------------
 void CvPlot::setArea(int iNewValue)
 {
-	bool bOldLake = 0;
+	bool bOldLake = false;
 
 	if(getArea() != iNewValue)
 	{
@@ -5130,7 +5130,7 @@ bool CvPlot::isOwnershipScore() const
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwnershipDuration(int iNewValue)
 {
-	bool bOldOwnershipScore = 0;
+	bool bOldOwnershipScore = false;
 
 	if(getOwnershipDuration() != iNewValue)
 	{
@@ -5777,7 +5777,7 @@ bool CvPlot::isPotentialCityWorkForArea(CvArea* pArea) const
 void CvPlot::updatePotentialCityWork()
 {
 	CvPlot* pLoopPlot = NULL;
-	bool bValid = 0;
+	bool bValid = false;
 	int iI = 0;
 
 	bValid = false;
@@ -6426,8 +6426,8 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 	CvArea* pCurrArea = NULL;
 	CvArea* pLastArea = NULL;
 	CvPlot* pLoopPlot = NULL;
-	bool bWasWater = 0;
-	bool bRecalculateAreas = 0;
+	bool bWasWater = false;
+	bool bRecalculateAreas = false;
 	int iAreaCount = 0;
 	int iI = 0;
 
@@ -6670,7 +6670,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 //	--------------------------------------------------------------------------------
 void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bRebuildGraphics)
 {
-	bool bUpdateSight = 0;
+	bool bUpdateSight = false;
 
 	if (eNewValue <= NO_TERRAIN || eNewValue >= NUM_TERRAIN_TYPES) return;
 
@@ -6738,7 +6738,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 void CvPlot::setFeatureType(FeatureTypes eNewValue)
 {
 	FeatureTypes eOldFeature;
-	bool bUpdateSight = 0;
+	bool bUpdateSight = false;
 
 	if (eNewValue < NO_FEATURE) return;
 	if (eNewValue > NO_FEATURE && GC.getFeatureInfo(eNewValue) == NULL) return;
@@ -11949,7 +11949,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 				args->Push(getY());
 				args->Push(eImprovement);
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "BuildFinished", args.get(), bResult);
 			}
 		}
@@ -12026,8 +12026,8 @@ bool CvPlot::isInvisibleVisibleUnit(TeamTypes eTeam) const
 
 void CvPlot::changeInvisibleVisibilityCountUnit(TeamTypes eTeam, int iChange)
 {
-	bool bOldInvisibleVisible = 0;
-	bool bNewInvisibleVisible = 0;
+	bool bOldInvisibleVisible = false;
+	bool bNewInvisibleVisible = false;
 
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -12113,8 +12113,8 @@ bool CvPlot::isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible)	cons
 //	--------------------------------------------------------------------------------
 void CvPlot::changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange)
 {
-	bool bOldInvisibleVisible = 0;
-	bool bNewInvisibleVisible = 0;
+	bool bOldInvisibleVisible = false;
+	bool bNewInvisibleVisible = false;
 
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");

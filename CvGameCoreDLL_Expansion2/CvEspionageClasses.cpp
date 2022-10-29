@@ -324,7 +324,7 @@ void CvPlayerEspionage::CreateSpy()
 void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	bool bLastQualified = 0;
+	bool bLastQualified = false;
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
 	CvCityEspionage* pCityEspionage = NULL;

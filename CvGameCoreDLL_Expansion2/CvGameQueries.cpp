@@ -24,7 +24,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 	CvWeightedVector<int> UnitClassesVector;
 	int iWeight = 0;
 
-	bool bValid = 0;
+	bool bValid = false;
 
 	for (int i = 0; i < GC.getNumUnitClassInfos(); i++)
 	{

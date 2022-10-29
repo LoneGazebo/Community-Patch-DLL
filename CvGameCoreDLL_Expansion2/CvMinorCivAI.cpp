@@ -5158,7 +5158,7 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 	PlayerTypes eOtherMinor;
 	int iOtherMinorLoop = 0;
 	PlayerTypes eOtherAlly;
-	bool bForcedWar = 0;
+	bool bForcedWar = false;
 
 	TeamTypes eLoopTeam;
 	for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
@@ -9344,7 +9344,7 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 	int iCityLoop = 0;
 	int iWonderProgress = 0;
 	int iCompletionThreshold = /*25*/ GD_INT_GET(MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD);
-	bool bFoundWonderTooFarAlong = 0;
+	bool bFoundWonderTooFarAlong = false;
 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
 	// Loop through all Buildings and see if they're useful
@@ -11503,7 +11503,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		args->Push(eOldAlly);
 		args->Push(eNewAlly);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "SetAlly", args.get(), bResult);
 	}
 
@@ -17045,7 +17045,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 
 		int iAttackingMajorPlayer = 0;
 		PlayerTypes eAttackingMajorPlayer;
-		bool bAttackerIsAlly = 0;
+		bool bAttackerIsAlly = false;
 
 		CvPlayer* pOtherMinorCiv = NULL;
 		PlayerTypes eOtherMinorCiv;

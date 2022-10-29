@@ -8408,9 +8408,9 @@ UnitTypes CvCity::allUpgradesAvailable(UnitTypes eUnit, int iUpgradeCount) const
 {
 	VALIDATE_OBJECT
 	UnitTypes eUpgradeUnit;
-	bool bUpgradeFound = 0;
-	bool bUpgradeAvailable = 0;
-	bool bUpgradeUnavailable = 0;
+	bool bUpgradeFound = false;
+	bool bUpgradeAvailable = false;
+	bool bUpgradeUnavailable = false;
 
 	CvAssertMsg(eUnit != NO_UNIT, "eUnit is expected to be assigned (not NO_UNIT)");
 
@@ -17643,7 +17643,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 	float iUnhappinessPerPop = /*1*/ (/*1*/ GD_INT_GET(UNHAPPINESS_PER_POPULATION) + GD_FLOAT_GET(UNHAPPINESS_PER_POPULATION_FLOAT)) * 100;
 	int iPopulation = 0;
 
-	bool bCityValid = 0;
+	bool bCityValid = false;
 
 	bCityValid = false;
 
@@ -18474,7 +18474,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 		args->Push(iOldPopulation);
 		args->Push(iNewValue);
 
-		bool bResult = 0;
+		bool bResult = false;
 		LuaSupport::CallHook(pkScriptSystem, "SetPopulation", args.get(), bResult);
 	}
 }
@@ -18801,7 +18801,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 					args->Push(false); // bGold
 					args->Push(true); // bFaith/bCulture
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 				}
 				// and also the deferred stuff
@@ -18855,7 +18855,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 					args->Push(false); // bGold
 					args->Push(true); // bFaith/bCulture
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 				}
 #if defined(MOD_EVENTS_CITY)
@@ -28392,7 +28392,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 
 	int iYieldLoop = 0;
 	int iDirectionLoop = 0;
-	bool bFoundAdjacentOwnedByCity = 0;
+	bool bFoundAdjacentOwnedByCity = false;
 
 	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
 	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach(pThisPlot, data);
@@ -29062,7 +29062,7 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			args->Push(true); // bGold
 			args->Push(false); // bFaith/bCulture
 
-			bool bResult = 0;
+			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 		}
 #if defined(MOD_EVENTS_CITY)
@@ -29551,8 +29551,8 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 	BuildingTypes eConstructBuilding;
 	UnitTypes eTrainUnit;
 	UnitAITypes eTrainAIUnit;
-	bool bStart = 0;
-	bool bMessage = 0;
+	bool bStart = false;
+	bool bMessage = false;
 	int iCount = 0;
 
 	if (iNum == -1)
@@ -30121,7 +30121,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 				args->Push(false); // bGold
 				args->Push(false); // bFaith/bCulture
 
-				bool bResult = 0;
+				bool bResult = false;
 				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
 			}
 #if defined(MOD_EVENTS_CITY)
@@ -30206,7 +30206,7 @@ void CvCity::produce(BuildingTypes eConstructBuilding, bool bCanOverflow)
 			args->Push(false); // bGold
 			args->Push(false); // bFaith/bCulture
 
-			bool bScriptResult = 0;
+			bool bScriptResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
 		}
 #if defined(MOD_EVENTS_CITY)
@@ -30285,7 +30285,7 @@ void CvCity::produce(ProjectTypes eCreateProject, bool bCanOverflow)
 			args->Push(false); // bGold
 			args->Push(false); // bFaith/bCulture
 
-			bool bScriptResult = 0;
+			bool bScriptResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
 		}
 #if defined(MOD_EVENTS_CITY)
@@ -31434,7 +31434,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 								args->Push(true); // bGold
 								args->Push(false); // bFaith/bCulture
 
-								bool bScriptResult = 0;
+								bool bScriptResult = false;
 								LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
 							}
 #if defined(MOD_EVENTS_CITY)
@@ -31495,7 +31495,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 						args->Push(true); // bGold
 						args->Push(false); // bFaith/bCulture
 
-						bool bScriptResult = 0;
+						bool bScriptResult = false;
 						LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
 					}
 #if defined(MOD_EVENTS_CITY)
@@ -31529,7 +31529,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					args->Push(true); // bGold
 					args->Push(false); // bFaith/bCulture
 
-					bool bScriptResult = 0;
+					bool bScriptResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
 				}
 #if defined(MOD_EVENTS_CITY)
@@ -31615,7 +31615,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					args->Push(false); // bGold
 					args->Push(true); // bFaith/bCulture
 
-					bool bResult = 0;
+					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
 				}
 #if defined(MOD_EVENTS_CITY)
@@ -31763,7 +31763,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					args->Push(false); // bGold
 					args->Push(true); // bFaith/bCulture
 
-					bool bScriptResult = 0;
+					bool bScriptResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
 				}
 #if defined(MOD_EVENTS_CITY)
@@ -33163,7 +33163,7 @@ void CvCity::changeCityBuildingRangeStrikeModifier(int iValue)
 //	--------------------------------------------------------------------------------
 int CvCity::getBombardRange() const
 {
-	bool bIndirectFireAllowed = 0;
+	bool bIndirectFireAllowed = false;
 	return getBombardRange(bIndirectFireAllowed);
 }
 
@@ -33302,7 +33302,7 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
-	bool bIndirectFireAllowed = 0; // By reference, yuck!!!
+	bool bIndirectFireAllowed = false; // By reference, yuck!!!
 	int iAttackRange = getBombardRange(bIndirectFireAllowed);
 #else
 	int iAttackRange = /*2*/ GD_INT_GET(CITY_ATTACK_RANGE);
