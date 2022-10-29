@@ -20743,6 +20743,54 @@ int CvPlayer::GetExcessHappiness() const
 
 	return m_iHappinessTotal;
 }
+/// Get Growth Penalty in all Cities due to Unhappiness
+int CvPlayer::GetUnhappinessGrowthPenalty() const
+{
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		return range(static_cast<int>(2.5*(GetExcessHappiness()-GD_INT_GET(UNHAPPY_THRESHOLD))),-100, 0);
+	}
+
+	return 0;
+}
+
+/// Get Settler Cost Penality in all Cities due to Unhappiness
+int CvPlayer::GetUnhappinessSettlerCostPenalty() const
+{
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (IsEmpireSuperUnhappy())
+			return /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+		else if (IsEmpireVeryUnhappy())
+			return /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+		else if (IsEmpireUnhappy())
+			return /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
+		else
+			return 0;
+	}
+
+	return 0;
+}
+
+/// Get Combat Strength Penalty in all Cities due to Unhappiness
+int CvPlayer::GetUnhappinessCombatStrengthPenalty() const
+{
+	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		if (IsEmpireUnhappy())
+		{
+			if (IsEmpireVeryUnhappy())
+				return /*-20*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY);
+			else
+				return /*-10*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY) / 2;
+		}
+		else
+			return 0;
+	}
+
+	return 0;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// Has the player passed the Happiness limit?

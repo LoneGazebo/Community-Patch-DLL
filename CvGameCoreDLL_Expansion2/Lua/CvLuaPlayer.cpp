@@ -367,6 +367,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeExtraHappinessPerCity);
 
 	Method(GetHappinessFromResources);
+	Method(GetUnhappinessGrowthPenalty);
+	Method(GetUnhappinessSettlerCostPenalty);
+	Method(GetUnhappinessCombatStrengthPenalty);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetHappinessFromResourceMonopolies);
 	Method(GetUnhappinessFromCitizenNeeds);
@@ -4018,6 +4021,24 @@ int CvLuaPlayer::lChangeExtraHappinessPerCity(lua_State* L)
 int CvLuaPlayer::lGetHappinessFromResources(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromResources);
+}
+//------------------------------------------------------------------------------
+//int GetUnhappinessGrowthPenalty() const;
+int CvLuaPlayer::lGetUnhappinessGrowthPenalty(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessGrowthPenalty);
+}
+//------------------------------------------------------------------------------
+//int GetUnhappinessSettlerCostPenalty() const;
+int CvLuaPlayer::lGetUnhappinessSettlerCostPenalty(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessSettlerCostPenalty);
+}
+//------------------------------------------------------------------------------
+//int GetUnhappinessCombatStrengthPenalty() const;
+int CvLuaPlayer::lGetUnhappinessCombatStrengthPenalty(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetUnhappinessCombatStrengthPenalty);
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //------------------------------------------------------------------------------

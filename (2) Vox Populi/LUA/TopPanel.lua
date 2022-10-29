@@ -755,21 +755,25 @@ function HappinessTipHandler( control )
 		strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_HAPPINESS_OFF_TOOLTIP");
 	else
 		if (pPlayer:IsEmpireSuperUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY") .. "[/COLOR]";
+			strText = strText .. "[COLOR_RED]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY");
 		elseif (pPlayer:IsEmpireSuperUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS") .. "[/COLOR]";
+			strText = strText .. "[COLOR_RED]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS");
 		elseif (pPlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[/COLOR]";
+			strText = strText .. "[COLOR_RED]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY");
 		elseif (pPlayer:IsEmpireVeryUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS") .. "[/COLOR]";
+			strText = strText .. "[COLOR_RED]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS");
 		elseif (pPlayer:IsEmpireUnhappy()) then
-			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[/COLOR]";
+			strText = strText .. "[COLOR_FONT_RED]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY");
 		else
-			strText = strText .. "[COLOR:150:255:150:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[/COLOR]";
+			strText = strText .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_HAPPINESS");
 		end
 
-		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR:150:255:150:255]";
-
+		if(pPlayer:GetUnhappinessGrowthPenalty() ~= 0) then
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_EMPIRE_PENALTIES",-pPlayer:GetUnhappinessGrowthPenalty(),
+			-pPlayer:GetUnhappinessSettlerCostPenalty(),-pPlayer:GetUnhappinessCombatStrengthPenalty())
+		end
+		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]";
+		
 		-- First do Happiness
 		local TotalHappiness = pPlayer:GetHappinessFromCitizenNeeds();
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", TotalHappiness);

@@ -11888,18 +11888,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		{
 			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-			{
-				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
+			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 
 			// Can't be lower than -75% from Unhappiness.
 			if (iTempMod < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
@@ -12222,18 +12211,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		{
 			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-			{
-				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
+			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 
 			// Can't be lower than -75% from Unhappiness.
 			if (iTempMod < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
@@ -13041,18 +13019,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		{
 			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
 
-			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-			{
-				iTempMod += /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				iTempMod += /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
-			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				iTempMod += /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-			}
+			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 		}
 
 		// Can't be lower than -75% from Unhappiness.
@@ -17383,12 +17350,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				if (iHappiness > 0)
 					iHappiness = 0;
 
-				if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-					iHappiness += /*-100*/ GD_INT_GET(SUPER_UNHAPPY_GROWTH_PENALTY);
-				else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-					iHappiness += /*-50*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-				else
-					iHappiness += /*-25*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
+				iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
 			}
 
 			if (iHappiness < -100)
@@ -17583,12 +17545,7 @@ int CvCity::getGrowthMods() const
 			if (iHappiness > 0)
 				iHappiness = 0;
 
-			if (GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
-				iHappiness += /*-100*/ GD_INT_GET(SUPER_UNHAPPY_GROWTH_PENALTY);
-			else if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-				iHappiness += /*-50*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-			else
-				iHappiness += /*-25*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
+			iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
 		}
 
 		iTotalMod += std::max(iHappiness, -100);

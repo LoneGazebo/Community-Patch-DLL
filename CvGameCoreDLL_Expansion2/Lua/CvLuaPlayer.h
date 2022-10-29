@@ -352,6 +352,9 @@ protected:
 	static int lChangeExtraHappinessPerCity(lua_State* L);
 
 	static int lGetHappinessFromResources(lua_State* L);
+	static int lGetUnhappinessGrowthPenalty(lua_State* L);
+	static int lGetUnhappinessSettlerCostPenalty(lua_State* L);
+	static int lGetUnhappinessCombatStrengthPenalty(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	LUAAPIEXTN(GetHappinessFromResourceMonopolies, int);
 	LUAAPIEXTN(GetUnhappinessFromCitizenNeeds, int);

@@ -538,7 +538,7 @@ local function UpdateTopPanelNow()
 				elseif percent < 50 and percent >= 35 then  -- unhappy
 					happinessText = "[ICON_HAPPINESS_3][COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 35 and percent >= 20 then  -- very unhappy
-					happinessText = "[ICON_HAPPINESS_4][COLOR_FONT_RED]"..L(percent).."%[ENDCOLOR]"
+					happinessText = "[ICON_HAPPINESS_4][COLOR_RED]"..L(percent).."%[ENDCOLOR]"
 				else -- 20<= winter palace vibes
 					happinessText = "[ICON_RESISTANCE][COLOR_RED]"..L(percent).."%[ENDCOLOR]"
 				end
@@ -1361,19 +1361,26 @@ if civ5_mode then
 
 		if (g_isHappinessEnabled and g_activePlayer:IsAlive()) then
 			local tips = table()
-
+			local tipText = ""
 			if (g_activePlayer:IsEmpireSuperUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")  .. "[ENDCOLOR]")
+				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")
 			elseif (g_activePlayer:IsEmpireSuperUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")  .. "[ENDCOLOR]")
+				tipText =  "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")
 			elseif (g_activePlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then	
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY") .. "[ENDCOLOR]")
+				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY")
 			elseif (g_activePlayer:IsEmpireVeryUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS") .. "[ENDCOLOR]")
+				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS")
 			elseif g_activePlayer:IsEmpireUnhappy() then
-				tips:insert("[COLOR:255:60:60:255]" .. L("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[ENDCOLOR]")
+				tipText = "[COLOR_FONT_RED]" ..L("TXT_KEY_TP_EMPIRE_UNHAPPY")
 			else
-				tips:insert("[COLOR:150:255:150:255]" .. L("TXT_KEY_TP_TOTAL_HAPPINESS") .. "[ENDCOLOR]")
+				tipText = "[COLOR_POSITIVE_TEXT]" ..L("TXT_KEY_TP_TOTAL_HAPPINESS")
+			end
+
+			if(g_activePlayer:GetUnhappinessGrowthPenalty() ~= 0) then
+				tips:insert(tipText .. " " ..L("TXT_KEY_TP_UNHAPPINESS_EMPIRE_PENALTIES",-g_activePlayer:GetUnhappinessGrowthPenalty(),
+				-g_activePlayer:GetUnhappinessSettlerCostPenalty(),-g_activePlayer:GetUnhappinessCombatStrengthPenalty()) .. "[ENDCOLOR]")
+			else
+				tips:insert(tipText .. "[ENDCOLOR]")
 			end
 
 			local happypop = g_activePlayer:GetHappinessFromCitizenNeeds()
