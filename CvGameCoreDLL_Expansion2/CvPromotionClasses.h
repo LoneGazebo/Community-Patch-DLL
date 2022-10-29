@@ -128,6 +128,7 @@ public:
 	int GetUpgradeDiscount() const;
 	int GetExperiencePercent() const;
 	int GetAdjacentMod() const;
+	int GetNoAdjacentUnitMod() const;
 	int GetAttackMod() const;
 	int GetDefenseMod() const;
 	int GetGroundAttackDamage() const;
@@ -441,6 +442,7 @@ protected:
 	int m_iUpgradeDiscount;
 	int m_iExperiencePercent;
 	int m_iAdjacentMod;
+	int m_iNoAdjacentUnitMod;
 	int m_iAttackMod;
 	int m_iDefenseMod;
 	int m_iGetGroundAttackDamage;

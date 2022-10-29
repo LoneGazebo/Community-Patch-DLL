@@ -659,7 +659,7 @@
 			<Text>Infiltrators</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARRAGE_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]-15% [ICON_STRENGTH] Combat Strength if adjacent to a [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside Friendly Territory[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength if not adjacent to any [COLOR_NEGATIVE_TEXT]Friendly Unit[ENDCOLOR].</Text>
 		</Row>
 	<!-- Siege Line -->
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_I">

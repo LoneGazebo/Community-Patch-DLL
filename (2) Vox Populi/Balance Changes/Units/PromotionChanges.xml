@@ -3333,9 +3333,9 @@
 			<OrderPriority>2</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_III</PromotionPrereqOr2>
-			<OutsideFriendlyLandsModifier>25</OutsideFriendlyLandsModifier>
-			<AttackWoundedMod>25</AttackWoundedMod>
-			<AdjacentMod>-15</AdjacentMod>
+			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
+			<AttackWoundedMod>15</AttackWoundedMod>
+			<NoAdjacentUnitMod>10</NoAdjacentUnitMod>
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>

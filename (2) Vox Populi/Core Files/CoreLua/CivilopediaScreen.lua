@@ -3598,6 +3598,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("UpgradeDiscount");
 		AnalyzePromotion("ExperiencePercent");
 		AnalyzePromotion("AdjacentMod");
+		AnalyzePromotion("NoAdjacentUnitMod");
 		AnalyzePromotion("AttackMod");
 		AnalyzePromotion("DefenseMod");
 		AnalyzePromotion("DropRange", "");

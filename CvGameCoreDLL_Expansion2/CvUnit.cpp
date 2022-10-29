@@ -221,6 +221,7 @@ CvUnit::CvUnit() :
 	, m_iCanHeavyCharge()
 	, m_iNumExoticGoods()
 	, m_iAdjacentModifier()
+	, m_iNoAdjacentUnitModifier()
 	, m_iRangedAttackModifier()
 	, m_iInterceptionCombatModifier()
 	, m_iInterceptionDefenseDamageModifier()
@@ -1478,6 +1479,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNearbyEnemyCombatRange = 0;
 	m_iExtraCombatPercent = 0;
 	m_iAdjacentModifier = 0;
+	m_iNoAdjacentUnitModifier = 0;
 	m_iRangedAttackModifier = 0;
 	m_iInterceptionCombatModifier = 0;
 	m_iInterceptionDefenseDamageModifier = 0;
@@ -16316,6 +16318,11 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 			iModifier += GetGiveCombatModToUnit(pFromPlot);
 		}
 
+		// Modifier if no adjacent friendly unit
+		if (!bIgnoreUnitAdjacencyBoni && !pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		{
+			iModifier += GetNoAdjacentUnitModifier();
+		}
 		// Adjacent Friendly military Unit?
 		if (!bIgnoreUnitAdjacencyBoni && pFromPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
@@ -17021,6 +17028,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 						iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
 					}
 				}
+			}
+			else
+			{
+				// no friendly military unit adjacent
+				iModifier += GetNoAdjacentUnitModifier();
 			}
 
 			// Great General nearby
@@ -19135,6 +19147,13 @@ int CvUnit::GetAdjacentModifier() const
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetNoAdjacentUnitModifier() const
+{
+	VALIDATE_OBJECT
+		return m_iNoAdjacentUnitModifier;
+}
+
+//	--------------------------------------------------------------------------------
 void CvUnit::ChangeAdjacentModifier(int iValue)
 {
 	VALIDATE_OBJECT
@@ -19142,6 +19161,16 @@ void CvUnit::ChangeAdjacentModifier(int iValue)
 	{
 		m_iAdjacentModifier += iValue;
 	}
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeNoAdjacentUnitModifier(int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			m_iNoAdjacentUnitModifier += iValue;
+		}
 }
 
 
@@ -27114,6 +27143,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeNearbyEnemyCombatMod(thisPromotion.GetNearbyEnemyCombatMod() * iChange);
 		changeNearbyEnemyCombatRange(thisPromotion.GetNearbyEnemyCombatRange() * iChange);
 		ChangeAdjacentModifier(thisPromotion.GetAdjacentMod() * iChange);
+		ChangeNoAdjacentUnitModifier(thisPromotion.GetNoAdjacentUnitMod() * iChange);
 		changeAttackModifier(thisPromotion.GetAttackMod() * iChange);
 		changeDefenseModifier(thisPromotion.GetDefenseMod() * iChange);
 		changeGroundAttackDamage(thisPromotion.GetGroundAttackDamage() * iChange);
@@ -27632,6 +27662,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iSameTileHeal);
 	visitor(unit.m_iAdjacentTileHeal);
 	visitor(unit.m_iAdjacentModifier);
+	visitor(unit.m_iNoAdjacentUnitModifier);
 	visitor(unit.m_iRangedAttackModifier);
 	visitor(unit.m_iInterceptionCombatModifier);
 	visitor(unit.m_iInterceptionDefenseDamageModifier);
@@ -31058,12 +31089,22 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	}
 
 	iTemp = pkPromotionInfo->GetAdjacentMod();
-	// R + mR + S: -15 Infiltrators (barrage 4).
+	// currently not used
 	if (iTemp != 0)
 	{
 		iExtra = (iTemp) * (iFlavorOffense + iFlavorDefense + iFlavorCityDefense);
 		iExtra *= 1.6;
 		iExtra /= max(1, baseMoves(false));
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetNoAdjacentUnitMod();
+	// R + mR + S: +10 Infiltrators (barrage 4).
+	if (iTemp != 0)
+	{
+		iExtra = (iTemp) * (iFlavorMobile + 2 * iFlavorOffense);
+		iExtra /= 1.6;
+		iExtra *= max(1, baseMoves(false));
 		iValue += iExtra;
 	}
 

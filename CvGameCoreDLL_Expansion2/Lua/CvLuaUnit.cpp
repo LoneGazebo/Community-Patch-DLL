@@ -344,6 +344,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(WithdrawalProbability);
 
 	Method(GetAdjacentModifier);
+	Method(GetNoAdjacentUnitModifier);
 	Method(GetAttackModifier);
 	Method(GetDefenseModifier);
 	Method(GetRangedDefenseModifier);
@@ -535,6 +536,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 	Method(GetNearbyImprovementModifier);
 	Method(IsFriendlyUnitAdjacent);
+	Method(IsNoFriendlyUnitAdjacent);
 	Method(GetNumEnemyUnitsAdjacent);
 	Method(IsEnemyCityAdjacent);
 
@@ -3808,6 +3810,16 @@ int CvLuaUnit::lGetAdjacentModifier(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//int GetNoAdjacentUnitModifier();
+int CvLuaUnit::lGetNoAdjacentUnitModifier(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetNoAdjacentUnitModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //int getAttackModifier();
 int CvLuaUnit::lGetAttackModifier(lua_State* L)
 {
@@ -5626,6 +5638,17 @@ int CvLuaUnit::lIsFriendlyUnitAdjacent(lua_State* L)
 	const bool bCombatUnit = lua_toboolean(L, 2);
 
 	const bool bResult = pkUnit->IsFriendlyUnitAdjacent(bCombatUnit);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsNoFriendlyUnitAdjacent(bool bCombatUnit);
+int CvLuaUnit::lIsNoFriendlyUnitAdjacent(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bCombatUnit = lua_toboolean(L, 2);
+
+	const bool bResult = !(pkUnit->IsFriendlyUnitAdjacent(bCombatUnit));
 	lua_pushboolean(L, bResult);
 	return 1;
 }
