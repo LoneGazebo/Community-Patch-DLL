@@ -33,7 +33,7 @@
 #include "CvUnitMission.h"
 #include "FMemoryStream.h"
 #include "ICvDLLUserInterface.h"
-#include <math.h>
+#include <cmath>
 
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
