@@ -3915,7 +3915,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		if(strOurInfluenceInfo != "")
+		if(!strOurInfluenceInfo.empty())
 		{
 			SetLastUpdate(GC.getGame().getGameTurn());
 			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strOurInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
@@ -3942,7 +3942,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strOurInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_US_1_BAD", kOtherPlayer.getCivilizationShortDescriptionKey());
 		}
-		if(strOurInfluenceInfoBad != "")
+		if(!strOurInfluenceInfoBad.empty())
 		{
 			SetLastUpdate(GC.getGame().getGameTurn());
 			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strOurInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
@@ -4018,7 +4018,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfo +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		if(strTheirInfluenceInfo != "")
+		if(!strTheirInfluenceInfo.empty())
 		{
 			SetLastThemUpdate(GC.getGame().getGameTurn());
 			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strTheirInfluenceInfo, strSummary, -1, -1, m_pPlayer->GetID());
@@ -4044,7 +4044,7 @@ void CvPlayerCulture::DoTurn()
 		{
 			strTheirInfluenceInfoBad +=  GetLocalizedText("TXT_KEY_INFLUENCE_THEM_1_BAD", kOtherPlayer.getCivilizationAdjectiveKey());
 		}
-		if(strTheirInfluenceInfoBad != "")
+		if(!strTheirInfluenceInfoBad.empty())
 		{
 			SetLastThemUpdate(GC.getGame().getGameTurn());
 			m_pPlayer->GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strTheirInfluenceInfoBad, strSummary, -1, -1, m_pPlayer->GetID());
@@ -5780,7 +5780,7 @@ void CvPlayerCulture::DoPublicOpinion()
 
 	// Build tooltip
 
-	if (strWorldIdeologyPressureString.size() != 0)
+	if (!strWorldIdeologyPressureString.empty())
 	{
 		Localization::String locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_INFLUENCED_WORLD_IDEOLOGY");
 		m_strOpinionTooltip += locText.toUTF8();

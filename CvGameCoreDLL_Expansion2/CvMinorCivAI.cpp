@@ -1032,104 +1032,104 @@ CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) con
 	}
 	if (GetGold() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GOLD", GetGold());
 	}
 	if (GetScience() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_SCIENCE", GetScience());
 	}
 	if (GetCulture() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_CULTURE", GetCulture());
 	}
 	if (GetFaith() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_FAITH", GetFaith());
 	}
 	if (GetGoldenAgePoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GAP", GetGoldenAgePoints());
 	}
 	if (GetFood() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_FOOD", GetFood());
 	}
 	if (GetProduction() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_PRODUCTION", GetProduction());
 	}
 	if (GetTourism() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_TOURISM", GetTourism());
 	}
 	if (GetHappiness() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_HAPPINESS", GetHappiness());
 	}
 	if (GetGP() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GPP", GetGP());
 	}
 	if (GetGPGlobal() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GPP_GLOBAL", GetGPGlobal());
 	}
 	if (GetGeneralPoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GENERAL", GetGeneralPoints());
 	}
 	if (GetAdmiralPoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_ADMIRAL", GetAdmiralPoints());
 	}
 	if (GetExperience() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_EXPERIENCE", GetExperience());
 	}
 
-	if (szTooltip != "")
+	if (!szTooltip.empty())
 		szTooltip = szTooltipHeader + szTooltip;
 
 	return szTooltip;
@@ -2861,7 +2861,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	CvString sSummary = strSummary.toUTF8();
 	//Additional Bonuses from Quests here.
 	CvString sExtra = GetRewardString(m_eAssignedPlayer, false);
-	if(sExtra != "")
+	if(!sExtra.empty())
 	{
 		sMessage = sMessage + "[NEWLINE]" + sExtra;
 	}
@@ -2929,7 +2929,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if(sExtra != "")
+		if(!sExtra.empty())
 		{
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 		}
@@ -2978,7 +2978,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if(sExtra != "")
+		if(!sExtra.empty())
 		{
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 		}
@@ -3020,7 +3020,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if(sExtra != "")
+		if(!sExtra.empty())
 		{
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 		}
@@ -3491,7 +3491,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 #if defined(MOD_BALANCE_CORE)
 	//Additional Bonuses from Quests here.
 	CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-	if(sExtra != "")
+	if(!sExtra.empty())
 	{
 		sMessage = sMessage + "[NEWLINE]" + sExtra;
 	}

@@ -1377,7 +1377,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		for (int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
 		{
 			CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();
-			if (strNotificationString != NULL && strNotificationString != "")
+			if (strNotificationString != NULL && !strNotificationString.empty())
 			{
 				NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
 
@@ -1556,14 +1556,14 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 	{
 		if (pCity == NULL || pSpy->m_eSpyState == SPY_STATE_UNASSIGNED)
 		{
-			if(strSpyAtCity != "")
+			if(!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
 		}
 		else
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			switch (pSpy->m_eSpyState)
@@ -1616,7 +1616,7 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 			}
 			if (m_aIntrigueNotificationMessages[i - 1].iSpyID == uiSpyIndex)
 			{
-				if (strIntrigue != "")
+				if (!strIntrigue.empty())
 				{
 					strIntrigue += "[NEWLINE]";
 				}
@@ -1625,9 +1625,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 				strIntrigue += GetLocalizedText(strIntrigueMessage.toUTF8());
 			}
 		}
-		if (strIntrigue != "")
+		if (!strIntrigue.empty())
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_INTRIGUE_DISCOVERED");
@@ -1650,7 +1650,7 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 
 			CvString pHelp = strMessage.toUTF8();
 
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += pHelp;
@@ -1724,7 +1724,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 			}
 			if (m_aIntrigueNotificationMessages[i - 1].iSpyID == uiSpyIndex)
 			{
-				if (strIntrigue != "")
+				if (!strIntrigue.empty())
 				{
 					strIntrigue += "[NEWLINE]";
 				}
@@ -1733,7 +1733,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				strIntrigue += GetLocalizedText(strIntrigueMessage.toUTF8());
 			}
 		}
-		if (strIntrigue != "")
+		if (!strIntrigue.empty())
 		{
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_INTRIGUE_DISCOVERED");
 			strSpyAtCity += strIntrigue.GetCString();
@@ -1759,7 +1759,7 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					CvString pHelp = strMessage.toUTF8();
 
-					if (strSpyAtCity != "")
+					if (!strSpyAtCity.empty())
 						strSpyAtCity += "[NEWLINE][NEWLINE]";
 					strSpyAtCity += pHelp;
 				}
@@ -1875,13 +1875,13 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 						CvString pHelp = strMessage.toUTF8();
 
-						if (strSpyAtCity != "")
+						if (!strSpyAtCity.empty())
 							strSpyAtCity += "[NEWLINE][NEWLINE]";
 						strSpyAtCity += pHelp;
 					}
 				}
 
-				if (strSpyAtCity != "")
+				if (!strSpyAtCity.empty())
 					strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 				int iSpeedBonuses = 0;

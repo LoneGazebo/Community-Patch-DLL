@@ -1229,7 +1229,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	{
 		iCurrentValue = iNumFranchises * pkOfficeInfo->GetGPRateModifierPerXFranchises();
 
-		if (szOfficeBenefit != "")
+		if (!szOfficeBenefit.empty())
 		{
 			szOfficeBenefit += ", ";
 		}
@@ -1246,7 +1246,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 		{
 			iCurrentValue = iNumFranchises / pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource);
 
-			if (szOfficeBenefit != "")
+			if (!szOfficeBenefit.empty())
 			{
 				szOfficeBenefit += ", ";
 			}
@@ -1264,7 +1264,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 		{
 			iCurrentValue = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eYield);
 
-			if (szOfficeBenefit != "")
+			if (!szOfficeBenefit.empty())
 			{
 				szOfficeBenefit += ", ";
 			}

@@ -9150,7 +9150,7 @@ CvEventNotificationInfo *CvModEventChoiceInfo::GetNotificationInfo(int i) const
 //	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (m_paNotificationInfo[0].GetNotificationString() == "" || m_paNotificationInfo[0].GetNotificationString() == NULL)
+	if (m_paNotificationInfo[0].GetNotificationString().empty() || m_paNotificationInfo[0].GetNotificationString() == NULL)
 	{
 		return NULL;
 	}
@@ -10914,7 +10914,7 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 //	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (m_paCityNotificationInfo[0].GetNotificationString() == "" || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
+	if (m_paCityNotificationInfo[0].GetNotificationString().empty() || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
 	{
 		return NULL;
 	}
