@@ -16161,17 +16161,7 @@ int CvUnit::GetUnhappinessCombatPenalty() const
 
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		//this is called a lot during combat simulation
-		//try to minimize the checks, if we're happy there is only one!
-		if (kPlayer.IsEmpireUnhappy())
-		{
-			if (kPlayer.IsEmpireVeryUnhappy())
-				return /*-20*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY);
-			else
-				return /*-10*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY) / 2;
-		}
-		else
-			return 0;
+		return kPlayer.GetUnhappinessCombatStrengthPenalty();
 	}
 	else
 	{

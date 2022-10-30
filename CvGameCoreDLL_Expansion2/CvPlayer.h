@@ -661,6 +661,9 @@ public:
 
 	int GetHappinessForGAP() const;
 	int GetExcessHappiness() const;
+	int GetUnhappinessGrowthPenalty() const;
+	int GetUnhappinessSettlerCostPenalty() const;
+	int GetUnhappinessCombatStrengthPenalty() const;
 	bool IsEmpireUnhappy() const;
 	bool IsEmpireVeryUnhappy() const;
 	bool IsEmpireSuperUnhappy() const;

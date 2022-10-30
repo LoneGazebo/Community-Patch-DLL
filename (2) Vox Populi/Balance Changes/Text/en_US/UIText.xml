@@ -1064,7 +1064,7 @@
 			<Text>{1_Num} from Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
-			<Text>{1_Num} from local sources in cities (religion, buildings, etc).</Text>
+			<Text>{1_Num} from Local Sources in Cities (Religion, Buildings, etc).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_ILLITERACY">
 			<Text>{1_Num} from [ICON_RESEARCH] Illiteracy.</Text>
@@ -1602,7 +1602,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPINESS_TOP_PANEL_VP">
-			<Text>[ICON_CITIZEN] {1_Val}% ([ICON_HAPPINESS_1]{3_Val}/[ICON_HAPPINESS_3]{2_Val})</Text>
+			<Text>{1_Val} ([ICON_HAPPINESS_1][COLOR_POSITIVE_TEXT]{3_Val}[ENDCOLOR]/[ICON_HAPPINESS_3][COLOR_NEGATIVE_TEXT]{2_Val}[ENDCOLOR] )</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
@@ -1610,12 +1610,17 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow very slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
-			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people! Additionally, all Cities will [ICON_FOOD] Grow more slowly and have increased Settler costs. [ICON_STRENGTH] Combat effectiveness is also reduced by 20%!</Text>
+			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>
+
+		<Row TAG="TXT_KEY_TP_UNHAPPINESS_EMPIRE_PENALTIES">
+			<Text>[ICON_FOOD] Growth is reduced by {1_NumGrowth}% in all Cities and Settler costs are increased by {2_NumSettlerCost}%! [ICON_STRENGTH] Combat effectiveness is also reduced by {3_NumCombatStrength}%!</Text>
+		</Row>
+
 
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">
 			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_URBANIZATION_GREEN] Urbanization</Text>
