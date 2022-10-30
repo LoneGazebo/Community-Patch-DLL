@@ -52,5 +52,202 @@
 		<Row Tag="TXT_KEY_WORKSHOP">
 			<Text>[ICON_BULLET] Allows Production Routes</Text>
 		</Row>
+	<!-- Filters in Trade Route Overview -->
+			<Row Tag="TXT_KEY_TROE_COL_RANGE">
+			<Text>[ICON_RANGE_STRENGTH]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_RANGE_TT">
+			<Text>Click to sort by the maximum [COLOR_POSITIVE_TEXT]Range[ENDCOLOR] of trade routes originating from this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH">
+			<Text>[ICON_WTF2]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH_TT">
+			<Text>Click to sort by the normalized [COLOR_POSITIVE_TEXT]Length[ENDCOLOR] of this trade route.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS">
+			<Text>[ICON_SWAP]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS_TT">
+			<Text>Click to sort by the [COLOR_POSITIVE_TEXT]Turns[ENDCOLOR] to complete this trade route.</Text>
+		</Row>
+        <!-- UndeadDevel: need some additional strings and add the Checkbox strings -->
+ 		<Row Tag="TXT_KEY_TROE_CHECKBOX_LAND">
+			<Text>Land</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_SEA">
+			<Text>Sea</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_FOOD">
+			<Text>Internal/Food</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_PRODUCTION">
+			<Text>Internal/Production</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MINOR">
+			<Text>Foreign/Minor</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MAJOR">
+			<Text>Foreign/Major</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_BLOCKED">
+			<Text>Blocked ([COLOR_RED]![ENDCOLOR])</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_UNIT">
+			<Text>Only for selected Unit</Text>
+		</Row>
+ 		<Row Tag="TXT_KEY_TROE_SEND_TR">
+			<Text>Click to initiate this trade route.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_WRONG_DOMAIN">
+			<Text>Incorrect Trade Unit Domain Type.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_INVALID_UNIT">
+			<Text>You need to have an eligible Trade Unit selected to be able to send trade routes from this screen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_RELOCATE_UNIT">
+			<Text>Click to relocate this Trade Unit to this City.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_TRADE_QUEST">
+			<Text>Trade Route Quest available!</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_PRESENT">
+			<Text>Corporate Franchise present.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_AVAILABLE">
+			<Text>Corporate Franchise can be established.</Text>
+		</Row>
 	</Language_en_US>
+    <!-- UndeadDevel: added German and Russian translations for Filters -->
+	<Language_de_DE>
+		<Row Tag="TXT_KEY_TROE_COL_RANGE">
+			<Text>[ICON_RANGE_STRENGTH]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_RANGE_TT">
+			<Text>Klicke, um nach der maximalen [COLOR_POSITIVE_TEXT]Reichweite[ENDCOLOR] der dieser Städte entspringenden Handelsrouten zu sortieren.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH">
+			<Text>[ICON_WTF2]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH_TT">
+			<Text>Klicke, um nach der standardisierten [COLOR_POSITIVE_TEXT]Länge[ENDCOLOR] der Handelsrouten zu sortieren.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS">
+			<Text>[ICON_SWAP]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS_TT">
+			<Text>Klicke, um nach den verbleibenden [COLOR_POSITIVE_TEXT]Runden[ENDCOLOR] der Handelsrouten zu sortieren.</Text>
+		</Row>
+ 		<Row Tag="TXT_KEY_TROE_CHECKBOX_LAND">
+			<Text>Land</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_SEA">
+			<Text>See</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_FOOD">
+			<Text>Inländisch/Nahrung</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_PRODUCTION">
+			<Text>Inländisch/Produktion</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MINOR">
+			<Text>Ausländisch/Stadtstaat</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MAJOR">
+			<Text>Ausländisch/Zivilisation</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_BLOCKED">
+			<Text>Blockiert ([COLOR_RED]![ENDCOLOR])</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_UNIT">
+			<Text>Nur für ausgewählte Einheit</Text>
+		</Row>
+ 		<Row Tag="TXT_KEY_TROE_SEND_TR">
+			<Text>Klicke, um die Handelsroute zu starten.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_WRONG_DOMAIN">
+			<Text>Einheitstyp passt nicht zur Handelsroutenart.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_INVALID_UNIT">
+			<Text>Um Handelsrouten von diesem Fenster aus versenden zu können, muss eine einsatzbereite Handelseinheit ausgewählt sein.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_RELOCATE_UNIT">
+			<Text>Klicke, um die ausgewählte Handelseinheit in diese Stadt zu verlegen.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_TRADE_QUEST">
+			<Text>Handelsroutenmission verfügbar!</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_PRESENT">
+			<Text>Unternehmensfranchise vorhanden.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_AVAILABLE">
+			<Text>Unternehmensfranchise etablierbar.</Text>
+		</Row>
+	</Language_de_DE>
+
+	<Language_RU_RU>
+		<Row Tag="TXT_KEY_TROE_COL_RANGE">
+			<Text>[ICON_RANGE_STRENGTH]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_RANGE_TT">
+			<Text>Нажимать для сортировки по максимального [COLOR_POSITIVE_TEXT]Радиуса Действия[ENDCOLOR] торговых маршрут начинающимся в этом Городе.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH">
+			<Text>[ICON_WTF2]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_LENGTH_TT">
+			<Text>Нажимать для сортировки по стандардизированной [COLOR_POSITIVE_TEXT]Длине[ENDCOLOR] этих торговых маршрут.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS">
+			<Text>[ICON_SWAP]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_COL_TURNS_TT">
+			<Text>Нажимать для сортировки по [COLOR_POSITIVE_TEXT]Турам[ENDCOLOR] оставшуюся этим торговым маршрутам.</Text>
+		</Row>
+ 		<Row Tag="TXT_KEY_TROE_CHECKBOX_LAND">
+			<Text>Сушные</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_SEA">
+			<Text>Морские</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_FOOD">
+			<Text>Отечеств./Пища</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_INTERNAL_PRODUCTION">
+			<Text>Отечеств./Производство</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MINOR">
+			<Text>Загран./Государство-город</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_FOREIGN_MAJOR">
+			<Text>Загран./Цивилизация</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_BLOCKED">
+			<Text>Блокированно ([COLOR_RED]![ENDCOLOR])</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_CHECKBOX_UNIT">
+			<Text>Только для избранного Юнита</Text>
+		</Row>
+ 		<Row Tag="TXT_KEY_TROE_SEND_TR">
+			<Text>Нажимать для отправление етого торгового маршрута.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_WRONG_DOMAIN">
+			<Text>Неправильный тип Торгового Юнита для етого торгового маршрута.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_INVALID_UNIT">
+			<Text>Нужно избирать готового Торгового Юнита для отправление торговых маршрут.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TROE_RELOCATE_UNIT">
+			<Text>Нажимать для перебазирование этого Торгового Юнита в этот Город.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_TRADE_QUEST">
+			<Text>Наличная миссия постройке торгового маршрута!</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_PRESENT">
+			<Text>Франчайзинг концерна создан.</Text>
+		</Row>
+        <Row Tag="TXT_KEY_TROE_FRANCHISE_AVAILABLE">
+			<Text>Наличний франчайзинг концерна.</Text>
+		</Row>
+	</Language_RU_RU>
 </GameData>
