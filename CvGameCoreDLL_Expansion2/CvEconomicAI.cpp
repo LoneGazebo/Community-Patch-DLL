@@ -475,7 +475,8 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2;
+		CvString strTemp;
+		CvString szTemp2;
 		CvString strPlayerName;
 		FILogFile* pLog = NULL;
 
@@ -1970,7 +1971,8 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(pLoopCity->CanBuyAnyPlot())
 			{
-				int iTempX = 0, iTempY = 0;
+				int iTempX = 0;
+				int iTempY = 0;
 				int iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
 				if (iScore == -1)
 					continue;

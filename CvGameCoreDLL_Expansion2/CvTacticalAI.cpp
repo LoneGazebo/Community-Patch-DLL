@@ -5951,7 +5951,8 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 	//no visibility check, when we call this we already know there is an enemy unit ...
 	CvUnit* pTargetUnit = pTargetPlot->getBestDefender( NO_PLAYER, pUnit->getOwner(), pUnit, false, true);
 
-	int iDamageDealt = 0, iDamageReceived = 1;
+	int iDamageDealt = 0;
+	int iDamageReceived = 1;
 	if (pTargetCity)
 	{
 		//+2 to make sure it's positive if city has zero hitpoints left
@@ -6623,7 +6624,8 @@ bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemy
 		return false;
 
 	//see how the attack would go
-	int iDamageDealt = 0, iDamageReceived = 0;
+	int iDamageDealt = 0;
+	int iDamageReceived = 0;
 	iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemyUnit, pOurUnit, pEnemyUnit->plot(), pOurUnit->plot(), iDamageReceived);
 
 	//is it worth it? (take into account some randomness ...)
@@ -6672,7 +6674,8 @@ bool TacticalAIHelpers::IsSuicideMeleeAttack(const CvUnit * pAttacker, CvPlot * 
 	if (!pAttacker || !pTarget || pAttacker->IsCanAttackRanged() || pAttacker->getDomainType()==DOMAIN_AIR)
 		return false;
 
-	int iDamageDealt = 0, iDamageReceived = 0;
+	int iDamageDealt = 0;
+	int iDamageReceived = 0;
 
 	//if we're not adjacent we don't know the plot the attacker will use in the end
 	CvPlot* pAttackerPlot = NULL;
@@ -6713,7 +6716,8 @@ bool TacticalAIHelpers::CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget)
 			return true;
 
 		//see how an attack would go just in case
-		int iDamageDealt = 0, iDamageReceived = 0;
+		int iDamageDealt = 0;
+		int iDamageReceived = 0;
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pTargetCity, pAttacker, pAttacker->plot(), iDamageReceived, true, 0, true);
 
 		//ranged units can't capture themselves so we check for an adjacent melee unit
@@ -6742,7 +6746,8 @@ bool TacticalAIHelpers::CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget)
 	if (pDefender)
 	{
 		//see how the attack would go
-		int iDamageDealt = 0, iDamageReceived = 0;
+		int iDamageDealt = 0;
+		int iDamageReceived = 0;
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pDefender->plot(), pAttacker->plot(), iDamageReceived, true, 0, true);
 		//no suicide attacks ...
 		return iDamageDealt >= pDefender->GetCurrHitPoints() && (iDamageReceived == 0 || iDamageReceived < pAttacker->GetCurrHitPoints()-3);
@@ -8903,7 +8908,8 @@ bool CvTacticalPosition::isImprovedPosition() const
 
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
-	int iPositive = 0, iNegative = 0;
+	int iPositive = 0;
+	int iNegative = 0;
 	for (size_t i = iFirstFinish; i < assignedMoves.size(); i++)
 	{
 		//compare final to initial and see whether we came closer to the ideal distance

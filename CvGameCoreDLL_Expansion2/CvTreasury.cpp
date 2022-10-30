@@ -1085,7 +1085,8 @@ int CvTreasury::GetVassalGoldMaintenance() const
 			&& !GET_PLAYER((PlayerTypes)iI).isBarbarian()
 			&& GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
-			int iLoop = 0, iCityPop = 0;
+			int iLoop = 0;
+			int iCityPop = 0;
 			// This player is our vassal
 			if(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(m_pPlayer->getTeam()))
 			{

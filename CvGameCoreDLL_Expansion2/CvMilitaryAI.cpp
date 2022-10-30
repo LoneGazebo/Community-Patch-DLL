@@ -1027,8 +1027,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	if(target.m_armyType==ARMY_TYPE_LAND)
 	{
 		// interpolate linearly between a low and a high distance
-		float fDistanceLow = 8, fWeightLow = 10;
-		float fDistanceHigh = 24, fWeightHigh = 1;
+		float fDistanceLow = 8;
+		float fWeightLow = 10;
+		float fDistanceHigh = 24;
+		float fWeightHigh = 1;
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
 		fDistWeightInterpolated = (target.GetPathLength()-fDistanceLow) * fSlope + fWeightLow;
@@ -1037,8 +1039,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	else
 	{
 		// interpolate linearly between a low and a high distance
-		float fDistanceLow = 8, fWeightLow = 6;
-		float fDistanceHigh = 36, fWeightHigh = 1;
+		float fDistanceLow = 8;
+		float fWeightLow = 6;
+		float fDistanceHigh = 36;
+		float fWeightHigh = 1;
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
 		fDistWeightInterpolated = (target.GetPathLength()-fDistanceLow) * fSlope + fWeightLow;

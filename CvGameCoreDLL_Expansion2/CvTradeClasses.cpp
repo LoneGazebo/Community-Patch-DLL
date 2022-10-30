@@ -2084,7 +2084,8 @@ CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain)
 {
-	int iOriginX = 0,iOriginY = 0;
+	int iOriginX = 0;
+	int iOriginY = 0;
 	PlayerTypes eOriginPlayer;
 
 	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -2113,7 +2114,8 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 			size_t n = path.vPlots.size();
 			if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
 			{
-				int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+				int plotsX[MAX_PLOTS_TO_DISPLAY];
+				int plotsY[MAX_PLOTS_TO_DISPLAY];
 				for (size_t i=0;i<n;++i)
 				{
 					plotsX[i] = path.vPlots[i].x;
@@ -2728,7 +2730,8 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 		{
 			if (eYield == YIELD_GOLD)
 			{
-				int iX = 0, iY = 0;
+				int iX = 0;
+				int iY = 0;
 				if (bOriginCity)
 				{
 					iX = kTradeConnection.m_iOriginX;
@@ -4316,7 +4319,8 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const
 {
-	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+	int plotsX[MAX_PLOTS_TO_DISPLAY];
+	int plotsY[MAX_PLOTS_TO_DISPLAY];
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iRouteID = -1;

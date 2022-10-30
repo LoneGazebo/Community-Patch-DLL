@@ -15439,7 +15439,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 
 		// Resource loop
-		int iCulture = 0, iFaith = 0;
+		int iCulture = 0;
+		int iFaith = 0;
 		ResourceTypes eResource;
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
@@ -22361,7 +22362,8 @@ int CvCity::GetEmpireSizeModifier() const
 		iNumCitiesMod = 0;
 
 	// x% per empire pop, excluding puppets
-	int iLoop = 0, iPopMod = 0;
+	int iLoop = 0;
+	int iPopMod = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
 	{
 		if (pLoopCity->IsPuppet())
@@ -22723,7 +22725,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iReduction = GetDistressFlatReduction() + kPlayer.GetDistressFlatReductionGlobal();
 
 		// Total Deficit
-		float fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fAmountHave = 0.00f;
+		float fDeficit = 0.00f;
+		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fBasicNeedsMedian * iPopulation;
 		fAmountHave += ((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
@@ -22736,7 +22741,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	// Above Basic Needs requirement
 	else
 	{
-		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fSurplus = 0.00f;
 		fAmountNeeded += fBasicNeedsMedian * iPopulation;
 		fSurplus += (((float)getYieldRateTimes100(YIELD_FOOD, false, false) + (float)getYieldRateTimes100(YIELD_PRODUCTION, false, false)) / 100) - fAmountNeeded;
 
@@ -22755,7 +22761,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iReduction = GetPovertyFlatReduction() + kPlayer.GetPovertyFlatReductionGlobal();
 
 		// Total Deficit
-		float fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fAmountHave = 0.00f;
+		float fDeficit = 0.00f;
+		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fGoldMedian * iPopulation;
 		fAmountHave += (float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
@@ -22768,7 +22777,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	// Above Gold requirement
 	else
 	{
-		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fSurplus = 0.00f;
 		fAmountNeeded += fGoldMedian * iPopulation;
 		fSurplus += ((float)getYieldRateTimes100(YIELD_GOLD, false, false) / 100) - fAmountNeeded;
 
@@ -22787,7 +22797,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iReduction = GetIlliteracyFlatReduction() + kPlayer.GetIlliteracyFlatReductionGlobal();
 
 		// Total Deficit
-		float fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fAmountHave = 0.00f;
+		float fDeficit = 0.00f;
+		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fScienceMedian * iPopulation;
 		fAmountHave += (float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100;
 		fDeficit += fAmountNeeded - fAmountHave;
@@ -22800,7 +22813,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	// Above Science requirement
 	else
 	{
-		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fSurplus = 0.00f;
 		fAmountNeeded += fScienceMedian * iPopulation;
 		fSurplus += ((float)getYieldRateTimes100(YIELD_SCIENCE, false, false) / 100) - fAmountNeeded;
 
@@ -22819,7 +22833,10 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iReduction = GetBoredomFlatReduction() + kPlayer.GetBoredomFlatReductionGlobal();
 
 		// Total Deficit
-		float fAmountNeeded = 0.00f, fAmountHave = 0.00f, fDeficit = 0.00f, fAmountForNextReduction = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fAmountHave = 0.00f;
+		float fDeficit = 0.00f;
+		float fAmountForNextReduction = 0.00f;
 		fAmountNeeded += fCultureMedian * iPopulation;
 		fAmountHave += (float)getJONSCulturePerTurn(false);
 		fDeficit += fAmountNeeded - fAmountHave;
@@ -22832,7 +22849,8 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	// Above Culture requirement
 	else
 	{
-		float fAmountNeeded = 0.00f, fSurplus = 0.00f;
+		float fAmountNeeded = 0.00f;
+		float fSurplus = 0.00f;
 		fAmountNeeded += fCultureMedian * iPopulation;
 		fSurplus += (float)getJONSCulturePerTurn(false) - fAmountNeeded;
 
@@ -23016,7 +23034,11 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		}
 
 		// Process Modifiers
-		int iFarmingModifier = 0, iWealthModifier = 0, iResearchModifier = 0, iArtsModifier = 0, iPrayerModifier = 0;
+		int iFarmingModifier = 0;
+		int iWealthModifier = 0;
+		int iResearchModifier = 0;
+		int iArtsModifier = 0;
+		int iPrayerModifier = 0;
 		if (getProductionProcess() != NO_PROCESS)
 		{
 			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());

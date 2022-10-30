@@ -1162,7 +1162,9 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 /// Pick the next build for a city (unit, building)
 CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchase)
 {
-	int iBldgLoop = 0, iUnitLoop = 0, iTempWeight = 0;
+	int iBldgLoop = 0;
+	int iUnitLoop = 0;
+	int iTempWeight = 0;
 	CvCityBuildable buildable;
 	CvCityBuildable selection;
 	UnitTypes eUnitForOperation;
@@ -1989,7 +1991,8 @@ void CvCityStrategyAI::LogHurryMessage(CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2;
+		CvString strTemp;
+		CvString szTemp2;
 		CvString playerName;
 		CvString cityName;
 

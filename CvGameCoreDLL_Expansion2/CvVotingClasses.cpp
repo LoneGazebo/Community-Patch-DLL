@@ -4091,7 +4091,10 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iHostVotes = IsHostMember(ePlayer) ? pInfo->GetHostDelegates() : 0;
 
 	// Base votes from City-State allies
-	int iCityStateVotes = 0, iNumAllies = 0, iNumMinorsFollowingReligion = 0, iNumMarriages = 0;
+	int iCityStateVotes = 0;
+	int iNumAllies = 0;
+	int iNumMinorsFollowingReligion = 0;
+	int iNumMarriages = 0;
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
@@ -4203,7 +4206,8 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		iVotes += iPolicyVotes;
 	}
 
-	int iTraitVotes = 0, iTraitPotential = 0;
+	int iTraitVotes = 0;
+	int iTraitPotential = 0;
 
 	if (iNumAllies != 0)
 	{
@@ -4225,7 +4229,8 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	iVotes += iTraitVotes;
 
 	//Votes from GPT
-	int iVotesPerGPT = GET_PLAYER(ePlayer).GetVotesPerGPT(), iGPTVotes = 0;
+	int iVotesPerGPT = GET_PLAYER(ePlayer).GetVotesPerGPT();
+	int iGPTVotes = 0;
 	if (iVotesPerGPT > 0)
 	{
 		int iGPT = GET_PLAYER(ePlayer).GetTreasury()->CalculateGrossGold();

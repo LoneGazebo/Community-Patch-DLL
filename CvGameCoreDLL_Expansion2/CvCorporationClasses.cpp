@@ -1169,7 +1169,8 @@ void CvPlayerCorporations::LogCorporationMessage(const CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2;
+		CvString strTemp;
+		CvString szTemp2;
 		CvString strPlayerName;
 		FILogFile* pLog = NULL;
 

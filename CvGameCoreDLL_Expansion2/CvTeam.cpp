@@ -423,7 +423,8 @@ void CvTeam::addTeam(TeamTypes eTeam)
 {
 	CvPlot* pLoopPlot = NULL;
 	CvString strBuffer;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	CvAssert(eTeam != NO_TEAM);
 	CvAssert(eTeam != GetID());
@@ -624,7 +625,9 @@ void CvTeam::shareItems(TeamTypes eTeam)
 {
 	CvCity* pLoopCity = NULL;
 	int iLoop = 0;
-	int iI = 0, iJ = 0, iK = 0;
+	int iI = 0;
+	int iJ = 0;
+	int iK = 0;
 
 	CvAssert(eTeam != NO_TEAM);
 	CvAssert(eTeam != GetID());
@@ -4192,7 +4195,9 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 	if (GET_TEAM(eIndex).isMinorCiv())
 	{
-		int iCapitalX = -1, iCapitalY = -1, iCapitalID = -1;
+		int iCapitalX = -1;
+		int iCapitalY = -1;
+		int iCapitalID = -1;
 
 		// Minor reveals his capital to the player so that he can click on the City to contact
 		CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
@@ -5193,7 +5198,8 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 {
 	bool bChangeProduction = false;
 	int iOldProjectCount = 0;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumProjectInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -5908,7 +5914,8 @@ void CvTeam::DoTestSmallAwards()
 
 	bool bShouldShowNotification = false;
 	int iNotificationData = 0;
-	int iNotificationX = 0, iNotificationY = 0;
+	int iNotificationX = 0;
+	int iNotificationY = 0;
 
 	for(int iSmallAwardLoop = 0; iSmallAwardLoop < GC.getNumSmallAwardInfos(); iSmallAwardLoop++)
 	{
@@ -7462,7 +7469,8 @@ void CvTeam::testCircumnavigated()
 	CvPlot* pPlot = NULL;
 	CvString strBuffer;
 	bool bFoundVisible = false;
-	int iX = 0, iY = 0;
+	int iX = 0;
+	int iY = 0;
 
 	if(isBarbarian())
 	{
@@ -7613,7 +7621,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	CvCity* pCity = NULL;
 	CvPlot* pLoopPlot = NULL;
 	ResourceTypes eResource;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	CvTechEntry* pTech = GC.getTechInfo(eTech);
 
@@ -9511,7 +9520,8 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	if (bSuppressNotification)
 		return;
 
-	Localization::String locString, summaryString;
+	Localization::String locString;
+	Localization::String summaryString;
 
 	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -9779,7 +9789,8 @@ bool CvTeam::CanMakeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 // We become the new Vassal of eTeam
 void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOriginatingMaster)
 {
-	Localization::String locString, summaryString;
+	Localization::String locString;
+	Localization::String summaryString;
 
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam != GetID(), "eTeam is not expected to be equal with GetID()");
@@ -10162,7 +10173,8 @@ void CvTeam::DoApplyVassalTax(PlayerTypes ePlayer, int iPercent)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->DoVassalTaxChanged(GetID(), (iPercent < iCurrentTaxRate));	
 
 		// send a notification if there was some change
-		Localization::String locString, summaryString;
+		Localization::String locString;
+		Localization::String summaryString;
 		if(iPercent > iCurrentTaxRate)
 		{
 			locString = Localization::Lookup("TXT_KEY_MISC_VASSAL_TAX_INCREASED");

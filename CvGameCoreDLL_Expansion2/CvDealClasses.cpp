@@ -586,7 +586,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
-			int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
+			int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false);
+			int iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
 
 			// If a renewal deal, add/subtract the resources already included in the renewal.
 			// Recursive: Is this identifying the correct deal?
@@ -803,10 +804,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			bool bAITradingWithHuman = !bHumanToHuman && pToPlayer->isHuman();
-			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman);
+			int iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			bAITradingWithHuman = !bHumanToHuman && pFromPlayer->isHuman();
-			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman);
+			int iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			if (bIgnoreExistingDP)
 			{
@@ -1340,7 +1343,8 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	if (eItemType == TRADE_ITEM_THIRD_PARTY_PEACE && GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
 		return false;
 
-	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman(), bToHuman = GET_PLAYER(eToPlayer).isHuman();
+	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman();
+	bool bToHuman = GET_PLAYER(eToPlayer).isHuman();
 
 	// Humans can handle their own dealmaking
 	if (bFromHuman && bToHuman)
@@ -1425,7 +1429,11 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 /// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1)
 {
-	CvString strTooltip = "", strReason = "", strDivider = "[NEWLINE][NEWLINE]", strStartColor = "[COLOR_NEGATIVE_TEXT]", strEndColor = "[ENDCOLOR]";
+	CvString strTooltip = "";
+	CvString strReason = "";
+	CvString strDivider = "[NEWLINE][NEWLINE]";
+	CvString strStartColor = "[COLOR_NEGATIVE_TEXT]";
+	CvString strEndColor = "[ENDCOLOR]";
 	CvString strError = ""; // There shouldn't be a tooltip for this reason (because either the situation should not ever occur ingame, or the item is hidden by the UI)
 
 	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
@@ -1756,8 +1764,10 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strTooltip;
 			}
 
-			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bToHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
-			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bFromHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bToHuman);
+			int iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bFromHuman);
+			int iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			if (bIgnoreExistingDP)
 			{
@@ -4413,7 +4423,8 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	bool bIsPeaceDeal = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 	bool bHumanToHuman = GET_PLAYER(eFromPlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman();
 	bool bShouldSetHumanSurrender = bHumanToHuman && bIsPeaceDeal;
-	bool bFromPlayerItem = false, bToPlayerItem = false;
+	bool bFromPlayerItem = false;
+	bool bToPlayerItem = false;
 
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
 	{
@@ -4473,7 +4484,9 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	m_CurrentDeals.push_back(kDeal);
 
 	// Set one-time values here
-	bool bDoDefensivePactNotification = true, bDoResearchAgreementNotification = true, bDoWarVictoryBonuses = true;
+	bool bDoDefensivePactNotification = true;
+	bool bDoResearchAgreementNotification = true;
+	bool bDoWarVictoryBonuses = true;
 
 	// Process each item in the deal!
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
@@ -5508,8 +5521,10 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 {
 	if(m_CurrentDeals.size() > 0)
 	{
-		PlayerTypes eFromPlayer, eToPlayer;
-		int iPlayerLoop1 = 0, iPlayerLoop2 = 0;
+		PlayerTypes eFromPlayer;
+		PlayerTypes eToPlayer;
+		int iPlayerLoop1 = 0;
+		int iPlayerLoop2 = 0;
 
 		// Loop through first set of players
 		for(iPlayerLoop1 = 0; iPlayerLoop1 < MAX_MAJOR_CIVS; iPlayerLoop1++)

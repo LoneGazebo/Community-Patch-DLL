@@ -347,7 +347,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 	}
 
 	//for any cities which are not linked now, check what lua says
-	int iCityLoopA = 0, iCityLoopB = 0;
+	int iCityLoopA = 0;
+	int iCityLoopB = 0;
 	for(CvCity* pCityA = m_pPlayer->firstCity(&iCityLoopA); pCityA != NULL; pCityA = m_pPlayer->nextCity(&iCityLoopA))
 	{
 		for(CvCity* pCityB = m_pPlayer->firstCity(&iCityLoopB); pCityB != NULL; pCityB = m_pPlayer->nextCity(&iCityLoopB))

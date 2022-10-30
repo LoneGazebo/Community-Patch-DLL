@@ -1952,7 +1952,8 @@ void CvPlot::updateSight(bool bIncrement)
 void CvPlot::updateSeeFromSight(bool bIncrement, bool bRecalculate)
 {
 	CvPlot* pLoopPlot = NULL;
-	int iDX = 0, iDY = 0;
+	int iDX = 0;
+	int iDY = 0;
 
 	int iRange = 1 + /*1*/ GD_INT_GET(UNIT_VISIBILITY_RANGE);
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
@@ -12529,7 +12530,8 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 void CvPlot::processArea(CvArea* pArea, int iChange)
 {
 	CvCity* pCity = NULL;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	pArea->changeNumTiles(iChange);
 

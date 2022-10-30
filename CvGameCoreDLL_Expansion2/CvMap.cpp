@@ -501,7 +501,10 @@ void CvMap::PrecalcNeighbors()
 	if (!pNeighbors)
 		return;
 
-	int iNX = 0, iNY = 0, iHX = 0, iHY = 0;
+	int iNX = 0;
+	int iNY = 0;
+	int iHX = 0;
+	int iHY = 0;
 
 	for(int iY = 0; iY < iH; iY++)
 	{
@@ -851,7 +854,8 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 	CvPlot* pLoopPlot = NULL;
 	bool bValid = false;
 	int iCount = 0;
-	int iDX = 0, iDY = 0;
+	int iDX = 0;
+	int iDY = 0;
 
 	pPlot = NULL;
 
@@ -1157,7 +1161,8 @@ int CvMap::getMapFractalFlags()
 bool CvMap::findWater(CvPlot* pPlot, int iRange, bool bFreshWater)
 {
 	CvPlot* pLoopPlot = NULL;
-	int iDX = 0, iDY = 0;
+	int iDX = 0;
+	int iDY = 0;
 	int iPlotX = pPlot->getX();
 	int iPlotY = pPlot->getY();
 

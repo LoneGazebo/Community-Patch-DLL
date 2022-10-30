@@ -2844,7 +2844,9 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					// Unlike the city hit points, the population damage is calculated when the pre-calculated damage is applied.
 					// This is simply to save space in the damage array, since the combat visualization does not need it.
 					// It can be moved into the pre-calculated damage array if needed.
-					int iBaseDamage = 0, iRandDamage1 = 0, iRandDamage2 = 0;
+					int iBaseDamage = 0;
+					int iRandDamage1 = 0;
+					int iRandDamage2 = 0;
 					// How much destruction is unleashed on nearby Cities?
 					if(iDamageLevel == 1)
 					{

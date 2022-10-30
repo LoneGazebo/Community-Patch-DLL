@@ -543,7 +543,8 @@ void CvBarbarians::DoCamps()
 	}
 
 	CvMap& theMap = GC.getMap();
-	int iNumCampsInExistence = 0, iNumCoastalCamps = 0;
+	int iNumCampsInExistence = 0;
+	int iNumCoastalCamps = 0;
 	int iMajorCapitalMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL);
 	int iBarbCampMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP);
 	int iRecentlyClearedCampMinDistance = /*2*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP);
@@ -806,7 +807,8 @@ void CvBarbarians::DoCamps()
 		vValidPlots.clear();
 		vValidCoastalPlots.clear();
 
-		int iNewCampX = pPlot->getX(), iNewCampY = pPlot->getY();
+		int iNewCampX = pPlot->getX();
+		int iNewCampY = pPlot->getY();
 		for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 		{
 			CvPlot* pLoopPlot = vValidPlots[iI];

@@ -1593,7 +1593,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	}
 
 	// Civs are given AI victory pursuit hints/biases in the Leaders table, so retrieve those now
-	VictoryPursuitTypes ePrimaryVictory = NO_VICTORY_PURSUIT, eSecondaryVictory = NO_VICTORY_PURSUIT;
+	VictoryPursuitTypes ePrimaryVictory = NO_VICTORY_PURSUIT;
+	VictoryPursuitTypes eSecondaryVictory = NO_VICTORY_PURSUIT;
 	LeaderHeadTypes leader = iNumValidOptions > 2 ? GetPlayer()->getPersonalityType() : GetPlayer()->getLeaderType(); // ignore Random Personalities when retrieving victory pursuit hints for highly specialized scenarios
 	if (leader != NO_LEADER)
 	{
@@ -1608,7 +1609,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// If only TWO options are valid, we have only two choices...though at least we can use the pursuit hints to prioritize this time.
 	if (iNumValidOptions == 2)
 	{
-		VictoryPursuitTypes eOptionOne = NO_VICTORY_PURSUIT, eOptionTwo = NO_VICTORY_PURSUIT;
+		VictoryPursuitTypes eOptionOne = NO_VICTORY_PURSUIT;
+		VictoryPursuitTypes eOptionTwo = NO_VICTORY_PURSUIT;
 
 		if (bCanUnlockTechs)
 		{
@@ -2095,7 +2097,9 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	}
 
 	SortedVictoryScores.SortItems();
-	VictoryPursuitTypes eHighestScore = SortedVictoryScores.GetElement(0), eRunnerUp = SortedVictoryScores.GetElement(1), eChosenPrimary = NO_VICTORY_PURSUIT;
+	VictoryPursuitTypes eHighestScore = SortedVictoryScores.GetElement(0);
+	VictoryPursuitTypes eRunnerUp = SortedVictoryScores.GetElement(1);
+	VictoryPursuitTypes eChosenPrimary = NO_VICTORY_PURSUIT;
 
 	if (SortedVictoryScores.GetWeight(0) > SortedVictoryScores.GetWeight(1))
 	{
@@ -2809,7 +2813,9 @@ int CvDiplomacyAI::GetScoreVictoryProgress() const
 		return 0;
 	}
 
-	int iProgress = 0, iOurScore = 0, iHighestScore = 0;
+	int iProgress = 0;
+	int iOurScore = 0;
+	int iHighestScore = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -2843,7 +2849,10 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 		return 0;
 	}
 
-	int iCivsProgress = 0, iTotalCivs = 0, iOurMight = 0, iTotalMight = 0;
+	int iCivsProgress = 0;
+	int iTotalCivs = 0;
+	int iOurMight = 0;
+	int iTotalMight = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
@@ -2927,7 +2936,8 @@ int CvDiplomacyAI::GetScienceVictoryProgress() const
 		return 0;
 	}
 
-	int iProjectsRequired = 0, iProjectsCompleted = 0;
+	int iProjectsRequired = 0;
+	int iProjectsCompleted = 0;
 	for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
 	{
 		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
@@ -10101,8 +10111,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetOwnedReligion();
 
 			// Evaluate our danger and their danger from this war
-			int iNumOurCities = 0, iNumOurCitiesInDanger = 0, iNumTheirCities = 0, iNumTheirCitiesInDanger = 0, iOurDanger = 0, iTheirDanger = 0;
-			bool bSeriousDangerUs = false, bSeriousDangerThem = false;
+			int iNumOurCities = 0;
+			int iNumOurCitiesInDanger = 0;
+			int iNumTheirCities = 0;
+			int iNumTheirCitiesInDanger = 0;
+			int iOurDanger = 0;
+			int iTheirDanger = 0;
+			bool bSeriousDangerUs = false;
+			bool bSeriousDangerThem = false;
 			vector<PlayerTypes> vOurWarAllies = GetPlayer()->GetWarAllies(eLoopPlayer), vTheirWarAllies = GET_PLAYER(eLoopPlayer).GetWarAllies(GetID());
 
 			for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
@@ -11975,7 +11991,8 @@ void CvDiplomacyAI::DoExpansionBickering()
 	if (GetPlayer()->isHuman())
 		return;
 
-	int iLoop = 0, iLoop2 = 0;
+	int iLoop = 0;
+	int iLoop2 = 0;
 	int iGameTurn = GC.getGame().getGameTurn();
 	int iExpansionBickerRange = GetExpansionBickerRange();
 
@@ -13186,7 +13203,11 @@ bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 			bool bResurrected = WasResurrectedBy(ePlayer);
 
 			// If multiple players on ePlayer's team backstab the same player in the same way, it still only counts as one betrayal
-			bool bFriendDenouncedUs = false, bFriendAttackedUs = false, bBrokeMilitaryPromise = false, bBrokeAttackCityStatePromise = false, bBrokeVassalAgreement = false;
+			bool bFriendDenouncedUs = false;
+			bool bFriendAttackedUs = false;
+			bool bBrokeMilitaryPromise = false;
+			bool bBrokeAttackCityStatePromise = false;
+			bool bBrokeVassalAgreement = false;
 
 			for (size_t i=0; i<vTheirTeam.size(); i++)
 			{
@@ -15146,38 +15167,59 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Initialize some variables that are called repeatedly here, just for convenience
 	PlayerTypes eMyPlayer = GetID();
-	TeamTypes eMyTeam = GetTeam(), eTeam = GET_PLAYER(ePlayer).getTeam();
+	TeamTypes eMyTeam = GetTeam();
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	PlayerProximityTypes eProximity = (PlayerProximityTypes) max((int)GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()), (int)GetPlayer()->GetProximityToPlayer(ePlayer));
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 	bool bMetValidMinor = GetPlayer()->HasMetValidMinorCiv();
 	CvDiplomacyAI* pTheirDiplo = GET_PLAYER(ePlayer).GetDiplomacyAI();
 
 	// Turn/Era
-	int iMyEra = GetPlayer()->GetCurrentEra(), iTheirEra = GET_PLAYER(ePlayer).GetCurrentEra(), iGameEra = GC.getGame().getCurrentEra(), iGameTurn = GC.getGame().getGameTurn();
+	int iMyEra = GetPlayer()->GetCurrentEra();
+	int iTheirEra = GET_PLAYER(ePlayer).GetCurrentEra();
+	int iGameEra = GC.getGame().getCurrentEra();
+	int iGameTurn = GC.getGame().getGameTurn();
 
 	bool bWeHaveUUTech = GetPlayer()->HasUUPeriod() && GetPlayer()->GetPlayerTechs()->HasUUTech();
 	bool bWeHaveUUActive = bWeHaveUUTech && GetPlayer()->HasUUActive();
 
 	// Player traits
 	CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
-	bool bConquerorTraits = pTraits->IsWarmonger(), bDiplomatTraits = pTraits->IsDiplomat(), bCulturalTraits = pTraits->IsTourism(), bScientistTraits = pTraits->IsNerd();
+	bool bConquerorTraits = pTraits->IsWarmonger();
+	bool bDiplomatTraits = pTraits->IsDiplomat();
+	bool bCulturalTraits = pTraits->IsTourism();
+	bool bScientistTraits = pTraits->IsNerd();
 
 	// Victory stuff
-	bool bCloseToWorldConquest = IsCloseToWorldConquest(), bCloseToDiploVictory = IsCloseToDiploVictory(), bCloseToScienceVictory = IsCloseToSpaceshipVictory(), bCloseToCultureVictory = IsCloseToCultureVictory();
+	bool bCloseToWorldConquest = IsCloseToWorldConquest();
+	bool bCloseToDiploVictory = IsCloseToDiploVictory();
+	bool bCloseToScienceVictory = IsCloseToSpaceshipVictory();
+	bool bCloseToCultureVictory = IsCloseToCultureVictory();
 	bool bCloseToAnyVictory = bCloseToWorldConquest || bCloseToDiploVictory || bCloseToScienceVictory || bCloseToCultureVictory;
-	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToWorldConquest(), bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory(), bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSpaceshipVictory(), bTheyAreCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
+	bool bTheyAreCloseToWorldConquest = pTheirDiplo->IsCloseToWorldConquest();
+	bool bTheyAreCloseToDiploVictory = pTheirDiplo->IsCloseToDiploVictory();
+	bool bTheyAreCloseToScienceVictory = pTheirDiplo->IsCloseToSpaceshipVictory();
+	bool bTheyAreCloseToCultureVictory = pTheirDiplo->IsCloseToCultureVictory();
 
 	// Possessions
-	int iNumOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown(), iNumTheirTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
-	bool bWeLostCapital = GetPlayer()->IsHasLostCapital(), bTheyLostCapital = GET_PLAYER(ePlayer).IsHasLostCapital();
-	bool bCapturedOurCapital = IsCapitalCapturedBy(ePlayer, true, false), bCapturedOurHolyCity = IsHolyCityCapturedBy(ePlayer, true, false);
-	bool bCapturedTheirCapital = pTheirDiplo->IsCapitalCapturedBy(eMyPlayer, true, false), bCapturedTheirHolyCity = pTheirDiplo->IsHolyCityCapturedBy(eMyPlayer, true, false);
+	int iNumOurTechs = GET_TEAM(GetTeam()).GetTeamTechs()->GetNumTechsKnown();
+	int iNumTheirTechs = GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
+	bool bWeLostCapital = GetPlayer()->IsHasLostCapital();
+	bool bTheyLostCapital = GET_PLAYER(ePlayer).IsHasLostCapital();
+	bool bCapturedOurCapital = IsCapitalCapturedBy(ePlayer, true, false);
+	bool bCapturedOurHolyCity = IsHolyCityCapturedBy(ePlayer, true, false);
+	bool bCapturedTheirCapital = pTheirDiplo->IsCapitalCapturedBy(eMyPlayer, true, false);
+	bool bCapturedTheirHolyCity = pTheirDiplo->IsHolyCityCapturedBy(eMyPlayer, true, false);
 	bool bEverCapturedKeyCity = IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer); // this also checks teammates
 	int iNumOurCitiesTheyOwn = GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer);
 
 	// Evaluations
-	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer), eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
-	bool bUntrustworthy = IsUntrustworthy(ePlayer), bEarlyGameCompetitor = IsEarlyGameCompetitor(ePlayer), bEasyTarget = IsEasyTarget(ePlayer), bGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+	StrengthTypes eMilitaryStrength = GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	StrengthTypes eEconomicStrength = GetPlayerEconomicStrengthComparedToUs(ePlayer);
+	bool bUntrustworthy = IsUntrustworthy(ePlayer);
+	bool bEarlyGameCompetitor = IsEarlyGameCompetitor(ePlayer);
+	bool bEasyTarget = IsEasyTarget(ePlayer);
+	bool bGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
 
 	// They're only an easy target if we're not already at war with somebody else.
 	// ...however, if we're already at war with them, let's keep this weight.
@@ -26048,7 +26090,8 @@ int CvDiplomacyAI::CountUnitsAroundEnemyCities(PlayerTypes ePlayer, int iTurnRan
 	if (ePlayer == NO_PLAYER)
 		return 0;
 
-	int iCount = 0, iUnitLoop = 0;
+	int iCount = 0;
+	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		if (!pLoopUnit->IsCanAttack() || pLoopUnit->isDelayedDeath() || pLoopUnit->isProjectedToDieNextTurn())
@@ -26074,7 +26117,10 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		return;
 
 	vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
-	int iMyCurrentGPT = 0, iAverageMeanness = 0, iAverageDoFWillingness = 0, iNumTeamMembers = 0;
+	int iMyCurrentGPT = 0;
+	int iAverageMeanness = 0;
+	int iAverageDoFWillingness = 0;
+	int iNumTeamMembers = 0;
 	bool bNotLowestEconomicMight = false;
 	bool bAnyoneInDireStraits = false;
 	int iMinTaxRate = /*0*/ GD_INT_GET(VASSALAGE_VASSAL_TAX_PERCENT_MINIMUM);
@@ -26140,7 +26186,10 @@ void CvDiplomacyAI::DetermineVassalTaxRates()
 		}
 
 		bool bTheyAreInDireStraits = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING || GET_PLAYER(ePlayer).IsEmpireVeryUnhappy();
-		int iVassalCurrentGPT = GET_PLAYER(ePlayer).getAvgGoldRate(), iVassalCurrentGross = GET_PLAYER(ePlayer).GetTreasury()->CalculateGrossGoldTimes100(), iAverageOpinionScore = 0, iNumOpinions = 0;
+		int iVassalCurrentGPT = GET_PLAYER(ePlayer).getAvgGoldRate();
+		int iVassalCurrentGross = GET_PLAYER(ePlayer).GetTreasury()->CalculateGrossGoldTimes100();
+		int iAverageOpinionScore = 0;
+		int iNumOpinions = 0;
 		for (size_t i=0; i<vTheirTeam.size(); i++)
 		{
 			if (!GET_PLAYER(vTheirTeam[i]).isAlive() || !GET_PLAYER(vTheirTeam[i]).isMajorCiv() || GET_PLAYER(vTheirTeam[i]).getNumCities() <= 0)
