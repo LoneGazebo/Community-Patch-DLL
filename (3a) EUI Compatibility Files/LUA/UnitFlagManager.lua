@@ -733,7 +733,7 @@ end
 local function UpdatePromotions(playerID, unitID)
 	local flag = g_UnitFlags[ playerID ][ unitID ]
 	if flag == nil then 
-		DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
+		-- DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
 		return
 	end
 
@@ -749,7 +749,7 @@ local function UpdatePromotions(playerID, unitID)
 	local unit = player:GetUnitByID(unitID)
 	if unit == nil then 
 		--that's weird, ah well nevermind!
-		DebugPrint("UpdatePromotions, flag exists but, unit appears to be nil, bailing out... playerID:" .. tostring(playerID) ..  ", unitID:".. tostring(unitID))
+		-- DebugPrint("UpdatePromotions, flag exists but, unit appears to be nil, bailing out... playerID:" .. tostring(playerID) ..  ", unitID:".. tostring(unitID))
 		return
 	end
 
