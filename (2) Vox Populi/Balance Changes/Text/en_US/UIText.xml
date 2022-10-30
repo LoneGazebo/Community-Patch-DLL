@@ -1681,7 +1681,7 @@
 		</Row>
 	<!-- UI - Improved Military Overview -->
 		<Row Tag="TXT_KEY_XP">
-			<Text>XP</Text>
+			<Text>XP/Lvl</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_MO_SORT_XP">
