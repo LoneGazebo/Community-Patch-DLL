@@ -45,8 +45,9 @@ CvCitySpecializationXMLEntry::~CvCitySpecializationXMLEntry(void)
 //------------------------------------------------------------------------------
 bool CvCitySpecializationXMLEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iSubtype = kResults.GetInt("SubType");
@@ -320,16 +321,19 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 void CvCitySpecializationAI::DoTurn()
 {
 	// No city specializations for humans!
-	if (m_pPlayer->isHuman())
+	if (m_pPlayer->isHuman()) {
 		return;
+}
 
 	// No city specializations for minor civs
-	if (m_pPlayer->isMinorCiv())
+	if (m_pPlayer->isMinorCiv()) {
 		return;
+}
 
 	// No city specializations early in the game
-	if (GC.getGame().getGameTurn() < /*25*/ GD_INT_GET(AI_CITY_SPECIALIZATION_EARLIEST_TURN))
+	if (GC.getGame().getGameTurn() < /*25*/ GD_INT_GET(AI_CITY_SPECIALIZATION_EARLIEST_TURN)) {
 		return;
+}
 
 	int iCityLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
@@ -348,16 +352,18 @@ void CvCitySpecializationAI::DoTurn()
 		if (eOldWonder != m_eNextWonderDesired)
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
-			if (pkBuildingInfo != 0)
+			if (pkBuildingInfo != 0) {
 				LogMsg(CvString("Next desired wonder is ") + pkBuildingInfo->GetDescription());
+}
 		}
 
 		m_bChooseNewWonder = false;
 	}
 
 	// No city specialization if we don't have enough cities
-	if (m_pPlayer->getNumCities() < 2)
+	if (m_pPlayer->getNumCities() < 2) {
 		return;
+}
 
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || ((m_iLastTurnEvaluated + /*35*/ GD_INT_GET(AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL)) <= GC.getGame().getGameTurn()))
@@ -471,22 +477,28 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 	 if (m_pPlayer->getCapitalCity() != NULL)
 	 {
 		 int iFlavorGold = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
-		 if (iFlavorGold < 0) iFlavorGold = 0;
+		 if (iFlavorGold < 0) { iFlavorGold = 0;
+}
 
 		 int iFlavorScience = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-		 if (iFlavorScience < 0) iFlavorScience = 0;
+		 if (iFlavorScience < 0) { iFlavorScience = 0;
+}
 
 		 int iFlavorGrowth = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
-		 if (iFlavorGrowth < 0) iFlavorGrowth = 0;
+		 if (iFlavorGrowth < 0) { iFlavorGrowth = 0;
+}
 
 		 int iFlavorCulture = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-		 if (iFlavorCulture < 0) iFlavorCulture = 0;
+		 if (iFlavorCulture < 0) { iFlavorCulture = 0;
+}
 
 		 int iFlavorFaith = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		 if (iFlavorFaith < 0) iFlavorFaith = 0;
+		 if (iFlavorFaith < 0) { iFlavorFaith = 0;
+}
 
 		 int iFlavorProduction = 10 * m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
-		 if (iFlavorProduction < 0) iFlavorProduction = 0;
+		 if (iFlavorProduction < 0) { iFlavorProduction = 0;
+}
 
 		 //   Add in any contribution from the current grand strategy
 		 CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
@@ -557,11 +569,14 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	int iSpaceshipWeight = 0;
 
 	int iFlavorWonder = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER"));
-	if (iFlavorWonder < 0) iFlavorWonder = 0;
+	if (iFlavorWonder < 0) { iFlavorWonder = 0;
+}
 	int iFlavorSpaceship = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
-	if (iFlavorSpaceship < 0) iFlavorSpaceship = 0;
+	if (iFlavorSpaceship < 0) { iFlavorSpaceship = 0;
+}
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-	if (iFlavorOffense < 0) iFlavorOffense = 0;
+	if (iFlavorOffense < 0) { iFlavorOffense = 0;
+}
 
 	int iUnitsRequested = m_pPlayer->GetNumUnitsNeededToBeBuilt();
 
@@ -799,8 +814,9 @@ vector<int> CvCitySpecializationAI::CityValueForUnworkedTileYields(CvCity* pCity
 			for (int iYield = 0; iYield < YIELD_TOURISM; iYield++)
 			{
 				int iPotentialYield = pLoopPlot->getYield((YieldTypes)iYield);
-				if (iYield == YIELD_FOOD) //a plot needs to be worked by a citizen who needs food
+				if (iYield == YIELD_FOOD) { //a plot needs to be worked by a citizen who needs food
 					iPotentialYield = max(0, iPotentialYield - /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION));
+}
 
 				result[iYield] += iPotentialYield*100; //to make sure modifiers are not rounded away later on
 			}
@@ -981,11 +997,13 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
-			if (pkBuildingInfo == 0)
+			if (pkBuildingInfo == 0) {
 				continue;
+}
 
-			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
+			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType())) {
 				return pBestCity;
+}
 		}
 	}
 
@@ -1001,8 +1019,9 @@ int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldType
 	{
 		int iMod = pCity->GetPoverty(false) * 20;
 		int iGPT = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
-		if (iGPT < 0)
+		if (iGPT < 0) {
 			iMod -= iGPT;
+}
 
 		iRtnValue = iInitialValue * (100 + iMod) / 100;
 	}

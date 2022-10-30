@@ -259,8 +259,9 @@ CvUnitEntry::~CvUnitEntry(void)
 
 bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iProductionCost = kResults.GetInt("Cost");
@@ -1778,8 +1779,9 @@ bool CvUnitEntry::IsGreatWorkUnit() const
 {
 	for (int i = 0; i < GetNumUnitNames(); i++)
 	{
-		if (GetGreatWorks(i) != NO_GREAT_WORK)
+		if (GetGreatWorks(i) != NO_GREAT_WORK) {
 			return true;
+}
 	}
 	return false;
 }
@@ -1936,8 +1938,9 @@ void CvUnitEntry::DoUpdatePower()
 	for (int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
 	{
 		CvPromotionEntry* kPromotion = GC.getPromotionInfo((PromotionTypes)iPromotionLoop);
-		if (kPromotion == NULL)
+		if (kPromotion == NULL) {
 			continue;
+}
 
 		if (GetFreePromotions(iPromotionLoop))
 		{
@@ -2097,10 +2100,12 @@ void CvUnitEntry::DoUpdatePower()
 
 UnitMoveRate CvUnitEntry::GetMoveRate(int numHexes) const
 {
-	if(numHexes < 0)
+	if(numHexes < 0) {
 		numHexes = 0;
-	if(numHexes > 11)
+}
+	if(numHexes > 11) {
 		numHexes = 11;
+}
 	return m_unitMoveRate[numHexes];
 }
 

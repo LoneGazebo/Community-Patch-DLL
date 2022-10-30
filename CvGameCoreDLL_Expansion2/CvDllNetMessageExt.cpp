@@ -6,8 +6,9 @@ namespace NetMessageExt
 	namespace Process
 	{
 		bool ResponseMoveGreatWorks(PlayerTypes ePlayer, int iArg1, int iArg2, int iArg3, int iArg4, int iArg5, int iArg6) {
-			if (iArg6 < 999)
+			if (iArg6 < 999) {
 				return false;
+}
 			switch (iArg6)
 			{
 				case 999:				

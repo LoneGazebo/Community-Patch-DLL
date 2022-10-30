@@ -53,8 +53,9 @@ static void AddToSortedList(CvCityManager::CityList &kCityList, int iFromX, int 
 			}
 		}
 
-		if (!bAdded)
+		if (!bAdded) {
 			kCityList.push_back(pkAddCity);
+}
 	}
 }
 

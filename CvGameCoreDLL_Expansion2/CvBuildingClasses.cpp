@@ -547,8 +547,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 /// Read from XML file
 bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iGoldMaintenance = kResults.GetInt("GoldMaintenance");
@@ -1586,8 +1587,9 @@ const CvBuildingClassInfo& CvBuildingEntry::GetBuildingClassInfo() const
 		CvAssertMsg(false, szError);
 		return emptyResult;
 	}
-	else
+	else {
 		return *m_pkBuildingClassInfo;
+}
 }
 
 /// Does this building require a city built on or next to a specific terrain type?
@@ -3820,10 +3822,12 @@ int CvBuildingEntry::GetYieldFromYield(int i, int j) const
 		{
 			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
 			{
-				if (m_paYieldFromYield[iI].GetYieldIn() != i)
+				if (m_paYieldFromYield[iI].GetYieldIn() != i) {
 					continue;
-				if (m_paYieldFromYield[iI].GetYieldOut() != j)
+}
+				if (m_paYieldFromYield[iI].GetYieldOut() != j) {
 					continue;
+}
 
 				return m_paYieldFromYield[iI].GetValue();
 			}
@@ -3851,10 +3855,12 @@ int CvBuildingEntry::GetYieldFromYieldGlobal(int i, int j) const
 		{
 			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
 			{
-				if (m_paYieldFromYieldGlobal[iI].GetYieldIn() != i)
+				if (m_paYieldFromYieldGlobal[iI].GetYieldIn() != i) {
 					continue;
-				if (m_paYieldFromYieldGlobal[iI].GetYieldOut() != j)
+}
+				if (m_paYieldFromYieldGlobal[iI].GetYieldOut() != j) {
 					continue;
+}
 
 				return m_paYieldFromYieldGlobal[iI].GetValue();
 			}
@@ -4213,8 +4219,9 @@ int CvBuildingEntry::GetNoUnhappfromXSpecialistsGlobal() const
 
 int CvBuildingEntry::GetPurchaseCooldownReduction(bool bCivilian) const
 {
-	if (bCivilian)
+	if (bCivilian) {
 		return m_iPurchaseCooldownReductionCivilian;
+}
 
 	return m_iPurchaseCooldownReduction;
 }
@@ -4663,33 +4670,40 @@ int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
 /// Is the player allowed to sell building eIndex in this city?
 bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 {
-	if (m_pCity->IsResistance())
+	if (m_pCity->IsResistance()) {
 		return false;
+}
 
 	// Can't sell more than one building per turn
-	if(IsSoldBuildingThisTurn())
+	if(IsSoldBuildingThisTurn()) {
 		return false;
+}
 
 	// Venice can't sell any buildings except in their capital (check is needed because Venice can raze cities)
-	if (!m_pCity->isCapital() && GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if (!m_pCity->isCapital() && GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing()) {
 		return false;
+}
 
 	// Can't sell in puppet cities
-	if (m_pCity->IsPuppet())
+	if (m_pCity->IsPuppet()) {
 		return false;
+}
 
 	// Can't sell a building if it doesn't cost us anything (no exploits)
-	if(kBuilding.GetGoldMaintenance() <= 0)
+	if(kBuilding.GetGoldMaintenance() <= 0) {
 		return false;
+}
 
 	// Is this a free building?
-	if(GetNumFreeBuilding((BuildingTypes)kBuilding.GetID()) > 0)
+	if(GetNumFreeBuilding((BuildingTypes)kBuilding.GetID()) > 0) {
 		return false;
+}
 
 #if defined(MOD_BALANCE_CORE)
 	// prevent exploits - can't sell in damaged cities
-	if (m_pCity->getDamage() > 0)
+	if (m_pCity->getDamage() > 0) {
 		return false;
+}
 
 	//Spawns a permanent resource? Can't sell.
 	if(kBuilding.GrantsRandomResourceTerritory() != 0)
@@ -4705,16 +4719,19 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	{
 		return false;
 	}
-	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge() || kBuilding.GetPopulationChange() != 0)
+	if (kBuilding.GetWLTKDTurns() > 0 || kBuilding.IsGoldenAge() || kBuilding.GetPopulationChange() != 0) {
 		return false;
+}
 
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		if ((YieldTypes)iYieldLoop == NO_YIELD)
+		if ((YieldTypes)iYieldLoop == NO_YIELD) {
 			continue;
+}
 
-		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0)
+		if (kBuilding.GetInstantYield((YieldTypes)iYieldLoop) > 0) {
 			return false;
+}
 	}
 #endif
 
@@ -4761,12 +4778,14 @@ void CvCityBuildings::DoSellBuilding(BuildingTypes eIndex)
 	CvAssertMsg(eIndex < GetNumBuildings(), "eIndex expected to be < GetNumBuildings()");
 
 	CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eIndex);
-	if(pkBuildingEntry == 0)
+	if(pkBuildingEntry == 0) {
 		return;
+}
 
 	// Can we actually do this?
-	if(!IsBuildingSellable(*pkBuildingEntry))
+	if(!IsBuildingSellable(*pkBuildingEntry)) {
 		return;
+}
 
 	// Gold refund
 	int iRefund = GetSellBuildingRefund(eIndex);
@@ -4801,8 +4820,9 @@ bool CvCityBuildings::IsSoldBuildingThisTurn() const
 /// Has a building already been sold this turn?
 void CvCityBuildings::SetSoldBuildingThisTurn(bool bValue)
 {
-	if(IsSoldBuildingThisTurn() != bValue)
+	if(IsSoldBuildingThisTurn() != bValue) {
 		m_bSoldBuildingThisTurn = bValue;
+}
 }
 
 /// What is the total maintenance? (no modifiers)
@@ -4817,8 +4837,9 @@ int CvCityBuildings::GetTotalBaseBuildingMaintenance() const
 
 		if(pkBuildingInfo != 0)
 		{
-			if(GetNumBuilding(eBuilding) != 0)
+			if(GetNumBuilding(eBuilding) != 0) {
 				iTotalCost += (pkBuildingInfo->GetGoldMaintenance() * GetNumBuilding(eBuilding));
+}
 		}
 	}
 
@@ -5235,8 +5256,9 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 
 		//Test for any achievements being unlocked.
-		if (MOD_API_ACHIEVEMENTS)
+		if (MOD_API_ACHIEVEMENTS) {
 			pPlayer->GetPlayerAchievements().FinishedBuilding(m_pCity, eIndex);
+}
 	}
 }
 
@@ -5725,18 +5747,20 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 		if (pReligion != 0)
 		{
-			if (eYield == YIELD_CULTURE)
+			if (eYield == YIELD_CULTURE) {
 				iBaseYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
-			else
+			} else {
 				iSecondaryYield += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield, m_pCity->getOwner(), m_pCity);
+}
 			
 			eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-				if (eYield == YIELD_CULTURE)
+				if (eYield == YIELD_CULTURE) {
 					iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
-				else
+				} else {
 					iSecondaryYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+}
 			}
 		}
 	}
@@ -5753,10 +5777,11 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
 				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 				{
-					if (eYield == YIELD_CULTURE)
+					if (eYield == YIELD_CULTURE) {
 						iBaseYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
-					else
+					} else {
 						iSecondaryYield += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetGreatWorkYieldChange(eYield);
+}
 				}
 			}
 		}
@@ -5840,8 +5865,9 @@ int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot, bool bAr
 int CvCityBuildings::GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const
 #endif
 {
-	if (eGreatWorkSlot == NO_GREAT_WORK_SLOT)
+	if (eGreatWorkSlot == NO_GREAT_WORK_SLOT) {
 		return 0;
+}
 
 	int iRtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
@@ -6122,12 +6148,14 @@ void CvCityBuildings::ChangeMissionaryExtraSpreads(int iChange)
 
 void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return;
+}
 
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
-	if (pkBuildingClassInfo == NULL)
+	if (pkBuildingClassInfo == NULL) {
 		return;
+}
 
 	const char* szWonderTypeChar = pkBuildingClassInfo->GetType();
 	CvString szWonderType = szWonderTypeChar;
@@ -6286,13 +6314,15 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 	}
 
 	bool bCheckForWonders = CheckForAllWondersBuilt();
-	if (bCheckForWonders)
+	if (bCheckForWonders) {
 		gDLL->UnlockAchievement(ACHIEVEMENT_ALL_WONDERS);
+}
 
 	//DLC_06
 	bool bCheckForAncientWonders = CheckForSevenAncientWondersBuilt();
-	if (bCheckForAncientWonders)
+	if (bCheckForAncientWonders) {
 		gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_ANCIENT_WONDERS);
+}
 }
 
 bool CvCityBuildings::CheckForAllWondersBuilt()

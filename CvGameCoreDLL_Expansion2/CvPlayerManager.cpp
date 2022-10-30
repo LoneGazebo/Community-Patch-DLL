@@ -21,8 +21,9 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		// Must be alive
-		if(!kPlayer.isAlive())
+		if(!kPlayer.isAlive()) {
 			continue;
+}
 
 		//this is called after a declaration of war and after loading a savegame
 		kPlayer.invalidatePlotFoundValues();
@@ -36,8 +37,9 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 #endif
 
 		//only after loading, force danger update (only known enemy units are serialized)
-		if(!bWarStateChanged && (kPlayer.m_pDangerPlots != 0))
+		if(!bWarStateChanged && (kPlayer.m_pDangerPlots != 0)) {
 			kPlayer.UpdateDangerPlots(true);
+}
 
 		if (bWarStateChanged)
 		{

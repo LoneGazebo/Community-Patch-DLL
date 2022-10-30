@@ -36,8 +36,9 @@ CvProjectEntry::~CvProjectEntry(void)
 //------------------------------------------------------------------------------
 bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");

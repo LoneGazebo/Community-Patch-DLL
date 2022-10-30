@@ -22,14 +22,16 @@ CvDllPlayer::CvDllPlayer(CvPlayerAI* pPlayer)
 	: m_pPlayer(pPlayer)
 	, m_uiRefCount(1)
 {
-	if(gDLL)
+	if(gDLL) {
 		gDLL->GetGameCoreLock();
+}
 }
 //------------------------------------------------------------------------------
 CvDllPlayer::~CvDllPlayer()
 {
-	if(gDLL)
+	if(gDLL) {
 		gDLL->ReleaseGameCoreLock();
+}
 }
 //------------------------------------------------------------------------------
 void* CvDllPlayer::QueryInterface(GUID guidInterface)
@@ -443,10 +445,12 @@ bool CvDllPlayer::GetCurrentResearchTech(TechTypes* pkTech, int *pkTurnsLeft) co
 	CvPlayerTechs* pkTechs = m_pPlayer->GetPlayerTechs();
 	if (pkTechs != 0)
 	{
-		if (pkTech != 0)
+		if (pkTech != 0) {
 			*pkTech = pkTechs->GetCurrentResearch();
-		if (pkTurnsLeft != 0)
+}
+		if (pkTurnsLeft != 0) {
 			*pkTurnsLeft = pkTechs->GetResearchTurnsLeft(pkTechs->GetCurrentResearch(), false);
+}
 		return true;
 	}
 	return false;

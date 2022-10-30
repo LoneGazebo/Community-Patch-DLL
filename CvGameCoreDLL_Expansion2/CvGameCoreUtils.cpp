@@ -107,10 +107,11 @@ int plotDistance(int iIndexA, int iIndexB)
 	CvMap& kMap = GC.getMap();
 	CvPlot* pA = kMap.plotByIndex(iIndexA);
 	CvPlot* pB = kMap.plotByIndex(iIndexB);
-	if ((pA != 0) && (pB != 0))
+	if ((pA != 0) && (pB != 0)) {
 		return plotDistance(pA->getX(),pA->getY(),pB->getX(),pB->getY());
-	else
+	} else {
 		return INT_MAX;
+}
 }
 
 CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
@@ -205,8 +206,9 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
 CvPlot* iterateRingPlots(const CvPlot* pCenter, int iIndex)
 {
-	if (pCenter != 0)
+	if (pCenter != 0) {
 		return iterateRingPlots(pCenter->getX(),pCenter->getY(),iIndex);
+}
 
 	return NULL;
 }
@@ -316,8 +318,9 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 	int iDY = dyWrap(iDestY - iStartY);
 
 	//undefined
-	if (iDX==0 && iDY==0)
+	if (iDX==0 && iDY==0) {
 		return NO_DIRECTION;
+}
 
 	//reconstruct the Z coordinate
 	int iStartZ = -iStartXHex-iStartY;
@@ -343,10 +346,12 @@ DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDest
 int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDestBX, int iDestBY)
 {
 	//undefined
-	if (iStartX==iDestAX && iStartY==iDestAY)
+	if (iStartX==iDestAX && iStartY==iDestAY) {
 		return 0;
-	if (iStartX==iDestBX && iStartY==iDestBY)
+}
+	if (iStartX==iDestBX && iStartY==iDestBY) {
 		return 0;
+}
 
 	int iStartXHex = xToHexspaceX(iStartX,iStartY);
 	int iDestAXHex = xToHexspaceX(iDestAX,iDestAY);
@@ -381,10 +386,12 @@ bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)
 	}
 
 #ifdef VPDEBUG
-	if ((GET_TEAM(eTeamA).isAtWar(eTeamB) != GET_TEAM(eTeamB).isAtWar(eTeamA)))
+	if ((GET_TEAM(eTeamA).isAtWar(eTeamB) != GET_TEAM(eTeamB).isAtWar(eTeamA))) {
 		OutputDebugString("asymmetric war state!\n");
-	if (GET_TEAM(eTeamA).isAtWar(eTeamA) || GET_TEAM(eTeamB).isAtWar(eTeamB))
+}
+	if (GET_TEAM(eTeamA).isAtWar(eTeamA) || GET_TEAM(eTeamB).isAtWar(eTeamB)) {
 		OutputDebugString("team is at war with itself!\n");
+}
 #endif
 
 	return GET_TEAM(eTeamA).isAtWar(eTeamB);
@@ -416,8 +423,9 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
 	CvAssert(pSecondUnit != NULL);
 	CvAssert(pFirstUnit != pSecondUnit);
 
-	if((pFirstUnit == 0) || (pSecondUnit == 0))
+	if((pFirstUnit == 0) || (pSecondUnit == 0)) {
 		return false;
+}
 
 	if(pFirstUnit->getOwner() != pSecondUnit->getOwner())
 	{
@@ -458,8 +466,9 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 	CvUnitEntry* unitInfo = GC.getUnitInfo(eUnit);
 	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
 
-	if(unitInfo == NULL || promotionInfo == NULL)
+	if(unitInfo == NULL || promotionInfo == NULL) {
 		return false;
+}
 
 	// No combat class (civilians)
 	if(unitInfo->GetUnitCombatType() == NO_UNITCOMBAT)
@@ -485,8 +494,9 @@ bool IsPromotionValidForCivilianUnitType(PromotionTypes ePromotion, UnitTypes eU
 {
 	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
 
-	if(promotionInfo == NULL)
+	if(promotionInfo == NULL) {
 		return false;
+}
 
 	if(!(promotionInfo->GetCivilianUnitType((int)eUnit)))
 	{
@@ -501,8 +511,9 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader, 
 	CvUnitEntry* unitInfo = GC.getUnitInfo(eUnit);
 	CvPromotionEntry* promotionInfo = GC.getPromotionInfo(ePromotion);
 
-	if(unitInfo == NULL || promotionInfo == NULL)
+	if(unitInfo == NULL || promotionInfo == NULL) {
 		return false;
+}
 
 	// Can this Promotion not be chosen through normal leveling?
 	if(!bTestingPrereq && promotionInfo->IsCannotBeChosen())
@@ -685,10 +696,11 @@ int getLandPlotsScore(int iLandPlots)
 int getTechScore(TechTypes eTech)
 {
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-	if(pkTechInfo == NULL)
+	if(pkTechInfo == NULL) {
 		return 0;
-	else
+	} else {
 		return pkTechInfo->GetEra() + 1;
+}
 }
 
 int getWonderScore(BuildingClassTypes eWonderClass)
@@ -696,8 +708,9 @@ int getWonderScore(BuildingClassTypes eWonderClass)
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eWonderClass);
 	if(pkBuildingClassInfo != 0)
 	{
-		if(isLimitedWonderClass(*pkBuildingClassInfo))
+		if(isLimitedWonderClass(*pkBuildingClassInfo)) {
 			return 5;
+}
 	}
 
 	return 0;
@@ -1437,10 +1450,11 @@ static uint SkipGUIDSeparators(const char* pszGUID, uint uiStartIndex)
 		do
 		{
 			char ch = pszGUID[uiStartIndex];
-			if(ch == '{' || ch == '-' || ch == ' ')
+			if(ch == '{' || ch == '-' || ch == ' ') {
 				++uiStartIndex;
-			else
+			} else {
 				break;
+}
 
 		}
 		while(uiStartIndex < uiLength);
@@ -1451,14 +1465,15 @@ static uint SkipGUIDSeparators(const char* pszGUID, uint uiStartIndex)
 //	---------------------------------------------------------------------------
 static bool GetHexDigitValue(char ch, uint& uiValue)
 {
-	if(ch >= '0' && ch <= '9')
+	if(ch >= '0' && ch <= '9') {
 		uiValue = (uint)(ch - '0');
-	else if(ch >= 'a' && ch <= 'f')
+	} else if(ch >= 'a' && ch <= 'f') {
 		uiValue = (uint)((ch - 'a') + 10);
-	else if(ch >= 'A' && ch <= 'F')
+	} else if(ch >= 'A' && ch <= 'F') {
 		uiValue = (uint)((ch - 'A') + 10);
-	else
+	} else {
 		return false;
+}
 
 	return true;
 }
@@ -1510,8 +1525,9 @@ bool ExtractGUID(const char* pszGUID, GUID& kGUID, UINT* puiStartIndex /* = NULL
 						}
 					}
 
-					if(puiStartIndex != 0)
+					if(puiStartIndex != 0) {
 						*puiStartIndex = uiIndex;
+}
 					return true;
 				}
 			}
@@ -1537,14 +1553,15 @@ bool IsGUIDEmpty(const GUID& kGUID)
 //take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
 int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
 {
-	if (iHundredAt!=iZeroAt)
+	if (iHundredAt!=iZeroAt) {
 		return MIN( 100, MAX( 0, (iValue-iZeroAt)*100/(iHundredAt-iZeroAt) ) );
-	else if (iValue>iHundredAt)
+	} else if (iValue>iHundredAt) {
 		return 100;
-	else if (iValue<iZeroAt)
+	} else if (iValue<iZeroAt) {
 		return 0;
-	else
+	} else {
 		return 50;
+}
 }
 
 // add a fraction to a referenced fraction without losing information; the referenced fraction is assumed to have the larger dividend & divisor

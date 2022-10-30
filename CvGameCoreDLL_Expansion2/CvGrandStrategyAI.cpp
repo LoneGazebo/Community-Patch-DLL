@@ -34,8 +34,9 @@ CvAIGrandStrategyXMLEntry::~CvAIGrandStrategyXMLEntry(void)
 //------------------------------------------------------------------------------
 bool CvAIGrandStrategyXMLEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Arrays
 	const char* szType = GetType();
@@ -309,8 +310,9 @@ void CvGrandStrategyAI::DoTurn()
 			for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
-				if (ePlayer == NO_PLAYER || ePlayer == GetPlayer()->GetID())
+				if (ePlayer == NO_PLAYER || ePlayer == GetPlayer()->GetID()) {
 					continue;
+}
 
 				if (GET_PLAYER(ePlayer).isAlive())
 				{
@@ -420,8 +422,9 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 	
 	// Game options have disabled war as an option to win, so pick something else
-	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID()))
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID())) {
 		return -100;
+}
 
 	// If we're close to winning, let's go to the finish line!
 	if (GetPlayer()->GetDiplomacyAI()->IsCloseToWorldConquest())
@@ -496,8 +499,9 @@ int CvGrandStrategyAI::GetConquestPriority()
 			int iMilitaryRatio = (GetPlayer()->GetMilitaryMight() - iWorldMilitaryStrength) * /*100*/ GD_INT_GET(AI_GRAND_STRATEGY_CONQUEST_POWER_RATIO_MULTIPLIER) / iWorldMilitaryStrength;
 
 			// Make the likelihood of BECOMING a warmonger lower than dropping the bad behavior
-			if (iMilitaryRatio > 0)
+			if (iMilitaryRatio > 0) {
 				iMilitaryRatio /= 2;
+}
 
 			iPriority += iMilitaryRatio;	// This will add between -100 and 100 depending on this player's MilitaryStrength relative the world average. The number will typically be near 0 though, as it's fairly hard to get away from the world average
 		}
@@ -532,15 +536,17 @@ int CvGrandStrategyAI::GetConquestPriority()
 					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToDiploVictory() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 					{
 						//Close to nothing, and someone else is? Eek!
-						if (bDesperate)
+						if (bDesperate) {
 							iTotalNumDangerPlayers += 25;
 						//someone else is close, but we are too? Let's keep an eye on domination as an option.
-						else
+						} else {
 							iTotalNumDangerPlayers += 5;
+}
 					}
 					//They have an ideology, and we don't? Uh-oh.
-					else if (bDesperate)
+					else if (bDesperate) {
 						iTotalNumDangerPlayers += 5;
+}
 				}
 			}
 		}
@@ -696,8 +702,9 @@ int CvGrandStrategyAI::GetConquestPriority()
 			for (int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
 				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if (eBuildingLoop == NO_BUILDING)
+				if (eBuildingLoop == NO_BUILDING) {
 					continue;
+}
 				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
@@ -939,8 +946,9 @@ int CvGrandStrategyAI::GetCulturePriority()
 			for(int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
 				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
+				if(eBuildingLoop == NO_BUILDING) {
 					continue;
+}
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
@@ -996,8 +1004,9 @@ int CvGrandStrategyAI::GetCulturePriority()
 					for(int iI = 0; iI < iNumBuildingInfos; iI++)
 					{
 						const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-						if(eBuildingLoop == NO_BUILDING)
+						if(eBuildingLoop == NO_BUILDING) {
 							continue;
+}
 
 						CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
 						if(pkLoopBuilding != 0)
@@ -1137,8 +1146,9 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 			for(int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
 				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
+				if(eBuildingLoop == NO_BUILDING) {
 					continue;
+}
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
@@ -1473,8 +1483,9 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 			for(int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
 				const BuildingTypes eBuildingLoop = static_cast<BuildingTypes>(iI);
-				if(eBuildingLoop == NO_BUILDING)
+				if(eBuildingLoop == NO_BUILDING) {
 					continue;
+}
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
@@ -1857,8 +1868,9 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 	CvAIGrandStrategyXMLEntry* pGrandStrategy = 0;
 	CvString strGrandStrategyName;
 
-	if(ePlayer == NO_PLAYER || eGrandStrategy == NO_AIGRANDSTRATEGY)
+	if(ePlayer == NO_PLAYER || eGrandStrategy == NO_AIGRANDSTRATEGY) {
 		return false;
+}
 
 	pGrandStrategy = GetAIGrandStrategies()->GetEntry((int)eGrandStrategy);
 	if(pGrandStrategy != 0)
@@ -1946,8 +1958,9 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, int iWorldMilitaryAverage)
 {
 	// If they can't attempt Domination Victory because of game options, then don't bother with any of this.
-	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer))
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer)) {
 		return -100;
+}
 
 	int iConquestPriority = 0;
 

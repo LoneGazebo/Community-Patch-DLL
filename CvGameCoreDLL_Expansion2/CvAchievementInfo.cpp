@@ -26,8 +26,9 @@ bool CvAchievementInfo::isAchieved() const
 
 bool CvAchievementInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bBroken = kResults.GetBool("Broken");
 	m_bAchieved = kResults.GetBool("Achieved");

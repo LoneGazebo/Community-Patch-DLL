@@ -50,8 +50,9 @@ CvMilitaryAIStrategyXMLEntry::~CvMilitaryAIStrategyXMLEntry(void)
 //------------------------------------------------------------------------------
 bool CvMilitaryAIStrategyXMLEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_bNoMinorCivs				 = kResults.GetBool("NoMinorCivs");
@@ -323,8 +324,9 @@ void CvMilitaryAI::Reset()
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
 	m_iNumberOfTimesSettlerBuildSkippedOver = 0;
 #if defined(MOD_BALANCE_CORE)
-	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++) {
 		m_aiWarFocus[iI] = WARTYPE_UNDEFINED;
+}
 	m_iNumFreeCarriers = 0;
 	//new unit counters
 	m_iNumArcherLandUnits = 0;
@@ -411,8 +413,9 @@ CvMilitaryAIStrategyXMLEntries* CvMilitaryAI::GetMilitaryAIStrategies()
 /// Returns whether or not a player has adopted this Strategy
 bool CvMilitaryAI::IsUsingStrategy(MilitaryAIStrategyTypes eStrategy)
 {
-	if (eStrategy == NO_MILITARYAISTRATEGY)
+	if (eStrategy == NO_MILITARYAISTRATEGY) {
 		return false;
+}
 
 	return m_pabUsingStrategy[(int) eStrategy];
 }
@@ -485,8 +488,9 @@ void CvMilitaryAI::DoTurn()
 /// Ask to send a nuke at an enemy
 bool CvMilitaryAI::RequestNukeAttack(PlayerTypes eEnemy)
 {
-	if(m_pPlayer->getNumNukeUnits() > 0)
+	if(m_pPlayer->getNumNukeUnits() > 0) {
 		return m_pPlayer->addAIOperation(AI_OPERATION_NUKE_ATTACK, 0, eEnemy)!=NULL;
+}
 
 	return false;
 }
@@ -495,9 +499,10 @@ bool CvMilitaryAI::RequestNukeAttack(PlayerTypes eEnemy)
 /// harass the enemy
 bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 {
-	if (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY) == 0)
+	if (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY) == 0) {
 		//don't try to build additional units, only do this if we have enough at hand
 		return m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, 0, eEnemy) != NULL;
+}
 
 	return false;
 }
@@ -505,25 +510,30 @@ bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 /// Send an army to force concessions
 bool CvMilitaryAI::RequestBullyingOperation(PlayerTypes eEnemy)
 {
-	if (GET_PLAYER(eEnemy).isBarbarian())
+	if (GET_PLAYER(eEnemy).isBarbarian()) {
 		return false;
+}
 
 	// If we already have an operation on the way, don't send another one
-	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eEnemy))
+	if (m_pPlayer->HasAnyOffensiveOperationsAgainstPlayer(eEnemy)) {
 		return false;
+}
 
 	CvCity* pTargetCity = GET_PLAYER(eEnemy).isMajorCiv() ? m_pPlayer->GetClosestCityToUsByPlots(eEnemy) : GET_PLAYER(eEnemy).getCapitalCity();
-	if (pTargetCity == 0)
+	if (pTargetCity == 0) {
 		return false;
+}
 
 	//don't venture too far
 	int iDistanceTurns = m_pPlayer->GetCityDistancePathLength(pTargetCity->plot());
-	if (iDistanceTurns > 23)
+	if (iDistanceTurns > 23) {
 		return false;
+}
 
 	CvCity* pMusterCity = m_pPlayer->GetClosestCityByPathLength(pTargetCity->plot());
-	if (pMusterCity == 0)
+	if (pMusterCity == 0) {
 		return false;
+}
 
 	//if the target is very close assume we can embark or don't even need to
 	AIOperationTypes opType = pMusterCity->HasSharedAreaWith(pTargetCity,true,false) ? AI_OPERATION_CITY_ATTACK_LAND : AI_OPERATION_CITY_ATTACK_NAVAL;
@@ -649,8 +659,9 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy)
 {
 	//define short paths as safe (start and dest plot are included in count)
-	if (path.vPlots.size() < 4)
+	if (path.vPlots.size() < 4) {
 		return true;
+}
 
 	bool bWaterPath = path.get(1)->isWater();
 	int iThirdPartyPlots = 0;
@@ -662,21 +673,24 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
 
 		//if we're far from a city it's ok
-		if (iCityDistance > 3 && !pPlot->isOwned())
+		if (iCityDistance > 3 && !pPlot->isOwned()) {
 			continue;
+}
 
 		//else check whose city it is
 		CvCity* pCity = GC.getGame().GetClosestCityByPlots(pPlot);
-		if (pCity == 0)
+		if (pCity == 0) {
 			continue;
+}
 
 		//passing another city of our enemy? then we should attack that one first
 		if (pCity->getOwner() == eIntendedEnemy)
 		{
 			if (path.get(-1)->getOwningCityID() != pCity->GetID())
 			{
-				if (!bWaterPath || pCity->isCoastal())
+				if (!bWaterPath || pCity->isCoastal()) {
 					return false;
+}
 			}
 		}
 		//maybe we have a better muster plot?
@@ -684,17 +698,20 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 		{
 			if (path.get(0)->getOwningCityID() != pCity->GetID())
 			{
-				if (!bWaterPath || pCity->isCoastal())
+				if (!bWaterPath || pCity->isCoastal()) {
 					return false;
+}
 			}
 		}
 		//passing through a different warzone? not good
-		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner()))
+		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner())) {
 			return false;
+}
 
 		//the trade path may lead through third-party territory
-		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
+		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker)) {
 			iThirdPartyPlots++;
+}
 	}
 
 	//the trade paths often lead through third party territory which an army may not be able to pass
@@ -704,8 +721,9 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 
 bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
 {
-	if ((pCity == 0) || pCity->getOwner()==m_pPlayer->GetID())
+	if ((pCity == 0) || pCity->getOwner()==m_pPlayer->GetID()) {
 		return false;
+}
 
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot())
@@ -716,8 +734,9 @@ bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
 
 bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
 {
-	if ((pCity == 0) || pCity->getOwner()==m_pPlayer->GetID())
+	if ((pCity == 0) || pCity->getOwner()==m_pPlayer->GetID()) {
 		return false;
+}
 
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot() && m_potentialAttackTargets[i].IsPreferred())
@@ -757,16 +776,19 @@ bool CvMilitaryAI::HavePossibleAttackTarget(PlayerTypes eEnemy) const
 //override the diplo AI method so that it returns a sensible result for barbarians
 bool CvMilitaryAI::IsPlayerValid(PlayerTypes eOtherPlayer) const
 {
-	if (eOtherPlayer == BARBARIAN_PLAYER)
+	if (eOtherPlayer == BARBARIAN_PLAYER) {
 		return true;
+}
 
 	//ignore our vassals
-	if (m_pPlayer->GetDiplomacyAI()->IsMaster(eOtherPlayer))
+	if (m_pPlayer->GetDiplomacyAI()->IsMaster(eOtherPlayer)) {
 		return false;
+}
 
 	//minors don't do sneak attacks
-	if (m_pPlayer->isMinorCiv() && m_pPlayer->IsAtPeaceWith(eOtherPlayer))
+	if (m_pPlayer->isMinorCiv() && m_pPlayer->IsAtPeaceWith(eOtherPlayer)) {
 		return false;
+}
 
 	return m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eOtherPlayer);
 }
@@ -1091,8 +1113,9 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 		CvPlayer* pMinor = &GET_PLAYER(eMinor);
-		if (!pMinor->isAlive())
+		if (!pMinor->isAlive()) {
 			continue;
+}
 
 		CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 
@@ -1215,13 +1238,15 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	//basic sanity check
 	if (eArmyType == ARMY_TYPE_LAND)
 	{
-		if (pStagingPlot->isWater())
+		if (pStagingPlot->isWater()) {
 			return 0;
+}
 	}
 	else
 	{
-		if (!pStagingPlot->isWater())
+		if (!pStagingPlot->isWater()) {
 			return 0;
+}
 	}
 
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
@@ -1232,68 +1257,85 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	int iScale = (eArmyType == ARMY_TYPE_COMBINED ? 54 : 45);
 
 	CvCity* pTargetCity = pTargetPlot->getPlotCity();
-	if (pTargetCity == 0)
+	if (pTargetCity == 0) {
 		return 0;
+}
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	for (int i = RING0_PLOTS; i < RING4_PLOTS; i++)
 	{
 		bool bIsGood = false;
 		CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot,i);
-		if (pLoopPlot == NULL)
+		if (pLoopPlot == NULL) {
 			continue;
+}
 
 		//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
-		if(!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity())
+		if(!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity()) {
 			continue;
+}
 
 		//ignore plots owned by third parties
-		if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != eTeam && pLoopPlot->getTeam() != pTargetPlot->getTeam())
-			if (!GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(pLoopPlot->getTeam()))
+		if (pLoopPlot->isOwned() && pLoopPlot->getTeam() != eTeam && pLoopPlot->getTeam() != pTargetPlot->getTeam()) {
+			if (!GET_TEAM(eTeam).IsAllowsOpenBordersToTeam(pLoopPlot->getTeam())) {
 				continue;
+}
+}
 
 		//ignore plots outside of the zone
 		int iStagingDistance = plotDistance(*pStagingPlot, *pLoopPlot);
 		int iTargetDistance = plotDistance(*pTargetPlot, *pLoopPlot);
-		if (iTargetDistance > 3 || iStagingDistance > 3)
+		if (iTargetDistance > 3 || iStagingDistance > 3) {
 			continue;
+}
 
 		//correct area?
-		if (!pTargetCity->HasAccessToArea(pLoopPlot->getArea()))
+		if (!pTargetCity->HasAccessToArea(pLoopPlot->getArea())) {
 			continue;
+}
 
-		if (eArmyType==ARMY_TYPE_LAND)
+		if (eArmyType==ARMY_TYPE_LAND) {
 			//siege weapons cannot set up here
-			if (pLoopPlot->isWater())
+			if (pLoopPlot->isWater()) {
 				continue;
+}
+}
 
-		if (eArmyType==ARMY_TYPE_NAVAL)
+		if (eArmyType==ARMY_TYPE_NAVAL) {
 			//ships cannot go here
-			if (!pLoopPlot->isWater())
+			if (!pLoopPlot->isWater()) {
 				continue;
+}
+}
 
 		//for naval invasions we want coastal plots
 		//ignore inland plots, combined attacks tend to get higher scores than pure naval anyway)
-		if (eArmyType == ARMY_TYPE_COMBINED)
-			if (!pLoopPlot->isWater() && !pLoopPlot->isCoastalLand())
+		if (eArmyType == ARMY_TYPE_COMBINED) {
+			if (!pLoopPlot->isWater() && !pLoopPlot->isCoastalLand()) {
 				continue;
+}
+}
 
 		//enemy citadels are dangerous, pretend we cannot use those plots
-		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
+		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false)) {
 			continue;
+}
 
 		//makes us slow
-		if(!pLoopPlot->isRoughGround())
+		if(!pLoopPlot->isRoughGround()) {
 			bIsGood = true;
+}
 
 		//we want to have plots for our siege units
-		if (iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION))
+		if (iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION)) {
 			bIsGood = true;
+}
 
-		if (bIsGood)
+		if (bIsGood) {
 			nGoodPlots++;
-		else
+		} else {
 			nUsablePlots++;
+}
 	}
 
 	//we have 17 eligible plots, so max score is 51
@@ -1483,8 +1525,9 @@ void CvMilitaryAI::LogPeace(TeamTypes eOpponentTeam)
 			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayer);
 			if(kPlayer.isAlive() && kPlayer.getTeam() == eOpponentTeam)
 			{
-				if(strOpponentName.GetLength() != 0)
+				if(strOpponentName.GetLength() != 0) {
 					strOpponentName += ", ";
+}
 
 				strOpponentName += kPlayer.getCivilizationShortDescription();
 			}
@@ -1510,10 +1553,11 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 
 		strOutBuf.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strOutBuf += playerName + ", ";
-		if (bGifted)
+		if (bGifted) {
 			strTemp.Format("Gifting %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
-		else
+		} else {
 			strTemp.Format("Scrapping %s, X: %d, Y: %d, ", pUnit->getUnitInfo().GetDescription(), pUnit->getX(), pUnit->getY());
+}
 		strOutBuf += strTemp;
 		strOutBuf += "b/c bankrupt, , ";   //extra space so format is consistent with LogScrapUnit()
 
@@ -1527,8 +1571,9 @@ void CvMilitaryAI::LogDeficitScrapUnit(CvUnit* pUnit, bool bGifted)
 		}
 
 		strOutBuf += strTemp;
-		if (pLog != 0)
+		if (pLog != 0) {
 			pLog->Msg(strOutBuf);
+}
 	}
 }
 
@@ -1569,8 +1614,9 @@ void CvMilitaryAI::UpdateBaseData()
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		// Don't count civilians or exploration units
-		if (!pLoopUnit->IsCanAttack())
+		if (!pLoopUnit->IsCanAttack()) {
 			continue;
+}
 
 /*		if (m_pPlayer->getCivilizationInfo().isCivilizationUnitOverridden(pLoopUnit->getUnitInfo().GetUnitClassType())) //not currently working, hope for the next release
 			m_iNumActiveUniqueUnits++;
@@ -1579,65 +1625,73 @@ void CvMilitaryAI::UpdateBaseData()
 		{
 			m_iNumLandUnits++;
 
-			if (pLoopUnit->getArmyID() != -1)
+			if (pLoopUnit->getArmyID() != -1) {
 				m_iNumLandUnitsInArmies++;
+}
 
 			if (pLoopUnit->IsCanAttackRanged()) // still counts all land ranged
 			{
 				m_iNumRangedLandUnits++;
-				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted())
+				if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && !pLoopUnit->getUnitInfo().IsMounted()) {
 					m_iNumArcherLandUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted())
+				} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARCHER", true) && pLoopUnit->getUnitInfo().IsMounted()) {
 					m_iNumSkirmisherLandUnits++;
-				else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true))
+				} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SIEGE", true)) {
 					m_iNumSiegeLandUnits++;
+}
 			}
-			else if (pLoopUnit->canIntercept())
+			else if (pLoopUnit->canIntercept()) {
 				m_iNumAntiAirUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true))
+			} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_MOUNTED", true) || pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_ARMOR", true)) {
 				m_iNumMobileLandUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+			} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_RECON", true)) {
 				m_iNumReconLandUnits++;
-			else
+			} else {
 				m_iNumMeleeLandUnits++;
+}
 		}
 		else if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			m_iNumNavalUnits++;
 
-			if (pLoopUnit->getArmyID() != -1)
+			if (pLoopUnit->getArmyID() != -1) {
 				m_iNumNavalUnitsInArmies++;
+}
 
-			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true))
+			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)) {
 				m_iNumMeleeNavalUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true))
+			} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true)) {
 				m_iNumRangedNavalUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true))
+			} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_SUBMARINE", true)) {
 				m_iNumSubmarineNavalUnits++;
+}
 
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 			{
 				m_iNumCarrierNavalUnits++;
 				//a carrier is considered free if it is not in a strike group or empty
-				if (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0)
+				if (pLoopUnit->getArmyID() == -1 || pLoopUnit->getCargo() == 0) {
 					m_iNumFreeCarriers++;
+}
 			}
 		}
 		else if (pLoopUnit->getDomainType() == DOMAIN_AIR && !pLoopUnit->isSuicide())
 		{
 			m_iNumAirUnits++;
 
-			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true))
+			if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true)) {
 				m_iNumBomberAirUnits++;
-			else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true))
+			} else if (pLoopUnit->getUnitCombatType() == (UnitCombatTypes)GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true)) {
 				m_iNumFighterAirUnits++;
+}
 		}
 		else if (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->isSuicide()) // missiles&bombs
 		{
 //			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ICBM)
 //				m_iNumNukeUnits++; //both atomic bomb&nuclear missile, but already counted by CvPlayer
-			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MISSILE_AIR)
+			if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_MISSILE_AIR) {
 				m_iNumMissileUnits++;
+}
 		}
 	}
 
@@ -1669,12 +1723,14 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		//need this later
-		if (pCity->isCoastal())
+		if (pCity->isCoastal()) {
 			iNumCoastalCities++;
+}
 
 		//additional units if the enemy is likely to attack here
-		if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER))
+		if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity,NO_PLAYER)) {
 			iNumUnitsWantedDefense++;
+}
 	}
 
 	// put it together
@@ -1688,8 +1744,9 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	{
 		m_iRecOffensiveLandUnits = 0;
 		m_iRecOffensiveNavalUnits = 0;
-		if ((m_pPlayer->getCapitalCity() != 0) && m_pPlayer->getCapitalCity()->isCoastal())
+		if ((m_pPlayer->getCapitalCity() != 0) && m_pPlayer->getCapitalCity()->isCoastal()) {
 			m_iRecOffensiveNavalUnits = 2;
+}
 		return;
 	}
 
@@ -1707,15 +1764,17 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 			if (eOtherPlayer != m_pPlayer->GetID())
 			{
 				//one army per target
-				if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer))
+				if (GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(eOtherPlayer)) {
 					iNumUnitsWantedOffense += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE);
+}
 			}
 		}
 	}
 
 	// if we are going for conquest we want at least one more task force, more in later eras
-	if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest())
+	if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) {
 		iNumUnitsWantedOffense += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE);
+}
 
 	// now how many should be naval units?
 	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
@@ -1729,10 +1788,11 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 	//you don't always get what you want ...
 	iNumUnitsWantedOffense = min(iNumUnitsWantedOffense, iMaxOffensiveUnitsPossible);
 
-	if (iNumCoastalCities > 0)
+	if (iNumCoastalCities > 0) {
 		m_iRecOffensiveNavalUnits = max(iMinNumUnits, (iNavalPercent*iMaxOffensiveUnitsPossible) / 100);
-	else
+	} else {
 		m_iRecOffensiveNavalUnits = 0;
+}
 
 	//the remainder is our offensive land army
 	m_iRecOffensiveLandUnits = max(iMinNumUnits, iMaxOffensiveUnitsPossible - m_iRecOffensiveNavalUnits);
@@ -1825,8 +1885,9 @@ void CvMilitaryAI::ScanForBarbarians()
 			if(pPlot->getRevealedImprovementType(eTeam) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 			{
 				//count only reasonably close camps
-				if (m_pPlayer->GetCityDistancePathLength(pPlot)<17)
+				if (m_pPlayer->GetCityDistancePathLength(pPlot)<17) {
 					m_iBarbarianCampCount++;
+}
 			}
 		}
 
@@ -1841,8 +1902,9 @@ void CvMilitaryAI::ScanForBarbarians()
 
 #if defined(MOD_BALANCE_CORE)
 	//try to smooth the count a bit
-	if (m_iVisibleBarbarianCount < iLastTurnBarbarianCount)
+	if (m_iVisibleBarbarianCount < iLastTurnBarbarianCount) {
 		m_iVisibleBarbarianCount = iLastTurnBarbarianCount-1;
+}
 #endif
 
 }
@@ -1859,24 +1921,27 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategiesLoop;
 		CvMilitaryAIStrategyXMLEntry* pStrategy = GetMilitaryAIStrategies()->GetEntry(iStrategiesLoop);
 
-		if(pStrategy == NULL)	// Can have holes in the list
+		if(pStrategy == NULL) {	// Can have holes in the list
 			continue;
+}
 
 		// Minor Civs can't run some Strategies
-		if(GetPlayer()->isMinorCiv() && pStrategy->IsNoMinorCivs())
+		if(GetPlayer()->isMinorCiv() && pStrategy->IsNoMinorCivs()) {
 			continue;
+}
 
 		// Some strategies ONLY for Minor Civs
-		if(!GetPlayer()->isMinorCiv() && pStrategy->IsOnlyMinorCivs())
+		if(!GetPlayer()->isMinorCiv() && pStrategy->IsOnlyMinorCivs()) {
 			continue;
+}
 
 		bool bTestStrategyStart = true;
 
 		// Do we already have this Strategy adopted?
-		if(IsUsingStrategy(eStrategy))
+		if(IsUsingStrategy(eStrategy)) {
 			bTestStrategyStart = false;
 
-		else
+		} else
 		{
 			// Has the prereq Tech necessary?
 			if(pStrategy->GetTechPrereq() != NO_TECH && !GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->HasTech((TechTypes) pStrategy->GetTechPrereq()))
@@ -1905,15 +1970,17 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 			if(pStrategy->GetCheckTriggerTurnCount() > 0)
 			{
 				// Is it a turn where we want to check to see if this Strategy is maintained?
-				if((GC.getGame().getGameTurn() - GetTurnStrategyAdopted(eStrategy)) % pStrategy->GetCheckTriggerTurnCount() == 0)
+				if((GC.getGame().getGameTurn() - GetTurnStrategyAdopted(eStrategy)) % pStrategy->GetCheckTriggerTurnCount() == 0) {
 					bTestStrategyEnd = true;
+}
 			}
 
 			if(bTestStrategyEnd && pStrategy->GetMinimumNumTurnsExecuted() > 0)
 			{
 				// Has the minimum # of turns passed for this Strategy?
-				if(GC.getGame().getGameTurn() < GetTurnStrategyAdopted(eStrategy) + pStrategy->GetMinimumNumTurnsExecuted())
+				if(GC.getGame().getGameTurn() < GetTurnStrategyAdopted(eStrategy) + pStrategy->GetMinimumNumTurnsExecuted()) {
 					bTestStrategyEnd = false;
+}
 			}
 		}
 
@@ -1936,96 +2003,97 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 				CvString strStrategyName = (CvString) pStrategy->GetType();
 
 				// Check all of the Strategy Triggers
-				if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_MILITARY_UNITS")
+				if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_MILITARY_UNITS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughMilitaryUnits(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_EMPIRE_DEFENSE")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_EMPIRE_DEFENSE") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EmpireDefense(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EmpireDefenseCritical(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_UNITS")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_UNITS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughNavalUnits(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_UNITS")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_UNITS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalUnits(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_UNITS_CRITICAL") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalUnitsCritical(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_WAR_MOBILIZATION")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_WAR_MOBILIZATION") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WarMobilization(eStrategy, m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_AT_WAR")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_AT_WAR") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivGeneralDefense();
-				else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivThreatElevated(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_THREAT_CRITICAL") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
 #if defined(MOD_BALANCE_CORE)
-				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
 #endif
-				else if(strStrategyName == "MILITARYAISTRATEGY_WINNING_WARS")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_WINNING_WARS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WinningWars(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_LOSING_WARS")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_LOSING_WARS") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_LosingWars(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED" && !MOD_AI_UNIT_PRODUCTION)
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED" && !MOD_AI_UNIT_PRODUCTION) {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(m_pPlayer, m_iNumRangedLandUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_RANGED" && !MOD_AI_UNIT_PRODUCTION)
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_RANGED" && !MOD_AI_UNIT_PRODUCTION) {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughRangedUnits(m_pPlayer, m_iNumRangedLandUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED_EARLY")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_RANGED_EARLY") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_MOBILE")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_MOBILE") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedMobileUnits(m_pPlayer, m_iNumMobileLandUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_MOBILE")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_MOBILE") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughMobileUnits(m_pPlayer, m_iNumMobileLandUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_AIR")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_AIR") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedAirUnits(m_pPlayer, m_iNumAirUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_AIR")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_AIR") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughAirUnits(m_pPlayer, m_iNumAirUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NUKE")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_NUKE") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedANuke(m_pPlayer);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_ANTIAIR")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_ANTIAIR") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedAntiAirUnits(m_pPlayer, m_iNumAntiAirUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_ANTIAIR")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_ENOUGH_ANTIAIR") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughAntiAirUnits(m_pPlayer, m_iNumAntiAirUnits, m_iNumMeleeLandUnits);
-				else if(strStrategyName == "MILITARYAISTRATEGY_NEED_AIR_CARRIER")
+				} else if(strStrategyName == "MILITARYAISTRATEGY_NEED_AIR_CARRIER") {
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedAirCarriers(m_pPlayer);
 
 				// MOD_AI_UNIT_PRODUCTION : New strategies
-				else if (MOD_AI_UNIT_PRODUCTION)
+				} else if (MOD_AI_UNIT_PRODUCTION)
 				{
-					if (strStrategyName == "MILITARYAISTRATEGY_NEED_ARCHER")
+					if (strStrategyName == "MILITARYAISTRATEGY_NEED_ARCHER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedArcherUnits(m_pPlayer, m_iNumArcherLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_ARCHER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_ARCHER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughArcherUnits(m_pPlayer, m_iNumArcherLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SIEGE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SIEGE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSiegeUnits(m_pPlayer, m_iNumSiegeLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SIEGE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SIEGE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSiegeUnits(m_pPlayer, m_iNumSiegeLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SKIRMISHER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SKIRMISHER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSkirmisherUnits(m_pPlayer, m_iNumSkirmisherLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SKIRMISHER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SKIRMISHER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSkirmisherUnits(m_pPlayer, m_iNumSkirmisherLandUnits, m_iNumMeleeLandUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_MELEE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_MELEE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalMeleeUnits(m_pPlayer, m_iNumMeleeNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_MELEE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_MELEE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughNavalMeleeUnits(m_pPlayer, m_iNumMeleeNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_RANGED")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_NAVAL_RANGED") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedNavalRangedUnits(m_pPlayer, m_iNumRangedNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_NAVAL_RANGED") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughNavalRangedUnits(m_pPlayer, m_iNumRangedNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SUBMARINE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_SUBMARINE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedSubmarineUnits(m_pPlayer, m_iNumSubmarineNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SUBMARINE")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_SUBMARINE") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughSubmarineUnits(m_pPlayer, m_iNumSubmarineNavalUnits, m_iNumNavalUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_BOMBER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_BOMBER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedBomberUnits(m_pPlayer, m_iNumBomberAirUnits, m_iNumAirUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_BOMBER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_BOMBER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughBomberUnits(m_pPlayer, m_iNumBomberAirUnits, m_iNumAirUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_NEED_FIGHTER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_NEED_FIGHTER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(m_pPlayer, m_iNumFighterAirUnits, m_iNumAirUnits);
-					else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_FIGHTER")
+					} else if (strStrategyName == "MILITARYAISTRATEGY_ENOUGH_FIGHTER") {
 						bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EnoughFighterUnits(m_pPlayer, m_iNumFighterAirUnits, m_iNumAirUnits);
+}
 
 				}
 				// Never found it?  Assume it is scenario-specific and should be on unless disabled by Lua hook
@@ -2062,18 +2130,20 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 			// Strategy should be on, and if it's not, turn it on
 			if(bStrategyShouldBeActive)
 			{
-				if(bTestStrategyStart)
+				if(bTestStrategyStart) {
 					bAdoptOrEndStrategy = true;
-				else if(bTestStrategyEnd)
+				} else if(bTestStrategyEnd) {
 					bAdoptOrEndStrategy = false;
+}
 			}
 			// Strategy should be off, and if it's not, turn it off
 			else
 			{
-				if(bTestStrategyStart)
+				if(bTestStrategyStart) {
 					bAdoptOrEndStrategy = false;
-				else if(bTestStrategyEnd)
+				} else if(bTestStrategyEnd) {
 					bAdoptOrEndStrategy = true;
+}
 			}
 
 			// Flavor propagation
@@ -2100,8 +2170,9 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 
 					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
 
-					if(pStrategy->RequiresCitySpecializationUpdate())
+					if(pStrategy->RequiresCitySpecializationUpdate()) {
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_ON);
+}
 				}
 				// End the Strategy
 				else if(bTestStrategyEnd)
@@ -2122,8 +2193,9 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 
 					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
 
-					if(pStrategy->RequiresCitySpecializationUpdate())
+					if(pStrategy->RequiresCitySpecializationUpdate()) {
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_OFF);
+}
 				}
 			}
 		}
@@ -2198,8 +2270,9 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 
 void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 {
-	if(ePlayer == NO_PLAYER)
+	if(ePlayer == NO_PLAYER) {
 		return;
+}
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -2225,70 +2298,80 @@ void CvMilitaryAI::SetupInstantDefenses(PlayerTypes ePlayer)
 	//land response
 	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pMostThreatenedCity = allCities.empty() ? NULL : allCities.front();
-	if (pMostThreatenedCity != NULL && (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, NO_PLAYER, pMostThreatenedCity->plot()) == 0))
+	if (pMostThreatenedCity != NULL && (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, NO_PLAYER, pMostThreatenedCity->plot()) == 0)) {
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 0, ePlayer, pMostThreatenedCity);
+}
 
 	//naval response
 	vector<CvCity*> coastCities = m_pPlayer->GetThreatenedCities(true);
 	CvCity* pMostThreatenedCoastalCity = coastCities.empty() ? NULL : coastCities.front();
-	if (pMostThreatenedCoastalCity != NULL && (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, NO_PLAYER, pMostThreatenedCoastalCity->plot()) == 0))
+	if (pMostThreatenedCoastalCity != NULL && (m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, NO_PLAYER, pMostThreatenedCoastalCity->plot()) == 0)) {
 		m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 0, ePlayer, pMostThreatenedCoastalCity);
+}
 }
 
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity)
 {
-	if(eEnemy == NO_PLAYER || (pThreatenedCity == 0))
+	if(eEnemy == NO_PLAYER || (pThreatenedCity == 0)) {
 		return;
+}
 	
 	WarStateTypes eWarState = GET_PLAYER(eEnemy).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(eEnemy) : WAR_STATE_OFFENSIVE;
 
-	if (eWarState >= WAR_STATE_STALEMATE)
+	if (eWarState >= WAR_STATE_STALEMATE) {
 		// If we're winning, nothing to do
 		return;
-	else if (eWarState == WAR_STATE_DEFENSIVE)
+	} else if (eWarState == WAR_STATE_DEFENSIVE) {
 		// If we are losing, concentrate on defense against this player
 		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(eEnemy, AI_ABORT_WAR_STATE_CHANGE);
-	else if (eWarState == WAR_STATE_NEARLY_DEFEATED)
+	} else if (eWarState == WAR_STATE_NEARLY_DEFEATED) {
 		// If we are really losing, let's pull back everywhere.	
 		m_pPlayer->StopAllLandOffensiveOperationsAgainstPlayer(NO_PLAYER, AI_ABORT_WAR_STATE_CHANGE);
+}
 
 	//first a quick one if necessary
 	bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, NO_PLAYER, pThreatenedCity->plot()) != NULL;
 	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, pThreatenedCity->plot(), 5);
-	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getOwningCity() != NULL)
+	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getOwningCity() != NULL) {
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 1, eEnemy, pStartPlot->getOwningCity());
+}
 
 	//this may take a bit longer to arrange
 	bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
-	if (bIsEnemyZone && m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, NO_PLAYER, pThreatenedCity->plot())==NULL)
+	if (bIsEnemyZone && m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_CITY_DEFENSE, NO_PLAYER, pThreatenedCity->plot())==NULL) {
 		m_pPlayer->addAIOperation(AI_OPERATION_CITY_DEFENSE, 2, eEnemy, pThreatenedCity);
+}
 }
 
 /// Abort or start operations as appropriate given the current threats and war states
 void CvMilitaryAI::CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity)
 {
-	if(ePlayer == NO_PLAYER || (pThreatenedCity == 0))
+	if(ePlayer == NO_PLAYER || (pThreatenedCity == 0)) {
 		return;
+}
 
 	WarStateTypes eWarState = GET_PLAYER(ePlayer).isMajorCiv() ? m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer) : WAR_STATE_OFFENSIVE;
-	if (eWarState >= WAR_STATE_STALEMATE)
+	if (eWarState >= WAR_STATE_STALEMATE) {
 		return;
-	else if (eWarState ==  WAR_STATE_DEFENSIVE)
+	} else if (eWarState ==  WAR_STATE_DEFENSIVE) {
 		m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(ePlayer, AI_ABORT_WAR_STATE_CHANGE);
-	else if (eWarState == WAR_STATE_NEARLY_DEFEATED)
+	} else if (eWarState == WAR_STATE_NEARLY_DEFEATED) {
 		m_pPlayer->StopAllSeaOffensiveOperationsAgainstPlayer(NO_PLAYER, AI_ABORT_WAR_STATE_CHANGE);
+}
 
-	if (!pThreatenedCity->isCoastal())
+	if (!pThreatenedCity->isCoastal()) {
 		return;
+}
 
 	CvPlot* pCoastalPlot = MilitaryAIHelpers::GetCoastalWaterNearPlot(pThreatenedCity->plot());
 	if(pCoastalPlot != NULL)
 	{
 		bool bIsEnemyZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->IsInEnemyDominatedZone(pThreatenedCity->plot());
 		bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, NO_PLAYER, pThreatenedCity->plot()) != NULL;
-		if (!bHasOperationUnderway || bIsEnemyZone)
+		if (!bHasOperationUnderway || bIsEnemyZone) {
 			m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, 1, ePlayer, pThreatenedCity);
+}
 	}
 }
 
@@ -2302,8 +2385,9 @@ void CvMilitaryAI::DoCityAttacks(PlayerTypes ePlayer)
 		if (eWarState >= WAR_STATE_TROUBLED)
 		{
 			RequestCityAttack(ePlayer, 2);
-			if (GET_PLAYER(ePlayer).isMajorCiv())
+			if (GET_PLAYER(ePlayer).isMajorCiv()) {
 				RequestPillageAttack(ePlayer);
+}
 		}
 	}
 }
@@ -2312,8 +2396,9 @@ void CvMilitaryAI::DoCityAttacks(PlayerTypes ePlayer)
 void CvMilitaryAI::UpdateOperations()
 {
 	//only major players set up operations
-	if(!m_pPlayer->isMajorCiv())
+	if(!m_pPlayer->isMajorCiv()) {
 		return;
+}
 
 	vector<CvCity*> allCities = m_pPlayer->GetThreatenedCities(false);
 	CvCity* pThreatenedCityA = allCities.size()<1 ? NULL : allCities[0];
@@ -2350,11 +2435,13 @@ void CvMilitaryAI::UpdateOperations()
 			if (m_pPlayer->IsAtWarWith(eLoopPlayer))
 			{
 				//Defense check.
-				if (pThreatenedCoastalCityA == NULL)
+				if (pThreatenedCoastalCityA == NULL) {
 					m_pPlayer->StopAllSeaDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+}
 
-				if(pThreatenedCityA == NULL)
+				if(pThreatenedCityA == NULL) {
 					m_pPlayer->StopAllLandDefensiveOperationsAgainstPlayer(eLoopPlayer, AI_ABORT_WAR_STATE_CHANGE);
+}
 
 				CheckLandDefenses(eLoopPlayer,pThreatenedCityA);
 				CheckLandDefenses(eLoopPlayer,pThreatenedCityB);
@@ -2397,8 +2484,9 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 		{
 			CvAIOperation* pOp = m_pPlayer->getAIOperationByIndex(i);
 			// Can we buy a unit to fill that slot?
-			if(pOp->BuyFinalUnit())
+			if(pOp->BuyFinalUnit()) {
 				break;
+}
 		}
 	}
 }
@@ -2409,26 +2497,31 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 	bool bInDeficit = false;
 	bool bConquestGrandStrategy = false;
 
-	if (m_pPlayer->isBarbarian())
+	if (m_pPlayer->isBarbarian()) {
 		return;
+}
 
-	if (GC.getGame().getGameTurn() <= 25)
+	if (GC.getGame().getGameTurn() <= 25) {
 		return;
+}
 
 	// Don't do this if at war
 	if(GetNumberCivsAtWarWith(false) > 0)
 	{
-		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING) {
 			return;
+}
 	}
 
 	if (m_pPlayer->isMinorCiv())
 	{
-		if (m_pPlayer->GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
+		if (m_pPlayer->GetMinorCivAI()->IsRecentlyBulliedByAnyMajor()) {
 			return;
+}
 
-		if (m_pPlayer->GetMinorCivAI()->GetNumThreateningBarbarians() > 0)
+		if (m_pPlayer->GetMinorCivAI()->GetNumThreateningBarbarians() > 0) {
 			return;
+}
 	}
 	else
 	{
@@ -2478,10 +2571,11 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		if (pScrapUnit != 0)
 		{
 			LogScrapUnit(pScrapUnit, bInDeficit, bOverSupplyCap);
-			if (pScrapUnit->canScrap())
+			if (pScrapUnit->canScrap()) {
 				pScrapUnit->scrap();
-			else
+			} else {
 				pScrapUnit->kill(true);
+}
 		}
 	}
 }
@@ -2493,18 +2587,21 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 	int iUnitLoop = 0;
 	for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
-		if (!pLoopUnit->IsCombatUnit())
+		if (!pLoopUnit->IsCombatUnit()) {
 			continue;
+}
 
-		if (!pLoopUnit->canScrap())
+		if (!pLoopUnit->canScrap()) {
 			continue;
+}
 
 		// Is this a ship on a water body without enemies and without exits?
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
 			//check the current area first
-			if (MilitaryAIHelpers::NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->landmass()))
+			if (MilitaryAIHelpers::NeedShipInArea(m_pPlayer->GetID(), pLoopUnit->plot()->landmass())) {
 				continue;
+}
 
 			candidates.push_back(pLoopUnit);
 		}
@@ -2565,44 +2662,54 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		//needed later
 		CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
 
-		if(!pLoopUnit->IsCombatUnit())
+		if(!pLoopUnit->IsCombatUnit()) {
 			continue;
+}
 
-		if (!pLoopUnit->canScrap())
+		if (!pLoopUnit->canScrap()) {
 			continue;
+}
 
 		// don't delete no maintenance units if we're scrapping due to deficit
 		// don't delete no supply units if we're scrapping due to oversupply
 		if (bInDeficit && bOverSupplyCap)
 		{
-			if (pLoopUnit->IsNoMaintenance() && pLoopUnit->isNoSupply())
+			if (pLoopUnit->IsNoMaintenance() && pLoopUnit->isNoSupply()) {
 				continue;
+}
 		}
-		else if (bInDeficit && pLoopUnit->IsNoMaintenance())
+		else if (bInDeficit && pLoopUnit->IsNoMaintenance()) {
 			continue;
-		else if (bOverSupplyCap && pLoopUnit->isNoSupply())
+		} else if (bOverSupplyCap && pLoopUnit->isNoSupply()) {
 			continue;
+}
 
 		//Failsafe to keep AI from deleting advanced start settlers
 		//Probably useless because of the combat unit check above
-		if (m_pPlayer->GetNumCitiesFounded() < 3)
-			if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+		if (m_pPlayer->GetNumCitiesFounded() < 3) {
+			if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad()) {
 				continue;
+}
+}
 
-		if(eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
+		if(eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain) {
 			continue;
+}
 
 		//don't kill our explorers if we need them
-		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && m_pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_NEEDED)
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && m_pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_NEEDED) {
 			continue;
+}
 
 		//don't kill our explorers if we need them
-		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED)
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED) {
 			continue;
+}
 
 		// Do we need it to fight?
-		if (!pLoopUnit->canUseForAIOperation())
+		if (!pLoopUnit->canUseForAIOperation()) {
 			continue;
+}
 
 		bool bIsObsolete = (TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech()));
 		if (bIsObsolete && bCheckObsolete)
@@ -2622,13 +2729,15 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 						ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
 						int iNumResourceInUse = pLoopUnit->getUnitInfo().GetResourceQuantityRequirement(eResource);
-						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource))
+						if (iNumResourceNeeded - iNumResourceInUse > m_pPlayer->getNumResourceTotal(eResource)) {
 							bIsObsolete = true;
+}
 
 						if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
 						{
-							if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource))
+							if (pUpgradeUnitInfo->GetResourceQuantityTotal(eResource) > m_pPlayer->getNumResourceTotal(eResource)) {
 								bIsObsolete = true;
+}
 						}
 					}
 				}
@@ -2651,8 +2760,9 @@ CvUnit* CvMilitaryAI::FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, 
 		if (!bCheckObsolete || bIsObsolete || bResourceDeficit)
 		{
 			int iScore = pLoopUnit->GetPower()*pLoopUnit->getUnitInfo().GetProductionCost() + pLoopUnit->getLevel(); //tiebreaker
-			if (bResourceDeficit)
+			if (bResourceDeficit) {
 				iScore /= 2;
+}
 
 			if (iScore < iBestScore)
 			{
@@ -2671,9 +2781,11 @@ bool CvMilitaryAI::IsBuildingArmy(ArmyType eType) const
 	int iLoop = 0;
 	for (CvArmyAI* pLoopArmyAI = m_pPlayer->firstArmyAI(&iLoop); pLoopArmyAI != NULL; pLoopArmyAI = m_pPlayer->nextArmyAI(&iLoop))
 	{
-		if (pLoopArmyAI->GetType() == eType || eType == ARMY_TYPE_ANY)
-			if (!pLoopArmyAI->GetOpenSlots(true).empty())
+		if (pLoopArmyAI->GetType() == eType || eType == ARMY_TYPE_ANY) {
+			if (!pLoopArmyAI->GetOpenSlots(true).empty()) {
 				return true;
+}
+}
 	}
 
 	return false;
@@ -4153,16 +4265,19 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedFighterUnits(CvPlayer* pPlayer, int i
 
 bool MilitaryAIHelpers::NeedShipInArea(PlayerTypes ePlayer, CvLandmass* pWaterBody)
 {
-	if (pWaterBody == 0)
+	if (pWaterBody == 0) {
 		return false;
+}
 
 	int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(ePlayer);
 	int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(ePlayer);
 	bool bTooManyUnits = (pWaterBody->getNumTiles() < pWaterBody->getUnitsPerPlayer(ePlayer) * /*6*/ GD_INT_GET(AI_CONFIG_MILITARY_TILES_PER_SHIP));
 
-	if (!bTooManyUnits)
-		if (iForeignCities > 0 || iForeignUnits > 0)
+	if (!bTooManyUnits) {
+		if (iForeignCities > 0 || iForeignUnits > 0) {
 			return true;
+}
+}
 
 	return false;
 }
@@ -4170,8 +4285,9 @@ bool MilitaryAIHelpers::NeedShipInArea(PlayerTypes ePlayer, CvLandmass* pWaterBo
 //todo: use the step pathfinder here to get a plot which is on the correct side of the target? need a starting point then ...
 CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckTeam)
 {
-	if (pTarget == 0)
+	if (pTarget == 0) {
 		return NULL;
+}
 	TeamTypes eTeam = pTarget->getTeam();
 
 	//change iteration order, don't return the same plot every time

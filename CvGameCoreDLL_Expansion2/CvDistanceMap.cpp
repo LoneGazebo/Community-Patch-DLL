@@ -21,24 +21,28 @@ struct SCityTiebreak : public STiebreakGenerator
 		CvPlayer& kPlayerB = GET_PLAYER((PlayerTypes)iOwnerB);
 
 		//major players always have precedence over minors
-		if (kPlayerA.isMinorCiv() && !kPlayerB.isMinorCiv())
+		if (kPlayerA.isMinorCiv() && !kPlayerB.isMinorCiv()) {
 			return 1;
-		else if (!kPlayerA.isMinorCiv() && kPlayerB.isMinorCiv())
+		} else if (!kPlayerA.isMinorCiv() && kPlayerB.isMinorCiv()) {
 			return -1;
+}
 
 		//it can happen that there is no current city if the plot has never been updated because it's very remote
 		CvCity* pA = kPlayerA.getCity(iFeatureA);
 		CvCity* pB = kPlayerB.getCity(iFeatureB);
-		if (pA == 0)
+		if (pA == 0) {
 			return 1;
-		else if (pB == 0)
+		} else if (pB == 0) {
 			return -1;
+}
 
 		//now look at the founding dates
-		if (pA->getGameTurnFounded() < pB->getGameTurnFounded())
+		if (pA->getGameTurnFounded() < pB->getGameTurnFounded()) {
 			return -1;
-		if (pA->getGameTurnFounded() > pB->getGameTurnFounded())
+}
+		if (pA->getGameTurnFounded() > pB->getGameTurnFounded()) {
 			return 1;
+}
 
 		//still tied, don't care
 		return 0;
@@ -63,8 +67,9 @@ void CvDistanceMap::Reset(int nPlots, unsigned short iDefaultDistance)
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vData.size())
+	if ((size_t)plot.GetPlotIndex() < m_vData.size()) {
 		return int( m_vData[ plot.GetPlotIndex() ].distance ); 
+}
 
 	return INT_MAX;
 }
@@ -72,8 +77,9 @@ int CvDistanceMap::GetClosestFeatureDistance(const CvPlot& plot)
 //	-----------------------------------------------------------------------------------------------
 int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vData.size())
+	if ((size_t)plot.GetPlotIndex() < m_vData.size()) {
 		return int( m_vData[ plot.GetPlotIndex() ].feature );
+}
 
 	return -1;
 }
@@ -81,9 +87,11 @@ int CvDistanceMap::GetClosestFeatureID(const CvPlot& plot)
 //	-----------------------------------------------------------------------------------------------
 PlayerTypes CvDistanceMap::GetClosestFeatureOwner(const CvPlot& plot)
 {
-	if ((size_t)plot.GetPlotIndex() < m_vData.size())
-		if (m_vData[plot.GetPlotIndex()].owner != SContent::INVALID)
+	if ((size_t)plot.GetPlotIndex() < m_vData.size()) {
+		if (m_vData[plot.GetPlotIndex()].owner != SContent::INVALID) {
 			return (PlayerTypes)m_vData[plot.GetPlotIndex()].owner;
+}
+}
 
 	return NO_PLAYER;
 }
@@ -121,51 +129,59 @@ void CvDistanceMapWrapper::SetDirty()
 
 int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
 {
-	if (IsDirty())
+	if (IsDirty()) {
 		Update();
+}
 
 #ifdef VPDEBUG
-	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size()) {
 		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
+}
 #endif
 
-	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size()) {
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureDistance(plot);
-	else if (bMajorsOnly)
+	} else if (bMajorsOnly) {
 		return allMajorPlayers.GetClosestFeatureDistance(plot);
-	else
+	} else {
 		return allPlayers.GetClosestFeatureDistance(plot);
+}
 }
 
 int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
 {
-	if (IsDirty())
+	if (IsDirty()) {
 		Update();
+}
 
 #ifdef VPDEBUG
-	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && !majorPlayers.empty() && (size_t)eSpecificPlayer >= majorPlayers.size()) {
 		OutputDebugString("warning: GetFeatureOwner called for invalid player\n");
+}
 #endif
 
-	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size()) {
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureID(plot);
-	else if (bMajorsOnly)
+	} else if (bMajorsOnly) {
 		return allMajorPlayers.GetClosestFeatureID(plot);
-	else
+	} else {
 		return allPlayers.GetClosestFeatureID(plot);
+}
 }
 
 PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
 {
-	if (IsDirty())
+	if (IsDirty()) {
 		Update();
+}
 
-	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
+	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size()) {
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureOwner(plot);
-	else if (bMajorsOnly)
+	} else if (bMajorsOnly) {
 		return allMajorPlayers.GetClosestFeatureOwner(plot);
-	else
+	} else {
 		return allPlayers.GetClosestFeatureOwner(plot);
+}
 }
 
 /// Updates the lookup table
@@ -179,10 +195,12 @@ void CvDistanceMapByPathLength::Update()
 
 	//default
 	PathType ePathType = PT_ARMY_MIXED;
-	if (m_domain == DOMAIN_LAND)
+	if (m_domain == DOMAIN_LAND) {
 		ePathType = PT_ARMY_LAND;
-	if (m_domain == DOMAIN_SEA)
+}
+	if (m_domain == DOMAIN_SEA) {
 		ePathType = PT_ARMY_WATER;
+}
 
 	allPlayers.Reset(nPlots, iVeryFar);
 	allMajorPlayers.Reset(nPlots, iVeryFar);
@@ -193,11 +211,13 @@ void CvDistanceMapByPathLength::Update()
 	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)i);
-		if (!thisPlayer.isAlive())
+		if (!thisPlayer.isAlive()) {
 			continue;
+}
 
-		if (thisPlayer.isMajorCiv())
+		if (thisPlayer.isMajorCiv()) {
 			majorPlayers[i].Reset(nPlots, iVeryFar);
+}
 
 		int iCityIndex = 0;
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
@@ -236,11 +256,13 @@ void CvDistanceMapByPlots::Update()
 	for (int i = 0; i < MAX_PLAYERS; i++) //include the barbarians!
 	{
 		CvPlayer& thisPlayer = GET_PLAYER((PlayerTypes)i);
-		if (!thisPlayer.isAlive())
+		if (!thisPlayer.isAlive()) {
 			continue;
+}
 
-		if (i < MAX_MAJOR_CIVS)
+		if (i < MAX_MAJOR_CIVS) {
 			majorPlayers[i].Reset(nPlots, SHRT_MAX);
+}
 
 		// for each city
 		int iCityIndex = 0;
@@ -251,8 +273,9 @@ void CvDistanceMapByPlots::Update()
 			for (int iPlotIndex = 0; iPlotIndex < nPlots; iPlotIndex++)
 			{
 				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
-				if (pPlot == 0)
+				if (pPlot == 0) {
 					continue;
+}
 
 				int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
 

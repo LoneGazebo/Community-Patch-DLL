@@ -115,8 +115,9 @@ void* CvDllDatabaseUtility::operator new(size_t bytes)
 bool CvDllDatabaseUtility::CacheGameDatabaseData()
 {
 	//Do not cache everything if we don't need to.
-	if(m_bGameDatabaseNeedsCaching == false)
+	if(m_bGameDatabaseNeedsCaching == false) {
 		return true;
+}
 
 	//The following code depends on a valid initialized database.
 	bool bSuccess = true;
@@ -157,8 +158,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 					const int rowid = kTypes.GetInt("ID");
 					const char* szType = kTypes.GetText("Type");
-					if(szType != 0)
+					if(szType != 0) {
 						GC.setInfoTypeFromString(szType, rowid);
+}
 				}
 			}
 		}
@@ -182,8 +184,9 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	GC.GameDataPostCache();
 
-	if(bSuccess)
+	if(bSuccess) {
 		m_bGameDatabaseNeedsCaching = false;
+}
 
 	return bSuccess;
 }
@@ -390,8 +393,9 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
 
-	if (MOD_API_ACHIEVEMENTS)
+	if (MOD_API_ACHIEVEMENTS) {
 		PrefetchCollection(GC.getAchievementInfo(), "Achievements");
+}
 
 #if defined(MOD_BALANCE_CORE)
 	// Must be after buildings because this calls from Buildings
@@ -748,11 +752,13 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 		CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes) i);
 		if(pkCivilization != 0)
 		{
-			if(pkCivilization->isPlayable())
+			if(pkCivilization->isPlayable()) {
 				numPlayableCivilizations++;
+}
 
-			if(pkCivilization->isAIPlayable())
+			if(pkCivilization->isAIPlayable()) {
 				numAIPlayableCivilizations++;
+}
 		}
 
 		GC.getNumPlayableCivilizationInfos() = numPlayableCivilizations;

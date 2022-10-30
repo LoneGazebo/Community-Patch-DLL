@@ -1218,8 +1218,9 @@ bool CvBeliefEntry::IsBuildingClassEnabled(int i) const
 /// Load XML data
 bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	setShortDescription(kResults.GetText("ShortDescription"));
@@ -1977,13 +1978,15 @@ ReligionTypes CvReligionBeliefs::GetReligion() const
 void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 {
 	CvAssert(eBelief != NO_BELIEF);
-	if(eBelief == NO_BELIEF)
+	if(eBelief == NO_BELIEF) {
 		return;
+}
 
 	CvBeliefEntry* belief = GC.GetGameBeliefs()->GetEntry(eBelief);
 	CvAssert(belief != NULL);
-	if(belief == NULL)
+	if(belief == NULL) {
 		return;
+}
 #if !defined(MOD_BALANCE_CORE_BELIEFS)
 	m_iFaithFromDyingUnits += belief->GetFaithFromDyingUnits();
 	m_iRiverHappiness += belief->GetRiverHappiness();
@@ -2042,8 +2045,9 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 bool CvReligionBeliefs::HasBelief(BeliefTypes eBelief) const
 {
 #if defined(MOD_BALANCE_CORE)
-	if (eBelief==NO_BELIEF)
+	if (eBelief==NO_BELIEF) {
 		return m_ReligionBeliefs.empty();
+}
 
 	return m_BeliefLookup[(int)(eBelief)]==1;
 #else
@@ -2070,8 +2074,9 @@ int CvReligionBeliefs::GetNumBeliefs() const
 bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer) const
 {
 	ReligionTypes ePantheon = GC.getGame().GetGameReligions()->GetPantheonCreatedByPlayer(ePlayer);
-	if (ePantheon == NO_RELIGION || eReligion == NO_RELIGION)
+	if (ePantheon == NO_RELIGION || eReligion == NO_RELIGION) {
 		return false;
+}
 
 	CvReligionBeliefs ePanthBeliefs = GC.getGame().GetGameReligions()->GetReligion(ePantheon, ePlayer)->m_Beliefs;
 	CvReligionBeliefs eFounderBeliefs = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer)->m_Beliefs;
@@ -2081,8 +2086,9 @@ bool CvReligionBeliefs::IsPantheonBeliefInReligion(BeliefTypes eBelief, Religion
 
 bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligion, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
-	if (ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER) {
 		return true;
+}
 
 	bool bEligibleForFounderBenefits = false;
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
@@ -2240,8 +2246,9 @@ bool CvReligionBeliefs::IsBeliefValid(BeliefTypes eBelief, ReligionTypes eReligi
 	}
 	if (MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != NO_CIVILIZATION)
 	{
-		if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType())
+		if (pBeliefs->GetEntry(eBelief)->GetRequiredCivilization() != GET_PLAYER(ePlayer).getCivilizationType()) {
 			return false;
+}
 	}
 
 	return true;
@@ -2792,8 +2799,9 @@ int CvReligionBeliefs::GetCityScalerLimiter(int iCap) const
 			}
 		}
 	}
-	if (iBiggestValue == 0)
+	if (iBiggestValue == 0) {
 		return iCap;
+}
 
 	return min(iCap, iBiggestValue);
 }
@@ -2815,8 +2823,9 @@ int CvReligionBeliefs::GetFollowerScalerLimiter(int iCap) const
 		}
 	}
 
-	if (iBiggestValue == 0)
+	if (iBiggestValue == 0) {
 		return iCap;
+}
 
 	return min(iCap, iBiggestValue);
 }
@@ -4112,8 +4121,9 @@ int CvReligionBeliefs::GetYieldPerActiveTR(YieldTypes eYieldType, PlayerTypes eP
 	int rtnValue = 0;
 
 	int iNumTRs = GET_PLAYER(ePlayer).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
-	if (iNumTRs <= 0)
+	if (iNumTRs <= 0) {
 		return 0;
+}
 
 	for (BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{

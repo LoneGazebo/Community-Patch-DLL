@@ -290,11 +290,13 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 //	----------------------------------------------------------------------------
 void CvDiplomacyRequests::ActivateNext()
 {
-	if (HasActiveRequest())
+	if (HasActiveRequest()) {
 		return;
+}
 
-	if (m_eRequestActiveFromPlayer == NO_PLAYER)
+	if (m_eRequestActiveFromPlayer == NO_PLAYER) {
 		return;
+}
 
 	CvAssert(GC.getGame().getActivePlayer() == m_ePlayer);
 	CvAssert(GET_PLAYER(m_ePlayer).isTurnActive());
@@ -366,8 +368,9 @@ foundRequest:
 					bool bCantMatchOffer = false;
 					// just try modify gold to start off iwth since it could maybe be possible that the AI had something in mind at the time
 					bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
-					if (!bAcceptable) // now try harder to get a deal to avoid an improptu withdrawl
+					if (!bAcceptable) { // now try harder to get a deal to avoid an improptu withdrawl
 						bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
+}
 					if (!bAcceptable) // well, we tried. Gonna just clear the deal and being up a empty non-descript trade as it is slightly less wierd than the deal abruptly being withdrawn
 					{
 						//bBlankDeal = true; // blanking seems to works fine but from reading bug reports, simply cancelling might be less surprising
@@ -377,8 +380,9 @@ foundRequest:
 				else {
 					// This could change the deal signifcantly from the original but it is better than the current behaviour and probably not an issue since it is the same as how offers are generated currently
 					kDeal.ClearItems();
-					if(GET_PLAYER(eFrom).GetDiplomacyAI()->IsWantsPeaceWithPlayer(eTo)) // Maybe we just don't want peace anymore somehow?
+					if(GET_PLAYER(eFrom).GetDiplomacyAI()->IsWantsPeaceWithPlayer(eTo)) { // Maybe we just don't want peace anymore somehow?
 						bAcceptable = dealAI->IsOfferPeace(eTo, &kDeal, false);
+}
 					if (!bAcceptable) // well, we tried. 
 					{
 						bCancelDeal = true;
@@ -499,8 +503,9 @@ bool CvDiplomacyRequests::HasActiveRequestFrom(PlayerTypes eFromPlayer) const
 //	static
 void CvDiplomacyRequests::DoAIMPDiplomacyWithHumans()
 {
-	if (s_aDiploHumans.size() == 0)
+	if (s_aDiploHumans.size() == 0) {
 		return;
+}
 
 	// just loop through all ai players and to diplomacy with active humans
 	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
@@ -536,8 +541,9 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 		{
 			CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
 			CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-			if (pkDiploRequests != 0)
+			if (pkDiploRequests != 0) {
 				pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+}
 			return;
 		}
 		CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
@@ -565,8 +571,9 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 				// Target is the active player, just send it right now
 				pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 			}
-			else
+			else {
 				pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
+}
 		}
 	}
 #else
@@ -590,8 +597,9 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 //static
 void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvDeal* pkDeal, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, bool bRenew)
 {
-	if (pkDeal->GetNumItems() <= 0)
+	if (pkDeal->GetNumItems() <= 0) {
 		return;
+}
 
 #if defined(MOD_ACTIVE_DIPLOMACY)
 	if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
@@ -718,8 +726,9 @@ bool CvDiplomacyRequests::HasActiveDiploRequestWithHuman(PlayerTypes eSourcePlay
 		CvPlayer& kTargetPlayer = GET_PLAYER((PlayerTypes)i);
 		if (kTargetPlayer.isHuman() && kTargetPlayer.isAlive() && (PlayerTypes)i != eSourcePlayer)
 		{
-			if (kTargetPlayer.GetDiplomacyRequests()->HasActiveRequestFrom(eSourcePlayer))
+			if (kTargetPlayer.GetDiplomacyRequests()->HasActiveRequestFrom(eSourcePlayer)) {
 				return true;
+}
 		}
 	}
 	return false;

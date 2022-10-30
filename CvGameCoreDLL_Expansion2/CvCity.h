@@ -2463,13 +2463,15 @@ public:
 	{
 		m_pCity = pCity;
 		//can only garrison units of the city owner!
-		if ((m_pCity != 0) && (pUnit != 0) && m_pCity->getOwner() == pUnit->getOwner())
+		if ((m_pCity != 0) && (pUnit != 0) && m_pCity->getOwner() == pUnit->getOwner()) {
 			m_pCity->OverrideGarrison(pUnit);
+}
 	}
 	~CvCityGarrisonOverride()
 	{
-		if (m_pCity != 0)
+		if (m_pCity != 0) {
 			m_pCity->OverrideGarrison(0);
+}
 	}
 protected:
 	const CvCity* m_pCity;

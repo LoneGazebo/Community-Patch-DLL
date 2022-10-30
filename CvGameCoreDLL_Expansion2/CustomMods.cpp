@@ -577,8 +577,9 @@ int CustomMods::getCivOption(const char* szCiv, const char* szName, int defValue
 
 void CheckSentinel(uint value)
 {
-	if (value == 0xDEADBEEF)
+	if (value == 0xDEADBEEF) {
 		return; //everything ok
+}
 
 	CUSTOMLOG("Deserialization Error, check DeserializationCallstack.log\n");
 

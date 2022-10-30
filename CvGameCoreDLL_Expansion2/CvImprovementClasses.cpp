@@ -252,8 +252,9 @@ CvImprovementEntry::~CvImprovementEntry(void)
 /// Read from XML file
 bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic properties
 	const char* szArtDefineTag = kResults.GetText("ArtDefineTag");
@@ -1563,16 +1564,19 @@ bool CvImprovementEntry::IsConnectsResource(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	if (i >= 0 && i < GC.getNumResourceInfos())
 	{
-		if (m_paImprovementResource[i].m_bResourceTrade)
+		if (m_paImprovementResource[i].m_bResourceTrade) {
 			return true;
+}
 	}
-	else
+	else {
 		return false;
+}
 
 	if (MOD_BALANCE_CORE)
 	{
-		if (IsCreatedByGreatPerson() || IsAdjacentCity())
+		if (IsCreatedByGreatPerson() || IsAdjacentCity()) {
 			return true;
+}
 	}
 
 	return false;

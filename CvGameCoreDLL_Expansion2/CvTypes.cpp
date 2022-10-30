@@ -100,10 +100,11 @@ std::string defaultMissionName("UNKNOWN_MISSION");
 const std::string& CvTypes::GetMissionName(MissionTypes eMission)
 {
 	std::tr1::unordered_map<MissionTypes, std::string>::const_iterator it = MissionNameLookup.find(eMission);
-	if (it!=MissionNameLookup.end())
+	if (it!=MissionNameLookup.end()) {
 		return it->second;
-	else
+	} else {
 		return defaultMissionName;
+}
 }
 
 #endif

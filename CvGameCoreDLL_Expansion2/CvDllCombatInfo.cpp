@@ -126,8 +126,9 @@ void* CvDllCombatInfo::TEMPGetRawCombatInfo() const
 //------------------------------------------------------------------------------
 const CvCombatMemberEntry* CvDllCombatInfo::GetDamageMember(int iIndex) const
 {
-	if(iIndex < m_pCombatInfo->getMaxDamageMemberCount())
+	if(iIndex < m_pCombatInfo->getMaxDamageMemberCount()) {
 		return &m_pCombatInfo->getDamageMembers()[iIndex];
+}
 	return NULL;
 }
 //------------------------------------------------------------------------------

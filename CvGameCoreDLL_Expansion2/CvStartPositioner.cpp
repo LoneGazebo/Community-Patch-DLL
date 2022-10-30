@@ -25,8 +25,9 @@ CvStartPositioner::CvStartPositioner(CvCitySiteEvaluator * pSiteEvaluator)
 	m_iRequiredSeparation = 0;
 	m_iBestFoundValueOnMap = 0;
 	m_pSiteEvaluator = pSiteEvaluator;
-	if (m_pSiteEvaluator != 0)
+	if (m_pSiteEvaluator != 0) {
 		m_pSiteEvaluator->ComputeFlavorMultipliers(NULL);  // Ignore flavors; this sets them to 1
+}
 }
 
 /// Destructor
@@ -370,8 +371,9 @@ void CvStartPositioner::ComputeTileFertilityValues()
 			// Add to total for area
 			CvArea* pArea = GC.getMap().getArea(pLoopPlot->getArea());
 			CvAssert(pArea);
-			if(pArea == 0) 
+			if(pArea == 0) { 
 				continue;
+}
 			pArea->setTotalFoundValue(pArea->getTotalFoundValue() + iFertility);
 		}
 	}
@@ -521,9 +523,11 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, int iChopPercent)
 {
 	CvAssert(region);
-	if(region == 0) return;
+	if(region == 0) { return;
+}
 	CvAssert(secondRegion);
-	if(secondRegion == 0) return;
+	if(secondRegion == 0) { return;
+}
 
 	int uiTargetFertility = 0;
 	int uiFertilitySoFar = 0;
@@ -589,11 +593,14 @@ void CvStartPositioner::ChopIntoTwoRegions(bool bTaller, CvStartRegion* region, 
 void CvStartPositioner::ChopIntoThreeRegions(bool bTaller, CvStartRegion* region, CvStartRegion* secondRegion, CvStartRegion* thirdRegion)
 {
 	CvAssert(region);
-	if(region == 0) return;
+	if(region == 0) { return;
+}
 	CvAssert(secondRegion);
-	if(secondRegion == 0) return;
+	if(secondRegion == 0) { return;
+}
 	CvAssert(thirdRegion);
-	if(thirdRegion == 0) return;
+	if(thirdRegion == 0) { return;
+}
 
 	// Chop off the first third
 	ChopIntoTwoRegions(bTaller, region, secondRegion, 33);
@@ -620,8 +627,9 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 				//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 				//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 				int iValue = pPlot->getFoundValue((PlayerTypes)0);
-				if (iValue>0)
+				if (iValue>0) {
 					rtnValue += iValue;
+}
 			}
 		}
 	}
@@ -677,8 +685,9 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 					//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
 					uiPlotFoundValue = pLoopPlot->getFoundValue((PlayerTypes)1);
-					if (uiPlotFoundValue<1)
+					if (uiPlotFoundValue<1) {
 						continue;
+}
 
 					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
 						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
@@ -730,8 +739,9 @@ bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 	bool rtnValue = false;
 
 	CvAssert(pPlot);
-	if(pPlot == 0)
+	if(pPlot == 0) {
 		return rtnValue;
+}
 
 	for(int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -773,8 +783,9 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 	bool bFoundFoodPlot = false;
 
 	CvAssert(pPlot);
-	if(pPlot == 0)
+	if(pPlot == 0) {
 		return bFoundFoodPlot;
+}
 
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
@@ -879,8 +890,9 @@ CvStartPositionerMerge::~CvStartPositionerMerge(void)
 
 int getRegionDistanceMeasure(const SStartRegion& a, const SStartRegion& b)
 {
-	if (a.vPlots.empty() || b.vPlots.empty())
+	if (a.vPlots.empty() || b.vPlots.empty()) {
 		return 0;
+}
 
 	int ax = 0;
 	int ay = 0;
@@ -955,14 +967,16 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		map<int, SStartRegion>::iterator it = regions.find(pLoopPlot->GetPlotIndex());
-		if (it == regions.end())
+		if (it == regions.end()) {
 			continue; //can happen for bad plots without corresponding region
+}
 
 		CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(pLoopPlot);
 		for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 		{
-			if (aNeighbors[i] == 0)
+			if (aNeighbors[i] == 0) {
 				continue;
+}
 
 			map<int, SStartRegion>::iterator it = regions.find(aNeighbors[i]->GetPlotIndex());
 			if (it != regions.end())
@@ -1000,13 +1014,15 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 			if (worstRegion == regions.end() || it->second.iTotalWorth < worstRegion->second.iTotalWorth)
 				worstRegion = it;
 		}
-		if (worstRegion == regions.end())
+		if (worstRegion == regions.end()) {
 			break; //error
+}
 
 		//merge the worst region with a suitable neighbor
 		int neighborId = findNeighborIdToMerge(worstRegion,regions);
-		if (neighborId == -1)
+		if (neighborId == -1) {
 			break; //error
+}
 		map<int, SStartRegion>::iterator neighbor = regions.find(neighborId);
 
 		//debugging

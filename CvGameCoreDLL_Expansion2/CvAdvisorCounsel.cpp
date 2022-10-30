@@ -1042,8 +1042,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
 				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
-				if(pkMinorCivInfo != NULL)
+				if(pkMinorCivInfo != NULL) {
 					strLoc << pkMinorCivInfo->GetTextKey();
+}
 			}
 		}
 		break;
@@ -1062,8 +1063,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
 				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
-				if(pkMinorCivInfo != NULL)
+				if(pkMinorCivInfo != NULL) {
 					strLoc << pkMinorCivInfo->GetTextKey();
+}
 			}
 		}
 		break;
@@ -1083,8 +1085,9 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GET_PLAYER(eOtherPlayer).getCivilizationInfo().GetTextKey();
 
 				CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GET_PLAYER((PlayerTypes)iMinorCiv).GetMinorCivAI()->GetMinorCivType());
-				if(pkMinorCivInfo != NULL)
+				if(pkMinorCivInfo != NULL) {
 					strLoc << pkMinorCivInfo->GetTextKey();
+}
 			}
 		}
 		break;

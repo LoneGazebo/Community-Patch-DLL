@@ -56,8 +56,9 @@ void cvStopWatch::StartPerfTest()
 //------------------------------------------------------------------------------
 void cvStopWatch::EndPerfTest()
 {
-	if(!m_bStarted)
+	if(!m_bStarted) {
 		return;
+}
 
 	LARGE_INTEGER newTimerVal;
 	QueryPerformanceCounter(&newTimerVal);
@@ -82,16 +83,17 @@ void cvStopWatch::PerfLog(const char* szName, double dtSeconds)
 		const char* szLogFile = (m_szLogFile == NULL)? "stopwatch.log" : m_szLogFile;
 		if (m_bShowNesting)
 		{
-			if (m_nesting == 0)
+			if (m_nesting == 0) {
 				LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %d, %s, %f", m_nesting, szName, dtSeconds);
-			else
+			} else
 			{
 				const int MAX_NESTING = 20;
 				static const char ms_nestingOffset[] = ",,,,,,,,,,,,,,,,,,,,";
 				LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %d, %s,%s %f", m_nesting, szName, ((m_nesting < MAX_NESTING)?(&ms_nestingOffset[MAX_NESTING - m_nesting]):(&ms_nestingOffset[0])), dtSeconds);
 			}
 		}
-		else
+		else {
 			LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %s, %f", szName, dtSeconds);
+}
 	}
 }

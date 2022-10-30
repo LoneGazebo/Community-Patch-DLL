@@ -20,11 +20,13 @@ CvUnitCycler::CvUnitCycler()
 // Returns the next unit in the cycle...
 CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
-	if (pUnit == 0)
+	if (pUnit == 0) {
 		return NULL;
+}
 
-	if (pbWrap != NULL)
+	if (pbWrap != NULL) {
 		*pbWrap = false;
+}
 
 	//---------------------------------------------------------------------------------------------
 	// just return the closest suitable unit, no bookkeeping required
@@ -34,19 +36,23 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 	CvUnit* pClosestUnit = NULL;
 	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iUnitLoop); pLoopUnit != 0; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iUnitLoop))
 	{
-		if (pLoopUnit == pUnit || !pLoopUnit->ReadyToSelect())
+		if (pLoopUnit == pUnit || !pLoopUnit->ReadyToSelect()) {
 			continue;
+}
 
-		if (bWorkers && pLoopUnit->AI_getUnitAIType() != UNITAI_WORKER && pLoopUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA)
+		if (bWorkers && pLoopUnit->AI_getUnitAIType() != UNITAI_WORKER && pLoopUnit->AI_getUnitAIType() != UNITAI_WORKER_SEA) {
 			continue;
+}
 
 		int iDist = plotDistance(*pUnit->plot(),*pLoopUnit->plot());
 
 		//use forward/backward flag to introduce a slight bias
-		if (bForward && pUnit->GetID() > pLoopUnit->GetID())
+		if (bForward && pUnit->GetID() > pLoopUnit->GetID()) {
 			iDist++;
-		if (!bForward && pUnit->GetID() < pLoopUnit->GetID())
+}
+		if (!bForward && pUnit->GetID() < pLoopUnit->GetID()) {
 			iDist++;
+}
 
 		if ( iDist<iMinDist )
 		{

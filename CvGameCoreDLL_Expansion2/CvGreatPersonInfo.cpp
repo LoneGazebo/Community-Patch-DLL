@@ -31,8 +31,9 @@ const char* CvGreatPersonInfo::GetIconString() const
 
 bool CvGreatPersonInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szTextVal = NULL;
 

@@ -77,8 +77,9 @@ void CvArmyAI::Kill()
 	ReleaseAllUnits();
 
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
-	if (pOperation != 0)
+	if (pOperation != 0) {
 		pOperation->DeleteArmyAI(m_iID);
+}
 
 	//this calls the destructor
 	GET_PLAYER(GetOwner()).deleteArmyAI(m_iID);
@@ -184,8 +185,9 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	int iNumUnits = 0;
 
 	CvUnit* pUnit = GetFirstUnit();
-	if (pUnit == 0)
+	if (pUnit == 0) {
 		return NULL;
+}
 
 	int iTotalX2 = 0;
 	int iTotalY2 = 0;
@@ -205,17 +207,21 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 
 		if (GC.getMap().isWrapX())
 		{
-			if( iDX > +(iWorldWidth / 2))
+			if( iDX > +(iWorldWidth / 2)) {
 				iDX -= iWorldWidth;
-			if( iDX < -(iWorldWidth / 2))
+}
+			if( iDX < -(iWorldWidth / 2)) {
 				iDX += iWorldWidth;
+}
 		}
 		if (GC.getMap().isWrapY())
 		{
-			if( iDY > +(iWorldHeight / 2))
+			if( iDY > +(iWorldHeight / 2)) {
 				iDY -= iWorldHeight;
-			if( iDY < -(iWorldHeight / 2))
+}
+			if( iDY < -(iWorldHeight / 2)) {
 				iDY += iWorldHeight;
+}
 		}
 
 		iTotalX += iDX;
@@ -238,8 +244,9 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
-	if (pCOM == 0)
+	if (pCOM == 0) {
 		return NULL;
+}
 
 	if (pfVarX != 0)
 	{
@@ -267,22 +274,25 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 			pUnit = GetNextUnit(pUnit);
 		}
 
-		if (vPlots.empty())
+		if (vPlots.empty()) {
 			return NULL;
+}
 
 		//this sorts ascending!
 		std::sort(vPlots.begin(),vPlots.end());
 		return vPlots.front().pPlot;
 	}
-	else
+	else {
 		return pCOM;
+}
 }
 
 /// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetClosestUnitDistance(CvPlot* pPlot)
 {
-	if (pPlot == 0)
+	if (pPlot == 0) {
 		return INT_MAX;
+}
 
 	int iSmallestDistance = INT_MAX;
 	CvUnit* pUnit = GetFirstUnit();
@@ -303,8 +313,9 @@ int CvArmyAI::GetClosestUnitDistance(CvPlot* pPlot)
 /// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 {
-	if (pPlot == 0)
+	if (pPlot == 0) {
 		return INT_MAX;
+}
 
 	int iLargestDistance = 0;
 	CvUnit* pUnit = GetFirstUnit();
@@ -368,8 +379,9 @@ size_t CvArmyAI::GetNumSlotsFilled() const
 void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
-	if (pOperation == 0)
+	if (pOperation == 0) {
 		return;
+}
 
 	CvPlot* pCurrentArmyPlot = GetCurrentPlot();
 
@@ -438,8 +450,9 @@ bool CvArmyAI::IsAllOceanGoing()
 	{
 		if(pUnit->getDomainType() != DOMAIN_SEA)
 		{
-			if (!pUnit->IsHasEmbarkAbility() || !GET_PLAYER(pUnit->getOwner()).CanCrossOcean())
+			if (!pUnit->IsHasEmbarkAbility() || !GET_PLAYER(pUnit->getOwner()).CanCrossOcean()) {
 				return false;
+}
 		}
 
 		// If can move over ocean, not a coastal vessel
@@ -478,8 +491,9 @@ int CvArmyAI::GetTotalPower()
 CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
 	CvMultiUnitFormationInfo* thisFormation = GetFormation();
-	if ((thisFormation != 0) && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
+	if ((thisFormation != 0) && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries()) {
 		return thisFormation->getFormationSlotEntry(iSlotID);
+}
 
 	return CvFormationSlotEntry();
 }
@@ -570,8 +584,9 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 {
 	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
 	CvUnit* pThisUnit = thisPlayer.getUnit(iUnitID);
-	if (!pThisUnit || iSlotNum<0 || iSlotNum>=(int)m_FormationEntries.size())
+	if (!pThisUnit || iSlotNum<0 || iSlotNum>=(int)m_FormationEntries.size()) {
 		return;
+}
 
 	// uh, slot already used?
 	if (GetSlotStatus(iSlotNum)->IsUsed())
@@ -616,8 +631,9 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 /// Remove a unit from the army
 int CvArmyAI::RemoveUnit(int iUnitToRemoveID, bool bTempOnly)
 {
-	if (iUnitToRemoveID == -1)
+	if (iUnitToRemoveID == -1) {
 		return -1;
+}
 
 	for(size_t iI = 0; iI < m_FormationEntries.size(); iI++)
 	{
@@ -777,16 +793,19 @@ void CvArmyFormationSlot::ResetTurnsToCheckpoint()
 bool CvArmyFormationSlot::IsMakingProgressTowardsCheckpoint() const
 {
 	//sometimes we get into a fight or there is a temporary block so we need some history
-	if (m_estTurnsToCheckpoint.size() < 3)
+	if (m_estTurnsToCheckpoint.size() < 3) {
 		return true;
+}
 
 	// can't get much better than this
-	if (m_estTurnsToCheckpoint.front() < 2)
+	if (m_estTurnsToCheckpoint.front() < 2) {
 		return true;
+}
 
 	// regular case, see if we made progress over several turns
-	if (m_estTurnsToCheckpoint.front() >= m_estTurnsToCheckpoint.back())
+	if (m_estTurnsToCheckpoint.front() >= m_estTurnsToCheckpoint.back()) {
 		return false;
+}
 
 	return true;
 }

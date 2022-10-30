@@ -130,10 +130,11 @@ bool CvDllPlot::IsCity() const
 bool CvDllPlot::IsEnemyCity(ICvUnit1* pUnit) const
 {
 	CvUnit* pkUnit = (NULL != pUnit)? dynamic_cast<CvDllUnit*>(pUnit)->GetInstance() : NULL;
-	if(pkUnit != NULL)
+	if(pkUnit != NULL) {
 		return m_pPlot->isEnemyCity(*pkUnit);
-	else
+	} else {
 		return false;
+}
 }
 //------------------------------------------------------------------------------
 bool CvDllPlot::IsFighting() const

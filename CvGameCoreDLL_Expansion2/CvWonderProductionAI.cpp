@@ -107,8 +107,9 @@ void CvWonderProductionAI::FlavorUpdate()
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvWonderProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
-	if (iWeight==0)
+	if (iWeight==0) {
 		return;
+}
 
 	// Loop through all buildings (even though we're only go to do anything on wonders)
 	for(int iBldg = 0; iBldg < m_pBuildings->GetNumBuildings(); iBldg++)
@@ -145,19 +146,22 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		int iEstimatedProductionPerTurn = pLoopCity->getCurrentProductionDifference(true, false);
-		if (iEstimatedProductionPerTurn < 1)
+		if (iEstimatedProductionPerTurn < 1) {
 			iEstimatedProductionPerTurn = 1;
+}
 
 		// Loop through adding the available wonders
 		for (int iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 		{
 			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
 			CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
-			if (pkBuildingInfo == 0)
+			if (pkBuildingInfo == 0) {
 				continue;
+}
 
-			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
+			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType())) {
 				continue;
+}
 
 			int iTurnsRequired = std::max(1, pkBuildingInfo->GetProductionCost() / iEstimatedProductionPerTurn);
 
@@ -166,8 +170,9 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 			int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
 
 			int iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
-			if (iWeight <= 0)
+			if (iWeight <= 0) {
 				continue;
+}
 
 			iWeight = pLoopCity->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iWeight, false, false, true);
 			if (iWeight > 0)

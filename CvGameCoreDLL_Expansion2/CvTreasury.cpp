@@ -85,8 +85,9 @@ void CvTreasury::DoGold()
 		SetGold(0);
 
 		//forced disbanding
-		if (iGoldAfterThisTurn <= /*-5*/ GD_INT_GET(DEFICIT_UNIT_DISBANDING_THRESHOLD) * 100)
+		if (iGoldAfterThisTurn <= /*-5*/ GD_INT_GET(DEFICIT_UNIT_DISBANDING_THRESHOLD) * 100) {
 			m_pPlayer->DoBankruptcy();
+}
 	}
 	else
 	{
@@ -242,8 +243,9 @@ void CvTreasury::ChangeGoldPerTurnFromDiplomacy(int iChange)
 int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) const
 {
 	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-	if ((pNonCapitalCity == 0) || (pCapitalCity == 0) || pNonCapitalCity == pCapitalCity)
+	if ((pNonCapitalCity == 0) || (pCapitalCity == 0) || pNonCapitalCity == pCapitalCity) {
 		return 0;
+}
 
 	int iGold = /*-100*/ GD_INT_GET(TRADE_ROUTE_BASE_GOLD);
 	iGold += pCapitalCity->getPopulation() * /*15 in CP, 6 in VP*/ GD_INT_GET(TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER);	// Capital Multiplier
@@ -463,8 +465,9 @@ int CvTreasury::CalculateBaseNetGold()
 /// Net income for turn
 int CvTreasury::CalculateBaseNetGoldTimes100()
 {
-	if (m_pPlayer->IsAnarchy())
+	if (m_pPlayer->IsAnarchy()) {
 		return 0;
+}
 
 	return CalculateGrossGoldTimes100() - CalculateInflatedCosts() * 100;
 }
@@ -588,8 +591,9 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 /// HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
 int CvTreasury::CalculateUnitSupply()
 {
-	if (GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT) <= 0)
+	if (GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT) <= 0) {
 		return 0;
+}
 
 	int iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
 
@@ -767,8 +771,9 @@ void CvTreasury::SetBaseBuildingGoldMaintenance(int iValue)
 {
 	m_iBaseBuildingGoldMaintenance = iValue;
 
-	if(m_iBaseBuildingGoldMaintenance < 0)
+	if(m_iBaseBuildingGoldMaintenance < 0) {
 		m_iBaseBuildingGoldMaintenance = 0;
+}
 
 	CvAssertMsg(m_iBaseBuildingGoldMaintenance >= 0, "Building Maintenance is negative somehow. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 }
@@ -810,11 +815,13 @@ void CvTreasury::SetBaseImprovementGoldMaintenance(int iValue)
 
 		CvAssertMsg(m_iBaseImprovementGoldMaintenance >= 0, "Improvement Maintenance is negative somehow. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-		if(m_iBaseImprovementGoldMaintenance < 0)
+		if(m_iBaseImprovementGoldMaintenance < 0) {
 			m_iBaseImprovementGoldMaintenance = 0;
+}
 
-		if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+		if(m_pPlayer->GetID() == GC.getGame().getActivePlayer()) {
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+}
 	}
 }
 
@@ -1114,8 +1121,9 @@ void CvTreasury::CalculateExpensePerTurnFromVassalTaxes()
 {
 	TeamTypes eMaster = GET_TEAM(m_pPlayer->getTeam()).GetMaster();
 	if(eMaster == NO_TEAM) {
-		if(GetExpensePerTurnFromVassalTaxes() != 0)
+		if(GetExpensePerTurnFromVassalTaxes() != 0) {
 			SetExpensePerTurnFromVassalTaxesTimes100(0);
+}
 		return;
 	}
 	int iNet = CalculateGrossGoldTimes100();
@@ -1146,8 +1154,9 @@ int CvTreasury::GetExpensePerTurnFromVassalTaxes() const
 int CvTreasury::GetMyShareOfVassalTaxes() const
 {
 	int iNumTeamMembers = GET_TEAM(m_pPlayer->getTeam()).getAliveCount();
-	if(iNumTeamMembers == 0)
+	if(iNumTeamMembers == 0) {
 		return 0;
+}
 
 	int iTotalTaxes = 0;
 	PlayerTypes eLoopPlayer;
@@ -1168,8 +1177,9 @@ int CvTreasury::GetMyShareOfVassalTaxes() const
 int CvTreasury::GetVassalTaxContributionTimes100(PlayerTypes ePlayer) const
 {
 	int iNumTeamMembers = GET_TEAM(m_pPlayer->getTeam()).getAliveCount();
-	if(iNumTeamMembers == 0)
+	if(iNumTeamMembers == 0) {
 		return 0;
+}
 
 	int iAmount = 0;
 	

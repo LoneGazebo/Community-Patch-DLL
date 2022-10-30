@@ -63,8 +63,9 @@ Database::Results* CvDatabaseUtility::PrepareResults(const std::string& strKey, 
 	if(DB.Execute(*pResults, szStmt))
 	{
 		Database::Results* pOldResults = GetResults(strKey);
-		if(pOldResults != 0)
+		if(pOldResults != 0) {
 			delete pOldResults;
+}
 
 		m_storedResults[strKey] = pResults;
 		return pResults;
@@ -158,8 +159,9 @@ bool CvDatabaseUtility::PopulateArrayByExistence(bool*& pArray, const char* szTy
 		sprintf_s(szSQL, "select %s.ID from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
 
 		pResults = PrepareResults(strKey, szSQL);
-		if(pResults == NULL)
+		if(pResults == NULL) {
 			return false;
+}
 	}
 
 	if(!pResults->Bind(1, szFilterValue, false))
@@ -194,8 +196,9 @@ bool CvDatabaseUtility::PopulateArrayByExistence(int*& pArray, const char* szTyp
 		char szSQL[512];
 		sprintf_s(szSQL, "select %s.ID from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
 		pResults = PrepareResults(strKey, szSQL);
-		if(pResults == NULL)
+		if(pResults == NULL) {
 			return false;
+}
 	}
 
 	if(!pResults->Bind(1, szFilterValue, false))
@@ -232,8 +235,9 @@ bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTab
 		char szSQL[512];
 		sprintf_s(szSQL, "select %s.ID, %s from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szValueColumn, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
 		pResults = PrepareResults(strKey, szSQL);
-		if(pResults == NULL)
+		if(pResults == NULL) {
 			return false;
+}
 	}
 
 	if(!pResults->Bind(1, szFilterValue, false))

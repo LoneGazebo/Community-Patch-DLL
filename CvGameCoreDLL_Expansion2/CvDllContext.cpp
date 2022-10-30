@@ -218,24 +218,27 @@ ICvPreGame1* CvDllGameContext::GetPreGame()
 ICvGame1* CvDllGameContext::GetGame()
 {
 	CvGame* pkGame = GC.getGamePointer();
-	if(pkGame != 0)
+	if(pkGame != 0) {
 		return new CvDllGame(pkGame);
+}
 	return NULL;
 }
 //------------------------------------------------------------------------------
 ICvGameAsynch1* CvDllGameContext::GetGameAsynch()
 {
 	CvGame* pkGame = GC.getGamePointer();
-	if(pkGame != 0)
+	if(pkGame != 0) {
 		return new CvDllGameAsynch(pkGame);
+}
 	return NULL;
 }
 //------------------------------------------------------------------------------
 ICvMap1* CvDllGameContext::GetMap()
 {
 	CvMap* pkMap = GC.getMapPointer();
-	if(pkMap != 0)
+	if(pkMap != 0) {
 		return new CvDllMap(pkMap);
+}
 	return NULL;
 }
 //------------------------------------------------------------------------------
@@ -724,8 +727,9 @@ const char* CvDllGameContext::GetNotificationType(int NotificationID) const
 	if(pkEntries != NULL)
 	{
 		CvNotificationEntry* pkEntry = pkEntries->GetEntry(NotificationID);
-		if(pkEntry != NULL)
+		if(pkEntry != NULL) {
 			return pkEntry->GetType();
+}
 	}
 
 	return NULL;
@@ -916,8 +920,9 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 		_itoa_s(pkRandom->getResetCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += "\n";
 
-		if(logFile != 0)
+		if(logFile != 0) {
 			logFile->DebugMsg(rngLogMessage.c_str());
+}
 
 		return false;
 	}
@@ -1107,12 +1112,14 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 			update.iY = path.vPlots[i].y;
 
 			update.iTurnNumber = path.vPlots[i].turns * 10; //fixed point float
-			if (path.vPlots[i].moves>0)
+			if (path.vPlots[i].moves>0) {
 				update.iTurnNumber += 5; //indicate that there are movement points left
+}
 
 			//in debug mode just use the raw number, it's actually the known cost
-			if (eMode==TC_DEBUG)
+			if (eMode==TC_DEBUG) {
 				update.iTurnNumber = path.vPlots[i].turns;
+}
 
 			pUpdateData.push_back(update);
 		}

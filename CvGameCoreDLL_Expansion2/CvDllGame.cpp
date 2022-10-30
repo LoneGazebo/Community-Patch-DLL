@@ -22,14 +22,16 @@ CvDllGame::CvDllGame(CvGame* pGame)
 	: m_pGame(pGame)
 	, m_uiRefCount(1)
 {
-	if(gDLL)
+	if(gDLL) {
 		gDLL->GetGameCoreLock();
+}
 }
 //------------------------------------------------------------------------------
 CvDllGame::~CvDllGame()
 {
-	if(gDLL)
+	if(gDLL) {
 		gDLL->ReleaseGameCoreLock();
+}
 }
 //------------------------------------------------------------------------------
 void* CvDllGame::QueryInterface(GUID guidInterface)
@@ -113,8 +115,9 @@ int CvDllGame::GetGameTurn() const
 void CvDllGame::ChangeNumGameTurnActive(int iChange, const char* why)
 {
 	std::string strWhy;
-	if(why != NULL && strlen(why) > 0)
+	if(why != NULL && strlen(why) > 0) {
 		strWhy = why;
+}
 
 	m_pGame->changeNumGameTurnActive(iChange, strWhy);
 }
@@ -478,8 +481,9 @@ void CvDllGame::Uninit()
 	// Because the first step of the shutdown process deinitializes the game instance, this
 	// should trap before the program has a chance to enter a broken state which hopefully
 	// protects users from any exploits that could be leveraged while the state is broken.
-	if (CvPreGame::gameStarted())
+	if (CvPreGame::gameStarted()) {
 		BUILTIN_TRAP();
+}
 
 	m_pGame->uninit();
 }

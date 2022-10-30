@@ -1964,8 +1964,9 @@ PlayerTypes GetCurrentPlayer()
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER( (PlayerTypes)i );
-		if (kPlayer.isTurnActive())
+		if (kPlayer.isTurnActive()) {
 			return (PlayerTypes)i;
+}
 	}
 	return NO_PLAYER;
 }
@@ -1994,8 +1995,9 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 			gStackWalker.ShowCallstack( GetCurrentThread(), pep != 0 ? pep->ContextRecord : NULL );
 
 			pLog->Msg("\nLua Callstack\n");
-			if (gLuaState != 0)
+			if (gLuaState != 0) {
 				LuaSupport::DumpCallStack(gLuaState,pLog);
+}
 
 			pLog->Close();
 		}
@@ -2272,8 +2274,9 @@ void CvGlobals::uninit()
 
 	m_kGlobalDefinesLookup.Release();
 
-	if(gDLL)
+	if(gDLL) {
 		gDLL->UninitGlobals();	// free globals allocated outside the dll
+}
 
 	SAFE_DELETE(m_pathFinder);
 	SAFE_DELETE(m_interfacePathFinder);
@@ -2378,8 +2381,9 @@ CvStepFinder& CvGlobals::GetStepFinder()
 
 ICvDLLDatabaseUtility1* CvGlobals::getDatabaseLoadUtility()
 {
-	if(m_pkDatabaseLoadUtility == NULL)
+	if(m_pkDatabaseLoadUtility == NULL) {
 		m_pkDatabaseLoadUtility = new CvDllDatabaseUtility(DB);
+}
 
 	//By using query interface, we implicitly increment the reference count and avoid
 	//a new allocation.
@@ -2395,10 +2399,11 @@ CvInterfaceModeInfo* CvGlobals::getInterfaceModeInfo(InterfaceModeTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < NUM_INTERFACEMODE_TYPES);
-	if(e > -1 && e < (int)m_paInterfaceModeInfo.size())
+	if(e > -1 && e < (int)m_paInterfaceModeInfo.size()) {
 		return m_paInterfaceModeInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 bool CvGlobals::getLogging() const
@@ -2511,11 +2516,13 @@ int CvGlobals::getRingIterationIndexHex(int i, int j)
 {
 	CvAssertMsg(i < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) return -1;
+	if(i < 0 || i >= (2*MAX_CITY_RADIUS+1)) { return -1;
+}
 
 	CvAssertMsg(j < (2*MAX_CITY_RADIUS+1), "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) return -1;
+	if(j < 0 || j >= (2*MAX_CITY_RADIUS+1)) { return -1;
+}
 
 	return m_aaiRingPlotIndex[i][j];
 }
@@ -2530,7 +2537,8 @@ DirectionTypes CvGlobals::getTurnLeftDirection(int i)
 	CvAssertMsg(i < NUM_DIRECTION_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
+	if(i < 0 || i >= NUM_DIRECTION_TYPES) { return NO_DIRECTION;
+}
 
 	return m_aeTurnLeftDirection[i];
 }
@@ -2545,7 +2553,8 @@ DirectionTypes CvGlobals::getTurnRightDirection(int i)
 	CvAssertMsg(i < NUM_DIRECTION_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i < 0 || i >= NUM_DIRECTION_TYPES) return NO_DIRECTION;
+	if(i < 0 || i >= NUM_DIRECTION_TYPES) { return NO_DIRECTION;
+}
 
 	return m_aeTurnRightDirection[i];
 }
@@ -2579,10 +2588,11 @@ CvColorInfo* CvGlobals::GetColorInfo(ColorTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GetNumColorInfos());
-	if(e > -1 && e < (int)m_paColorInfo.size())
+	if(e > -1 && e < (int)m_paColorInfo.size()) {
 		return m_paColorInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 
@@ -2600,10 +2610,11 @@ CvPlayerColorInfo* CvGlobals::GetPlayerColorInfo(PlayerColorTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GetNumPlayerColorInfos());
-	if(e > -1 && e < (int)m_paPlayerColorInfo.size())
+	if(e > -1 && e < (int)m_paPlayerColorInfo.size()) {
 		return m_paPlayerColorInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumEntityEventInfos()
@@ -2620,10 +2631,11 @@ CvEntityEventInfo* CvGlobals::getEntityEventInfo(EntityEventTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumEntityEventInfos());
-	if(e > -1 && e < (int)m_paEntityEventInfo.size())
+	if(e > -1 && e < (int)m_paEntityEventInfo.size()) {
 		return m_paEntityEventInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumMultiUnitFormationInfos()
@@ -2640,10 +2652,11 @@ CvMultiUnitFormationInfo* CvGlobals::getMultiUnitFormationInfo(int i)
 {
 	CvAssert(i > -1);
 	CvAssert(i < GC.getNumMultiUnitFormationInfos());
-	if(i > -1 && i < (int)m_paMultiUnitFormationInfo.size())
+	if(i > -1 && i < (int)m_paMultiUnitFormationInfo.size()) {
 		return m_paMultiUnitFormationInfo[i];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumPlotInfos()
@@ -2660,10 +2673,11 @@ CvPlotInfo* CvGlobals::getPlotInfo(PlotTypes ePlotNum)
 {
 	CvAssert(ePlotNum > -1);
 	CvAssert(ePlotNum < GC.getNumPlotInfos());
-	if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size())
+	if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size()) {
 		return m_paPlotInfo[ePlotNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumGreatPersonInfos()
@@ -2680,10 +2694,11 @@ CvGreatPersonInfo* CvGlobals::getGreatPersonInfo(GreatPersonTypes eGreatPersonNu
 {
 	CvAssert(eGreatPersonNum > -1);
 	CvAssert(eGreatPersonNum < GC.getNumGreatPersonInfos());
-	if (eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size())
+	if (eGreatPersonNum > -1 && eGreatPersonNum < (int)m_paGreatPersonInfo.size()) {
 		return m_paGreatPersonInfo[eGreatPersonNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumTerrainInfos()
@@ -2700,10 +2715,11 @@ CvTerrainInfo* CvGlobals::getTerrainInfo(TerrainTypes eTerrainNum)
 {
 	CvAssert(eTerrainNum > -1);
 	CvAssert(eTerrainNum < GC.getNumTerrainInfos());
-	if(eTerrainNum > -1 && eTerrainNum < (int)m_paTerrainInfo.size())
+	if(eTerrainNum > -1 && eTerrainNum < (int)m_paTerrainInfo.size()) {
 		return m_paTerrainInfo[eTerrainNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumResourceClassInfos()
@@ -2720,10 +2736,11 @@ CvResourceClassInfo* CvGlobals::getResourceClassInfo(ResourceClassTypes eResourc
 {
 	CvAssert(eResourceNum > -1);
 	CvAssert(eResourceNum < GC.getNumResourceClassInfos());
-	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceClassInfo.size())
+	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceClassInfo.size()) {
 		return m_paResourceClassInfo[eResourceNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 
@@ -2741,10 +2758,11 @@ CvResourceInfo* CvGlobals::getResourceInfo(ResourceTypes eResourceNum)
 {
 	CvAssert(eResourceNum > -1);
 	CvAssert(eResourceNum < GC.getNumResourceInfos());
-	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceInfo.size())
+	if(eResourceNum > -1 && eResourceNum < (int)m_paResourceInfo.size()) {
 		return m_paResourceInfo[eResourceNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumFeatureInfos()
@@ -2761,10 +2779,11 @@ CvFeatureInfo* CvGlobals::getFeatureInfo(FeatureTypes eFeatureNum)
 {
 	CvAssert(eFeatureNum > -1);
 	CvAssert(eFeatureNum < GC.getNumFeatureInfos());
-	if(eFeatureNum > -1 && eFeatureNum < (int)m_paFeatureInfo.size())
+	if(eFeatureNum > -1 && eFeatureNum < (int)m_paFeatureInfo.size()) {
 		return m_paFeatureInfo[eFeatureNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int& CvGlobals::getNumPlayableCivilizationInfos()
@@ -2791,10 +2810,11 @@ CvCivilizationInfo* CvGlobals::getCivilizationInfo(CivilizationTypes eCivilizati
 {
 	CvAssert(eCivilizationNum > -1);
 	CvAssert(eCivilizationNum < GC.getNumCivilizationInfos());
-	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size())
+	if(eCivilizationNum > -1 && eCivilizationNum < (int)m_paCivilizationInfo.size()) {
 		return m_paCivilizationInfo[eCivilizationNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CivilizationTypes CvGlobals::getCivilizationInfoIndex(const char* pszType)
@@ -2843,10 +2863,11 @@ CvMinorCivInfo* CvGlobals::getMinorCivInfo(MinorCivTypes eMinorCivNum)
 {
 	CvAssert(eMinorCivNum > -1);
 	CvAssert(eMinorCivNum < GC.getNumMinorCivInfos());
-	if(eMinorCivNum > -1 && eMinorCivNum < (int)m_paMinorCivInfo.size())
+	if(eMinorCivNum > -1 && eMinorCivNum < (int)m_paMinorCivInfo.size()) {
 		return m_paMinorCivInfo[eMinorCivNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumLeaderHeadInfos()
@@ -2863,10 +2884,11 @@ CvLeaderHeadInfo* CvGlobals::getLeaderHeadInfo(LeaderHeadTypes eLeaderHeadNum)
 {
 	CvAssert(eLeaderHeadNum > -1);
 	CvAssert(eLeaderHeadNum < GC.getNumLeaderHeadInfos());
-	if(eLeaderHeadNum > -1 && eLeaderHeadNum < (int)m_paLeaderHeadInfo.size())
+	if(eLeaderHeadNum > -1 && eLeaderHeadNum < (int)m_paLeaderHeadInfo.size()) {
 		return m_paLeaderHeadInfo[eLeaderHeadNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumUnitInfos()
@@ -2883,10 +2905,11 @@ CvUnitEntry* CvGlobals::getUnitInfo(UnitTypes eUnitNum)
 {
 	CvAssert(eUnitNum > -1);
 	CvAssert(eUnitNum < GC.getNumUnitInfos());
-	if(eUnitNum > -1 && eUnitNum < GC.getNumUnitInfos())
+	if(eUnitNum > -1 && eUnitNum < GC.getNumUnitInfos()) {
 		return m_pUnits->GetUnitEntries()[eUnitNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvUnitXMLEntries* CvGlobals::GetGameUnits() const
@@ -2908,10 +2931,11 @@ CvSpecialUnitInfo* CvGlobals::getSpecialUnitInfo(SpecialUnitTypes eSpecialUnitNu
 {
 	CvAssert(eSpecialUnitNum > -1);
 	CvAssert(eSpecialUnitNum < GC.getNumSpecialUnitInfos());
-	if(eSpecialUnitNum > -1 && eSpecialUnitNum < (int)m_paSpecialUnitInfo.size())
+	if(eSpecialUnitNum > -1 && eSpecialUnitNum < (int)m_paSpecialUnitInfo.size()) {
 		return m_paSpecialUnitInfo[eSpecialUnitNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumVoteSourceInfos()
@@ -2928,10 +2952,11 @@ CvVoteSourceInfo* CvGlobals::getVoteSourceInfo(VoteSourceTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumVoteSourceInfos());
-	if(e > -1 && e < (int)m_paVoteSourceInfo.size())
+	if(e > -1 && e < (int)m_paVoteSourceInfo.size()) {
 		return m_paVoteSourceInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
@@ -2949,10 +2974,11 @@ CvModEventInfo* CvGlobals::getEventInfo(EventTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumEventInfos());
-	if(e > -1 && e < (int)m_paEventInfo.size())
+	if(e > -1 && e < (int)m_paEventInfo.size()) {
 		return m_paEventInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumEventChoiceInfos()
@@ -2969,10 +2995,11 @@ CvModEventChoiceInfo* CvGlobals::getEventChoiceInfo(EventChoiceTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumEventChoiceInfos());
-	if(e > -1 && e < (int)m_paEventChoiceInfo.size())
+	if(e > -1 && e < (int)m_paEventChoiceInfo.size()) {
 		return m_paEventChoiceInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 int CvGlobals::getNumCityEventInfos()
 {
@@ -2988,10 +3015,11 @@ CvModCityEventInfo* CvGlobals::getCityEventInfo(CityEventTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumCityEventInfos());
-	if(e > -1 && e < (int)m_paCityEventInfo.size())
+	if(e > -1 && e < (int)m_paCityEventInfo.size()) {
 		return m_paCityEventInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumCityEventChoiceInfos()
@@ -3008,10 +3036,11 @@ CvModEventCityChoiceInfo* CvGlobals::getCityEventChoiceInfo(CityEventChoiceTypes
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumCityEventChoiceInfos());
-	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size())
+	if(e > -1 && e < (int)m_paCityEventChoiceInfo.size()) {
 		return m_paCityEventChoiceInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumEventLinkingInfos()
@@ -3028,10 +3057,11 @@ CvEventLinkingInfo* CvGlobals::getEventLinkingInfo(EventTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumEventLinkingInfos());
-	if(e > -1 && e < (int)m_paEventLinkingInfo.size())
+	if(e > -1 && e < (int)m_paEventLinkingInfo.size()) {
 		return m_paEventLinkingInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumEventChoiceLinkingInfos()
@@ -3048,10 +3078,11 @@ CvEventChoiceLinkingInfo* CvGlobals::getEventChoiceLinkingInfo(EventChoiceTypes 
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumEventChoiceLinkingInfos());
-	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size())
+	if(e > -1 && e < (int)m_paEventChoiceLinkingInfo.size()) {
 		return m_paEventChoiceLinkingInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumCityEventLinkingInfos()
@@ -3068,10 +3099,11 @@ CvCityEventLinkingInfo* CvGlobals::getCityEventLinkingInfo(CityEventTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumCityEventLinkingInfos());
-	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size())
+	if(e > -1 && e < (int)m_paCityEventLinkingInfo.size()) {
 		return m_paCityEventLinkingInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumCityEventChoiceLinkingInfos()
@@ -3088,10 +3120,11 @@ CvCityEventChoiceLinkingInfo* CvGlobals::getCityEventChoiceLinkingInfo(CityEvent
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumCityEventChoiceLinkingInfos());
-	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size())
+	if(e > -1 && e < (int)m_paCityEventChoiceLinkingInfo.size()) {
 		return m_paCityEventChoiceLinkingInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 #endif
 
@@ -3109,10 +3142,11 @@ CvBaseInfo* CvGlobals::getUnitCombatClassInfo(UnitCombatTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumUnitCombatClassInfos());
-	if(e > -1 && e < (int)m_paUnitCombatClassInfo.size())
+	if(e > -1 && e < (int)m_paUnitCombatClassInfo.size()) {
 		return m_paUnitCombatClassInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvBaseInfo*>& CvGlobals::getUnitAIInfo()
@@ -3124,10 +3158,11 @@ CvBaseInfo* CvGlobals::getUnitAIInfo(UnitAITypes eUnitAINum)
 {
 	CvAssert(eUnitAINum >= 0);
 	CvAssert(eUnitAINum < NUM_UNITAI_TYPES);
-	if(eUnitAINum > -1 && eUnitAINum < (int)m_paUnitAIInfos.size())
+	if(eUnitAINum > -1 && eUnitAINum < (int)m_paUnitAIInfos.size()) {
 		return m_paUnitAIInfos[eUnitAINum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumGameOptionInfos()
@@ -3144,10 +3179,11 @@ CvGameOptionInfo* CvGlobals::getGameOptionInfo(GameOptionTypes eGameOptionNum)
 {
 	CvAssert(eGameOptionNum >= 0);
 	CvAssert(eGameOptionNum < GC.getNumGameOptionInfos());
-	if(eGameOptionNum > -1 && eGameOptionNum < (int)m_paGameOptionInfos.size())
+	if(eGameOptionNum > -1 && eGameOptionNum < (int)m_paGameOptionInfos.size()) {
 		return m_paGameOptionInfos[eGameOptionNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumMPOptionInfos()
@@ -3164,10 +3200,11 @@ CvMPOptionInfo* CvGlobals::getMPOptionInfo(MultiplayerOptionTypes eMPOptionNum)
 {
 	CvAssert(eMPOptionNum >= 0);
 	CvAssert(eMPOptionNum < GC.getNumMPOptionInfos());
-	if(eMPOptionNum > -1 && eMPOptionNum < (int)m_paMPOptionInfos.size())
+	if(eMPOptionNum > -1 && eMPOptionNum < (int)m_paMPOptionInfos.size()) {
 		return m_paMPOptionInfos[eMPOptionNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
@@ -3178,10 +3215,11 @@ std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
 CvPlayerOptionInfo* CvGlobals::getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum)
 {
 	CvAssert(ePlayerOptionNum >= 0);
-	if(ePlayerOptionNum > -1 && ePlayerOptionNum < (int)m_paPlayerOptionInfos.size())
+	if(ePlayerOptionNum > -1 && ePlayerOptionNum < (int)m_paPlayerOptionInfos.size()) {
 		return m_paPlayerOptionInfos[ePlayerOptionNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvYieldInfo*>& CvGlobals::getYieldInfo()
@@ -3193,10 +3231,11 @@ CvYieldInfo* CvGlobals::getYieldInfo(YieldTypes eYieldNum)
 {
 	CvAssert(eYieldNum > -1);
 	CvAssert(eYieldNum < NUM_YIELD_TYPES);
-	if(eYieldNum > -1 && eYieldNum < (int)m_paYieldInfo.size())
+	if(eYieldNum > -1 && eYieldNum < (int)m_paYieldInfo.size()) {
 		return m_paYieldInfo[eYieldNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumRouteInfos()
@@ -3213,10 +3252,11 @@ CvRouteInfo* CvGlobals::getRouteInfo(RouteTypes eRouteNum)
 {
 	CvAssert(eRouteNum > -1);
 	CvAssert(eRouteNum < GC.getNumRouteInfos());
-	if(eRouteNum > -1 && eRouteNum < (int)m_paRouteInfo.size())
+	if(eRouteNum > -1 && eRouteNum < (int)m_paRouteInfo.size()) {
 		return m_paRouteInfo[eRouteNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumImprovementInfos()
@@ -3233,10 +3273,11 @@ CvImprovementEntry* CvGlobals::getImprovementInfo(ImprovementTypes eImprovementN
 {
 	CvAssert(eImprovementNum > -1);
 	CvAssert(eImprovementNum < GC.getNumImprovementInfos());
-	if(eImprovementNum > -1 && eImprovementNum < GC.getNumImprovementInfos())
+	if(eImprovementNum > -1 && eImprovementNum < GC.getNumImprovementInfos()) {
 		return m_pImprovements->GetImprovementEntries()[eImprovementNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvImprovementXMLEntries* CvGlobals::GetGameImprovements() const
@@ -3258,10 +3299,11 @@ CvBuildInfo* CvGlobals::getBuildInfo(BuildTypes eBuildNum)
 {
 	CvAssert(eBuildNum > -1);
 	CvAssert(eBuildNum < GC.getNumBuildInfos());
-	if(eBuildNum > -1 && eBuildNum < (int)m_paBuildInfo.size())
+	if(eBuildNum > -1 && eBuildNum < (int)m_paBuildInfo.size()) {
 		return m_paBuildInfo[eBuildNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumHandicapInfos()
@@ -3278,10 +3320,11 @@ CvHandicapInfo* CvGlobals::getHandicapInfo(HandicapTypes eHandicapNum)
 {
 	CvAssert(eHandicapNum > -1);
 	CvAssert(eHandicapNum < GC.getNumHandicapInfos());
-	if(eHandicapNum > -1 && eHandicapNum < (int)m_paHandicapInfo.size())
+	if(eHandicapNum > -1 && eHandicapNum < (int)m_paHandicapInfo.size()) {
 		return m_paHandicapInfo[eHandicapNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumGameSpeedInfos()
@@ -3298,10 +3341,11 @@ CvGameSpeedInfo* CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
 {
 	CvAssert(eGameSpeedNum > -1);
 	CvAssert(eGameSpeedNum < GC.getNumGameSpeedInfos());
-	if(eGameSpeedNum > -1 && eGameSpeedNum < (int)m_paGameSpeedInfo.size())
+	if(eGameSpeedNum > -1 && eGameSpeedNum < (int)m_paGameSpeedInfo.size()) {
 		return m_paGameSpeedInfo[eGameSpeedNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 #if defined(MOD_EVENTS_DIPLO_MODIFIERS)
@@ -3319,10 +3363,11 @@ CvDiploModifierInfo* CvGlobals::getDiploModifierInfo(DiploModifierTypes eDiploMo
 {
 	CvAssert(eDiploModifierNum > -1);
 	CvAssert(eDiploModifierNum < GC.getNumDiploModifierInfos());
-	if(eDiploModifierNum > -1 && eDiploModifierNum < (int)m_paDiploModifierInfo.size())
+	if(eDiploModifierNum > -1 && eDiploModifierNum < (int)m_paDiploModifierInfo.size()) {
 		return m_paDiploModifierInfo[eDiploModifierNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 #endif
@@ -3341,10 +3386,11 @@ CvProcessInfo* CvGlobals::getProcessInfo(ProcessTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumProcessInfos());
-	if(e > -1 && e < (int)m_paProcessInfo.size())
+	if(e > -1 && e < (int)m_paProcessInfo.size()) {
 		return m_paProcessInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumVoteInfos()
@@ -3361,10 +3407,11 @@ CvVoteInfo* CvGlobals::getVoteInfo(VoteTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumVoteInfos());
-	if(e > -1 && e < (int)m_paVoteInfo.size())
+	if(e > -1 && e < (int)m_paVoteInfo.size()) {
 		return m_paVoteInfo[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumProjectInfos()
@@ -3381,10 +3428,11 @@ CvProjectEntry* CvGlobals::getProjectInfo(ProjectTypes e)
 {
 	CvAssert(e > -1);
 	CvAssert(e < GC.getNumProjectInfos());
-	if(e > -1 && e < GC.getNumProjectInfos())
+	if(e > -1 && e < GC.getNumProjectInfos()) {
 		return m_pProjects->GetProjectEntries()[e];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvProjectXMLEntries* CvGlobals::GetGameProjects() const
@@ -3406,10 +3454,11 @@ CvBuildingClassInfo* CvGlobals::getBuildingClassInfo(BuildingClassTypes eBuildin
 {
 	CvAssert(eBuildingClassNum > -1);
 	CvAssert(eBuildingClassNum < GC.getNumBuildingClassInfos());
-	if(eBuildingClassNum > -1 && eBuildingClassNum < (int)m_paBuildingClassInfo.size())
+	if(eBuildingClassNum > -1 && eBuildingClassNum < (int)m_paBuildingClassInfo.size()) {
 		return m_paBuildingClassInfo[eBuildingClassNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumBuildingInfos()
@@ -3426,10 +3475,11 @@ CvBuildingEntry* CvGlobals::getBuildingInfo(BuildingTypes eBuildingNum)
 {
 	CvAssert(eBuildingNum > -1);
 	CvAssert(eBuildingNum < GC.getNumBuildingInfos());
-	if(eBuildingNum > -1 && eBuildingNum < GC.getNumBuildingInfos())
+	if(eBuildingNum > -1 && eBuildingNum < GC.getNumBuildingInfos()) {
 		return m_pBuildings->GetBuildingEntries()[eBuildingNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvBuildingXMLEntries* CvGlobals::GetGameBuildings() const
@@ -3443,31 +3493,37 @@ void CvGlobals::GameDataPostCache()
 	{
 		const BuildingTypes eOuter = static_cast<BuildingTypes>(iI);
 		CvBuildingEntry* pOuter = GC.getBuildingInfo(eOuter);
-		if (pOuter==NULL)
+		if (pOuter==NULL) {
 			continue;
+}
 
 		for (int iJ = 0; iJ < getNumBuildingInfos(); iJ++)
 		{
 			const BuildingTypes eInner = static_cast<BuildingTypes>(iJ);
 			CvBuildingEntry* pInner = GC.getBuildingInfo(eInner);
-			if (pInner==NULL)
+			if (pInner==NULL) {
 				continue;
+}
 
 			bool bHasInteraction = false;
 			for (int iK = 0; iK < NUM_YIELD_TYPES; iK++)
 			{
 				YieldTypes eYield = (YieldTypes)iK;
 
-				if (pOuter->GetBuildingClassYieldChange(pInner->GetBuildingClassType(), eYield) > 0)
+				if (pOuter->GetBuildingClassYieldChange(pInner->GetBuildingClassType(), eYield) > 0) {
 					bHasInteraction = true;
-				if (pOuter->GetBuildingClassLocalYieldChange(pInner->GetBuildingClassType(), eYield) > 0)
+}
+				if (pOuter->GetBuildingClassLocalYieldChange(pInner->GetBuildingClassType(), eYield) > 0) {
 					bHasInteraction = true;
-				if (pOuter->GetBuildingClassYieldModifier(pInner->GetBuildingClassType(), eYield) > 0)
+}
+				if (pOuter->GetBuildingClassYieldModifier(pInner->GetBuildingClassType(), eYield) > 0) {
 					bHasInteraction = true;
+}
 			}
 
-			if (bHasInteraction)
+			if (bHasInteraction) {
 				m_buildingInteractionLookup[eOuter].push_back(eInner);
+}
 		}
 	}
 
@@ -3617,10 +3673,11 @@ CvUnitClassInfo* CvGlobals::getUnitClassInfo(UnitClassTypes eUnitClassNum)
 {
 	CvAssert(eUnitClassNum > -1);
 	CvAssert(eUnitClassNum < GC.getNumUnitClassInfos());
-	if(eUnitClassNum > -1 && eUnitClassNum < (int)m_paUnitClassInfo.size())
+	if(eUnitClassNum > -1 && eUnitClassNum < (int)m_paUnitClassInfo.size()) {
 		return m_paUnitClassInfo[eUnitClassNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumActionInfos()
@@ -3637,10 +3694,11 @@ CvActionInfo* CvGlobals::getActionInfo(int i)
 {
 	CvAssertMsg(i < getNumActionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	if(i > -1 && i < (int)m_paActionInfo.size())
+	if(i > -1 && i < (int)m_paActionInfo.size()) {
 		return m_paActionInfo[i];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvMissionInfo*>& CvGlobals::getMissionInfo()
@@ -3652,10 +3710,11 @@ CvMissionInfo* CvGlobals::getMissionInfo(MissionTypes eMissionNum)
 {
 	CvAssert(eMissionNum > -1);
 	CvAssert(static_cast<unsigned int>(eMissionNum) < CvTypes::getNUM_MISSION_TYPES());
-	if(eMissionNum > -1 && eMissionNum < (int)m_paMissionInfo.size())
+	if(eMissionNum > -1 && eMissionNum < (int)m_paMissionInfo.size()) {
 		return m_paMissionInfo[eMissionNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvControlInfo*>& CvGlobals::getControlInfo()
@@ -3667,10 +3726,11 @@ CvControlInfo* CvGlobals::getControlInfo(ControlTypes eControlNum)
 {
 	CvAssert(eControlNum > -1);
 	CvAssert(eControlNum < NUM_CONTROL_TYPES);
-	if(eControlNum > -1 && eControlNum < (int)m_paControlInfo.size())
+	if(eControlNum > -1 && eControlNum < (int)m_paControlInfo.size()) {
 		return m_paControlInfo[eControlNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 std::vector<CvCommandInfo*>& CvGlobals::getCommandInfo()
@@ -3682,10 +3742,11 @@ CvCommandInfo* CvGlobals::getCommandInfo(CommandTypes eCommandNum)
 {
 	CvAssert(eCommandNum > -1);
 	CvAssert(eCommandNum < NUM_COMMAND_TYPES);
-	if(eCommandNum > -1 && eCommandNum < (int)m_paCommandInfo.size())
+	if(eCommandNum > -1 && eCommandNum < (int)m_paCommandInfo.size()) {
 		return m_paCommandInfo[eCommandNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumAutomateInfos()
@@ -3702,10 +3763,11 @@ CvAutomateInfo* CvGlobals::getAutomateInfo(int iAutomateNum)
 {
 	CvAssertMsg(iAutomateNum < getNumAutomateInfos(), "Index out of bounds");
 	CvAssertMsg(iAutomateNum > -1, "Index out of bounds");
-	if(iAutomateNum > -1 && iAutomateNum < (int)m_paAutomateInfo.size())
+	if(iAutomateNum > -1 && iAutomateNum < (int)m_paAutomateInfo.size()) {
 		return m_paAutomateInfo[iAutomateNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumPromotionInfos()
@@ -3722,10 +3784,11 @@ CvPromotionEntry* CvGlobals::getPromotionInfo(PromotionTypes ePromotionNum)
 {
 	CvAssert(ePromotionNum > -1);
 	CvAssert(ePromotionNum < GC.getNumPromotionInfos());
-	if(ePromotionNum > -1 && ePromotionNum < GC.getNumPromotionInfos())
+	if(ePromotionNum > -1 && ePromotionNum < GC.getNumPromotionInfos()) {
 		return m_pPromotions->GetPromotionEntries()[ePromotionNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvPromotionXMLEntries* CvGlobals::GetGamePromotions() const
@@ -3747,10 +3810,11 @@ CvSpecialistInfo* CvGlobals::getSpecialistInfo(SpecialistTypes eSpecialistNum)
 {
 	CvAssert(eSpecialistNum > -1);
 	CvAssert(eSpecialistNum < GC.getNumSpecialistInfos());
-	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size())
+	if(eSpecialistNum > -1 && eSpecialistNum < (int)m_paSpecialistInfo.size()) {
 		return m_paSpecialistInfo[eSpecialistNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 int CvGlobals::getNumEconomicAIStrategyInfos()
@@ -3767,10 +3831,11 @@ CvEconomicAIStrategyXMLEntry* CvGlobals::getEconomicAIStrategyInfo(EconomicAIStr
 {
 	FAssert(eAIStrategyNum > -1);
 	FAssert(eAIStrategyNum < GC.getNumEconomicAIStrategyInfos());
-	if(eAIStrategyNum > -1 && eAIStrategyNum < GC.getNumEconomicAIStrategyInfos())
+	if(eAIStrategyNum > -1 && eAIStrategyNum < GC.getNumEconomicAIStrategyInfos()) {
 		return m_pEconomicAIStrategies->GetEconomicAIStrategyEntries()[eAIStrategyNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvEconomicAIStrategyXMLEntries* CvGlobals::GetGameEconomicAIStrategies() const
@@ -3792,10 +3857,11 @@ CvCitySpecializationXMLEntry* CvGlobals::getCitySpecializationInfo(CitySpecializ
 {
 	CvAssert(eCitySpecialization > -1);
 	CvAssert(eCitySpecialization < GC.getNumCitySpecializationInfos());
-	if(eCitySpecialization > -1 && eCitySpecialization < GC.getNumCitySpecializationInfos())
+	if(eCitySpecialization > -1 && eCitySpecialization < GC.getNumCitySpecializationInfos()) {
 		return m_pCitySpecializations->GetCitySpecializationEntries()[eCitySpecialization];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvCitySpecializationXMLEntries* CvGlobals::GetGameCitySpecializations() const
@@ -3836,8 +3902,9 @@ std::vector<CvAIGrandStrategyXMLEntry*>& CvGlobals::getAIGrandStrategyInfo()
 
 CvAIGrandStrategyXMLEntry* CvGlobals::getAIGrandStrategyInfo(AIGrandStrategyTypes eAIGrandStrategyNum)
 {
-	if (eAIGrandStrategyNum == NO_AIGRANDSTRATEGY)
+	if (eAIGrandStrategyNum == NO_AIGRANDSTRATEGY) {
 		return NULL;
+}
 
 	return m_pAIGrandStrategies->GetAIGrandStrategyEntries()[eAIGrandStrategyNum];
 }
@@ -4142,8 +4209,9 @@ std::vector<CvResolutionEntry*>& CvGlobals::getResolutionInfo()
 
 CvResolutionEntry* CvGlobals::getResolutionInfo(ResolutionTypes eResolutionNum)
 {
-	if (eResolutionNum == NO_RESOLUTION || eResolutionNum >= m_pResolutions->GetNumResolutions())
+	if (eResolutionNum == NO_RESOLUTION || eResolutionNum >= m_pResolutions->GetNumResolutions()) {
 		return NULL;
+}
 
 	return m_pResolutions->GetResolutionEntries()[eResolutionNum];
 }
@@ -4267,8 +4335,9 @@ void CvGlobals::LogMessage(const char* szMessage)
 	if(getLogging())
 	{
 		FILogFile* pLog = LOGFILEMGR.GetLog("GameCore.log", 0);
-		if(pLog != 0)
+		if(pLog != 0) {
 			pLog->Msg(szMessage);
+}
 	}
 }
 
@@ -4291,10 +4360,11 @@ CvAchievementInfo* CvGlobals::getAchievementInfo(EAchievement eAchievementNum)
 {
 	CvAssert(eAchievementNum > -1);
 	CvAssert(eAchievementNum < GC.getNumAchievementInfos());
-	if(eAchievementNum > -1 && eAchievementNum < GC.getNumAchievementInfos())
+	if(eAchievementNum > -1 && eAchievementNum < GC.getNumAchievementInfos()) {
 		return m_pAchievements->GetAchievementEntries()[eAchievementNum];
-	else
+	} else {
 		return NULL;
+}
 }
 
 CvAchievementXMLEntries* CvGlobals::GetGameAchievements() const
@@ -6412,8 +6482,9 @@ int CvGlobals::getInfoTypeForString(const char* szType, bool hideAssert) const
 		CvAssertMsg(szType, "null info type string");
 	}
 
-	if(szType == NULL)
+	if(szType == NULL) {
 		return -1;
+}
 
 
 	InfosMap::const_iterator it = m_infosMap.find(szType);
@@ -6512,8 +6583,9 @@ void CvGlobals::SetGameDatabase(Database::Connection* pGameDatabase)
 {
 	if(m_pGameDatabase != pGameDatabase)
 	{
-		if(m_pGameDatabase != 0)
+		if(m_pGameDatabase != 0) {
 			m_kGlobalDefinesLookup.Release();
+}
 
 		m_pGameDatabase = pGameDatabase;
 	}

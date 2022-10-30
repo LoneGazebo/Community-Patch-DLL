@@ -149,12 +149,14 @@ bool CvDllDlcPackageInfoList::MoveNext()
 			m_iIndex = 0;	// then we can start
 			return true;
 		}
-		else
+		else {
 			return false;	// Nope, just leave as -1 and return false
+}
 	}
 
-	if((size_t)m_iIndex < m_packageIDs.size())
+	if((size_t)m_iIndex < m_packageIDs.size()) {
 		m_iIndex++;
+}
 
 	return (size_t)m_iIndex < m_packageIDs.size();
 }

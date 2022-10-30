@@ -80,8 +80,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 
 		iRouteCost = std::min(iRouteVariableCost, iRouteFlatCost);
 
-		if (pToPlot->isCity()) //don't consider terrain/feature effects for cities
+		if (pToPlot->isCity()) { //don't consider terrain/feature effects for cities
 			return iRouteCost;
+}
 	}
 
 	//check embarkation
@@ -97,17 +98,19 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
 			// Does it have a promotion to do so?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost())
+			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost()) {
 				bCheapEmbarkStateChange = true;
+}
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has disembark to city at reduced cost...
 			if (pToPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
 			{
-				if (kUnitTeam.isCityNoEmbarkCost())
+				if (kUnitTeam.isCityNoEmbarkCost()) {
 					bFreeEmbarkStateChange = true;
-				else if (kUnitTeam.isCityLessEmbarkCost())
+				} else if (kUnitTeam.isCityLessEmbarkCost()) {
 					bCheapEmbarkStateChange = true;
+}
 			}
 #endif
 
@@ -118,17 +121,19 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			// Is the unit from a civ that can embark for just 1 MP?
 			// Does it have a promotion to do so?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost())
+			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost()) {
 				bCheapEmbarkStateChange = true;
+}
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has embark from city at reduced cost...
 			if (pFromPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
 			{
-				if (kUnitTeam.isCityNoEmbarkCost())
+				if (kUnitTeam.isCityNoEmbarkCost()) {
 					bFreeEmbarkStateChange = true;
-				else if (kUnitTeam.isCityLessEmbarkCost())
+				} else if (kUnitTeam.isCityLessEmbarkCost()) {
 					bCheapEmbarkStateChange = true;
+}
 			}
 #endif
 
@@ -151,23 +156,28 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	}
 
 	//flat cost only after embarkation/disembarkation
-	 if (pUnit->flatMovementCost())
+	 if (pUnit->flatMovementCost()) {
 		return iMoveDenominator;
+}
 
 	//in some cases we ignore terrain / feature cost
-	if (bHover)
+	if (bHover) {
 		bIgnoreTerrainCost = true;
+}
 
-	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing) {
 		bIgnoreTerrainCost = true;
+}
 
 	if (!bRiverCrossing || bAmphibious)
 	{
-		if (bFasterInHills && pToPlot->isHills())
+		if (bFasterInHills && pToPlot->isHills()) {
 			bIgnoreTerrainCost = true;
+}
 
-		if (pTraits->IsMountainPass() && pToPlot->isMountain())
+		if (pTraits->IsMountainPass() && pToPlot->isMountain()) {
 			bIgnoreTerrainCost = true;
+}
 	}
 
 	//check border obstacle - great wall ends the turn
@@ -231,9 +241,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	else
 	{
 		//if the unit ignores terrain cost, it can still profit from feature bonuses
-		if (bIgnoreTerrainCost)
+		if (bIgnoreTerrainCost) {
 			iRegularCost = 1;
-		else
+		} else
 		{
 			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo != 0 ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo != 0 ? pToFeatureInfo->getMovementCost() : 0));
 
@@ -257,17 +267,19 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//now switch to high-precision costs
 		iRegularCost *= iMoveDenominator;
 
-		if (iTerrainFeatureCostMultiplierFromPromotions < 0)
+		if (iTerrainFeatureCostMultiplierFromPromotions < 0) {
 			//we have to do it on the fly
 			iTerrainFeatureCostMultiplierFromPromotions = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit, pToPlot);
+}
 
 		//multiplicative change
 		iRegularCost *= iTerrainFeatureCostMultiplierFromPromotions;
 		iRegularCost /= iMoveDenominator;
 
-		if (iTerrainFeatureCostAdderFromPromotions < 0)
+		if (iTerrainFeatureCostAdderFromPromotions < 0) {
 			//we have to do it on the fly
 			iTerrainFeatureCostAdderFromPromotions = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pToPlot);
+}
 
 		//additive change
 		iRegularCost += iTerrainFeatureCostAdderFromPromotions;
@@ -296,8 +308,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 //	---------------------------------------------------------------------------
 int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iTerrainFeatureCostMultiplierFromPromotions, int iTerrainFeatureCostAdderFromPromotions)
 {
-	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot))
+	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot)) {
 		return iMovesRemaining;
+}
 
 	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves, iTerrainFeatureCostMultiplierFromPromotions, iTerrainFeatureCostAdderFromPromotions);
 }
@@ -305,8 +318,9 @@ int CvUnitMovement::MovementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, c
 //	---------------------------------------------------------------------------
 int CvUnitMovement::MovementCostSelectiveZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iMovesRemaining, int iMaxMoves, int iTerrainFeatureCostMultiplierFromPromotions, int iTerrainFeatureCostAdderFromPromotions, const PlotIndexContainer& plotsToIgnore)
 {
-	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore))
+	if (IsSlowedByZOC(pUnit, pFromPlot, pToPlot, plotsToIgnore)) {
 		return iMovesRemaining;
+}
 
 	return MovementCostNoZOC(pUnit, pFromPlot, pToPlot, iMovesRemaining, iMaxMoves, iTerrainFeatureCostMultiplierFromPromotions, iTerrainFeatureCostAdderFromPromotions);
 }
@@ -319,8 +333,9 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
 	int iLeftOverMoves = iMovesRemaining - iCost;
-	if (iLeftOverMoves > iMaxMoves)
+	if (iLeftOverMoves > iMaxMoves) {
 		iCost += (iLeftOverMoves - iMaxMoves);
+}
 
 	return std::min(iCost, iMovesRemaining);
 }
@@ -328,12 +343,14 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 //	--------------------------------------------------------------------------------
 bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, const PlotIndexContainer& plotsToIgnore)
 {
-	if (pUnit->IsIgnoreZOC())
+	if (pUnit->IsIgnoreZOC()) {
 		return false;
+}
 
 	// Zone of Control
-	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
+	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0) {
 		return false;
+}
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	DomainTypes eUnitDomain = pUnit->getDomainType();
@@ -349,16 +366,19 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
-		if (pAdjPlot == 0)
+		if (pAdjPlot == 0) {
 			continue;
+}
 
 		//this is the only difference to the regular version below
-		if ( std::find(plotsToIgnore.begin(),plotsToIgnore.end(),pAdjPlot->GetPlotIndex()) != plotsToIgnore.end() )
+		if ( std::find(plotsToIgnore.begin(),plotsToIgnore.end(),pAdjPlot->GetPlotIndex()) != plotsToIgnore.end() ) {
 			continue;
+}
 
 		// check city zone of control
-		if (pAdjPlot->isEnemyCity(*pUnit))
+		if (pAdjPlot->isEnemyCity(*pUnit)) {
 			return true;
+}
 
 		// Loop through all units to see if there's an enemy unit here
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
@@ -374,19 +394,23 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			CvUnit* pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if (pLoopUnit == 0)
+			if (pLoopUnit == 0) {
 				continue;
+}
 
-			if (pLoopUnit->isInvisible(eUnitTeam, false))
+			if (pLoopUnit->isInvisible(eUnitTeam, false)) {
 				continue;
+}
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCombatUnit()) {
 				continue;
+}
 
 			// Embarked units don't have ZOC
-			if (pLoopUnit->isEmbarked())
+			if (pLoopUnit->isEmbarked()) {
 				continue;
+}
 
 			// At war with this unit's team?
 			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
@@ -433,12 +457,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 //	--------------------------------------------------------------------------------
 bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
-	if (pUnit->IsIgnoreZOC())
+	if (pUnit->IsIgnoreZOC()) {
 		return false;
+}
 
 	// Zone of Control
-	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
+	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0) {
 		return false;
+}
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	DomainTypes eUnitDomain = pUnit->getDomainType();
@@ -454,12 +480,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
-		if (pAdjPlot == 0)
+		if (pAdjPlot == 0) {
 			continue;
+}
 
 		// check city zone of control
-		if (pAdjPlot->isEnemyCity(*pUnit))
+		if (pAdjPlot->isEnemyCity(*pUnit)) {
 			return true;
+}
 
 		// Loop through all units to see if there's an enemy unit here
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
@@ -475,19 +503,23 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			CvUnit* pLoopUnit = GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID);
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if ((pLoopUnit == 0) || pLoopUnit->isDelayedDeath())
+			if ((pLoopUnit == 0) || pLoopUnit->isDelayedDeath()) {
 				continue;
+}
 
-			if (pLoopUnit->isInvisible(eUnitTeam, false))
+			if (pLoopUnit->isInvisible(eUnitTeam, false)) {
 				continue;
+}
 
 			// Combat unit?
-			if (!pLoopUnit->IsCombatUnit())
+			if (!pLoopUnit->IsCombatUnit()) {
 				continue;
+}
 
 			// Embarked units don't have ZOC
-			if (pLoopUnit->isEmbarked())
+			if (pLoopUnit->isEmbarked()) {
 				continue;
+}
 
 			// At war with this unit's team?
 			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();

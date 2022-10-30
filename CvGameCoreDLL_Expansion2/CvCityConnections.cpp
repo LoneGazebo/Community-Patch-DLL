@@ -114,8 +114,9 @@ void CvCityConnections::Update(void)
 	//important, do this first to avoid endless recursion!
 	m_bDirty = false;
 
-	if(m_pPlayer->isBarbarian())
+	if(m_pPlayer->isBarbarian()) {
 		return;
+}
 
 	UpdatePlotsToConnect();
 	UpdateRouteInfo();
@@ -176,36 +177,42 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(const CvCity* pCityA, const CvCity* pCityB) const
 {
-	if((pCityA == 0) || (pCityB == 0))
+	if((pCityA == 0) || (pCityB == 0)) {
 		return CONNECTION_NONE;
+}
 
-	if (pCityA==pCityB)
+	if (pCityA==pCityB) {
 		return CONNECTION_NONE;
+}
 	
 	AllCityConnectionStore::const_iterator it1 = m_connectionState.find(pCityA->GetID());
-	if (it1==m_connectionState.end())
+	if (it1==m_connectionState.end()) {
 		return CONNECTION_NONE;
+}
 	
 	pair<int, int> destination(pCityB->getOwner(), pCityB->GetID());
 	AllCityConnectionStore::value_type::second_type::const_iterator it2 = it1->second.find(destination);
-	if (it2==it1->second.end())
+	if (it2==it1->second.end()) {
 		return CONNECTION_NONE;
+}
 
 	return it2->second;
 }
 
 bool CvCityConnections::AreCitiesDirectlyConnected(const CvCity * pCityA, const CvCity * pCityB, CityConnectionTypes eConnectionType)
 {
-	if (m_bDirty)
+	if (m_bDirty) {
 		Update();
+}
 
 	return (GetConnectionState(pCityA,pCityB) & eConnectionType) > 0;
 }
 
 const CvCityConnections::SingleCityConnectionStore& CvCityConnections::GetDirectConnectionsFromCity(const CvCity* pOrigin)
 {
-	if (m_bDirty)
+	if (m_bDirty) {
 		Update();
+}
 
 	AllCityConnectionStore::const_iterator it = m_connectionState.find(pOrigin->GetID());
 	if (it!=m_connectionState.end())
@@ -216,8 +223,9 @@ const CvCityConnections::SingleCityConnectionStore& CvCityConnections::GetDirect
 
 void CvCityConnections::UpdateRouteInfo(void)
 {
-	if(m_pPlayer->getNumCities() <= 1)
+	if(m_pPlayer->getNumCities() <= 1) {
 		return;
+}
 
 	//allow mods to set connectivity as well - this is a bit strange, there is no check for industrial, and direct connection makes no sense
 	bool bCallDirectEvents = false;
@@ -354,8 +362,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 		for(CvCity* pCityB = m_pPlayer->firstCity(&iCityLoopB); pCityB != NULL; pCityB = m_pPlayer->nextCity(&iCityLoopB))
 		{
 			//maybe check the upper half of the matrix only? is there a requirement that connections must be symmetrical?
-			if (pCityA==pCityB)
+			if (pCityA==pCityB) {
 				continue;
+}
 
 			bool bLuaRouteFound = false;
 			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_ANY_LAND) && bCallDirectEvents)
@@ -427,8 +436,9 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//if it's one of our own cities, set the connection flag - also for the capital itself
 				CvCity* pCity = pPlot->getPlotCity();
-				if ((pCity != 0) && pCity->getOwner()==m_pPlayer->GetID())
+				if ((pCity != 0) && pCity->getOwner()==m_pPlayer->GetID()) {
 					pCity->SetIndustrialRouteToCapitalConnected(true);
+}
 			}
 		}
 
@@ -486,8 +496,9 @@ void CvCityConnections::SetDirty(void)
 
 std::vector<int> CvCityConnections::GetPlotsToConnect()
 {
-	if (m_bDirty)
+	if (m_bDirty) {
 		Update();
+}
 
 	return m_plotIdsToConnect;
 }

@@ -85,8 +85,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvBuildingProductionAI& readF
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
-	if (iWeight==0)
+	if (iWeight==0) {
 		return;
+}
 
 	CvBuildingXMLEntries* pkBuildings = m_pCityBuildings->GetPossibleBuildings();
 
@@ -156,25 +157,29 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, int iValue, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	bool bNoBestWonderCityCheck, bool bFreeBuilding, bool bIgnoreSituational)
 {
-	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1)
+	if(m_pCity == NULL || eBuilding == NO_BUILDING || iValue < 1) {
 		return SR_IMPOSSIBLE;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
 	//save the effort for minors
-	if(kPlayer.isMinorCiv())
+	if(kPlayer.isMinorCiv()) {
 		return iValue;
+}
 
 	//do not build any buildings at all when about to be captured
-	if (m_pCity->isInDangerOfFalling())
+	if (m_pCity->isInDangerOfFalling()) {
 		return SR_STRATEGY;
+}
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iValue = sqrti(10 * iValue);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if(pkBuildingInfo == NULL)
+	if(pkBuildingInfo == NULL) {
 		return SR_IMPOSSIBLE;
+}
 
 	//Bonus additive. All values below will be added to this and combined with real value at end.
 	int iBonus = 0;
@@ -208,8 +213,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 						// Don't need Great Prophets if we can't found a religion
 						if (pkUnitInfo->IsFoundReligion())
 						{
-							if (!bCanFoundReligion)
+							if (!bCanFoundReligion) {
 								return SR_IMPOSSIBLE;
+}
 
 							bSpawnsProphet = true;
 							break;
@@ -234,10 +240,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 		if (!bNoBestWonderCityCheck)
 		{
-			if (m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
+			if (m_pCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType())) {
 				iBonus += 500;
-			else
+			} else {
 				return SR_STRATEGY;
+}
 		}
 
 		// we want this? ramp it up!
@@ -265,8 +272,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
 				
-				if (eLoopPlayer == kPlayer.GetID())
+				if (eLoopPlayer == kPlayer.GetID()) {
 					continue;
+}
 
 				if (GET_PLAYER(eLoopPlayer).isAlive() && GET_TEAM(kPlayer.getTeam()).isHasMet(GET_PLAYER(eLoopPlayer).getTeam()) && GET_PLAYER(eLoopPlayer).getBuildingClassMaking(pkBuildingInfo->GetBuildingClassType()) > 0)
 				{
@@ -393,10 +401,11 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (pkBuildingInfo->GetTradeRouteSeaDistanceModifier() > 0)
 	{
 		//can we even have sea trade here
-		if (m_pCity->plot()->isCoastalLand() && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).size() > 0)
+		if (m_pCity->plot()->isCoastalLand() && GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(m_pCity, true).size() > 0) {
 			iBonus += 10;
-		else
+		} else {
 			iBonus -= 100;
+}
 	}
 
 	if (pkBuildingInfo->GetTradeRouteSeaGoldBonus() > 0 || pkBuildingInfo->GetSeaTourismEnd() > 0)
@@ -632,22 +641,25 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	int iDefenseMod = 100;
 	if (m_pCity->isBorderCity() || m_pCity->isCoastal(12) )
 	{
-		if (kPlayer.IsAtWarAnyMajor())
+		if (kPlayer.IsAtWarAnyMajor()) {
 			iDefenseMod += 1000;
-		else
+		} else {
 			iDefenseMod += 500;
+}
 	}
-	else if (kPlayer.IsAtWarAnyMajor())
+	else if (kPlayer.IsAtWarAnyMajor()) {
 		iDefenseMod += 150;
+}
 
 	bool bDanger = !bIgnoreSituational && m_pCity->isUnderSiege();
 	if (bDanger)
 	{
 		iDefenseMod += 1000;
 
-		if (iDefense == 0 && m_pCity->getDamage() > 0)
+		if (iDefense == 0 && m_pCity->getDamage() > 0) {
 			//do not build any non-defensive buildings when under siege
 			return SR_STRATEGY;
+}
 	}
 
 	iDefense *= iDefenseMod;
@@ -869,8 +881,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
-		if(eYield == NO_YIELD)
+		if(eYield == NO_YIELD) {
 			continue;
+}
 
 		if (pkBuildingInfo->GetYieldChangePerReligion(eYield) > 0 && kPlayer.GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{
@@ -878,8 +891,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			break;
 		}
 
-		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL)
+		if(!MOD_BALANCE_CORE_JFD && eYield > YIELD_CULTURE_LOCAL) {
 			continue;
+}
 
 		int iDummyFlatYield = 0;
 		int iYieldValue = CityStrategyAIHelpers::GetBuildingYieldValue(m_pCity, eBuilding, plotStats, allExistingBuildings, eYield, iDummyFlatYield);
@@ -975,8 +989,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 					iYieldValue = 0;
 					iYieldTrait = 0;
 				}
-				else if (bSmall)
+				else if (bSmall) {
 					iYieldValue *= 10;
+}
 
 				if (iHappinessReduction > 0)
 				{
@@ -1091,8 +1106,9 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (pEntry != 0)
 		{
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
-			if (eEra != NO_ERA)
+			if (eEra != NO_ERA) {
 				iEra = pEntry->GetEra();
+}
 		}
 	}
 	int iEraValue =  max(1, kPlayer.GetCurrentEra() - iEra);
@@ -1100,24 +1116,27 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	//Unlocks another building?
 	int iPrereqChain = kPlayer.GetChainLength(eBuilding);
-	if (iPrereqChain > 0)
+	if (iPrereqChain > 0) {
 		iBonus += iPrereqChain * 100 * iEraValue;
+}
 
 	//UB?
 	if (kPlayer.getCivilizationInfo().isCivilizationBuildingOverridden(pkBuildingInfo->GetBuildingClassType()))
 	{
 		// scale off with pop so UB will not be the first building to build in a fresh city
-		if (pkBuildingInfo->IsNoOccupiedUnhappiness())
+		if (pkBuildingInfo->IsNoOccupiedUnhappiness()) {
 			iBonus += max(15, m_pCity->getPopulation()) * 25;
-		else
+		} else {
 			iBonus += m_pCity->getPopulation() * 25;
+}
 	}
 
 	/////
 	///WEIGHT
 	//////
-	if (iBonus < 1)
+	if (iBonus < 1) {
 		return SR_UNKNOWN;
+}
 
 	//iValue is the compunded value of the items.
 	return max(1,iValue + iBonus);

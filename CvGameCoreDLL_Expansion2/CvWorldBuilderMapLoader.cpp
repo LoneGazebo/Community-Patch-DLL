@@ -201,8 +201,9 @@ bool CvWorldBuilderMapLoader::Preload(const wchar_t* wszFilename, bool bScenario
 				{
 					ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
 					const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
-					if(pkImprovement == NULL || !pkImprovement->IsGoody())
+					if(pkImprovement == NULL || !pkImprovement->IsGoody()) {
 						kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
+}
 				}
 			}
 		}
@@ -222,10 +223,11 @@ bool CvWorldBuilderMapLoader::Preload(const wchar_t* wszFilename, bool bScenario
 		for(uint i = 0; i < uiPlotCount; ++i)
 		{
 			const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
-			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MAJOR))
+			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MAJOR)) {
 				sg_kMapInfo.uiMajorCivStartingPositions++;
-			else if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MINOR))
+			} else if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MINOR)) {
 				sg_kMapInfo.uiMinorCivStartingPositions++;
+}
 		}
 
 		const uint uiPlayerCount = sg_kSave.GetPlayerCount();
@@ -304,8 +306,9 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 	{
 		const PlayerTypes ePlayer = (PlayerTypes)i;
 		const SlotStatus eStatus = CvPreGame::slotStatus(ePlayer);
-		if(eStatus != SS_TAKEN && eStatus != SS_COMPUTER)
+		if(eStatus != SS_TAKEN && eStatus != SS_COMPUTER) {
 			CvPreGame::setSlotStatus(ePlayer, SS_COMPUTER);
+}
 
 		const CvWorldBuilderMap::Player& kPlayer = sg_kSave.GetPlayer(i);
 
@@ -354,8 +357,9 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		CvPreGame::setTeamType(ePlayer, (TeamTypes)kPlayer.m_byTeam);
 		CvPreGame::setMinorCiv(ePlayer, false);
 
-		if(strlen(kPlayer.m_szLeaderName) > 0)
+		if(strlen(kPlayer.m_szLeaderName) > 0) {
 			CvPreGame::setLeaderName(ePlayer, kPlayer.m_szLeaderName);
+}
 
 		if(strlen(kPlayer.m_szCivName) > 0)
 		{
@@ -373,19 +377,21 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 		{
 			const PlayerTypes ePlayer = (PlayerTypes)i;
 			const SlotStatus eStatus = CvPreGame::slotStatus(ePlayer);
-			if(eStatus == SS_COMPUTER)
+			if(eStatus == SS_COMPUTER) {
 				CvPreGame::resetPlayer(ePlayer);	// Do a full reset, which will also close the slot.  A reset is better so that the player data does not get initialized later.
+}
 		}
 	}
 
 	const uint uiCityStateCount = std::min(sg_kSave.GetCityStateCount(), (byte)MAX_MINOR_CIVS);
 
-	if(uiCityStateCount > 0)
+	if(uiCityStateCount > 0) {
 		CvPreGame::setNumMinorCivs(uiCityStateCount);
-	else if(sg_kMapInfo.uiMinorCivStartingPositions > 0)
+	} else if(sg_kMapInfo.uiMinorCivStartingPositions > 0) {
 		CvPreGame::setNumMinorCivs(sg_kMapInfo.uiMinorCivStartingPositions);
-	else if(!CvPreGame::mapNoPlayers())
+	} else if(!CvPreGame::mapNoPlayers()) {
 		CvPreGame::setNumMinorCivs(0);
+}
 
 	for(uint i = 0; i < uiCityStateCount; ++i)
 	{
@@ -443,8 +449,9 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 {
 	CvTreasury* pkTreasury = kGameplayPlayer.GetTreasury();
 	FAssertMsg(pkTreasury, "Unable to set gold amount.  Treasury Missing!");
-	if(pkTreasury != NULL)
+	if(pkTreasury != NULL) {
 		pkTreasury->SetGold(kSavedPlayer.m_uiGold);
+}
 
 	kGameplayPlayer.setJONSCulture(kSavedPlayer.m_uiCulture);
 
@@ -489,8 +496,9 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 					if(pkBranch != NULL)
 					{
 						PolicyTypes eFreePolicy = (PolicyTypes)pkBranch->GetFreePolicy();
-						if(eFreePolicy != NO_POLICY)
+						if(eFreePolicy != NO_POLICY) {
 							kGameplayPlayer.setHasPolicy(eFreePolicy, true);
+}
 					}
 				}
 			}
@@ -525,8 +533,9 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 			{
 				const TechTypes eTech = (TechTypes)iTech;
 				const CvTechEntry* pkTech = GC.getTechInfo(eTech);
-				if(pkTech != NULL && pkTech->GetEra() < iStartingEra)
+				if(pkTech != NULL && pkTech->GetEra() < iStartingEra) {
 					kTeam.setHasTech(eTech, true, kGameplayPlayer.GetID(), false, false);
+}
 			}
 		}
 	}
@@ -538,8 +547,9 @@ void SetTeamInitialItems(CvTeam& kGameplayTeam, const CvWorldBuilderMap::Team& k
 	for(int iTech = 0; iTech < iTechCount; ++iTech)
 	{
 		const TechTypes eTech = (TechTypes)iTech;
-		if(kSavedTeam.m_kTechs[iTech])
+		if(kSavedTeam.m_kTechs[iTech]) {
 			kGameplayTeam.setHasTech(eTech, true, NO_PLAYER, false, false);
+}
 	}
 }
 
@@ -589,18 +599,20 @@ PlayerTypes GetPlayerType(byte byCulture)
 {
 	if(byCulture < CvWorldBuilderMap::MaxPlayers)
 	{
-		if(byCulture < MAX_MAJOR_CIVS)
+		if(byCulture < MAX_MAJOR_CIVS) {
 			return (PlayerTypes)byCulture;
-		else
+		} else {
 			return NO_PLAYER; // Player out of range
+}
 	}
 	else if(byCulture < CvWorldBuilderMap::MaxPlayers + CvWorldBuilderMap::MaxCityStates)
 	{
 		const uint uiCityState = byCulture - CvWorldBuilderMap::MaxPlayers;
-		if(uiCityState < MAX_MINOR_CIVS)
+		if(uiCityState < MAX_MINOR_CIVS) {
 			return (PlayerTypes)(uiCityState + MAX_MAJOR_CIVS);
-		else
+		} else {
 			return NO_PLAYER; // City State out of range
+}
 	}
 	else if(byCulture == CvWorldBuilderMap::MaxPlayers + CvWorldBuilderMap::MaxCityStates)
 	{
@@ -643,8 +655,9 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 
 				// Don't allow the city to be killed by a precision error
 				int iHitPoints = (int)fHitPoints;
-				if(iHitPoints == 0 && kSavedCity.m_uiHealth != 0)
+				if(iHitPoints == 0 && kSavedCity.m_uiHealth != 0) {
 					iHitPoints = 1;
+}
 
 				pkGameplayCity->setDamage(iMaxHitPoints - iHitPoints);
 			}
@@ -656,8 +669,9 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 				for(int iBuilding = 0; iBuilding < iBuildingTypeCount; ++iBuilding)
 				{
 					const BuildingTypes eBuildingType = (BuildingTypes)iBuilding;
-					if(kSavedCity.m_kBuildings[iBuilding])
+					if(kSavedCity.m_kBuildings[iBuilding]) {
 						pkCityBuildings->SetNumRealBuilding(eBuildingType, 1);
+}
 				}
 			}
 			kPlayer.DoUpdateNextPolicyCost();
@@ -680,10 +694,11 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 	UnitAITypes eAIType = NO_UNITAI;
 	const CvUnitEntry* pkUnitType = GC.getUnitInfo(eUnitType);
 	FAssert(pkUnitType); // We should probably be concerned if this unit type isn't valid
-	if(pkUnitType != NULL)
+	if(pkUnitType != NULL) {
 		eAIType = (UnitAITypes)pkUnitType->GetDefaultUnitAIType();
-	else
+	} else {
 		return;	// The unit type is invalid, we really can't go any further.
+}
 
 	DirectionTypes eFacing = NO_DIRECTION;
 	switch(kSavedUnit.m_byDirection)
@@ -726,10 +741,11 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 
 			if(kSavedUnit.GetFlag(CvWorldBuilderMap::Unit::UNIT_FORTIFIED))
 			{
-				if(pkGameplayUnit->canFortify(pkGameplayUnit->plot()))
+				if(pkGameplayUnit->canFortify(pkGameplayUnit->plot())) {
 					gDLL->sendPushMission(pkGameplayUnit->GetID(), CvTypes::getMISSION_FORTIFY(), 0, 0, 0, false);
-				else
+				} else {
 					gDLL->sendPushMission(pkGameplayUnit->GetID(), CvTypes::getMISSION_SLEEP(), 0, 0, 0, false);
+}
 			}
 
 			if(kSavedUnit.GetFlag(CvWorldBuilderMap::Unit::UNIT_EMBARKED))
@@ -749,8 +765,9 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 
 				// Don't allow the unit to be killed by a precision error
 				int iHitPoints = (int)fHitPoints;
-				if(iHitPoints == 0 && kSavedUnit.m_uiHealth != 0)
+				if(iHitPoints == 0 && kSavedUnit.m_uiHealth != 0) {
 					iHitPoints = 1;
+}
 
 				pkGameplayUnit->setDamage(iMaxHitPoints - iHitPoints);
 			}
@@ -761,8 +778,9 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 			for(int iPromotion = 0; iPromotion < iPromotionTypeCount; ++iPromotion)
 			{
 				const PromotionTypes ePromotionType = (PromotionTypes)iPromotion;
-				if(kSavedUnit.m_kPromotions[iPromotion])
+				if(kSavedUnit.m_kPromotions[iPromotion]) {
 					pkGameplayUnit->setHasPromotion(ePromotionType, true);
+}
 			}
 
 			if(kSavedUnit.m_hCustomName.Valid())
@@ -782,8 +800,9 @@ const CvCity* GetCity(const PlayerTypes ePlayer, const CvPlot* pkPlot)
 	if(pkPlot != NULL)
 	{
 		const CvCity* pkCity = pkPlot->getPlotCity();
-		if(pkCity != NULL && pkCity->getOwner() == ePlayer)
+		if(pkCity != NULL && pkCity->getOwner() == ePlayer) {
 			return pkCity;
+}
 	}
 
 	return NULL;
@@ -793,8 +812,9 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 {
 	{
 		const CvCity* pkPlotCity = GetCity(ePlayer, &kPlot);
-		if(pkPlotCity != NULL)
+		if(pkPlotCity != NULL) {
 			return pkPlotCity;
+}
 	}
 
 	const CvMap& kMap = GC.getMap();
@@ -815,32 +835,38 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX - iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity != 0) return pkCity;
+			if(pkCity != 0) { return pkCity;
+}
 		}
 		else if(bWorldWrap)
 		{
 			int iX = iPlotX - iDist;
-			while(iX < 0) iX += iMapWidth;
+			while(iX < 0) { iX += iMapWidth;
+}
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity != 0) return pkCity;
+			if(pkCity != 0) { return pkCity;
+}
 		}
 
 		if(iPlotX + iDist < iMapWidth)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX + iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity != 0) return pkCity;
+			if(pkCity != 0) { return pkCity;
+}
 		}
 		else if(bWorldWrap)
 		{
 			int iX = iPlotX + iDist;
-			while(iX >= iMapWidth) iX -= iMapWidth;
+			while(iX >= iMapWidth) { iX -= iMapWidth;
+}
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity != 0) return pkCity;
+			if(pkCity != 0) { return pkCity;
+}
 		}
 
 		// Top and Bottom Rows
@@ -852,16 +878,18 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			{
 				// Left-most plot in the current row
 				int iX = iPlotX - (iRowWidth / 2);
-				if(iRow % 2 == 1) iX += iRowOffset;
+				if(iRow % 2 == 1) { iX += iRowOffset;
+}
 
 				if(iX < 0)
 				{
-					if(bWorldWrap)
+					if(bWorldWrap) {
 						do
 						{
 							iX += iMapWidth;
 						}
 						while(iX < 0);
+}
 				}
 
 				if(iX >= 0)
@@ -870,14 +898,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity != 0) return pkCity;
+						if(pkCity != 0) { return pkCity;
+}
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity != 0) return pkCity;
+						if(pkCity != 0) { return pkCity;
+}
 					}
 				}
 			}
@@ -885,16 +915,18 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			{
 				// Right-most plot in the current row
 				int iX = iPlotX + (iRowWidth / 2) - 1;
-				if(iRow % 2 == 1) iX += iRowOffset;
+				if(iRow % 2 == 1) { iX += iRowOffset;
+}
 
 				if(iX >= iMapWidth)
 				{
-					if(bWorldWrap)
+					if(bWorldWrap) {
 						do
 						{
 							iX -= iMapWidth;
 						}
 						while(iX >= iMapWidth);
+}
 				}
 
 				if(iX < iMapWidth)
@@ -903,14 +935,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity != 0) return pkCity;
+						if(pkCity != 0) { return pkCity;
+}
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity != 0) return pkCity;
+						if(pkCity != 0) { return pkCity;
+}
 					}
 				}
 			}
@@ -922,12 +956,14 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 			for(int iPlot = 0; iPlot < iRowWidth; ++iPlot)
 			{
 				int iX = iPlotX + iPlot - (iRowWidth / 2);
-				if(iDist % 2 == 1) iX += iRowOffset;
+				if(iDist % 2 == 1) { iX += iRowOffset;
+}
 
 				if(iX < 0)
 				{
-					if(!bWorldWrap)
+					if(!bWorldWrap) {
 						continue;
+}
 
 					do
 					{
@@ -937,8 +973,9 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 				}
 				else if(iX >= iMapWidth)
 				{
-					if(!bWorldWrap)
+					if(!bWorldWrap) {
 						continue;
+}
 
 					do
 					{
@@ -951,14 +988,16 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity != 0) return pkCity;
+					if(pkCity != 0) { return pkCity;
+}
 				}
 
 				if(iPlotY + iDist < iMapHeight)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity != 0) return pkCity;
+					if(pkCity != 0) { return pkCity;
+}
 				}
 			}
 		}
@@ -1047,53 +1086,60 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL) { continue;
+}
 
 		pkPlot->setTerrainType((TerrainTypes)kPlotData.GetTerrainType(), false, false);
 
 		CvWorldBuilderMap::PlotMapData::PlotHeight ePlotHeight = kPlotData.GetPlotHeight();
 		if(ePlotHeight != CvWorldBuilderMap::PlotMapData::FLAT_TERRAIN)
 		{
-			if(ePlotHeight == CvWorldBuilderMap::PlotMapData::HILLS)
+			if(ePlotHeight == CvWorldBuilderMap::PlotMapData::HILLS) {
 				pkPlot->setPlotType(PLOT_HILLS);
-			else
+			} else {
 				pkPlot->setPlotType(PLOT_MOUNTAIN);
+}
 		}
 
 		if(kPlotData.GetResourceType() != CvWorldBuilderMap::PlotMapData::InvalidResource)
 		{
 			int iResourceAmount = kPlotData.GetResourceAmount();
-			if(iResourceAmount <= 0)
+			if(iResourceAmount <= 0) {
 				iResourceAmount = 1;
+}
 
 			pkPlot->setResourceType((ResourceTypes)kPlotData.GetResourceType(), iResourceAmount);
 		}
 
-		if(kPlotData.GetFeatureType() != CvWorldBuilderMap::PlotMapData::InvalidFeature)
+		if(kPlotData.GetFeatureType() != CvWorldBuilderMap::PlotMapData::InvalidFeature) {
 			pkPlot->setFeatureType((FeatureTypes)kPlotData.GetFeatureType());
+}
 
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::W_OF_RIVER))
 		{
-			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_S))
+			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_S)) {
 				pkPlot->setWOfRiver(true, FLOWDIRECTION_SOUTH);
-			else
+			} else {
 				pkPlot->setWOfRiver(true, FLOWDIRECTION_NORTH);
+}
 		}
 
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::NW_OF_RIVER))
 		{
-			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NE))
+			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NE)) {
 				pkPlot->setNWOfRiver(true, FLOWDIRECTION_NORTHEAST);
-			else
+			} else {
 				pkPlot->setNWOfRiver(true, FLOWDIRECTION_SOUTHWEST);
+}
 		}
 
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::NE_OF_RIVER))
 		{
-			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NW))
+			if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NW)) {
 				pkPlot->setNEOfRiver(true, FLOWDIRECTION_NORTHWEST);
-			else
+			} else {
 				pkPlot->setNEOfRiver(true, FLOWDIRECTION_SOUTHEAST);
+}
 		}
 
 		if(kPlotData.GetFlag(CvWorldBuilderMap::PlotMapData::START_POS_MAJOR))
@@ -1132,8 +1178,9 @@ bool CvWorldBuilderMapLoader::InitMap()
 			CvTeam& kTeam1 = GET_TEAM(eTeam1);
 			CvTeam& kTeam2 = GET_TEAM(eTeam2);
 
-			if(sg_kSave.m_kTeamsInContact.Get(uiTeam1, uiTeam2))
+			if(sg_kSave.m_kTeamsInContact.Get(uiTeam1, uiTeam2)) {
 				kTeam1.meet(eTeam2, true);
+}
 
 			if(sg_kSave.m_kTeamsAtWar.Get(uiTeam1, uiTeam2))
 			{
@@ -1190,25 +1237,29 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL) { continue;
+}
 
 		const int iPlotX = pkPlot->getX();
 		const int iPlotY = pkPlot->getY();
 
 		const byte byNaturalWonder = sg_kSave.GetPlotData(i).GetNaturalWonderType();
-		if(byNaturalWonder != CvWorldBuilderMap::PlotMapData::InvalidNaturalWonder)
+		if(byNaturalWonder != CvWorldBuilderMap::PlotMapData::InvalidNaturalWonder) {
 			pkPlot->setFeatureType((FeatureTypes)byNaturalWonder);
+}
 
-		if(kPlotData.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
+		if(kPlotData.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement) {
 			pkPlot->setImprovementType((ImprovementTypes)kPlotData.m_byImprovement);
+}
 
 		if(kPlotData.m_byRoute != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 		{
 			RouteTypes eRoute;
-			if(kPlotData.m_byRoute == 0)
+			if(kPlotData.m_byRoute == 0) {
 				eRoute = ROUTE_ROAD;
-			else
+			} else {
 				eRoute = ROUTE_RAILROAD;
+}
 
 			pkPlot->setRouteType(eRoute);
 		}
@@ -1230,8 +1281,9 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 		for(uint uiTeam = 0; uiTeam < uiTeamCount; ++uiTeam)
 		{
-			if(sg_kSave.GetVisibility(iPlotX, iPlotY, uiTeam))
+			if(sg_kSave.GetVisibility(iPlotX, iPlotY, uiTeam)) {
 				pkPlot->setRevealed((TeamTypes)uiTeam, true);
+}
 		}
 	}
 
@@ -1241,14 +1293,16 @@ bool CvWorldBuilderMapLoader::InitMap()
 		const CvWorldBuilderMap::PlotScenarioData& kPlotData = sg_kSave.GetPlotScenarioData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL) { continue;
+}
 
 		const PlayerTypes eOwner = GetPlayerType(kPlotData.m_byCulture);
 		if(eOwner != NO_PLAYER)
 		{
 			int iCityID = 0;
 			const CvCity* pkCity = FindClosestCity(eOwner, *pkPlot);
-			if(pkCity != 0) iCityID = pkCity->GetID();
+			if(pkCity != 0) { iCityID = pkCity->GetID();
+}
 			pkPlot->setOwner(eOwner, iCityID);
 		}
 	}
@@ -1301,18 +1355,20 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
 		CvPlot* pkPlot = kMap.plotByIndex(i);
 		FAssertMsg(pkPlot, "Missing CvPlot for this location");
-		if(pkPlot == NULL) continue;
+		if(pkPlot == NULL) { continue;
+}
 
 		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
 
 		PlotTypes ePlotType = pkPlot->getPlotType();
-		if(ePlotType == PLOT_HILLS)
+		if(ePlotType == PLOT_HILLS) {
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::HILLS);
-		else if(ePlotType == PLOT_MOUNTAIN)
+		} else if(ePlotType == PLOT_MOUNTAIN) {
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::MOUNTAINS);
-		else
+		} else {
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::
 			                        PlotMapData::FLAT_TERRAIN);
+}
 
 		ResourceTypes eResourceType = pkPlot->getResourceType();
 		if(eResourceType == NO_RESOURCE)
@@ -1353,10 +1409,11 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		if(pkPlot->isWOfRiver())
 		{
 			kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::W_OF_RIVER);
-			if(pkPlot->getRiverEFlowDirection() == FLOWDIRECTION_SOUTH)
+			if(pkPlot->getRiverEFlowDirection() == FLOWDIRECTION_SOUTH) {
 				kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_S);
-			else
+			} else {
 				kPlotData.ClearFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_S);
+}
 		}
 		else
 		{
@@ -1366,10 +1423,11 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		if(pkPlot->isNWOfRiver())
 		{
 			kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::NW_OF_RIVER);
-			if(pkPlot->getRiverSEFlowDirection() == FLOWDIRECTION_NORTHEAST)
+			if(pkPlot->getRiverSEFlowDirection() == FLOWDIRECTION_NORTHEAST) {
 				kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NE);
-			else
+			} else {
 				kPlotData.ClearFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NE);
+}
 		}
 		else
 		{
@@ -1379,10 +1437,11 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		if(pkPlot->isNEOfRiver())
 		{
 			kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::NE_OF_RIVER);
-			if(pkPlot->getRiverSWFlowDirection() == FLOWDIRECTION_NORTHWEST)
+			if(pkPlot->getRiverSWFlowDirection() == FLOWDIRECTION_NORTHWEST) {
 				kPlotData.SetFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NW);
-			else
+			} else {
 				kPlotData.ClearFlag(CvWorldBuilderMap::PlotMapData::RIVER_FLOW_NW);
+}
 		}
 		else
 		{
@@ -1460,7 +1519,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				{
 					int iValue = kEntry.GetFieldAsInt(uiField);
 					const char* szMember = pkEnum->GetMember((uint)iValue);
-					if(szMember == NULL) szMember = "";
+					if(szMember == NULL) { szMember = "";
+}
 					lua_pushstring(L, szMember);
 				}
 				else
@@ -1524,7 +1584,8 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				if(pkEnum != NULL)
 				{
 					const char* szMember = pkEnum->GetMember((uint)iValue);
-					if(szMember == NULL) szMember = "";
+					if(szMember == NULL) { szMember = "";
+}
 					lua_pushstring(L, szMember);
 				}
 				else
@@ -1675,9 +1736,9 @@ int CvWorldBuilderMapLoader::RunPostProcessScript(lua_State* L)
 						if(bLoadedMapGenerator)
 						{
 							lua_getglobal(L, "PostProcessMap");
-							if(lua_isfunction(L, -1))
+							if(lua_isfunction(L, -1)) {
 								pkScriptSystem->CallFunction(L, 0, 0);
-							else
+							} else
 								FAssertMsg(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
 						}
 					}
@@ -1725,8 +1786,9 @@ void CvWorldBuilderMapLoader::ValidateTerrain()
 			else
 			{
 				const CvTerrainInfo* pkTerrain = GC.getTerrainInfo(eTerrainType);
-				if(pkTerrain == NULL)
+				if(pkTerrain == NULL) {
 					pkPlot->setTerrainType(eValidTerrain);
+}
 			}
 		}
 	}
@@ -1743,7 +1805,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
 	const TerrainTypes eCoast = (TerrainTypes)GD_INT_GET(SHALLOW_WATER_TERRAIN);
 
-	for(int y = 0; y < iMapHeight; ++y)
+	for(int y = 0; y < iMapHeight; ++y) {
 		for(int x = 0; x < iMapWidth; ++x)
 		{
 			CvPlot* pkPlot = kMap.plot(x, y);
@@ -1760,6 +1822,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 				}
 			}
 		}
+}
 
 	//kTimer.Stop();
 	//FStringFixedBuffer(sMsg, 64);
@@ -1787,8 +1850,9 @@ void CvWorldBuilderMapLoader::ClearGoodies()
 		{
 			ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
 			const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
-			if(pkImprovement == NULL || pkImprovement->IsGoody())
+			if(pkImprovement == NULL || pkImprovement->IsGoody()) {
 				kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
+}
 		}
 	}
 }
@@ -1841,8 +1905,9 @@ WorldSizeTypes CvWorldBuilderMapLoader::GetWorldSizeType(const CvWorldBuilderMap
 
 void CvWorldBuilderMapLoader::ResetPlayerSlots()
 {
-	for(uint i = 0; i < MAX_CIV_PLAYERS; ++i)
+	for(uint i = 0; i < MAX_CIV_PLAYERS; ++i) {
 		sg_auiPlayerSlots[i] = i;
+}
 }
 
 void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayerSlot)
@@ -1865,8 +1930,9 @@ void CvWorldBuilderMapLoader::MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayer
 			sg_auiPlayerSlots[ePlayerSlot] = uiPlayer;
 
 			FAssertMsg(eOldSlot != NO_PLAYER, "Player list has holes in it!");
-			if(eOldSlot != NO_PLAYER)
+			if(eOldSlot != NO_PLAYER) {
 				sg_auiPlayerSlots[eOldSlot] = uiCurrent;
+}
 		}
 	}
 }
@@ -1875,8 +1941,9 @@ PlayerTypes CvWorldBuilderMapLoader::GetMapPlayerSlot(uint uiPlayer)
 {
 	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		if(sg_auiPlayerSlots[i] == uiPlayer)
+		if(sg_auiPlayerSlots[i] == uiPlayer) {
 			return static_cast<PlayerTypes>(i);
+}
 	}
 
 	return NO_PLAYER;
@@ -1963,8 +2030,9 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 					}
 				}
 
-				if(bFound)
+				if(bFound) {
 					break;
+}
 			}
 		}
 
@@ -2009,8 +2077,9 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 		{
 			const char* szVictoryType = "";
 			const CvVictoryInfo* pkInfo = GC.getVictoryInfo((VictoryTypes)i);
-			if(pkInfo != NULL)
+			if(pkInfo != NULL) {
 				szVictoryType = pkInfo->GetType();
+}
 
 			lua_pushstring(L, szVictoryType);
 			lua_rawseti(L, -2, i + 1);
@@ -2128,9 +2197,9 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 			{
 				const char* szGoodiesFunction = "AddGoodies";
 				lua_getglobal(L, szGoodiesFunction);
-				if(lua_isfunction(L, -1))
+				if(lua_isfunction(L, -1)) {
 					pkScriptSystem->CallFunction(L, 0, 0);
-				else
+				} else
 					FAssertMsg2(0, "Failed to find \"%s\" in %s", szGoodiesFunction, szLuaFile);
 			}
 
@@ -2138,9 +2207,9 @@ int CvWorldBuilderMapLoader::AddRandomItems(lua_State* L)
 			{
 				const char* szResourcesFunction = "AddResourcesForWorldBuilderMap";
 				lua_getglobal(L, szResourcesFunction);
-				if(lua_isfunction(L, -1))
+				if(lua_isfunction(L, -1)) {
 					pkScriptSystem->CallFunction(L, 0, 0);
-				else
+				} else
 					FAssertMsg2(0, "Failed to find \"%s\" in %s", szResourcesFunction, szLuaFile);
 			}
 		}
@@ -2169,9 +2238,9 @@ int CvWorldBuilderMapLoader::ScatterResources(lua_State* L)
 		if(bLoadedMapGenerator)
 		{
 			lua_getglobal(L, "AddResourcesForWorldBuilderMap");
-			if(lua_isfunction(L, -1))
+			if(lua_isfunction(L, -1)) {
 				pkScriptSystem->CallFunction(L, 0, 0);
-			else
+			} else
 				FAssertMsg(0, "Failed to find \"AddResourcesForWorldBuilderMap\" in WorldBuilderRandomItems.lua");
 		}
 	}
@@ -2199,9 +2268,9 @@ int CvWorldBuilderMapLoader::ScatterGoodies(lua_State* L)
 		if(bLoadedMapGenerator)
 		{
 			lua_getglobal(L, "AddGoodies");
-			if(lua_isfunction(L, -1))
+			if(lua_isfunction(L, -1)) {
 				pkScriptSystem->CallFunction(L, 0, 0);
-			else
+			} else
 				FAssertMsg(0, "Failed to find \"AddGoodies\" in WorldBuilderRandomItems.lua");
 		}
 	}

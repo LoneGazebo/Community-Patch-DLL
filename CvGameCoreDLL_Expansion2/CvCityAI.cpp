@@ -75,8 +75,9 @@ void CvCityAI::AI_doTurn()
 		AI_stealPlots();
 
 		//might want to reconsider our build
-		if (m_iDamageTakenLastTurn > getHealRate())
+		if (m_iDamageTakenLastTurn > getHealRate()) {
 			AI_setChooseProductionDirty(true);
+}
 	}
 }
 
@@ -93,12 +94,14 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
 	if (pkBuilding != 0)
 	{
-		if (kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
+		if (kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding)) {
 			bAlreadyBuildingWonder = true;
-		if (bAlreadyBuildingWonder && !bInterruptWonders)
+}
+		if (bAlreadyBuildingWonder && !bInterruptWonders) {
 			return;
-		else if (!bInterruptBuildings)
+		} else if (!bInterruptBuildings) {
 			return;
+}
 	}
 
 	// Has the designated wonder been poached by another civ?
@@ -132,8 +135,9 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		{
 			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{
-				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
+				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0) {
 					bBuildWonder = true;
+}
 			}
 		}
 	}

@@ -110,8 +110,9 @@ unsigned int CvDllDeal::GetEndTurn()
 void CvDllDeal::CopyFrom(ICvDeal1* pOtherDeal)
 {
 	CvDeal* pkOtherDeal = GC.UnwrapDealPointer(pOtherDeal);
-	if(pkOtherDeal != NULL)
+	if(pkOtherDeal != NULL) {
 		*m_pDeal = *pkOtherDeal;
+}
 }
 //------------------------------------------------------------------------------
 void CvDllDeal::Read(FDataStream& kStream)

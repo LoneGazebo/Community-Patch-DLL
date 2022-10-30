@@ -206,10 +206,11 @@ void CvNotifications::EndOfTurnCleanup(void)
 		{
 			if(IsNotificationEndOfTurnExpired(iIndex))
 			{
-				if (m_aNotifications[iIndex].m_bWaitExtraTurn)
+				if (m_aNotifications[iIndex].m_bWaitExtraTurn) {
 					m_aNotifications[iIndex].m_bWaitExtraTurn = false;
-				else
+				} else {
 					Dismiss(m_aNotifications[iIndex].m_iLookupIndex, /*bUserInvoked*/ false);
+}
 			}
 		}
 
@@ -242,8 +243,9 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 	}
 
 	// If we're in debug mode, don't do anything
-	if(GC.getGame().isDebugMode())
+	if(GC.getGame().isDebugMode()) {
 		return -1;
+}
 
 	Notification newNotification;
 	newNotification.Clear();
@@ -274,8 +276,9 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 
 	// Is this notification being added during the player's auto-moves and will it expire at the end of the turn?
 	// If so, set a flag so the notification will stick around for an extra turn.
-	if (GET_PLAYER(m_ePlayer).isTurnActive() && GET_PLAYER(m_ePlayer).isAutoMoves() && IsNotificationTypeEndOfTurnExpired(eNotificationType))
+	if (GET_PLAYER(m_ePlayer).isTurnActive() && GET_PLAYER(m_ePlayer).isAutoMoves() && IsNotificationTypeEndOfTurnExpired(eNotificationType)) {
 		newNotification.m_bWaitExtraTurn = true;
+}
 
 	if(IsNotificationRedundant(newNotification))
 	{
@@ -1169,12 +1172,14 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 				{
 					if (IsNotificationTypeEndOfTurnExpired(notification.m_eNotificationType) && notification.m_bWaitExtraTurn)
 					{
-						if (m_aNotifications[iIndex].m_bWaitExtraTurn)
+						if (m_aNotifications[iIndex].m_bWaitExtraTurn) {
 							return true;
+}
 					}
-					else
+					else {
 						// We already added this kind of notification so we don't need another
 						return true;
+}
 				}
 			}
 
@@ -1384,8 +1389,9 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 		PlayerTypes eOurPlayer2 = (PlayerTypes) notification.m_iExtraGameData;
 
 		// Notification is NOT being used to inform of a DoF or Denouncement (otherwise there would be valid players in these slots)
-		if(eOurPlayer1 == -1 || eOurPlayer2 == -1)
+		if(eOurPlayer1 == -1 || eOurPlayer2 == -1) {
 			return false;
+}
 
 		PlayerTypes eCheckingPlayer1;
 		PlayerTypes eCheckingPlayer2;
@@ -1407,8 +1413,9 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 			}
 
 			iIndex++;
-			if(iIndex >= int(MaxNotifications))
+			if(iIndex >= int(MaxNotifications)) {
 				iIndex = 0;
+}
 		}
 
 		return false;
@@ -1540,11 +1547,12 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		int iCityID = m_aNotifications[iIndex].m_iGameDataIndex;
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
 
-		if(pCity == NULL)
+		if(pCity == NULL) {
 			return true;
 
-		else if(!pCity->CanRangeStrikeNow())
+		} else if(!pCity->CanRangeStrikeNow()) {
 			return true;
+}
 	}
 	break;
 
@@ -1608,13 +1616,15 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
 		{
-			if(GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)
+			if(GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0) {
 				return true;
+}
 		}
 		else
 		{
-			if((GET_PLAYER(m_ePlayer).getJONSCulture() < GET_PLAYER(m_ePlayer).getNextPolicyCost() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0))
+			if((GET_PLAYER(m_ePlayer).getJONSCulture() < GET_PLAYER(m_ePlayer).getNextPolicyCost() && GET_PLAYER(m_ePlayer).GetNumFreePolicies() == 0 && GET_PLAYER(m_ePlayer).GetNumFreeTenets() == 0)) {
 				return true;
+}
 		}
 	}
 	break;
@@ -1826,8 +1836,9 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
 
-		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(m_ePlayer).GetPlayerTraits()->IsAlwaysReligion())
+		if (pkReligions->GetNumReligionsStillToFound() <= 0 && !GET_PLAYER(m_ePlayer).GetPlayerTraits()->IsAlwaysReligion()) {
 			return true;	// None left, dismiss the notification
+}
 
 		return pkReligions->HasCreatedReligion(m_ePlayer);
 	}
@@ -1839,10 +1850,12 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
 
 		ReligionTypes eReligion = GET_PLAYER(m_ePlayer).GetReligions()->GetOwnedReligion();
-		if (pkReligions->GetAvailableEnhancerBeliefs(m_ePlayer, eReligion).size() == 0)
+		if (pkReligions->GetAvailableEnhancerBeliefs(m_ePlayer, eReligion).size() == 0) {
 			return true;	// None left, dismiss the notification.
-		if (pkReligions->GetAvailableFollowerBeliefs(m_ePlayer, eReligion).size() == 0)
+}
+		if (pkReligions->GetAvailableFollowerBeliefs(m_ePlayer, eReligion).size() == 0) {
 			return true;	// None left, dismiss the notification.		
+}
 
 		const CvReligion* pReligion = pkReligions->GetReligion(eReligion, m_ePlayer);
 		return (NULL != pReligion && pReligion->m_bEnhanced);
@@ -1978,11 +1991,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		if (eCityEvent != NO_EVENT_CITY)
 		{
 			CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
-			if (pCity == 0)
+			if (pCity == 0) {
 				return true;
+}
 			
-			if (pCity->GetCityEspionage()->HasPendingEvents(m_ePlayer))
+			if (pCity->GetCityEspionage()->HasPendingEvents(m_ePlayer)) {
 				return false;
+}
 		}
 		return true;
 	}
@@ -2034,11 +2049,13 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case -364200720:
 	{
 		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
-		if (pCity == 0)
+		if (pCity == 0) {
 			return true;
+}
 
-		if (!pCity->isPendingCapture())
+		if (!pCity->isPendingCapture()) {
 			return true;
+}
 	}
 	break;
 #endif

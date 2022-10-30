@@ -320,87 +320,114 @@ CvResolutionEffects::~CvResolutionEffects(void)
 
 bool CvResolutionEffects::HasOngoingEffects() const
 {
-	if (iGoldPerTurn != 0)
+	if (iGoldPerTurn != 0) {
 		return true;
+}
 
-	if (iResourceQuantity != 0)
+	if (iResourceQuantity != 0) {
 		return true;
+}
 
-	if (bEmbargoCityStates)
+	if (bEmbargoCityStates) {
 		return true;
+}
 
-	if (bEmbargoPlayer)
+	if (bEmbargoPlayer) {
 		return true;
+}
 
-	if (bNoResourceHappiness)
+	if (bNoResourceHappiness) {
 		return true;
+}
 
-	if (iUnitMaintenanceGoldPercent != 0)
+	if (iUnitMaintenanceGoldPercent != 0) {
 		return true;
+}
 
-	if (iMemberDiscoveredTechMod != 0)
+	if (iMemberDiscoveredTechMod != 0) {
 		return true;
+}
 
-	if (iCulturePerWonder != 0)
+	if (iCulturePerWonder != 0) {
 		return true;
+}
 
-	if (iCulturePerNaturalWonder != 0)
+	if (iCulturePerNaturalWonder != 0) {
 		return true;
+}
 
-	if (bNoTrainingNuclearWeapons)
+	if (bNoTrainingNuclearWeapons) {
 		return true;
+}
 
-	if (iVotesForFollowingReligion != 0)
+	if (iVotesForFollowingReligion != 0) {
 		return true;
+}
 
-	if (iHolyCityTourism != 0)
+	if (iHolyCityTourism != 0) {
 		return true;
+}
 
-	if (iReligionSpreadStrengthMod != 0)
+	if (iReligionSpreadStrengthMod != 0) {
 		return true;
+}
 
-	if (iVotesForFollowingIdeology != 0)
+	if (iVotesForFollowingIdeology != 0) {
 		return true;
+}
 
-	if (iOtherIdeologyRebellionMod != 0)
+	if (iOtherIdeologyRebellionMod != 0) {
 		return true;
+}
 
-	if (iArtsyGreatPersonRateMod != 0)
+	if (iArtsyGreatPersonRateMod != 0) {
 		return true;
+}
 
-	if (iScienceyGreatPersonRateMod != 0)
+	if (iScienceyGreatPersonRateMod != 0) {
 		return true;
+}
 
-	if (iGreatPersonTileImprovementCulture != 0)
+	if (iGreatPersonTileImprovementCulture != 0) {
 		return true;
+}
 
-	if (iLandmarkCulture != 0)
+	if (iLandmarkCulture != 0) {
 		return true;
+}
 
-	if (iVassalMaintenanceGoldPercent != 0)
+	if (iVassalMaintenanceGoldPercent != 0) {
 		return true;
+}
 
-	if (iLimitSpaceshipProduction != 0)
+	if (iLimitSpaceshipProduction != 0) {
 		return true;
+}
 
-	if (iLimitSpaceshipPurchase != 0)
+	if (iLimitSpaceshipPurchase != 0) {
 		return true;
+}
 
-	if (iIsWorldWar != 0)
+	if (iIsWorldWar != 0) {
 		return true;
+}
 
-	if (bEmbargoIdeology)
+	if (bEmbargoIdeology) {
 		return true;
+}
 
-	if (bOpenDoor)
+	if (bOpenDoor) {
 		return true;
+}
 
-	if (bSphereOfInfluence)
+	if (bSphereOfInfluence) {
 		return true;
+}
 
 #if defined(MOD_BALANCE_CORE)
-	if(iChangeTourism != 0)
+	if(iChangeTourism != 0) {
 		return true;
+}
 #endif
 
 	return false;
@@ -411,8 +438,9 @@ bool CvResolutionEffects::HasOngoingEffects() const
 // chosen by proposer), so client should track additional information as necessary.
 void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEffects)
 {
-	if (!pOtherEffects->HasOngoingEffects())
+	if (!pOtherEffects->HasOngoingEffects()) {
 		return;
+}
 
 	iGoldPerTurn							+= pOtherEffects->iGoldPerTurn;
 	iResourceQuantity						+= pOtherEffects->iResourceQuantity; // target resource
@@ -843,13 +871,16 @@ int CvVoterDecision::GetVotesCastByPlayer(PlayerTypes ePlayer)
 
 int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iChoice, bool bChangeHost, int& iPercentOfPlayerVotes)
 {
-	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
+	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) { return 0;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague == 0) return 0;
+	if (pLeague == 0) { return 0;
+}
 
 	// If the vote was a tie, treat people who voted NAY as supporting the outcome
-	if (iChoice == LeagueHelpers::CHOICE_NONE)
+	if (iChoice == LeagueHelpers::CHOICE_NONE) {
 		iChoice = LeagueHelpers::CHOICE_NO;
+}
 
 	int iTotalVotes = 0;
 	int iVotes = 0;
@@ -871,8 +902,9 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 		}
 	}
 
-	if (iVotes <= 0)
+	if (iVotes <= 0) {
 		return 0;
+}
 
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
 	if (!bChangeHost)
@@ -886,13 +918,16 @@ int CvVoterDecision::GetPercentContributionToOutcome(PlayerTypes eVoter, int iCh
 
 int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, int iChoice, int& iPercentOfPlayerVotes)
 {
-	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) return 0;
+	if (eVoter < 0 || eVoter >= MAX_MAJOR_CIVS) { return 0;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague == 0) return 0;
+	if (pLeague == 0) { return 0;
+}
 
 	// If the vote was a tie, treat people who voted NAY as supporting the outcome
-	if (iChoice == LeagueHelpers::CHOICE_NONE)
+	if (iChoice == LeagueHelpers::CHOICE_NONE) {
 		iChoice = LeagueHelpers::CHOICE_NO;
+}
 
 	int iTotalVotes = 0;
 	int iVotes = 0;
@@ -914,8 +949,9 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 		}
 	}
 
-	if (iVotes <= 0)
+	if (iVotes <= 0) {
 		return 0;
+}
 
 	// What percentage of their total votes did they dedicate to this outcome? Relevant for voting history score.
 	int iPlayerVotes = pLeague->CalculateStartingVotesForMember(eVoter);
@@ -927,8 +963,9 @@ int CvVoterDecision::GetPercentContributionAgainstOutcome(PlayerTypes eVoter, in
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 {
 	// If the vote was a tie, treat people who voted NAY as supporting the outcome
-	if (iChoice == LeagueHelpers::CHOICE_NONE)
+	if (iChoice == LeagueHelpers::CHOICE_NONE) {
 		iChoice = LeagueHelpers::CHOICE_NO;
+}
 
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
@@ -944,8 +981,9 @@ std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingForChoice(int iChoice)
 std::vector<PlayerTypes> CvVoterDecision::GetPlayersVotingAgainstChoice(int iChoice)
 {
 	// If the vote was a tie, treat people who voted NAY as supporting the outcome
-	if (iChoice == LeagueHelpers::CHOICE_NONE)
+	if (iChoice == LeagueHelpers::CHOICE_NONE) {
 		iChoice = LeagueHelpers::CHOICE_NO;
+}
 
 	vector<PlayerTypes> v;
 	for (PlayerVoteList::iterator it = m_vVotes.begin(); it != m_vVotes.end(); ++it)
@@ -1324,11 +1362,13 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 {
 	CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 	CvAssertMsg(pPlayer != NULL, "Player is null when doing effects of an active resolution. Please send Anton your save file and version.");
-	if (pPlayer == NULL) return;
+	if (pPlayer == NULL) { return;
+}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(GetLeague());
 	CvAssertMsg(pLeague != NULL, "League is null when doing effects of an active resolution. Please send Anton your save file and version.");
-	if (pLeague == NULL) return;
+	if (pLeague == NULL) { return;
+}
 
 	// == Proposer Choices ==
 	ResolutionDecisionTypes eProposerDecision = GetProposerDecision()->GetType();
@@ -1501,10 +1541,11 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 							if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == eLoopTeam)
 							{
-								if (!bWasVoluntary)
+								if (!bWasVoluntary) {
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoLiberatedFromVassalage(eProposerTeam, true);
-								else if (GET_PLAYER(eOriginalProposer).isAlive())
+								} else if (GET_PLAYER(eOriginalProposer).isAlive()) {
 									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eOriginalProposer, 300);
+}
 							}
 						}
 					}
@@ -1551,8 +1592,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 			if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMajorCiv())
 			{
-				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
+				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam())) {
 					continue;
+}
 
 				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer);
 			}
@@ -1580,8 +1622,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					int iLoop = 0;
 					for (pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
 					{
-						if (pLoopCity->GetResourceDemanded() == eResourceLoop)
+						if (pLoopCity->GetResourceDemanded() == eResourceLoop) {
 							pLoopCity->DoPickResourceDemanded();
+}
 					}
 				}
 			}
@@ -1665,8 +1708,9 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_GOLD, GetEffects()->iGreatPersonTileImprovementCulture);
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_PRODUCTION, GetEffects()->iGreatPersonTileImprovementCulture);
 				}
-				else
+				else {
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_CULTURE, GetEffects()->iGreatPersonTileImprovementCulture);
+}
 			}
 		}
 		// Refresh yield
@@ -1729,11 +1773,13 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 {
 	CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 	CvAssertMsg(pPlayer != NULL, "Player is null when doing effects of an active resolution. Please send Anton your save file and version.");
-	if (pPlayer == NULL) return;
+	if (pPlayer == NULL) { return;
+}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(GetLeague());
 	CvAssertMsg(pLeague != NULL, "League is null when doing effects of an active resolution. Please send Anton your save file and version.");
-	if (pLeague == NULL) return;
+	if (pLeague == NULL) { return;
+}
 
 	// == Proposer Choices ==
 	ResolutionDecisionTypes eProposerDecision = GetProposerDecision()->GetType();
@@ -1882,8 +1928,9 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_GOLD, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_PRODUCTION, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
 				}
-				else
+				else {
 					GET_PLAYER(ePlayer).changeImprovementYieldChange((ImprovementTypes)pInfo->GetID(), YIELD_CULTURE, -1 * GetEffects()->iGreatPersonTileImprovementCulture);
+}
 			}
 		}
 		// Refresh yield
@@ -1909,10 +1956,11 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		//the player is the City State with the open door/sphere on it or the player is the major civ with the open door/sphere on eTargetCityState
 		if (ePlayer == eTargetCityState)
 		{
-			if (GetEffects()->bOpenDoor)
+			if (GetEffects()->bOpenDoor) {
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetNoAlly(false);
-			else if (GetEffects()->bSphereOfInfluence)
+			} else if (GetEffects()->bSphereOfInfluence) {
 				GET_PLAYER(eTargetCityState).GetMinorCivAI()->SetPermanentAlly(NO_PLAYER);
+}
 		}
 	}
 
@@ -2494,12 +2542,14 @@ LeagueSpecialSessionTypes CvLeague::GetCurrentSpecialSession() const
 bool CvLeague::CanStartSpecialSession(LeagueSpecialSessionTypes /*eSpecialSession*/)
 {
 	// Cannot already be in session
-	if (IsInSession())
+	if (IsInSession()) {
 		return false;
+}
 
 	// Cannot have proposals on hold
-	if (HasProposalsOnHold())
+	if (HasProposalsOnHold()) {
 		return false;
+}
 
 	// Cannot be awaiting proposals or votes from anyone (UI complications with overview screen)
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
@@ -2683,7 +2733,8 @@ bool CvLeague::CanProposeEnactAnyChoice(ResolutionTypes eResolution, PlayerTypes
 
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	CvAssertMsg(pInfo, "Resolution info is null. Please send Anton your save file and version.");
-	if (pInfo == 0) return false;
+	if (pInfo == 0) { return false;
+}
 
 	std::vector<int> vValidChoices = GetChoicesForDecision(pInfo->GetProposerDecision(), eProposer);
 	if (vValidChoices.empty())
@@ -2717,7 +2768,8 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
 	CvAssertMsg(pInfo, "Resolution info is null. Please send Anton your save file and version.");
-	if (pInfo == 0) return false;
+	if (pInfo == 0) { return false;
+}
 
 	bool bValid = true;
 	
@@ -2737,12 +2789,14 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 
 		// Must be a member
-		if (!IsMember(eProposer))
+		if (!IsMember(eProposer)) {
 			bValid = false;
+}
 
 		// Must have right to propose
-		if (!CanPropose(eProposer))
+		if (!CanPropose(eProposer)) {
 			bValid = false;
+}
 	}
 
 	// Is this a valid choice for this proposal?
@@ -3145,12 +3199,14 @@ bool CvLeague::CanProposeRepeal(int iResolutionID, PlayerTypes eProposer, CvStri
 	if (eProposer != NO_PLAYER)
 	{
 		// Must be a member
-		if (!IsMember(eProposer))
+		if (!IsMember(eProposer)) {
 			bValid = false;
+}
 
 		// Must have right to propose
-		if (!CanPropose(eProposer))
+		if (!CanPropose(eProposer)) {
 			bValid = false;
+}
 	}
 	CvAssertMsg(eProposer != NO_PLAYER, "Checking to see if a NO_PLAYER can propose a repeal. Please send Anton your save file and version.");
 
@@ -4006,13 +4062,16 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 		}
 
 		CvAssert(eGoverningSpecialSession != NO_LEAGUE_SPECIAL_SESSION);
-		if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+		if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) { return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+}
 		CvLeagueSpecialSessionEntry* pInfo = GC.getLeagueSpecialSessionInfo(eGoverningSpecialSession);
 		CvAssert(pInfo != NULL);
-		if (pInfo == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+		if (pInfo == NULL) { return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+}
 		Member* pMember = GetMember(ePlayer);
 		CvAssert(pMember != NULL);
-		if (pMember == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+		if (pMember == NULL) { return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+}
 
 		iVotes += pInfo->GetCivDelegates();
 	}
@@ -4022,8 +4081,9 @@ int CvLeague::GetCoreVotesForMember(PlayerTypes ePlayer)
 int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN, bool bForceUpdateSources)
 {
 	// if battle royale is enabled, the human player is the observer, and should not be allowed votes
-	if (MOD_BATTLE_ROYALE && GET_PLAYER(ePlayer).isHuman())
+	if (MOD_BATTLE_ROYALE && GET_PLAYER(ePlayer).isHuman()) {
 		return 0;
+}
 
 	//try the cached value first
 	Member* thisMember = GetMember(ePlayer);
@@ -4031,17 +4091,20 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	{
 		if (GC.getGame().getTurnSlice() == thisMember->m_startingVotesCacheTime)
 		{
-			if (bFakeUN)
+			if (bFakeUN) {
 				return thisMember->m_startingVotesCachedIfUN;
-			else
+			} else {
 				return thisMember->m_startingVotesCached;
+}
 		}
 	}
-	else
+	else {
 		return 0;
+}
 
-	if (!CanEverVote(ePlayer))
+	if (!CanEverVote(ePlayer)) {
 		return 0;
+}
 
 	// What era are we in? Since a special session occurs each time an era change happens or the UN is built (and this is where the vote count info is stored), we retrieve that here.
 	LeagueSpecialSessionTypes eGoverningSpecialSession = NO_LEAGUE_SPECIAL_SESSION;
@@ -4056,9 +4119,11 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	}
 
 	// This should never be invalid
-	if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+	if (eGoverningSpecialSession == NO_LEAGUE_SPECIAL_SESSION) { return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+}
 	pInfo = GC.getLeagueSpecialSessionInfo(eGoverningSpecialSession);
-	if (pInfo == NULL) return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+	if (pInfo == NULL) { return /*1*/ GD_INT_GET(LEAGUE_MEMBER_VOTES_BASE);
+}
 
 	// Retrieve the delegate count if the UN was currently active
 	CvLeagueSpecialSessionEntry* pUNInfo = NULL;
@@ -4098,8 +4163,9 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		if (!GET_PLAYER(eMinor).isAlive())
+		if (!GET_PLAYER(eMinor).isAlive()) {
 			continue;
+}
 
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
 		{
@@ -4388,8 +4454,9 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	thisMember->m_startingVotesCachedIfUN = iVotes + iTotalBaseVotesIfUN;
 
 	// If pretending this is the UN (for diplo victory evaluation), return the vote total if we were in the UN "era"
-	if (bFakeUN)
+	if (bFakeUN) {
 		return iVotes + iTotalBaseVotesIfUN;
+}
 
 	return iVotes + iTotalBaseVotes;
 }
@@ -4946,7 +5013,8 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 	float fThreshold = 0.0f;
 	Project* pProject = GetProject(eLeagueProject);
 	CvAssertMsg(pProject, "Could not find league project. Please send Anton your save file and version.");
-	if (pProject == 0) return 0.0f;
+	if (pProject == 0) { return 0.0f;
+}
 
 	switch (eTier)
 	{
@@ -4983,9 +5051,11 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	CvAssertMsg(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader. Please send Anton your save file and version.");
-	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) return false;
+	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) { return false;
+}
 	CvAssertMsg(eRecipient >= 0 && eRecipient < MAX_CIV_PLAYERS, "Invalid index for eRecipient. Please send Anton your save file and version.");
-	if (eRecipient < 0 || eRecipient >= MAX_CIV_PLAYERS) return false;
+	if (eRecipient < 0 || eRecipient >= MAX_CIV_PLAYERS) { return false;
+}
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 	{
 		// Trade route involving a minor civ
@@ -5023,7 +5093,8 @@ bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 
 bool CvLeague::IsPlayerEmbargoed(PlayerTypes ePlayer)
 {
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return false;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) { return false;
+}
 	bool bMinor = GET_PLAYER(ePlayer).isMinorCiv();
 
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++) {
@@ -5432,7 +5503,8 @@ bool CvLeague::IsCityStateEmbargo()
 bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 {
 	CvAssertMsg(eTrader >= 0 && eTrader < MAX_CIV_PLAYERS, "Invalid index for eTrader. Please send Anton your save file and version.");
-	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) return false;
+	if (eTrader < 0 || eTrader >= MAX_CIV_PLAYERS) { return false;
+}
 
 	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 	{ 
@@ -5668,15 +5740,18 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	CvString s = "";
 
 	CvResolutionEntry* pInfo = GC.getResolutionInfo(eResolution);
-	if (pInfo == 0)
+	if (pInfo == 0) {
 		return s;
+}
 
 	// Must be proposed as either enact or repeal, but not both
-	if (!IsProposed(iResolutionID, /*bRepeal*/ false) && !IsProposed(iResolutionID, /*bRepeal*/ true))
+	if (!IsProposed(iResolutionID, /*bRepeal*/ false) && !IsProposed(iResolutionID, /*bRepeal*/ true)) {
 		return s;
+}
 
-	if (IsProposed(iResolutionID, /*bRepeal*/ false) && IsProposed(iResolutionID, /*bRepeal*/ true))
+	if (IsProposed(iResolutionID, /*bRepeal*/ false) && IsProposed(iResolutionID, /*bRepeal*/ true)) {
 		return s;
+}
 
 	bool bEnact = IsProposed(iResolutionID, /*bRepeal*/ false);
 	ResolutionDecisionTypes eDecision = bEnact ? pInfo->GetVoterDecision() : RESOLUTION_DECISION_REPEAL;
@@ -5845,12 +5920,14 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 	}
 
 	// If not in session, don't display how other civs would be affected - that's too much information
-	if (!IsInSession())
+	if (!IsInSession()) {
 		return s;
+}
 
 	// Only display scores for Yes/No choices
-	if (!bYesNo || IsInSpecialSession())
+	if (!bYesNo || IsInSpecialSession()) {
 		return s;
+}
 
 	// Display the score for each civ
 	bool bShowAllValues = GC.getGame().IsShowAllOpinionValues();
@@ -6771,8 +6848,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -6780,8 +6858,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -6789,8 +6868,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -6809,8 +6889,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -6818,8 +6899,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -6827,8 +6909,9 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
 		if (pInfo != NULL)
 		{
-			if (!sList.empty())
+			if (!sList.empty()) {
 				sList += ", ";
+}
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
 			sList += sEntry.toUTF8();
@@ -7158,11 +7241,13 @@ void CvLeague::CheckStartSpecialSession(LeagueSpecialSessionTypes eSpecialSessio
 			{
 				//VP: UN needs a building to be founded.
 				bool bTrigger = true;
-				if (MOD_BALANCE_VP)
+				if (MOD_BALANCE_VP) {
 					bTrigger = (LeagueHelpers::GetBuildingForTrigger(pInfo->GetBuildingTrigger()) != NO_BUILDING);
+}
 
-				if (bTrigger)
+				if (bTrigger) {
 					SetUnitedNations(true);
+}
 			}
 
 			// Only actually hold a session if there is a proposal to be decided
@@ -8036,8 +8121,9 @@ void CvLeague::FinishSession()
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv()) {
 			continue;
+}
 
 		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
@@ -8312,7 +8398,8 @@ void CvLeague::NotifySessionDone()
 void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 {
 	CvAssert(pProposal != NULL);
-	if (pProposal == NULL) return;
+	if (pProposal == NULL) { return;
+}
 
 #if defined(MOD_EVENTS_RESOLUTIONS)
 	int iDecision = -1;
@@ -8437,7 +8524,8 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 {
 	CvAssert(pProposal != NULL);
-	if (pProposal == NULL) return;
+	if (pProposal == NULL) { return;
+}
 
 	Localization::String sSummaryTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_RESULT_FAIL_SUMMARY");
 	Localization::String sMessageTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_RESULT_REPEAL_FAIL");
@@ -8661,7 +8749,8 @@ void CvLeague::DoProjectRewards(LeagueProjectTypes eLeagueProject)
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eLeagueProject);
 	CvAssert(pProjectInfo);
-	if (pProjectInfo == 0) return;
+	if (pProjectInfo == 0) { return;
+}
 
 	int iTopTierRecipients = 0;
 	for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); it++)
@@ -8693,7 +8782,8 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eLeagueProject);
 	CvAssert(pProjectInfo);
-	if (pProjectInfo == 0) return;
+	if (pProjectInfo == 0) { return;
+}
 	
 	// Which rewards do we get?
 	//antonjs: A switch statement in its natural habitat without break statements...a rare sight indeed
@@ -8862,7 +8952,8 @@ void CvLeague::UpdateName()
 void CvLeague::LogProposalResolved(CvEnactProposal* pProposal)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",Congress";
@@ -8905,7 +8996,8 @@ void CvLeague::LogProposalResolved(CvEnactProposal* pProposal)
 void CvLeague::LogProposalResolved(CvRepealProposal* pProposal)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",Congress";
@@ -9146,8 +9238,9 @@ void CvGameLeagues::DoTurn()
 									eSpecialSession = (LeagueSpecialSessionTypes)i;
 								}
 							}
-							else
+							else {
 								eSpecialSession = (LeagueSpecialSessionTypes)i;
+}
 						}
 					}
 				}
@@ -9466,10 +9559,11 @@ CvLeague* CvGameLeagues::GetLeague(LeagueTypes eLeague)
 
 CvLeague* CvGameLeagues::GetActiveLeague()
 {
-	if (m_vActiveLeagues.empty())
+	if (m_vActiveLeagues.empty()) {
 		return NULL;
-	else
+	} else {
 		return &m_vActiveLeagues.front();
+}
 }
 
 int CvGameLeagues::GenerateResolutionUniqueID()
@@ -10236,7 +10330,8 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 {
 	CvAssertMsg(eToPlayer >= 0, "eToPlayer is expected to be non-negative (invalid Index). Please send Anton your save file and version.");
 	CvAssertMsg(eToPlayer < MAX_MAJOR_CIVS, "eToPlayer is expected to be within maximum bounds (invalid Index). Please send Anton your save file and version.");
-	if (eToPlayer < 0 || eToPlayer >= MAX_MAJOR_CIVS) return false;
+	if (eToPlayer < 0 || eToPlayer >= MAX_MAJOR_CIVS) { return false;
+}
 
 	bool bCanCommit = true;
 	
@@ -10244,8 +10339,9 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 	if (pLeague == NULL)
 	{
 		bCanCommit = false;
-		if (sTooltipSink != NULL)
+		if (sTooltipSink != NULL) {
 			(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_LEAGUE").toUTF8();
+}
 	}
 	else
 	{
@@ -10283,8 +10379,9 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 		if (!pLeague->IsMember(GetPlayer()->GetID()))
 		{
 			bCanCommit = false;
-			if (sTooltipSink != NULL)
+			if (sTooltipSink != NULL) {
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NOT_MEMBER").toUTF8();
+}
 		}
 
 		// Not allowed to vote
@@ -10297,24 +10394,27 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 		if (!pLeague->IsAnythingProposed())
 		{
 			bCanCommit = false;
-			if (sTooltipSink != NULL)
+			if (sTooltipSink != NULL) {
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_PROPOSALS").toUTF8();
+}
 		}
 
 		// We already committed our votes
 		if (HasVoteCommitment())
 		{
 			bCanCommit = false;
-			if (sTooltipSink != NULL)
+			if (sTooltipSink != NULL) {
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_ALREADY_COMMITTED").toUTF8();
+}
 		}
 
 		// The league is in session, and we already used our votes
 		if (pLeague->IsInSession() && pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) < pLeague->GetPotentialVotesForMember(GetPlayer()->GetID(), eToPlayer))
 		{
 			bCanCommit = false;
-			if (sTooltipSink != NULL)
+			if (sTooltipSink != NULL) {
 				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_ALREADY_USED_VOTES").toUTF8();
+}
 		}
 	}
 
@@ -11155,8 +11255,9 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 {
 	DiplomatUsefulnessLevels eUsefulness = DIPLOMAT_USEFULNESS_NONE;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague == NULL)
+	if (pLeague == NULL) {
 		return eUsefulness;
+}
 
 	int iScore = 0;
 	if (GetExtraVotesPerDiplomat() > 0)
@@ -11387,19 +11488,22 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesireForVoteOutcome(CvProposal* pP
 void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 {
 	CvAssert(pLeague != NULL);
-	if (pLeague == NULL)
+	if (pLeague == NULL) {
 		return;
+}
 
 	int iVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
 	int iVotesAllOthersCombined = 0;
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)i;
-		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer))
+		if (ePlayer == NO_PLAYER || !pLeague->IsMember(ePlayer)) {
 			continue;
+}
 
-		if (GetPlayer()->GetID() == ePlayer)
+		if (GetPlayer()->GetID() == ePlayer) {
 			continue;
+}
 
 		iVotesAllOthersCombined += pLeague->GetRemainingVotesForMember(ePlayer);
 	}
@@ -11407,8 +11511,9 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 	//how confident are we
 	iVotesAllOthersCombined -= GetPlayer()->GetDiplomacyAI()->GetBoldness();
 	
-	if (iVotesAllOthersCombined <= pLeague->GetNumMembers())
+	if (iVotesAllOthersCombined <= pLeague->GetNumMembers()) {
 		iVotesAllOthersCombined = pLeague->GetNumMembers();
+}
 
 	VoteConsiderationList vConsiderations;
 
@@ -11517,8 +11622,9 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			}
 		}
 
-		if (vVotesAllocated.size() <= 0)
+		if (vVotesAllocated.size() <= 0) {
 			return;
+}
 
 		// Logging
 		vVotesAllocated.SortItems();
@@ -11553,10 +11659,12 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 	int iMaxChoicesToConsider = 1;
 
 	CvAssert(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0);
-	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() <= 0) return;
+	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() <= 0) { return;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (pLeague == NULL) return;
+	if (pLeague == NULL) { return;
+}
 
 	switch (pProposal->GetVoterDecision()->GetType())
 	{
@@ -11607,10 +11715,12 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 	int iMaxChoicesToConsider = 1;
 
 	CvAssert(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0);
-	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) return;
+	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) { return;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return;
+	if (!(pLeague != NULL)) { return;
+}
 
 	switch (pProposal->GetRepealDecision()->GetType())
 	{
@@ -11651,12 +11761,15 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bConsiderGlobal)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return 0;
+	if (!(pProposal != NULL)) { return 0;
+}
 	CvAssert(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0);
-	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) return 0;
+	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) { return 0;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return 0;
+	if (!(pLeague != NULL)) { return 0;
+}
 
 	int iScore = 0;
 
@@ -11688,12 +11801,15 @@ int CvLeagueAI::ScoreVoteChoice(CvEnactProposal* pProposal, int iChoice, bool bC
 int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool bConsiderGlobal)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return 0;
+	if (!(pProposal != NULL)) { return 0;
+}
 	CvAssert(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0);
-	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) return 0;
+	if (!(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)) { return 0;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return 0;
+	if (!(pLeague != NULL)) { return 0;
+}
 
 	int iScore = 0;
 
@@ -11717,7 +11833,8 @@ int CvLeagueAI::ScoreVoteChoice(CvRepealProposal* pProposal, int iChoice, bool b
 // Score a particular choice on a particular proposal which is a decision between Yes and No
 int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bEnact, bool bConsiderGlobal, bool bForSelf)
 {
-	if (pProposal == NULL) return 0;
+	if (pProposal == NULL) { return 0;
+}
 
 	// How much do we like this choice for this proposal?  Positive is like, negative is dislike.
 	// Evaluate as if we are voting Yes to Enact the proposal.  Post-processing below to fit actual situation.
@@ -13442,15 +13559,19 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool bEnact)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return 0;
+	if (!(pProposal != NULL)) { return 0;
+}
 	CvAssertMsg(bEnact, "Unexpected case when evaluating vote choices for AI. Please send Anton your save file and version.");
-	if (!bEnact) return 0;
+	if (!bEnact) { return 0;
+}
 	PlayerTypes eChoicePlayer = (PlayerTypes) iChoice;
 	CvAssert(eChoicePlayer != NO_PLAYER);
-	if (!(eChoicePlayer != NO_PLAYER)) return 0;
+	if (!(eChoicePlayer != NO_PLAYER)) { return 0;
+}
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return 0;
+	if (!(pLeague != NULL)) { return 0;
+}
 
 	PlayerTypes ePlayer = GetPlayer()->GetID();
 
@@ -13563,11 +13684,13 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// DiploAIOptions to prevent voting for other teams
 	if (iScore > 0 && GET_PLAYER(ePlayer).getTeam() != GET_PLAYER(eChoicePlayer).getTeam())
 	{
-		if (pProposal->GetEffects()->bChangeLeagueHost && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
+		if (pProposal->GetEffects()->bChangeLeagueHost && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0) {
 			return 0;
+}
 
-		if (pProposal->GetEffects()->bDiplomaticVictory && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 0)
+		if (pProposal->GetEffects()->bDiplomaticVictory && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 0) {
 			return 0;
+}
 	}
 
 	return iScore;
@@ -13770,12 +13893,14 @@ int CvLeagueAI::ScoreProposal(CvLeague* pLeague, CvActiveResolution* pResolution
 bool CvLeagueAI::IsSanctionAgainstUs(ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice)
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague == 0)
+	if (pLeague == 0) {
 		return false;
+}
 
 	CvEnactProposal fakeProposal(/*iID*/ -1, eResolution, pLeague->GetID(), eProposer, iChoice);
-	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID()))
+	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID())) {
 		return true;
+}
 
 	return false;
 }
@@ -13783,20 +13908,23 @@ bool CvLeagueAI::IsSanctionAgainstUs(ResolutionTypes eResolution, PlayerTypes eP
 bool CvLeagueAI::IsSanctionAgainstUs(CvActiveResolution* pResolution, PlayerTypes eProposer)
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague == 0)
+	if (pLeague == 0) {
 		return false;
+}
 
 	CvRepealProposal fakeProposal(pResolution, eProposer);
-	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID()))
+	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID())) {
 		return true;
+}
 
 	return false;
 }
 
 bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequiredTarget)
 {
-	if (pProposal == 0)
+	if (pProposal == 0) {
 		return false;
+}
 
 	// This proposal must target a player
 	ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
@@ -13815,21 +13943,25 @@ bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequired
 	// Embargo / Sanctions?
 	if (pProposal->GetEffects()->bEmbargoPlayer)
 	{
-		if (eRequiredTarget == NO_PLAYER)
+		if (eRequiredTarget == NO_PLAYER) {
 			return true;
+}
 
-		if (eTargetPlayer == eRequiredTarget)
+		if (eTargetPlayer == eRequiredTarget) {
 			return true;
+}
 	}
 
 	// Decolonization?
 	if (pProposal->GetEffects()->bDecolonization)
 	{
-		if (eRequiredTarget == NO_PLAYER)
+		if (eRequiredTarget == NO_PLAYER) {
 			return true;
+}
 
-		if (eTargetPlayer == eRequiredTarget)
+		if (eTargetPlayer == eRequiredTarget) {
 			return true;
+}
 	}
 
 	return false;
@@ -13839,27 +13971,32 @@ void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iCh
 {
 	std::vector<ResolutionTypes> vInactive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetInactiveResolutions();
 	ActiveResolutionList vActive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetActiveResolutions();
-	if (vInactive.empty())
+	if (vInactive.empty()) {
 		return;
+}
 
-	if (pProposal == NULL)
+	if (pProposal == NULL) {
 		return;
+}
 
 	ResolutionTypes eResolution = pProposal->bEnact ? vInactive[pProposal->iIndex] : vActive[pProposal->iIndex].GetType();
-	if (GC.getResolutionInfo(eResolution) == NULL)
+	if (GC.getResolutionInfo(eResolution) == NULL) {
 		return;
+}
 
 	CvString sMessage = "";
 	sMessage += ",";
 	sMessage += GetPlayer()->getCivilizationShortDescription();
 	sMessage += ",- - -";
 	sMessage += ",Evaluating for Proposal";
-	if (pProposal->bEnact)
+	if (pProposal->bEnact) {
 		sMessage += ", ENACT";
-	else
+	} else {
 		sMessage += ", REPEAL";
-	if (!bPre)
+}
+	if (!bPre) {
 		sMessage += ", POST SORT";
+}
 
 	sMessage += ",";
 	CvAssert(pProposal != NULL);
@@ -13886,7 +14023,8 @@ void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iCh
 void CvLeagueAI::LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice, int iScore)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",";
@@ -13919,7 +14057,8 @@ void CvLeagueAI::LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice
 void CvLeagueAI::LogVoteChoiceConsidered(CvRepealProposal* pProposal, int iChoice, int iScore)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",";
@@ -13952,7 +14091,8 @@ void CvLeagueAI::LogVoteChoiceConsidered(CvRepealProposal* pProposal, int iChoic
 void CvLeagueAI::LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",";
@@ -13985,7 +14125,8 @@ void CvLeagueAI::LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice,
 void CvLeagueAI::LogVoteChoiceCommitted(CvRepealProposal* pProposal, int iChoice, int iVotes)
 {
 	CvAssert(pProposal != NULL);
-	if (!(pProposal != NULL)) return;
+	if (!(pProposal != NULL)) { return;
+}
 	CvString sMessage = "";
 
 	sMessage += ",";

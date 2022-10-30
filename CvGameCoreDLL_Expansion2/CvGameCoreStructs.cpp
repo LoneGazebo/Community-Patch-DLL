@@ -244,12 +244,13 @@ void CvCombatInfo::setUnit(BattleUnitTypes unitType, CvUnit* unit)
 CvCity* CvCombatInfo::getCity(BattleUnitTypes unitType) const
 {
 	checkBattleUnitType(unitType);
-	if(m_pCities[unitType] != 0)
+	if(m_pCities[unitType] != 0) {
 		return m_pCities[unitType];
-	else if(unitType == BATTLE_UNIT_DEFENDER && (m_pTargetPlot != 0))
+	} else if(unitType == BATTLE_UNIT_DEFENDER && (m_pTargetPlot != 0))
 	{
-		if(m_pTargetPlot->isCity())
+		if(m_pTargetPlot->isCity()) {
 			return m_pTargetPlot->getPlotCity();
+}
 	}
 	return NULL;
 }
@@ -484,8 +485,9 @@ void CvCombatInfo::setAttackNuclearLevel(int iNuclearDamageLevel)
 
 const CvCombatMemberEntry* CvCombatInfo::getCombatMember(BattleUnitTypes unitType) const
 {
-	if((int)unitType < (int)BATTLE_UNIT_COUNT)
+	if((int)unitType < (int)BATTLE_UNIT_COUNT) {
 		return &m_kCombatMembers[unitType];
+}
 	return NULL;
 }
 
@@ -525,8 +527,9 @@ CvMissionDefinition::CvMissionDefinition() :
 	m_pPlot(NULL),
 	m_pSecondaryPlot(NULL)
 {
-	for(int i=0; i<BATTLE_UNIT_COUNT; i++)
+	for(int i=0; i<BATTLE_UNIT_COUNT; i++) {
 		m_aUnits[i] = NULL;
+}
 }
 
 MissionTypes CvMissionDefinition::getMissionType() const
@@ -626,10 +629,11 @@ bool CvAirMissionDefinition::isDead(BattleUnitTypes unitType) const
 {
 	checkBattleUnitType(unitType);
 	CvAssertMsg(getUnit(unitType) != NULL, "[Jason] Invalid battle unit type.");
-	if(getDamage(unitType) >= getUnit(unitType)->GetMaxHitPoints())
+	if(getDamage(unitType) >= getUnit(unitType)->GetMaxHitPoints()) {
 		return true;
-	else
+	} else {
 		return false;
+}
 }
 
 //PBGameSetupData::PBGameSetupData() :

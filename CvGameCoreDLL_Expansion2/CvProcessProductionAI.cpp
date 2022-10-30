@@ -77,8 +77,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvProcessProductionAI& readFr
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
-	if (iWeight==0)
+	if (iWeight==0) {
 		return;
+}
 
 	int iProcess = 0;
 	CvProcessInfo* entry(NULL);
@@ -104,19 +105,22 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
-	if(pProcess == 0)
+	if(pProcess == 0) {
 		return SR_IMPOSSIBLE;
+}
 
-	if(iTempWeight < 1)
+	if(iTempWeight < 1) {
 		return SR_IMPOSSIBLE;
+}
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if (kPlayer.isMinorCiv())
+	if (kPlayer.isMinorCiv()) {
 		return iTempWeight/2; // buildings POST process is not applied for Minors, so they often fall below 400 treshold! also, process is not weighted bu turns as it is considered 1 turn always
+}
 
 	int iModifier = 0;
 
@@ -164,8 +168,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		if (!CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity))
 		{
 			//don't need this if no damage
-			if (m_pCity->getDamage() == 0)
+			if (m_pCity->getDamage() == 0) {
 				return SR_USELESS;
+}
 
 			if (m_pCity->isInDangerOfFalling())
 			{
@@ -194,8 +199,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 		iModifier *= (pProcess->getDefenseValue() + 100);
 		iModifier /= 100;
 
-		if (kPlayer.isMinorCiv())
+		if (kPlayer.isMinorCiv()) {
 			iModifier /= 5;
+}
 	}
 
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
@@ -211,13 +217,15 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 		YieldTypes eYield = (YieldTypes)iYield;
-		if(eYield == NO_YIELD)
+		if(eYield == NO_YIELD) {
 			continue;
+}
 
 		if(pProcess->getProductionToYieldModifier(eYield) > 0)
 		{
-			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield)
+			if (m_pCity->GetCityStrategyAI()->GetMostDeficientYield() == eYield) {
 				iModifier += 150;
+}
 
 			int iConvertedYield = (iProduction * m_pCity->GetYieldFromProcessModifier(eYield)) / 100;
 
@@ -277,8 +285,9 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				break;
 				case YIELD_FOOD:
 				{
-					if (m_pCity->GetCityCitizens()->IsForcedAvoidGrowth())
+					if (m_pCity->GetCityCitizens()->IsForcedAvoidGrowth()) {
 						return 0;
+}
 
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 					if (iExcessFoodTimes100 < 0)
@@ -504,7 +513,8 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		CvString strLogName;
 
 		CvAssert(m_pCity);
-		if(m_pCity == 0) return;
+		if(m_pCity == 0) { return;
+}
 
 		// Find the name of this civ and city
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
@@ -514,7 +524,8 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
-		if(pLog == 0) return;
+		if(pLog == 0) { return;
+}
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

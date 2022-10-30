@@ -48,7 +48,8 @@ void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedF
 {
 	CvAssertMsg(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piUpdatedFlavorValues.valid()) return;
+	if(!piUpdatedFlavorValues.valid()) { return;
+}
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)
@@ -74,7 +75,8 @@ void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDelta
 
 	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
-	if(!piDeltaFlavorValues.valid()) return;
+	if(!piDeltaFlavorValues.valid()) { return;
+}
 
 	int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
 	int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
@@ -318,7 +320,8 @@ void CvFlavorManager::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFl
 {
 	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
 
-	if(!piDeltaFlavorValues.valid()) return;
+	if(!piDeltaFlavorValues.valid()) { return;
+}
 
 	if (bPlayerLevelUpdate)
 	{
@@ -417,7 +420,8 @@ void CvFlavorManager::AdjustWeightsForMap()
 /// Retrieve the value of one Personality flavor, typically in the range [0,10]
 int CvFlavorManager::GetPersonalityIndividualFlavor(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) { return 0;
+}
 
 	return range(m_piPersonalityFlavor[eType],0,30);
 }
@@ -432,7 +436,8 @@ CvEnumMap<FlavorTypes, int>& CvFlavorManager::GetAllPersonalityFlavors()
 /// Retrieve the value of one Personality flavor, modified for the diplomacy AI
 int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 {
-	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) return 0;
+	if ((int)eType < 0 || (int)eType >= GC.getNumFlavorTypes()) { return 0;
+}
 
 	int iValue = m_piPersonalityFlavor[eType];
 
@@ -475,8 +480,9 @@ void CvFlavorManager::RandomizeWeights()
 int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
 {
 	// Increment the random seed (and make sure it's > 0)
-	if (iSeed < 0)
+	if (iSeed < 0) {
 		iSeed = 0;
+}
 
 	iSeed += (iOriginalValue + iPlusMinus) * 200;
 

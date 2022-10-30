@@ -484,8 +484,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 /// Read from XML file (pass 1)
 bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iCultureCost = kResults.GetInt("CultureCost");
@@ -3696,8 +3697,9 @@ CvPolicyBranchEntry::~CvPolicyBranchEntry(void)
 /// Read from XML file (pass 1)
 bool CvPolicyBranchEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//References
 	const char* szEraPrereq = kResults.GetText("EraPrereq");
@@ -4204,8 +4206,9 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 	CvAssertMsg(eIndex < m_pPolicies->GetNumPolicies(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(eIndex);
-	if(pkPolicyInfo == NULL)
+	if(pkPolicyInfo == NULL) {
 		return;
+}
 
 	if(HasPolicy(eIndex) != bNewValue)
 	{
@@ -4213,8 +4216,9 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 		int iChange = bNewValue ? 1 : -1;
 
 		m_pabFreePolicy[eIndex] = bFree;
-		if (bFree) 
+		if (bFree) { 
 			iChange = 0;
+}
 
 		GetPlayer()->ChangeNumPolicies(iChange);
 
@@ -4226,8 +4230,9 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 		{
 			DoNewPolicyPickedForHistory(eIndex);
 
-			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer()) {
 				GC.GetEngineUserInterface()->SetPolicyNotificationSeen(false);
+}
 		}
 
 		PolicyBranchTypes eThisBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
@@ -4344,11 +4349,13 @@ int CvPlayerPolicies::GetNumPoliciesOwned(bool bSkipFinisher, bool bExcludeFree,
 		// Do we have this policy?
 		if (m_pabHasPolicy[i])
 		{
-			if (bExcludeFree && m_pabFreePolicy[i])
+			if (bExcludeFree && m_pabFreePolicy[i]) {
 				continue;
+}
 
-			if (m_pPolicies->GetPolicyEntry(i)->IsDummy())
+			if (m_pPolicies->GetPolicyEntry(i)->IsDummy()) {
 				continue;
+}
 
 			//Skipping finishers?
 			if (bSkipFinisher && m_pPolicies->GetPolicyEntry(i)->IsFinisher())
@@ -4394,8 +4401,9 @@ int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) con
 	int rtnValue = 0;
 
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
-	if (pkPolicyBranchInfo == NULL)
+	if (pkPolicyBranchInfo == NULL) {
 		return 0;
+}
 
 	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
@@ -4415,8 +4423,9 @@ int CvPlayerPolicies::GetNumPoliciesPurchasedInBranch(PolicyBranchTypes eBranch)
 	int rtnValue = 0;
 
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
-	if (pkPolicyBranchInfo == NULL)
+	if (pkPolicyBranchInfo == NULL) {
 		return 0;
+}
 
 	// If not an ideology, count the opener.
 	if (!pkPolicyBranchInfo->IsPurchaseByLevel())
@@ -4449,13 +4458,15 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 
 	if (eType == POLICYMOD_EXTRA_HAPPINESS)
 	{
-		if (currentHappinessModifier.first == GC.getGame().getGameTurn())
+		if (currentHappinessModifier.first == GC.getGame().getGameTurn()) {
 			return currentHappinessModifier.second;
+}
 	}
 	else if (eType == POLICYMOD_EXTRA_HAPPINESS_PER_CITY)
 	{
-		if (currentHappinessModifierPerCity.first == GC.getGame().getGameTurn())
+		if (currentHappinessModifierPerCity.first == GC.getGame().getGameTurn()) {
 			return currentHappinessModifierPerCity.second;
+}
 	}
 	else
 	{
@@ -4811,20 +4822,22 @@ int CvPlayerPolicies::GetBuildingClassProductionModifier(BuildingClassTypes eBui
 int CvPlayerPolicies::GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass)
 {
 
-	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size())
+	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassTourismModifier.size()) {
 		return m_vBuildingClassTourismModifier[eBuildingClass];
-	else
+	} else {
 		return 0;
+}
 }
 
 /// Get happiness modifier from policies for a specific building class
 int CvPlayerPolicies::GetBuildingClassHappinessModifier(BuildingClassTypes eBuildingClass)
 {
 
-	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassHappinessModifier.size())
+	if (eBuildingClass > NO_BUILDINGCLASS && eBuildingClass < (int)m_vBuildingClassHappinessModifier.size()) {
 		return m_vBuildingClassHappinessModifier[eBuildingClass];
-	else
+	} else {
 		return 0;
+}
 }
 
 
@@ -5069,8 +5082,9 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvPolicyEntry* pkPolicyEntry = GC.getPolicyInfo(eIndex);
-	if(pkPolicyEntry == NULL)
+	if(pkPolicyEntry == NULL) {
 		return false;
+}
 
 	// Already has Policy?
 	if(HasPolicy(eIndex))
@@ -5160,8 +5174,9 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	{
 		const PolicyTypes ePrereq = static_cast<PolicyTypes>(pkPolicyEntry->GetPrereqAndPolicies(iI));
 
-		if(ePrereq == NO_POLICY)
+		if(ePrereq == NO_POLICY) {
 			continue;
+}
 
 		CvPolicyEntry* pkPrereqPolicyInfo = GC.getPolicyInfo(ePrereq);
 		if(pkPrereqPolicyInfo != 0)
@@ -5313,8 +5328,9 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	// Must have enough culture to spend a buy opening a new branch
 	if(GetPlayer()->getJONSCulture() < GetPlayer()->getNextPolicyCost())
 	{
-		if(GetPlayer()->GetNumFreePolicies() == 0)
+		if(GetPlayer()->GetNumFreePolicies() == 0) {
 			return false;
+}
 	}
 
 	CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(eBranchType);
@@ -5454,24 +5470,27 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 								CvString strBuffer;
 								if(bHasMet)
 								{
-									if (bRevolution)
+									if (bRevolution) {
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_IDEOLOGY_CHANGE", m_pPlayer->getCivilizationShortDescriptionKey(), pkPolicyBranchInfo->GetDescriptionKey());
-									else
+									} else {
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_IDEOLOGY_CHOSEN", m_pPlayer->getCivilizationShortDescriptionKey(), pkPolicyBranchInfo->GetDescriptionKey());
+}
 								}
 								else
 								{
-									if (bRevolution)
+									if (bRevolution) {
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_IDEOLOGY_CHANGE_UNMET", pkPolicyBranchInfo->GetDescriptionKey());
-									else
+									} else {
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_IDEOLOGY_CHOSEN_UNMET", pkPolicyBranchInfo->GetDescriptionKey());
+}
 								}
 
 								CvString strSummary;
-								if (bRevolution)
+								if (bRevolution) {
 									strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_IDEOLOGY_CHANGE");
-								else
+								} else {
 									strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_IDEOLOGY_CHOSEN");
+}
 
 								pNotifications->Add(NOTIFICATION_IDEOLOGY_CHOSEN, strBuffer, strSummary, -1, -1, m_pPlayer->GetID());
 							}
@@ -5504,8 +5523,9 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 		PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
 		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);
 		PolicyBranchTypes eOrderBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_ORDER);
-		if (eFreedomBranch == eBranchType || eAutocracyBranch == eBranchType || eOrderBranch == eBranchType)
+		if (eFreedomBranch == eBranchType || eAutocracyBranch == eBranchType || eOrderBranch == eBranchType) {
 			m_pPlayer->GetCulture()->SetTurnIdeologyAdopted(GC.getGame().getGameTurn());
+}
 	}
 }
 
@@ -5706,8 +5726,9 @@ bool CvPlayerPolicies::IsPolicyBlocked(PolicyTypes eType) const
 
 	// Get the policy branch we have to check.
 	PolicyBranchTypes eBranch = m_paePolicyBlockedBranchCheck[eType];
-	if (eBranch == NO_POLICY_BRANCH_TYPE)
+	if (eBranch == NO_POLICY_BRANCH_TYPE) {
 		return false;	// Policy has no branch
+}
 
 	return IsPolicyBranchBlocked(eBranch);
 }
@@ -6071,8 +6092,9 @@ int CvPlayerPolicies::GetNumPoliciesCanBeAdopted()
 void CvPlayerPolicies::DoNewPolicyPickedForHistory(PolicyTypes ePolicy)
 {
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-	if(pkPolicyInfo == NULL)
+	if(pkPolicyInfo == NULL) {
 		return;
+}
 
 	PolicyBranchTypes eNewBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
 
@@ -6443,8 +6465,9 @@ void CvPlayerPolicies::DoPolicyAI()
 		{
 			// Choose the policy we want next (or a branch)
 			int iNextPolicy = m_pPolicyAI->ChooseNextPolicy(m_pPlayer);
-			if (iNextPolicy == NO_POLICY)
+			if (iNextPolicy == NO_POLICY) {
 				break;
+}
 
 			// These actions should spend our number of free policies or our culture, otherwise we'll loop forever
 			if(iNextPolicy < m_pPolicies->GetNumPolicyBranches()) // Low return values indicate a branch has been chosen
@@ -6579,8 +6602,9 @@ int PolicyHelpers::GetNumFreePolicies(PolicyBranchTypes eBranch)
 #if defined(MOD_BALANCE_CORE)
 			if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 			{ 
-				if (iNumPreviousUnlockers >= 1)
+				if (iNumPreviousUnlockers >= 1) {
 				iFreePolicies = pkEntry->GetSecondAdopterFreePolicies();
+}
 			}
 #endif
 		}

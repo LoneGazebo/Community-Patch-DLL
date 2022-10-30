@@ -73,8 +73,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvProjectProductionAI& readFr
 /// Establish weights for one flavor; can be called multiple times to layer strategies
 void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 {
-	if (iWeight==0)
+	if (iWeight==0) {
 		return;
+}
 
 	int iProject = 0;
 	CvProjectEntry* entry(NULL);
@@ -101,8 +102,9 @@ int CvProjectProductionAI::GetWeight(ProjectTypes eProject)
 ProjectTypes CvProjectProductionAI::RecommendProject()
 {
 	CvAssert(m_pCity);
-	if(m_pCity == 0)
+	if(m_pCity == 0) {
 		return NO_PROJECT;
+}
 
 	int iProjectLoop = 0;
 	int iWeight = 0;
@@ -149,25 +151,29 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 #if defined(MOD_BALANCE_CORE)
 int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iTempWeight)
 {
-	if(eProject == NO_PROJECT)
+	if(eProject == NO_PROJECT) {
 		return SR_IMPOSSIBLE;
+}
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-	if(pkProjectInfo == 0)
+	if(pkProjectInfo == 0) {
 		return SR_IMPOSSIBLE;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(iTempWeight < 1)
+	if(iTempWeight < 1) {
 		return SR_IMPOSSIBLE;
+}
 
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
 
 	if (pkProjectInfo->IsRepeatable())
 	{
-		if (m_pCity->isUnderSiege() || m_pCity->IsResistance())
+		if (m_pCity->isUnderSiege() || m_pCity->IsResistance()) {
 			return SR_STRATEGY;
+}
 	}
 
 	if(kPlayer.isMinorCiv())
@@ -183,10 +189,11 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 
 	if (pkProjectInfo->IsAllowsNukes())
 	{
-		if(kPlayer.IsAtWarAnyMajor())
+		if(kPlayer.IsAtWarAnyMajor()) {
 			iTempWeight *= 25;
-		else
+		} else {
 			iTempWeight *= 10;
+}
 	}
 	VictoryTypes ePrereqVictory = (VictoryTypes)pkProjectInfo->GetVictoryPrereq();
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
@@ -202,30 +209,35 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			{
 				iTempWeight += m_pCity->getSpaceProductionModifier() * 10;
 
-				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity) {
 					iTempWeight += 5000 + (m_pCity->getSpaceProductionModifier() * 10);
-				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+				} else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject)) {
 					iTempWeight += 1000 + (m_pCity->getSpaceProductionModifier() * 10);
-				else
+				} else {
 					return SR_STRATEGY;
+}
 			}
 			else
 			{
-				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+				if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity) {
 					iTempWeight += 5000;
-				else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+				} else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject)) {
 					iTempWeight += 1000;
-				else
+				} else {
 					return SR_STRATEGY;
+}
 			}
 	
-			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+			if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory()) {
 				iTempWeight *= 10;
+}
 
 			EconomicAIStrategyTypes eSpaceShipHomeStretch = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH");
-			if (eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY)
-				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch))
+			if (eSpaceShipHomeStretch != NO_ECONOMICAISTRATEGY) {
+				if(kPlayer.GetEconomicAI()->IsUsingStrategy(eSpaceShipHomeStretch)) {
 					iTempWeight *= 10;
+}
+}
 
 			return iTempWeight;
 		}
@@ -240,12 +252,13 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		}
 		else
 		{
-			if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity)
+			if (kPlayer.GetBestProductionCity(NO_BUILDING, eProject) == m_pCity) {
 				iTempWeight += 10000;
-			else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject))
+			} else if (kPlayer.IsCityCompetitive(m_pCity, NO_BUILDING, eProject)) {
 				iTempWeight += 5000;
-			else
+			} else {
 				return SR_STRATEGY;
+}
 
 			return iTempWeight;
 		}
@@ -268,80 +281,90 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	{
 		bGoodforHappiness = true;
 		int iDistress = m_pCity->GetDistress(false);
-		if (iDistress > 0)
+		if (iDistress > 0) {
 			iTempWeight += 75 * pkProjectInfo->GetDistressFlatReduction() * iDistress * iDistress;
+}
 	}
 
 	if (pkProjectInfo->GetPovertyFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
 		int iPoverty = m_pCity->GetPoverty(false);
-		if (iPoverty > 0)
+		if (iPoverty > 0) {
 			iTempWeight += 75 * pkProjectInfo->GetPovertyFlatReduction() * iPoverty * iPoverty;
+}
 	}
 
 	if (pkProjectInfo->GetIlliteracyFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
-		if (iIlliteracy > 0)
+		if (iIlliteracy > 0) {
 			iTempWeight += 75 * pkProjectInfo->GetIlliteracyFlatReduction() * iIlliteracy * iIlliteracy;
+}
 	}
 
 	if (pkProjectInfo->GetBoredomFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
 		int iBoredom = m_pCity->GetBoredom(false);
-		if (iBoredom > 0)
+		if (iBoredom > 0) {
 			iTempWeight += 75 * pkProjectInfo->GetBoredomFlatReduction() * iBoredom * iBoredom;
+}
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestFlatReduction() > 0)
 	{
 		bGoodforHappiness = true;
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
-		if (iReligiousUnrest > 0)
+		if (iReligiousUnrest > 0) {
 			iTempWeight += 75 * pkProjectInfo->GetReligiousUnrestFlatReduction() * iReligiousUnrest * iReligiousUnrest;
+}
 	}
 
 	if (pkProjectInfo->GetBasicNeedsMedianModifier() < 0)
 	{
 		bGoodforHappiness = true;
 		int iDistress = m_pCity->GetDistress(false);
-		if (iDistress > 0)
+		if (iDistress > 0) {
 			iTempWeight += -5 * pkProjectInfo->GetBasicNeedsMedianModifier() * iDistress * iDistress;
+}
 	}
 
 	if (pkProjectInfo->GetGoldMedianModifier() < 0)
 	{
 		bGoodforHappiness = true;
 		int iPoverty = m_pCity->GetPoverty(false);
-		if (iPoverty > 0)
+		if (iPoverty > 0) {
 			iTempWeight += -5 * pkProjectInfo->GetGoldMedianModifier() * iPoverty * iPoverty;
+}
 	}
 
 	if (pkProjectInfo->GetScienceMedianModifier() < 0)
 	{
 		bGoodforHappiness = true;
 		int iIlliteracy = m_pCity->GetIlliteracy(false);
-		if (iIlliteracy > 0)
+		if (iIlliteracy > 0) {
 			iTempWeight += -5 * pkProjectInfo->GetScienceMedianModifier() * iIlliteracy * iIlliteracy;
+}
 	}
 
 	if (pkProjectInfo->GetCultureMedianModifier() < 0)
 	{
 		bGoodforHappiness = true;
 		int iBoredom = m_pCity->GetBoredom(false);
-		if (iBoredom > 0)
+		if (iBoredom > 0) {
 			iTempWeight += -5 * pkProjectInfo->GetCultureMedianModifier() * iBoredom * iBoredom;
+}
 	}
 
 	if (pkProjectInfo->GetReligiousUnrestModifier() < 0)
 	{
 		bGoodforHappiness = true;
 		int iReligiousUnrest = m_pCity->GetUnhappinessFromReligiousUnrest();
-		if (iReligiousUnrest > 0)
+		if (iReligiousUnrest > 0) {
 			iTempWeight += -5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest;
+}
 	}
 
 	if (pkProjectInfo->GetEspionageMod() < 0)
@@ -350,8 +373,9 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		iTempWeight += (iEsp/2);
 	}
 
-	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
+	if (bGoodforHappiness && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy()) {
 		iTempWeight /= 50;
+}
 
 	return max(1,iTempWeight);
 }
@@ -370,7 +394,8 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		CvString strLogName;
 
 		CvAssert(m_pCity);
-		if(m_pCity == 0) return;
+		if(m_pCity == 0) { return;
+}
 
 		// Find the name of this civ and city
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
@@ -380,7 +405,8 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
-		if(pLog == 0) return;
+		if(pLog == 0) { return;
+}
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

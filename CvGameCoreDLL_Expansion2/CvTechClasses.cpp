@@ -105,8 +105,9 @@ CvTechEntry::~CvTechEntry(void)
 
 bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iAIWeight = kResults.GetInt("AIWeight");
@@ -808,8 +809,9 @@ void CvPlayerTechs::Reset()
 				const BuildingTypes eBuilding = static_cast<BuildingTypes>(pkInfo->getCivilizationBuildings(iI));
 				CvBuildingEntry* pkBuildingInfo = NULL;
 
-				if(eBuilding != -1)
+				if(eBuilding != -1) {
 					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
+}
 
 				if(pkBuildingInfo != 0)
 				{
@@ -940,8 +942,9 @@ void CvPlayerTechs::Reset()
 			const CvLeaderHeadInfo* pkLeaderInfo = &m_pPlayer->getLeaderInfo();
 			if(pkLeaderInfo != 0)
 			{
-				if(!pkLeaderInfo->hasTrait(iTraitLoop))  // This trait check disregards tech prereqs and obsoletes
+				if(!pkLeaderInfo->hasTrait(iTraitLoop)) {  // This trait check disregards tech prereqs and obsoletes
 					continue;
+}
 
 				CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTraitLoop);
 				if(pkTraitInfo != 0)
@@ -1196,18 +1199,21 @@ void CvPlayerTechs::SetLocalePriorities()
 					}
 
 					//already connected?
-					if (pLoopPlot->IsResourceLinkedCityActive())
+					if (pLoopPlot->IsResourceLinkedCityActive()) {
 						continue;
+}
 
-					if (m_pPlayer->getNumResourceTotal(eResource, false) <= 0)
+					if (m_pPlayer->getNumResourceTotal(eResource, false) <= 0) {
 						multiplierValue++;
+}
 
 					//somehow close on monopolies?
 					if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 					{
 						int iMonopolyVal = m_pPlayer->GetMonopolyPercent(eResource);
-						if (iMonopolyVal > /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD) && iMonopolyVal <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						if (iMonopolyVal > /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD) && iMonopolyVal <= /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD)) {
 							multiplierValue++;
+}
 					}
 
 					// Loop through the build types to find one that we can use
@@ -1227,8 +1233,9 @@ void CvPlayerTechs::SetLocalePriorities()
 								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 								if ((pkImprovementInfo != 0) && pkImprovementInfo->IsConnectsResource(eResource))
 								{
-									if (pLoopPlot->canHaveImprovement(eImprovement))
+									if (pLoopPlot->canHaveImprovement(eImprovement)) {
 										multiplierValue++;
+}
 
 									eCorrectBuild = eBuild;
 									eCorrectImprovement = eImprovement;
@@ -1246,8 +1253,9 @@ void CvPlayerTechs::SetLocalePriorities()
 
 
 					// Looking for cases where we can't build the improvement for the resource
-					if (!m_pPlayer->canBuild(pLoopPlot, eCorrectBuild, false, false))
+					if (!m_pPlayer->canBuild(pLoopPlot, eCorrectBuild, false, false)) {
 						multiplierValue++;
+}
 
 					// Find the tech associated with this build and increment its multiplier
 					int iTech = GC.getBuildInfo(eCorrectBuild)->getTechPrereq();
@@ -1303,18 +1311,21 @@ void CvPlayerTechs::SetGSPriorities()
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
-		if(eTech == NO_TECH)
+		if(eTech == NO_TECH) {
 			continue;
+}
 
 		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		if(pkTechInfo == NULL)
+		if(pkTechInfo == NULL) {
 			continue;
+}
 
 		for(int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
 			FlavorTypes eFlavor = (FlavorTypes)iFlavor;
-			if(eFlavor == NO_FLAVOR)
+			if(eFlavor == NO_FLAVOR) {
 				continue;
+}
 
 			if(pkTechInfo->GetFlavorValue(eFlavor) > 0)
 			{
@@ -1493,8 +1504,9 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	int iI = 0;
 
 	CvTechEntry* pkTechEntry = GC.getTechInfo(eTech);
-	if(pkTechEntry == NULL)
+	if(pkTechEntry == NULL) {
 		return false;
+}
 
 	if(!IsResearch() && m_pPlayer->getAdvancedStartPoints() < 0)
 	{
@@ -1586,7 +1598,8 @@ bool CvPlayerTechs::CanResearchForFree(TechTypes eTech) const
 {
 	CvAssertMsg(eTech >= 0, "eTech is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTech < GC.getNumTechInfos(), "eTech is expected to be within maximum bounds (invalid Index)");
-	if(eTech < 0 || eTech >= GC.getNumTechInfos()) return false;
+	if(eTech < 0 || eTech >= GC.getNumTechInfos()) { return false;
+}
 
 	// We can pick any tech that we are able to research
 	return CanResearch(eTech);
@@ -1651,8 +1664,9 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
-	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman() || GC.getGame().isGameMultiPlayer())
+	if (!MOD_API_ACHIEVEMENTS || !m_pPlayer->isHuman() || GC.getGame().isGameMultiPlayer()) {
 		return;
+}
 
 	//Check for Catherine Achievement
 	if((CvString)m_pPlayer->getLeaderTypeKey() == "LEADER_CATHERINE")
@@ -1914,8 +1928,9 @@ void CvPlayerTechs::CheckHasUUTech()
 		// Loop through all units
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
-			if (bHas)
+			if (bHas) {
 				break;
+}
 
 			// Is this one overridden for our civ?
 			if (pkInfo->isCivilizationUnitOverridden(iI))
@@ -1927,8 +1942,9 @@ void CvPlayerTechs::CheckHasUUTech()
 					if (pkUnitEntry != 0)
 					{
 						// No recon units!
-						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA) {
 							continue;
+}
 
 						// Must be a combat or combat support unit
 						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
@@ -1970,15 +1986,17 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 	//Already have? Set this false!
 	if (HasUUTech())
 	{
-		if (m_bWillHaveUUTechSoon)
+		if (m_bWillHaveUUTechSoon) {
 			m_bWillHaveUUTechSoon = false;
+}
 
 		return;
 	}
 
 	//Already know this? Shutup, baby, I know it!
-	if (m_bWillHaveUUTechSoon)
+	if (m_bWillHaveUUTechSoon) {
 		return;
+}
 
 	bool bWillHaveSoon = false;
 	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
@@ -1997,8 +2015,9 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 					if (pkUnitEntry != 0)
 					{
 						// No recon units!
-						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
+						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA) {
 							continue;
+}
 
 						// Must be a combat or combat support unit
 						if (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0 || pkUnitEntry->GetCultureBombRadius() > 0 || pkUnitEntry->IsCanRepairFleet() || pkUnitEntry->IsCityAttackSupport() || pkUnitEntry->GetNukeDamageLevel() != -1)
@@ -2103,8 +2122,9 @@ void CvPlayerTechs::AddFlavorAsStrategies(int iPropagatePercent)
 	}
 
 	//don't care about minors.
-	if (m_pPlayer->isMinorCiv())
+	if (m_pPlayer->isMinorCiv()) {
 		return;
+}
 
 	/*
 	// Loop through all our techs
@@ -2342,8 +2362,9 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 		int iNumTechs = m_pTechs->GetNumTechs();
 		kStream << (int)iNumTechs;
 
-		for(int i = 0; i < iNumTechs; ++i)
+		for(int i = 0; i < iNumTechs; ++i) {
 			CvInfosSerializationHelper::WriteHashed(kStream, m_pTechs->GetEntry(i));
+}
 
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabHasTech);
 		kStream << ArrayWrapper<bool>(iNumTechs, m_pabNoTradeTech);
@@ -2380,8 +2401,9 @@ void CvTeamTechs::SetHasTech(TechTypes eIndex, bool bNewValue)
 	{
 		m_pabHasTech[eIndex] = bNewValue;
 
-		if(bNewValue)
+		if(bNewValue) {
 			SetLastTechAcquired(eIndex);
+}
 
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if(pkScriptSystem != 0)
@@ -2410,10 +2432,11 @@ bool CvTeamTechs::HasTech(TechTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(m_pabHasTech != NULL, "m_pabHasTech is not expected to be equal with NULL");
-	if(m_pabHasTech != NULL)
+	if(m_pabHasTech != NULL) {
 		return m_pabHasTech[eIndex];
-	else
+	} else {
 		return false;
+}
 }
 
 /// What was the most recent tech acquired?
@@ -2438,8 +2461,9 @@ int CvTeamTechs::GetNumTechsKnown() const
 }
 void CvTeamTechs::ChangeNumTechsKnown(int iChange)
 {
-	if (iChange != 0)
+	if (iChange != 0) {
 		m_iNumTechs += iChange;
+}
 }
 
 /// Has this team researched all techs once?
@@ -2544,8 +2568,9 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 				iOverflow = iOverflow * 100 / iPlayerOverflowDivisorTimes100;
 			}
 
-			if (iOverflow >= INT_MAX)
+			if (iOverflow >= INT_MAX) {
 				iOverflow = INT_MAX;
+}
 
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100((int)iOverflow);
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
@@ -2628,12 +2653,13 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	iModifier += (std::max(0, (1000000 - (pkTechInfo->GetEurekaPerMillion() * m_paiEurekaCounter[eTech]) / max(1, m_pTeam->getNumMembers())) / 10000) - 100);
 #endif
 
-	if (iCost<10000)
+	if (iCost<10000) {
 		//avoid rounding errors
 		return std::max(1, (iCost*iModifier)/100);
-	else
+	} else {
 		//avoid overflow
 	return std::max(1, (iCost/100)*iModifier);
+}
 }
 
 #if defined(MOD_CIV6_EUREKA)
@@ -2670,8 +2696,9 @@ void CvTeamTechs::ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTy
 /// Add an increment of research to a tech (in hundredths)
 void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
 {
-	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE)) {
 		return;
+}
 
 	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer, iPlayerOverflow, iPlayerOverflowDivisorTimes100);
 }

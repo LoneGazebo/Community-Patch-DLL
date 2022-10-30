@@ -110,8 +110,9 @@ int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, P
 	newGreatWork.m_eType = eType;
 	newGreatWork.m_eClassType = eClass;
 	newGreatWork.m_eEra = eEra;
-	if (ePlayer == NO_PLAYER)
+	if (ePlayer == NO_PLAYER) {
 		ePlayer = BARBARIAN_PLAYER;
+}
 	newGreatWork.m_ePlayer = ePlayer;
 	newGreatWork.m_iTurnFounded = GC.getGame().getGameTurn();
 	newGreatWork.m_szGreatPersonName = szCreator;
@@ -548,8 +549,9 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 		return false;
 	}
 
-	if (GET_PLAYER(ePlayer1).IsAtWarWith(ePlayer2))
+	if (GET_PLAYER(ePlayer1).IsAtWarWith(ePlayer2)) {
 		return false;
+}
 
 
 	CvPlayerCulture* pCulture1 = GET_PLAYER(ePlayer1).GetCulture();
@@ -760,17 +762,20 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 
 void CvGameCulture::MoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
-	if(ePlayer == NO_PLAYER)
+	if(ePlayer == NO_PLAYER) {
 		return;
+}
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	if (!kPlayer.isAlive())
+	if (!kPlayer.isAlive()) {
 		return;
+}
 
 	CvCity* pCity1 = kPlayer.getCity(iCity1);
 	CvCity* pCity2 = kPlayer.getCity(iCity2);
-	if((pCity1 == 0) || (pCity2 == 0))
+	if((pCity1 == 0) || (pCity2 == 0)) {
 		return;
+}
 
 	int workType1 = pCity1->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass1, iWorkIndex1);
 	int workType2 = pCity2->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClass2, iWorkIndex2);
@@ -1185,10 +1190,11 @@ void CvPlayerCulture::DoSwapGreatWorksHuman(bool bSwap)
 							CvGreatWorkBuildingInMyEmpire building;
 							building.m_eBuilding = eBuilding;
 							building.m_iCityID = pLoopCity->GetID();
-							if (pLoopCity->isCapital())
+							if (pLoopCity->isCapital()) {
 								building.m_bEndangered = false;
-							else
+							} else {
 								building.m_bEndangered = (pLoopCity->getDamage() > 0);
+}
 
 							GreatWorkSlotType eSlotType = pkBuilding->GetGreatWorkSlotType();
 							if (eSlotType == CvTypes::getGREAT_WORK_SLOT_LITERATURE())
@@ -1307,10 +1313,11 @@ void CvPlayerCulture::DoSwapGreatWorks()
 							building.m_eBuilding = eBuilding;
 							building.m_iCityID = pLoopCity->GetID();
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-							if (pLoopCity->isCapital())
+							if (pLoopCity->isCapital()) {
 								building.m_bEndangered = false;
-							else
+							} else {
 								building.m_bEndangered = (pLoopCity->getDamage() > (pLoopCity->GetMaxHitPoints() / 2)) || (pLoopCity->IsRazing() && pLoopCity->getPopulation() < 3);
+}
 
 							building.m_bPuppet = pLoopCity->IsPuppet();
 							building.m_eYieldType = GC.GetGameBuildings()->GetEntry(eBuilding)->GetGreatWorkYieldType();
@@ -1476,8 +1483,9 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	}
 
 	//Not a human? Let's get swappin!
-	if ((works1.size() > 0 || works2.size() > 0) && !m_pPlayer->isHuman())
+	if ((works1.size() > 0 || works2.size() > 0) && !m_pPlayer->isHuman()) {
 		bSwap = true;
+}
 
 	// Set the first work left that we haven't themed as something we'd be willing to trade
 	// CUSTOMLOG("Setting available swaps");
@@ -1686,8 +1694,9 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 
 	for (int iI = 0; iI < pkEntry->GetNumThemingBonuses(); iI++)
 	{
-		if (pkEntry->GetThemingBonusInfo(iI) == NULL)
+		if (pkEntry->GetThemingBonusInfo(iI) == NULL) {
 			continue;
+}
 
 		bestThemes.push_back(iI, pkEntry->GetThemingBonusInfo(iI)->GetBonus());
 	}
@@ -3224,7 +3233,8 @@ CvUnit *CvPlayerCulture::GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const
 					pRtnValue = pLoopUnit;
 					iClosestDistance = iDistance;
 				}
-				if (iDistance == 0) break;
+				if (iDistance == 0) { break;
+}
 			}
 		}
 	}
@@ -3293,8 +3303,9 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 			}
 			else
 			{
-				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetCivOpinion(pPlot->getOwner()) >= CIV_OPINION_FRIEND)
+				if (m_pPlayer->IsEmpireUnhappy() || m_pPlayer->GetDiplomacyAI()->GetCivOpinion(pPlot->getOwner()) >= CIV_OPINION_FRIEND) {
 					eRtnValue = ARCHAEOLOGY_LANDMARK;
+}
 			}
 		}
 	}
@@ -3383,8 +3394,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #endif
 			pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
-			if (pUnit != 0)
+			if (pUnit != 0) {
 				pUnit->kill(true);
+}
 
 			if (pPlot->getOwner() != NO_PLAYER)
 			{
@@ -3397,8 +3409,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 					if (MOD_BALANCE_CORE_MINORS)
 					{
 						int iEra = m_pPlayer->GetCurrentEra();
-						if (iEra <= 0)
+						if (iEra <= 0) {
 							iEra = 1;
+}
 
 						iFriendship *= iEra;
 					}
@@ -3464,14 +3477,16 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		}
 #endif
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pPlot->setImprovementType(NO_IMPROVEMENT);
+}
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
 		pHousingCity->UpdateAllNonPlotYields(true);
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pUnit->kill(true);
+}
 	}
 	break;
 	case ARCHAEOLOGY_ARTIFACT_PLAYER2:
@@ -3490,8 +3505,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer2, pPlot->GetArchaeologicalRecord().m_eEra, "");
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pPlot->setImprovementType(NO_IMPROVEMENT);
+}
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
@@ -3528,8 +3544,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #endif
 		pHousingCity->UpdateAllNonPlotYields(true);
 
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pUnit->kill(true);
+}
 	}
 	break;
 
@@ -3549,8 +3566,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pPlot->getX(), pPlot->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
 		int iGWindex = pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
 		pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pPlot->setImprovementType(NO_IMPROVEMENT);
+}
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
@@ -3589,8 +3607,9 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 #endif
 		pHousingCity->UpdateAllNonPlotYields(true);
 
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pUnit->kill(true);
+}
 	}
 	break;
 
@@ -3621,13 +3640,15 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
 		}
 
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pPlot->setImprovementType(NO_IMPROVEMENT);
+}
 
 		pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 
-		if (pUnit != 0)
+		if (pUnit != 0) {
 			pUnit->kill(true);
+}
 	}
 	break;
 	}
@@ -4243,7 +4264,8 @@ int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) { return 0;
+}
 	return m_aiCulturalInfluence[iIndex];
 }
 
@@ -4254,7 +4276,8 @@ void CvPlayerCulture::ChangeInfluenceOn(PlayerTypes ePlayer, int iValue)
 	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) { return;
+}
 	m_aiCulturalInfluence[iIndex] = m_aiCulturalInfluence[iIndex] + iValue;
 
 	//store off this data
@@ -4278,8 +4301,9 @@ int CvPlayerCulture::ChangeInfluenceOn(PlayerTypes eOtherPlayer, int iBaseInflue
 
 	if (eOtherPlayer != m_pPlayer->GetID() && GET_PLAYER(eOtherPlayer).isMajorCiv() && GET_PLAYER(eOtherPlayer).GetPlayerTraits()->IsNoOpenTrade())
 	{
-		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true))
+		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(eOtherPlayer, m_pPlayer->GetID(), true)) {
 			iInfluence /= 2;
+}
 	}
     
     if (iInfluence != 0) {
@@ -4296,7 +4320,8 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) { return 0;
+}
 	return m_aiLastTurnCulturalInfluence[iIndex];
 }
 
@@ -4307,7 +4332,8 @@ int CvPlayerCulture::GetLastTurnInfluenceIPT(PlayerTypes ePlayer) const
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
 
 	int iIndex = (int)ePlayer;
-	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
+	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) { return 0;
+}
 	return m_aiLastTurnCulturalIPT[iIndex];
 }
 
@@ -4390,8 +4416,9 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 
-	if (ePlayer == m_pPlayer->GetID())
+	if (ePlayer == m_pPlayer->GetID()) {
 		return NO_INFLUENCE_LEVEL;
+}
 
 	if (!kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
@@ -4452,19 +4479,21 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	float iOurTourismThisTurn = (float)GetInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetTourismPerTurnIncludingInstant(ePlayer);
 	float iOurTourismLastTurn = (float)GetLastTurnInfluenceOn(ePlayer) + (float)m_pPlayer->GetCulture()->GetLastTurnInfluenceIPT(ePlayer);
 
-	if (iTheirCultureLastTurn <= 0)
+	if (iTheirCultureLastTurn <= 0) {
 		iTheirCultureLastTurn = 1;
-	if (iTheirCultureThisTurn <= 0)
+}
+	if (iTheirCultureThisTurn <= 0) {
 		iTheirCultureThisTurn = 1;
+}
 
 	float iLastTurnPercent = (iOurTourismLastTurn * 100) / iTheirCultureLastTurn;
 	float iThisTurnPercent = (iOurTourismThisTurn * 100) / iTheirCultureThisTurn;
 
 	float iDiff = fabs(iLastTurnPercent - iThisTurnPercent);
-	if (iDiff <= .1f)
+	if (iDiff <= .1f) {
 		return eRtnValue;
 
-	else if (iLastTurnPercent < iThisTurnPercent)
+	} else if (iLastTurnPercent < iThisTurnPercent)
 	{
 		eRtnValue = INFLUENCE_TREND_RISING;
 	}
@@ -4491,8 +4520,9 @@ int CvPlayerCulture::GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eO
 int CvPlayerCulture::GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant)
 {
 	int iBase = 0;
-	if (!bJustInstant)
+	if (!bJustInstant) {
 		iBase = GetInfluencePerTurn(ePlayer);
+}
 
 	int iEndTurn = GC.getGame().getGameTurn();
 	int iStartTurn = GC.getGame().getGameTurn() - INSTANT_YIELD_HISTORY_LENGTH;
@@ -4517,8 +4547,9 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 	{
 		int iInfluence = GetInfluenceOn(ePlayer);
 		int iInflPerTurn = GetTourismPerTurnIncludingInstant(ePlayer);
-		if (iInflPerTurn == 0)
+		if (iInflPerTurn == 0) {
 			return 999;
+}
 
 		int iCulture = kOtherPlayer.GetJONSCultureEverGenerated();
 		int iCultPerTurn = GetOtherPlayerCulturePerTurnIncludingInstant(ePlayer);
@@ -4534,8 +4565,9 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer)
 			iRtnValue++;
 		}
 
-		if (iRtnValue <= 0 || iRtnValue >= 999)
+		if (iRtnValue <= 0 || iRtnValue >= 999) {
 			return 999;
+}
 	}
 
 	return iRtnValue;
@@ -4616,8 +4648,9 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 /// Get extra gold from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_CORE_POLICIES) {
 		return 0;
+}
 
 	int iRtnValue = 0;
 
@@ -4653,8 +4686,9 @@ int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
 /// Get extra growth from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const
 {
-	if (!MOD_BALANCE_CORE_POLICIES)
+	if (!MOD_BALANCE_CORE_POLICIES) {
 		return 0;
+}
 
 	int iRtnValue = 0;
 
@@ -5034,8 +5068,9 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 				}
 			}
 		}
-		if (iTotal != 0)
+		if (iTotal != 0) {
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_COMMON_FOE", iTotal) + "[ENDCOLOR]";
+}
 	}
 
 	int iLessHappyMod = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_MOD_LESS_HAPPY);
@@ -5093,8 +5128,9 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 
 		iMod = min(90, iMod);
 
-		if (iMod != 0)
+		if (iMod != 0) {
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
+}
 	}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -5299,10 +5335,12 @@ void CvPlayerCulture::AddTourismAllKnownCivsWithModifiers(int iTourism)
 void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eOtherPlayer, int iTourism)
 {
 #if defined(MOD_BALANCE_CORE)
-	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	if (m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian()) {
 		return;
-	if (GET_PLAYER(eOtherPlayer).isMinorCiv() || GET_PLAYER(eOtherPlayer).isBarbarian())
+}
+	if (GET_PLAYER(eOtherPlayer).isMinorCiv() || GET_PLAYER(eOtherPlayer).isBarbarian()) {
 		return;
+}
 
 #endif
 	PlayerTypes eLoopPlayer;
@@ -5310,8 +5348,9 @@ void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eO
 	{
 		eLoopPlayer = (PlayerTypes)iPlayerLoop;
 
-		if (eLoopPlayer == m_pPlayer->GetID() || eLoopPlayer == eOtherPlayer)
+		if (eLoopPlayer == m_pPlayer->GetID() || eLoopPlayer == eOtherPlayer) {
 			continue;
+}
 
 		if (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
@@ -5324,14 +5363,17 @@ void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eO
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	if (!MOD_BALANCE_CORE_HAPPINESS)
+	if (!MOD_BALANCE_CORE_HAPPINESS) {
 		return 0;
+}
 
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
+	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive()) {
 		return 0;
+}
 
-	if (m_iRawWarWeariness == 0 && !m_pPlayer->IsAtWarAnyMajor())
+	if (m_iRawWarWeariness == 0 && !m_pPlayer->IsAtWarAnyMajor()) {
 		return 0;
+}
 
 	int iHighestWarDamage = 0;
 	int iLongestWarTurns = 0;
@@ -5344,32 +5386,39 @@ int CvPlayerCulture::ComputeWarWeariness()
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 
-		if (!kPlayer.isAlive())
+		if (!kPlayer.isAlive()) {
 			continue;
-		if (!kPlayer.isMajorCiv())
+}
+		if (!kPlayer.isMajorCiv()) {
 			continue;
-		if (kPlayer.getNumCities() <= 0)
+}
+		if (kPlayer.getNumCities() <= 0) {
 			continue;
+}
 
 		iNumOtherCivs++;
 
 		if (!kPlayer.IsAtWarWith(m_pPlayer->GetID()))
 		{
 			int iPeaceLength = m_pPlayer->GetPlayerNumTurnsAtPeace(ePlayer);
-			if (iPeaceLength < iLeastPeaceTurns)
+			if (iPeaceLength < iLeastPeaceTurns) {
 				iLeastPeaceTurns = iPeaceLength;
+}
 
 			continue;
 		}
 
-		if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
+		if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam())) {
 			continue;
+}
 
 		int iWarLength = m_pPlayer->GetPlayerNumTurnsAtWar(ePlayer) - /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-		if (iWarLength <= 0)
+		if (iWarLength <= 0) {
 			continue;
-		if (iWarLength > iLongestWarTurns)
+}
+		if (iWarLength > iLongestWarTurns) {
 			iLongestWarTurns = iWarLength;
+}
 
 		// 100% of our war value lost applies.
 		int iWarDamage = m_pPlayer->GetWarValueLost(ePlayer);
@@ -5396,8 +5445,9 @@ int CvPlayerCulture::ComputeWarWeariness()
 		iWarDamage *= (100 + iTechProgress*2);
 		iWarDamage /= 100;
 
-		if (iWarDamage > iHighestWarDamage)
+		if (iWarDamage > iHighestWarDamage) {
 			iHighestWarDamage = iWarDamage;
+}
 	}
 
 	// Corner case fix: if we've killed everyone, no war weariness!
@@ -5439,28 +5489,32 @@ int CvPlayerCulture::ComputeWarWeariness()
 
 	// UA and policies can reduce this amount...
 	int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
-	if (iMod > 100)
+	if (iMod > 100) {
 		iMod = 100;
+}
 
 	iTargetWarWeariness *= (100 - iMod);
 	iTargetWarWeariness /= 100;
 
 	// also never more than x% of population...
 	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP) / 100;
-	if (iTargetWarWeariness > iPopLimit)
+	if (iTargetWarWeariness > iPopLimit) {
 		iTargetWarWeariness = iPopLimit;
+}
 
 	// Simple exponential smoothing to prevent sudden jumps
 	float fAlpha = 0.3f;
 	int iNewWarWeariness = int(0.5f + (iTargetWarWeariness * fAlpha) + (iCurrentWarWeariness * (1 - fAlpha)));
 
 	// Go up or down by at least one per turn!
-	if (iNewWarWeariness == iCurrentWarWeariness && iTargetWarWeariness != iCurrentWarWeariness && !bRecentPeace)
+	if (iNewWarWeariness == iCurrentWarWeariness && iTargetWarWeariness != iCurrentWarWeariness && !bRecentPeace) {
 		iNewWarWeariness += (iTargetWarWeariness > iCurrentWarWeariness) ? 1 : -1;
+}
 
 	// Double check that we're not above the pop limit
-	if (iNewWarWeariness >= iPopLimit)
+	if (iNewWarWeariness >= iPopLimit) {
 		iNewWarWeariness = iPopLimit;
+}
 
 	// Finally set and log the value
 	SetWarWeariness(iNewWarWeariness);
@@ -5505,8 +5559,9 @@ void CvPlayerCulture::DoPublicOpinion()
 	PolicyBranchTypes eOurIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 
 	// If we don't have an ideology, public opinion doesn't matter
-	if (eOurIdeology == NO_POLICY_BRANCH_TYPE)
+	if (eOurIdeology == NO_POLICY_BRANCH_TYPE) {
 		return;
+}
 
 	//this function will set these next 6 vars
 	m_eOpinion = NO_PUBLIC_OPINION;
@@ -5543,8 +5598,9 @@ void CvPlayerCulture::DoPublicOpinion()
 				{
 					//back up: font icon will be [ICON_IDEOLOGY_%kIdeology->GetDescription()%]
 					sIdeologyIcon = "[ICON_IDEOLOGY_";
-					for (uint x = 0; x < strlen(kIdeology->GetDescription()); x++)
+					for (uint x = 0; x < strlen(kIdeology->GetDescription()); x++) {
 						sIdeologyIcon += toupper(kIdeology->GetDescription()[x]);
+}
 
 					sIdeologyIcon += "]";
 				}
@@ -5607,8 +5663,9 @@ void CvPlayerCulture::DoPublicOpinion()
 					{
 						//back up: font icon will be [ICON_IDEOLOGY_%kIdeology->GetDescription()%]
 						sTheirIdeologyIcon = "[ICON_IDEOLOGY_";
-						for (uint x = 0; x < strlen(GC.getPolicyBranchInfo(eOtherCivIdeology)->GetDescription()); x++)
+						for (uint x = 0; x < strlen(GC.getPolicyBranchInfo(eOtherCivIdeology)->GetDescription()); x++) {
 							sTheirIdeologyIcon += toupper(GC.getPolicyBranchInfo(eOtherCivIdeology)->GetDescription()[x]);
+}
 
 						sTheirIdeologyIcon += "]";
 					}
@@ -5640,8 +5697,9 @@ void CvPlayerCulture::DoPublicOpinion()
 		{
 			//back up: font icon will be [ICON_IDEOLOGY_%kIdeology->GetDescription()%]
 			sIdeologyIcon = "[ICON_IDEOLOGY_";
-			for (uint x = 0; x < strlen(GC.getPolicyBranchInfo(eOurIdeology)->GetDescription()); x++)
+			for (uint x = 0; x < strlen(GC.getPolicyBranchInfo(eOurIdeology)->GetDescription()); x++) {
 				sIdeologyIcon += toupper(GC.getPolicyBranchInfo(eOurIdeology)->GetDescription()[x]);
+}
 
 			sIdeologyIcon += "]";
 		}
@@ -5656,8 +5714,9 @@ void CvPlayerCulture::DoPublicOpinion()
 		int iNumIdeologies = 0;
 		for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 		{
-			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel())
+			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel()) {
 				iNumIdeologies++;
+}
 		}
 		iNumCivsNotFollowingOurIdeology /= iNumIdeologies;
 		aIdeologyPressure[eOurIdeology] += iNumCivsNotFollowingOurIdeology;
@@ -5908,8 +5967,9 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 				if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 				{
 					//Only for popular+ civs.
-					if (iTheirInfluenceLevel <= (int)INFLUENCE_LEVEL_FAMILIAR)
+					if (iTheirInfluenceLevel <= (int)INFLUENCE_LEVEL_FAMILIAR) {
 						continue;
+}
 
 					//INFLUENCE_TREND_RISING = 1, INFLUENCE_TREND_STATIC = 0, INFLUENCE_TREND_FALLING = -1
 					iTheirInfluenceLevel -= (int)(kPlayer.GetCulture()->GetInfluenceTrend(m_pPlayer->GetID())) - 1;
@@ -5931,8 +5991,9 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 		int iNumIdeologies = 0;
 		for (int iPolicyBranch = 0; iPolicyBranch < GC.getNumPolicyBranchInfos(); iPolicyBranch++)
 		{
-			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel())
+			if (GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranch)->IsPurchaseByLevel()) {
 				iNumIdeologies++;
+}
 		}
 		iNumCivsNotFollowingNewIdeology /= iNumIdeologies;
 		aIdeologyPressure[eBranch] += iNumCivsNotFollowingNewIdeology;
@@ -6011,8 +6072,9 @@ int CvPlayerCulture::GetNumCivsFollowingIdeology(PolicyBranchTypes ePolicyBranch
 	{
 		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
 
-		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == ePolicyBranch)
+		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() == ePolicyBranch) {
 			iFollowers++;
+}
 	}
 	return iFollowers;
 }
@@ -6025,8 +6087,9 @@ int CvPlayerCulture::GetNumCivsFollowingAnyIdeology()
 	{
 		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
 
-		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+		if (GET_PLAYER(eOtherPlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) {
 			iFollowers++;
+}
 	}
 	return iFollowers;
 }
@@ -6079,8 +6142,9 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 /// Compute effects of dissatisfaction
 int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 {
-	if (iDissatisfaction == 0)
+	if (iDissatisfaction == 0) {
 		return 0;
+}
 
 	if (!MOD_BALANCE_CORE_POLICIES)
 	{
@@ -6693,15 +6757,17 @@ void CvCityCulture::CalculateBaseTourism()
 int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const
 {
 	int iMultiplier = 0;
-	if(ePlayer == NO_PLAYER || m_pCity->getOwner() == NO_PLAYER)
+	if(ePlayer == NO_PLAYER || m_pCity->getOwner() == NO_PLAYER) {
 		return 0;
+}
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 
 	CvTeam &kTeam = GET_TEAM(kPlayer.getTeam());
 	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
 
-	if(kCityPlayer.isMinorCiv())
+	if(kCityPlayer.isMinorCiv()) {
 		return 0;
+}
 
 	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
@@ -7528,8 +7594,9 @@ CvString CvCityCulture::GetTourismTooltip()
 			int iVal = m_pCity->GetCityReligions()->GetNumFollowers(eMajority) * iReligionYieldMaxFollowersPercent;
 			iVal /= 100;
 
-			if (iVal <= 0)
+			if (iVal <= 0) {
 				iVal = 1;
+}
 
 			iTempMod = min(max, iReligionYieldMaxFollowersPercent);
 			if (iTempMod != 0)
@@ -7657,8 +7724,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	if (m_pCity->IsPuppet())
 	{
 		iTempMod = GET_PLAYER(m_pCity->getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0 in CP, -80 in VP*/ GD_INT_GET(PUPPET_TOURISM_MODIFIER);
-		if (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0)
+		if (GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() != 0 && iTempMod > 0) {
 			iTempMod = 0;
+}
 		if (bHasCityModTooltip == false)
 		{
 			if (szRtnValue.length() > 0)
@@ -8139,10 +8207,11 @@ GreatWorkType CultureHelpers::GetArtifact(CvPlot *pPlot)
 	Database::Results kQuery;
 	if(db->Execute(kQuery, szSql))
 	{
-		if(bHasEraSpecificItems == true)
+		if(bHasEraSpecificItems == true) {
 			kQuery.Bind(1, archData.m_eEra);
-		else
+		} else {
 			kQuery.BindNULL(1);
+}
 
 		kQuery.Bind(2, archData.m_eArtifactType);
 

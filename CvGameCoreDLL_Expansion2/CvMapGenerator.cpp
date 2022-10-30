@@ -116,31 +116,37 @@ int CvMapGenerator::pGetMapInitData(lua_State* L)
 		if(lua_istable(L, t))
 		{
 			lua_getfield(L, t, "Width");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_iGridW = lua_tointeger(L, -1);
+}
 			lua_pop(L, 1);
 
 			lua_getfield(L, t, "Height");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_iGridH = lua_tointeger(L, -1);
+}
 			lua_pop(L, 1);
 
 			lua_getfield(L, t, "WrapX");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_bWrapX = (lua_toboolean(L, -1) != 0);
+}
 			lua_pop(L, 1);
 
 			lua_getfield(L, t, "WrapY");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_bWrapY = (lua_toboolean(L, -1) != 0);
+}
 
 			lua_getfield(L, t, "TopLatitude");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_iTopLatitude = lua_tointeger(L, -1);
+}
 
 			lua_getfield(L, t, "BottomLatitude");
-			if(!lua_isnoneornil(L, -1))
+			if(!lua_isnoneornil(L, -1)) {
 				pArgs->pkMapInitData->m_iBottomLatitude = lua_tointeger(L, -1);
+}
 
 			pArgs->bSuccess = true;
 		}
@@ -280,8 +286,9 @@ int CvMapGenerator::pGenerateRandomMap(lua_State* L)
 	ICvEngineScriptSystem1* pkScriptSystem = (ICvEngineScriptSystem1*)lua_touserdata(L, 1);
 
 	lua_getglobal(L, "GenerateMap");
-	if(lua_isnil(L, -1))
+	if(lua_isnil(L, -1)) {
 		luaL_error(L, "Cannot find map script entry point GenerateMap()");
+}
 
 	pkScriptSystem->CallFunction(L, 0, 0);
 

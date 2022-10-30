@@ -63,8 +63,9 @@ bool CvBaseInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&)
 	m_strHelp			= kResults.GetText("Help");
 	m_strDisabledHelp	= kResults.GetText("DisabledHelp");
 
-	if(!m_strTextKey.empty())
+	if(!m_strTextKey.empty()) {
 		m_strText = GetLocalizedText(m_strTextKey);
+}
 
 
 	const char* szDescription = kResults.GetText("Description");
@@ -96,16 +97,26 @@ const char* CvBaseInfo::GetTextKey() const
 
 bool CvBaseInfo::operator==(const CvBaseInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(m_iID != rhs.m_iID) return false;
-	if(m_strCivilopedia != rhs.m_strCivilopedia) return false;
-	if(m_strDescription != rhs.m_strDescription) return false;
-	if(m_strHelp != rhs.m_strHelp) return false;
-	if(m_strDisabledHelp != rhs.m_strDisabledHelp) return false;
-	if(m_strStrategy != rhs.m_strStrategy) return false;
-	if(m_strType != rhs.m_strType) return false;
-	if(m_strTextKey != rhs.m_strTextKey) return false;
-	if(m_strText != rhs.m_strText) return false;
+	if(this == &rhs) { return true;
+}
+	if(m_iID != rhs.m_iID) { return false;
+}
+	if(m_strCivilopedia != rhs.m_strCivilopedia) { return false;
+}
+	if(m_strDescription != rhs.m_strDescription) { return false;
+}
+	if(m_strHelp != rhs.m_strHelp) { return false;
+}
+	if(m_strDisabledHelp != rhs.m_strDisabledHelp) { return false;
+}
+	if(m_strStrategy != rhs.m_strStrategy) { return false;
+}
+	if(m_strType != rhs.m_strType) { return false;
+}
+	if(m_strTextKey != rhs.m_strTextKey) { return false;
+}
+	if(m_strText != rhs.m_strText) { return false;
+}
 	return true;
 }
 
@@ -499,8 +510,9 @@ CvString CvHotKeyInfo::CreateKeyStringFromKBCode(const char* pszHotKey)
 
 bool CvHotKeyInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	setHotKey(kResults.GetText("HotKey"));
 	const int iHotKeyVal = GetHotKeyInt(kResults.GetText("HotKey"));
@@ -523,12 +535,14 @@ bool CvHotKeyInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	setOrderPriority(kResults.GetInt("OrderPriority"));
 
 	const char* szHelp = kResults.GetText("Help");
-	if(szHelp != 0)
+	if(szHelp != 0) {
 		m_strHelp = szHelp;
+}
 
 	const char* szDisabledHelp = kResults.GetText("DisabledHelp");
-	if(szDisabledHelp != 0)
+	if(szDisabledHelp != 0) {
 		m_strDisabledHelp = szDisabledHelp;
+}
 
 
 	setHotKeyDescription(GetTextKey(), NULL, CreateHotKeyFromDescription(getHotKey(), m_bShiftDown, m_bAltDown, m_bCtrlDown));
@@ -808,8 +822,9 @@ void CvSpecialistInfo::setTexture(const char* szVal)
 //------------------------------------------------------------------------------
 bool CvSpecialistInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bVisible = kResults.GetBool("Visible");
 	m_iCost = kResults.GetInt("Cost");
@@ -880,8 +895,9 @@ EntityEventTypes CvMissionInfo::getEntityEvent() const
 
 bool CvMissionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_strWaypoint	= kResults.GetText("Waypoint");
 	m_iTime			= kResults.GetInt("Time");
@@ -941,12 +957,14 @@ bool CvCommandInfo::getAll() const
 //------------------------------------------------------------------------------
 bool CvCommandInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szAutomate = kResults.GetText("Automate");
-	if(szAutomate != 0)
+	if(szAutomate != 0) {
 		setAutomate(GC.getInfoTypeForString(szAutomate, true));
+}
 
 	m_bConfirmCommand = kResults.GetBool("ConfirmCommand");
 	m_bVisible = kResults.GetBool("Visible");
@@ -998,8 +1016,9 @@ bool CvAutomateInfo::getVisible() const
 //------------------------------------------------------------------------------
 bool CvAutomateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szCommand = kResults.GetText("Command");
 	setCommand(GC.getInfoTypeForString(szCommand, true));
@@ -1092,14 +1111,16 @@ int CvActionInfo::getMissionType() const
 	if(ACTIONSUBTYPE_BUILD == m_eSubType)
 	{
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)m_iOriginalIndex);
-		if(pkBuildInfo != 0)
+		if(pkBuildInfo != 0) {
 			return pkBuildInfo->getMissionType();
+}
 	}
 	else if(ACTIONSUBTYPE_SPECIALIST == m_eSubType)
 	{
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)m_iOriginalIndex);
-		if(pkSpecialistInfo != 0)
+		if(pkSpecialistInfo != 0) {
 			return pkSpecialistInfo->getMissionType();
+}
 	}
 	else if(ACTIONSUBTYPE_MISSION == m_eSubType)
 	{
@@ -1548,9 +1569,11 @@ size_t CvMultiUnitFormationInfo::getNumFormationSlotEntries() const
 size_t CvMultiUnitFormationInfo::getNumFormationSlotEntriesRequired() const
 {
 	size_t iCount = 0;
-	for (size_t i = 0; i < m_vctSlotEntries.size(); i++)
-		if (m_vctSlotEntries[i].m_requiredSlot)
+	for (size_t i = 0; i < m_vctSlotEntries.size(); i++) {
+		if (m_vctSlotEntries[i].m_requiredSlot) {
 			iCount++;
+}
+}
 	return iCount;
 }
 
@@ -1572,8 +1595,9 @@ void CvMultiUnitFormationInfo::addFormationSlotEntry(const CvFormationSlotEntry&
 //------------------------------------------------------------------------------
 bool CvMultiUnitFormationInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_strFormationName = kResults.GetText("Name");
 	m_bRequiresNavalUnitConsistency = kResults.GetBool("RequiresNavalUnitConsistency");
@@ -1652,8 +1676,9 @@ int CvSpecialUnitInfo::getProductionTraits(int i) const
 //------------------------------------------------------------------------------
 bool CvSpecialUnitInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bValid = kResults.GetBool("Valid");
 	m_bCityLoad = kResults.GetBool("CityLoad");
@@ -1719,8 +1744,9 @@ int CvUnitClassInfo::getUnitInstancePerCity() const
 //------------------------------------------------------------------------------
 bool CvUnitClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
@@ -1828,8 +1854,9 @@ bool CvBuildingClassInfo::IsFranchise() const
 //------------------------------------------------------------------------------
 bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
@@ -2005,8 +2032,9 @@ const GUID& CvCivilizationBaseInfo::getPackageID() const
 //------------------------------------------------------------------------------
 bool CvCivilizationBaseInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szTextVal = NULL;	//! temporary val
 
@@ -2308,8 +2336,9 @@ bool CvCivilizationInfo::isFirstCoastalStart() const
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvCivilizationBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvCivilizationBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const size_t maxUnitClasses = kUtility.MaxRows("UnitClasses");
 	const size_t maxBuildingClasses = kUtility.MaxRows("BuildingClasses");
@@ -2666,8 +2695,9 @@ int CvVictoryInfo::GetVictoryPointAward(int i) const
 //------------------------------------------------------------------------------
 bool CvVictoryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bWinsGame = kResults.GetBool("WinsGame");
 	m_bTargetScore = kResults.GetBool("TargetScore");
@@ -2870,8 +2900,9 @@ int CvSmallAwardInfo::GetRandom() const
 //------------------------------------------------------------------------------
 bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_szNotification = kResults.GetText("Notification");
 	m_szTeamNotification = kResults.GetText("TeamNotification");
@@ -2943,8 +2974,9 @@ int CvHurryInfo::getGoldPerCulture() const
 //------------------------------------------------------------------------------
 bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iGoldPerProduction = kResults.GetInt("GoldPerProduction");
 	m_iProductionPerPopulation = kResults.GetInt("ProductionPerPopulation");
@@ -3488,8 +3520,9 @@ int CvHandicapInfo::isAIFreeTechs(int i) const
 //------------------------------------------------------------------------------
 bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iStartingLocationPercent = kResults.GetInt("StartingLocPercent");
 	m_iStartingPolicyPoints = kResults.GetInt("StartingPolicyPoints");
@@ -3867,8 +3900,9 @@ void CvGameSpeedInfo::allocateGameTurnInfos(const int iSize)
 //------------------------------------------------------------------------------
 bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iDealDuration					= kResults.GetInt("DealDuration");
 #if defined(MOD_BALANCE_CORE)
@@ -4003,12 +4037,18 @@ bool CvTurnTimerInfo::CacheResults(Database::Results& results, CvDatabaseUtility
 
 bool CvTurnTimerInfo::operator==(const CvTurnTimerInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_iBaseTime != rhs.m_iBaseTime) return false;
-	if(m_iCityResource != rhs.m_iCityResource) return false;
-	if(m_iUnitResource != rhs.m_iUnitResource) return false;
-	if(m_iFirstTurnMultiplier != rhs.m_iFirstTurnMultiplier) return false;
+	if(this == &rhs) { return true;
+}
+	if(!CvBaseInfo::operator==(rhs)) { return false;
+}
+	if(m_iBaseTime != rhs.m_iBaseTime) { return false;
+}
+	if(m_iCityResource != rhs.m_iCityResource) { return false;
+}
+	if(m_iUnitResource != rhs.m_iUnitResource) { return false;
+}
+	if(m_iFirstTurnMultiplier != rhs.m_iFirstTurnMultiplier) { return false;
+}
 	return true;
 }
 
@@ -4087,10 +4127,14 @@ bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUti
 
 bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_eFromCiv != rhs.m_eFromCiv) return false;
-	if(m_eToCiv != rhs.m_eToCiv) return false;
+	if(this == &rhs) { return true;
+}
+	if(!CvBaseInfo::operator==(rhs)) { return false;
+}
+	if(m_eFromCiv != rhs.m_eFromCiv) { return false;
+}
+	if(m_eToCiv != rhs.m_eToCiv) { return false;
+}
 	return true;
 }
 
@@ -4339,8 +4383,9 @@ bool CvBuildInfo::isFeatureRemoveOnly(int i) const
 //------------------------------------------------------------------------------
 bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iTime = kResults.GetInt("Time");
 	m_iCost = kResults.GetInt("Cost");
@@ -4688,12 +4733,14 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	}
 
 	const char* szChooseDesc = results.GetText("ChooseDescription");
-	if (szChooseDesc != 0)
+	if (szChooseDesc != 0) {
 		m_strChooseDesc = szChooseDesc;
+}
 
 	const char* szSound = results.GetText("Sound");
-	if(szSound != 0)
+	if(szSound != 0) {
 		m_strSound = szSound;
+}
 
 	m_iGold = results.GetInt("Gold");
 	m_iNumGoldRandRolls = results.GetInt("NumGoldRandRolls");
@@ -4809,8 +4856,9 @@ int CvRouteInfo::getResourceQuantityRequirement(int i) const
 //------------------------------------------------------------------------------
 bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iGoldMaintenance = kResults.GetInt("GoldMaintenance");
 	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
@@ -4845,8 +4893,9 @@ int CvResourceClassInfo::getUniqueRange() const
 //------------------------------------------------------------------------------
 bool CvResourceClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iUniqueRange = kResults.GetInt("UniqueRange");
 
@@ -5625,8 +5674,9 @@ int CvResourceInfo::getFlavorValue(int i) const
 //------------------------------------------------------------------------------
 bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic properties
 	m_iStartingResourceQuantity = kResults.GetInt("StartingResourceQuantity");
@@ -6302,8 +6352,9 @@ const char* CvFeatureInfo::getEffectTypeTag() const
 //------------------------------------------------------------------------------
 bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szArtDefineTag = kResults.GetText("ArtDefineTag");
 	setArtDefineTag(szArtDefineTag);
@@ -6558,8 +6609,9 @@ int CvYieldInfo::getAIWeightPercent() const
 //------------------------------------------------------------------------------
 bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_strIconString = kResults.GetText("IconString");
 	m_strColorString = kResults.GetText("ColorString");
@@ -6800,8 +6852,9 @@ int CvTerrainInfo::get3DAudioScriptFootstepIndex(int i) const
 //------------------------------------------------------------------------------
 bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	setArtDefineTag(kResults.GetText("ArtDefineTag"));
 
@@ -6936,8 +6989,9 @@ bool CvInterfaceModeInfo::getSelectAll() const
 //------------------------------------------------------------------------------
 bool CvInterfaceModeInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szCursorType = kResults.GetText("CursorType");
 	m_iCursorIndex = GC.getInfoTypeForString(szCursorType, true);
@@ -7055,16 +7109,18 @@ int CvLeaderHeadInfo::GetChattiness() const
 // Recursive: Need to hardcode these references because of how Firaxis set up the table.
 int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
-	if (bMinor)
+	if (bMinor) {
 		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[3] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_CONQUEST
+}
 
 	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_WAR
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
 {
-	if (bMinor)
+	if (bMinor) {
 		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[4] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_BULLY
+}
 
 	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[1] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_HOSTILE
 }
@@ -7086,8 +7142,9 @@ int CvLeaderHeadInfo::GetAfraidBias() const
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
 {
-	if (bMinor)
+	if (bMinor) {
 		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_IGNORE
+}
 
 	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[6] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_NEUTRAL
 }
@@ -7098,8 +7155,9 @@ int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
 	// Use the higher of the two for the diplomacy AI.
 	if (bMinor)
 	{
-		if (m_piMinorCivApproachBiases == 0)
+		if (m_piMinorCivApproachBiases == 0) {
 			return GC.getGame().GetDefaultFlavorValue();
+}
 
 		return std::max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
 	}
@@ -7172,8 +7230,9 @@ const char* CvLeaderHeadInfo::getLeaderHead() const
 //------------------------------------------------------------------------------
 bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if (!CvBaseInfo::CacheResults(kResults, kUtility))
+	if (!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	const char* szTextVal = NULL;	//Temp storage
@@ -7188,8 +7247,9 @@ bool CvLeaderHeadInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	if (m_ePrimaryVictoryPursuit != NO_VICTORY_PURSUIT)
 	{
-		if (m_eSecondaryVictoryPursuit == m_ePrimaryVictoryPursuit)
+		if (m_eSecondaryVictoryPursuit == m_ePrimaryVictoryPursuit) {
 			m_eSecondaryVictoryPursuit = NO_VICTORY_PURSUIT;
+}
 	}
 	else if (m_eSecondaryVictoryPursuit != NO_VICTORY_PURSUIT)
 	{
@@ -7404,8 +7464,9 @@ CvWorldInfo CvWorldInfo::CreateCustomWorldSize(const CvWorldInfo& kTemplate, int
 //------------------------------------------------------------------------------
 bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iDefaultPlayers				= kResults.GetInt("DefaultPlayers");
 	m_iDefaultMinorCivs				= kResults.GetInt("DefaultMinorCivs");
@@ -7443,35 +7504,60 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 {
-	if(this == &rhs) return true;
-	if(!CvBaseInfo::operator==(rhs)) return false;
-	if(m_iDefaultPlayers != rhs.m_iDefaultPlayers) return false;
-	if(m_iDefaultMinorCivs != rhs.m_iDefaultMinorCivs) return false;
-	if(m_iFogTilesPerBarbarianCamp != rhs.m_iFogTilesPerBarbarianCamp) return false;
-	if(m_iNumNaturalWonders != rhs.m_iNumNaturalWonders) return false;
-	if(m_iUnitNameModifier != rhs.m_iUnitNameModifier) return false;
-	if(m_iTargetNumCities != rhs.m_iTargetNumCities) return false;
-	if(m_iNumFreeBuildingResources != rhs.m_iNumFreeBuildingResources) return false;
-	if(m_iBuildingClassPrereqModifier != rhs.m_iBuildingClassPrereqModifier) return false;
-	if(m_iMaxConscriptModifier != rhs.m_iMaxConscriptModifier) return false;
-	if(m_iGridWidth != rhs.m_iGridWidth) return false;
-	if(m_iGridHeight != rhs.m_iGridHeight) return false;
-	if(m_iMaxActiveReligions != rhs.m_iMaxActiveReligions) return false;
-	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange) return false;
-	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange) return false;
-	if(m_iResearchPercent != rhs.m_iResearchPercent) return false;
-	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
-	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
+	if(this == &rhs) { return true;
+}
+	if(!CvBaseInfo::operator==(rhs)) { return false;
+}
+	if(m_iDefaultPlayers != rhs.m_iDefaultPlayers) { return false;
+}
+	if(m_iDefaultMinorCivs != rhs.m_iDefaultMinorCivs) { return false;
+}
+	if(m_iFogTilesPerBarbarianCamp != rhs.m_iFogTilesPerBarbarianCamp) { return false;
+}
+	if(m_iNumNaturalWonders != rhs.m_iNumNaturalWonders) { return false;
+}
+	if(m_iUnitNameModifier != rhs.m_iUnitNameModifier) { return false;
+}
+	if(m_iTargetNumCities != rhs.m_iTargetNumCities) { return false;
+}
+	if(m_iNumFreeBuildingResources != rhs.m_iNumFreeBuildingResources) { return false;
+}
+	if(m_iBuildingClassPrereqModifier != rhs.m_iBuildingClassPrereqModifier) { return false;
+}
+	if(m_iMaxConscriptModifier != rhs.m_iMaxConscriptModifier) { return false;
+}
+	if(m_iGridWidth != rhs.m_iGridWidth) { return false;
+}
+	if(m_iGridHeight != rhs.m_iGridHeight) { return false;
+}
+	if(m_iMaxActiveReligions != rhs.m_iMaxActiveReligions) { return false;
+}
+	if(m_iTerrainGrainChange != rhs.m_iTerrainGrainChange) { return false;
+}
+	if(m_iFeatureGrainChange != rhs.m_iFeatureGrainChange) { return false;
+}
+	if(m_iResearchPercent != rhs.m_iResearchPercent) { return false;
+}
+	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) { return false;
+}
+	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) { return false;
+}
 #if defined(MOD_TRADE_ROUTE_SCALING)
-	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
+	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) { return false;
+}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) return false;
-	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) return false;
-	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) return false;
-	if(m_iReformationPercent != rhs.m_iReformationPercent) return false;
+	if (m_iNumCitiesTourismCostMod != rhs.m_iNumCitiesTourismCostMod) { return false;
+}
+	if(m_iMinDistanceCities != rhs.m_iMinDistanceCities) { return false;
+}
+	if(m_iMinDistanceCityStates != rhs.m_iMinDistanceCityStates) { return false;
+}
+	if(m_iReformationPercent != rhs.m_iReformationPercent) { return false;
+}
 #endif
-	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
+	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) { return false;
+}
 	return true;
 }
 
@@ -7576,8 +7662,9 @@ CvClimateInfo::CvClimateInfo() :
 //------------------------------------------------------------------------------
 bool CvClimateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iDesertPercentChange			= kResults.GetInt("DesertPercentChange");
 	m_iJungleLatitude				= kResults.GetInt("JungleLatitude");
@@ -7647,8 +7734,9 @@ CvSeaLevelInfo::CvSeaLevelInfo() : CvBaseInfo()
 //------------------------------------------------------------------------------
 bool CvSeaLevelInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iSeaLevelChange = kResults.GetInt("SeaLevelChange");
 	return true;
@@ -7745,8 +7833,9 @@ int CvProcessInfo::GetFlavorValue(int i) const
 //------------------------------------------------------------------------------
 bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szTechPrereq = kResults.GetText("TechPrereq");
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
@@ -7867,8 +7956,9 @@ bool CvVoteInfo::isVoteSourceType(int i) const
 //------------------------------------------------------------------------------
 bool CvVoteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iPopulationThreshold = kResults.GetInt("PopulationThreshold");
 	m_iMinVoters = kResults.GetInt("MinVoters");
@@ -7901,8 +7991,9 @@ CvEntityEventInfo::CvEntityEventInfo() :
 //------------------------------------------------------------------------------
 bool CvEntityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bUpdateFormation = kResults.GetBool("UpdateFormation");
 
@@ -8224,8 +8315,9 @@ const char* CvEraInfo::getAbbreviation() const
 //------------------------------------------------------------------------------
 bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bNoGoodies				= kResults.GetBool("NoGoodies");
 	m_bNoBarbUnits				= kResults.GetBool("NoBarbUnits");
@@ -8347,8 +8439,9 @@ int CvPlayerColorInfo::GetColorTypeText() const
 //------------------------------------------------------------------------------
 bool CvPlayerColorInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Perform an inner join
 	const char* szSQL =	"select PrimaryColor.ID, SecondaryColor.ID, TextColor.ID FROM PlayerColors INNER JOIN "
@@ -8398,8 +8491,9 @@ bool CvGameOptionInfo::getVisible() const
 //------------------------------------------------------------------------------
 bool CvGameOptionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bDefault = kResults.GetBool("Default");
 	m_bVisible = kResults.GetBool("Visible");
@@ -8423,8 +8517,9 @@ bool CvMPOptionInfo::getDefault() const
 //------------------------------------------------------------------------------
 bool CvMPOptionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bDefault = kResults.GetBool("Default");
 
@@ -8447,8 +8542,9 @@ bool CvPlayerOptionInfo::getDefault() const
 //------------------------------------------------------------------------------
 bool CvPlayerOptionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bDefault = kResults.GetBool("Default");
 
@@ -8496,8 +8592,9 @@ const CvString& CvVoteSourceInfo::getSecretaryGeneralText() const
 //------------------------------------------------------------------------------
 bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iVoteInterval = kResults.GetInt("VoteInterval");
 
@@ -8820,8 +8917,9 @@ CvEventLinkingInfo *CvModEventInfo::GetLinkerInfo(int i) const
 //------------------------------------------------------------------------------
 bool CvModEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 
 	m_bOneShot = kResults.GetBool("IsOneShot");
@@ -9548,8 +9646,9 @@ CvEventChoiceLinkingInfo *CvModEventChoiceInfo::GetLinkerInfo(int i) const
 //------------------------------------------------------------------------------
 bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szTextVal = NULL;
 
@@ -10315,8 +10414,9 @@ CvCityEventLinkingInfo *CvModCityEventInfo::GetLinkerInfo(int i) const
 //------------------------------------------------------------------------------
 bool CvModCityEventInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bOneShot = kResults.GetBool("IsOneShot");
 
@@ -11291,8 +11391,9 @@ const char* CvModEventCityChoiceInfo::getDisabledTooltip() const
 //------------------------------------------------------------------------------
 bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	const char* szTextVal = NULL;
 

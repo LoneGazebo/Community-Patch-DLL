@@ -117,8 +117,9 @@ inline void CvDatabaseUtility::InitializeArray(int*& pArray, const size_t count,
 	}
 	else
 	{
-		for(size_t i = 0; i < count; ++i)
+		for(size_t i = 0; i < count; ++i) {
 			pArray[i] = iDefault;
+}
 	}
 }
 //------------------------------------------------------------------------------
@@ -132,8 +133,9 @@ inline void CvDatabaseUtility::InitializeArray(bool*& pArray, const size_t count
 	}
 	else
 	{
-		for(size_t i = 0; i < count; ++i)
+		for(size_t i = 0; i < count; ++i) {
 			pArray[i] = bDefault;
+}
 	}
 }
 //------------------------------------------------------------------------------
@@ -147,8 +149,9 @@ inline void CvDatabaseUtility::InitializeArray(float*& pArray, const size_t coun
 	}
 	else
 	{
-		for(size_t i = 0; i < count; ++i)
+		for(size_t i = 0; i < count; ++i) {
 			pArray[i] = fDefault;
+}
 	}
 }
 //------------------------------------------------------------------------------

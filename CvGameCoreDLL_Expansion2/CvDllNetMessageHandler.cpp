@@ -59,8 +59,9 @@ void* CvDllNetMessageHandler::operator new(size_t bytes)
 void CvDllNetMessageHandler::ResponseAdvancedStartAction(PlayerTypes ePlayer, AdvancedStartActionTypes eAction, int iX, int iY, int iData, bool bAdd)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(ePlayer).doAdvancedStartAction(eAction, iX, iY, iData, bAdd);
 }
@@ -68,8 +69,9 @@ void CvDllNetMessageHandler::ResponseAdvancedStartAction(PlayerTypes ePlayer, Ad
 void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
@@ -82,8 +84,9 @@ void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitI
 void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iOptionChosen, int iUnitID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
@@ -99,16 +102,18 @@ void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iO
 	else if (iOptionChosen == 1)
 	{
 		CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-		if (pkUnit != 0)
+		if (pkUnit != 0) {
 			pkUnit->kill(true, BARBARIAN_PLAYER);
+}
 	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eRivalTeam, bool bWar)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -129,8 +134,9 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamTypes eRivalTeam)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -143,8 +149,9 @@ void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamType
 void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityID, int iX, int iY)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -183,8 +190,9 @@ void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityI
 void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -198,8 +206,9 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCityID, int iNum)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -212,8 +221,9 @@ void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCity
 void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCityID, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	ResponseCityPurchase(ePlayer, iCityID, eUnitType, eBuildingType, eProjectType, NO_YIELD);
 }
@@ -221,8 +231,9 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCityID, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, int ePurchaseYield)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -235,8 +246,9 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCityID, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -249,8 +261,9 @@ void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCit
 void CvDllNetMessageHandler::ResponseCitySwapOrder(PlayerTypes ePlayer, int iCityID, int iNum)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -268,8 +281,9 @@ void CvDllNetMessageHandler::ResponseChooseElection(PlayerTypes ePlayer, int iSe
 void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
@@ -283,8 +297,9 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 void CvDllNetMessageHandler::ResponseDiplomacyFromUI(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoFromUIDiploEvent(ePlayer, eEvent, iArg1, iArg2);
 }
@@ -292,8 +307,9 @@ void CvDllNetMessageHandler::ResponseDiplomacyFromUI(PlayerTypes ePlayer, Player
 void CvDllNetMessageHandler::ResponseDiploVote(PlayerTypes ePlayer, PlayerTypes eVotePlayer)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	TeamTypes eVotingTeam = GET_PLAYER(ePlayer).getTeam();
 	TeamTypes eVote = GET_PLAYER(eVotePlayer).getTeam();
@@ -304,8 +320,9 @@ void CvDllNetMessageHandler::ResponseDiploVote(PlayerTypes ePlayer, PlayerTypes 
 void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
@@ -337,8 +354,9 @@ void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID,
 void CvDllNetMessageHandler::ResponseExtendedGame(PlayerTypes ePlayer)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(ePlayer).makeExtendedGame();
 }
@@ -346,8 +364,9 @@ void CvDllNetMessageHandler::ResponseExtendedGame(PlayerTypes ePlayer)
 void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvGame& kGame(GC.getGame());
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
@@ -395,8 +414,9 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvGame& kGame(GC.getGame());
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
@@ -405,9 +425,9 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 	if((pkCity != 0) && ePlayer != NO_PLAYER)
 	{
 		CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanFoundReligion(ePlayer, eReligion, szCustomName, eBelief1, eBelief2, eBelief3, eBelief4, pkCity);
-		if(eResult == CvGameReligions::FOUNDING_OK)
+		if(eResult == CvGameReligions::FOUNDING_OK) {
 			pkGameReligions->FoundReligion(ePlayer, eReligion, szCustomName, eBelief1, eBelief2, eBelief3, eBelief4, pkCity);
-		else
+		} else
 		{
 			CvGameReligions::NotifyPlayer(ePlayer, eResult);
 			// We don't want them to lose the opportunity to found the religion, and the Great Prophet is already gone so just repost the notification
@@ -431,16 +451,17 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvGame& kGame(GC.getGame());
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
 	CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanEnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
-	if(eResult == CvGameReligions::FOUNDING_OK)
+	if(eResult == CvGameReligions::FOUNDING_OK) {
 		pkGameReligions->EnhanceReligion(ePlayer, eReligion, eBelief1, eBelief2);
-	else
+	} else
 	{
 		CvGameReligions::NotifyPlayer(ePlayer, eResult);
 		// We don't want them to lose the opportunity to enhance the religion, and the Great Prophet is already gone so just repost the notification
@@ -463,8 +484,9 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
@@ -497,8 +519,9 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyIndex)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eSpyPlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eSpyPlayer)) {
 		return;
+}
 
 	CvAssertMsg(eSpyPlayer != NO_PLAYER, "eSpyPlayer invalid");
 	CvAssertMsg(iSpyIndex >= 0, "iSpyIndex invalid");
@@ -516,8 +539,9 @@ void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyI
 void CvDllNetMessageHandler::ResponseFaithPurchase(PlayerTypes ePlayer, FaithPurchaseTypes eFaithPurchaseType, int iFaithPurchaseIndex)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvAssertMsg(ePlayer != NO_PLAYER, "ePlayer invalid");
 	CvAssertMsg(eFaithPurchaseType > -1, "Faith Purchase Type invalid");
@@ -531,8 +555,9 @@ void CvDllNetMessageHandler::ResponseFaithPurchase(PlayerTypes ePlayer, FaithPur
 void CvDllNetMessageHandler::ResponseLeagueVoteEnact(LeagueTypes eLeague, int iResolutionID, PlayerTypes eVoter, int iNumVotes, int iChoice)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE) {
 		return;
+}
 
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
@@ -545,8 +570,9 @@ void CvDllNetMessageHandler::ResponseLeagueVoteEnact(LeagueTypes eLeague, int iR
 void CvDllNetMessageHandler::ResponseLeagueVoteRepeal(LeagueTypes eLeague, int iResolutionID, PlayerTypes eVoter, int iNumVotes, int iChoice)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE) {
 		return;
+}
 
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
@@ -559,8 +585,9 @@ void CvDllNetMessageHandler::ResponseLeagueVoteRepeal(LeagueTypes eLeague, int i
 void CvDllNetMessageHandler::ResponseLeagueVoteAbstain(LeagueTypes eLeague, PlayerTypes eVoter, int iNumVotes)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE)
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eVoter) || eLeague==NO_LEAGUE) {
 		return;
+}
 
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
 	CvAssertMsg(eVoter != NO_PLAYER, "eVoter invalid");
@@ -573,8 +600,9 @@ void CvDllNetMessageHandler::ResponseLeagueVoteAbstain(LeagueTypes eLeague, Play
 void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE) {
 		return;
+}
 
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
 	CvAssertMsg(eResolution != NO_RESOLUTION, "eResolution invalid");
@@ -588,8 +616,9 @@ void CvDllNetMessageHandler::ResponseLeagueProposeEnact(LeagueTypes eLeague, Res
 void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, int iResolutionID, PlayerTypes eProposer)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE)
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eProposer) || eLeague==NO_LEAGUE) {
 		return;
+}
 
 	CvAssertMsg(eLeague != NO_LEAGUE, "eLeague invalid");
 	CvAssertMsg(eProposer != NO_PLAYER, "eProposer invalid");
@@ -602,8 +631,9 @@ void CvDllNetMessageHandler::ResponseLeagueProposeRepeal(LeagueTypes eLeague, in
 void CvDllNetMessageHandler::ResponseLeagueEditName(LeagueTypes eLeague, PlayerTypes ePlayer, const char* szCustomName)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
 	pLeague->DoChangeCustomName(ePlayer, szCustomName);
@@ -612,8 +642,9 @@ void CvDllNetMessageHandler::ResponseLeagueEditName(LeagueTypes eLeague, PlayerT
 void CvDllNetMessageHandler::ResponseSetSwappableGreatWork(PlayerTypes ePlayer, int iWorkClass, int iWorkIndex)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 	
 	// is this player alive
 	if (GET_PLAYER(ePlayer).isAlive())
@@ -668,8 +699,9 @@ void CvDllNetMessageHandler::ResponseSetSwappableGreatWork(PlayerTypes ePlayer, 
 void CvDllNetMessageHandler::ResponseSwapGreatWorks(PlayerTypes ePlayer1, int iWorkIndex1, PlayerTypes ePlayer2, int iWorkIndex2)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer1) || PlayerInvalid(ePlayer2))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer1) || PlayerInvalid(ePlayer2)) {
 		return;
+}
 	GC.getGame().GetGameCulture()->SwapGreatWorks(ePlayer1, iWorkIndex1, ePlayer2, iWorkIndex2);
 }
 
@@ -678,15 +710,18 @@ void CvDllNetMessageHandler::ResponseMoveGreatWorks(PlayerTypes ePlayer, int iCi
 													int iCity2, int iBuildingClass2, int iWorkIndex2)
 {
 	//safeguard
-if (!GC.getGame().isFinalInitialized())
+if (!GC.getGame().isFinalInitialized()) {
 		return;
+}
 
 	// hijacks message for MP events since it has a few args and is sent to everyone
-	if (NetMessageExt::Process::ResponseMoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2))
+	if (NetMessageExt::Process::ResponseMoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2)) {
 		return;
+}
 
-	if (PlayerInvalid(ePlayer))
+	if (PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GC.getGame().GetGameCulture()->MoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2);
 }
@@ -694,8 +729,9 @@ if (!GC.getGame().isFinalInitialized())
 void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvAssertMsg(ePlayer != NO_PLAYER, "ePlayer invalid");
 
@@ -712,8 +748,9 @@ void CvDllNetMessageHandler::ResponseChangeIdeology(PlayerTypes ePlayer)
 void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes eMinor, int iUnitID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvUnit* pkUnit = GET_PLAYER(ePlayer).getUnit(iUnitID);
 	GET_PLAYER(eMinor).DoDistanceGift(ePlayer, pkUnit);
@@ -722,8 +759,9 @@ void CvDllNetMessageHandler::ResponseGiftUnit(PlayerTypes ePlayer, PlayerTypes e
 void CvDllNetMessageHandler::ResponseLaunchSpaceship(PlayerTypes ePlayer, VictoryTypes eVictory)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -737,8 +775,9 @@ void CvDllNetMessageHandler::ResponseLaunchSpaceship(PlayerTypes ePlayer, Victor
 void CvDllNetMessageHandler::ResponseLiberatePlayer(PlayerTypes ePlayer, PlayerTypes eLiberatedPlayer, int iCityID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(ePlayer).DoLiberatePlayer(eLiberatedPlayer, iCityID);
 }
@@ -746,8 +785,9 @@ void CvDllNetMessageHandler::ResponseLiberatePlayer(PlayerTypes ePlayer, PlayerT
 void CvDllNetMessageHandler::ResponseMinorCivBullyGold(PlayerTypes ePlayer, PlayerTypes eMinor, int iGold)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyGold(ePlayer, iGold);
 }
@@ -755,8 +795,9 @@ void CvDllNetMessageHandler::ResponseMinorCivBullyGold(PlayerTypes ePlayer, Play
 void CvDllNetMessageHandler::ResponseMinorCivBullyUnit(PlayerTypes ePlayer, PlayerTypes eMinor, UnitTypes eUnitType)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyUnit(ePlayer, eUnitType);
 }
@@ -764,8 +805,9 @@ void CvDllNetMessageHandler::ResponseMinorCivBullyUnit(PlayerTypes ePlayer, Play
 void CvDllNetMessageHandler::ResponseMinorCivGiftGold(PlayerTypes ePlayer, PlayerTypes eMinor, int iGold)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	// Enough Gold?
 	if(GET_PLAYER(ePlayer).GetTreasury()->GetGold() >= iGold)
@@ -777,8 +819,9 @@ void CvDllNetMessageHandler::ResponseMinorCivGiftGold(PlayerTypes ePlayer, Playe
 void CvDllNetMessageHandler::ResponseMinorCivGiftTileImprovement(PlayerTypes eMajor, PlayerTypes eMinor, int iPlotX, int iPlotY)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eMajor) || PlayerInvalid(eMinor))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eMajor) || PlayerInvalid(eMinor)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoTileImprovementGiftFromMajor(eMajor, iPlotX, iPlotY);
 }
@@ -786,8 +829,9 @@ void CvDllNetMessageHandler::ResponseMinorCivGiftTileImprovement(PlayerTypes eMa
 void CvDllNetMessageHandler::ResponseMinorCivBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eMajor) || PlayerInvalid(eMinor))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eMajor) || PlayerInvalid(eMinor)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(eMajor);
 }
@@ -795,8 +839,9 @@ void CvDllNetMessageHandler::ResponseMinorCivBuyout(PlayerTypes eMajor, PlayerTy
 void CvDllNetMessageHandler::ResponseMinorNoUnitSpawning(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer) || PlayerInvalid(eMinor))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer) || PlayerInvalid(eMinor)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->SetUnitSpawningDisabled(ePlayer, bValue);
 }
@@ -804,8 +849,9 @@ void CvDllNetMessageHandler::ResponseMinorNoUnitSpawning(PlayerTypes ePlayer, Pl
 void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, PlayerTypes eActBy, bool bAccepted)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eFromPlayer) || PlayerInvalid(eToPlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(eFromPlayer) || PlayerInvalid(eToPlayer)) {
 		return;
+}
 
 	CvGame& game = GC.getGame();
 	PlayerTypes eActivePlayer = game.getActivePlayer();
@@ -1010,8 +1056,9 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 void CvDllNetMessageHandler::ResponsePlayerOption(PlayerTypes ePlayer, PlayerOptionTypes eOption, bool bValue)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(ePlayer).setOption(eOption, bValue);
 }
@@ -1019,8 +1066,9 @@ void CvDllNetMessageHandler::ResponsePlayerOption(PlayerTypes ePlayer, PlayerOpt
 void CvDllNetMessageHandler::ResponsePledgeMinorProtection(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue, bool bPledgeNowBroken)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(eMinor).GetMinorCivAI()->DoChangeProtectionFromMajor(ePlayer, bValue, bPledgeNowBroken);
 }
@@ -1028,8 +1076,9 @@ void CvDllNetMessageHandler::ResponsePledgeMinorProtection(PlayerTypes ePlayer, 
 void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvUnit::dispatchingNetMessage(true);
 
@@ -1047,8 +1096,9 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, UnitTypes eGreatPersonUnit)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
@@ -1066,8 +1116,9 @@ void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, Unit
 void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTypes eGreatPersonUnit)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
@@ -1086,8 +1137,9 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer, UnitTypes eGreatPersonUnit)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
@@ -1105,8 +1157,9 @@ void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer,
 void CvDllNetMessageHandler::ResponseGoodyChoice(PlayerTypes ePlayer, int iPlotX, int iPlotY, GoodyTypes eGoody, int iUnitID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
@@ -1118,8 +1171,9 @@ void CvDllNetMessageHandler::ResponseGoodyChoice(PlayerTypes ePlayer, int iPlotX
 void CvDllNetMessageHandler::ResponseArchaeologyChoice(PlayerTypes ePlayer, ArchaeologyChoiceType eChoice)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
@@ -1128,8 +1182,9 @@ void CvDllNetMessageHandler::ResponseArchaeologyChoice(PlayerTypes ePlayer, Arch
 void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyBranchTypes eChoice)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	kPlayer.GetPlayerPolicies()->SetPolicyBranchUnlocked(eChoice, true, false);
@@ -1138,8 +1193,9 @@ void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyB
 void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID, const char* szName)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
@@ -1153,8 +1209,9 @@ void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID
 void CvDllNetMessageHandler::ResponseRenameUnit(PlayerTypes ePlayer, int iUnitID, const char* szName)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
@@ -1168,8 +1225,9 @@ void CvDllNetMessageHandler::ResponseRenameUnit(PlayerTypes ePlayer, int iUnitID
 void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, bool bShift)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	ResponseResearch(ePlayer, eTech, iDiscover, NO_PLAYER, bShift);
 }
@@ -1177,8 +1235,9 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTech, int iDiscover, PlayerTypes ePlayerToStealFrom, bool bShift)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
@@ -1240,8 +1299,9 @@ void CvDllNetMessageHandler::ResponseResearch(PlayerTypes ePlayer, TechTypes eTe
 void CvDllNetMessageHandler::ResponseReturnCivilian(PlayerTypes ePlayer, PlayerTypes eToPlayer, int iUnitID, bool bReturn)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	GET_PLAYER(ePlayer).DoCivilianReturnLogic(bReturn, eToPlayer, iUnitID);
 }
@@ -1249,8 +1309,9 @@ void CvDllNetMessageHandler::ResponseReturnCivilian(PlayerTypes ePlayer, PlayerT
 void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCityID, BuildingTypes eBuilding)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity != 0)
@@ -1282,8 +1343,9 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCityID, CityAIFocusTypes eFocus)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity != NULL)
@@ -1299,8 +1361,9 @@ void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCi
 void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int iCityID, bool bAvoidGrowth)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(pCity != NULL)
@@ -1316,8 +1379,9 @@ void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int
 void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvUnit::dispatchingNetMessage(true);
 
@@ -1356,8 +1420,9 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int iCityID)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
 	if(NULL != pCity && (pCity->GetCityCitizens() != 0))
@@ -1374,8 +1439,9 @@ void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int
 void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bNOTPolicyBranch, int iPolicyID, bool bValue)
 {
 	//safeguard
-	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
+	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer)) {
 		return;
+}
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 

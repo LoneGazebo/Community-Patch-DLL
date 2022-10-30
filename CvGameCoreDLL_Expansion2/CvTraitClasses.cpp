@@ -2292,8 +2292,9 @@ bool CvTraitEntry::TerrainClaimBoost(TerrainTypes eTerrain)
 /// Load XML data
 bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	//Basic Properties
 	setShortDescription(kResults.GetText("ShortDescription"));
@@ -6410,8 +6411,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 {
 	// Still have more of these cities to award?
 	bool bResult = false;
-	if (m_iUniqueLuxuryCities <= m_iUniqueLuxuryCitiesPlaced)
+	if (m_iUniqueLuxuryCities <= m_iUniqueLuxuryCitiesPlaced) {
 		return bResult;
+}
 
 	// Find our unique resources
 	vector<ResourceTypes> vPossibleResources;
@@ -6429,8 +6431,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		}
 	}
 
-	if (vPossibleResources.empty())
+	if (vPossibleResources.empty()) {
 		return false;
+}
 
 	//choose one
 	int iChoice = GC.getGame().getSmallFakeRandNum( vPossibleResources.size(), pCity->plot()->GetPlotIndex() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() );
@@ -6470,8 +6473,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 			{
 				if(pLoopPlot->getResourceType() == NO_RESOURCE)
 				{
-					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+					if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT) {
 						pLoopPlot->setImprovementType(NO_IMPROVEMENT);
+}
 
 					pLoopPlot->setResourceType(eResourceToGive, 1, false);
 					iNumResourceGiven++;
@@ -6497,8 +6501,9 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		}
 	}
 
-	if (bResult)
+	if (bResult) {
 		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
+}
 
 	return bResult;
 }
@@ -6601,8 +6606,9 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 					{
 						CvUnit* pkUnit = m_pPlayer->initUnit(eBestLandUnit, pLoopPlot->getX(), pLoopPlot->getY());
 						pCity->addProductionExperience(pkUnit);
-						if (!pkUnit->jumpToNearestValidPlot())
+						if (!pkUnit->jumpToNearestValidPlot()) {
 							pkUnit->kill(false);
+}
 					}
 				}
 			}
@@ -6926,9 +6932,10 @@ bool CvPlayerTraits::IsEndOfMayaLongCount()
 		bRtnValue = true;
 #if defined(MOD_EVENTS_GOLDEN_AGE)
 		// Since m_iBaktunPreviousTurn will be overwritten in a moment, this is the only place to properly send an event for end of Maya long count
-		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL)
+		if(MOD_EVENTS_GOLDEN_AGE && m_pPlayer != NULL) {
 			// GameEvents.PlayerEndOfMayaLongCount.Add(function(iPlayer, iBaktun, iBaktunPreviousTurn) end)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerEndOfMayaLongCount, m_pPlayer->GetID(), m_iBaktun, m_iBaktunPreviousTurn);
+}
 #endif
 	}
 
@@ -7773,9 +7780,9 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		// Convert the barbarian into our unit
 		FAssertMsg(m_eCampGuardType < GC.getNumUnitInfos(), "Illegal camp guard unit type");
 		pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, REASON_CONVERT, true /*bNoMove*/);
-		if (!pGiftUnit->jumpToNearestValidPlot())
+		if (!pGiftUnit->jumpToNearestValidPlot()) {
 			pGiftUnit->kill(false);
-		else
+		} else
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 		{
 			if (MOD_EVENTS_UNIT_CAPTURE) {
@@ -7791,9 +7798,9 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		for(int iI = 0; iI < m_iLandBarbarianConversionExtraUnits; iI++)
 		{
 			pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, REASON_CONVERT, true /*bNoMove*/);
-			if (!pGiftUnit->jumpToNearestValidPlot())
+			if (!pGiftUnit->jumpToNearestValidPlot()) {
 				pGiftUnit->kill(false);
-			else
+			} else
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 		{
 				if (MOD_EVENTS_UNIT_CAPTURE) {

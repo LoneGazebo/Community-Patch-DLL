@@ -103,8 +103,9 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
 		CvAssertMsg(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
-		if(!CvUnit::dispatchingNetMessage())
+		if(!CvUnit::dispatchingNetMessage()) {
 			gDLL->netMessageDebugLog("*** PROTOCOL ERROR *** : PushMission invoked for a human controlled player outside of a network message!");
+}
 	}
 
 	MissionData mission;
@@ -298,8 +299,9 @@ void CvUnitMission::WaitFor(CvUnit* hUnit, CvUnit* hWaitForUnit)
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
 		CvAssertMsg(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
-		if(!CvUnit::dispatchingNetMessage())
+		if(!CvUnit::dispatchingNetMessage()) {
 			gDLL->netMessageDebugLog("*** PROTOCOL ERROR *** : PushMission invoked for a human controlled player outside of a network message!");
+}
 	}
 
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
@@ -330,8 +332,9 @@ void CvUnitMission::WaitFor(CvUnit* hUnit, CvUnit* hWaitForUnit)
 /// Periodic update routine to advance the state of missions
 void CvUnitMission::UpdateMission(CvUnit* hUnit)
 {
-	if (hUnit == 0)
+	if (hUnit == 0) {
 		return;
+}
 
 	if(hUnit->GetMissionTimer() > 0)
 	{
@@ -396,8 +399,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
 			{
 				CvPlot* pDestPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
-				if (pDestPlot == 0)
+				if (pDestPlot == 0) {
 					return;
+}
 
 				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
 				{
@@ -586,8 +590,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						CvUnit* pUnit2 = pTargetPlot->getUnitByIndex(iI);
 
 						//only combat units need to swap
-						if(!pUnit2->IsCombatUnit() || pUnit2->getDomainType() != hUnit->getDomainType())
+						if(!pUnit2->IsCombatUnit() || pUnit2->getDomainType() != hUnit->getDomainType()) {
 							continue;
+}
 
 						if(pUnit2->ReadyToSwap())
 						{
@@ -598,16 +603,18 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							{
 								//move the new unit in
 								int iResult = 0;
-								while (iResult >= 0)
+								while (iResult >= 0) {
 									iResult = hUnit->UnitPathTo(pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING_SELF);
+}
 
 								//make sure to delete any previous missions, there's a check later for conflicts
 								pUnit2->ClearMissionQueue(true);
 
 								//move the old unit out
 								int iResult2 = 0;
-								while (iResult2 >= 0)
+								while (iResult2 >= 0) {
 									iResult2 = pUnit2->UnitPathTo(pOriginationPlot->getX(), pOriginationPlot->getY(), CvUnit::MOVEFLAG_IGNORE_STACKING_SELF);
+}
 
 								bAction = true;
 								bDone = true;
@@ -1022,8 +1029,9 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 				return true;
 			}
 		}
-		else
+		else {
 			return false;
+}
 	}
 	else if(iMission == CvTypes::getMISSION_SKIP())
 	{
@@ -1469,8 +1477,9 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				pkQueueData->eMissionType == CvTypes::getMISSION_SKIP() )
 			{
 				//start the animation right now to give feedback to the player
-				if (!hUnit->IsFortified() && !hUnit->hasMoved() && hUnit->canFortify(hUnit->plot()))
+				if (!hUnit->IsFortified() && !hUnit->hasMoved() && hUnit->canFortify(hUnit->plot())) {
 					hUnit->triggerFortifyAnimation(true);
+}
 			}
 			else if (hUnit->IsFortified())
 			{
@@ -2197,8 +2206,9 @@ void CvUnitMission::DeactivateHeadMission(CvUnit* hUnit, int iUnitCycleTimer)
 		{
 			if(hUnit->IsSelected())
 			{
-				if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
+				if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES)) {
 					iUnitCycleTimer = min(1, iUnitCycleTimer);
+}
 
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(iUnitCycleTimer);
 			}
@@ -2266,8 +2276,9 @@ int	CvUnitMission::GetLengthMissionQueue(const MissionQueue& kQueue)
 const MissionData* CvUnitMission::GetHeadMissionData(CvUnit* hUnit)
 {
 	CvAssert(hUnit != NULL);
-	if(hUnit->m_missionQueue.getLength() != 0)
+	if(hUnit->m_missionQueue.getLength() != 0) {
 		return (hUnit->m_missionQueue.head());
+}
 	return NULL;
 }
 
@@ -2278,8 +2289,9 @@ const MissionData* CvUnitMission::IsHeadMission(CvUnit* hUnit, int iMission)
 	if(hUnit->m_missionQueue.getLength() != 0)
 	{
 		const MissionData& kMissionData = *hUnit->m_missionQueue.head();
-		if(kMissionData.eMissionType == (MissionTypes)iMission)
+		if(kMissionData.eMissionType == (MissionTypes)iMission) {
 			return &kMissionData;
+}
 	}
 	return NULL;
 }

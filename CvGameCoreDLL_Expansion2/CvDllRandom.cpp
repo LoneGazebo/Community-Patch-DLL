@@ -93,8 +93,9 @@ void CvDllRandom::Reset(unsigned long ulSeed)
 void CvDllRandom::CopyFrom(ICvRandom1* pOther)
 {
 	CvRandom* pkOther = GC.UnwrapRandomPointer(pOther);
-	if(pkOther != NULL)
+	if(pkOther != NULL) {
 		m_pRandom->CopyFrom(*pkOther);
+}
 }
 //------------------------------------------------------------------------------
 unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)

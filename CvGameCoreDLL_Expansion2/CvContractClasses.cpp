@@ -129,8 +129,9 @@ int CvContractEntry::GetFlavorValue(FlavorTypes eFlavor) const
 
 bool CvContractEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_iTurns = kResults.GetInt("ContractTurns");
 	m_iMutinyChance = kResults.GetInt("MutinyChance");
@@ -318,8 +319,9 @@ void CvPlayerContracts::Reset()
 
 CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return NULL;
+}
 
 	CvContractEntry* pContract = GC.getContractInfo(eContract);
 	if(pContract != 0)
@@ -429,8 +431,9 @@ void CvPlayerContracts::ChangeContractEndTurn(ContractTypes eContract, int iValu
 
 bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
 {
-	if(eUnit == NO_UNIT)
+	if(eUnit == NO_UNIT) {
 		return false;
+}
 
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
@@ -452,8 +455,9 @@ bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
 
 void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return;
+}
 
 	CvContractEntry* pContract = GC.getContractInfo(eContract);
 	if(pContract != 0)
@@ -462,8 +466,9 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 		{
 			UnitTypes eUnit = (UnitTypes)iI;
 				
-			if(eUnit == NO_UNIT)
+			if(eUnit == NO_UNIT) {
 				continue;
+}
 
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			if(pkUnitInfo != 0)
@@ -479,8 +484,9 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 					{
 						if(pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 						{
-							if(!pLoopCity->isCoastal())
+							if(!pLoopCity->isCoastal()) {
 								continue;
+}
 
 							if(pLoopCity->isCapital())
 							{
@@ -528,8 +534,9 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 							CvAssert(pUnit);
 							if (pUnit != 0)
 							{
-								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+								if (!pUnit->jumpToNearestValidPlotWithinRange(5)) {
 									pUnit->kill(false);		// Could not find a spot!
+}
 
 								// Valid Promotion for this Unit?
 								PromotionTypes ePromotion = pContract->GetPromotionType();
@@ -548,8 +555,9 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 }
 void CvPlayerContracts::DisbandContractUnits(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return;
+}
 
 	CvUnit* pLoopUnit = NULL;
 	int iLoop = 0;
@@ -566,8 +574,9 @@ void CvPlayerContracts::DisbandContractUnits(ContractTypes eContract)
 
 int CvPlayerContracts::GetContractTurnsRemaining(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return -1;
+}
 
 	CvContract* pContract = GetContract(eContract);
 	if(pContract != 0)
@@ -613,12 +622,14 @@ void CvPlayerContracts::DoTurn()
 // Wrapper function to quickly get the ContractEntry of a player's contract
 CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return NULL;
+}
 
 	CvContract* pContract = GetContract(eContract);
-	if (pContract == 0)
+	if (pContract == 0) {
 		return NULL;
+}
 
 	return GC.getContractInfo(pContract->m_eContract);
 }
@@ -643,8 +654,9 @@ void CvGameContracts::Init()
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		ContractTypes eContract = (ContractTypes)iI;
-		if(eContract == NO_CONTRACT)
+		if(eContract == NO_CONTRACT) {
 			continue;
+}
 
 		CvContractEntry* pContract = GC.getContractInfo(eContract);
 		if(pContract != 0)
@@ -718,8 +730,9 @@ void CvGameContracts::DoUpdateContracts()
 // Get this contract, or NULL if it does not exist
 CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return NULL;
+}
 
 	ContractList::iterator it;
 	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
@@ -734,8 +747,9 @@ CvContract* CvGameContracts::GetActiveContract(ContractTypes eContract)
 }
 CvContract* CvGameContracts::GetInactiveContract(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return NULL;
+}
 
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)
@@ -768,8 +782,9 @@ int CvGameContracts::GetNumUnavailableContracts() const
 }
 bool CvGameContracts::IsContractActive(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return false;
+}
 
 	ContractList::iterator it;
 	for(it = m_ActiveContracts.begin(); it != m_ActiveContracts.end(); it++)
@@ -784,8 +799,9 @@ bool CvGameContracts::IsContractActive(ContractTypes eContract)
 }
 bool CvGameContracts::IsContractAvailable(ContractTypes eContract)
 {
-	if(eContract == NO_CONTRACT)
+	if(eContract == NO_CONTRACT) {
 		return false;
+}
 
 	ContractList::iterator it;
 	for(it = m_InactiveContracts.begin(); it != m_InactiveContracts.end(); it++)

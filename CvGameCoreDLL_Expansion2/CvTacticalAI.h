@@ -604,31 +604,41 @@ struct SPathFinderStartPos
 	bool operator<(const SPathFinderStartPos& rhs) const
 	{
 		//unit id is primary feature
-		if (iUnitID < rhs.iUnitID)
+		if (iUnitID < rhs.iUnitID) {
 			return true;
-		if (iUnitID > rhs.iUnitID)
+}
+		if (iUnitID > rhs.iUnitID) {
 			return false;
+}
 		//equal unit, check plot
-		if (iPlotIndex < rhs.iPlotIndex)
+		if (iPlotIndex < rhs.iPlotIndex) {
 			return true;
-		if (iPlotIndex > rhs.iPlotIndex)
+}
+		if (iPlotIndex > rhs.iPlotIndex) {
 			return false;
+}
 		//equal plot, check moves
-		if (iMovesLeft < rhs.iMovesLeft)
+		if (iMovesLeft < rhs.iMovesLeft) {
 			return true;
-		if (iMovesLeft > rhs.iMovesLeft)
+}
+		if (iMovesLeft > rhs.iMovesLeft) {
 			return false;
+}
 		//no good way to compare this ...
-		if (freedPlots.size() < rhs.freedPlots.size())
+		if (freedPlots.size() < rhs.freedPlots.size()) {
 			return true;
-		if (freedPlots.size() > rhs.freedPlots.size())
+}
+		if (freedPlots.size() > rhs.freedPlots.size()) {
 			return false;
+}
 		for (size_t i = 0; i < freedPlots.size(); i++)
 		{
-			if (freedPlots[i] < rhs.freedPlots[i])
+			if (freedPlots[i] < rhs.freedPlots[i]) {
 				return true;
-			if (freedPlots[i] > rhs.freedPlots[i])
+}
+			if (freedPlots[i] > rhs.freedPlots[i]) {
 				return false;
+}
 		}
 
 		return false;

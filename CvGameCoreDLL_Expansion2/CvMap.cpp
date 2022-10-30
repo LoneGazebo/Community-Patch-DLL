@@ -498,8 +498,9 @@ void CvMap::PrecalcNeighbors()
 	int iH = getGridHeight();
 
 	CvPlot** pNeighbors = m_pPlotNeighbors;
-	if (pNeighbors == 0)
+	if (pNeighbors == 0) {
 		return;
+}
 
 	int iNX = 0;
 	int iNY = 0;
@@ -535,8 +536,9 @@ void CvMap::PrecalcNeighbors()
 //	--------------------------------------------------------------------------------
 CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
 {
-	if (pPlot == 0)
+	if (pPlot == 0) {
 		return NULL;
+}
 
 	int aiShuffle[3][6] = {
 		{ 4, 5, 2, 1, 3, 0 },
@@ -546,8 +548,9 @@ CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
 	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pPlot);
 	int iBaseIndex = plotNum(pPlot->getX(), pPlot->getY())*(NUM_DIRECTION_TYPES + 2);
 
-	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
+	for (int i = 0; i < NUM_DIRECTION_TYPES; i++) {
 		m_apShuffledNeighbors[i] = m_pPlotNeighbors[iBaseIndex + aiShuffle[iShuffleType][i]];
+}
 
 	return m_apShuffledNeighbors;
 }
@@ -665,8 +668,9 @@ void CvMap::setup()
 //////////////////////////////////////
 void CvMap::setupGraphical()
 {
-	if(!GC.IsGraphicsInitialized())
+	if(!GC.IsGraphicsInitialized()) {
 		return;
+}
 
 	if(m_pMapPlots != NULL)
 	{
@@ -868,7 +872,8 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
-		if(pTestPlot == 0) continue;
+		if(pTestPlot == 0) { continue;
+}
 
 		if((iArea == -1) || (pTestPlot->getArea() == iArea))
 		{
@@ -994,8 +999,9 @@ CvCity* CvMap::findCity(int iX, int iY, PlayerTypes eOwner, TeamTypes eTeam, boo
 	CvPlot* pCheckPlot = plot(iX, iY);
 
 	CvAssertMsg(pCheckPlot != NULL, "Passed in an invalid plot to findCity");
-	if (pCheckPlot == NULL)
+	if (pCheckPlot == NULL) {
 		return NULL;
+}
 
 	// XXX look for barbarian cities???
 
@@ -1298,8 +1304,9 @@ const CvSeaLevelInfo& CvMap::getSeaLevelInfo() const
 int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 {
 	CvResourceInfo* thisResourceInfo = GC.getResourceInfo(eIndex);
-	if(thisResourceInfo == NULL)
+	if(thisResourceInfo == NULL) {
 		return 0;
+}
 
 	int iNumRands = 0;
 
@@ -1444,10 +1451,11 @@ void CvMap::deleteArea(int iID)
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::firstArea(int* pIterIdx, bool bRev)
 {
-	if (bRev)
+	if (bRev) {
 		*pIterIdx = m_areas.GetCount()-1;
-	else
+	} else {
 		*pIterIdx = 0;
+}
 	return m_areas.GetAt(*pIterIdx);
 }
 
@@ -1455,10 +1463,11 @@ CvArea* CvMap::firstArea(int* pIterIdx, bool bRev)
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::nextArea(int* pIterIdx, bool bRev)
 {
-	if (bRev)
+	if (bRev) {
 		(*pIterIdx)--;
-	else
+	} else {
 		(*pIterIdx)++;
+}
 	return m_areas.GetAt(*pIterIdx);
 }
 
@@ -1608,8 +1617,9 @@ void CvMap::calculateAreas()
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
 		//ignore plots which are already assigned
-		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) 
+		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) { 
 			continue;
+}
 
 		//use flag for "wide connection"
 		SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION, 1);
@@ -1635,8 +1645,9 @@ void CvMap::calculateAreas()
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
 		//ignore plots which are already assigned
-		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) 
+		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) { 
 			continue;
+}
 
 		//use flag for "single connection"
 		SPathFinderUserData data(NO_PLAYER, PT_AREA_CONNECTION, 0);
@@ -1720,8 +1731,9 @@ void CvMap::calculateAreas()
 	{
 		static int iCallCount = 0; //apparently this is called multiple times
 		FILogFile* pLog = LOGFILEMGR.GetLog( CvString::format("MapAreas%02d.txt",iCallCount++).c_str(), FILogFile::kDontTimeStamp);
-		if (pLog == 0)
+		if (pLog == 0) {
 			return;
+}
 
 		pLog->Msg("#x,y,terrain,feature,area\n");
 		for (int iI = 0; iI < numPlots(); iI++)
@@ -2194,8 +2206,9 @@ void CvMap::DefaultContinentStamper()
 
 	for(int i=0; i < iNumContinentTypes; i++)
 	{
-		if(iLargeContinentsID[i] != -1)
+		if(iLargeContinentsID[i] != -1) {
 			iNumLargeContinents++;
+}
 	}
 
 	int iLargeContinentsX[iNumContinentTypes] = {0,0,0,0};
@@ -2308,10 +2321,11 @@ void CvMap::deleteLandmass(int iID)
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::firstLandmass(int* pIterIdx, bool bRev)
 {
-	if (bRev)
+	if (bRev) {
 		*pIterIdx = m_landmasses.GetCount()-1;
-	else
+	} else {
 		*pIterIdx = 0;
+}
 	return m_landmasses.GetAt(*pIterIdx);
 }
 
@@ -2319,10 +2333,11 @@ CvLandmass* CvMap::firstLandmass(int* pIterIdx, bool bRev)
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::nextLandmass(int* pIterIdx, bool bRev)
 {
-	if (bRev)
+	if (bRev) {
 		(*pIterIdx)--;
-	else
+	} else {
 		(*pIterIdx)++;
+}
 	return m_landmasses.GetAt(*pIterIdx);
 }
 
@@ -2344,8 +2359,9 @@ void CvMap::recalculateLandmasses()
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pPlot = plotByIndexUnchecked(iI);
-		if (pPlot->getArea() >= 0 && pPlot->getLandmass() >= 0)
+		if (pPlot->getArea() >= 0 && pPlot->getLandmass() >= 0) {
 			pPlot->landmass()->addArea(pPlot->getArea());
+}
 	}
 }
 
@@ -2527,8 +2543,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 		return m_vPlotsShared;
 
 	//for now, we can only do up to range 5
-	if (iRange<1 || iRange>5)
+	if (iRange<1 || iRange>5) {
 		OutputDebugString("GetPlotsAtRangeX() called with invalid parameter\n");
+}
 
 	iRange = range(iRange, 1, 5);
 
@@ -2555,8 +2572,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (pLoopPlot == 0)
+						if (pLoopPlot == 0) {
 							continue;
+}
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
 							current.push_back(pLoopPlot);
@@ -2566,8 +2584,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					if (current.empty())
 						current.push_back(NULL);
 
-					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6)
+					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6) {
 						OutputDebugString(CvString::format("invalid cache for %d\n",pPlot->GetPlotIndex()).c_str());
+}
 				}
 				return current;
 			}
@@ -2580,8 +2599,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (pLoopPlot == 0)
+						if (pLoopPlot == 0) {
 							continue;
+}
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
 							current.push_back(pLoopPlot);
@@ -2591,8 +2611,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					if (current.empty())
 						current.push_back(NULL);
 
-					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6)
+					if (current.size()>1 && abs(current.front()->GetPlotIndex())>1e6) {
 						OutputDebugString(CvString::format("invalid cache for %d\n",pPlot->GetPlotIndex()).c_str());
+}
 				}
 				return current;
 			}
@@ -2606,8 +2627,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (pLoopPlot == 0)
+						if (pLoopPlot == 0) {
 							continue;
+}
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
 							current.push_back(pLoopPlot);
@@ -2628,8 +2650,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (pLoopPlot == 0)
+						if (pLoopPlot == 0) {
 							continue;
+}
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
 							current.push_back(pLoopPlot);
@@ -2648,8 +2671,9 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
 			{
 				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
-				if (pCandidate == 0)
+				if (pCandidate == 0) {
 					continue;
+}
 
 				if (bFromPlot)
 				{

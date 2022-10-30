@@ -77,8 +77,9 @@ void CvRandom::uninit()
 // Initializes data members that are serialized.
 void CvRandom::reset(unsigned long long ullSeed)
 {
-	if (ullSeed != m_ullRandomSeed)
+	if (ullSeed != m_ullRandomSeed) {
 		reseed(ullSeed);
+}
 
 	m_ulCallCount = 0;
 }
@@ -91,8 +92,9 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 	}
 
 	//catch trivial cases
-	if (ulNum < 2)
+	if (ulNum < 2) {
 		return 0;
+}
 
 	m_ulCallCount++;
 

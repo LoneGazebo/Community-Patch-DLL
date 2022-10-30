@@ -35,8 +35,9 @@ CvSparseIDInfoGrid::~CvSparseIDInfoGrid()
 		CvIDInfoFixedVector** pkEntry = m_paEntries;
 		for (uint uiIndex = m_uiMaxIndex; --uiIndex != 0u;)
 		{
-			if (*pkEntry != 0)
+			if (*pkEntry != 0) {
 				m_pkAllocator->Release(*pkEntry);
+}
 
 			pkEntry++;
 		}
@@ -50,8 +51,9 @@ const CvIDInfoFixedVector *CvSparseIDInfoGrid::Get(int iX, int iY) const
 	if (uiIndex < m_uiMaxIndex)
 	{
 		CvIDInfoFixedVector* pkEntry = m_paEntries[uiIndex];
-		if (pkEntry != 0)
+		if (pkEntry != 0) {
 			return pkEntry;
+}
 	}
 
 	return NULL;
@@ -233,8 +235,9 @@ const CvIDInfoFixedVector &CvPlotManager::GetUnitsByIndex(int iX, int iY, int iL
 	if (iLayerIndex >= 0 && iLayerIndex < (int)m_aLayers.size())
 	{
 		const CvIDInfoFixedVector* pkEntry = m_aLayers[iLayerIndex].GetGrid()->Get(iX, iY);
-		if (pkEntry != 0)
+		if (pkEntry != 0) {
 			return *pkEntry;
+}
 	}
 
 	return m_kEmpty;
@@ -278,8 +281,9 @@ int CvPlotManager::GetNumUnits(int iX, int iY, uint uiLayerID) const
 	if (pkLayer != 0)
 	{
 		const CvIDInfoFixedVector* pkUnits = pkLayer->Get(iX, iY);
-		if (pkUnits != 0)
+		if (pkUnits != 0) {
 			return pkUnits->size();
+}
 	}
 
 	return 0;
@@ -291,8 +295,9 @@ int CvPlotManager::GetNumUnitsByIndex(int iX, int iY, int iLayerIndex) const
 	if (iLayerIndex >= 0 && iLayerIndex < (int)m_aLayers.size())
 	{
 		const CvIDInfoFixedVector* pkEntry = m_aLayers[iLayerIndex].GetGrid()->Get(iX, iY);
-		if (pkEntry != 0)
+		if (pkEntry != 0) {
 			return (int)pkEntry->size();
+}
 	}
 
 	return 0;

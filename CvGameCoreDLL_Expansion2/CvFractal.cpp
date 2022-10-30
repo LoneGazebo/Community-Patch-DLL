@@ -291,10 +291,12 @@ int CvFractal::getHeight(int iX, int iY)
 	int iLowY = 0;
 
 	CvAssertMsg(0 <= iX && iX < m_iXs, "iX out of range");
-	if(!(0 <= iX && iX < m_iXs)) return 0;
+	if(!(0 <= iX && iX < m_iXs)) { return 0;
+}
 
 	CvAssertMsg(0 <= iY && iY < m_iYs, "iY out of range");
-	if(!(0 <= iY && iY < m_iYs)) return 0;
+	if(!(0 <= iY && iY < m_iYs)) { return 0;
+}
 
 	iLowX = ((m_iXInc * iX) / FLOAT_PRECISION);
 	if(iLowX > m_iFracX - 1)
@@ -310,8 +312,10 @@ int CvFractal::getHeight(int iX, int iY)
 	iErrX = ((m_iXInc * iX) - (iLowX * FLOAT_PRECISION));
 	iErrY = ((m_iYInc * iY) - (iLowY * FLOAT_PRECISION));
 
-	if(iLowX < 0 || iLowX > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
-	if(iLowY < 0 || iLowY > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
+	if(iLowX < 0 || iLowX > FRACTAL_MAX_DIMS) { return 0; // array is defined as FRACTAL_MAX_DIMS+1
+}
+	if(iLowY < 0 || iLowY > FRACTAL_MAX_DIMS) { return 0; // array is defined as FRACTAL_MAX_DIMS+1
+}
 
 	iSum = 0;
 	iSum += ((FLOAT_PRECISION - iErrX) * (FLOAT_PRECISION - iErrY) * m_aaiFrac[iLowX    ][iLowY    ]);

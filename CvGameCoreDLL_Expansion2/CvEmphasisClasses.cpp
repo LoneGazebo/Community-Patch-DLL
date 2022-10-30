@@ -31,8 +31,9 @@ CvEmphasisEntry::~CvEmphasisEntry(void)
 /// Read from XML file (pass 1)
 bool CvEmphasisEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bAvoidGrowth = kResults.GetBool("AvoidGrowth");
 	m_bGreatPeople = kResults.GetBool("GreatPeople");

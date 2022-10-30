@@ -95,8 +95,9 @@ bool CvDllGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer
 	{
 		return m_pGameDeals->FinalizeMPDealLatest(eFromPlayer, eToPlayer, bAccepted, true);
 	}
-	else
+	else {
 		return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
+}
 #else
 	return m_pGameDeals->FinalizeDeal(eFromPlayer, eToPlayer, bAccepted);
 #endif
@@ -126,8 +127,9 @@ bool CvDllGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eTo
 	{
 		return m_pGameDeals->GetProposedMPDeal(eFromPlayer, eToPlayer, false) != NULL;
 	}
-	else
+	else {
 		return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
+}
 #else
 	return m_pGameDeals->ProposedDealExists(eFromPlayer, eToPlayer);
 #endif

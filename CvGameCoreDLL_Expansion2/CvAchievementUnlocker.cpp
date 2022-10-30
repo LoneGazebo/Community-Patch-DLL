@@ -31,8 +31,9 @@ int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	Test the conditions for the ACHIEVEMENT_PSG
 bool CvAchievementUnlocker::Check_PSG()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return false;
+}
 
 	const int PSG_STAT_MATCH_VALUE = 100;
 
@@ -55,13 +56,15 @@ bool CvAchievementUnlocker::Check_PSG()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::FarmImprovementPillaged()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return;
+}
 
 	ms_iNumImprovementsPillagedPerTurn++;
 
-	if (ms_iNumImprovementsPillagedPerTurn >= 9)
+	if (ms_iNumImprovementsPillagedPerTurn >= 9) {
 		gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_PILLAGE);
+}
 }
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::EndTurn()
@@ -73,8 +76,9 @@ void CvAchievementUnlocker::EndTurn()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return;
+}
 
 	//Test For Alexander Conquest
 	CvGame& kGame = GC.getGame();
@@ -113,8 +117,9 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 
 void CvAchievementUnlocker::UnlockFromDatabase()
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return;
+}
 
 	GUID guid;
 
@@ -143,8 +148,9 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 		EAchievement eAchievement = (EAchievement) iAchievement;
 
 		// Multiplayer achievements - can't have these!
-		if (eAchievement == ACHIEVEMENT_WIN_MULTIPLAYER)
+		if (eAchievement == ACHIEVEMENT_WIN_MULTIPLAYER) {
 			continue;
+}
 
 		// Broken achievements - can't have these!
 		if (   eAchievement == ACHIEVEMENT_HUNDRED_WAR
@@ -162,8 +168,9 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 		    || eAchievement == ACHIEVEMENT_SPECIAL_HWATCH_OUT
 		    || eAchievement == ACHIEVEMENT_SCENARIO_05_QING_TAKES_MING
 		    || eAchievement == ACHIEVEMENT_SPECIAL_ANCIENT_WONDERS
-		    || eAchievement == ACHIEVEMENT_XP1_49)
+		    || eAchievement == ACHIEVEMENT_XP1_49) {
 			continue;
+}
 
 		// DLC/Expansion achievements - can only have these if own the DLC/Expansion
 		if (   (eAchievement >= ACHIEVEMENT_WIN_NEBUCHADNEZZAR && eAchievement <= ACHIEVEMENT_WIN_NEBUCHADNEZZAR && !bDLC_DX)
@@ -174,13 +181,15 @@ void CvAchievementUnlocker::UnlockFromDatabase()
 		    || (eAchievement >= ACHIEVEMENT_WIN_SEJONG && eAchievement <= ACHIEVEMENT_SCENARIO_05_QING_TAKES_MING && !bDLC_05)
 		    || (eAchievement >= ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS && eAchievement <= ACHIEVEMENT_SCENARIO_06_ORACLE_CONSULT && !bDLC_06)
 		    || (eAchievement >= ACHIEVEMENT_XP1_01 && eAchievement <= ACHIEVEMENT_XP1_52 && !bEXP_01)
-		    || (eAchievement >= ACHIEVEMENT_XP2_01 && eAchievement <= ACHIEVEMENT_XP2_60 && !bEXP_02))
+		    || (eAchievement >= ACHIEVEMENT_XP2_01 && eAchievement <= ACHIEVEMENT_XP2_60 && !bEXP_02)) {
 			continue;
+}
 
 		CvAchievementInfo* achievementInfo = GC.getAchievementInfo(eAchievement);
 
-		if(achievementInfo == NULL)
+		if(achievementInfo == NULL) {
 			continue;
+}
 
 		if (achievementInfo->isAchieved()) {
 			if (!gDLL->IsAchievementUnlocked(eAchievement)) {
@@ -219,8 +228,9 @@ CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer()) {
 		return;
+}
 
 	//Cache value if needed
 	if(m_ePapalPrimacyType == UNDEFINED_TYPE)
@@ -247,8 +257,9 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 						if(kPlayer.isAlive() && kPlayer.isMinorCiv())
 						{
 							const PlayerTypes eAlly = kPlayer.GetMinorCivAI()->GetAlly();
-							if(eAlly == m_kPlayer.GetID())
+							if(eAlly == m_kPlayer.GetID()) {
 								iNumAllies++;
+}
 						}
 					}
 
@@ -264,8 +275,9 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer()) {
 		return;
+}
 
 	//Attempt to read from cache
 	if(m_eEthiopiaType == UNDEFINED_TYPE)
@@ -294,8 +306,9 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer()) {
 		return;
+}
 
 	if(m_eCarthageType == UNDEFINED_TYPE)
 	{
@@ -326,16 +339,18 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 {
-	if (!MOD_API_ACHIEVEMENTS || iNumUnits < 15)
+	if (!MOD_API_ACHIEVEMENTS || iNumUnits < 15) {
 		return;
+}
 
 	gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit)
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer()) {
 		return;
+}
 
 	if(m_eByzantinesType == UNDEFINED_TYPE)
 	{
@@ -400,8 +415,9 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::StartTurn()
 {
-	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer())
+	if (!MOD_API_ACHIEVEMENTS || m_kPlayer.GetID() != GC.getGame().getActivePlayer()) {
 		return;
+}
 
 	if(m_eSwedenType == UNDEFINED_TYPE)
 	{
@@ -453,8 +469,9 @@ void CvPlayerAchievements::EndTurn()
 //-------------------------------------------------------------------------
 void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding)
 {
-	if (!MOD_API_ACHIEVEMENTS)
+	if (!MOD_API_ACHIEVEMENTS) {
 		return;
+}
 
 	if(m_eCollossusType == UNDEFINED_TYPE)
 	{

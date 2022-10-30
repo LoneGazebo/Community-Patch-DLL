@@ -370,8 +370,9 @@ CvPromotionEntry::~CvPromotionEntry(void)
 //------------------------------------------------------------------------------
 bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvHotKeyInfo::CacheResults(kResults, kUtility))
+	if(!CvHotKeyInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	SetSound(kResults.GetText("Sound"));
 
@@ -718,7 +719,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -780,7 +782,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -834,7 +837,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -861,7 +865,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -887,7 +892,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -914,7 +920,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if (pResults == 0) return false;
+		if (pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -941,7 +948,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -970,7 +978,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1008,7 +1017,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1071,7 +1081,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1081,8 +1092,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			CvAssert(iDomainID > -1 && iDomainID < iNumDomains);
 
 			const int iDomainMod = pResults->GetInt(1);
-			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES)
+			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES) {
 				m_piDomainModifierPercent[iDomainID] = iDomainMod;
+}
 		}
 
 		pResults->Reset();
@@ -1101,7 +1113,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1130,7 +1143,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1158,7 +1172,8 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(pResults == 0) return false;
+		if(pResults == 0) { return false;
+}
 
 		pResults->Bind(1, szPromotionType);
 
@@ -3344,8 +3359,9 @@ bool CvUnitPromotions::HasAllowFeaturePassable() const
 bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const
 {
 	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
-	if (teamTechs == 0)
+	if (teamTechs == 0) {
 		return false;
+}
 
 	std::vector<TechTypes> reqTechs = m_featurePassableCache[eFeatureType];
 	for (std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs)
@@ -3365,8 +3381,9 @@ bool CvUnitPromotions::HasAllowTerrainPassable() const
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const
 {
 	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
-	if(teamTechs == 0) 
+	if(teamTechs == 0) { 
 		return false;
+}
 
 	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
 	for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
@@ -3380,8 +3397,9 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTy
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 {
-	if ((size_t)eUnitClass<m_unitClassAttackMod.size())
+	if ((size_t)eUnitClass<m_unitClassAttackMod.size()) {
 		return m_unitClassAttackMod[eUnitClass];
+}
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
@@ -3400,8 +3418,9 @@ int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 /// returns the advantage percent when defending against the specified unit class
 int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 {
-	if ((size_t)eUnitClass<m_unitClassDefenseMod.size())
+	if ((size_t)eUnitClass<m_unitClassDefenseMod.size()) {
 		return m_unitClassDefenseMod[eUnitClass];
+}
 
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
@@ -3421,8 +3440,9 @@ int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eIndex, CvUnit* pThisUnit)
 {
 	CvPromotionEntry *pkEntry = GC.GetGamePromotions()->GetEntry(eIndex);
-	if ((pkEntry == 0) || (pThisUnit == 0))
+	if ((pkEntry == 0) || (pThisUnit == 0)) {
 		return NO_PROMOTION;
+}
 
 	std::vector<int> aPossiblePromotions;
 	for (int iI = 0; iI < GC.GetGamePromotions()->GetNumPromotions(); iI++)
@@ -3567,8 +3587,9 @@ void PromotionArrayHelpers::Write(FDataStream& kStream, const CvBitfield& kPromo
 	for(int iI = 0; iI < iArraySize; iI++)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
-		if (kPromotions.GetBit(ePromotion) && GC.getPromotionInfo(ePromotion) != NULL)
+		if (kPromotions.GetBit(ePromotion) && GC.getPromotionInfo(ePromotion) != NULL) {
 			++iCount;
+}
 	}
 
 	kStream << iCount;

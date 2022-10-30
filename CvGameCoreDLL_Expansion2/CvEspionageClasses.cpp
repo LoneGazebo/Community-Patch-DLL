@@ -86,17 +86,20 @@ void CvEspionageSpy::SetSpyFocus(CityEventChoiceTypes eEventChoice)
 void CvEspionageSpy::SetSpySiphon(CityEventChoiceTypes eEventChoice)
 {
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-	if (pkEventChoiceInfo == NULL)
+	if (pkEventChoiceInfo == NULL) {
 		return;
+}
 	
 	for (int i = 0; i < NUM_YIELD_TYPES; i++)
 	{
 		int iYield = pkEventChoiceInfo->getYieldSiphon(i);
-		if (iYield <= 0)
+		if (iYield <= 0) {
 			continue;
+}
 
-		if (m_eSiphonYield != NO_YIELD)
+		if (m_eSiphonYield != NO_YIELD) {
 			ResetSpySiphon();
+}
 
 		m_eSiphonYield = (YieldTypes)i;
 		break;
@@ -376,8 +379,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					int iGoal = CalcRequired(SPY_STATE_BUILDING_NETWORK, pCity, uiSpyIndex);
 					pCityEspionage->SetActivity(ePlayer, 0, iRate, iGoal);
 				}
-				else
+				else {
 					pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_COUNTER_INTEL);
+}
 			}
 			else // moved to an opponent's city
 			{
@@ -399,8 +403,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		{
 			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_COUNTER_INTEL);
 
-			if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY)
+			if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY) {
 				TriggerSpyFocusSetup(pCity, uiSpyIndex);
+}
 		}
 		break;
 	case SPY_STATE_SURVEILLANCE:
@@ -762,8 +767,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				}
 
 				//Achievements!
-				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+				if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer()) {
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_12);
+}
 
 				LevelUpSpy(uiSpyIndex);
 
@@ -806,8 +812,9 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		break;
 	case SPY_STATE_COUNTER_INTEL:
 	{
-		if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY)
+		if (pSpy->m_eSpyFocus == NO_EVENT_CHOICE_CITY) {
 			TriggerSpyFocusSetup(pCity, uiSpyIndex);
+}
 		break;
 	}
 	case SPY_STATE_MAKING_INTRODUCTIONS:
@@ -887,8 +894,9 @@ void CvPlayerEspionage::ProcessSpyFocus()
 	for (uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
 	{
 		CvEspionageSpy* pSpy = &(m_aSpyList[uiSpy]);
-		if ((int)pSpy->m_eSpyState != SPY_STATE_GATHERING_INTEL)
+		if ((int)pSpy->m_eSpyState != SPY_STATE_GATHERING_INTEL) {
 			continue;
+}
 
 		PlayerTypes eCityOwner = NO_PLAYER;
 		//Let's give spies a few new tricks, eh?
@@ -943,8 +951,9 @@ void CvPlayerEspionage::ProcessSpyFocus()
 								LogEspionageMsg(strMsg);
 							}
 						}
-						else if (pCity->GetCityEspionage()->HasReachedGoal(m_pPlayer->GetID()))
+						else if (pCity->GetCityEspionage()->HasReachedGoal(m_pPlayer->GetID())) {
 							DoSpyFocusEvent(uiSpy);
+}
 					}
 					else
 					{
@@ -977,8 +986,9 @@ void CvPlayerEspionage::ProcessSpyFocus()
 void CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex, int iDebug)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	if (pSpy == 0)
+	if (pSpy == 0) {
 		return;
+}
 	
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
@@ -994,8 +1004,9 @@ void CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex, int iDebug)
 		}
 	}
 
-	if (pCity == NULL)
+	if (pCity == NULL) {
 		return;
+}
 	
 	if (iDebug != -1)
 	{
@@ -1016,14 +1027,16 @@ void CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex, int iDebug)
 }
 bool CvPlayerEspionage::DoStealTechnology(PlayerTypes eTargetPlayer)
 {
-	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0)
+	if (m_aaPlayerStealableTechList[eTargetPlayer].size() <= 0) {
 		return false;
+}
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
 	int iGrab = GC.getGame().getSmallFakeRandNum((int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(eTargetPlayer).GetTreasury()->CalculateGrossGold());
-	if (iGrab <= 0)
+	if (iGrab <= 0) {
 		iGrab = 0;
+}
 	if (iGrab > (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1)
 		iGrab = (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1;
 
@@ -1079,12 +1092,14 @@ bool CvPlayerEspionage::DoStealGW(CvCity* pPlayerCity, int iGWID)
 void CvPlayerEspionage::ProcessSpySiphon(CvCity* pCity, int uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	if (pSpy->m_eSiphonYield == NO_YIELD)
+	if (pSpy->m_eSiphonYield == NO_YIELD) {
 		return;
+}
 
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
-	if (pkEventChoiceInfo == NULL)
+	if (pkEventChoiceInfo == NULL) {
 		return;
+}
 
 	int iTotal = pCity->getYieldRate(pSpy->m_eSiphonYield, false);
 	int iSiphon = iTotal * pkEventChoiceInfo->getYieldSiphon(pSpy->m_eSiphonYield);
@@ -1094,8 +1109,9 @@ void CvPlayerEspionage::ProcessSpySiphon(CvCity* pCity, int uiSpyIndex)
 void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 {
 	bool bCounterSpy = false;
-	if (pCity->getOwner() == m_pPlayer->GetID())
+	if (pCity->getOwner() == m_pPlayer->GetID()) {
 		bCounterSpy = true;
+}
 	CityEventTypes eSetupEvent = NO_EVENT_CITY;
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
@@ -1103,8 +1119,9 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (pkEventInfo == NULL)
+			if (pkEventInfo == NULL) {
 				continue;
+}
 
 			if (!bCounterSpy && pkEventInfo->isEspionageSetup())
 			{
@@ -1119,17 +1136,19 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 		}
 	}
 
-	if (eSetupEvent == NO_EVENT_CITY)
+	if (eSetupEvent == NO_EVENT_CITY) {
 		return;
+}
 
 	pCity->SetEventActive(eSetupEvent, true);
 
 	if (!m_pPlayer->isHuman())
 	{
-		if(m_pPlayer->AI_DoEspionageEventChoice(eSetupEvent, uiSpyIndex, pCity))
+		if(m_pPlayer->AI_DoEspionageEventChoice(eSetupEvent, uiSpyIndex, pCity)) {
 			return;
-		else
+		} else {
 			ExtractSpyFromCity(uiSpyIndex);
+}
 	}
 
 
@@ -1164,8 +1183,9 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 void CvPlayerEspionage::CreateSpyChoiceEvent(CityEventTypes eEvent, CvCity* pCity, int uiSpyIndex)
 {
 	CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-	if (pkEventInfo == NULL)
+	if (pkEventInfo == NULL) {
 		return;
+}
 
 	if (!m_pPlayer->isHuman())
 	{
@@ -1194,12 +1214,14 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] = 0;
 
 	//no choice = no effect
-	if (eEventChoice == NO_EVENT_CHOICE_CITY)
+	if (eEventChoice == NO_EVENT_CHOICE_CITY) {
 		return NUM_SPY_RESULTS;
+}
 
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
-	if (pkEventChoiceInfo == NULL)
+	if (pkEventChoiceInfo == NULL) {
 		return NUM_SPY_RESULTS;
+}
 
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
 
@@ -1240,8 +1262,9 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		}
 	}
 
-	if (eCityOwner == m_pPlayer->GetID())
+	if (eCityOwner == m_pPlayer->GetID()) {
 		return NUM_SPY_RESULTS;
+}
 
 	CvPlayerEspionage* pDefendingPlayerEspionage = GET_PLAYER(eCityOwner).GetEspionage();
 	CvDiplomacyAI* pDefendingPlayerDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
@@ -1487,8 +1510,9 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	}
 
 	//AI should reeval to see if they want to stay.
-	if (!m_pPlayer->isHuman())
+	if (!m_pPlayer->isHuman()) {
 		pSpy->m_bEvaluateReassignment = true;
+}
 
 	return eResult;
 }
@@ -1504,8 +1528,9 @@ void CvPlayerEspionage::DoSpyFocusLevelUp(uint uiSpyIndex, int iExperience)
 CvString CvPlayerEspionage::GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	if (pSpy == 0)
+	if (pSpy == 0) {
 		return "";
+}
 
 	CvPlot* pCityPlot = GC.getMap().plot(pSpy->m_iCityX, pSpy->m_iCityY);
 	CvCity* pCity = NULL;
@@ -1540,31 +1565,36 @@ CvString CvPlayerEspionage::GetEventHelpText(CityEventTypes eEvent, int uiSpyInd
 
 CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* pCity)
 {
-	if (uiSpyIndex == -1)
+	if (uiSpyIndex == -1) {
 		return "";
+}
 
 	CvString strSpyAtCity = "";
 
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	if (pSpy == 0)
+	if (pSpy == 0) {
 		return "";
+}
 
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED) {
 		strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_EXPERIENCE", pSpy->m_iExperience, /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR));
+}
 
 	if (!bNoBasic)
 	{
 		if (pCity == NULL || pSpy->m_eSpyState == SPY_STATE_UNASSIGNED)
 		{
-			if(!strSpyAtCity.empty())
+			if(!strSpyAtCity.empty()) {
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
 		}
 		else
 		{
-			if (!strSpyAtCity.empty())
+			if (!strSpyAtCity.empty()) {
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 
 			switch (pSpy->m_eSpyState)
 			{
@@ -1627,8 +1657,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 		}
 		if (!strIntrigue.empty())
 		{
-			if (!strSpyAtCity.empty())
+			if (!strSpyAtCity.empty()) {
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_INTRIGUE_DISCOVERED");
 			strSpyAtCity += strIntrigue.GetCString();
@@ -1636,8 +1667,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 		return strSpyAtCity;
 	}
 
-	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED) {
 		return strSpyAtCity;
+}
 
 	CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -1650,8 +1682,9 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 
 			CvString pHelp = strMessage.toUTF8();
 
-			if (!strSpyAtCity.empty())
+			if (!strSpyAtCity.empty()) {
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 
 			strSpyAtCity += pHelp;
 		}
@@ -1661,14 +1694,15 @@ CvString CvPlayerEspionage::GetSpyInfo(uint uiSpyIndex, bool bNoBasic, CvCity* p
 }
 CvString CvPlayerEspionage::GetSiphonInfo(uint uiSpyIndex, bool bPastTense)
 {
-	if (uiSpyIndex == -1)
+	if (uiSpyIndex == -1) {
 		return "";
+}
 
 	Localization::String localizedSiphonText;
 
-	if(bPastTense)
+	if(bPastTense) {
 		localizedSiphonText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SIPHON_PAST");
-	else
+	} else
 	{
 		localizedSiphonText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SIPHON_PRESENT");
 	}
@@ -1704,14 +1738,16 @@ CvString CvPlayerEspionage::GetSiphonInfo(uint uiSpyIndex, bool bPastTense)
 
 CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, bool bNoBasic)
 {
-	if (uiSpyIndex == -1)
+	if (uiSpyIndex == -1) {
 		return "";
+}
 
 	CvString strSpyAtCity = "";
 
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
-	if ((pSpy == 0) || pCity == NULL)
+	if ((pSpy == 0) || pCity == NULL) {
 		return "";
+}
 
 	if (pSpy->m_bIsDiplomat && pSpy->m_eSpyState == SPY_STATE_SCHMOOZE)
 	{
@@ -1759,8 +1795,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 					CvString pHelp = strMessage.toUTF8();
 
-					if (!strSpyAtCity.empty())
+					if (!strSpyAtCity.empty()) {
 						strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 					strSpyAtCity += pHelp;
 				}
 			}
@@ -1875,14 +1912,16 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 
 						CvString pHelp = strMessage.toUTF8();
 
-						if (!strSpyAtCity.empty())
+						if (!strSpyAtCity.empty()) {
 							strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 						strSpyAtCity += pHelp;
 					}
 				}
 
-				if (!strSpyAtCity.empty())
+				if (!strSpyAtCity.empty()) {
 					strSpyAtCity += "[NEWLINE][NEWLINE]";
+}
 
 				int iSpeedBonuses = 0;
 				
@@ -1918,14 +1957,18 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES", iSpeedBonuses);
 
-				if (iOurEspMod != 0)
+				if (iOurEspMod != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD", iOurEspMod);
-				if (iSpyBonus != 0)
+}
+				if (iSpyBonus != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD", iSpyBonus);
-				if (iOpenBordersBonus != 0)
+}
+				if (iOpenBordersBonus != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB", iOpenBordersBonus);
-				if (iInfluenceBonus != 0)
+}
+				if (iInfluenceBonus != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE", iInfluenceBonus);
+}
 
 				int iPolicyDifference = m_pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, true) - GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
 				iPolicyDifference *= 10;
@@ -1946,16 +1989,21 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 				strSpyAtCity += "[NEWLINE]";
 				strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES", iDefenseBonuses);
 
-				if (iCityEspMod != 0)
+				if (iCityEspMod != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD", iCityEspMod * -1);
-				if (iTheirEspMod != 0)
+}
+				if (iTheirEspMod != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD", iTheirEspMod * -1);
-				if (iPolicyDifference != 0)
+}
+				if (iPolicyDifference != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY", iPolicyDifference * -1);
-				if (iTechDifference != 0)
+}
+				if (iTechDifference != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH", iTechDifference * -1);
-				if (iNumTimesStolenModifier != 0)
+}
+				if (iNumTimesStolenModifier != 0) {
 					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT", iNumTimesStolenModifier);
+}
 			}
 
 			if (pCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
@@ -1973,8 +2021,9 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 }
 CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 {
-	if (pCity == NULL)
+	if (pCity == NULL) {
 		return "";
+}
 
 	CvString strSpyAtCity = "";
 
@@ -1984,10 +2033,11 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 		if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
-			if (!bNoBasic)
+			if (!bNoBasic) {
 				return GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iRank);
-			else
+			} else {
 				return GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iRank);
+}
 		}
 
 		int iUnhappinessMod = 0;
@@ -2042,10 +2092,11 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 		if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
-			if (!bNoBasic)
+			if (!bNoBasic) {
 				return GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", pCity->getNameKey(), iEspRank);
-			else
+			} else {
 				return GetLocalizedText("TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT", pCity->getNameKey(), iEspRank);
+}
 		}
 
 		if (!bNoBasic)
@@ -2089,16 +2140,21 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 		strSpyAtCity += "[NEWLINE]";
 		strSpyAtCity += GetLocalizedText("TXT_KEY_DEFENSIVE_SPY_BONUSES", iDefenseBonuses);
 
-		if (iCityEspMod != 0)
+		if (iCityEspMod != 0) {
 			strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD", iCityEspMod);
-		if (iTheirEspMod != 0)
+}
+		if (iTheirEspMod != 0) {
 			strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD", iTheirEspMod);
-		if (iPolicyDifference != 0)
+}
+		if (iPolicyDifference != 0) {
 			strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY", iPolicyDifference);
-		if (iTechDifference != 0)
+}
+		if (iTechDifference != 0) {
 			strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH", iTechDifference);
-		if (iNumTimesStolenModifier != 0)
+}
+		if (iNumTimesStolenModifier != 0) {
 			strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT", iNumTimesStolenModifier);
+}
 
 		int iEspionageMod = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 		if (iEspionageMod != 0)
@@ -2113,8 +2169,9 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice, bool bPreview)
 {
-	if (pCity == 0)
+	if (pCity == 0) {
 		return 0;
+}
 
 	//Defense is based on the defensive capabilities of the city and its risk, then reduced by potency of spy there.
 	int iChancetoIdentify = 15;
@@ -2133,8 +2190,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventChoiceInfo != 0)
 		{
-			if(!bCannotDie || bPreview)
+			if(!bCannotDie || bPreview) {
 				iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+}
 
 			iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
 		}
@@ -2149,8 +2207,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pSpy->m_eSpyFocus);
 		if (pkEventChoiceInfo != NULL)
 		{
-			if (!bCannotDie)
+			if (!bCannotDie) {
 				iChancetoKill += pkEventChoiceInfo->GetDeathModifier();
+}
 
 			iChancetoIdentify += pkEventChoiceInfo->GetIdentificationModifier();
 		}
@@ -2158,16 +2217,18 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 	
 
 	int iDefModifiers = 0;
-	if(!bCannotDie && (pSpy != 0))
+	if(!bCannotDie && (pSpy != 0)) {
 		iDefModifiers += pSpy->GetSpyRank(kPlayer.GetID()) * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+}
 
 	//and increased again by player potency
 	iDefModifiers += GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 	
 	iChancetoIdentify += iDefModifiers;
 
-	if (!bCannotDie || bPreview)
+	if (!bCannotDie || bPreview) {
 		iChancetoKill += iDefModifiers;
+}
 
 	switch (eEspionage)
 	{
@@ -2187,8 +2248,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 		}
 		case ESPIONAGE_TYPE_KILL:
 		{
-			if (bCannotDie)
+			if (bCannotDie) {
 				return 0;
+}
 
 			iDefensePower *= iChancetoKill;
 			iDefensePower /= 100;
@@ -2205,8 +2267,9 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice)
 {
 	int iResult = GC.getGame().getSmallFakeRandNum(100, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-	if (iResult <= 0)
+	if (iResult <= 0) {
 		iResult = 1;
+}
 
 	int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, eEventChoice);
 	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
@@ -2214,13 +2277,15 @@ CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTy
 	//success! we didn't die...
 	if ((iKillChance <= 0) || (iResult > iKillChance))
 	{
-		if (iResult > iIdentifyChance)
+		if (iResult > iIdentifyChance) {
 			return SPY_RESULT_DETECTED;
-		else
+		} else {
 			return SPY_RESULT_IDENTIFIED;
+}
 	}
-	else
+	else {
 		return SPY_RESULT_KILLED;
+}
 }
 #endif
 
@@ -2539,10 +2604,11 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	// building up an army
 	if(!GET_PLAYER(eOtherPlayer).isHuman())
 	{
-		if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
+		if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND)) {
 			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-		else if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED))
+		} else if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED)) {
 			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+}
 	}
 
 	// deception!
@@ -2860,8 +2926,9 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 		CvCity* pCurrentCity = GetCityWithSpy(uiSpyIndex);
 		if (pCurrentCity != NULL)
 		{
-			if (pCurrentCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0)
+			if (pCurrentCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0) {
 				return false;
+}
 		}
 	}
 	// This allows the player to move the spy off the board
@@ -2897,8 +2964,9 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 
 	if (bAsDiplomat)
 	{
-		if (!GET_PLAYER(pCity->getOwner()).isMajorCiv())
+		if (!GET_PLAYER(pCity->getOwner()).isMajorCiv()) {
 			return false;
+}
 
 		// diplomatic spy must be in capital
 		if (!pCity->isCapital() || pCity->getOwner() == m_pPlayer->GetID())
@@ -2920,11 +2988,13 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 			if (eEvent != NO_EVENT_CITY)
 			{
 				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-				if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup())
+				if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup()) {
 					continue;
+}
 
-				if (!pCity->IsCityEventValid(eEvent))
+				if (!pCity->IsCityEventValid(eEvent)) {
 					continue;
+}
 
 				for (int iLoop2 = 0; iLoop2 < GC.getNumCityEventChoiceInfos(); iLoop2++)
 				{
@@ -2934,8 +3004,9 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 						CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 						if (pkEventChoiceInfo != NULL)
 						{
-							if (!pkEventChoiceInfo->isParentEvent(eEvent))
+							if (!pkEventChoiceInfo->isParentEvent(eEvent)) {
 								continue;
+}
 
 							if (pCity->IsCityEventChoiceValidEspionage(eEventChoice, eEvent, uiSpyIndex, m_pPlayer->GetID()))
 							{
@@ -3121,8 +3192,9 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	pCity->GetCityEspionage()->m_aiSpyAssignment[m_pPlayer->GetID()] = -1;
 	pCity->GetCityEspionage()->ResetProgress(m_pPlayer->GetID());
 
-	if (pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0)
+	if (pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] > 0) {
 		pCity->GetCityEspionage()->m_aiPendingEventsForPlayer[m_pPlayer->GetID()] = 0;
+}
 
 	return true;
 }
@@ -3350,8 +3422,9 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	break;
 	case SPY_STATE_SURVEILLANCE:
 	{
-		if (MOD_BALANCE_CORE_SPIES_ADVANCED && !bFirstTime)
+		if (MOD_BALANCE_CORE_SPIES_ADVANCED && !bFirstTime) {
 			return GetSpyPower(pCity, iSpyIndex);
+}
 
 		return 1;
 	}
@@ -3365,8 +3438,9 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	{
 		if(pCity != 0)
 		{
-			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED) {
 				return GetSpyPower(pCity, iSpyIndex);
+}
 
 			PlayerTypes eCityOwner = pCity->getOwner();
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
@@ -3605,8 +3679,9 @@ bool CvPlayerEspionage::HasEstablishedSurveillance(uint uiSpyIndex)
 	}
 
 	CvCity* pCity = GetCityWithSpy(uiSpyIndex);
-	if(pCity == NULL)
+	if(pCity == NULL) {
 		return false;
+}
 
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 	if(m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SURVEILLANCE && pCityEspionage->HasReachedGoal(m_pPlayer->GetID()))
@@ -3892,10 +3967,11 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	
 	iMaxChance += iMyInfluence / 10;
 
-	if (iMaxChance <= 5)
+	if (iMaxChance <= 5) {
 		iMaxChance = 5;
-	else if (iMaxChance >= 75)
+	} else if (iMaxChance >= 75) {
 		iMaxChance = 75;
+}
 
 	int iMySpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(m_pPlayer->GetID());
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
@@ -3958,10 +4034,11 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
 
 	iMaxChance += iMyInfluence / 10;
 
-	if (iMaxChance <= 5)
+	if (iMaxChance <= 5) {
 		iMaxChance = 5;
-	else if (iMaxChance >= 25)
+	} else if (iMaxChance >= 25) {
 		iMaxChance = 25;
+}
 
 	int iMySpyRank = 1;
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
@@ -4157,8 +4234,9 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 
 	if (bAttemptSuccess)
 	{
-		if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam()))
+		if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(m_pPlayer->getTeam())) {
 			GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).makePeace(m_pPlayer->getTeam(), false);
+}
 	}
 
 	pMinorCivAI->SetFriendshipWithMajorTimes100(m_pPlayer->GetID(), aiNewInfluenceValueTimes100[m_pPlayer->GetID()]);
@@ -4203,8 +4281,9 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 
 		//Achievements!
-		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer()) {
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
+}
 	}
 
 	// Update City banners and game info
@@ -4491,8 +4570,9 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 /// BuildStealableTechList - Go through opponents list and see what techs you can steal from them.
 void CvPlayerEspionage::BuildStealableTechList(PlayerTypes ePlayer)
 {
-	if (ePlayer > MAX_MAJOR_CIVS)
+	if (ePlayer > MAX_MAJOR_CIVS) {
 		return;
+}
 
 	CvAssertMsg((uint)ePlayer < m_aaPlayerStealableTechList.size(), "ePlayer out of bounds");
 	if((uint)ePlayer >= m_aaPlayerStealableTechList.size())
@@ -6524,10 +6604,14 @@ struct PlayerAndTechTurnEval
 	bool operator()(PlayerAndTechTurn const& a, PlayerAndTechTurn const& b) const
 	{
 		CvAssertMsg(g_eSortPlayer != NO_PLAYER, "g_eSortPlayer not defined when sort was called");
-		if(a.iOutOfTechTurn < b.iOutOfTechTurn) return true;
-		if(a.iOutOfTechTurn > b.iOutOfTechTurn) return false;
-		if(a.iLargestProgress > b.iLargestProgress) return true;
-		if(a.iLargestProgress < b.iLargestProgress) return false;
+		if(a.iOutOfTechTurn < b.iOutOfTechTurn) { return true;
+}
+		if(a.iOutOfTechTurn > b.iOutOfTechTurn) { return false;
+}
+		if(a.iLargestProgress > b.iLargestProgress) { return true;
+}
+		if(a.iLargestProgress < b.iLargestProgress) { return false;
+}
 		return false;
 	}
 };
@@ -6543,8 +6627,9 @@ void CvEspionageAI::DoTurn()
 	}
 #if defined(MOD_BALANCE_CORE)
 	//No spies? No need!
-	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
+	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0) {
 		return;
+}
 #endif
 
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
@@ -6596,8 +6681,9 @@ void CvEspionageAI::DoTurn()
 			break;
 		}
 	}
-	if (!bNeedEval)
+	if (!bNeedEval) {
 		return;
+}
 
 	std::vector<ScoreCityEntry> apCityDiplomat = BuildDiplomatCityList();
 	std::vector<ScoreCityEntry> apCityOffense = BuildOffenseCityList();
@@ -6852,8 +6938,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 			continue;
 		}
 
-		if (pDiploAI->IsGoingForDiploVictory())
+		if (pDiploAI->IsGoingForDiploVictory()) {
 			kEntry.m_iScore *= 2;
+}
 
 		kEntry.m_bDiplomat = true;
 		aCityScores.push_back(kEntry);
@@ -6862,8 +6949,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDiplomatCityList()
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
 	int iDesired = max(1, iNumPlayers / 4);
-	if (pDiploAI->IsGoingForDiploVictory())
+	if (pDiploAI->IsGoingForDiploVictory()) {
 		iDesired *= 2;
+}
 
 	int iTotal = 0;
 	for (uint i = 0; i < (uint)aCityScores.size(); i++)
@@ -6892,12 +6980,15 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 	for (uint uiSpy = 0; uiSpy < m_pPlayer->GetEspionage()->m_aSpyList.size(); uiSpy++)
 	{
 		CvEspionageSpy* pSpy = m_pPlayer->GetEspionage()->GetSpyByID(uiSpy);
-		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 2)
+		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 2) {
 			iRank3++;
-		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 1)
+}
+		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 1) {
 			iRank2++;
-		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 0)
+}
+		if (pSpy->GetSpyRank(m_pPlayer->GetID()) >= 0) {
 			iRank1++;
+}
 	}
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
@@ -6905,11 +6996,13 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 		if (eEvent != NO_EVENT_CITY)
 		{
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup())
+			if (pkEventInfo == NULL || !pkEventInfo->isEspionageSetup()) {
 				continue;
+}
 
-			if (!pCity->IsCityEventValid(eEvent))
+			if (!pCity->IsCityEventValid(eEvent)) {
 				continue;
+}
 
 			for (int iLoop2 = 0; iLoop2 < GC.getNumCityEventChoiceInfos(); iLoop2++)
 			{
@@ -6919,17 +7012,21 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 					CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 					if (pkEventChoiceInfo != NULL)
 					{
-						if (!pkEventChoiceInfo->isParentEvent(eEvent))
+						if (!pkEventChoiceInfo->isParentEvent(eEvent)) {
 							continue;
+}
 
-						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 1, m_pPlayer->GetID()))
+						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 1, m_pPlayer->GetID())) {
 							iNumMissions1++;
+}
 
-						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 2, m_pPlayer->GetID()))
+						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 2, m_pPlayer->GetID())) {
 							iNumMissions2++;
+}
 
-						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 3, m_pPlayer->GetID()))
+						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 3, m_pPlayer->GetID())) {
 							iNumMissions3++;
+}
 					}
 				}
 			}
@@ -6958,15 +7055,18 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			continue;
 		}
 
-		if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+		if (GET_PLAYER(eTargetPlayer).isMinorCiv()) {
 			continue;
+}
 
-		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer)) {
 			continue;
+}
 
 		// If we promised not to spy or it's a bad idea to spy on them, then don't spy on them!
-		if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY))
+		if (pDiploAI->IsPlayerBadTheftTarget(eTargetPlayer, THEFT_TYPE_SPY)) {
 			continue;
+}
 
 		TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 		CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eTargetPlayer).GetDiplomacyAI();
@@ -6977,8 +7077,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvAssertMsg(pCityPlot, "City plot is null!");
-			if ((pCityPlot == 0) || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
+			if ((pCityPlot == 0) || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true)) {
 				continue;
+}
 
 			//hmm...sometimes we want more, sometimes we want less...
 			int iValue = 0;
@@ -6998,8 +7099,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			}
 
 			//spy already here? don't discount!
-			if ((pSpy != 0) && pSpy->m_eSpyState == SPY_STATE_GATHERING_INTEL)
+			if ((pSpy != 0) && pSpy->m_eSpyState == SPY_STATE_GATHERING_INTEL) {
 				iValue += 50;
+}
 
 
 			int iDiploModifier = 100;
@@ -7104,8 +7206,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			iValue *= (100 + iTargetMod);
 			iValue /= 100;
 
-			if (iValue <= 0)
+			if (iValue <= 0) {
 				continue;
+}
 
 			kEntry.m_iScore = iValue;
 			kEntry.m_bDiplomat = false;
@@ -7138,11 +7241,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 			continue;
 		}
 
-		if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+		if (GET_PLAYER(eTargetPlayer).isMinorCiv()) {
 			continue;
+}
 
-		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+		if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer)) {
 			continue;
+}
 
 		if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > 0)
 		{
@@ -7197,11 +7302,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 				continue;
 			}
 
-			if (GET_PLAYER(eTargetPlayer).isMinorCiv())
+			if (GET_PLAYER(eTargetPlayer).isMinorCiv()) {
 				continue;
+}
 
-			if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer))
+			if (!m_pPlayer->GetDiplomacyAI()->IsHasMet(eTargetPlayer)) {
 				continue;
+}
 
 			iValue += pLoopCity->GetCityEspionage()->m_aiNumTimesCityRobbed[eTargetPlayer] * 2;
 		}
@@ -7218,8 +7325,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 
 		kEntry.m_iScore = iValue;
 
-		if(kEntry.m_iScore <= 0)
+		if(kEntry.m_iScore <= 0) {
 			continue;
+}
 
 		kEntry.m_bDiplomat = false;
 
@@ -7317,8 +7425,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				continue;
 			}
 
-			if (pMinorCivAI->IsAllies(m_pPlayer->GetID()) && !pMinorCivAI->IsCloseToNotBeingAllies(m_pPlayer->GetID()))
+			if (pMinorCivAI->IsAllies(m_pPlayer->GetID()) && !pMinorCivAI->IsCloseToNotBeingAllies(m_pPlayer->GetID())) {
 				continue;
+}
 
 			// if we've already scored a city for this minor civ, we don't need to score another because the values would be the same
 			if (bAlreadyScoredCity)
@@ -7478,8 +7587,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
 	int iDesired = max(1, GC.getGame().GetNumMinorCivsAlive() / 5);
-	if (pDiploAI->IsGoingForDiploVictory())
+	if (pDiploAI->IsGoingForDiploVictory()) {
 		iDesired *= 2;
+}
 
 	int iTotal = 0;
 	for (uint i = 0; i < (uint)aCityScores.size(); i++)

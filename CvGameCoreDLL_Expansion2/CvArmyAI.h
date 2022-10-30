@@ -38,8 +38,9 @@ public:
 
 	int GetTurnsToCheckpoint(size_t iIndex) const
 	{
-		if (iIndex < m_estTurnsToCheckpoint.size())
+		if (iIndex < m_estTurnsToCheckpoint.size()) {
 			return m_estTurnsToCheckpoint[iIndex];
+}
 		
 		return -1;
 	};
@@ -47,8 +48,9 @@ public:
 	void SetCurrentTurnsToCheckpoint(int iValue)
 	{
 		m_estTurnsToCheckpoint.push_front(iValue);
-		if (m_estTurnsToCheckpoint.size()>3)
+		if (m_estTurnsToCheckpoint.size()>3) {
 			m_estTurnsToCheckpoint.pop_back();
+}
 	};
 
 	void ResetTurnsToCheckpoint();

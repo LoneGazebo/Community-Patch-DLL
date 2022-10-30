@@ -167,10 +167,11 @@ int CvDllCity::GetFoodTurnsLeft() const
 //------------------------------------------------------------------------------
 int CvDllCity::GetYieldRate(int eIndex) const
 {
-	if(eIndex >= -1 && eIndex < NUM_YIELD_TYPES)
+	if(eIndex >= -1 && eIndex < NUM_YIELD_TYPES) {
 		return m_pCity->getYieldRate(static_cast<YieldTypes>(eIndex), false);
-	else
+	} else {
 		return 0;
+}
 }
 //------------------------------------------------------------------------------
 int CvDllCity::GetJONSCulturePerTurn() const

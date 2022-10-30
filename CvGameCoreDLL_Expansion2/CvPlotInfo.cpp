@@ -129,8 +129,9 @@ bool CvPlotInfo::IsAdjacentFeatureYieldChange(FeatureTypes eFeature, bool bNatur
 
 bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if(!CvBaseInfo::CacheResults(kResults, kUtility)) {
 		return false;
+}
 
 	m_bWater = kResults.GetBool("Water");
 	m_bImpassable = kResults.GetBool("Impassable");
