@@ -180,22 +180,20 @@ SET GPFaithPurchaseEra = 'ERA_CLASSICAL'
 WHERE Type = 'TRAIT_EXTRA_BELIEF';
 
 
--- William -- Change Polder (more gold, less food) -- New Trait
+-- William -- Change Polder (buildable on water) -- New Trait
 UPDATE Traits
 SET LuxuryHappinessRetention = '0'
 WHERE Type = 'TRAIT_LUXURY_RETENTION';
 
 UPDATE Improvements
-SET FreshWaterMakesValid = '1'
+SET RequiresFeature = '1'
 WHERE Type = 'IMPROVEMENT_POLDER';
 
-UPDATE Improvements
-SET RequiresFeature = '0'
-WHERE Type = 'IMPROVEMENT_POLDER';
+DELETE FROM Improvement_Yields
+WHERE ImprovementType = 'IMPROVEMENT_POLDER';
 
-UPDATE Improvement_Yields
-SET Yield = '3'
-WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND YieldType = 'YIELD_FOOD';
+DELETE FROM Improvement_ValidFeatures
+WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND FeatureType = 'FEATURE_FLOOD_PLAINS';
 
 -- Maria Theresa -- Coffee House +2 Production, +2 Food.
 
@@ -553,6 +551,10 @@ VALUES
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_POLDER', 'YIELD_FOOD', 1),
 	('IMPROVEMENT_POLDER', 'YIELD_GOLD', 2),
 	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1),
 	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
@@ -565,6 +567,8 @@ VALUES
 INSERT INTO Improvement_AdjacentImprovementYieldChanges
 	(ImprovementType, OtherImprovementType, YieldType, Yield)
 VALUES
+	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
 	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
 
@@ -650,12 +654,21 @@ VALUES
 	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_CULTURE', 2);
 
 -- New Improvements
-
 INSERT INTO Builds
 	(Type, Time, ImprovementType, PrereqTech, Description, Help, Recommendation, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
 VALUES
 	('BUILD_EKI', 800, 'IMPROVEMENT_EKI', 'TECH_ARCHERY', 'TXT_KEY_BUILD_EKI', 'TXT_KEY_BUILD_EKI_HELP', 'TXT_KEY_BUILD_EKI_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_EKI'),
 	('BUILD_KUNA', 700, 'IMPROVEMENT_KUNA', 'TECH_MASONRY', 'TXT_KEY_BUILD_KUNA', 'TXT_KEY_BUILD_KUNA_HELP', 'TXT_KEY_BUILD_KUNA_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_KUNA');
+
+INSERT INTO Builds
+		(Type,					Water,	CanBeEmbarked,	ShowInPedia, 	ShowInTechTree, ImprovementType,			HotKey, CtrlDown, PrereqTech, Time, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas)
+SELECT	'BUILD_POLDER_WATER',	1,		1,				0, 				0, 				'IMPROVEMENT_POLDER_WATER',	HotKey, CtrlDown, PrereqTech, Time, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas
+FROM Builds WHERE Type = 'BUILD_POLDER';
+
+INSERT INTO Builds
+		(Type,						Water, 	CanBeEmbarked,	ShowInPedia, 	ShowInTechTree, HotKey, CtrlDown, Repair, Time, ImprovementType, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas)
+SELECT 	'BUILD_REPAIR_EMBARKED', 	1, 		1, 				0, 				0, 				HotKey, CtrlDown, Repair, Time, ImprovementType, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas
+FROM Builds WHERE Type = 'BUILD_REPAIR';
 
 INSERT INTO BuildFeatures
 	(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
@@ -669,6 +682,19 @@ INSERT INTO Improvements
 VALUES
 	('IMPROVEMENT_EKI', 'TXT_KEY_IMPROVEMENT_EKI', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP', 'ART_DEF_IMPROVEMENT_EKI', 1, 'CIVILIZATION_HUNS', 1, 1, 1, 0, 5, 'TERRAIN_IMPROVEMENT_EKI', 0, 0),
 	('IMPROVEMENT_KUNA', 'TXT_KEY_IMPROVEMENT_KUNA', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP', 'ART_DEF_IMPROVEMENT_KUNA', 1, 'CIVILIZATION_MAYA', 0, 0, 0, 0, 14, 'TERRAIN_IMPROVEMENT_KUNA', 1, 1);
+
+INSERT INTO Improvements
+		(Type,						GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas)
+SELECT	'IMPROVEMENT_POLDER_WATER',	GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas
+FROM Improvements WHERE Type = 'IMPROVEMENT_POLDER';
+
+UPDATE Improvements
+SET	Water = 0,
+	CoastMakesValid = 1,
+	RequiresXAdjacentLand = 3,
+	AllowsWalkWater = 1,
+	MakesPassable = 1
+WHERE Type = 'IMPROVEMENT_POLDER_WATER';
 
 INSERT INTO Improvement_ValidTerrains
 	(ImprovementType, TerrainType)
@@ -690,21 +716,14 @@ INSERT INTO Improvement_YieldAdjacentTwoSameType
 VALUES
 	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Improvement_TechYieldChanges
-	(ImprovementType, TechType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_EKI', 'TECH_CHIVALRY', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_EKI', 'TECH_ECONOMICS', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_EKI', 'TECH_FERTILIZER', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_EKI', 'TECH_CHIVALRY', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_EKI', 'TECH_ROBOTICS', 'YIELD_PRODUCTION', 3),
-	('IMPROVEMENT_KUNA', 'TECH_MATHEMATICS', 'YIELD_SCIENCE', 2),
-	('IMPROVEMENT_KUNA', 'TECH_ASTRONOMY', 'YIELD_SCIENCE', 2),
-	('IMPROVEMENT_KUNA', 'TECH_FLIGHT', 'YIELD_CULTURE', 2),
-	('IMPROVEMENT_KUNA', 'TECH_ARCHAEOLOGY', 'YIELD_SCIENCE', 2);
-
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)
 VALUES
 	('UNIT_WORKER', 'BUILD_EKI'),
-	('UNIT_WORKER', 'BUILD_KUNA');
+	('UNIT_WORKER', 'BUILD_KUNA'),
+	('UNIT_WORKER', 'BUILD_REPAIR_EMBARKED');
+-- Give build via traits table so that it doesn't appear in the civ select screen
+INSERT INTO Trait_BuildsUnitClasses	
+	(TraitType, UnitClassType, BuildType)
+VALUES	
+	('TRAIT_LUXURY_RETENTION', 'UNITCLASS_WORKER', 'BUILD_POLDER_WATER');
