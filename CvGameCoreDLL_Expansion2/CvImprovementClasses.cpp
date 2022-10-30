@@ -56,7 +56,7 @@ int CvImprovementResourceInfo::getYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : -1;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 
@@ -1239,7 +1239,7 @@ int CvImprovementEntry::GetResourceQuantityRequirement(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityRequirements ? m_piResourceQuantityRequirements[i] : -1;
+	return m_piResourceQuantityRequirements != 0 ? m_piResourceQuantityRequirements[i] : -1;
 }
 
 /// How much of a resource yield is required before this improvement can be built
@@ -1247,7 +1247,7 @@ int CvImprovementEntry::GetPrereqNatureYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piPrereqNatureYield ? m_piPrereqNatureYield[i] : -1;
+	return m_piPrereqNatureYield != 0 ? m_piPrereqNatureYield[i] : -1;
 }
 
 int* CvImprovementEntry::GetPrereqNatureYieldArray()
@@ -1260,7 +1260,7 @@ int CvImprovementEntry::GetYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : 0;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetYieldChangeArray()
@@ -1273,7 +1273,7 @@ int CvImprovementEntry::GetYieldChangePerEra(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldPerEra ? m_piYieldPerEra[i] : 0;
+	return m_piYieldPerEra != 0 ? m_piYieldPerEra[i] : 0;
 }
 
 /// How much being next to a river improves the yield of this improvement
@@ -1281,7 +1281,7 @@ int CvImprovementEntry::GetRiverSideYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piRiverSideYieldChange ? m_piRiverSideYieldChange[i] : 0;
+	return m_piRiverSideYieldChange != 0 ? m_piRiverSideYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetRiverSideYieldChangeArray()
@@ -1294,7 +1294,7 @@ int CvImprovementEntry::GetCoastalLandYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCoastalLandYieldChange ? m_piCoastalLandYieldChange[i] : 0;
+	return m_piCoastalLandYieldChange != 0 ? m_piCoastalLandYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetCoastalLandYieldChangeArray()
@@ -1307,7 +1307,7 @@ int CvImprovementEntry::GetHillsYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : 0;
+	return m_piHillsYieldChange != 0 ? m_piHillsYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetHillsYieldChangeArray()
@@ -1320,7 +1320,7 @@ int CvImprovementEntry::GetFreshWaterYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFreshWaterChange ? m_piFreshWaterChange[i] : 0;
+	return m_piFreshWaterChange != 0 ? m_piFreshWaterChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetFreshWaterYieldChangeArray() // For Moose - CvWidgetData XXX
@@ -1333,7 +1333,7 @@ int CvImprovementEntry::GetAdjacentCityYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentCityYieldChange ? m_piAdjacentCityYieldChange[i] : 0;
+	return m_piAdjacentCityYieldChange != 0 ? m_piAdjacentCityYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetAdjacentCityYieldChangeArray()
@@ -1346,7 +1346,7 @@ int CvImprovementEntry::GetAdjacentMountainYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentMountainYieldChange ? m_piAdjacentMountainYieldChange[i] : 0;
+	return m_piAdjacentMountainYieldChange != 0 ? m_piAdjacentMountainYieldChange[i] : 0;
 }
 
 int* CvImprovementEntry::GetAdjacentMountainYieldChangeArray()
@@ -1359,7 +1359,7 @@ bool CvImprovementEntry::GetTerrainMakesValid(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbTerrainMakesValid ? m_pbTerrainMakesValid[i] : false;
+	return m_pbTerrainMakesValid != 0 ? m_pbTerrainMakesValid[i] : false;
 }
 
 /// If this improvement requires a feature to be valid
@@ -1367,7 +1367,7 @@ bool CvImprovementEntry::GetFeatureMakesValid(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbFeatureMakesValid ? m_pbFeatureMakesValid[i] : false;
+	return m_pbFeatureMakesValid != 0 ? m_pbFeatureMakesValid[i] : false;
 }
 
 /// If this improvement requires a different improvement to be valid
@@ -1375,7 +1375,7 @@ bool CvImprovementEntry::GetImprovementMakesValid(int i) const
 {
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbImprovementMakesValid ? m_pbImprovementMakesValid[i] : false;
+	return m_pbImprovementMakesValid != 0 ? m_pbImprovementMakesValid[i] : false;
 }
 
 /// If this improvement requires a terrain type to be valid
@@ -1383,7 +1383,7 @@ int CvImprovementEntry::GetAdjacentSameTypeYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentSameTypeYield ? m_piAdjacentSameTypeYield[i] : 0;
+	return m_piAdjacentSameTypeYield != 0 ? m_piAdjacentSameTypeYield[i] : 0;
 }
 int* CvImprovementEntry::GetAdjacentSameTypeYieldArray()
 {
@@ -1394,7 +1394,7 @@ int CvImprovementEntry::GetAdjacentTwoSameTypeYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentTwoSameTypeYield ? m_piAdjacentTwoSameTypeYield[i] : 0;
+	return m_piAdjacentTwoSameTypeYield != 0 ? m_piAdjacentTwoSameTypeYield[i] : 0;
 }
 int* CvImprovementEntry::GetAdjacentTwoSameTypeYieldArray()
 {
@@ -1538,7 +1538,7 @@ int CvImprovementEntry::GetImprovementResourceYield(int i, int j) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_paImprovementResource[i].m_piYieldChange ? m_paImprovementResource[i].getYieldChange(j) : 0;
+	return m_paImprovementResource[i].m_piYieldChange != 0 ? m_paImprovementResource[i].getYieldChange(j) : 0;
 }
 
 /// What resources does this improvement require to be built
@@ -1701,7 +1701,7 @@ void ImprovementArrayHelpers::Write(FDataStream& kStream, int* paiImprovementArr
 	{
 		const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(iI);
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if(pkImprovementInfo)
+		if(pkImprovementInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkImprovementInfo);
 			kStream << paiImprovementArray[iI];
@@ -1760,7 +1760,7 @@ void ImprovementArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiI
 	{
 		const ImprovementTypes eImprovement = static_cast<ImprovementTypes>(iI);
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if(pkImprovementInfo)
+		if(pkImprovementInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkImprovementInfo);
 			for(int jJ = 0; jJ < NUM_YIELD_TYPES; jJ++)

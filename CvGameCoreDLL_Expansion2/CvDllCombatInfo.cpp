@@ -24,8 +24,8 @@ CvDllCombatInfo::~CvDllCombatInfo()
 //------------------------------------------------------------------------------
 void* CvDllCombatInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvCombatInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvCombatInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -77,7 +77,7 @@ void* CvDllCombatInfo::operator new(size_t bytes)
 ICvUnit1* CvDllCombatInfo::GetUnit(BattleUnitTypes unitType) const
 {
 	CvUnit* pkUnit = m_pCombatInfo->getUnit(unitType);
-	if(pkUnit)
+	if(pkUnit != 0)
 	{
 		return new CvDllUnit(pkUnit);
 	}

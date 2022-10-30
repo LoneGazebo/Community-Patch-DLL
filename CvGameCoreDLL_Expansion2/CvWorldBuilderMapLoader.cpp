@@ -815,7 +815,7 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX - iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity != 0) return pkCity;
 		}
 		else if(bWorldWrap)
 		{
@@ -824,14 +824,14 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity != 0) return pkCity;
 		}
 
 		if(iPlotX + iDist < iMapWidth)
 		{
 			const CvPlot* pkTestPlot = kMap.plot(iPlotX + iDist, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity != 0) return pkCity;
 		}
 		else if(bWorldWrap)
 		{
@@ -840,7 +840,7 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 
 			const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY);
 			const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-			if(pkCity) return pkCity;
+			if(pkCity != 0) return pkCity;
 		}
 
 		// Top and Bottom Rows
@@ -870,14 +870,14 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity != 0) return pkCity;
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity != 0) return pkCity;
 					}
 				}
 			}
@@ -903,14 +903,14 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity != 0) return pkCity;
 					}
 
 					if(iPlotY + iRow < iMapHeight)
 					{
 						const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iRow);
 						const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-						if(pkCity) return pkCity;
+						if(pkCity != 0) return pkCity;
 					}
 				}
 			}
@@ -951,14 +951,14 @@ const CvCity* FindClosestCity(const PlayerTypes ePlayer, const CvPlot& kPlot)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY - iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity) return pkCity;
+					if(pkCity != 0) return pkCity;
 				}
 
 				if(iPlotY + iDist < iMapHeight)
 				{
 					const CvPlot* pkTestPlot = kMap.plot(iX, iPlotY + iDist);
 					const CvCity* pkCity = GetCity(ePlayer, pkTestPlot);
-					if(pkCity) return pkCity;
+					if(pkCity != 0) return pkCity;
 				}
 			}
 		}
@@ -1248,7 +1248,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 		{
 			int iCityID = 0;
 			const CvCity* pkCity = FindClosestCity(eOwner, *pkPlot);
-			if(pkCity) iCityID = pkCity->GetID();
+			if(pkCity != 0) iCityID = pkCity->GetID();
 			pkPlot->setOwner(eOwner, iCityID);
 		}
 	}
@@ -1435,7 +1435,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 			case ModType::TYPE_BOOL:
 			{
 				const bool bValue = kEntry.GetFieldAsBool(uiField);
-				lua_pushboolean(L, bValue);
+				lua_pushboolean(L, static_cast<int>(bValue));
 			}
 			break;
 
@@ -1499,7 +1499,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 			case ModType::TYPE_BOOL:
 			{
 				const bool bValue = kPlotDataType.GetFieldDefaultAsBool(uiField);
-				lua_pushboolean(L, bValue);
+				lua_pushboolean(L, static_cast<int>(bValue));
 			}
 			break;
 
@@ -1565,7 +1565,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 						{
 							const bool bValue = kPlot.GetFieldAsBool(uiField);
 							lua_pushvalue(L, iFieldStart + 2 * uiField);
-							lua_pushboolean(L, bValue);
+							lua_pushboolean(L, static_cast<int>(bValue));
 							lua_rawset(L, -3);
 						}
 						break;
@@ -1899,7 +1899,7 @@ bool CheckTempMap(const wchar_t* wszFilename)
 {
 	FAssert(wszFilename);
 
-	if(wszFilename && *wszFilename)
+	if((wszFilename != 0) && (*wszFilename != 0u))
 	{
 		return wcscmp(wszFilename, sg_wszTempMapName) == 0;
 	}
@@ -2082,7 +2082,7 @@ int CvWorldBuilderMapLoader::GetMapPlayers(lua_State* L)
 			lua_rawset(L, -3);
 
 			lua_pushstring(L, "Playable");
-			lua_pushboolean(L, kPlayer.m_bPlayable);
+			lua_pushboolean(L, static_cast<int>(kPlayer.m_bPlayable));
 			lua_rawset(L, -3);
 
 			lua_pushstring(L, "DefaultHandicap");

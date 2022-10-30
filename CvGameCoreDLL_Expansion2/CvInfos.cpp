@@ -68,7 +68,7 @@ bool CvBaseInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&)
 
 
 	const char* szDescription = kResults.GetText("Description");
-	if(szDescription)
+	if(szDescription != 0)
 	{
 		m_strDescriptionKey = szDescription;
 		m_strDescription = GetLocalizedText(szDescription);
@@ -297,7 +297,7 @@ int CvHotKeyInfo::GetHotKeyInt(const char* pszHotKeyVal)
 		{"KB_DELETE",FKBInputDevice::KB_DELETE},
 	};
 
-	if(pszHotKeyVal)
+	if(pszHotKeyVal != 0)
 	{
 		for(int i = 0; i < iNumKeyBoardMappings; ++i)
 		{
@@ -324,7 +324,7 @@ CvString CvHotKeyInfo::CreateHotKeyFromDescription(const char* pszHotKey, bool b
 {
 	CvString strHotKey;
 
-	if(pszHotKey && strcmp(pszHotKey,"") != 0)
+	if((pszHotKey != 0) && strcmp(pszHotKey,"") != 0)
 	{
 		if(bShift)
 		{
@@ -523,11 +523,11 @@ bool CvHotKeyInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	setOrderPriority(kResults.GetInt("OrderPriority"));
 
 	const char* szHelp = kResults.GetText("Help");
-	if(szHelp)
+	if(szHelp != 0)
 		m_strHelp = szHelp;
 
 	const char* szDisabledHelp = kResults.GetText("DisabledHelp");
-	if(szDisabledHelp)
+	if(szDisabledHelp != 0)
 		m_strDisabledHelp = szDisabledHelp;
 
 
@@ -780,7 +780,7 @@ int CvSpecialistInfo::getYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : -1;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 const int* CvSpecialistInfo::getYieldChangeArray() const
@@ -792,7 +792,7 @@ int CvSpecialistInfo::getFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : 0;
 }
 
 //------------------------------------------------------------------------------
@@ -891,7 +891,7 @@ bool CvMissionInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bVisible		= kResults.GetBool("Visible");
 
 	const char* szEntityEventType = kResults.GetText("EntityEventType");
-	if(szEntityEventType)
+	if(szEntityEventType != 0)
 	{
 		m_eEntityEvent = (EntityEventTypes)GC.getInfoTypeForString(szEntityEventType, true);
 	}
@@ -945,7 +945,7 @@ bool CvCommandInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		return false;
 
 	const char* szAutomate = kResults.GetText("Automate");
-	if(szAutomate)
+	if(szAutomate != 0)
 		setAutomate(GC.getInfoTypeForString(szAutomate, true));
 
 	m_bConfirmCommand = kResults.GetBool("ConfirmCommand");
@@ -1061,7 +1061,7 @@ int CvActionInfo::getAutomateType() const
 	if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
 		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
-		if(pkCommandInfo)
+		if(pkCommandInfo != 0)
 		{
 			return pkCommandInfo->getAutomate();
 		}
@@ -1069,7 +1069,7 @@ int CvActionInfo::getAutomateType() const
 	else if(ACTIONSUBTYPE_AUTOMATE == m_eSubType)
 	{
 		CvAutomateInfo* pkAutomateInfo = GC.getAutomateInfo(m_iOriginalIndex);
-		if(pkAutomateInfo)
+		if(pkAutomateInfo != 0)
 		{
 			return pkAutomateInfo->getAutomate();
 		}
@@ -1092,13 +1092,13 @@ int CvActionInfo::getMissionType() const
 	if(ACTIONSUBTYPE_BUILD == m_eSubType)
 	{
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)m_iOriginalIndex);
-		if(pkBuildInfo)
+		if(pkBuildInfo != 0)
 			return pkBuildInfo->getMissionType();
 	}
 	else if(ACTIONSUBTYPE_SPECIALIST == m_eSubType)
 	{
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)m_iOriginalIndex);
-		if(pkSpecialistInfo)
+		if(pkSpecialistInfo != 0)
 			return pkSpecialistInfo->getMissionType();
 	}
 	else if(ACTIONSUBTYPE_MISSION == m_eSubType)
@@ -1118,7 +1118,7 @@ int CvActionInfo::getCommandType() const
 	else if(ACTIONSUBTYPE_PROMOTION == m_eSubType)
 	{
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)m_iOriginalIndex);
-		if(pkPromotionInfo)
+		if(pkPromotionInfo != 0)
 		{
 			return pkPromotionInfo->GetCommandType();
 		}
@@ -1126,7 +1126,7 @@ int CvActionInfo::getCommandType() const
 	else if(ACTIONSUBTYPE_AUTOMATE == m_eSubType)
 	{
 		CvAutomateInfo* pkAutomateInfo = GC.getAutomateInfo(m_iOriginalIndex);
-		if(pkAutomateInfo)
+		if(pkAutomateInfo != 0)
 		{
 			return pkAutomateInfo->getCommand();
 		}
@@ -1159,7 +1159,7 @@ bool CvActionInfo::isConfirmCommand() const
 	if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
 		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
-		if(pkCommandInfo)
+		if(pkCommandInfo != 0)
 		{
 			return pkCommandInfo->getConfirmCommand();
 		}
@@ -1167,7 +1167,7 @@ bool CvActionInfo::isConfirmCommand() const
 	else if(ACTIONSUBTYPE_AUTOMATE == m_eSubType)
 	{
 		CvAutomateInfo* pkAutomateInfo = GC.getAutomateInfo(m_iOriginalIndex);
-		if(pkAutomateInfo)
+		if(pkAutomateInfo != 0)
 		{
 			return pkAutomateInfo->getConfirmCommand();
 		}
@@ -1185,7 +1185,7 @@ bool CvActionInfo::isVisible() const
 	else if(ACTIONSUBTYPE_COMMAND == m_eSubType)
 	{
 		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)m_iOriginalIndex);
-		if(pkCommandInfo)
+		if(pkCommandInfo != 0)
 		{
 			return pkCommandInfo->getVisible();
 		}
@@ -1193,7 +1193,7 @@ bool CvActionInfo::isVisible() const
 	else if(ACTIONSUBTYPE_AUTOMATE == m_eSubType)
 	{
 		CvAutomateInfo* pkAutomateInfo = GC.getAutomateInfo((AutomateTypes)m_iOriginalIndex);
-		if(pkAutomateInfo)
+		if(pkAutomateInfo != 0)
 		{
 			return pkAutomateInfo->getVisible();
 		}
@@ -1201,7 +1201,7 @@ bool CvActionInfo::isVisible() const
 	else if(ACTIONSUBTYPE_MISSION == m_eSubType)
 	{
 		CvMissionInfo* pkMissionInfo = GC.getMissionInfo((MissionTypes)m_iOriginalIndex);
-		if(pkMissionInfo)
+		if(pkMissionInfo != 0)
 		{
 			return pkMissionInfo->getVisible();
 		}
@@ -1209,7 +1209,7 @@ bool CvActionInfo::isVisible() const
 	else if(ACTIONSUBTYPE_INTERFACEMODE== m_eSubType)
 	{
 		CvInterfaceModeInfo* pkInterfaceModeInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)m_iOriginalIndex);
-		if(pkInterfaceModeInfo)
+		if(pkInterfaceModeInfo != 0)
 		{
 			return pkInterfaceModeInfo->getVisible();
 		}
@@ -1237,7 +1237,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_INTERFACEMODE:
 	{
 		CvInterfaceModeInfo* pkInterfaceModInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)getOriginalIndex());
-		if(pkInterfaceModInfo)
+		if(pkInterfaceModInfo != 0)
 		{
 			return pkInterfaceModInfo;
 		}
@@ -1246,7 +1246,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_COMMAND:
 	{
 		CvCommandInfo* pkCommandInfo = GC.getCommandInfo((CommandTypes)getOriginalIndex());
-		if(pkCommandInfo)
+		if(pkCommandInfo != 0)
 		{
 			return pkCommandInfo;
 		}
@@ -1255,7 +1255,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_BUILD:
 	{
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)getOriginalIndex());
-		if(pkBuildInfo)
+		if(pkBuildInfo != 0)
 		{
 			return pkBuildInfo;
 		}
@@ -1264,7 +1264,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_PROMOTION:
 	{
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)getOriginalIndex());
-		if(pkPromotionInfo)
+		if(pkPromotionInfo != 0)
 		{
 			return pkPromotionInfo;
 		}
@@ -1273,7 +1273,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_SPECIALIST:
 	{
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)getOriginalIndex());
-		if(pkSpecialistInfo)
+		if(pkSpecialistInfo != 0)
 		{
 			return pkSpecialistInfo;
 		}
@@ -1282,7 +1282,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_CONTROL:
 	{
 		CvControlInfo* pkControlInfo = GC.getControlInfo((ControlTypes)getOriginalIndex());
-		if(pkControlInfo)
+		if(pkControlInfo != 0)
 		{
 			return pkControlInfo;
 		}
@@ -1291,7 +1291,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_AUTOMATE:
 	{
 		CvAutomateInfo* pkAutomateInfo = GC.getAutomateInfo((AutomateTypes)getOriginalIndex());
-		if(pkAutomateInfo)
+		if(pkAutomateInfo != 0)
 		{
 			return pkAutomateInfo;
 		}
@@ -1300,7 +1300,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 	case ACTIONSUBTYPE_MISSION:
 	{
 		CvMissionInfo* pkMissionInfo = GC.getMissionInfo((MissionTypes)getOriginalIndex());
-		if(pkMissionInfo)
+		if(pkMissionInfo != 0)
 		{
 			return pkMissionInfo;
 		}
@@ -1314,7 +1314,7 @@ CvHotKeyInfo* CvActionInfo::getHotkeyInfo() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetType() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->GetType();
 	}
@@ -1324,7 +1324,7 @@ const char* CvActionInfo::GetType() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetDescription() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->GetDescription();
 	}
@@ -1334,7 +1334,7 @@ const char* CvActionInfo::GetDescription() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetCivilopedia() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->GetCivilopedia();
 	}
@@ -1344,7 +1344,7 @@ const char* CvActionInfo::GetCivilopedia() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetHelp() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHelp();
 	}
@@ -1354,7 +1354,7 @@ const char* CvActionInfo::GetHelp() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetDisabledHelp() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getDisabledHelp();
 	}
@@ -1364,7 +1364,7 @@ const char* CvActionInfo::GetDisabledHelp() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetStrategy() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->GetStrategy();
 	}
@@ -1374,7 +1374,7 @@ const char* CvActionInfo::GetStrategy() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::GetTextKey() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->GetTextKey();
 	}
@@ -1384,7 +1384,7 @@ const char* CvActionInfo::GetTextKey() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getActionInfoIndex() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getActionInfoIndex();
 	}
@@ -1394,7 +1394,7 @@ int CvActionInfo::getActionInfoIndex() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getHotKeyVal() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyVal();
 	}
@@ -1404,7 +1404,7 @@ int CvActionInfo::getHotKeyVal() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getHotKeyPriority() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyPriority();
 	}
@@ -1414,7 +1414,7 @@ int CvActionInfo::getHotKeyPriority() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getHotKeyValAlt() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyValAlt();
 	}
@@ -1424,7 +1424,7 @@ int CvActionInfo::getHotKeyValAlt() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getHotKeyPriorityAlt() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyPriorityAlt();
 	}
@@ -1434,7 +1434,7 @@ int CvActionInfo::getHotKeyPriorityAlt() const
 //------------------------------------------------------------------------------
 int CvActionInfo::getOrderPriority() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getOrderPriority();
 	}
@@ -1444,7 +1444,7 @@ int CvActionInfo::getOrderPriority() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isAltDown() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isAltDown();
 	}
@@ -1454,7 +1454,7 @@ bool CvActionInfo::isAltDown() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isShiftDown() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isShiftDown();
 	}
@@ -1464,7 +1464,7 @@ bool CvActionInfo::isShiftDown() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isCtrlDown() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isCtrlDown();
 	}
@@ -1474,7 +1474,7 @@ bool CvActionInfo::isCtrlDown() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isAltDownAlt() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isAltDownAlt();
 	}
@@ -1484,7 +1484,7 @@ bool CvActionInfo::isAltDownAlt() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isShiftDownAlt() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isShiftDownAlt();
 	}
@@ -1494,7 +1494,7 @@ bool CvActionInfo::isShiftDownAlt() const
 //------------------------------------------------------------------------------
 bool CvActionInfo::isCtrlDownAlt() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->isCtrlDownAlt();
 	}
@@ -1504,7 +1504,7 @@ bool CvActionInfo::isCtrlDownAlt() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::getHotKey() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKey();
 	}
@@ -1514,7 +1514,7 @@ const char* CvActionInfo::getHotKey() const
 //------------------------------------------------------------------------------
 std::string CvActionInfo::getHotKeyDescription() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyDescription();
 	}
@@ -1524,7 +1524,7 @@ std::string CvActionInfo::getHotKeyDescription() const
 //------------------------------------------------------------------------------
 const char* CvActionInfo::getHotKeyString() const
 {
-	if(getHotkeyInfo())
+	if(getHotkeyInfo() != 0)
 	{
 		return getHotkeyInfo()->getHotKeyString();
 	}
@@ -1640,14 +1640,14 @@ bool CvSpecialUnitInfo::isCarrierUnitAIType(int i) const
 {
 	CvAssertMsg(i < NUM_UNITAI_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCarrierUnitAITypes ? m_pbCarrierUnitAITypes[i] : false;
+	return m_pbCarrierUnitAITypes != 0 ? m_pbCarrierUnitAITypes[i] : false;
 }
 //------------------------------------------------------------------------------
 int CvSpecialUnitInfo::getProductionTraits(int i) const
 {
 	CvAssertMsg(i < GC.getNumTraitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piProductionTraits ? m_piProductionTraits[i] : -1;
+	return m_piProductionTraits != 0 ? m_piProductionTraits[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvSpecialUnitInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -1804,7 +1804,7 @@ int CvBuildingClassInfo::getVictoryThreshold(int i) const
 {
 	CvAssertMsg(i < GC.getNumVictoryInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piVictoryThreshold ? m_piVictoryThreshold[i] : -1;
+	return m_piVictoryThreshold != 0 ? m_piVictoryThreshold[i] : -1;
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
@@ -1890,7 +1890,7 @@ void BuildingClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int i
 	{
 		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if(pkBuildingClassInfo)
+		if(pkBuildingClassInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingClassInfo);
 			kStream << paiArray[iI];
@@ -1943,7 +1943,7 @@ void UnitClassArrayHelpers::Write(FDataStream& kStream, int* paiArray, int iArra
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		if(pkUnitClassInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkUnitClassInfo);
 			kStream << paiArray[iI];
@@ -2018,7 +2018,7 @@ bool CvCivilizationBaseInfo::CacheResults(Database::Results& kResults, CvDatabas
 	setShortDescriptionKey(szTextVal);
 
 	szTextVal = kResults.GetText("PackageID");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		ExtractGUID(szTextVal, m_kPackageID);
 	}
@@ -2220,14 +2220,14 @@ int CvCivilizationInfo::getCivilizationBuildings(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationBuildings && i>=0 ? m_piCivilizationBuildings[i] : -1;
+	return (m_piCivilizationBuildings != 0) && i>=0 ? m_piCivilizationBuildings[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvCivilizationInfo::getCivilizationUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationUnits && i>=0 ? m_piCivilizationUnits[i] : -1;
+	return (m_piCivilizationUnits != 0) && i>=0 ? m_piCivilizationUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationBuildingOverridden(int i) const
@@ -2248,42 +2248,42 @@ int CvCivilizationInfo::getCivilizationFreeUnitsClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationFreeUnitsClass && i>=0 ? m_piCivilizationFreeUnitsClass[i] : -1;
+	return (m_piCivilizationFreeUnitsClass != 0) && i>=0 ? m_piCivilizationFreeUnitsClass[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvCivilizationInfo::getCivilizationFreeUnitsDefaultUnitAI(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCivilizationFreeUnitsDefaultUnitAI && i>=0 ? m_piCivilizationFreeUnitsDefaultUnitAI[i] : -1;
+	return (m_piCivilizationFreeUnitsDefaultUnitAI != 0) && i>=0 ? m_piCivilizationFreeUnitsDefaultUnitAI[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isLeaders(int i) const
 {
 	CvAssertMsg(i < GC.getNumLeaderHeadInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbLeaders && i>=0 ? m_pbLeaders[i] : false;
+	return (m_pbLeaders != 0) && i>=0 ? m_pbLeaders[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeBuildingClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationFreeBuildingClass && i>=0 ? m_pbCivilizationFreeBuildingClass[i] : false;
+	return (m_pbCivilizationFreeBuildingClass != 0) && i>=0 ? m_pbCivilizationFreeBuildingClass[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationFreeTechs && i>=0 ? m_pbCivilizationFreeTechs[i] : false;
+	return (m_pbCivilizationFreeTechs != 0) && i>=0 ? m_pbCivilizationFreeTechs[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationDisableTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbCivilizationDisableTechs && i>=0 ? m_pbCivilizationDisableTechs[i] : false;
+	return (m_pbCivilizationDisableTechs != 0) && i>=0 ? m_pbCivilizationDisableTechs[i] : false;
 }
 //------------------------------------------------------------------------------
 const char* CvCivilizationInfo::getCityNames(int i) const
@@ -3476,14 +3476,14 @@ int CvHandicapInfo::isFreeTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbFreeTechs[i];
+	return static_cast<int>(m_pbFreeTechs[i]);
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::isAIFreeTechs(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbAIFreeTechs[i];
+	return static_cast<int>(m_pbAIFreeTechs[i]);
 }
 //------------------------------------------------------------------------------
 bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -4283,42 +4283,42 @@ int CvBuildInfo::getFeatureTech(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFeatureTech ? m_paiFeatureTech[i] : -1;
+	return m_paiFeatureTech != 0 ? m_paiFeatureTech[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureTime(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFeatureTime ? m_paiFeatureTime[i] : -1;
+	return m_paiFeatureTime != 0 ? m_paiFeatureTime[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureProduction(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFeatureProduction ? m_paiFeatureProduction[i] : -1;
+	return m_paiFeatureProduction != 0 ? m_paiFeatureProduction[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getFeatureCost(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFeatureCost ? m_paiFeatureCost[i] : -1;
+	return m_paiFeatureCost != 0 ? m_paiFeatureCost[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getTechTimeChange(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiTechTimeChange ? m_paiTechTimeChange[i] : -1;
+	return m_paiTechTimeChange != 0 ? m_paiTechTimeChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvBuildInfo::isFeatureRemove(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pabFeatureRemove ? m_pabFeatureRemove[i] : false;
+	return m_pabFeatureRemove != 0 ? m_pabFeatureRemove[i] : false;
 }
 
 //------------------------------------------------------------------------------
@@ -4326,14 +4326,14 @@ int CvBuildInfo::getFeatureObsoleteTech(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFeatureObsoleteTech ? m_paiFeatureObsoleteTech[i] : -1;
+	return m_paiFeatureObsoleteTech != 0 ? m_paiFeatureObsoleteTech[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvBuildInfo::isFeatureRemoveOnly(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pabFeatureRemoveOnly ? m_pabFeatureRemoveOnly[i] : false;
+	return m_pabFeatureRemoveOnly != 0 ? m_pabFeatureRemoveOnly[i] : false;
 }
 
 //------------------------------------------------------------------------------
@@ -4459,7 +4459,7 @@ void BuildArrayHelpers::Write(FDataStream& kStream, short* paiBuildArray, int iA
 	{
 		const BuildTypes eBuild = static_cast<BuildTypes>(iI);
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-		if(pkBuildInfo)
+		if(pkBuildInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildInfo);
 			kStream << paiBuildArray[iI];
@@ -4688,11 +4688,11 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	}
 
 	const char* szChooseDesc = results.GetText("ChooseDescription");
-	if (szChooseDesc)
+	if (szChooseDesc != 0)
 		m_strChooseDesc = szChooseDesc;
 
 	const char* szSound = results.GetText("Sound");
-	if(szSound)
+	if(szSound != 0)
 		m_strSound = szSound;
 
 	m_iGold = results.GetInt("Gold");
@@ -4790,21 +4790,21 @@ int CvRouteInfo::getYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : -1;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvRouteInfo::getTechMovementChange(int i) const
 {
 	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piTechMovementChange ? m_piTechMovementChange[i] : -1;
+	return m_piTechMovementChange != 0 ? m_piTechMovementChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvRouteInfo::getResourceQuantityRequirement(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityRequirements ? m_piResourceQuantityRequirements[i] : -1;
+	return m_piResourceQuantityRequirements != 0 ? m_piResourceQuantityRequirements[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvRouteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -5220,7 +5220,7 @@ int CvResourceInfo::getYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : -1;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getYieldChangeArray()
@@ -5233,7 +5233,7 @@ int CvResourceInfo::getYieldChangeFromMonopoly(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChangeFromMonopoly ? m_piYieldChangeFromMonopoly[i] : -1;
+	return m_piYieldChangeFromMonopoly != 0 ? m_piYieldChangeFromMonopoly[i] : -1;
 }
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getYieldChangeFromMonopolyArray()
@@ -5245,7 +5245,7 @@ int CvResourceInfo::getCityYieldModFromMonopoly(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityYieldModFromMonopoly ? m_piCityYieldModFromMonopoly[i] : -1;
+	return m_piCityYieldModFromMonopoly != 0 ? m_piCityYieldModFromMonopoly[i] : -1;
 }
 //------------------------------------------------------------------------------
 int* CvResourceInfo::getCityYieldModFromMonopolyArray()
@@ -5585,35 +5585,35 @@ int CvResourceInfo::getResourceQuantityType(int i) const
 {
 	CvAssertMsg(i < /*4*/ GD_INT_GET(NUM_RESOURCE_QUANTITY_TYPES), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityTypes ? m_piResourceQuantityTypes[i] : -1;
+	return m_piResourceQuantityTypes != 0 ? m_piResourceQuantityTypes[i] : -1;
 }
 
 int CvResourceInfo::getImprovementChange(int i) const
 {
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piImprovementChange ? m_piImprovementChange[i] : -1;
+	return m_piImprovementChange != 0 ? m_piImprovementChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isTerrain(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbTerrain ?	m_pbTerrain[i] : false;
+	return m_pbTerrain != 0 ?	m_pbTerrain[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isFeature(int i) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbFeature ? m_pbFeature[i] : false;
+	return m_pbFeature != 0 ? m_pbFeature[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isFeatureTerrain(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbFeatureTerrain ?	m_pbFeatureTerrain[i] : false;
+	return m_pbFeatureTerrain != 0 ?	m_pbFeatureTerrain[i] : false;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getFlavorValue(int i) const
@@ -6221,35 +6221,35 @@ int CvFeatureInfo::getYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldChange ? m_piYieldChange[i] : -1;
+	return m_piYieldChange != 0 ? m_piYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getRiverYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piRiverYieldChange ? m_piRiverYieldChange[i] : -1;
+	return m_piRiverYieldChange != 0 ? m_piRiverYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getHillsYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
+	return m_piHillsYieldChange != 0 ? m_piHillsYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getCoastalLandYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCoastalLandYieldChange ? m_piCoastalLandYieldChange[i] : -1;
+	return m_piCoastalLandYieldChange != 0 ? m_piCoastalLandYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getFreshWaterYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFreshWaterChange ? m_piFreshWaterChange[i] : -1;
+	return m_piFreshWaterChange != 0 ? m_piFreshWaterChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::GetTechYieldChanges(int i, int j) const
@@ -6265,21 +6265,21 @@ int CvFeatureInfo::GetEraYieldChanges(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piEraYieldChange ? m_piEraYieldChange[i] : -1;
+	return m_piEraYieldChange != 0 ? m_piEraYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvFeatureInfo::get3DAudioScriptFootstepIndex(int i) const
 {
 	//	CvAssertMsg(i < ?, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pi3DAudioScriptFootstepIndex ? m_pi3DAudioScriptFootstepIndex[i] : -1;
+	return m_pi3DAudioScriptFootstepIndex != 0 ? m_pi3DAudioScriptFootstepIndex[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvFeatureInfo::isTerrain(int i) const
 {
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbTerrain ? m_pbTerrain[i] : false;
+	return m_pbTerrain != 0 ? m_pbTerrain[i] : false;
 }
 
 // Set each time the game is started
@@ -6751,35 +6751,35 @@ int CvTerrainInfo::getYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYields ? m_piYields[i] : -1;
+	return m_piYields != 0 ? m_piYields[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getRiverYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piRiverYieldChange ? m_piRiverYieldChange[i] : -1;
+	return m_piRiverYieldChange != 0 ? m_piRiverYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getHillsYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
+	return m_piHillsYieldChange != 0 ? m_piHillsYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getCoastalLandYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCoastalLandYieldChange ? m_piCoastalLandYieldChange[i] : -1;
+	return m_piCoastalLandYieldChange != 0 ? m_piCoastalLandYieldChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getFreshWaterYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFreshWaterChange ? m_piFreshWaterChange[i] : -1;
+	return m_piFreshWaterChange != 0 ? m_piFreshWaterChange[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::GetTechYieldChanges(int i, int j) const
@@ -6795,7 +6795,7 @@ int CvTerrainInfo::get3DAudioScriptFootstepIndex(int i) const
 {
 //	CvAssertMsg(i < ?, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pi3DAudioScriptFootstepIndex ? m_pi3DAudioScriptFootstepIndex[i] : -1;
+	return m_pi3DAudioScriptFootstepIndex != 0 ? m_pi3DAudioScriptFootstepIndex[i] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -7056,40 +7056,40 @@ int CvLeaderHeadInfo::GetChattiness() const
 int CvLeaderHeadInfo::GetWarBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[3] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_CONQUEST
+		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[3] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_CONQUEST
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_WAR
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_WAR
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetHostileBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[4] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_BULLY
+		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[4] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_BULLY
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[1] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_HOSTILE
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[1] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_HOSTILE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetDeceptiveBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[2] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_DECEPTIVE
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[2] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_DECEPTIVE
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetGuardedBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[3] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_GUARDED
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[3] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_GUARDED
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetAfraidBias() const
 {
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[4] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_AFRAID
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[4] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_AFRAID
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetNeutralBias(bool bMinor) const
 {
 	if (bMinor)
-		return m_piMinorCivApproachBiases ? m_piMinorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_IGNORE
+		return m_piMinorCivApproachBiases != 0 ? m_piMinorCivApproachBiases[0] : GC.getGame().GetDefaultFlavorValue(); // xml: MINOR_CIV_APPROACH_IGNORE
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[6] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_NEUTRAL
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[6] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_NEUTRAL
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
@@ -7098,13 +7098,13 @@ int CvLeaderHeadInfo::GetFriendlyBias(bool bMinor) const
 	// Use the higher of the two for the diplomacy AI.
 	if (bMinor)
 	{
-		if (!m_piMinorCivApproachBiases)
+		if (m_piMinorCivApproachBiases == 0)
 			return GC.getGame().GetDefaultFlavorValue();
 
 		return std::max(m_piMinorCivApproachBiases[1], m_piMinorCivApproachBiases[2]); // xml: MINOR_CIV_APPROACH_FRIENDLY, MINOR_CIV_APPROACH_PROTECTIVE
 	}
 
-	return m_piMajorCivApproachBiases ? m_piMajorCivApproachBiases[5] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_FRIENDLY
+	return m_piMajorCivApproachBiases != 0 ? m_piMajorCivApproachBiases[5] : GC.getGame().GetDefaultFlavorValue(); // xml: MAJOR_CIV_APPROACH_FRIENDLY
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getArtDefineTag() const
@@ -7129,7 +7129,7 @@ VictoryPursuitTypes CvLeaderHeadInfo::GetSecondaryVictoryPursuit() const
 //------------------------------------------------------------------------------
 VictoryPursuitTypes CvLeaderHeadInfo::VictoryPursuitTypeFromString(const char* szStr)
 {
-	if (szStr)
+	if (szStr != 0)
 	{
 		if (0 == _stricmp(szStr, "VICTORY_PURSUIT_DOMINATION"))
 		{
@@ -7155,14 +7155,14 @@ bool CvLeaderHeadInfo::hasTrait(int i) const
 {
 	CvAssertMsg(i < GC.getNumTraitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbTraits ? m_pbTraits[i] : false;
+	return m_pbTraits != 0 ? m_pbTraits[i] : false;
 }
 //------------------------------------------------------------------------------
 int CvLeaderHeadInfo::getFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : 0;
 }
 //------------------------------------------------------------------------------
 const char* CvLeaderHeadInfo::getLeaderHead() const
@@ -7730,7 +7730,7 @@ int CvProcessInfo::getProductionToYieldModifier(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiProductionToYieldModifier ? m_paiProductionToYieldModifier[i] : -1;
+	return m_paiProductionToYieldModifier != 0 ? m_paiProductionToYieldModifier[i] : -1;
 }
 
 //------------------------------------------------------------------------------
@@ -7738,7 +7738,7 @@ int CvProcessInfo::GetFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFlavorValue ? m_paiFlavorValue[i] : -1;
+	return m_paiFlavorValue != 0 ? m_paiFlavorValue[i] : -1;
 }
 
 
@@ -7862,7 +7862,7 @@ bool CvVoteInfo::isVoteSourceType(int i) const
 {
 	CvAssertMsg(i < GC.getNumVoteSourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_abVoteSourceTypes ? m_abVoteSourceTypes[i] : false;
+	return m_abVoteSourceTypes != 0 ? m_abVoteSourceTypes[i] : false;
 }
 //------------------------------------------------------------------------------
 bool CvVoteInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -8747,21 +8747,21 @@ int CvModEventInfo::getYieldMinimum(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+	return m_piMinimumYield != 0 ? m_piMinimumYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getResourceRequired(ResourceTypes eResource) const
 {
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
-	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
+	return m_piRequiredResource != 0 ? m_piRequiredResource[eResource] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventInfo::getFeatureRequired(FeatureTypes eFeature) const
 {
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(eFeature > -1, "Index out of bounds");
-	return m_piRequiredFeature ? m_piRequiredFeature[eFeature] : -1;
+	return m_piRequiredFeature != 0 ? m_piRequiredFeature[eFeature] : -1;
 }
 //------------------------------------------------------------------------------
 bool CvModEventInfo::isOneShot() const
@@ -9073,7 +9073,7 @@ bool CvModEventChoiceInfo::isParentEvent(EventTypes eEvent) const
 {
 	CvAssertMsg(eEvent < GC.getNumEventInfos(), "Index out of bounds");
 	CvAssertMsg(eEvent > -1, "Index out of bounds");
-	return m_pbParentEventIDs ? m_pbParentEventIDs[eEvent] : false;
+	return m_pbParentEventIDs != 0 ? m_pbParentEventIDs[eEvent] : false;
 }
 
 //------------------------------------------------------------------------------
@@ -9122,28 +9122,28 @@ int CvModEventChoiceInfo::getFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavor ? m_piFlavor[i] : 0;
+	return m_piFlavor != 0 ? m_piFlavor[i] : 0;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventResourceChange(ResourceTypes eResource) const
 {
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
-	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
+	return m_piResourceChange != 0 ? m_piResourceChange[eResource] : 0;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventYield(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piEventYield ? m_piEventYield[eYield] : -1;
+	return m_piEventYield != 0 ? m_piEventYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getPreCheckEventYield(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piPreCheckEventYield ? m_piPreCheckEventYield[eYield] : -1;
+	return m_piPreCheckEventYield != 0 ? m_piPreCheckEventYield[eYield] : -1;
 }
 CvEventNotificationInfo *CvModEventChoiceInfo::GetNotificationInfo(int i) const
 {
@@ -9244,35 +9244,35 @@ int CvModEventChoiceInfo::getNumFreeSpecificUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumFreeSpecificUnits ? m_piNumFreeSpecificUnits [i] : -1;
+	return m_piNumFreeSpecificUnits != 0 ? m_piNumFreeSpecificUnits [i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getNumFreeUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
+	return m_piNumFreeUnits != 0 ? m_piNumFreeUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventConvertReligion(int i) const
 {
 	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piConvertReligion ? m_piConvertReligion[i] : -1;
+	return m_piConvertReligion != 0 ? m_piConvertReligion[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventConvertReligionPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piConvertReligionPercent ? m_piConvertReligionPercent[i] : -1;
+	return m_piConvertReligionPercent != 0 ? m_piConvertReligionPercent[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getCityYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityYield ? m_piCityYield[i] : -1;
+	return m_piCityYield != 0 ? m_piCityYield[i] : -1;
 }
 /// Yield change for a specific BuildingClass by yield type
 int CvModEventChoiceInfo::getBuildingClassYield(int i, int j) const
@@ -9379,7 +9379,7 @@ int CvModEventChoiceInfo::getYieldMinimum(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+	return m_piMinimumYield != 0 ? m_piMinimumYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getRequiredImprovement() const
@@ -9441,14 +9441,14 @@ int CvModEventChoiceInfo::getResourceRequired(ResourceTypes eResource) const
 {
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
-	return m_piRequiredResource ? m_piRequiredResource[eResource] : -1;
+	return m_piRequiredResource != 0 ? m_piRequiredResource[eResource] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getFeatureRequired(FeatureTypes eFeature) const
 {
 	CvAssertMsg(eFeature < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(eFeature > -1, "Index out of bounds");
-	return m_piRequiredFeature ? m_piRequiredFeature[eFeature] : -1;
+	return m_piRequiredFeature != 0 ? m_piRequiredFeature[eFeature] : -1;
 }
 
 //------------------------------------------------------------------------------
@@ -9646,8 +9646,8 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 			pEventNotificationInfo.m_strShortDescription = pEventChoiceTypes->GetText("ShortDescription");
 			pEventNotificationInfo.m_bWorldEvent = pEventChoiceTypes->GetBool("IsWorldEvent");
 			pEventNotificationInfo.m_bNeedPlayerID = pEventChoiceTypes->GetBool("NeedPlayerID");
-			pEventNotificationInfo.m_iVariable1 = pEventChoiceTypes->GetBool("Variable1");
-			pEventNotificationInfo.m_iVariable2 = pEventChoiceTypes->GetBool("Variable2");
+			pEventNotificationInfo.m_iVariable1 = static_cast<int>(pEventChoiceTypes->GetBool("Variable1"));
+			pEventNotificationInfo.m_iVariable2 = static_cast<int>(pEventChoiceTypes->GetBool("Variable2"));
 			idx++;
 		}
 
@@ -10047,7 +10047,7 @@ int CvModCityEventInfo::getYieldMinimum(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+	return m_piMinimumYield != 0 ? m_piMinimumYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModCityEventInfo::getRequiredImprovement() const
@@ -10630,7 +10630,7 @@ bool CvModEventCityChoiceInfo::isParentEvent(CityEventTypes eCityEvent) const
 {
 	CvAssertMsg(eCityEvent < GC.getNumCityEventInfos(), "Index out of bounds");
 	CvAssertMsg(eCityEvent > -1, "Index out of bounds");
-	return m_pbParentEventIDs ? m_pbParentEventIDs[eCityEvent] : false;
+	return m_pbParentEventIDs != 0 ? m_pbParentEventIDs[eCityEvent] : false;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventDuration() const
@@ -10768,21 +10768,21 @@ int CvModEventCityChoiceInfo::getEventYield(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piEventYield ? m_piEventYield[eYield] : -1;
+	return m_piEventYield != 0 ? m_piEventYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getPreCheckEventYield(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piPreCheckEventYield ? m_piPreCheckEventYield[eYield] : -1;
+	return m_piPreCheckEventYield != 0 ? m_piPreCheckEventYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavor ? m_piFlavor[i] : 0;
+	return m_piFlavor != 0 ? m_piFlavor[i] : 0;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getWLTKD() const
@@ -10854,49 +10854,49 @@ int CvModEventCityChoiceInfo::getNumFreeUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumFreeUnits ? m_piNumFreeUnits[i] : -1;
+	return m_piNumFreeUnits != 0 ? m_piNumFreeUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getNumFreeSpecificUnits(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumFreeSpecificUnits ? m_piNumFreeSpecificUnits[i] : -1;
+	return m_piNumFreeSpecificUnits != 0 ? m_piNumFreeSpecificUnits[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventConvertReligion(int i) const
 {
 	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piConvertReligion ? m_piConvertReligion[i] : -1;
+	return m_piConvertReligion != 0 ? m_piConvertReligion[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventConvertReligionPercent(int i) const
 {
 	CvAssertMsg(i < GC.getNumReligionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piConvertReligionPercent ? m_piConvertReligionPercent[i] : -1;
+	return m_piConvertReligionPercent != 0 ? m_piConvertReligionPercent[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventGPChange(SpecialistTypes eSpecialist) const
 {
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "Index out of bounds");
 	CvAssertMsg(eSpecialist > -1, "Index out of bounds");
-	return m_piGPChange ? m_piGPChange[eSpecialist] : 0;
+	return m_piGPChange != 0 ? m_piGPChange[eSpecialist] : 0;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getImprovementDestruction(ImprovementTypes eImprovement) const
 {
 	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(eImprovement > -1, "Index out of bounds");
-	return m_piDestroyImprovement ? m_piDestroyImprovement[eImprovement] : 0;
+	return m_piDestroyImprovement != 0 ? m_piDestroyImprovement[eImprovement] : 0;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getBuildingDestructionChance(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piBuildingDestructionChance ? m_piBuildingDestructionChance[i] : -1;
+	return m_piBuildingDestructionChance != 0 ? m_piBuildingDestructionChance[i] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getCityWideDestructionChance() const
@@ -10943,21 +10943,21 @@ int CvModEventCityChoiceInfo::getCityYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityYield ? m_piCityYield[i] : -1;
+	return m_piCityYield != 0 ? m_piCityYield[i] : -1;
 }
 
 int CvModEventCityChoiceInfo::getCityYieldModifier(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piCityYieldModifier ? m_piCityYieldModifier[i] : -1;
+	return m_piCityYieldModifier != 0 ? m_piCityYieldModifier[i] : -1;
 }
 
 int CvModEventCityChoiceInfo::getYieldSiphon(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldSiphon ? m_piYieldSiphon[i] : -1;
+	return m_piYieldSiphon != 0 ? m_piYieldSiphon[i] : -1;
 }
 /// Yield change for a specific BuildingClass by yield type
 int CvModEventCityChoiceInfo::getBuildingClassYield(int i, int j) const
@@ -11023,7 +11023,7 @@ int CvModEventCityChoiceInfo::getEventResourceChange(ResourceTypes eResource) co
 {
 	CvAssertMsg(eResource < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(eResource > -1, "Index out of bounds");
-	return m_piResourceChange ? m_piResourceChange[eResource] : 0;
+	return m_piResourceChange != 0 ? m_piResourceChange[eResource] : 0;
 }
 // Filters
 //------------------------------------------------------------------------------
@@ -11061,7 +11061,7 @@ int CvModEventCityChoiceInfo::getYieldMinimum(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piMinimumYield ? m_piMinimumYield[eYield] : -1;
+	return m_piMinimumYield != 0 ? m_piMinimumYield[eYield] : -1;
 }
 //------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getRequiredImprovement() const
@@ -11336,8 +11336,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iSpyVisionDuration = kResults.GetInt("SpyVisionDuration");
 	m_iIsNoLevelUp = kResults.GetBool("NoLevelUp");
 
-	m_iConvertsCityToPlayerReligion = kResults.GetBool("ConvertToPlayerReligionPercent");
-	m_iConvertsCityToPlayerMajorityReligion = kResults.GetBool("ConvertToPlayerMajorityReligionPercent");
+	m_iConvertsCityToPlayerReligion = static_cast<int>(kResults.GetBool("ConvertToPlayerReligionPercent"));
+	m_iConvertsCityToPlayerMajorityReligion = static_cast<int>(kResults.GetBool("ConvertToPlayerMajorityReligionPercent"));
 	m_bHasPlayerReligion = kResults.GetBool("CityHasPlayerReligion");
 	m_bLacksPlayerReligion = kResults.GetBool("CityLacksPlayerReligion");
 
@@ -11786,7 +11786,7 @@ void FeatureArrayHelpers::Write(FDataStream& kStream, int* paiFeatureArray, int 
 	{
 		const FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
 		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-		if(pkFeatureInfo)
+		if(pkFeatureInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkFeatureInfo);
 			kStream << paiFeatureArray[iI];
@@ -11845,7 +11845,7 @@ void FeatureArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiFeatu
 	{
 		const FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
 		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-		if(pkFeatureInfo)
+		if(pkFeatureInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkFeatureInfo);
 			for(int jJ = 0; jJ < NUM_YIELD_TYPES; jJ++)
@@ -11903,7 +11903,7 @@ void TerrainArrayHelpers::Write(FDataStream& kStream, int* paiTerrainArray, int 
 	{
 		const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
 		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-		if(pkTerrainInfo)
+		if(pkTerrainInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkTerrainInfo);
 			kStream << paiTerrainArray[iI];
@@ -11962,7 +11962,7 @@ void TerrainArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiTerra
 	{
 		const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
 		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-		if(pkTerrainInfo)
+		if(pkTerrainInfo != 0)
 		{
 			CvInfosSerializationHelper::WriteHashed(kStream, pkTerrainInfo);
 			for(int jJ = 0; jJ < NUM_YIELD_TYPES; jJ++)

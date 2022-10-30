@@ -24,8 +24,8 @@ CvDllMap::~CvDllMap()
 //------------------------------------------------------------------------------
 void* CvDllMap::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvMap1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvMap1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -115,7 +115,7 @@ ICvCity1* CvDllMap::FindCity(int iX,
                              ICvCity1* pSkipCity)
 {
 	CvCity* pkSkipCity = NULL;
-	if(pSkipCity)
+	if(pSkipCity != 0)
 	{
 		pkSkipCity = dynamic_cast<CvDllCity*>(pSkipCity)->GetInstance();
 	}

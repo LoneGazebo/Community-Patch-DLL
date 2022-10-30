@@ -20,7 +20,7 @@ CvUnitCycler::CvUnitCycler()
 // Returns the next unit in the cycle...
 CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* pbWrap)
 {
-	if (!pUnit)
+	if (pUnit == 0)
 		return NULL;
 
 	if (pbWrap != NULL)
@@ -32,7 +32,7 @@ CvUnit *CvUnitCycler::Cycle(CvUnit* pUnit, bool bForward, bool bWorkers, bool* p
 	int iUnitLoop = 0;
 	int iMinDist = INT_MAX;
 	CvUnit* pClosestUnit = NULL;
-	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iUnitLoop); pLoopUnit; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iUnitLoop))
+	for (CvUnit* pLoopUnit = GET_PLAYER(pUnit->getOwner()).firstUnit(&iUnitLoop); pLoopUnit != 0; pLoopUnit = GET_PLAYER(pUnit->getOwner()).nextUnit(&iUnitLoop))
 	{
 		if (pLoopUnit == pUnit || !pLoopUnit->ReadyToSelect())
 			continue;

@@ -117,8 +117,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	int iMinExp = std::min(m_iFracXExp, m_iFracYExp);
 	iSmooth = range(iMinExp - iGrain, 0, iMinExp);
 
-	int iHintsWidth = (1 << (m_iFracXExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_X) ? 0 : 1);
-	int iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1);
+	int iHintsWidth = (1 << (m_iFracXExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_X) != 0 ? 0 : 1);
+	int iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) != 0 ? 0 : 1);
 	if(pbyHints != NULL)
 	{
 		CvAssertMsg(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
@@ -133,14 +133,14 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 			iScreen |= (1 << iI);
 		}
 
-		if(m_iFlags & FRAC_WRAP_Y)
+		if((m_iFlags & FRAC_WRAP_Y) != 0)
 		{
 			for(iX = 0; iX < m_iFracX + 1; iX++)
 			{
 				m_aaiFrac[iX][m_iFracY] = m_aaiFrac[iX][0];
 			}
 		}
-		else if(m_iFlags & FRAC_POLAR)
+		else if((m_iFlags & FRAC_POLAR) != 0)
 		{
 			for(iX = 0; iX < m_iFracX + 1; iX++)
 			{
@@ -149,14 +149,14 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 			}
 		}
 
-		if(m_iFlags & FRAC_WRAP_X)
+		if((m_iFlags & FRAC_WRAP_X) != 0)
 		{
 			for(iY = 0; iY < m_iFracY + 1; iY++)
 			{
 				m_aaiFrac[m_iFracX][iY] = m_aaiFrac[0][iY];
 			}
 		}
-		else if(m_iFlags & FRAC_POLAR)
+		else if((m_iFlags & FRAC_POLAR) != 0)
 		{
 			for(iY = 0; iY < m_iFracY + 1; iY++)
 			{
@@ -165,9 +165,9 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 			}
 		}
 
-		if(m_iFlags & FRAC_CENTER_RIFT)
+		if((m_iFlags & FRAC_CENTER_RIFT) != 0)
 		{
-			if(m_iFlags & FRAC_WRAP_Y)
+			if((m_iFlags & FRAC_WRAP_Y) != 0)
 			{
 				for(iX = 0; iX < m_iFracX + 1; iX++)
 				{
@@ -179,7 +179,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 				}
 			}
 
-			if(m_iFlags & FRAC_WRAP_X)
+			if((m_iFlags & FRAC_WRAP_X) != 0)
 			{
 				for(iY = 0; iY < m_iFracY + 1; iY++)
 				{
@@ -192,9 +192,9 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 			}
 		}
 
-		for(iX = 0; iX < (m_iFracX >> iPass) + ((m_iFlags & FRAC_WRAP_X) ? 0 : 1); iX++)
+		for(iX = 0; iX < (m_iFracX >> iPass) + ((m_iFlags & FRAC_WRAP_X) != 0 ? 0 : 1); iX++)
 		{
-			for(iY = 0; iY < (m_iFracY >> iPass) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1); iY++)
+			for(iY = 0; iY < (m_iFracY >> iPass) + ((m_iFlags & FRAC_WRAP_Y) != 0 ? 0 : 1); iY++)
 			{
 				if(iPass == iSmooth) // If this is the first, pass, set the initial random spots
 				{
@@ -216,9 +216,9 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 				else  // Interpolate
 				{
 					iSum = 0;
-					if((iX << iPass) & iScreen)
+					if(((iX << iPass) & iScreen) != 0)
 					{
-						if((iY << iPass) & iScreen)   // (center)
+						if(((iY << iPass) & iScreen) != 0)   // (center)
 						{
 							iSum += m_aaiFrac[(iX-1) << iPass][(iY-1) << iPass];
 							iSum += m_aaiFrac[(iX+1) << iPass][(iY-1) << iPass];
@@ -243,7 +243,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 					}
 					else
 					{
-						if((iY << iPass) & iScreen)   // (vertical)
+						if(((iY << iPass) & iScreen) != 0)   // (vertical)
 						{
 							iSum += m_aaiFrac[iX << iPass][(iY-1) << iPass];
 							iSum += m_aaiFrac[iX << iPass][(iY+1) << iPass];
@@ -263,12 +263,12 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 		}
 	}
 
-	if(pRifts)
+	if(pRifts != 0)
 	{
 		tectonicAction(pRifts);  //  Assumes FRAC_WRAP_X is on.
 	}
 
-	if(m_iFlags & FRAC_INVERT_HEIGHTS)
+	if((m_iFlags & FRAC_INVERT_HEIGHTS) != 0)
 	{
 		for(iX = 0; iX < m_iFracX; iX++)
 		{
@@ -323,7 +323,7 @@ int CvFractal::getHeight(int iX, int iY)
 
 	iHeight = range(iSum, 0, 255);
 
-	if(m_iFlags & FRAC_PERCENT)
+	if((m_iFlags & FRAC_PERCENT) != 0)
 	{
 		return ((iHeight * 100) >> 8);
 	}
@@ -493,7 +493,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 			for(int iThisVoronoiSeedIndex= 0; iThisVoronoiSeedIndex < iNumVoronoiSeeds; iThisVoronoiSeedIndex++)
 			{
 				int iModifiedHexspaceDistance = hexDistance(iThisHexX-vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceX,iThisHexY-vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceY);
-				if(iRidgeFlags)  // we may decide to add more control later
+				if(iRidgeFlags != 0)  // we may decide to add more control later
 				{
 					iModifiedHexspaceDistance += vVoronoiSeeds[iThisVoronoiSeedIndex].m_iWeakness;
 					iModifiedHexspaceDistance += random.get(3, "Ridge Gen 8");

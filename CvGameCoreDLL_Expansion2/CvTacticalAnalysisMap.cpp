@@ -173,7 +173,7 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalUnitCountDominanceFlag(
 #if defined(MOD_BALANCE_CORE_MILITARY)
 void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return;
 
 	if (m_iPlotCount==0)
@@ -246,7 +246,7 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 {
 	int iSum = 0;
 
-	if (ppWorstNeighborCity)
+	if (ppWorstNeighborCity != 0)
 		*ppWorstNeighborCity = NULL;
 	int iWorstScore = 0;
 
@@ -391,7 +391,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 
 		//try to grab it ...
 		CvCity *pClosestCity = GetZoneCity();
-		if (pClosestCity && pClosestCity->isInDangerOfFalling())
+		if ((pClosestCity != 0) && pClosestCity->isInDangerOfFalling())
 		{
 			m_ePosture = TACTICAL_POSTURE_SURGICAL_CITY_STRIKE;
 		}
@@ -519,9 +519,9 @@ void CvTacticalAnalysisMap::EstablishZoneNeighborhood()
 			CvPlot* pB = GC.getMap().plot(i,j+1); //next row
 			CvPlot* pC = GC.getMap().plot(i+1,j); //next col
 
-			int iA = pA ? GetDominanceZoneID(pA->GetPlotIndex()) : 0;
-			int iB = pB ? GetDominanceZoneID(pB->GetPlotIndex()) : 0;
-			int iC = pC ? GetDominanceZoneID(pC->GetPlotIndex()) : 0;
+			int iA = pA != 0 ? GetDominanceZoneID(pA->GetPlotIndex()) : 0;
+			int iB = pB != 0 ? GetDominanceZoneID(pB->GetPlotIndex()) : 0;
+			int iC = pC != 0 ? GetDominanceZoneID(pC->GetPlotIndex()) : 0;
 
 			//ID 0 is the "unknown zone"
 			if (iA!=0 && iB!=0)
@@ -627,7 +627,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		//some plot will be part of the "unknown zone"
-		if (!pPlot || !pPlot->isRevealed(eOurTeam))
+		if ((pPlot == 0) || !pPlot->isRevealed(eOurTeam))
 		{
 			m_vPlotZoneID[iI] = 0;
 			continue;
@@ -652,7 +652,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 			pZoneCity = GC.getGame().GetClosestCityByPathLength(pPlot);
 
 		//should not happen
-		if (!pZoneCity)
+		if (pZoneCity == 0)
 		{
 			nonCityZonePlots.insert(pPlot);
 			continue;
@@ -664,12 +664,12 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 			iZoneID *= -1;
 
 		//chances are it's the same zone as before
-		if (!pCurrentZone || pCurrentZone->GetZoneID() != iZoneID)
+		if ((pCurrentZone == 0) || pCurrentZone->GetZoneID() != iZoneID)
 		{
 			pCurrentZone = GetZoneByID(iZoneID);
 
 			//still not found? then make a new one
-			if (!pCurrentZone)
+			if (pCurrentZone == 0)
 			{
 				CvTacticalDominanceZone newZone;
 				newZone.SetZoneID(iZoneID);
@@ -728,7 +728,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 			for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
 			{
 				CvPlot* neighbor = neighbors[i];
-				if (!neighbor)
+				if (neighbor == 0)
 					continue;
 				
 				//must be same area but do not create extra zones for small lakes or islands
@@ -1192,7 +1192,7 @@ CvTacticalDominanceZone* CvTacticalAnalysisMap::GetZoneByCity(const CvCity* pCit
 {
 	RefreshIfOutdated();
 
-	if (!pCity)
+	if (pCity == 0)
 		return NULL;
 
 	//water zones have negative ids
@@ -1241,7 +1241,7 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(const CvPlot* pPlot)
 
 	CvTacticalDominanceZone* pZone = GetZoneByID(m_vPlotZoneID[pPlot->GetPlotIndex()]);
 
-	if(pZone && pZone->GetZoneCity()) //city check is to skip the potentially very large ocean zone
+	if((pZone != 0) && (pZone->GetZoneCity() != 0)) //city check is to skip the potentially very large ocean zone
 		return (pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY);
 
 	return false;

@@ -21,8 +21,8 @@ CvDllBuildingInfo::~CvDllBuildingInfo()
 //------------------------------------------------------------------------------
 void* CvDllBuildingInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvBuildingInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvBuildingInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

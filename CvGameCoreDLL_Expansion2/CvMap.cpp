@@ -498,7 +498,7 @@ void CvMap::PrecalcNeighbors()
 	int iH = getGridHeight();
 
 	CvPlot** pNeighbors = m_pPlotNeighbors;
-	if (!pNeighbors)
+	if (pNeighbors == 0)
 		return;
 
 	int iNX = 0;
@@ -524,7 +524,7 @@ void CvMap::PrecalcNeighbors()
 				iNX = coordRange(iNX, iW, m_bWrapX);
 				iNY = coordRange(iNY, iH, m_bWrapY);
 
-				pNeighbors[iDirection] = isPlot(iNX, iNY) ? (m_pMapPlots+plotNum(iNX,iNY)) : NULL;
+				pNeighbors[iDirection] = isPlot(iNX, iNY) != 0 ? (m_pMapPlots+plotNum(iNX,iNY)) : NULL;
 			}
 
 			pNeighbors += (NUM_DIRECTION_TYPES+2);
@@ -535,7 +535,7 @@ void CvMap::PrecalcNeighbors()
 //	--------------------------------------------------------------------------------
 CvPlot** CvMap::getNeighborsShuffled(const CvPlot* pPlot)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NULL;
 
 	int aiShuffle[3][6] = {
@@ -602,7 +602,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	m_iGridHeight = (CvPreGame::worldSize() != NO_WORLDSIZE) ? getWorldInfo().getGridHeight(): 0;
 
 	// allow grid size override
-	if(pInitInfo)
+	if(pInitInfo != 0)
 	{
 		m_iGridWidth	= pInitInfo->m_iGridW;
 		m_iGridHeight	= pInitInfo->m_iGridH;
@@ -614,7 +614,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 	m_iOwnedPlots = 0;
 	m_iNumNaturalWonders = 0;
 
-	if(pInitInfo)
+	if(pInitInfo != 0)
 	{
 		m_iTopLatitude = pInitInfo->m_iTopLatitude;
 		m_iBottomLatitude = pInitInfo->m_iBottomLatitude;
@@ -633,7 +633,7 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 
 	CoCreateGuid(&m_guid);
 
-	if(pInitInfo)
+	if(pInitInfo != 0)
 	{
 		m_bWrapX = pInitInfo->m_bWrapX;
 		m_bWrapY = pInitInfo->m_bWrapY;
@@ -758,7 +758,7 @@ void CvMap::updateLayout(bool bDebug)
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pThisPlot = plotByIndexUnchecked(iI);
-		if(pThisPlot && pThisPlot->isLayoutDirty())
+		if((pThisPlot != 0) && pThisPlot->isLayoutDirty())
 		{
 			pThisPlot->updateLayout(bDebug);
 			pThisPlot->setLayoutDirty(false);
@@ -790,14 +790,14 @@ void CvMap::updateCenterUnit()
 //	--------------------------------------------------------------------------------
 void CvMap::updateOwningCityForPlots(CvPlot* pPlot, int iRange)
 {
-	if(pPlot && iRange > 0)
+	if((pPlot != 0) && iRange > 0)
 	{
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
 			{
 				CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-				if(pLoopPlot)
+				if(pLoopPlot != 0)
 				{
 					pLoopPlot->updateOwningCity();
 				}
@@ -868,7 +868,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
-		if(!pTestPlot) continue;
+		if(pTestPlot == 0) continue;
 
 		if((iArea == -1) || (pTestPlot->getArea() == iArea))
 		{
@@ -898,7 +898,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_LAND)
+				if((iFlags & RANDPLOT_LAND) != 0)
 				{
 					if(pTestPlot->isWater())
 					{
@@ -909,7 +909,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_UNOWNED)
+				if((iFlags & RANDPLOT_UNOWNED) != 0)
 				{
 					if(pTestPlot->isOwned())
 					{
@@ -920,7 +920,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_ADJACENT_UNOWNED)
+				if((iFlags & RANDPLOT_ADJACENT_UNOWNED) != 0)
 				{
 					if(pTestPlot->isAdjacentOwned())
 					{
@@ -931,7 +931,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_ADJACENT_LAND)
+				if((iFlags & RANDPLOT_ADJACENT_LAND) != 0)
 				{
 					if(!(pTestPlot->isAdjacentToLand(false)))
 					{
@@ -942,7 +942,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_PASSIBLE)
+				if((iFlags & RANDPLOT_PASSIBLE) != 0)
 				{
 #if defined(MOD_BALANCE_CORE)
 					if(pTestPlot->isImpassable(BARBARIAN_TEAM))
@@ -957,7 +957,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_NOT_VISIBLE_TO_CIV)
+				if((iFlags & RANDPLOT_NOT_VISIBLE_TO_CIV) != 0)
 				{
 					if(pTestPlot->isVisibleToAnyTeam())
 					{
@@ -968,7 +968,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 
 			if(bValid)
 			{
-				if(iFlags & RANDPLOT_NOT_CITY)
+				if((iFlags & RANDPLOT_NOT_CITY) != 0)
 				{
 					if(pTestPlot->isCity())
 					{
@@ -1097,7 +1097,7 @@ CvPlot* CvMap::findNearestStartPlot(int iX, int iY, PlayerTypes& eOwner)
 		if(thisPlayer.isEverAlive())
 		{
 			CvPlot* pStartPlot = thisPlayer.getStartingPlot();
-			if (pStartPlot)
+			if (pStartPlot != 0)
 			{
 				int iValue = plotDistance(iX, iY, pStartPlot->getX(), pStartPlot->getY());
 				if(iValue < iBestValue)
@@ -1596,7 +1596,7 @@ void CvMap::calculateAreas()
 	for (int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
-		if (pLoopPlot)
+		if (pLoopPlot != 0)
 		{
 			pLoopPlot->setArea(-1);
 			pLoopPlot->updateImpassable();
@@ -1608,7 +1608,7 @@ void CvMap::calculateAreas()
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
 		//ignore plots which are already assigned
-		if(!pLoopPlot || pLoopPlot->getArea() != -1) 
+		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) 
 			continue;
 
 		//use flag for "wide connection"
@@ -1635,7 +1635,7 @@ void CvMap::calculateAreas()
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
 		//ignore plots which are already assigned
-		if(!pLoopPlot || pLoopPlot->getArea() != -1) 
+		if((pLoopPlot == 0) || pLoopPlot->getArea() != -1) 
 			continue;
 
 		//use flag for "single connection"
@@ -1655,7 +1655,7 @@ void CvMap::calculateAreas()
 				{
 					CvPlot* pNeighbor = iterateRingPlots(pPlot, j);
 					//use the best neighbor we find with the matching domain
-					if (pNeighbor && pNeighbor->isWater() == pLoopPlot->isWater() && pNeighbor->getArea() != -1)
+					if ((pNeighbor != 0) && pNeighbor->isWater() == pLoopPlot->isWater() && pNeighbor->getArea() != -1)
 					{
 						if (pNeighbor->area()->getNumTiles() > iLargestNeighborSize)
 						{
@@ -1720,7 +1720,7 @@ void CvMap::calculateAreas()
 	{
 		static int iCallCount = 0; //apparently this is called multiple times
 		FILogFile* pLog = LOGFILEMGR.GetLog( CvString::format("MapAreas%02d.txt",iCallCount++).c_str(), FILogFile::kDontTimeStamp);
-		if (!pLog)
+		if (pLog == 0)
 			return;
 
 		pLog->Msg("#x,y,terrain,feature,area\n");
@@ -1771,7 +1771,7 @@ void CvMap::DoPlaceNaturalWonders()
 		eFeature = (FeatureTypes) iFeatureLoop;
 		CvFeatureInfo* feature = GC.getFeatureInfo(eFeature);
 #if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if(feature && feature->IsNaturalWonder(true))
+		if((feature != 0) && feature->IsNaturalWonder(true))
 #else
 		if(feature && feature->IsNaturalWonder())
 #endif
@@ -2082,7 +2082,7 @@ void CvMap::DoPlaceNaturalWonders()
 					CvPlot* pAdjacentPlot = plotDirection(pRandPlot->getX(), pRandPlot->getY(), ((DirectionTypes)iI));
 					if(pAdjacentPlot != NULL)
 					{
-						if(iI & 1)
+						if((iI & 1) != 0)
 						{
 							pAdjacentPlot->setPlotType(PLOT_MOUNTAIN);
 						}
@@ -2395,7 +2395,7 @@ int CvMap::Validate()
 	//Iterate through all trade connections.
 	//Clear the connection if the source or dest city does not exist.
 	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
-	if(pGameTrade)
+	if(pGameTrade != 0)
 	{
 		for (uint ui = 0; ui < pGameTrade->GetNumTradeConnections(); ui++)
 		{
@@ -2403,7 +2403,7 @@ int CvMap::Validate()
 			if(connection.m_iID > -1)
 			{
 				CvPlot* pOriginPlot = plot(connection.m_iOriginX, connection.m_iOriginY);
-				if(pOriginPlot)
+				if(pOriginPlot != 0)
 				{
 					if(pOriginPlot->getPlotCity() == NULL)
 					{
@@ -2413,7 +2413,7 @@ int CvMap::Validate()
 				}
 
 				CvPlot* pDestPlot = plot(connection.m_iDestX, connection.m_iDestY);
-				if(pDestPlot)
+				if(pDestPlot != 0)
 				{
 					if(pDestPlot->getPlotCity() == NULL)
 					{
@@ -2509,7 +2509,7 @@ void CvMap::DoKillCountDecay(float fDecayFactor)
 
 void CvMap::LineOfSightChanged(const CvPlot* pPlot)
 {
-	if (pPlot)
+	if (pPlot != 0)
 	{
 		m_vPlotsWithLineOfSightFromPlot2[pPlot->GetPlotIndex()].clear();
 		m_vPlotsWithLineOfSightFromPlot3[pPlot->GetPlotIndex()].clear();
@@ -2555,7 +2555,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (!pLoopPlot)
+						if (pLoopPlot == 0)
 							continue;
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 2, NO_DIRECTION))
@@ -2580,7 +2580,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (!pLoopPlot)
+						if (pLoopPlot == 0)
 							continue;
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 2, NO_DIRECTION))
@@ -2606,7 +2606,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (!pLoopPlot)
+						if (pLoopPlot == 0)
 							continue;
 
 						if (pPlot->canSeePlot(pLoopPlot, NO_TEAM, 3, NO_DIRECTION))
@@ -2628,7 +2628,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 					for (int i = RING2_PLOTS; i < RING3_PLOTS; i++)
 					{
 						CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
-						if (!pLoopPlot)
+						if (pLoopPlot == 0)
 							continue;
 
 						if (pLoopPlot->canSeePlot(pPlot, NO_TEAM, 3, NO_DIRECTION))
@@ -2648,7 +2648,7 @@ const vector<CvPlot*>& CvMap::GetPlotsAtRangeX(const CvPlot* pPlot, int iRange, 
 			for (int i = RING_PLOTS[iRange-1]; i < RING_PLOTS[iRange]; i++)
 			{
 				CvPlot* pCandidate = iterateRingPlots(pPlot, i);
-				if (!pCandidate)
+				if (pCandidate == 0)
 					continue;
 
 				if (bFromPlot)

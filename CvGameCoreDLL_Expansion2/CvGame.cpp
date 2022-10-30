@@ -161,7 +161,7 @@ CvGame::~CvGame()
 {
 #ifdef VPDEBUG
 	FILogFile* pLog=LOGFILEMGR.GetLog( "UnitMoveStats.txt", FILogFile::kDontTimeStamp );
-	if (pLog)
+	if (pLog != 0)
 	{
 		pLog->Msg("#move and count @ turn %d\n",getGameTurn());
 		for (int i = 0; i < NUM_AI_TACTICAL_MOVES; i++)
@@ -199,7 +199,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	if(!GC.getEraInfo(getStartEra())){
 		for(int eraIdx = ((int)CvPreGame::era())-1; eraIdx >= 0; --eraIdx){
 			CvEraInfo* curEraInfo = GC.getEraInfo((EraTypes)eraIdx);
-			if(curEraInfo){
+			if(curEraInfo != 0){
 				CvPreGame::setEra((EraTypes)eraIdx);
 				break;
 			}
@@ -311,7 +311,7 @@ void CvGame::init(HandicapTypes eHandicap)
 
 		if (kEraInfo.isNoReligion())
 		{
-			CvPreGame::SetGameOption(GAMEOPTION_NO_RELIGION, true);
+			CvPreGame::SetGameOption(GAMEOPTION_NO_RELIGION, 1);
 		}
 	}
 
@@ -339,7 +339,7 @@ void CvGame::init(HandicapTypes eHandicap)
 			{
 				VictoryTypes eVictory = static_cast<VictoryTypes>(iI);
 				CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-				if(pkVictoryInfo)
+				if(pkVictoryInfo != 0)
 				{
 					if(isVictoryValid(eVictory))
 					{
@@ -370,7 +370,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	{
 		SpecialUnitTypes eSpecialUnit = static_cast<SpecialUnitTypes>(iI);
 		CvSpecialUnitInfo* pkSpecialUnitInfo = GC.getSpecialUnitInfo(eSpecialUnit);
-		if(pkSpecialUnitInfo)
+		if(pkSpecialUnitInfo != 0)
 		{
 			if(pkSpecialUnitInfo->isValid())
 			{
@@ -434,7 +434,7 @@ bool CvGame::init2()
 		{
 			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if(pkResourceInfo)
+			if(pkResourceInfo != 0)
 			{
 				GC.getMap().setNumResources(eResource);
 			}
@@ -725,7 +725,7 @@ void CvGame::InitPlayers()
 #else
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
 #endif
-				if(pMinorCivInfo)
+				if(pMinorCivInfo != 0)
 				{
 					CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
 					CvPreGame::setNetID(eMinorPlayer, -1);
@@ -747,7 +747,7 @@ void CvGame::InitPlayers()
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_FreeCitySelector, eMinorPlayer, eAvailableMinor);
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(eAvailableMinor);
 #endif
-				if (pMinorCivInfo)
+				if (pMinorCivInfo != 0)
 				{
 					CvPreGame::setSlotStatus(eMinorPlayer, SS_CLOSED);
 					CvPreGame::setNetID(eMinorPlayer, -1);
@@ -868,7 +868,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if(pkBuildingInfo)
+		if(pkBuildingInfo != 0)
 		{
 			if(pkBuildingInfo->IsFoundsReligion())
 			{
@@ -903,7 +903,7 @@ void CvGame::CheckGenerateArchaeology()
 			for (int iTech = 0; iTech < GC.getNumTechInfos() && !bTriggered; iTech++)
 			{
 				CvTechEntry *pkTech = GC.getTechInfo((TechTypes)iTech);
-				if (pkTech)
+				if (pkTech != 0)
 				{
 					if (kTeam1.GetTeamTechs()->HasTech((TechTypes)pkTech->GetID()))
 					{
@@ -1016,7 +1016,7 @@ void CvGame::DoGameStarted()
 	{
 		BuildingTypes eBuilding = (BuildingTypes)iI;
 		CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
-		if (pBuilding)
+		if (pBuilding != 0)
 			pBuilding->UpdateUnitTypesUnlocked();
 	}
 
@@ -1376,7 +1376,7 @@ void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides) const
 	{
 		const TechTypes eTech = static_cast<TechTypes>(iI);
 		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		if(pkTechInfo)
+		if(pkTechInfo != 0)
 		{
 			for(int iJ = 0; iJ < MAX_TEAMS; iJ++)
 			{
@@ -1398,8 +1398,8 @@ void CvGame::initFreeState(CvGameInitialItemsOverrides& kOverrides) const
 
 						if(!bValid)
 						{
-							if((getHandicapInfo().isFreeTechs(iI)) ||
-							        (!(kTeam.isHuman())&& getHandicapInfo().isAIFreeTechs(iI)) ||
+							if(((getHandicapInfo().isFreeTechs(iI)) != 0) ||
+							        (!(kTeam.isHuman())&& (getHandicapInfo().isAIFreeTechs(iI) != 0)) ||
 							        (pkTechInfo->GetEra() < getStartEra()))
 							{
 								bValid = true;
@@ -1526,7 +1526,7 @@ void CvGame::update()
 	// Send a Lua event at the start of the update
 	{
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
+		if(pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args;
 			bool bResult = false;
@@ -1626,7 +1626,7 @@ void CvGame::update()
 	// Send a Lua event at the end of the update
 	{
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
+		if(pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args;
 			bool bResult = false;
@@ -2017,7 +2017,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 					int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
 					int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
 
-					if(humanTurnsUntilMe)
+					if(humanTurnsUntilMe != 0)
 					{//We're waiting on other sequential players
 						timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
 					}
@@ -2048,7 +2048,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 			// RED <<<<<
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem)
+				if(pkScriptSystem != 0)
 				{	
 					CvLuaArgsHandle args;
 
@@ -2118,7 +2118,7 @@ void CvGame::updateTestEndTurn()
 						// RED <<<<<
 						{
 							ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-							if(pkScriptSystem)
+							if(pkScriptSystem != 0)
 							{	
 								CvLuaArgsHandle args;
 
@@ -2160,7 +2160,7 @@ void CvGame::updateTestEndTurn()
 			{
 				const CvUnit* pUnit = activePlayer.GetFirstReadyUnit();
 				CvAssertMsg(pUnit, "GetFirstReadyUnit is returning null");
-				if(pUnit)
+				if(pUnit != 0)
 				{
 					if(!pUnit->canHold(pUnit->plot()))
 					{
@@ -2212,7 +2212,7 @@ void CvGame::updateTestEndTurn()
 							}
 							else
 							{
-								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
+								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (pkIface != 0) && pkIface->IsMPAutoEndTurnEnabled())
 								{
 									if (MOD_API_ACHIEVEMENTS)
 										activePlayer.GetPlayerAchievements().EndTurn();
@@ -2221,7 +2221,7 @@ void CvGame::updateTestEndTurn()
 									// RED <<<<<
 									{
 										ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-										if(pkScriptSystem)
+										if(pkScriptSystem != 0)
 										{	
 											CvLuaArgsHandle args;
 
@@ -2442,7 +2442,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 			}
 
 		}
-		while((pLoopCity != pkHeadSelectedCity) && !pSelectCity);
+		while((pLoopCity != pkHeadSelectedCity) && (pSelectCity == 0));
 
 	}
 	else
@@ -2509,7 +2509,7 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 		bProcessed = true;
 	}
 
-	if(pNextUnit != NULL /*&& bWrap */&& !pCycleCity && !bProcessed)
+	if(pNextUnit != NULL /*&& bWrap */&& (pCycleCity == 0) && !bProcessed)
 	{
 		CvAssert(pNextUnit->getOwner() == eActivePlayer);
 		selectUnit(pNextUnit, bClear);
@@ -2523,7 +2523,7 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 
 	pDllSelectedUnit.reset(pUI->GetHeadSelectedUnit());
 	CvUnit* pCurrentSelectedUnit = GC.UnwrapUnitPointer(pDllSelectedUnit.get());
-	if((pCycleUnit != pCurrentSelectedUnit) || ((pCycleUnit != NULL) && pCycleUnit->ReadyToSelect()) || pCycleCity)
+	if((pCycleUnit != pCurrentSelectedUnit) || ((pCycleUnit != NULL) && pCycleUnit->ReadyToSelect()) || (pCycleCity != 0))
 	{
 		pUI->lookAtSelectionPlot();
 	}
@@ -2700,7 +2700,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 				{
 					MissionTypes eMission = (MissionTypes)iData2;
 					CvPlot* pPlot = GC.getMap().plot(iData3, iData4);
-					if(pPlot && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
+					if((pPlot != 0) && pkSelectedUnit->CanSwapWithUnitHere(*pPlot) && eMission != CvTypes::getMISSION_ROUTE_TO())
 					{
 						gDLL->sendSwapUnits(pkSelectedUnit->GetID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
 					}
@@ -2711,7 +2711,7 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
 						// RED <<<<<
 						{
 							ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-							if(pkScriptSystem && pPlot)
+							if((pkScriptSystem != 0) && (pPlot != 0))
 							{						
 								CvLuaArgsHandle args;
 
@@ -2805,7 +2805,7 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAlt, bool bShift, bool bCtrl)
 {
 	CvAssert(pCity);
-	if(!pCity) return;
+	if(pCity == 0) return;
 	gDLL->sendPushOrder(pCity->GetID(), eOrder, iData, bAlt, bShift, bCtrl);
 }
 
@@ -2813,7 +2813,7 @@ void CvGame::cityPushOrder(CvCity* pCity, OrderTypes eOrder, int iData, bool bAl
 void CvGame::CityPurchase(CvCity* pCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
 {
 	CvAssert(pCity);
-	if(!pCity) return;
+	if(pCity == 0) return;
 
 	// we're trying to buy a unit
 	if(eUnitType >= 0)
@@ -2858,7 +2858,7 @@ void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 	{
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
-		if(pkOldSelectedUnit)
+		if(pkOldSelectedUnit != 0)
 		{
 			pkOldSelectedUnit->plot()->updateCenterUnit();
 		}
@@ -2883,7 +2883,7 @@ static void IfTradeUnit_DisplayPopupTradeRoute(CvUnit *pUnit)
 	int iRouteIndex = 0;
 
 	iRouteIndex = -1;
-	if (pUnit && pUnit->isTrade())
+	if ((pUnit != 0) && pUnit->isTrade())
 	{
 		iRouteIndex = GC.getGame().GetGameTrade()->GetIndexFromUnitID(pUnit->GetID(),pUnit->getOwner());
 		if (iRouteIndex != -1) {
@@ -2895,7 +2895,7 @@ void CvGame::mouseoverUnit(CvUnit *pUnit, bool bEnter)
 {
 	CvUnit *pkSelectedUnit = NULL;
 
-	if (pUnit)
+	if (pUnit != 0)
 	{
 		if (bEnter) {
 			IfTradeUnit_DisplayPopupTradeRoute(pUnit);
@@ -2936,7 +2936,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt) cons
 			bGroup = true;
 		}
 
-		if(!pUnit) return;
+		if(pUnit == 0) return;
 
 		pUnitPlot = pUnit->plot();
 
@@ -3011,7 +3011,7 @@ void CvGame::SelectSettler(void)
 		}
 	}
 
-	if(pSettlerUnit && pSettlerUnit->ReadyToSelect())
+	if((pSettlerUnit != 0) && pSettlerUnit->ReadyToSelect())
 	{
 		selectUnit(pSettlerUnit, true, false, true);
 	}
@@ -3045,7 +3045,7 @@ bool CvGame::selectionListIgnoreBuildingDefense()
 		if(eBestLandUnit != NO_UNIT)
 		{
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eBestLandUnit);
-			if(pkUnitInfo)
+			if(pkUnitInfo != 0)
 			{
 				bIgnoreBuilding = pkUnitInfo->IsIgnoreBuildingDefense();
 			}
@@ -3064,7 +3064,7 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 
 	CvActionInfo* pActionInfo = GC.getActionInfo(iAction);
 	CvAssert(pActionInfo != NULL);
-	if(!pActionInfo) return false;
+	if(pActionInfo == 0) return false;
 
 	if(pActionInfo->getControlType() != NO_CONTROL)
 	{
@@ -3199,7 +3199,7 @@ void CvGame::handleAction(int iAction)
 					{
 						// Let them build over an improvement if the new improvement REQUIRES the old one
 						CvImprovementEntry *pImprovementInfo = GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement());
-						if (!pImprovementInfo || !pImprovementInfo->IsRequiresImprovement())
+						if ((pImprovementInfo == 0) || !pImprovementInfo->IsRequiresImprovement())
 						{
 							if(pHeadSelectedUnit)
 							{
@@ -3251,7 +3251,7 @@ void CvGame::handleAction(int iAction)
 			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
-				if (pkHeadSelectedUnit)
+				if (pkHeadSelectedUnit != 0)
 				{
 					GC.getGame().GetGameTrade()->InvalidateTradePathCache(pkHeadSelectedUnit->getOwner());
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_INTERNATIONAL_TRADE_ROUTE, pkHeadSelectedUnit->getOwner());
@@ -3267,7 +3267,7 @@ void CvGame::handleAction(int iAction)
 			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
-				if (pkHeadSelectedUnit)
+				if (pkHeadSelectedUnit != 0)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_TRADE_UNIT_NEW_HOME);
 					kPopup.iData1 = pkHeadSelectedUnit->GetID();
@@ -3281,7 +3281,7 @@ void CvGame::handleAction(int iAction)
 			if(pHeadSelectedUnit)
 			{
 				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
-				if (pkHeadSelectedUnit)
+				if (pkHeadSelectedUnit != 0)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_ADMIRAL_PORT);
 					kPopup.iData1 = pkHeadSelectedUnit->GetID();
@@ -3617,7 +3617,7 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED <<<<<
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem)
+				if(pkScriptSystem != 0)
 				{	
 					CvLuaArgsHandle args;
 
@@ -3656,7 +3656,7 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED <<<<<
 			{
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem)
+				if(pkScriptSystem != 0)
 				{	
 					CvLuaArgsHandle args;
 
@@ -4366,7 +4366,7 @@ bool CvGame::canTrainNukes() const
 			{
 				const UnitTypes eUnit = static_cast<UnitTypes>(iJ);
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-				if(pkUnitInfo)
+				if(pkUnitInfo != 0)
 				{
 					if(pkUnitInfo->GetNukeDamageLevel() != -1)
 					{
@@ -5161,7 +5161,7 @@ void CvGame::initScoreCalculation()
 	{
 		const TechTypes eTech = static_cast<TechTypes>(i);
 		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		if(pkTechInfo)
+		if(pkTechInfo != 0)
 		{
 			if(pkTechInfo->GetEra() < getStartEra())
 			{
@@ -5174,7 +5174,7 @@ void CvGame::initScoreCalculation()
 				{
 					const CivilizationTypes eCivilization = static_cast<CivilizationTypes>(iCiv);
 					CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-					if(pkCivilizationInfo)
+					if(pkCivilizationInfo != 0)
 					{
 						if(pkCivilizationInfo->isPlayable())
 						{
@@ -5367,7 +5367,7 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 	} else {
 #endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(eEvent);
@@ -6022,7 +6022,7 @@ void CvGame::sendPlayerOptions(bool bForce)
 			const PlayerOptionTypes eOption = static_cast<PlayerOptionTypes>(iI);
 
 			CvPlayerOptionInfo* pkInfo = GC.getPlayerOptionInfo(eOption);
-			if (pkInfo)
+			if (pkInfo != 0)
 			{
 				uint uiID = FString::Hash( pkInfo->GetType() );
 				gDLL->sendPlayerOption(static_cast<PlayerOptionTypes>(uiID), gDLL->getPlayerOption(static_cast<PlayerOptionTypes>(uiID)));
@@ -6866,7 +6866,7 @@ int CvGame::getBestLandUnitCombat()
 {
 	const UnitTypes eBestLandUnit = getBestLandUnit();
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eBestLandUnit);
-	if(pkUnitInfo)
+	if(pkUnitInfo != 0)
 	{
 		return std::max(1, pkUnitInfo->GetCombat());
 	}
@@ -6970,11 +6970,11 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
 					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 					CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-					if (pNotifications)
+					if (pNotifications != 0)
 						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 				}
 
-				if (pkVictoryInfo)
+				if (pkVictoryInfo != 0)
 					LogGameResult(pkVictoryInfo->GetText(), kWinningTeamLeader.getCivilizationShortDescription());
 
 				//--Start Achievements
@@ -7329,7 +7329,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					if (GetGameLeagues()->GetNumActiveLeagues() > 0)
 					{
 						CvLeague* pLeague = GetGameLeagues()->GetActiveLeague();
-						if (pLeague)
+						if (pLeague != 0)
 						{
 							// Diplomatic Victory without ever being host
 							if (eNewVictory == eVictoryDiplomatic)
@@ -7877,7 +7877,7 @@ void CvGame::DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes
 					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
 					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 					CvNotifications* pNotification = kCurNotifyPlayer.GetNotifications();
-					if(pNotification)
+					if(pNotification != 0)
 					{
 						Localization::String localizedText;
 						Localization::String localizedSummary;
@@ -8130,7 +8130,7 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 				if (GetGameLeagues()->GetNumActiveLeagues() > 0)
 				{
 					CvLeague* pLeague = GetGameLeagues()->GetActiveLeague();
-					if (pLeague)
+					if (pLeague != 0)
 					{
 						if (pLeague->HasMemberAlwaysBeenHost(getActivePlayer()))
 						{
@@ -8613,7 +8613,7 @@ bool CvGame::areNoVictoriesValid() const
 	{
 		VictoryTypes eVictory = static_cast<VictoryTypes>(iI);
 		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-		if(pkVictoryInfo)
+		if(pkVictoryInfo != 0)
 		{
 			if(isVictoryValid(eVictory))
 			{
@@ -8795,7 +8795,7 @@ void CvGame::doTurn()
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iLoop);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->isMonopoly())
+		if ((pkResource != 0) && pkResource->isMonopoly())
 		{
 			UpdateGreatestPlayerResourceMonopoly(eResource);
 			for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
@@ -8992,7 +8992,7 @@ void DumpUnitInfo(CvUnitEntry* pkUnitInfo)
 	if (ePrereqTech != NO_TECH)
 	{
 		CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
-		if (pkTechInfo)
+		if (pkTechInfo != 0)
 			iUnitEra = pkTechInfo->GetEra();
 	}
 
@@ -9027,7 +9027,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 			iBonusValue = 0;
 
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)pkUnitInfo->GetUnitClassType());
-			if(pkUnitClassInfo)
+			if(pkUnitClassInfo != 0)
 			{
 				// If this is NOT a UU, add extra value so that the default unit is more likely to get picked
 				if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
@@ -9046,7 +9046,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 					{
 						const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-						if(pkPromotionInfo)
+						if(pkPromotionInfo != 0)
 						{
 							if(pkUnitInfo->GetFreePromotions(iLoop))
 							{
@@ -9155,7 +9155,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		{
 			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (pkResourceInfo)
+			if (pkResourceInfo != 0)
 			{
 				int iResourceRequirement = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 
@@ -9192,7 +9192,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			{
 				const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
 				CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkPromotionInfo)
+				if(pkPromotionInfo != 0)
 				{
 					if(pkUnitInfo->GetFreePromotions(iPromotionLoop))
 					{
@@ -9368,7 +9368,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 	{
 		CvPlot *pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
 		// Could be outside of the map ...
-		if(!pPlot)		
+		if(pPlot == 0)		
 			continue;
 
 		// Can't be impassable
@@ -9400,7 +9400,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		}
 
 		// Add weight if there's a defensive bonus for this plot
-		if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
+		if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false) != 0)
 			iTempWeight += 4;
 
 		if(iTempWeight > iBestPlotWeight)
@@ -9421,7 +9421,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		UnitTypes emUnit = GetCompetitiveSpawnUnitType(ePlayer, /*bIncludeUUs*/ bIncludeUUs, /*bIncludeRanged*/ false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly);
 
 		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType());
-		if (pkInfo)
+		if (pkInfo != 0)
 		{
 			CvUnitEntry* eUnitEntry = GC.getUnitInfo(eUnit);
 			
@@ -9431,7 +9431,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				if (eCivilizationUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
-					if (pkUnitEntry)
+					if (pkUnitEntry != 0)
 						eUnit = eCivilizationUnit;
 				}
 			}
@@ -9444,7 +9444,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				if (eCivilizationUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
-					if (pkUnitEntry)
+					if (pkUnitEntry != 0)
 						emUnit = eCivilizationUnit;
 				}
 			}
@@ -9452,7 +9452,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 
 		CvUnit* pstartUnit = GET_PLAYER(ePlayer).initUnit(emUnit, pPlot->getX(), pPlot->getY());
 		CvAssert(pstartUnit);
-		if (pstartUnit)
+		if (pstartUnit != 0)
 		{
 			if (!pstartUnit->jumpToNearestValidPlotWithinRange(3) || !pstartUnit->IsCombatUnit())
 			{
@@ -9479,7 +9479,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 				// Init unit
 				CvUnit* pmUnit = GET_PLAYER(ePlayer).initUnit(emUnit, pPlot->getX(), pPlot->getY());
 				CvAssert(pmUnit);
-				if (pmUnit)
+				if (pmUnit != 0)
 				{
 					if (!pmUnit->jumpToNearestValidPlotWithinRange(3) || !pmUnit->IsCombatUnit())
 					{
@@ -9501,7 +9501,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 					// Init unit
 					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pPlot->getX(), pPlot->getY());
 					CvAssert(pUnit);
-					if (pUnit)
+					if (pUnit != 0)
 					{
 						if (!pUnit->jumpToNearestValidPlotWithinRange(3) || !pUnit->IsCombatUnit())
 						{
@@ -9535,7 +9535,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 	{
 		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
 		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-		if(pMinorLoop && pMinorLoop->isEverAlive())
+		if((pMinorLoop != 0) && pMinorLoop->isEverAlive())
 		{
 			iRandomSeed += pMinorLoop->GetID(); //needed later
 			UnitTypes eUniqueUnit = pMinorLoop->GetMinorCivAI()->GetUniqueUnit();
@@ -9567,7 +9567,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 				{
 					const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
 					CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-					if(pkPromotionInfo)
+					if(pkPromotionInfo != 0)
 					{
 						if(pkUnitInfo->GetFreePromotions(iPromotionLoop))
 						{
@@ -9647,7 +9647,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			{
 				CvTechEntry* pkTechInfo = GC.getTechInfo(ePrereqTech);
 				CvAssertMsg(pkTechInfo, "Tech info not found when picking unique unit for minor civ. Please send Anton your save file and version!");
-				if (pkTechInfo)
+				if (pkTechInfo != 0)
 				{
 					ePrereqEra = (EraTypes) pkTechInfo->GetEra();
 				}
@@ -10103,7 +10103,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	}
 
 	bool bValid = isVictoryValid(eVictory);
-	if(pbEndScore)
+	if(pbEndScore != 0)
 	{
 		*pbEndScore = false;
 	}
@@ -10119,7 +10119,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 	{
 		if(pkVictoryInfo->isEndScore())
 		{
-			if(pbEndScore)
+			if(pbEndScore != 0)
 			{
 				*pbEndScore = true;
 			}
@@ -10392,7 +10392,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 		{
 			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iK);
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(pkBuildingClassInfo)
+			if(pkBuildingClassInfo != 0)
 			{
 				if(pkBuildingClassInfo->getVictoryThreshold(eVictory) > GET_TEAM(eTeam).getBuildingClassCount(eBuildingClass))
 				{
@@ -10411,7 +10411,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
 		{
 			const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
 			CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-			if(pkProjectInfo)
+			if(pkProjectInfo != 0)
 			{
 				if(pkProjectInfo->GetVictoryMinThreshold(eVictory) > GET_TEAM(eTeam).getProjectCount(eProject))
 				{
@@ -10432,7 +10432,7 @@ void CvGame::testVictory()
 
 	// Send a game event to allow a Lua script to set the victory state
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		bool bResult = false;
@@ -10548,7 +10548,7 @@ void CvGame::testVictory()
 			{
 				VictoryTypes eVictory = static_cast<VictoryTypes>(iVictoryLoop);
 				CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-				if(pkVictoryInfo)
+				if(pkVictoryInfo != 0)
 				{
 					if(pkVictoryInfo->isTargetScore())
 					{
@@ -10600,7 +10600,7 @@ void CvGame::testVictory()
 			{
 				VictoryTypes eVictory = static_cast<VictoryTypes>(iVictoryLoop);
 				CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-				if(pkVictoryInfo)
+				if(pkVictoryInfo != 0)
 				{
 					if(pkVictoryInfo->isEndScore())
 					{
@@ -10894,7 +10894,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 // causing ambiguous call errors.  The non VA one is needed for use as a delegate
 int CvGame::getJonRandNumVA(int iNum, const char* pszLog, ...)
 {
-	if (pszLog)
+	if (pszLog != 0)
 	{
 		const size_t uiOutputSize = 512;
 		char szOutput[uiOutputSize];
@@ -11068,7 +11068,7 @@ int CvGame::calculateSyncChecksum()
 				for(iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
 				{
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iJ);
-					if(!pkBuildingClassInfo)
+					if(pkBuildingClassInfo == 0)
 					{
 						continue;
 					}
@@ -11079,7 +11079,7 @@ int CvGame::calculateSyncChecksum()
 				for(iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
 				{
 					CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iJ);
-					if(!pkUnitClassInfo)
+					if(pkUnitClassInfo == 0)
 					{
 						continue;
 					}
@@ -11119,7 +11119,7 @@ void CvGame::debugSyncChecksum()
 {
 	CvString fname = CvString::format( "AssetsTurn%03d.txt", GC.getGame().getGameTurn() );
 	FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-	if (!pLog)
+	if (pLog == 0)
 		return;
 
 	pLog->Msg( "----global-----\n" );
@@ -11154,7 +11154,7 @@ void CvGame::debugSyncChecksum()
 			for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
 			{
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iJ);
-				if(!pkBuildingClassInfo)
+				if(pkBuildingClassInfo == 0)
 					continue;
 
 				int iCount = GET_PLAYER((PlayerTypes)iI).getBuildingClassCountPlusMaking((BuildingClassTypes)iJ);
@@ -11165,7 +11165,7 @@ void CvGame::debugSyncChecksum()
 			for(int iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
 			{
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iJ);
-				if(!pkUnitClassInfo)
+				if(pkUnitClassInfo == 0)
 					continue;
 
 				int iCount = GET_PLAYER((PlayerTypes)iI).getUnitClassCountPlusMaking((UnitClassTypes)iJ);
@@ -11199,7 +11199,7 @@ int CvGame::calculateOptionsChecksum()
 		for(iJ = 0; iJ < GC.getNumPlayerOptionInfos(); iJ++)
 		{
 			CvPlayerOptionInfo* pkInfo = GC.getPlayerOptionInfo((PlayerOptionTypes)iJ);
-			if (pkInfo)
+			if (pkInfo != 0)
 			{
 				uint uiID = FString::Hash( pkInfo->GetType() );
 				if(kPlayer.isOption((PlayerOptionTypes)uiID))
@@ -12108,7 +12108,7 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 			{
 				const PlayerColorTypes ePlayerColor = static_cast<PlayerColorTypes>(iK);
 				CvPlayerColorInfo* pkPlayerColorInfo = GC.GetPlayerColorInfo(ePlayerColor);
-				if(pkPlayerColorInfo)
+				if(pkPlayerColorInfo != 0)
 				{
 					if(iK != pkBarbarianCivInfo->getDefaultPlayerColor())
 					{
@@ -12330,7 +12330,7 @@ bool CvGame::isUnitEverActive(UnitTypes eUnit) const
 	{
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>(iCiv);
 		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
-		if(pkCivilizationInfo)
+		if(pkCivilizationInfo != 0)
 		{
 			if(isCivEverActive(eCiv))
 			{
@@ -12349,13 +12349,13 @@ bool CvGame::isUnitEverActive(UnitTypes eUnit) const
 bool CvGame::isBuildingEverActive(BuildingTypes eBuilding) const
 {
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-	if(pkBuildingInfo)
+	if(pkBuildingInfo != 0)
 	{
 		for(int iCiv = 0; iCiv < GC.getNumCivilizationInfos(); ++iCiv)
 		{
 			const CivilizationTypes eCivilization = static_cast<CivilizationTypes>(iCiv);
 			CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCivilization);
-			if(pkCivilizationInfo)
+			if(pkCivilizationInfo != 0)
 			{
 				if(isCivEverActive(eCivilization))
 				{
@@ -12388,7 +12388,7 @@ void CvGame::DoUpdateIndustrialRoute()
 	{
 		const RouteTypes eRoute = static_cast<RouteTypes>(iRouteLoop);
 		CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-		if(pkRouteInfo)
+		if(pkRouteInfo != 0)
 		{
 			if(pkRouteInfo->IsIndustrial())
 			{
@@ -12759,7 +12759,7 @@ void CvGame::DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes e
 			}
 
 			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-			if (pNotify)
+			if (pNotify != 0)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DEFENSIVE_PACT");
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DEFENSIVE_PACT_S");
@@ -12793,7 +12793,7 @@ void CvGame::DoResearchAgreementNotification(PlayerTypes eFirstPlayer, PlayerTyp
 			}
 
 			CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-			if (pNotify)
+			if (pNotify != 0)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
@@ -12836,7 +12836,7 @@ void CvGame::DoTestConquestVictory()
 	{
 		VictoryTypes eLoopVictory = static_cast<VictoryTypes>(iVictoryLoop);
 		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eLoopVictory);
-		if (pkVictoryInfo && pkVictoryInfo->isConquest())
+		if ((pkVictoryInfo != 0) && pkVictoryInfo->isConquest())
 		{
 			if (isVictoryValid(eLoopVictory))
 			{
@@ -12867,10 +12867,10 @@ void CvGame::DoTestConquestVictory()
 			continue;
 
 		CvPlot* pCapitalPlot = kMap.plot(iOriginalCapitalX, iOriginalCapitalY);
-		if (pCapitalPlot)
+		if (pCapitalPlot != 0)
 		{
 			CvCity* pCapital = pCapitalPlot->getPlotCity();
-			if (pCapital)
+			if (pCapital != 0)
 			{
 				iNumOriginalCapitals++;
 				OriginalCapitals.push_back(pCapital);
@@ -12941,7 +12941,7 @@ void CvGame::SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount)
 			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
 			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				CvString strBuffer;
 				CvString strSummary;
@@ -13025,7 +13025,7 @@ void CvGame::SetBestPoliciesPlayer(PlayerTypes ePlayer, int iPolicyCount)
 			}
 
 			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
 			}
@@ -13064,7 +13064,7 @@ void CvGame::SetBestGreatPeoplePlayer(PlayerTypes ePlayer, int iGreatPeopleCount
 			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
 			CvNotifications* pNotifications =kCurNotifyPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				CvString strBuffer;
 				CvString strSummary;
@@ -13159,14 +13159,14 @@ void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey,
 		Localization::String localizedText = Localization::Lookup(strTextKey);
 		localizedText << iMod;
 
-		if(strExtraKey)
+		if(strExtraKey != 0)
 		{
 			std::string extraKey(strExtraKey);
 			if(!extraKey.empty())
 				localizedText << strExtraKey;
 
 			const char* const localized = localizedText.toUTF8();
-			if(localized)
+			if(localized != 0)
 				(*toolTipSink) += localized;
 		}
 	}
@@ -13183,14 +13183,14 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 		if(iValue != -666)
 			localizedText << iValue;
 
-		if(strExtraKey1)
+		if(strExtraKey1 != 0)
 		{
 			std::string extraKey1(strExtraKey1);
 			if(!extraKey1.empty())
 				localizedText << strExtraKey1;
 		}
 
-		if(strExtraKey2)
+		if(strExtraKey2 != 0)
 		{
 			std::string extraKey2(strExtraKey2);
 			if(!extraKey2.empty())
@@ -13198,7 +13198,7 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 		}
 
 		const char* const localized = localizedText.toUTF8();
-		if(localized)
+		if(localized != 0)
 			(*toolTipSink) += localized;
 	}
 }
@@ -13586,7 +13586,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 			iBaseWeight = 0;
 
 		// if this tile cannot be improved, zero it out
-		if (iBaseWeight && pPlot->getFeatureType() != NO_FEATURE)
+		if ((iBaseWeight != 0) && pPlot->getFeatureType() != NO_FEATURE)
 		{
 			if (GC.getFeatureInfo(pPlot->getFeatureType())->isNoImprovement())
 			{
@@ -13595,7 +13595,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 		}
 
 		// if this tile has a GP improvement, zero it out
-		if (iBaseWeight && pPlot->getImprovementType() != NO_IMPROVEMENT)
+		if ((iBaseWeight != 0) && pPlot->getImprovementType() != NO_IMPROVEMENT)
 		{
 			if (GC.getImprovementInfo(pPlot->getImprovementType())->IsCreatedByGreatPerson())
 			{
@@ -13639,7 +13639,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 				for (int iDY = -iRange; iDY <= iRange; iDY++)
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
+					if (pLoopPlot != 0)
 					{
 						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 						{
@@ -13654,7 +13654,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 				for (int iDY = -iRange; iDY <= iRange; iDY++)
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
+					if (pLoopPlot != 0)
 					{
 						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 						{
@@ -13669,7 +13669,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 				for (int iDY = -iRange; iDY <= iRange; iDY++)
 				{
 					CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-					if (pLoopPlot)
+					if (pLoopPlot != 0)
 					{
 						if (chosenDigSites[pLoopPlot->GetPlotIndex()].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
 						{
@@ -13810,8 +13810,8 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 
 	// find nearest city (preferably on same area)
 	CvCity* pNearestCity = theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, true /* bSameArea */);
-	pNearestCity = pNearestCity ? pNearestCity : theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
-	if (pNearestCity)
+	pNearestCity = pNearestCity != 0 ? pNearestCity : theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
+	if (pNearestCity != 0)
 	{
 		digSite.m_ePlayer1 = pNearestCity->getOriginalOwner();
 	}
@@ -13819,7 +13819,7 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 	{
 		// look for nearby units
 		CvUnit* pUnit = theMap.findUnit(iPlotX, iPlotY);
-		if (pUnit)
+		if (pUnit != 0)
 		{
 			digSite.m_ePlayer1 = pUnit->GetOriginalOwner();
 		}
@@ -13827,7 +13827,7 @@ void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClas
 		{
 			// look for the start location if it exists
 			PlayerTypes thisPlayer;
-			if (theMap.findNearestStartPlot(iPlotX, iPlotY, thisPlayer))
+			if (theMap.findNearestStartPlot(iPlotX, iPlotY, thisPlayer) != 0)
 			{
 				digSite.m_ePlayer1 = thisPlayer;
 			}
@@ -14070,7 +14070,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			for (int iDY = -iRange; iDY <= iRange; iDY++)
 			{
 				CvPlot* pLoopPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iDX, iDY, iRange);
-				if (pLoopPlot)
+				if (pLoopPlot != 0)
 				{
 					int iIndex = pLoopPlot->GetPlotIndex();
 					digSiteWeights[iIndex] = CalculateDigSiteWeight(iIndex, historicalDigSites, scratchDigSites);				
@@ -14084,7 +14084,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 //	--------------------------------------------------------------------------------
 CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit)
 {
-	if(!pAttackingUnit || !pDefendingUnit)
+	if((pAttackingUnit == 0) || (pDefendingUnit == 0))
 	{
 		return NO_COMBAT_PREDICTION;
 	}
@@ -14105,7 +14105,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	{
 		//this  must be the same moveflags as above so we can reuse the path next turn
 		CvPlot* pEnd = pTest->GetPathLastPlot();
-		if (pEnd)
+		if (pEnd != 0)
 			pFromPlot = pEnd;
 	}
 
@@ -14192,7 +14192,7 @@ void CvGame::SetClosestCityMapDirty()
 	{
 		CvString fname = CvString::format("CityDistance%03d.txt",getGameTurn());
 		FILogFile* pLog = LOGFILEMGR.GetLog(fname.c_str(), FILogFile::kDontTimeStamp);
-		if (pLog)
+		if (pLog != 0)
 		{
 			pLog->Msg("#x,y,water,plot dist,plot city,plot owner,turn dist,turn city,turn owner\n");
 			for (int i = 0; i < GC.getMap().numPlots(); i++)
@@ -14216,7 +14216,7 @@ void CvGame::SetClosestCityMapDirty()
 
 int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	return m_cityDistancePathLength.GetDistance(*pPlot, false, ePlayer);
@@ -14224,7 +14224,7 @@ int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, PlayerTypes e
 
 CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NULL;
 
 	int owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, false, ePlayer);
@@ -14237,7 +14237,7 @@ CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, PlayerTypes ePl
 
 int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	return m_cityDistancePathLength.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
@@ -14245,7 +14245,7 @@ int CvGame::GetClosestCityDistancePathLength( const CvPlot* pPlot, bool bMajorOn
 
 CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, bool bMajorOnly )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NULL;
 
 	PlayerTypes owner = m_cityDistancePathLength.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
@@ -14258,7 +14258,7 @@ CvCity* CvGame::GetClosestCityByPathLength( const CvPlot* pPlot, bool bMajorOnly
 
 int CvGame::GetClosestCityDistanceInPlots( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	return m_cityDistancePlots.GetDistance(*pPlot, false, ePlayer);
@@ -14266,7 +14266,7 @@ int CvGame::GetClosestCityDistanceInPlots( const CvPlot* pPlot, PlayerTypes ePla
 
 CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, PlayerTypes ePlayer )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NULL;
 
 	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, false, ePlayer);
@@ -14295,7 +14295,7 @@ CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, PlayerTypes ePlayer 
 
 PlayerTypes CvGame::GetClosestCityOwnerByPlots(const CvPlot * pPlot, bool bMajorsOnly)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NO_PLAYER;
 
 	return m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorsOnly, NO_PLAYER);
@@ -14303,7 +14303,7 @@ PlayerTypes CvGame::GetClosestCityOwnerByPlots(const CvPlot * pPlot, bool bMajor
 
 int CvGame::GetClosestCityDistanceInPlots( const CvPlot* pPlot, bool bMajorOnly )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	return m_cityDistancePlots.GetDistance(*pPlot, bMajorOnly, NO_PLAYER);
@@ -14311,7 +14311,7 @@ int CvGame::GetClosestCityDistanceInPlots( const CvPlot* pPlot, bool bMajorOnly 
 
 CvCity* CvGame::GetClosestCityByPlots( const CvPlot* pPlot, bool bMajorOnly )
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return NULL;
 
 	PlayerTypes owner = m_cityDistancePlots.GetFeatureOwner(*pPlot, bMajorOnly, NO_PLAYER);
@@ -14603,7 +14603,7 @@ bool CvGame::IsResolutionPassed(ResolutionTypes iResolutionType, int iChoice) co
 
 	if (pGameLeagues->GetNumActiveLeagues() > 0) {
 		CvLeague* pLeague = pGameLeagues->GetActiveLeague();
-		if (pLeague) {
+		if (pLeague != 0) {
 			return pLeague->IsActiveResolution(iResolutionType, iChoice);
 		}
 	}
@@ -14852,7 +14852,7 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 
 	CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(eNewType);
 
-	if (!pMinorCivInfo)
+	if (pMinorCivInfo == 0)
 		return false;
 
 	if (bJustChecking)

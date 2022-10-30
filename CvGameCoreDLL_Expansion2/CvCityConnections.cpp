@@ -41,7 +41,7 @@ void CvCityConnections::Init(CvPlayer* pPlayer)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(i);
 		CvBuildingEntry* pkBuildingInfo = pkBuildingEntries->GetEntry(eBuilding);
-		if(pkBuildingInfo)
+		if(pkBuildingInfo != 0)
 		{
 			if(pkBuildingInfo->AllowsWaterRoutes())
 			{
@@ -165,7 +165,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		if(ShouldConnectToOtherPlayer(ePlayer))
 		{
 			CvCity* pOtherCapital = GET_PLAYER(ePlayer).getCapitalCity();
-			if(pOtherCapital)
+			if(pOtherCapital != 0)
 			{
 				int iPlotIndex = pOtherCapital->plot()->GetPlotIndex();
 				m_plotIdsToConnect.push_back(iPlotIndex);
@@ -176,7 +176,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 CvCityConnections::CityConnectionTypes CvCityConnections::GetConnectionState(const CvCity* pCityA, const CvCity* pCityB) const
 {
-	if(!pCityA || !pCityB)
+	if((pCityA == 0) || (pCityB == 0))
 		return CONNECTION_NONE;
 
 	if (pCityA==pCityB)
@@ -225,11 +225,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 	if (MOD_EVENTS_CITY_CONNECTIONS) 
 	{
 		// Events to determine if we support alternative direct and/or indirect route types
-		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), true) == GAMEEVENTRETURN_TRUE) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), 1) == GAMEEVENTRETURN_TRUE) {
 			bCallDirectEvents = true;
 		}
 
-		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), false) == GAMEEVENTRETURN_TRUE) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnections, m_pPlayer->GetID(), 0) == GAMEEVENTRETURN_TRUE) {
 			bCallIndirectEvents = true;
 		}
 	}
@@ -361,13 +361,13 @@ void CvCityConnections::UpdateRouteInfo(void)
 			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_ANY_LAND) && bCallDirectEvents)
 			{
 				// Event to determine if connected by an alternative direct route type
-				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), true) == GAMEEVENTRETURN_TRUE);
+				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), 1) == GAMEEVENTRETURN_TRUE);
 			}
 
 			if (!AreCitiesDirectlyConnected(pCityA,pCityB,CONNECTION_HARBOR) && bCallIndirectEvents)
 			{
 				// Event to determine if connected by an alternative indirect route type
-				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), false) == GAMEEVENTRETURN_TRUE);
+				bLuaRouteFound = (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pCityA->getX(), pCityA->getY(), pCityB->getX(), pCityB->getY(), 0) == GAMEEVENTRETURN_TRUE);
 			}
 
 			if (bLuaRouteFound)
@@ -392,7 +392,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 	m_plotsWithConnectionToCapital.clear();
 
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
-	if (pCapital)
+	if (pCapital != 0)
 	{
 		//need to check those later
 		std::vector<CvCity*> vConnectedCities;
@@ -408,7 +408,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 			//if it's one of our own cities, set the connection flag - also for the capital itself
 			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity && pCity->getOwner() == m_pPlayer->GetID())
+			if ((pCity != 0) && pCity->getOwner() == m_pPlayer->GetID())
 			{
 				pCity->SetRouteToCapitalConnected(true);
 				vConnectedCities.push_back(pCity);
@@ -427,7 +427,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				//if it's one of our own cities, set the connection flag - also for the capital itself
 				CvCity* pCity = pPlot->getPlotCity();
-				if (pCity && pCity->getOwner()==m_pPlayer->GetID())
+				if ((pCity != 0) && pCity->getOwner()==m_pPlayer->GetID())
 					pCity->SetIndustrialRouteToCapitalConnected(true);
 			}
 		}

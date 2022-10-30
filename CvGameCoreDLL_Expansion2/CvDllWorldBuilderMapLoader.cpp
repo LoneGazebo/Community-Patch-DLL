@@ -23,9 +23,9 @@ CvDllWorldBuilderMapLoader::~CvDllWorldBuilderMapLoader()
 //------------------------------------------------------------------------------
 void* CvDllWorldBuilderMapLoader::QueryInterface(GUID guidInterface)
 {
-	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
-	    guidInterface == ICvWorldBuilderMapLoader1::GetInterfaceId() || 
-		guidInterface == ICvWorldBuilderMapLoader2::GetInterfaceId())
+	if(	((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	    ((guidInterface == ICvWorldBuilderMapLoader1::GetInterfaceId()) != 0) || 
+		((guidInterface == ICvWorldBuilderMapLoader2::GetInterfaceId()) != 0))
 	{
 		return this;
 	}

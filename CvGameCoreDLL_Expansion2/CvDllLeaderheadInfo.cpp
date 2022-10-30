@@ -22,8 +22,8 @@ CvDllLeaderHeadInfo::~CvDllLeaderHeadInfo()
 //------------------------------------------------------------------------------
 void* CvDllLeaderHeadInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvLeaderHeadInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvLeaderHeadInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

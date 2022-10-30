@@ -25,8 +25,8 @@ CvDllDealAI::~CvDllDealAI()
 //------------------------------------------------------------------------------
 void* CvDllDealAI::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvDealAI1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvDealAI1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

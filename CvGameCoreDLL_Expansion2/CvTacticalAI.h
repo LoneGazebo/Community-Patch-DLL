@@ -688,9 +688,9 @@ public:
 	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
 
 	const CvPlot* getPlot() const { return pPlot; }
-	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
-	bool isChokepoint() const { return pPlot ? pPlot->IsChokePoint() : false; }
-	bool isAdjacent(const CvTacticalPlot& other) const { return pPlot ? pPlot->isAdjacent(other.pPlot) : false; }
+	int getPlotIndex() const { return pPlot != 0 ? pPlot->GetPlotIndex() : -1; }
+	bool isChokepoint() const { return pPlot != 0 ? pPlot->IsChokePoint() : false; }
+	bool isAdjacent(const CvTacticalPlot& other) const { return pPlot != 0 ? pPlot->isAdjacent(other.pPlot) : false; }
 	int getNumAdjacentEnemies(eTactPlotDomain eDomain) const { return aiEnemyCombatUnitsAdjacent[eDomain]; }
 	void setNumAdjacentEnemies(eTactPlotDomain eDomain, int iValue) { aiEnemyCombatUnitsAdjacent[eDomain]=static_cast<unsigned char>(iValue); }
 	int getNumAdjacentFriendlies(eTactPlotDomain eDomain, int iIgnoreUnitPlot) const;

@@ -188,7 +188,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 					{
 						CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
 						TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-						if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+						if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 						{
 							++iBlockedCount;
 							if (stepCount > STRICT_LOOSE_CUTOFF || iBlockedCount >= 2)
@@ -202,7 +202,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 					TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-					if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+					if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 						return false;
 
 					lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -221,7 +221,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 			{
 				CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
 				TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-				if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+				if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 				{
 					if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 						return false;
@@ -234,7 +234,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 			TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-			if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+			if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 				return false;
 
 			lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -274,7 +274,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 					{
 						CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
 						TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-						if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+						if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 						{
 							if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 								return false;
@@ -287,7 +287,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 					TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-					if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+					if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 						return false;
 
 					lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -306,7 +306,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 			{
 				CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[lookbackDirection], startY + currentDY + ms_LookBackY[lookbackDirection]);
 				TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-				if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+				if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 				{
 					if (stepCount > STRICT_LOOSE_CUTOFF || ++iBlockedCount >= 2)
 						return false;
@@ -319,7 +319,7 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 			TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-			if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+			if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 				return false;
 
 			lookbackDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -419,7 +419,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 						if (!straightThrough)
 						{
 							CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[blockedDirection], startY + currentDY + ms_LookBackY[blockedDirection]);
-							if(passThroughPlot)
+							if(passThroughPlot != 0)
 							{
 								TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
 								bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
@@ -438,7 +438,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 					TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-					if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+					if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 					{
 						bBlocked = true;
 						blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -458,7 +458,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 				if (!straightThrough)	// If going along a single axis, we are looking directly down the middle of a hex so there is nothing to look around.
 				{
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[blockedDirection], startY + currentDY + ms_LookBackY[blockedDirection]);
-					if(passThroughPlot)
+					if(passThroughPlot != 0)
 					{
 						TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
 						bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
@@ -477,7 +477,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 			TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-			if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+			if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 			{
 				bBlocked = true;
 				blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -518,7 +518,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 						if (!straightThrough)	// If going along a single axis, we are looking directly down the middle of a hex so there is nothing to look around.
 						{
 							CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[blockedDirection], startY + currentDY + ms_LookBackY[blockedDirection]);
-							if(passThroughPlot)
+							if(passThroughPlot != 0)
 							{
 								TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
 								bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
@@ -537,7 +537,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 					TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-					if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+					if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 					{
 						bBlocked = true;
 						blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];
@@ -557,7 +557,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 				if (!straightThrough)	// If going along a single axis, we are looking directly down the middle of a hex so there is nothing to look around.
 				{
 					CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX + ms_LookBackX[blockedDirection], startY + currentDY + ms_LookBackY[blockedDirection]);
-					if(passThroughPlot)
+					if(passThroughPlot != 0)
 					{
 						TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
 						bBlocked = (fromLevel < passThroughPlot->seeThroughLevel());
@@ -576,7 +576,7 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 
 			CvPlot* passThroughPlot = PlotFromHex(kMap, startX + currentDX, startY + currentDY);
 			TRACK_LAST_TARGET_PATH_ENTRY(passThroughPlot);
-			if(!passThroughPlot || fromLevel < passThroughPlot->seeThroughLevel())
+			if((passThroughPlot == 0) || fromLevel < passThroughPlot->seeThroughLevel())
 			{
 				bBlocked = true;
 				blockedDirection = ms_HexDirection[(currentDX - lastDX) + 1][(currentDY - lastDY) + 1];

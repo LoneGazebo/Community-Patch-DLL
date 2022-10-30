@@ -91,7 +91,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 
 	const BuildingTypes eBuilding = getProductionBuilding();
 	CvBuildingEntry* pkBuilding = (eBuilding != NO_BUILDING) ? GC.getBuildingInfo(eBuilding) : NULL;
-	if (pkBuilding)
+	if (pkBuilding != 0)
 	{
 		if (kOwner.GetWonderProductionAI()->IsWonder(*pkBuilding))
 			bAlreadyBuildingWonder = true;
@@ -109,7 +109,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	if (eNextWonder != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
-		if (pkBuilding)
+		if (pkBuilding != 0)
 		{
 			const CvBuildingClassInfo& kBuildingClass = pkBuilding->GetBuildingClassInfo();
 			if (::isWorldWonderClass(kBuildingClass))
@@ -128,7 +128,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 	if (!bAlreadyBuildingWonder && bInterruptWonders && eNextWonder != NO_BUILDING)
 	{		
 		CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eNextWonder);
-		if (pkBuilding)
+		if (pkBuilding != 0)
 		{
 			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{

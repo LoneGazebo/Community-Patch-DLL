@@ -126,7 +126,7 @@ inline void CvDatabaseUtility::InitializeArray(bool*& pArray, const size_t count
 {
 	CvAssertMsg(count > 0, "Initializing array to 0 or less items.");
 	pArray = FNEW(bool[count], c_eCiv5GameplayDLL, 0);
-	if(bDefault == 0.0f)
+	if(static_cast<float>(bDefault) == 0.0f)
 	{
 		ZeroMemory(pArray, sizeof(bool) * count);
 	}

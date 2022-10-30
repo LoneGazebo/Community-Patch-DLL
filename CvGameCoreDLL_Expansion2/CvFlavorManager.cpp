@@ -160,7 +160,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 				if (leader != NO_LEADER)
 				{
 					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
-					if (pkLeaderHeadInfo)
+					if (pkLeaderHeadInfo != 0)
 					{
 						int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
 						int iNumFlavorTypes = GC.getNumFlavorTypes();
@@ -297,7 +297,7 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 	CvLeaderHeadInfo* pkOldLeaderHeadInfo = GC.getLeaderHeadInfo(eOldLeader);
 	CvLeaderHeadInfo* pkNewLeaderHeadInfo = GC.getLeaderHeadInfo(eNewLeader);
 	
-	if(pkOldLeaderHeadInfo && pkNewLeaderHeadInfo)
+	if((pkOldLeaderHeadInfo != 0) && (pkNewLeaderHeadInfo != 0))
 	{
 		CvEnumMap<FlavorTypes, int> aiTempFlavors;
 		aiTempFlavors.init();

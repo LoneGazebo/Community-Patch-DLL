@@ -22,8 +22,8 @@ CvDllColorInfo::~CvDllColorInfo()
 //------------------------------------------------------------------------------
 void* CvDllColorInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvColorInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvColorInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

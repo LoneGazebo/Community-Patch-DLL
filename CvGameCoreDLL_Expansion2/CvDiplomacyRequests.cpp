@@ -255,7 +255,7 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 			if (iter->m_iLookupIndex >= 0)
 			{
 				CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedMPDeal(iter->m_eFromPlayer, m_ePlayer, false);
-				if (!pDeal)
+				if (pDeal == 0)
 				{
 					iter = m_aRequests.erase(iter);
 					continue;
@@ -536,13 +536,13 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 		{
 			CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
 			CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-			if (pkDiploRequests)
+			if (pkDiploRequests != 0)
 				pkDiploRequests->Add(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
 			return;
 		}
 		CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-		if(pkDiploRequests)
+		if(pkDiploRequests != 0)
 		{
 			// JdH => add now handles everything, from direct sending to adding notifications...
 			if (!(CvPreGame::isHuman(eFromPlayer) && CvPreGame::isHuman(eToPlayer)))
@@ -558,7 +558,7 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 	{
 		CvPlayer& kPlayer = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
-		if(pkDiploRequests)
+		if(pkDiploRequests != 0)
 		{
 			if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
 			{
@@ -606,7 +606,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 
 		CvPlayer& kTo = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
-		if (pDiploRequests && pkDeal)
+		if ((pDiploRequests != 0) && (pkDeal != 0))
 		{
 			CvAssert(pkDeal->GetFromPlayer() == eFromPlayer);
 			CvAssert(pkDeal->GetToPlayer() == eToPlayer);
@@ -627,7 +627,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 		{
 			CvPlayer& kTo = GET_PLAYER(eToPlayer);
 			CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
-			if (pDiploRequests && pkDeal && pkDeal->m_bConsideringForRenewal)
+			if ((pDiploRequests != 0) && (pkDeal != 0) && pkDeal->m_bConsideringForRenewal)
 			{
 				CvAssert(pkDeal->GetFromPlayer() == eFromPlayer);
 				CvAssert(pkDeal->GetToPlayer() == eToPlayer);
@@ -664,7 +664,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 		{
 			CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
 			CvDiplomacyRequests* pkTargetRequests = kTargetPlayer.GetDiplomacyRequests();
-			if(pkTargetRequests)
+			if(pkTargetRequests != 0)
 			{
 				if(!pkTargetRequests->HasPendingRequests())
 				{

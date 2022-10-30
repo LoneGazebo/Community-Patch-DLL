@@ -22,8 +22,8 @@ CvDllGameOptionInfo::~CvDllGameOptionInfo()
 //------------------------------------------------------------------------------
 void* CvDllGameOptionInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvGameOptionInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvGameOptionInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

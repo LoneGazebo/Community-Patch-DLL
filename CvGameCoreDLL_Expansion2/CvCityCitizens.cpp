@@ -146,7 +146,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 		if (m_pabWorkingPlot[i])
 		{
 			CvPlot* pPlot = GetCityPlotFromIndex(i);
-			if (pPlot)
+			if (pPlot != 0)
 			{
 				int iPlotNum = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 				m_vWorkedPlots.push_back(iPlotNum);
@@ -285,7 +285,7 @@ void CvCityCitizens::DoTurn()
 					else
 					{
 						CvCitySpecializationXMLEntry* pCitySpecializationEntry = GC.getCitySpecializationInfo(eSpecialization);
-						if (pCitySpecializationEntry)
+						if (pCitySpecializationEntry != 0)
 						{
 							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
 							if (eYield == YIELD_FOOD && !IsAvoidGrowth()) //should really make sure the specialization is sane ...
@@ -424,7 +424,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			if (iEffect == INT_MAX)
 			{
 				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
+				if (pReligion != 0)
 					iEffect = pReligion->m_Beliefs.GetYieldPerXFeatureTimes100(eFeature, eYield, m_pCity->getOwner(), m_pCity);
 				else
 					iEffect = 0;
@@ -453,7 +453,7 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			if (iEffect == INT_MAX)
 			{
 				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
+				if (pReligion != 0)
 					iEffect = pReligion->m_Beliefs.GetYieldPerXTerrainTimes100(eTerrain, eYield, m_pCity->getOwner(), m_pCity);
 				else
 					iEffect = 0;
@@ -510,7 +510,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 		if (iYield100 > 0)
 		{
 			//processes can convert between yields
-			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+			if ((pkProcessInfo != 0) && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
 				iYield100 += (iYield100 * pkProcessInfo->getProductionToYieldModifier(eYield)) / 100;
 
 			//how much do we value certain yields
@@ -731,7 +731,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		if (pkBuildingInfo)
+		if (pkBuildingInfo != 0)
 		{
 			// Have this Building in the City?
 			if (GetCity()->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -769,7 +769,7 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue,
 		}
 	}
 
-	if (bLogging && GC.getLogging() && pBestBuildingInfo)
+	if (bLogging && GC.getLogging() && (pBestBuildingInfo != 0))
 	{
 		CvString strBaseString;
 		CvString strOutBuf;
@@ -866,7 +866,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		if (iYield100 > 0)
 		{
 			//conversion to other yields
-			if (pkProcessInfo && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
+			if ((pkProcessInfo != 0) && pkProcessInfo->getProductionToYieldModifier(eYield) > 0)
 				iYield100 += (iYield100 * pkProcessInfo->getProductionToYieldModifier(eYield))/100;
 
 			//religion bonus
@@ -874,7 +874,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			if (eMajority >= RELIGION_PANTHEON)
 			{
 				const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
+				if (pReligion != 0)
 				{
 					iYield100 += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity)*100;
 					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
@@ -982,7 +982,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 
 			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
 			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, m_pCity->getOwner(), m_pCity, true);
 				eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -1176,7 +1176,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 		// Plot is best
 		SetWorkingPlot(pBestPlot, true, updateMode);
 
-		if (pLog)
+		if (pLog != 0)
 		{
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 			CvString strOutBuf;
@@ -1191,7 +1191,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 		// Specialist is best (can also be a default specialist aka laborer)
 		DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, updateMode);
 
-		if (pLog)
+		if (pLog != 0)
 		{
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 			CvString strOutBuf;
@@ -1294,7 +1294,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 			continue;
 
 		CvPlot* pLoopPlot = GetCityPlotFromIndex(iPlotLoop);
-		if (!pLoopPlot)
+		if (pLoopPlot == 0)
 			continue;
 
 		int iValue = -1;
@@ -1396,7 +1396,7 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iChosenValue, ePlotSelecti
 	if (pBestPlot == NULL)
 		return NULL;
 
-	if (pLog)
+	if (pLog != 0)
 	{
 		CvString strBaseString;
 		CvString strOutBuf;
@@ -1471,7 +1471,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			eWorstSpecialistBuilding = NO_BUILDING;
 
 		//both options are valid
-		if (pWorstWorkedPlot && eWorstSpecialistBuilding != NO_BUILDING)
+		if ((pWorstWorkedPlot != 0) && eWorstSpecialistBuilding != NO_BUILDING)
 		{
 			if (iWorstWorkedPlotValue < iWorstSpecialistValue)
 				//remove the citizen from the plot (at least temporarily) so that combo bonuses can be considered correctly
@@ -1494,7 +1494,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				pWorstWorkedPlot = NULL;
 			}
 		}
-		else if (pWorstWorkedPlot)
+		else if (pWorstWorkedPlot != 0)
 		{
 			//no alternative
 			SetWorkingPlot(pWorstWorkedPlot, false, CvCity::YIELD_UPDATE_LOCAL);
@@ -1534,7 +1534,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 			//new plot is same as old plot, we're done
 			if (pBestFreePlot == pWorstWorkedPlot)
 			{
-				if (pLog)
+				if (pLog != 0)
 				{
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 					CvString strOutBuf;
@@ -1544,11 +1544,11 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 				break;
 			}
 
-			if (pLog)
+			if (pLog != 0)
 			{
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 				CvString strOutBuf;
-				if (pWorstWorkedPlot)
+				if (pWorstWorkedPlot != 0)
 				{
 					strOutBuf.Format("switched plot %d:%d (score %d) to plot %d:%d (score %d), current net food %d",
 						pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBestFreePlot->getX(), pBestFreePlot->getY(), iBestFreePlotValue, iExcessFoodTimes100);
@@ -1564,30 +1564,30 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		else
 		{
 			//is a specialist better than working a plot?
-			if (iBestSpecialistValue > iWorstWorkedPlotValue && pWorstWorkedPlot)
+			if (iBestSpecialistValue > iWorstWorkedPlotValue && (pWorstWorkedPlot != 0))
 			{
 				//this method also handles laborers
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false, CvCity::YIELD_UPDATE_GLOBAL);
 
-				if (pLog)
+				if (pLog != 0)
 				{
 					CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBestSpecialistBuilding);
 					int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumptionTimes100());
 					CvString strOutBuf;
-					if (pWorstWorkedPlot)
+					if (pWorstWorkedPlot != 0)
 					{
 						strOutBuf.Format("switched plot %d:%d (score %d) to specialist (%s, score %d), current net food %d",
-							pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+							pWorstWorkedPlot->getX(), pWorstWorkedPlot->getY(), iWorstWorkedPlotValue, pBuilding != 0 ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
 					}
 					else
 					{
 						strOutBuf.Format("assigned citizen to specialist (%s, score %d), current net food %d",
-							pBuilding ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
+							pBuilding != 0 ? pBuilding->GetType() : "default", iBestSpecialistValue, iExcessFoodTimes100);
 					}
 					pLog->Msg(strOutBuf);
 				}
 			}
-			else if (pWorstWorkedPlot)
+			else if (pWorstWorkedPlot != 0)
 			{
 				//add the citizen back to the original plot
 				SetWorkingPlot(pWorstWorkedPlot, true, CvCity::YIELD_UPDATE_GLOBAL);
@@ -1680,7 +1680,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 		return;
 
 	FILogFile* pLog = bLogging && GC.getLogging() ? LOGFILEMGR.GetLog("CityTileScorer.csv", FILogFile::kDontTimeStamp) : NULL;
-	if (pLog)
+	if (pLog != 0)
 		pLog->Msg("==== starting reallocation");
 
 	// Remove all of the allocated guys (except forced)
@@ -1718,14 +1718,14 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 	int iNumToAllocate = GetNumUnassignedCitizens();
 	for (int iUnallocatedLoop = 0; iUnallocatedLoop < iNumToAllocate; iUnallocatedLoop++)
 	{
-		if (pLog)
+		if (pLog != 0)
 			pLog->Msg("--- next allocation");
 
 		//here we need to make sure to update after each assignment so we correctly track our needs
 		DoAddBestCitizenFromUnassigned(CvCity::YIELD_UPDATE_LOCAL, bLogging);
 	}
 
-	if (pLog)
+	if (pLog != 0)
 		pLog->Msg("==== starting optimization");
 
 	//maybe we can reassign some citizens to work low food plots
@@ -1737,7 +1737,7 @@ void CvCityCitizens::DoReallocateCitizens(bool bForce, bool bLogging)
 
 	SetDirty(false);
 
-	if (pLog)
+	if (pLog != 0)
 		pLog->Msg("==== finished reallocation");
 }
 
@@ -1768,7 +1768,7 @@ bool CvCityCitizens::IsWorkingPlot(const CvPlot* pPlot) const
 /// Tell a City to start or stop working a Plot.  Citizens will go to/from the Unassigned Pool if the 3rd argument is true
 void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpdateMode updateMode)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return;
 
 	int iIndex = GetCityIndexFromPlot(pPlot);
@@ -2150,7 +2150,7 @@ bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 	if (!pPlot->isEffectiveOwner(m_pCity))
 	{
 		CvCity* pEffectiveOwner = pPlot->getEffectiveOwningCity();
-		if (!pEffectiveOwner)
+		if (pEffectiveOwner == 0)
 		{
 			return false;
 		}
@@ -2207,7 +2207,7 @@ bool CvCityCitizens::DoVerifyWorkingPlots()
 	for (int iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
 	{
 		CvPlot* pPlot = GetCityPlotFromIndex(iI);
-		if (!pPlot || !pPlot->isEffectiveOwner(m_pCity))
+		if ((pPlot == 0) || !pPlot->isEffectiveOwner(m_pCity))
 			continue;
 
 		//cache which plots are blockaded, the check can be expensive
@@ -2266,7 +2266,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 
 	int iGPPChange = 0;
 	CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-	if (pkSpecialistInfo)
+	if (pkSpecialistInfo != 0)
 	{
 		// Does this Specialist spawn a GP?
 		if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
@@ -2280,7 +2280,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 			iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
 
 			const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), m_pCity->getOwner(), m_pCity, true) * 100;
 			}
@@ -2359,7 +2359,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 
 						const CvReligion* pReligion = m_pCity->GetCityReligions()->GetMajorityReligion();
 						BeliefTypes eSecondaryPantheon = NO_BELIEF;
-						if (pReligion)
+						if (pReligion != 0)
 						{
 							iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, GetCity()->getOwner(), m_pCity);
 							eSecondaryPantheon = GetCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -2897,7 +2897,7 @@ void CvCityCitizens::ChangeSpecialistGreatPersonProgressTimes100(SpecialistTypes
 	if (bCheckForSpawn)
 	{
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eIndex);
-		if (pkSpecialistInfo)
+		if (pkSpecialistInfo != 0)
 		{
 			int iGPThreshold = GetSpecialistUpgradeThreshold((UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass());
 			// Enough to spawn a GP?
@@ -3171,7 +3171,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if (pNotifications)
+				if (pNotifications != 0)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
 					strText << newUnit->getNameKey() << GetCity()->getNameKey();
@@ -3197,7 +3197,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 					{
 						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if (pNotifications)
+						if (pNotifications != 0)
 						{
 							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
 							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
@@ -3222,7 +3222,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
 			}
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if (pNotifications)
+			if (pNotifications != 0)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
 				strText << newUnit->getNameKey();
@@ -3379,7 +3379,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			{
 				GetCity()->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if (pNotifications)
+				if (pNotifications != 0)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA");
 					strText << newUnit->getNameKey() << GetCity()->getNameKey();
@@ -3405,7 +3405,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 					{
 						pLoopCity->ChangeWeLoveTheKingDayCounter(iWLTKD, true);
 						CvNotifications* pNotifications = kPlayer.GetNotifications();
-						if (pNotifications)
+						if (pNotifications != 0)
 						{
 							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UNIT");
 							strText << newUnit->getNameKey() << pLoopCity->getNameKey();
@@ -3430,7 +3430,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
 			}
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if (pNotifications)
+			if (pNotifications != 0)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_UNIT");
 				strText << newUnit->getNameKey();

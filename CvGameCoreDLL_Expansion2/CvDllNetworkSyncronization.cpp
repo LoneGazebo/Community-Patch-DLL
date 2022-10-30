@@ -24,8 +24,8 @@ CvDllNetworkSyncronization::~CvDllNetworkSyncronization()
 //------------------------------------------------------------------------------
 void* CvDllNetworkSyncronization::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvNetworkSyncronization1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvNetworkSyncronization1::GetInterfaceId()) != 0))
 	{
 		return this;
 	}

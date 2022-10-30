@@ -133,7 +133,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 		if(eBuild != NO_BUILD)
 		{
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-			if(pkBuildInfo)
+			if(pkBuildInfo != 0)
 			{
 				FeatureTypes eFeature = hUnit->plot()->getFeatureType();
 				if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
@@ -147,7 +147,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 						// Assumes that the BuildFeatures table has an extra column RemoveOnly
 						for(int iI = 0; iI < GC.getNumBuildInfos(); iI++) {
 							CvBuildInfo* pRemoveBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-							if(pRemoveBuildInfo) {
+							if(pRemoveBuildInfo != 0) {
 								if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
 									CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
 									TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
@@ -237,7 +237,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 		RouteTypes eRoute = NO_ROUTE;
 
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(hUnit->getBuildType());
-		if(pkBuildInfo)
+		if(pkBuildInfo != 0)
 		{
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT)
 			{
@@ -259,7 +259,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 			if(eImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-				if(pkImprovementInfo)
+				if(pkImprovementInfo != 0)
 				{
 					iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
 				}
@@ -267,7 +267,7 @@ void CvUnitMission::PopMission(CvUnit* hUnit)
 			else if(eRoute != NO_ROUTE)
 			{
 				CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-				if(pkRouteInfo)
+				if(pkRouteInfo != 0)
 				{
 					iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
 				}
@@ -330,7 +330,7 @@ void CvUnitMission::WaitFor(CvUnit* hUnit, CvUnit* hWaitForUnit)
 /// Periodic update routine to advance the state of missions
 void CvUnitMission::UpdateMission(CvUnit* hUnit)
 {
-	if (!hUnit)
+	if (hUnit == 0)
 		return;
 
 	if(hUnit->GetMissionTimer() > 0)
@@ -391,12 +391,12 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 		//tutorial hints
 		const MissionData* pkMissionData = (HeadMissionData(hUnit->m_missionQueue));
-		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || (pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+		if(pkMissionData->iPushTurn == GC.getGame().getGameTurn() || ((pkMissionData->iFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) != 0))
 		{
 			if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO() && !hUnit->IsDoingPartialMove() && hUnit->canMove() && !hUnit->HasQueuedVisualizationMoves())
 			{
 				CvPlot* pDestPlot = GC.getMap().plot(pkMissionData->iData1, pkMissionData->iData2);
-				if (!pDestPlot)
+				if (pDestPlot == 0)
 					return;
 
 				if(hUnit->IsAutomated() && pDestPlot->isVisible(hUnit->getTeam()) && hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK))
@@ -436,7 +436,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							else if(bBadAttackInterrupt)
 							{
 								CvUnit* pDefender = pDestPlot->getVisibleEnemyDefender(hUnit->getOwner());
-								if(pDefender)
+								if(pDefender != 0)
 								{
 									CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(hUnit, pDefender);
 									if(ePrediction == COMBAT_PREDICTION_TOTAL_DEFEAT || ePrediction == COMBAT_PREDICTION_MAJOR_DEFEAT)
@@ -512,7 +512,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				else
 				{
 					CvPlot* pDestPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
-					if (!pDestPlot)
+					if (pDestPlot == 0)
 					{
 						hUnit->ClearMissionQueue();
 						return;
@@ -637,7 +637,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					}
 				}
 				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
-				if(pTargetUnit)
+				if(pTargetUnit != 0)
 				{
 					if(hUnit->UnitPathTo(pTargetUnit->getX(), pTargetUnit->getY(), kMissionData.iFlags) >= 0)
 					{
@@ -656,7 +656,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK())
 			{
-				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT) != 0?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}
@@ -664,7 +664,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_NUKE())
 			{
-				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MOVEFLAG_NO_DEFENSIVE_SUPPORT) != 0?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}
@@ -737,7 +737,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
 				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
-				if((!pTargetUnit) ||hUnit-> plot() == pTargetUnit->plot())
+				if((pTargetUnit == 0) ||hUnit-> plot() == pTargetUnit->plot())
 				{
 					bDone = true;
 				}
@@ -786,7 +786,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_WAIT_FOR())
 			{
 				CvUnit* pkWaitingFor = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
-				if(!pkWaitingFor || !pkWaitingFor->IsBusy())
+				if((pkWaitingFor == 0) || !pkWaitingFor->IsBusy())
 				{
 					bDone = true;
 				}
@@ -830,7 +830,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					if (eBuild != NO_BUILD)
 					{
 						CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-						if (pkBuildInfo)
+						if (pkBuildInfo != 0)
 						{
 							ImprovementTypes eImprovement = NO_IMPROVEMENT;
 							RouteTypes eRoute = NO_ROUTE;
@@ -853,7 +853,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 									if (eImprovement != NO_IMPROVEMENT)
 									{
 										CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-										if (pkImprovementInfo)
+										if (pkImprovementInfo != 0)
 										{
 											iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
 										}
@@ -861,7 +861,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 									else if (eRoute != NO_ROUTE)
 									{
 										CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
-										if (pkRouteInfo)
+										if (pkRouteInfo != 0)
 										{
 											iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
 										}
@@ -959,7 +959,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 
 	// Prevented by scripting?
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(hUnit->getOwner());
@@ -1017,7 +1017,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 				return false;
 			}
 
-			if((pTargetUnit) && !(pTargetUnit->atPlot(*pPlot)))
+			if(((pTargetUnit) != 0) && !(pTargetUnit->atPlot(*pPlot)))
 			{
 				return true;
 			}
@@ -1245,7 +1245,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	}
 	else if(iMission == CvTypes::getMISSION_LEAD())
 	{
-		if(hUnit->canLead(pPlot, iData1))
+		if(hUnit->canLead(pPlot, iData1) != 0)
 		{
 			return true;
 		}
@@ -1329,7 +1329,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 #endif
 #if defined(MOD_EVENTS_CUSTOM_MISSIONS)
 	if (MOD_EVENTS_CUSTOM_MISSIONS) {
-		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionPossible, hUnit->getOwner(), hUnit->GetID(), iMission, iData1, iData2, 0, -1, pPlot->getX(), pPlot->getY(), bTestVisible) == GAMEEVENTRETURN_TRUE) {
+		if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CustomMissionPossible, hUnit->getOwner(), hUnit->GetID(), iMission, iData1, iData2, 0, -1, pPlot->getX(), pPlot->getY(), static_cast<int>(bTestVisible)) == GAMEEVENTRETURN_TRUE) {
 			return true;
 		}
 	}
@@ -1710,7 +1710,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndex(pkQueueData->iData1);
 				CvAssertMsg(pPlot, "pPlot is null! OH NOES, JOEY!");
-				if (pPlot)
+				if (pPlot != 0)
 				{
 					if (GC.getGame().isNetworkMultiPlayer())
 					{
@@ -1764,7 +1764,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 				kUnitOwner.GetTreasury()->ChangeGold(-kUnitOwner.getBuildCost(hUnit->plot(),currentBuild));
 
 				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(currentBuild);
-				if(pkBuildInfo)
+				if(pkBuildInfo != 0)
 				{
 					ImprovementTypes eImprovement = NO_IMPROVEMENT;
 					RouteTypes eRoute = NO_ROUTE;
@@ -1787,7 +1787,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 						{
 							CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 							CvAssert(pkImprovementInfo);
-							if(pkImprovementInfo)
+							if(pkImprovementInfo != 0)
 							{
 								iNumResource += pkImprovementInfo->GetResourceQuantityRequirement(iResourceLoop);
 							}
@@ -1796,7 +1796,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 						{
 							CvRouteInfo* pkRouteInfo = GC.getRouteInfo(eRoute);
 							CvAssert(pkRouteInfo);
-							if(pkRouteInfo)
+							if(pkRouteInfo != 0)
 							{
 								iNumResource += pkRouteInfo->getResourceQuantityRequirement(iResourceLoop);
 							}
@@ -1942,7 +1942,7 @@ CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 		else if(pMissionNode->eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 		{
 			CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)pMissionNode->iData1).getUnit(pMissionNode->iData2);
-			if(pTargetUnit)
+			if(pTargetUnit != 0)
 			{
 				return pTargetUnit->plot();
 			}
@@ -1955,7 +1955,7 @@ CvPlot* CvUnitMission::LastMissionPlot(CvUnit* hUnit)
 				if (iPlotIndex >= 0 ) {
 					CvPlot* pPlot = GC.getMap().plotByIndex(iPlotIndex);
 
-					if (pPlot) {
+					if (pPlot != 0) {
 						return pPlot;
 					}
 				}
@@ -2002,7 +2002,7 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
 				pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
-				if(pTargetUnit)
+				if(pTargetUnit != 0)
 				{
 					pTargetPlot = pTargetUnit->plot();
 				}
@@ -2016,7 +2016,7 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 				pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
 			}
 
-			if(pTargetPlot && hUnit->atPlot(*pTargetPlot))
+			if((pTargetPlot != 0) && hUnit->atPlot(*pTargetPlot))
 			{
 				iTime += iSteps;
 			}
@@ -2266,7 +2266,7 @@ int	CvUnitMission::GetLengthMissionQueue(const MissionQueue& kQueue)
 const MissionData* CvUnitMission::GetHeadMissionData(CvUnit* hUnit)
 {
 	CvAssert(hUnit != NULL);
-	if(hUnit->m_missionQueue.getLength())
+	if(hUnit->m_missionQueue.getLength() != 0)
 		return (hUnit->m_missionQueue.head());
 	return NULL;
 }
@@ -2275,7 +2275,7 @@ const MissionData* CvUnitMission::GetHeadMissionData(CvUnit* hUnit)
 const MissionData* CvUnitMission::IsHeadMission(CvUnit* hUnit, int iMission)
 {
 	CvAssert(hUnit != NULL);
-	if(hUnit->m_missionQueue.getLength())
+	if(hUnit->m_missionQueue.getLength() != 0)
 	{
 		const MissionData& kMissionData = *hUnit->m_missionQueue.head();
 		if(kMissionData.eMissionType == (MissionTypes)iMission)
@@ -2301,7 +2301,7 @@ bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT())
 			{
 				CvUnit* pTargetUnit = GET_PLAYER((PlayerTypes)kMissionData.iData1).getUnit(kMissionData.iData2);
-				if(pTargetUnit)
+				if(pTargetUnit != 0)
 				{
 					pTargetPlot = pTargetUnit->plot();
 				}
@@ -2315,7 +2315,7 @@ bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 				pTargetPlot = GC.getMap().plot(kMissionData.iData1, kMissionData.iData2);
 			}
 
-			if(pTargetPlot && hUnit->atPlot(*pTargetPlot))
+			if((pTargetPlot != 0) && hUnit->atPlot(*pTargetPlot))
 			{
 				return true;
 			}

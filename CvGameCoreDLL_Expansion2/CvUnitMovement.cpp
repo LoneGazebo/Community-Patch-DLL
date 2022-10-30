@@ -30,8 +30,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain
 	//difference to flat movement cost is that flat movement units don't get any bonuses
 	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
-	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
-	bool bHover = pUnit ? pUnit->IsHoveringUnit() : false;
+	bool bAmphibious = pUnit != 0 ? pUnit->isRiverCrossingNoPenalty() : false;
+	bool bHover = pUnit != 0 ? pUnit->IsHoveringUnit() : false;
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
@@ -64,13 +64,13 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		RouteTypes eFromRoute = bFakeRouteFrom ? ROUTE_ROAD : pFromPlot->getRouteType();
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(eFromRoute);
-		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
-		int iFromFlatMovementCost = pFromRouteInfo ? pFromRouteInfo->getFlatMovementCost() : 0;
+		int iFromMovementCost = pFromRouteInfo != 0 ? pFromRouteInfo->getMovementCost() : 0;
+		int iFromFlatMovementCost = pFromRouteInfo != 0 ? pFromRouteInfo->getFlatMovementCost() : 0;
 
 		RouteTypes eToRoute = bFakeRouteTo ? ROUTE_ROAD : pToPlot->getRouteType();
 		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(eToRoute);
-		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
-		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
+		int iToMovementCost = pToRouteInfo != 0 ? pToRouteInfo->getMovementCost() : 0;
+		int iToFlatMovementCost = pToRouteInfo != 0 ? pToRouteInfo->getFlatMovementCost() : 0;
 
 		//routes only on land
 		int iBaseMoves = pUnit->baseMoves(false);
@@ -190,7 +190,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			}
 			//city might have special defense buildings
 			CvCity* pCity = pToPlot->getOwningCity();
-			if (pCity)
+			if (pCity != 0)
 			{
 				if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
 				{
@@ -235,7 +235,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			iRegularCost = 1;
 		else
 		{
-			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
+			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo != 0 ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo != 0 ? pToFeatureInfo->getMovementCost() : 0));
 
 			// Hill cost is hardcoded
 			if (pToPlot->isHills() || pToPlot->isMountain())
@@ -349,7 +349,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
-		if (!pAdjPlot)
+		if (pAdjPlot == 0)
 			continue;
 
 		//this is the only difference to the regular version below
@@ -374,7 +374,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			CvUnit* pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if (!pLoopUnit)
+			if (pLoopUnit == 0)
 				continue;
 
 			if (pLoopUnit->isInvisible(eUnitTeam, false))
@@ -454,7 +454,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	for (int iCount = 0; iCount<2; iCount++)
 	{
 		CvPlot* pAdjPlot = aPlotsToCheck[iCount];
-		if (!pAdjPlot)
+		if (pAdjPlot == 0)
 			continue;
 
 		// check city zone of control
@@ -475,7 +475,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			CvUnit* pLoopUnit = GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID);
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if (!pLoopUnit || pLoopUnit->isDelayedDeath())
+			if ((pLoopUnit == 0) || pLoopUnit->isDelayedDeath())
 				continue;
 
 			if (pLoopUnit->isInvisible(eUnitTeam, false))

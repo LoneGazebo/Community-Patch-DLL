@@ -242,7 +242,7 @@ void CvTreasury::ChangeGoldPerTurnFromDiplomacy(int iChange)
 int CvTreasury::GetCityConnectionRouteGoldTimes100(CvCity* pNonCapitalCity) const
 {
 	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-	if (!pNonCapitalCity || !pCapitalCity || pNonCapitalCity == pCapitalCity)
+	if ((pNonCapitalCity == 0) || (pCapitalCity == 0) || pNonCapitalCity == pCapitalCity)
 		return 0;
 
 	int iGold = /*-100*/ GD_INT_GET(TRADE_ROUTE_BASE_GOLD);
@@ -516,7 +516,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 	{
 		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
 		CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-		if(pkUnitCombatClassInfo)
+		if(pkUnitCombatClassInfo != 0)
 		{
 			int iModifier = m_pPlayer->GetPlayerTraits()->GetMaintenanceModifierUnitCombat(eUnitCombatClass);
 			if (iModifier != 0)

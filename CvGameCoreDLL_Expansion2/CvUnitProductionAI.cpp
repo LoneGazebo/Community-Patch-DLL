@@ -40,7 +40,7 @@ void CvUnitProductionAI::Reset()
 	m_UnitAIWeights.clear();
 
 	// Loop through reading each one and add an entry with 0 weight to our vector
-	if(m_pUnits)
+	if(m_pUnits != 0)
 	{
 		for(int i = 0; i < m_pUnits->GetNumUnits(); i++)
 		{
@@ -90,7 +90,7 @@ void CvUnitProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	for(int iUnit = 0; iUnit < m_pUnits->GetNumUnits(); iUnit++)
 	{
 		CvUnitEntry* entry = m_pUnits->GetEntry(iUnit);
-		if(entry)
+		if(entry != 0)
 		{
 			// Set its weight by looking at unit's weight for this flavor and using iWeight multiplier passed in
 			m_UnitAIWeights.IncreaseWeight(iUnit, entry->GetFlavorValue(eFlavor) * iWeight);
@@ -120,7 +120,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllow
 	{
 		const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if(pkUnitInfo)
+		if(pkUnitInfo != 0)
 		{
 			// Make sure it matches the requested unit AI type
 			if (eUnitAIType != NO_UNITAI && !pkUnitInfo->GetUnitAIType(eUnitAIType))
@@ -180,7 +180,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
-	if (!pkUnitEntry)
+	if (pkUnitEntry == 0)
 		return SR_IMPOSSIBLE;
 
 	bool bCombat = (pkUnitEntry->GetCombat() > 0 || pkUnitEntry->GetRangedCombat() > 0);
@@ -225,7 +225,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		for (int i = RING0_PLOTS; i < RING3_PLOTS && !bHavePlot; i++)
 		{
 			CvPlot* pNeighbor = iterateRingPlots(pCenter, i);
-			if (pNeighbor && pNeighbor->isValidMovePlot(m_pCity->getOwner()) && pNeighbor->GetNumCombatUnits() == 0)
+			if ((pNeighbor != 0) && pNeighbor->isValidMovePlot(m_pCity->getOwner()) && pNeighbor->GetNumCombatUnits() == 0)
 			{
 				if (pNeighbor->isWater() && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 					bHavePlot=true;
@@ -855,7 +855,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (eReligion != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pCity->getOwner());
-				if (pReligion)
+				if (pReligion != 0)
 				{
 					CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 					for (size_t iI = 0; iI < pReligion->m_Beliefs.GetBeliefList().size(); iI++)
@@ -962,7 +962,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += 100;
 			}
 		}
-		if (pkUnitEntry->IsCultureBoost() != 0)
+		if (static_cast<int>(pkUnitEntry->IsCultureBoost()) != 0)
 		{
 			iBonus += 100;
 			if (kPlayer.GetPlayerTraits()->IsTourism())
@@ -986,7 +986,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += 100;
 			}
 		}
-		if (pkUnitEntry->IsCanBuyCityState() != 0)
+		if (static_cast<int>(pkUnitEntry->IsCanBuyCityState()) != 0)
 		{
 			iBonus += 100;
 			if (kPlayer.GetPlayerTraits()->IsDiplomat())
@@ -1230,7 +1230,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER_SEA)
 	{
 		CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(m_pCity,true);
-		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		if ((pZone != 0) && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return SR_STRATEGY;
 
 		//There's a worker waiting here? Abort!
@@ -1277,7 +1277,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	if(pkUnitEntry->GetDefaultUnitAIType() == UNITAI_WORKER)
 	{
 		CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(m_pCity,false);
-		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		if ((pZone != 0) && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return SR_STRATEGY;
 
 		//There's a worker waiting here? Abort!

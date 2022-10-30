@@ -470,7 +470,7 @@ void saveSlotHints(FDataStream& saveTo)
 	// didn't update version number as I am not sure what it means to update it when all the relevant code is stripped out by the preprocessor
 	int iKeepUnmet = 0;
 	GetGameOption(GAMEOPTION_KEEP_UNMET_PLAYERS_UNKNOWN, iKeepUnmet);
-	if(iKeepUnmet)
+	if(iKeepUnmet != 0)
 		updateKnownPlayersTable();
 	saveTo << s_knownPlayersTable;
 #endif
@@ -881,7 +881,7 @@ EraTypes era()
 PlayerTypes findPlayerByNickname(const char* const name)
 {
 	PlayerTypes result = NO_PLAYER;
-	if(name)
+	if(name != 0)
 	{
 		int i = 0;
 		for(i = 0; i < MAX_PLAYERS; ++i)
@@ -922,7 +922,7 @@ void SyncGameOptionsWithEnumList()
 	{
 		int value = 0;
 		str = ConvertGameOptionTypeToString((GameOptionTypes)i);
-		if(str)
+		if(str != 0)
 		{
 			GetGameOption(str, value);
 		}
@@ -1000,7 +1000,7 @@ bool GetGameOption(GameOptionTypes eOption, int& iValue)
 		if(eOptionIndex >= 0)
 		{
 			CvGameOptionInfo* pkInfo = GC.getGameOptionInfo(eOptionIndex);
-			if(pkInfo)
+			if(pkInfo != 0)
 			{
 				//Try and lookup the default value.
 				Database::Results kLookup;
@@ -1058,7 +1058,7 @@ bool SetGameOption(const char* szOptionName, int iValue)
 bool SetGameOption(GameOptionTypes eOption, int iValue)
 {
 	const char* str = ConvertGameOptionTypeToString(eOption);
-	if(str)
+	if(str != 0)
 	{
 		return SetGameOption(str, iValue);
 	}
@@ -1280,7 +1280,7 @@ bool isWBMapScript()
 			}
 		}
 
-		if(szExtension && lenExtension == strlen(CIV5_WBMAP_EXT))
+		if((szExtension != 0) && lenExtension == strlen(CIV5_WBMAP_EXT))
 		{
 			bIsMapScript = (_strnicmp(szExtension, CIV5_WBMAP_EXT, lenExtension) == 0);
 		}
@@ -1455,7 +1455,7 @@ void loadFromIni(FIGameIniParser& iniParser)
 			int i = 0;
 			for (i = 0; i < iNumBools; i++)
 			{
-				SetGameOption(((GameOptionTypes)i), pbBools[i]);
+				SetGameOption(((GameOptionTypes)i), static_cast<int>(pbBools[i]));
 			}
 			SAFE_DELETE_ARRAY(pbBools);
 		}
@@ -2460,7 +2460,7 @@ void setEra(const CvString& e)
 	{
 		const EraTypes eEra = static_cast<EraTypes>(i);
 		CvEraInfo* pkEraInfo = GC.getEraInfo(eEra);
-		if(pkEraInfo)
+		if(pkEraInfo != 0)
 		{
 			if(_stricmp(e.c_str(), pkEraInfo->GetType()) == 0)
 			{
@@ -2516,7 +2516,7 @@ void setGameSpeed(const CvString& g)
 	{
 		const GameSpeedTypes eGameSpeed = static_cast<GameSpeedTypes>(i);
 		CvGameSpeedInfo* pkGameSpeedInfo = GC.getGameSpeedInfo(eGameSpeed);
-		if(pkGameSpeedInfo)
+		if(pkGameSpeedInfo != 0)
 		{
 			if(_stricmp(g.GetCString(), pkGameSpeedInfo->GetType()) == 0)
 			{
@@ -2657,7 +2657,7 @@ void setLeaderKey(PlayerTypes p, const CvString& szKey)
 		{
 			// During the pre-game, we can't be sure the cached *Infos are current, so query the database
 			Database::Connection* pDB = GC.GetGameDatabase();
-			if(pDB)
+			if(pDB != 0)
 			{
 				Database::Results kResults;
 				if(pDB->Execute(kResults, "SELECT ID, PackageID from Leaders where Type = ? LIMIT 1"))
@@ -2872,7 +2872,7 @@ void setQuickHandicap(const CvString& h)
 	{
 		const HandicapTypes eHandicap = static_cast<HandicapTypes>(i);
 		CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(eHandicap);
-		if(pkHandicapInfo)
+		if(pkHandicapInfo != 0)
 		{
 			if(_stricmp(h.GetCString(), pkHandicapInfo->GetType()) == 0)
 			{
@@ -3122,7 +3122,7 @@ const std::vector<SlotStatus>& GetSlotStatus()
 void StringToBools(const char* szString, int* iNumBools, bool** ppBools)
 {
 	FAssertMsg(szString, "null string");
-	if(szString)
+	if(szString != 0)
 	{
 		*iNumBools = strlen(szString);
 		*ppBools = FNEW(bool[*iNumBools], c_eCiv5GameplayDLL, 0);

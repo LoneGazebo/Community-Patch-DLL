@@ -244,9 +244,9 @@ void CvCombatInfo::setUnit(BattleUnitTypes unitType, CvUnit* unit)
 CvCity* CvCombatInfo::getCity(BattleUnitTypes unitType) const
 {
 	checkBattleUnitType(unitType);
-	if(m_pCities[unitType])
+	if(m_pCities[unitType] != 0)
 		return m_pCities[unitType];
-	else if(unitType == BATTLE_UNIT_DEFENDER && m_pTargetPlot)
+	else if(unitType == BATTLE_UNIT_DEFENDER && (m_pTargetPlot != 0))
 	{
 		if(m_pTargetPlot->isCity())
 			return m_pTargetPlot->getPlotCity();
@@ -348,7 +348,7 @@ int CvCombatInfo::getDamageInflicted(BattleUnitTypes unitType) const
 				} else {
 					// Increasing the amount of damage, in which case we can't exceed unit/city hit points
 					CvCity* pCity = m_pCities[unitType];
-					if (pCity)
+					if (pCity != 0)
 					{
 						if (iDamage + iValue + pCity->getDamage() > pCity->GetMaxHitPoints())
 						{

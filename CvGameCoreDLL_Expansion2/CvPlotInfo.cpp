@@ -36,7 +36,7 @@ int CvPlotInfo::getYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYields ? m_piYields[i] : -1;
+	return m_piYields != 0 ? m_piYields[i] : -1;
 }
 
 #if defined(MOD_PLOTS_EXTENSIONS)

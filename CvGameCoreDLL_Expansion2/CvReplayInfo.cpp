@@ -180,7 +180,7 @@ void CvReplayInfo::createInfo()
 	for(uint i = 0; i < nMessages; ++i)
 	{
 		const CvReplayMessage* pMessage = game.getReplayMessage(i);
-		if(pMessage)
+		if(pMessage != 0)
 		{
 			CvReplayMessage modifiedMessage = (*pMessage);
 			modifiedMessage.setPlayer((PlayerTypes)mapPlayers[modifiedMessage.getPlayer()]);
@@ -575,9 +575,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::OldPlotState& r
 	saveTo << (unsigned char)readFrom.m_eFeature;
 
 	unsigned char uiRiverData = 0;
-	uiRiverData |= (readFrom.m_bNWOfRiver) << 1;
-	uiRiverData |= (readFrom.m_bWOfRiver) << 2;
-	uiRiverData |= (readFrom.m_bNEOfRiver) << 3;
+	uiRiverData |= static_cast<int>((readFrom.m_bNWOfRiver)) << 1;
+	uiRiverData |= static_cast<int>((readFrom.m_bWOfRiver)) << 2;
+	uiRiverData |= static_cast<int>((readFrom.m_bNEOfRiver)) << 3;
 
 	saveTo << uiRiverData;
 
@@ -608,9 +608,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvReplayInfo::PlotState& read
 	saveTo << (unsigned char)readFrom.m_eFeature;
 
 	unsigned char uiRiverData = 0;
-	uiRiverData |= (readFrom.m_bNWOfRiver) << 1;
-	uiRiverData |= (readFrom.m_bWOfRiver) << 2;
-	uiRiverData |= (readFrom.m_bNEOfRiver) << 3;
+	uiRiverData |= static_cast<int>((readFrom.m_bNWOfRiver)) << 1;
+	uiRiverData |= static_cast<int>((readFrom.m_bWOfRiver)) << 2;
+	uiRiverData |= static_cast<int>((readFrom.m_bNEOfRiver)) << 3;
 
 	saveTo << uiRiverData;
 

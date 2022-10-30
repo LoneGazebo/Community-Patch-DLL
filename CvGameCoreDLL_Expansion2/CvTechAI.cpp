@@ -92,7 +92,7 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 			continue;
 
 		CvTechEntry* entry = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
-		if(entry)
+		if(entry != 0)
 		{			
 			// Ignore techs in the far future
 			if (entry->GetEra() - m_pCurrentTechs->GetPlayer()->GetCurrentEra() > GD_INT_GET(NUM_OR_TECH_PREREQS))
@@ -291,7 +291,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		return;
 
 	CvTechEntry* pkTechInfo = m_pCurrentTechs->GetTechs()->GetEntry(iTech);
-	if (!pkTechInfo)
+	if (pkTechInfo == 0)
 		return;
 
 	// Loop through all prerequisites

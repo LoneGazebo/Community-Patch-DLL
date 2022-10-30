@@ -22,8 +22,8 @@ CvDllEraInfo::~CvDllEraInfo()
 //------------------------------------------------------------------------------
 void* CvDllEraInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvEraInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvEraInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

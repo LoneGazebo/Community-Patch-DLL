@@ -24,8 +24,8 @@ CvDllPathFinderUpdate::~CvDllPathFinderUpdate()
 //------------------------------------------------------------------------------
 void* CvDllPathFinderUpdate::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvPathFinderUpdate1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvPathFinderUpdate1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -102,8 +102,8 @@ CvDllPathFinderUpdateList::~CvDllPathFinderUpdateList()
 //------------------------------------------------------------------------------
 void* CvDllPathFinderUpdateList::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvEnumerator::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvEnumerator::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

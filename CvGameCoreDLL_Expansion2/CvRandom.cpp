@@ -108,7 +108,7 @@ unsigned long CvRandom::get(unsigned long ulNum, const char* pszLog)
 			if(kGame.getTurnSlice() > 0 || ((iRandLogging & RAND_LOGGING_PREGAME_FLAG) != 0))
 			{
 				FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp);
-				if(pLog)
+				if(pLog != 0)
 				{
 					char szOut[1024] = {0};
 					sprintf_s(szOut, "%s, %d, max %u, res %u, seed %I64u, cc %d, rc %d, %s, %s\n", m_name.c_str(), kGame.getGameTurn(), 

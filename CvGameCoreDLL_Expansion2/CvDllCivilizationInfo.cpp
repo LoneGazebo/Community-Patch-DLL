@@ -22,8 +22,8 @@ CvDllCivilizationInfo::~CvDllCivilizationInfo()
 //------------------------------------------------------------------------------
 void* CvDllCivilizationInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvCivilizationInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvCivilizationInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

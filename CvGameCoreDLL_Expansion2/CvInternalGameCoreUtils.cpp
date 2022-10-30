@@ -77,7 +77,7 @@ ResourceTypes getWonderResource()
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++) {
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if (pkResource) {
+		if (pkResource != 0) {
 			if (pkResource->getWonderProductionMod() != 0) {
 				return eResource;
 			}

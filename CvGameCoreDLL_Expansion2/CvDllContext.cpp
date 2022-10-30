@@ -101,10 +101,10 @@ CvDllGameContext::~CvDllGameContext()
 //------------------------------------------------------------------------------
 void* CvDllGameContext::QueryInterface(GUID guidInterface)
 {
-	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
-        guidInterface == ICvGameContext1::GetInterfaceId() ||
-		guidInterface == ICvGameContext2::GetInterfaceId() ||
-		guidInterface == ICvGameContext3::GetInterfaceId())
+	if(	((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+        ((guidInterface == ICvGameContext1::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvGameContext2::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvGameContext3::GetInterfaceId()) != 0))
 	{
 		return this;
 	}
@@ -218,7 +218,7 @@ ICvPreGame1* CvDllGameContext::GetPreGame()
 ICvGame1* CvDllGameContext::GetGame()
 {
 	CvGame* pkGame = GC.getGamePointer();
-	if(pkGame)
+	if(pkGame != 0)
 		return new CvDllGame(pkGame);
 	return NULL;
 }
@@ -226,7 +226,7 @@ ICvGame1* CvDllGameContext::GetGame()
 ICvGameAsynch1* CvDllGameContext::GetGameAsynch()
 {
 	CvGame* pkGame = GC.getGamePointer();
-	if(pkGame)
+	if(pkGame != 0)
 		return new CvDllGameAsynch(pkGame);
 	return NULL;
 }
@@ -234,7 +234,7 @@ ICvGameAsynch1* CvDllGameContext::GetGameAsynch()
 ICvMap1* CvDllGameContext::GetMap()
 {
 	CvMap* pkMap = GC.getMapPointer();
-	if(pkMap)
+	if(pkMap != 0)
 		return new CvDllMap(pkMap);
 	return NULL;
 }
@@ -916,7 +916,7 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 		_itoa_s(pkRandom->getResetCount(), formatBuf, 10); rngLogMessage += formatBuf;
 		rngLogMessage += "\n";
 
-		if(logFile)
+		if(logFile != 0)
 			logFile->DebugMsg(rngLogMessage.c_str());
 
 		return false;
@@ -1055,7 +1055,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-		if(pPlot)
+		if(pPlot != 0)
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());
@@ -1074,7 +1074,7 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 	for (ReachablePlots::iterator it = plots.begin(); it != plots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
-		if(pPlot && pPlot->isVisible(pkUnit->getTeam()) && (pPlot->isVisibleEnemyUnit(pkUnit) || pPlot->isEnemyCity(*pkUnit)))
+		if((pPlot != 0) && pPlot->isVisible(pkUnit->getTeam()) && (pPlot->isVisibleEnemyUnit(pkUnit) || pPlot->isEnemyCity(*pkUnit)))
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->AddHexToUIRange(pDllPlot.get());

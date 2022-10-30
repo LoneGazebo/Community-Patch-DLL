@@ -73,12 +73,12 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iEspionageMod = kResults.GetInt("EspionageMod");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
-	if(szFreeBuilding)
+	if(szFreeBuilding != 0)
 	{
 		m_eFreeBuilding = (BuildingClassTypes)GC.getInfoTypeForString(szFreeBuilding, true);
 	}
 	const char* szFreePolicy = kResults.GetText("FreePolicyIfFirst");
-	if(szFreePolicy)
+	if(szFreePolicy != 0)
 	{
 		m_eFreePolicy = (PolicyTypes)GC.getInfoTypeForString(szFreePolicy, true);
 	}
@@ -215,7 +215,7 @@ int CvProjectEntry::GetFlavorValue(int i) const
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFlavorTypes() && m_piFlavorValue)
+	if(i > -1 && i < GC.getNumFlavorTypes() && (m_piFlavorValue != 0))
 	{
 		return  m_piFlavorValue[i];
 	}
@@ -355,7 +355,7 @@ int CvProjectEntry::GetResourceQuantityRequirement(int i) const
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumResourceInfos() && m_piResourceQuantityRequirements)
+	if(i > -1 && i < GC.getNumResourceInfos() && (m_piResourceQuantityRequirements != 0))
 	{
 		return  m_piResourceQuantityRequirements[i];
 	}
@@ -369,7 +369,7 @@ int CvProjectEntry::GetVictoryThreshold(int i) const
 	CvAssertMsg(i < GC.getNumVictoryInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumVictoryInfos() && m_piVictoryThreshold)
+	if(i > -1 && i < GC.getNumVictoryInfos() && (m_piVictoryThreshold != 0))
 	{
 		return  m_piVictoryThreshold[i];
 	}
@@ -385,7 +385,7 @@ int CvProjectEntry::GetVictoryMinThreshold(int i) const
 
 	if(i > -1 && i < GC.getNumVictoryInfos())
 	{
-		if(m_piVictoryMinThreshold && m_piVictoryMinThreshold[i] != 0)
+		if((m_piVictoryMinThreshold != 0) && m_piVictoryMinThreshold[i] != 0)
 		{
 			return m_piVictoryMinThreshold[i];
 		}
@@ -402,7 +402,7 @@ int CvProjectEntry::GetProjectsNeeded(int i) const
 	CvAssertMsg(i < GC.getNumProjectInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumProjectInfos() && m_piProjectsNeeded)
+	if(i > -1 && i < GC.getNumProjectInfos() && (m_piProjectsNeeded != 0))
 	{
 		return m_piProjectsNeeded[i];
 	}

@@ -144,7 +144,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			CvMilitaryAIStrategyXMLEntry* pStrategy = pMilitaryAI->GetMilitaryAIStrategies()->GetEntry(iStrategiesLoop);
 			CvAssert(pStrategy != NULL);
-			if(pStrategy)
+			if(pStrategy != 0)
 			{
 				// if this strategy has an advisor set, then try to add it to the list
 				if(pStrategy->GetAdvisor() != NO_ADVISOR_TYPE)
@@ -318,7 +318,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				BuildingTypes eBuilding = (BuildingTypes)iI;
 				CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
-				if(pBuilding && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut((BuildingClassTypes)pBuilding->GetBuildingClassType()))
+				if((pBuilding != 0) && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut((BuildingClassTypes)pBuilding->GetBuildingClassType()))
 				{
 					if(eBuilding1 == NO_BUILDING)
 					{
@@ -375,7 +375,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				UnitTypes eUnitType = (UnitTypes)i;
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitType);
-				if(pUnitEntry)
+				if(pUnitEntry != 0)
 				{
 					if(pUnitEntry->GetPrereqAndTech() == eTech && pUnitEntry->GetUnitCombatType() != NO_UNITCOMBAT)
 					{
@@ -402,7 +402,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				BuildingTypes eBuildingType = (BuildingTypes)i;
 				CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuildingType);
-				if(!pBuildingEntry || pBuildingEntry->GetPrereqAndTech() != eTech)
+				if((pBuildingEntry == 0) || pBuildingEntry->GetPrereqAndTech() != eTech)
 				{
 					continue;
 				}
@@ -430,7 +430,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	if(eRecommendedUnit != NO_UNIT)
 	{
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eRecommendedUnit);
-		if(pkUnitInfo)
+		if(pkUnitInfo != 0)
 		{
 			strLoc = Localization::Lookup("TXT_KEY_SCIENCESTRATEGY_RESEARCH_MILITARY_UNITS");
 			strLoc << pPlayerTechs->GetTechs()->GetEntry(eMilitaryUnitTech)->GetTextKey();
@@ -446,7 +446,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	if(eRecommendedBuilding != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eRecommendedBuilding);
-		if(pkBuildingInfo)
+		if(pkBuildingInfo != 0)
 		{
 			strLoc = Localization::Lookup("TXT_KEY_SCIENCESTRATEGY_RESEARCH_MILITARY_BUILDING");
 			strLoc << pPlayerTechs->GetTechs()->GetEntry(eMilitaryBuildingTech)->GetTextKey();
@@ -1660,7 +1660,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 	}
 
-	if(pBiggestCity)
+	if(pBiggestCity != 0)
 	{
 		CvString strBuildingClass;
 		for(uint uiLoop = 0; uiLoop < 4; uiLoop++)
@@ -1688,7 +1688,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
 
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if(!pkBuildingClassInfo)
+				if(pkBuildingClassInfo == 0)
 				{
 					continue;
 				}
@@ -1710,7 +1710,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				BuildingTypes eBuildingType = (BuildingTypes)i;
 				CvBuildingEntry* pkEntry = GC.getBuildingInfo(eBuildingType);
-				if(!pkEntry || pkEntry->GetBuildingClassType() != eScienceBuildingClass)
+				if((pkEntry == 0) || pkEntry->GetBuildingClassType() != eScienceBuildingClass)
 				{
 					continue;
 				}

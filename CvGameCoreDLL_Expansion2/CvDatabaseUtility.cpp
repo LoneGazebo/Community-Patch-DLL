@@ -37,7 +37,7 @@ void CvDatabaseUtility::ClearResults()
 void CvDatabaseUtility::ClearResults(const std::string& strKey)
 {
 	Database::Results* pResults = GetResults(strKey);
-	if(pResults)
+	if(pResults != 0)
 	{
 		delete pResults;
 		m_storedResults.erase(strKey);
@@ -63,7 +63,7 @@ Database::Results* CvDatabaseUtility::PrepareResults(const std::string& strKey, 
 	if(DB.Execute(*pResults, szStmt))
 	{
 		Database::Results* pOldResults = GetResults(strKey);
-		if(pOldResults)
+		if(pOldResults != 0)
 			delete pOldResults;
 
 		m_storedResults[strKey] = pResults;

@@ -65,7 +65,7 @@ bool CvAICityStrategyEntry::CacheResults(Database::Results& kResults, CvDatabase
 
 	const char* strAdvisor = kResults.GetText("Advisor");
 	m_eAdvisor = NO_ADVISOR_TYPE;
-	if(strAdvisor)
+	if(strAdvisor != 0)
 	{
 		if(strcmp(strAdvisor, "MILITARY") == 0)
 		{
@@ -113,7 +113,7 @@ int CvAICityStrategyEntry::GetFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : -1;
 }
 
 /// The amount of weight a Strategy must accumulate to be adopted (if applicable)
@@ -127,7 +127,7 @@ int CvAICityStrategyEntry::GetPersonalityFlavorThresholdMod(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piPersonalityFlavorThresholdMod ? m_piPersonalityFlavorThresholdMod[i] : -1;
+	return m_piPersonalityFlavorThresholdMod != 0 ? m_piPersonalityFlavorThresholdMod[i] : -1;
 }
 
 /// Technology prerequisite an AI Player must have to enable this Strategy
@@ -394,7 +394,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) iStrategyLoop;
 		CvEconomicAIStrategyXMLEntry* pStrategy = GC.getEconomicAIStrategyInfo(eStrategy);
 
-		if(pStrategy)
+		if(pStrategy != 0)
 		{
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategy))
@@ -411,7 +411,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategyLoop;
 		CvMilitaryAIStrategyXMLEntry* pStrategy = GC.getMilitaryAIStrategyInfo(eStrategy);
 
-		if(pStrategy)
+		if(pStrategy != 0)
 		{
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
@@ -471,7 +471,7 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 	if(eSpecialization != NO_CITY_SPECIALIZATION)
 	{
 		CvCitySpecializationXMLEntry* pSpecialization = GC.getCitySpecializationInfo(eSpecialization);
-		if(pSpecialization)
+		if(pSpecialization != 0)
 		{
 			int iFlavorLoop = 0;
 
@@ -1114,7 +1114,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			{
 				UnitTypes eUnitType = (UnitTypes)selection.m_iIndex;
 				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
-				if (pkUnitInfo)
+				if (pkUnitInfo != 0)
 				{
 					UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
 					GetCity()->pushOrder(ORDER_TRAIN, eUnitType, eUnitAI, false, true, false, bRush);
@@ -1190,7 +1190,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		if (eUnitForOperation != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForOperation);
-			if (pUnitEntry)
+			if (pUnitEntry != 0)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
 				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
@@ -1217,7 +1217,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		if (eUnitForArmy != NO_UNIT)
 		{
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)eUnitForArmy);
-			if (pUnitEntry)
+			if (pUnitEntry != 0)
 			{
 				bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
 				bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
@@ -1245,7 +1245,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 		if (bFaithPurchase)
 		{
-			if (pUnitEntry)
+			if (pUnitEntry != 0)
 			{
 				if (pUnitEntry->IsSpreadReligion() || pUnitEntry->IsRemoveHeresy())
 					continue;
@@ -1254,7 +1254,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 					continue;
 			}
 		}
-		if (pUnitEntry)
+		if (pUnitEntry != 0)
 		{
 			bool bCanSupply = kPlayer.GetNumUnitsToSupply() < kPlayer.GetNumUnitsSupplied(); // this also works when we're at the limit
 			bool bOoS = !bCanSupply && pUnitEntry->IsMilitarySupport() && !pUnitEntry->IsNoSupply();
@@ -1634,7 +1634,7 @@ void CvCityStrategyAI::DoTurn()
 
 				// Check Lua hook
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if(pkScriptSystem && bStrategyShouldBeActive)
+				if((pkScriptSystem != 0) && bStrategyShouldBeActive)
 				{
 					CvLuaArgsHandle args;
 					args->Push(iCityStrategiesLoop);
@@ -1880,7 +1880,7 @@ void CvCityStrategyAI::LogStrategy(AICityStrategyTypes eStrategy, bool bValue)
 		if(pStrategyEntry != NULL)
 		{
 			CvString strTemp;
-			strTemp.Format("%s, %d", pStrategyEntry->GetType(), bValue);
+			strTemp.Format("%s, %d", pStrategyEntry->GetType(), static_cast<int>(bValue));
 			strOutBuf += strTemp;
 		}
 
@@ -2147,7 +2147,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 			if (eTech != NO_TECH)
 			{
 				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
-				if (pTech && pTech->GetEra() != NO_ERA)
+				if ((pTech != 0) && pTech->GetEra() != NO_ERA)
 					iEra = pTech->GetEra();
 			}
 
@@ -2165,7 +2165,7 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 			if (eTech != NO_TECH)
 			{
 				CvTechEntry* pTech = GC.GetGameTechs()->GetEntry(eTech);
-				if (pTech && pTech->GetEra() != NO_ERA)
+				if ((pTech != 0) && pTech->GetEra() != NO_ERA)
 					iEra = pTech->GetEra();
 			}
 
@@ -2723,7 +2723,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 			for(int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 			{
 				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-				if(!pkBuildInfo)
+				if(pkBuildInfo == 0)
 				{
 					continue;
 				}
@@ -2811,14 +2811,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategy
 // Is this an isolated city with no land routes out? Maybe open border with neighbors could help
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
-	if(!pCity)
+	if(pCity == 0)
 		return false;
 
 	if(pCity->isCapital())
 		return false;
 
 	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
-	if(!pCapitalCity)
+	if(pCapitalCity == 0)
 		return false;
 
 	//do we already have a connection to the capital?
@@ -2917,9 +2917,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalUnderThreat(CvCity* pCity)
 			CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),false);
 			CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
 
-			if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+			if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 				return true;
-			if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+			if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 				return true;
 		}
 	}
@@ -3013,9 +3013,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 	CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(kPlayer.getCapitalCity(),true);
 
 	//don't wait until the city is really blockaded, significant enemy presence is enough
-	if (pLandZone && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+	if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 		return true;
-	if (pWaterZone && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
+	if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()!=TACTICAL_DOMINANCE_FRIENDLY)
 		return true;
 
 	return false;
@@ -3024,7 +3024,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 /// "Is Puppet" City Strategy: build gold buildings and not military training buildings
 bool CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(const CvCity* pCity)
 {
-	if(pCity && pCity->IsPuppet() && !GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
+	if((pCity != 0) && pCity->IsPuppet() && !GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
 	{
 		return true;
 	}
@@ -3079,7 +3079,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_HillCity(CvCity* pCity)
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-			if(pLoopPlot)
+			if(pLoopPlot != 0)
 			{
 				if(pLoopPlot->isHills() && pLoopPlot->getOwner() == pPlot->getOwner())
 				{
@@ -3130,7 +3130,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ForestCity(CvCity* pCity)
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-			if(pLoopPlot)
+			if(pLoopPlot != 0)
 			{
 				// FEATURE_FOREST seems dubious to me...
 				if(pLoopPlot->getFeatureType() == FEATURE_FOREST && pLoopPlot->getOwner() == pPlot->getOwner())
@@ -3161,7 +3161,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_JungleCity(CvCity* pCity)
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
 		{
 			CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iRange);
-			if(pLoopPlot)
+			if(pLoopPlot != 0)
 			{
 				// FEATURE_JUNGLE seems dubious to me...
 				if(pLoopPlot->getFeatureType() == FEATURE_JUNGLE && pLoopPlot->getOwner() == pPlot->getOwner())
@@ -3290,7 +3290,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 	{
 		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if(pkSpecialistInfo)
+		if(pkSpecialistInfo != 0)
 		{
 			// Does this Specialist spawn a GP?
 			if (pkSpecialistInfo->getGreatPeopleUnitClass() != NO_UNITCLASS)
@@ -3307,7 +3307,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 				if (eMajority != NO_RELIGION)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-					if (pReligion)
+					if (pReligion != 0)
 					{
 						iGPPChange += pReligion->m_Beliefs.GetGreatPersonPoints(GetGreatPersonFromSpecialist(eSpecialist), pCity->getOwner(), pCity, true) * 100;
 					}
@@ -3352,7 +3352,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 								if(eMajority != NO_RELIGION)
 								{
 									const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-									if(pReligion)
+									if(pReligion != 0)
 									{
 										iMod += pReligion->m_Beliefs.GetGoldenAgeGreatPersonRateModifier(eGreatPerson, pCity->getOwner(), pCity);
 										eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
@@ -3600,12 +3600,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 	CvPlayer &kPlayer = GET_PLAYER(pCity->getOwner());
 	CvCity *pCapital = kPlayer.getCapitalCity();
 
-	if (pCity && pCapital && !pCity->HasSharedAreaWith(pCapital,true,true))
+	if ((pCity != 0) && (pCapital != 0) && !pCity->HasSharedAreaWith(pCapital,true,true))
 	{
 		return true;
 	}
 
-	if (pCapital && pCity && plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
+	if ((pCapital != 0) && (pCity != 0) && plotDistance(pCity->getX(), pCity->getY(), pCapital->getX(), pCapital->getY()) > 20)
 	{
 		return true;
 	}
@@ -3626,7 +3626,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(CvCity *pCity)
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		if(pkBuildingInfo)
+		if(pkBuildingInfo != 0)
 		{
 			// Has this Building
 			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -3676,7 +3676,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
-		if(pkBuildingInfo)
+		if(pkBuildingInfo != 0)
 		{
 			// Has this Building
 			if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
@@ -4015,7 +4015,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 			int iSpecialistYield = 0;
 
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-			if (pkSpecialistInfo)
+			if (pkSpecialistInfo != 0)
 			{
 				iSpecialistYield = pkSpecialistInfo->getYieldChange(eYield);
 
@@ -4034,7 +4034,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 				if (eMajority >= RELIGION_PANTHEON)
 				{
 					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
-					if (pReligion)
+					if (pReligion != 0)
 					{
 						iSpecialistYield += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, pCity->getOwner(), pCity);
 					}
@@ -4089,7 +4089,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	{
 		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if (pkSpecialistInfo)
+		if (pkSpecialistInfo != 0)
 		{
 			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
 			if (iNumWorkers <= 0)
@@ -4279,7 +4279,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				if (pReligion->m_Beliefs.GetYieldBonusGoldenAge(eYield, kPlayer.GetID(), pCity, true) > 0)
 				{
@@ -4302,7 +4302,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				if (pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, kPlayer.GetID(), pCity) > 0)
 				{
@@ -4552,7 +4552,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
-		if (pReligion)
+		if (pReligion != 0)
 		{	
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 			const int iNumBeliefs = pkBeliefs->GetNumBeliefs();
@@ -4603,7 +4603,7 @@ int CityStrategyAIHelpers::GetBuildingReligionValue(CvCity *pCity, BuildingTypes
 								iTempBonus *= max(1, (iModifier/2));
 						}
 					}
-					if (pEntry->GetWonderProductionModifier() && isWorldWonderClass(kBuildingClassInfo))
+					if ((pEntry->GetWonderProductionModifier() != 0) && isWorldWonderClass(kBuildingClassInfo))
 					{
 						iTempBonus += pEntry->GetWonderProductionModifier();
 					}
@@ -5007,7 +5007,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		const SpecialistTypes eSpecialist = static_cast<SpecialistTypes>(iSpecialistLoop);
 		CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
-		if(pkSpecialistInfo)
+		if(pkSpecialistInfo != 0)
 		{
 			int iNumWorkers = pCity->GetCityCitizens()->GetSpecialistSlots(eSpecialist);
 			if (iNumWorkers <= 0)
@@ -5027,19 +5027,19 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 	{
 		iValue += 2 * abs((kPlayer.GetPlotGoldCostMod() + pkBuildingInfo->GetPlotBuyCostModifier()));
 	}
-	if(pkBuildingInfo->GetNumTradeRouteBonus())
+	if(pkBuildingInfo->GetNumTradeRouteBonus() != 0)
 	{
 		iValue += ((pkBuildingInfo->GetNumTradeRouteBonus() + kPlayer.GetTrade()->GetNumTradeRoutesPossible()) * 5);
 	}
-	if (pkBuildingInfo->GetResourceDiversityModifier())
+	if (pkBuildingInfo->GetResourceDiversityModifier() != 0)
 	{
 		iValue += ((pkBuildingInfo->GetResourceDiversityModifier() + kPlayer.GetTrade()->GetNumTradeRoutesPossible()) * 5);
 	}
-	if (pkBuildingInfo->GetNoUnhappfromXSpecialists())
+	if (pkBuildingInfo->GetNoUnhappfromXSpecialists() != 0)
 	{
 		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialists() + pCity->GetCityCitizens()->GetSpecialistSlotsTotal());
 	}
-	if (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal())
+	if (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() != 0)
 	{
 		iValue += (pkBuildingInfo->GetNoUnhappfromXSpecialistsGlobal() + (pCity->GetCityCitizens()->GetSpecialistSlotsTotal()));
 	}
@@ -5105,7 +5105,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				for(int iJ = 0; iJ < GC.getNumGreatPersonInfos(); iJ++)
 				{
@@ -5169,7 +5169,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				if (pReligion->m_Beliefs.GetGreatPersonExpendedFaith(kPlayer.GetID(), pCity) > 0)
 				{
@@ -5238,7 +5238,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, kPlayer.GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				if (pReligion->m_Beliefs.GetSpyPressure(kPlayer.GetID(), pCity) != 0)
 				{
@@ -5327,7 +5327,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		if (eReligion != NO_RELIGION)
 		{
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pCity->getOwner());
-			if (pReligion && !pReligion->m_bReformed)
+			if ((pReligion != 0) && !pReligion->m_bReformed)
 			{
 				iValue += 100;
 			}
@@ -5369,7 +5369,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if (pkUnitInfo)
+		if (pkUnitInfo != 0)
 		{
 			int iNumUnits = pkBuildingInfo->GetNumFreeUnits(iUnitLoop);
 			if (iNumUnits > 0)
@@ -5400,7 +5400,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 	{
 		iValue += kPlayer.GetPlayerTraits()->GetCapitalBuildingModifier();
 	}
-	if(pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
+	if(pkBuildingInfo->GetXBuiltTriggersIdeologyChoice() != 0)
 	{
 		if (kPlayer.getBuildingClassCount(pkBuildingInfo->GetBuildingClassType()) < pkBuildingInfo->GetXBuiltTriggersIdeologyChoice())
 		{
@@ -5424,7 +5424,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		if (eFreeBuildingThisCity != NO_BUILDING)
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
-			if (pkBuildingInfo)
+			if (pkBuildingInfo != 0)
 			{
 				int iFreeValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eFreeBuildingThisCity, 30, false, true);
 				if (iFreeValue > 0)
@@ -5474,7 +5474,7 @@ int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eB
 		const BuildingTypes eBuilding2 = static_cast<BuildingTypes>(iBuildingLoop);
 		CvBuildingEntry* pkBuildingInfo2 = GC.getBuildingInfo(eBuilding2);
 
-		if (pkBuildingInfo2 && pkBuildingInfo2->GetPrereqAndTech() != NO_TECH && kPlayer.HasTech((TechTypes)pkBuildingInfo2->GetPrereqAndTech()))
+		if ((pkBuildingInfo2 != 0) && pkBuildingInfo2->GetPrereqAndTech() != NO_TECH && kPlayer.HasTech((TechTypes)pkBuildingInfo2->GetPrereqAndTech()))
 		{
 			if (pkBuildingInfo2->GetNeedBuildingThisCity() == eBuilding)
 			{

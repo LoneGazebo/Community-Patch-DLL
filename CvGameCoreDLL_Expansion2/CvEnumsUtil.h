@@ -327,7 +327,7 @@ namespace CvEnumsUtil
 	};
 	template<> struct Traits<CvHurryInfo>
 	{
-		enum { IsFixed = false };
+		enum { IsFixed = static_cast<int>(false) };
 		static inline std::size_t Count() { return GC.getHurryInfo().size(); }
 	};
 	template<> struct Traits<VictoryTypes>

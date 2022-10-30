@@ -168,10 +168,10 @@ struct SPathNode
 	SPathNode() : x(-1),y(-1),turns(0),moves(0) {}
 	SPathNode(CvAStarNode* p)
 	{
-		x = p ? p->m_iX : -1;
-		y = p ? p->m_iY : -1;
-		turns = p ? p->m_iTurns : 0;
-		moves = p ? p->m_iMoves : 0;
+		x = p != 0 ? p->m_iX : -1;
+		y = p != 0 ? p->m_iY : -1;
+		turns = p != 0 ? p->m_iTurns : 0;
+		moves = p != 0 ? p->m_iMoves : 0;
 	}
 
 	bool operator==(const SPathNode& other) const

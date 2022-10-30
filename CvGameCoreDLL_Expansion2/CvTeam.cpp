@@ -663,7 +663,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					{
 						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iJ);
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if(pkBuildingInfo)
+						if(pkBuildingInfo != 0)
 						{
 							if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 							{
@@ -715,7 +715,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 	for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iI);
-		if(!pkUnitClassInfo)
+		if(pkUnitClassInfo == 0)
 		{
 			continue;
 		}
@@ -726,7 +726,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 	for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-		if(!pkBuildingClassInfo)
+		if(pkBuildingClassInfo == 0)
 		{
 			continue;
 		}
@@ -776,7 +776,7 @@ void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst)
 
 	if(pBuildingInfo->IsBorderObstacle())
 	{
-		changeBorderObstacleCount(pBuildingInfo->IsBorderObstacle() * iChange);
+		changeBorderObstacleCount(static_cast<int>(pBuildingInfo->IsBorderObstacle()) * iChange);
 	}
 
 	if(pBuildingInfo->IsMapCentering())
@@ -1229,7 +1229,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
 
 	// First, obtain the Lua script system.
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
+	if (pkScriptSystem != 0)
 	{
 		// Construct and push in some event arguments.
 		CvLuaArgsHandle args(2);
@@ -1287,13 +1287,13 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE)
 	{
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, static_cast<int>(bAggressor));
 	}
 	else
 	{
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
+		if (pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args;
 			args->Push(GetID());
@@ -1528,7 +1528,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								else
 								{
 									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-									if (pNotify)
+									if (pNotify != 0)
 									{
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -1537,7 +1537,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 									}
 									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
-									if (pNotify)
+									if (pNotify != 0)
 									{
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -1588,7 +1588,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								else
 								{
 									CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-									if (pNotify)
+									if (pNotify != 0)
 									{
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -1597,7 +1597,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 										pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 									}
 									pNotify = GET_PLAYER(eThirdParty).GetNotifications();
-									if (pNotify)
+									if (pNotify != 0)
 									{
 										Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 										Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -1675,7 +1675,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 					{
 						const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 						CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-						if(pkUnitClassInfo)
+						if(pkUnitClassInfo != 0)
 						{
 							CvPlot* pNewUnitPlot = NULL;
 							UnitTypes eLoopUnit;
@@ -2067,12 +2067,12 @@ void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTyp
 	{
 		if (MOD_EVENTS_WAR_AND_PEACE) 
 		{
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, static_cast<int>(bPacifier));
 		}
 		else 
 		{
 			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
+			if (pkScriptSystem != 0)
 			{
 				CvLuaArgsHandle args;
 				args->Push(GetID());
@@ -2365,7 +2365,7 @@ void CvTeam::meet(TeamTypes eTeam, bool bSuppressMessages)
 		GET_TEAM(eTeam).makeHasMet(GetID(), bSuppressMessages);
 
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
+		if(pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args(2);
 			args->Push(eTeam);
@@ -2946,7 +2946,7 @@ int CvTeam::countEnemyDangerByArea(CvArea* pArea) const
 			{
 				if(pLoopPlot->getTeam() == GetID())
 				{
-					iCount += pLoopPlot->plotCount(PUF_canDefendEnemy, getLeaderID(), false, NO_PLAYER, NO_TEAM, PUF_isVisible, getLeaderID());
+					iCount += pLoopPlot->plotCount(PUF_canDefendEnemy, getLeaderID(), 0, NO_PLAYER, NO_TEAM, PUF_isVisible, getLeaderID());
 				}
 			}
 		}
@@ -3279,7 +3279,7 @@ int CvTeam::getEverAliveCount() const
 //	--------------------------------------------------------------------------------
 int CvTeam::isEverAlive() const
 {
-	return (getEverAliveCount() > 0);
+	return static_cast<int>(getEverAliveCount() > 0);
 }
 
 
@@ -3628,7 +3628,7 @@ void CvTeam::changeCityWorkingChange(int iChange)
 						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
 							CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iI);
 
-							if (pLoopPlot) {
+							if (pLoopPlot != 0) {
 								pLoopPlot->changeCityRadiusCount(iChange);
 								pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iChange);
 							}
@@ -4207,7 +4207,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			iCapitalY  = pCap->getY();
 			iCapitalID = pCap->GetID();
 			CvPlot* pCapPlot = pCap->plot();
-			if (pCapPlot)
+			if (pCapPlot != 0)
 			{
 				pCapPlot->setRevealed(GetID(), true);
 				GC.getMap().updateDeferredFog();
@@ -4620,11 +4620,11 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 			if(GET_PLAYER(ePlayer).getTeam() == eIndex)
 			{
 				CvCity* pCity = GET_PLAYER(ePlayer).getCapitalCity();
-				if(pCity)
+				if(pCity != 0)
 				{
 					CvPlot* pPlot = pCity->plot();
 					CvAssertMsg(pPlot, "Capital city lacks plot? How'd that happen?");
-					if(pPlot)
+					if(pPlot != 0)
 					{
 						const int iPopRange = 2;
 						for(int iDX = -(iPopRange); iDX <= iPopRange; iDX++)
@@ -4736,7 +4736,7 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 					if (iSpyIndex != -1)
 					{
 						CvNotifications* pNotifications = GET_PLAYER(ePlayer1).GetNotifications();
-						if(pNotifications)
+						if(pNotifications != 0)
 						{
 							CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
 							CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
@@ -4846,7 +4846,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 								GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(eLoopPlayer, 300);
 
 								CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-								if (pNotify)
+								if (pNotify != 0)
 								{
 									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
@@ -4855,7 +4855,7 @@ void CvTeam::SetHasDefensivePact(TeamTypes eIndex, bool bNewValue)
 									pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 								}
 								pNotify = GET_PLAYER(eThirdParty).GetNotifications();
-								if (pNotify)
+								if (pNotify != 0)
 								{
 									Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 									Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DP");
@@ -5050,7 +5050,7 @@ void CvTeam::DoUpdateBestRoute()
 	{
 		const BuildTypes eBuild = static_cast<BuildTypes>(iBuildLoop);
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-		if(pkBuildInfo)
+		if(pkBuildInfo != 0)
 		{
 			const RouteTypes eRoute = (RouteTypes) pkBuildInfo->getRoute();
 			if(eRoute != NO_ROUTE)
@@ -5060,7 +5060,7 @@ void CvTeam::DoUpdateBestRoute()
 				// If this route requires a tech, it's value is the cost of the tech
 				const TechTypes eTech = (TechTypes) pkBuildInfo->getTechPrereq();
 				CvTechEntry* pkTechInfo = (eTech != NO_TECH)? GC.getTechInfo(eTech) : NULL;
-				if(pkTechInfo)
+				if(pkTechInfo != 0)
 				{
 					if(GetTeamTechs()->HasTech(eTech))
 					{
@@ -5292,7 +5292,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 				if(eBuildingClass != NO_BUILDINGCLASS)
 				{
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(pkBuildingClassInfo)
+					if(pkBuildingClassInfo != 0)
 					{
 						for(int iJ = 0; iJ < MAX_PLAYERS; iJ++)
 						{
@@ -5385,7 +5385,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
 						CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
 						CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
-						if (pLeadersCapital)
+						if (pLeadersCapital != 0)
 						{
 							for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 							{
@@ -5429,7 +5429,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
 						CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
 
-						if (pLeadersCapital)
+						if (pLeadersCapital != 0)
 						{
 							for (iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 							{
@@ -5806,7 +5806,7 @@ void CvTeam::resetVictoryProgress()
 	{
 		VictoryTypes eVictory = static_cast<VictoryTypes>(iI);
 		CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo((VictoryTypes)iI);
-		if(pkVictoryInfo)
+		if(pkVictoryInfo != 0)
 		{
 			if(getVictoryCountdown(eVictory) >= 0 && GC.getGame().getGameState() == GAMESTATE_ON)
 			{
@@ -5816,7 +5816,7 @@ void CvTeam::resetVictoryProgress()
 				{
 					ProjectTypes eProject = static_cast<ProjectTypes>(iK);
 					CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-					if(pkProjectInfo)
+					if(pkProjectInfo != 0)
 					{
 						if(pkProjectInfo->GetVictoryMinThreshold(eVictory) > 0)
 						{
@@ -5921,7 +5921,7 @@ void CvTeam::DoTestSmallAwards()
 	{
 		SmallAwardTypes eAward = static_cast<SmallAwardTypes>(iSmallAwardLoop);
 		CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo(eAward);
-		if(pkSmallAwardInfo)
+		if(pkSmallAwardInfo != 0)
 		{
 			bShouldShowNotification = false;
 			iNotificationX = -1;
@@ -5997,7 +5997,7 @@ void CvTeam::DoTestSmallAwards()
 						if(GET_PLAYER(ePlayer).getTeam() == GetID())
 						{
 							CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-							if(pNotifications)
+							if(pNotifications != 0)
 							{
 								if(getNumMembers() == 1)
 								{
@@ -6305,7 +6305,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												}
 
 												CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-												if(pNotifications)
+												if(pNotifications != 0)
 												{
 													pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), eResource);
 												}
@@ -6539,7 +6539,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 
 							CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
-							if(pNotifications)
+							if(pNotifications != 0)
 							{
 								pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), ePlotResource);
 							}
@@ -6589,7 +6589,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
 										SHOW_PLOT_POPUP(pCity->plot(), eLoopPlayer, text);
 										CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-										if(pNotification)
+										if(pNotification != 0)
 										{
 											CvString strMessage;
 											CvString strSummary;
@@ -6624,7 +6624,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 										{
 											CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
-											if (pYieldInfo)
+											if (pYieldInfo != 0)
 											{
 												char text[256] = { 0 };
 												CvString yieldString = "";
@@ -6639,7 +6639,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								if (bChange)
 								{
 									CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-									if (pNotification)
+									if (pNotification != 0)
 									{
 										CvString strMessage;
 										CvString strSummary;
@@ -6691,7 +6691,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					const TechTypes eLoopTech = static_cast<TechTypes>(iTechLoop);
 					CvTechEntry* pkLoopTech = GC.getTechInfo(eLoopTech);
-					if(pkLoopTech)
+					if(pkLoopTech != 0)
 					{
 						// Only look at techs prior to our era - there's no need to go further
 						if(pkLoopTech->GetEra() <= GetCurrentEra())
@@ -6745,7 +6745,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_TOURISM]", iTourism);
 													SHOW_PLOT_POPUP(pCity->plot(), eLoopPlayer, text);
 													CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-													if(pNotification)
+													if(pNotification != 0)
 													{
 														CvString strMessage;
 														CvString strSummary;
@@ -6780,7 +6780,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 													if (pLoopCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 													{
 														CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iJ);
-														if (pYieldInfo)
+														if (pYieldInfo != 0)
 														{
 															char text[256] = { 0 };
 															CvString yieldString = "";
@@ -6795,7 +6795,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											if (bChange)
 											{
 												CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-												if (pNotification)
+												if (pNotification != 0)
 												{
 													CvString strMessage;
 													CvString strSummary;
@@ -7199,7 +7199,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
 				CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer).GetEspionage();
-				if(pEspionage)
+				if(pEspionage != 0)
 				{
 					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
@@ -7491,11 +7491,11 @@ void CvTeam::testCircumnavigated()
 	TeamTypes eTeamID = GetID();
 	if(kMap.isWrapX())
 	{
-		for(iX = kMap.getGridWidth(); iX--;)
+		for(iX = kMap.getGridWidth(); (iX--) != 0;)
 		{
 			bFoundVisible = false;
 
-			for(iY = kMap.getGridHeight(); iY--;)
+			for(iY = kMap.getGridHeight(); (iY--) != 0;)
 			{
 				pPlot = kMap.plotUnchecked(iX, iY);
 
@@ -7514,11 +7514,11 @@ void CvTeam::testCircumnavigated()
 	}
 	else if(kMap.isWrapY())
 	{
-		for(iY = kMap.getGridHeight(); iY--;)
+		for(iY = kMap.getGridHeight(); (iY--) != 0;)
 		{
 			bFoundVisible = false;
 
-			for(iX = kMap.getGridWidth(); iX--;)
+			for(iX = kMap.getGridWidth(); (iX--) != 0;)
 			{
 				pPlot = kMap.plotUnchecked(iX, iY);
 
@@ -7591,7 +7591,7 @@ void CvTeam::testCircumnavigated()
 					} else {
 #endif
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if (pkScriptSystem)
+					if (pkScriptSystem != 0)
 					{
 						CvLuaArgsHandle args;
 						args->Push(eTeamID);
@@ -7785,7 +7785,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
 		CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo((BuildingTypes) iI);
-		if(pBuildingEntry)
+		if(pBuildingEntry != 0)
 		{
 			if(pBuildingEntry->GetObsoleteTech() == eTech)
 			{
@@ -7814,7 +7814,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 	{
 		CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
-		if(pFeatureEntry)
+		if(pFeatureEntry != 0)
 		{
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
@@ -7826,7 +7826,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 	{
 		CvTerrainInfo* pTerrainEntry = GC.getTerrainInfo((TerrainTypes)iI);
-		if(pTerrainEntry)
+		if(pTerrainEntry != 0)
 		{
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
@@ -7838,7 +7838,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
 		CvImprovementEntry* pImprovementEntry = GC.getImprovementInfo((ImprovementTypes)iI);
-		if(pImprovementEntry)
+		if(pImprovementEntry != 0)
 		{
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
@@ -7857,7 +7857,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			for(int iL = 0; iL < GC.getNumSpecialistInfos(); iL++)
 			{
 				CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)iL);
-				if(pSpecialistInfo)
+				if(pSpecialistInfo != 0)
 				{
 					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 					{
@@ -7899,7 +7899,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			{
 				PromotionTypes ePromotion = (PromotionTypes) iPromotion;
 #if defined(MOD_BALANCE_CORE)
-				if(pTech->IsFreePromotion(ePromotion))
+				if(pTech->IsFreePromotion(ePromotion) != 0)
 				{
 					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
 
@@ -7950,7 +7950,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.
 				// So in the future we should use a different notification ("you received a new unit from your trait since you reached this tech") instead.
 				SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-				if(pNewUnitPlot && kPlayer.GetNotifications() && GC.GetGameUnits()->GetEntry(eLoopUnit)->GetSpecialUnitType() == eSpecialUnitGreatPerson)
+				if((pNewUnitPlot != 0) && (kPlayer.GetNotifications() != 0) && GC.GetGameUnits()->GetEntry(eLoopUnit)->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER");
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON");
@@ -7980,7 +7980,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == ePikemanClass && kPlayer.canTrainUnit(eZuluImpi, false, false, true))
 					{
 						CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-						if(pkcUnitEntry)
+						if(pkcUnitEntry != 0)
 						{
 							UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 							CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pLoopUnit->getX(), pLoopUnit->getY(), eZuluImpiAI);
@@ -8028,7 +8028,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 				{
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-					if(!pkBuildingClassInfo)
+					if(pkBuildingClassInfo == 0)
 					{
 						continue;
 					}
@@ -8040,7 +8040,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						if(eBuilding != NO_BUILDING)
 						{
 							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-							if(pkBuildingInfo)
+							if(pkBuildingInfo != 0)
 							{
 								int iLoop = 0;
 								for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -8188,7 +8188,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	for(iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		CvBuildInfo* pBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-		if(pBuildInfo && pBuildInfo->getTechPrereq() == eTech)
+		if((pBuildInfo != 0) && pBuildInfo->getTechPrereq() == eTech)
 		{
 			if(pBuildInfo->getRoute() != NO_ROUTE)
 			{
@@ -8211,7 +8211,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args(3);
 		args->Push(GetID());
@@ -8372,7 +8372,7 @@ bool CvTeam::IsResourceObsolete(ResourceTypes eResource)
 bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const
 {
 	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
-	if (pResource)
+	if (pResource != 0)
 	{
 		TechTypes eDefaultTech = (TechTypes)pResource->getTechCityTrade();
 		for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
@@ -8410,7 +8410,7 @@ bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const
 bool CvTeam::IsResourceRevealed(ResourceTypes eResource) const
 {
 	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
-	if (pResource)
+	if (pResource != 0)
 	{
 		TechTypes eDefaultTech = (TechTypes)pResource->getTechReveal();
 		PolicyTypes ePolicy = (PolicyTypes)pResource->getPolicyReveal();
@@ -8515,7 +8515,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 					{
 						CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
-						if(pFeatureEntry)
+						if(pFeatureEntry != 0)
 						{
 							for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 							{
@@ -8753,7 +8753,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					if (GET_PLAYER(ePlayer).GetID() == GC.getGame().getActivePlayer())
 					{
 						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-						if (pNotifications)
+						if (pNotifications != 0)
 						{
 							CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue) ;
 							const char* szEra = pkEraInfo->GetTextKey();
@@ -8903,11 +8903,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #endif
 #if defined(MOD_EVENTS_NEW_ERA)
 		if (MOD_EVENTS_NEW_ERA && GetCurrentEra() != GC.getGame().getStartEra()) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), ((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), static_cast<int>((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));
 		} else {
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
+		if(pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args;
 			args->Push(GetID());
@@ -9202,7 +9202,7 @@ void CvTeam::AddNotification(NotificationTypes eNotificationType, const char* st
 		if(loopPlayer.getTeam() != GetID())
 			continue;
 
-		if(!loopPlayer.GetNotifications())
+		if(loopPlayer.GetNotifications() == 0)
 			continue;
 
 		loopPlayer.GetNotifications()->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
@@ -9730,7 +9730,7 @@ bool CvTeam::canBecomeVassal(TeamTypes eTeam, bool bIgnoreAlreadyVassal) const
 
 	// First, obtain the Lua script system.
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
+	if (pkScriptSystem != 0)
 	{
 		// Construct and push in some event arguments.
 		CvLuaArgsHandle args(2);

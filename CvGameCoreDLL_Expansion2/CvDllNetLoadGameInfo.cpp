@@ -22,8 +22,8 @@ CvDllNetLoadGameInfo::~CvDllNetLoadGameInfo()
 //------------------------------------------------------------------------------
 void* CvDllNetLoadGameInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvNetLoadGameInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvNetLoadGameInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

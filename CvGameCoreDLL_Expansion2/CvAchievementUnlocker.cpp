@@ -388,7 +388,7 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 				for(int i = 0; i < iNumUnits; ++i)
 				{
 					CvUnit* pUnit = pkPlot->getUnitByIndex(i);
-					if(pUnit && pUnit->getUnitType() == m_eSkyFortress)
+					if((pUnit != 0) && pUnit->getUnitType() == m_eSkyFortress)
 					{
 						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_46);
 					}

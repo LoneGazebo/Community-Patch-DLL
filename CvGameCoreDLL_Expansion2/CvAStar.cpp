@@ -148,7 +148,7 @@ void CvAStar::DeInit()
 		m_ppaaNodes=0;
 	}
 
-	if (m_ppaaNeighbors)
+	if (m_ppaaNeighbors != 0)
 	{
 		delete [] m_ppaaNeighbors;
 		m_ppaaNeighbors = NULL;
@@ -317,12 +317,12 @@ inline bool CvAStar::isValid(int iX, int iY) const
 
 inline int CvAStar::udFunc(CvAStarConst1Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data)
 {
-	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
+	return (func) != 0 ? func(param1, param2, data, this) : PATH_BASE_COST;
 }
 
 inline int CvAStar::udFunc(CvAStarConst2Func func, const CvAStarNode* param1, const CvAStarNode* param2, const SPathFinderUserData& data) const
 {
-	return (func) ? func(param1, param2, data, this) : PATH_BASE_COST;
+	return (func) != 0 ? func(param1, param2, data, this) : PATH_BASE_COST;
 }
 
 //	--------------------------------------------------------------------------------
@@ -353,12 +353,12 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	if(!isValid(iXstart, iYstart))
 		return false;
 
-	if(udInitializeFunc)
+	if(udInitializeFunc != 0)
 		udInitializeFunc(m_sData, this);
 
-	if(udDestValid && !udDestValid(iXdest, iYdest, m_sData, this))
+	if((udDestValid != 0) && (udDestValid(iXdest, iYdest, m_sData, this) == 0))
 	{
-		if (udUninitializeFunc)
+		if (udUninitializeFunc != 0)
 			udUninitializeFunc(m_sData, this);
 		return false;
 	}
@@ -429,7 +429,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 
 		//in some cases we have no destination plot, so exhaustion is not always a "fail"
 		OutputDebugString( CvString::format("Run %d: Path type %d %s (%s from %d,%d to %d,%d - flags %d), tested %d, processed %d nodes in %d rounds (%d%% of map) in %.2f ms\n", 
-			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", pUnit ? pUnit->getName().c_str() : "unknown",
+			m_iCurrentGenerationID, m_sData.ePathType, bSuccess?"found":"not found", pUnit != 0 ? pUnit->getName().c_str() : "unknown",
 			m_iXstart, m_iYstart, m_iXdest, m_iYdest, m_sData.iFlags, m_iTestedNodes, m_iProcessedNodes, m_iRounds, 
 			(100*m_iProcessedNodes)/iNumPlots, timer.GetDeltaInSeconds()*1000 ).c_str() );
 
@@ -437,9 +437,9 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 		{
 			CvString fname = CvString::format( "PathfindingRun%06d.txt", m_iCurrentGenerationID );
 			FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-			if (pLog) 
+			if (pLog != 0) 
 			{
-				if (pUnit)
+				if (pUnit != 0)
 				{
 					pLog->Msg( CvString::format("# %s for %s (%d) from %d,%d to %d,%d for player %d, flags %d\n", 
 						GetName(),pUnit->getName().c_str(),pUnit->GetID(),m_iXstart,m_iYstart,m_iXdest,m_iYdest,pUnit->getOwner(),m_sData.iFlags ).c_str() );
@@ -463,7 +463,7 @@ bool CvAStar::FindPathWithCurrentConfiguration(int iXstart, int iYstart, int iXd
 	}
 #endif
 
-	if (udUninitializeFunc)
+	if (udUninitializeFunc != 0)
 		udUninitializeFunc(m_sData, this);
 
 	return bSuccess;
@@ -540,11 +540,11 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	for(int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = node->m_apNeighbors[i];
-		if (!check)
+		if (check == 0)
 			continue;
 
 		m_iTestedNodes++;
-		if(udFunc(udValid, node, check, m_sData))
+		if(udFunc(udValid, node, check, m_sData) != 0)
 		{
 			NodeState result = LinkChild(node, check);
 			
@@ -566,7 +566,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	}
 
 	//wormholes, eg harbors
-	if(udGetExtraChildrenFunc)
+	if(udGetExtraChildrenFunc != 0)
 	{
 		vector<pair<int, int>> extraChildren;
 		GetExtraChildren(node,extraChildren);
@@ -627,7 +627,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 		return NS_OBSOLETE;
 
 	//safety check for loops. compare coords in case of two layer pathfinder
-	if (node->m_pParent && node->m_pParent->m_iX == check->m_iX && node->m_pParent->m_iY == check->m_iY)
+	if ((node->m_pParent != 0) && node->m_pParent->m_iX == check->m_iX && node->m_pParent->m_iY == check->m_iY)
 		return NS_OBSOLETE;
 
 	//remember the connection
@@ -664,7 +664,7 @@ NodeState CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
 //  --------------------------------------------------------------------------------
 int CvAStar::GetExtraChildren(const CvAStarNode* node, vector<pair<int,int>>& out) const
 {
-	if (udGetExtraChildrenFunc)
+	if (udGetExtraChildrenFunc != 0)
 	{
 		udGetExtraChildrenFunc(node, this, out);
 		return (int)out.size();
@@ -741,7 +741,7 @@ SPath CvAStar::GetCurrentPath(TurnCountMode eMode) const
 	ret.sConfig = m_sData;
 
 	CvAStarNode* pNode = m_pBest;
-	if (!pNode)
+	if (pNode == 0)
 	{
 		return ret;
 	}
@@ -804,7 +804,7 @@ bool CvAStar::VerifyPath(const SPath& path)
 	}
 
 	m_sData = path.sConfig;
-	if (udInitializeFunc)
+	if (udInitializeFunc != 0)
 		udInitializeFunc(m_sData,this);
 
 	bool bResult = true;
@@ -814,7 +814,7 @@ bool CvAStar::VerifyPath(const SPath& path)
 		CvAStarNode& current = m_ppaaNodes[ path.vPlots[i-1].x ][ path.vPlots[i-1].y ];
 		CvAStarNode& next = m_ppaaNodes[ path.vPlots[i].x ][ path.vPlots[i].y ];
 
-		if ( udFunc(udValid, &current, &next, m_sData) )
+		if ( udFunc(udValid, &current, &next, m_sData) != 0 )
 		{
 			iKnownCost += udFunc(udCost, &current, &next, m_sData);
 			if (iKnownCost > path.iTotalCost)
@@ -830,7 +830,7 @@ bool CvAStar::VerifyPath(const SPath& path)
 		}
 	}
 
-	if (udUninitializeFunc)
+	if (udUninitializeFunc != 0)
 		udUninitializeFunc(m_sData,this);
 
 	if(!bHadLock)
@@ -906,7 +906,7 @@ void UnitPathUninitialize(const SPathFinderUserData&, CvAStar*)
 // this is versioned, so we don't need to recalculate during the same pathfinding operation
 void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* finder)
 {
-	if (!node || !pUnit)
+	if ((node == 0) || (pUnit == 0))
 		return;
 
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
@@ -929,7 +929,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	if (kToNodeCacheData.bIsRevealedToTeam)
 	{
 		CvCity* pCity = pPlot->getPlotCity();
-		if (pCity  && pUnit->getOwner() != pCity->getOwner())
+		if ((pCity != 0)  && pUnit->getOwner() != pCity->getOwner())
 		{
 			if (kUnitTeam.isAtWar(pCity->getTeam()))
 				kToNodeCacheData.bIsEnemyCity = true;
@@ -1072,7 +1072,7 @@ bool CvPathFinder::DestinationReached(int iToX, int iToY) const
 int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar* finder)
 {
 	CvPlot* pToPlot = GC.getMap().plotCheckInvalid(iToX, iToY);
-	if (!pToPlot) //no destination given: valid case for area pathfinding
+	if (pToPlot == 0) //no destination given: valid case for area pathfinding
 		return TRUE;
 
 	//do not use the node data cache here - it is not set up yet - only the unit data cache is available
@@ -1091,7 +1091,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 
 	//in this case we don't know the real target plot yet, need to rely on PathValid() checks later 
 	if(finder->IsApproximateMode()) 
-		return true;
+		return 1;
 
 	//checks which need visibility (logically so we don't leak information)
 	if (pToPlot->isVisible(eTeam))
@@ -1142,7 +1142,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		if(pUnit->IsCombatUnit())
 		{
 			CvCity* pCity = pToPlot->getPlotCity();
-			if(pCity)
+			if(pCity != 0)
 			{
 				if(pCacheData->getOwner() != pCity->getOwner() && !GET_TEAM(eTeam).isAtWar(pCity->getTeam()))
 				{
@@ -1562,14 +1562,14 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		}
 
 		//normally we would be able to enter enemy territory if at war
-		if( kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY )
+		if( (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY) != 0 )
 		{
 			if(pToPlot->isOwned() && atWar(pToPlot->getTeam(), eUnitTeam))
 				return FALSE;
 		}
 
 		//ocean allowed?
-		if ( (kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN) && pToPlot->isDeepWater() )
+		if ( ((kToNodeCacheData.iMoveFlags & CvUnit::MOVEFLAG_NO_OCEAN) != 0) && pToPlot->isDeepWater() )
 		{
 			return FALSE;
 		}
@@ -1594,9 +1594,9 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 	node->m_pParent = parent;
 	node->m_iKnownCost = iKnownCost;
 	//compute heuristic cost only once ...
-	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
+	if (node->m_iHeuristicCost == 0 && (udHeuristic != 0) && isValid(m_iXdest, m_iYdest))
 	{
-		int iHeuristicCost = parent ?
+		int iHeuristicCost = parent != 0 ?
 			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
 			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
 		node->m_iHeuristicCost = iHeuristicCost;
@@ -1628,7 +1628,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 			CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 			node->m_iStartMovesForTurn = pCacheData->baseMoves( pPlot->needsEmbarkation(pUnit) );
 		}
-		else if (parent) //should always be true
+		else if (parent != 0) //should always be true
 		{
 			//re-use parent value if we can continue the turn
 			node->m_iStartMovesForTurn = parent->m_iStartMovesForTurn;
@@ -1652,7 +1652,7 @@ void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* nod
 		}
 
 		//non local neighbors
-		if (udGetExtraChildrenFunc)
+		if (udGetExtraChildrenFunc != 0)
 		{
 			vector<pair<int, int>> extraChildren;
 			GetExtraChildren(node, extraChildren);
@@ -1679,7 +1679,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 	CvPlot* pFromPlot = kMap.plotCheckInvalid(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = kMap.plotCheckInvalid(iToX, iToY);
 
-	if (!pFromPlot || !pToPlot)
+	if ((pFromPlot == 0) || (pToPlot == 0))
 		return FALSE;
 
 	//same landmass means there is a path
@@ -1719,7 +1719,7 @@ int StepDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		}
 	}
 
-	return bAllow;
+	return static_cast<int>(bAllow);
 }
 
 //	--------------------------------------------------------------------------------
@@ -1759,7 +1759,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	CvPlot* pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
-	if (!pFromPlot || !pToPlot)
+	if ((pFromPlot == 0) || (pToPlot == 0))
 		return FALSE;
 
 #if defined(MOD_CORE_UNREVEALED_IMPASSABLE)
@@ -1773,7 +1773,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		bool bAllowStep = false;
 
 		//be a little lenient with cities - on the first and last leg!
-		bool bAllowChange = !parent->m_pParent || finder->IsPathDest(node->m_iX, node->m_iY);
+		bool bAllowChange = (parent->m_pParent == 0) || finder->IsPathDest(node->m_iX, node->m_iY);
 		if (bAllowChange)
 		{
 			if (pFromPlot->isCity())
@@ -1817,7 +1817,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 	}
 
 	//for multi-unit formations it makes sense to have a wide path
-	if (bWide && parent)
+	if (bWide && (parent != 0))
 	{
 		//direction looking backward!
 		DirectionTypes eRear = directionXY(pToPlot,pFromPlot);
@@ -1827,10 +1827,10 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
-		if (!rl || !StepValidGeneric(parent,rl,data,finder,bAnyArea,false))
-			return false;
-		if (!rr || !StepValidGeneric(parent,rr,data,finder,bAnyArea,false))
-			return false;
+		if ((rl == 0) || (StepValidGeneric(parent,rl,data,finder,bAnyArea,false) == 0))
+			return 0;
+		if ((rr == 0) || (StepValidGeneric(parent,rr,data,finder,bAnyArea,false) == 0))
+			return 0;
 	}
 
 	return TRUE;
@@ -1861,9 +1861,9 @@ void CvStepFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int i
 	node->m_pParent = parent;
 	node->m_iKnownCost = iKnownCost;
 	//compute heuristic cost only once ...
-	if (node->m_iHeuristicCost == 0 && udHeuristic && isValid(m_iXdest, m_iYdest))
+	if (node->m_iHeuristicCost == 0 && (udHeuristic != 0) && isValid(m_iXdest, m_iYdest))
 	{
-		int iHeuristicCost = parent ?
+		int iHeuristicCost = parent != 0 ?
 			udHeuristic(parent->m_iX, parent->m_iY, node->m_iX, node->m_iY, m_iXdest, m_iYdest):
 			udHeuristic(m_iXstart, m_iYstart, node->m_iX, node->m_iY, m_iXdest, m_iYdest);
 		node->m_iHeuristicCost = iHeuristicCost;
@@ -1898,7 +1898,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	CvPlot* pFromPlot = kMap.plotCheckInvalid(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = kMap.plotCheckInvalid(iToX, iToY);
 
-	if (!pFromPlot || !pToPlot)
+	if ((pFromPlot == 0) || (pToPlot == 0))
 		return FALSE;
 
 	if(plotDistance(*pFromPlot,*pToPlot) > data.iTypeParameter)
@@ -1920,7 +1920,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	//failsafe
-	if (!parent || !node)
+	if ((parent == 0) || (node == 0))
 		return 0;
 
 	int iCost = 1;
@@ -1961,9 +1961,9 @@ int InfluenceCost(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 			//hack: treat a lake like plains - water has a higher influence cost
 			CvTerrainInfo* pTerrain = GC.getTerrainInfo(pToPlot->isLake() ? TERRAIN_PLAINS : pToPlot->getTerrainType());
 			CvFeatureInfo* pFeature = GC.getFeatureInfo(pToPlot->getFeatureType());
-			if (pFeature)
+			if (pFeature != 0)
 				iExtraCost = max(iExtraCost, pFeature->getInfluenceCost());
-			else if (pTerrain)
+			else if (pTerrain != 0)
 				iExtraCost = max(iExtraCost, pTerrain->getInfluenceCost());
 		}
 
@@ -1991,7 +1991,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 
 	CvPlot* pOrigin = GC.getMap().plotUnchecked(finder->GetStartX(), finder->GetStartY());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	if (!pOrigin || !pToPlot)
+	if ((pOrigin == 0) || (pToPlot == 0))
 		return FALSE;
 
 	if(plotDistance(*pOrigin,*pToPlot) > data.iTypeParameter)
@@ -2016,13 +2016,13 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot)
+	if(pPlot == 0)
 		return 0;
 
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
+	if((pFirstCity == 0) || pFirstCity->getTeam() != eTeam)
 		return 0;
 
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
@@ -2083,10 +2083,10 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		{
 			if (GET_PLAYER(ePlotOwnerPlayer).isMajorCiv() && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 				//major player without open borders is not ok
-				return pNewPlot->IsFriendlyTerritory(ePlayer);
+				return static_cast<int>(pNewPlot->IsFriendlyTerritory(ePlayer));
 			else
 				//minor player is ok as long as no war
-				return kPlayer.IsAtPeaceWith(ePlotOwnerPlayer);
+				return static_cast<int>(kPlayer.IsAtPeaceWith(ePlotOwnerPlayer));
 		}
 
 		return TRUE;
@@ -2107,7 +2107,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
-	if(!pNewPlot || !pNewPlot->isRevealed(eTeam))
+	if((pNewPlot == 0) || !pNewPlot->isRevealed(eTeam))
 		return FALSE;
 
 	if (!pNewPlot->isWater() && !pNewPlot->isCoastalCityOrPassableImprovement(ePlayer,true,true))
@@ -2241,13 +2241,13 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 
 	//ignore plots which already have their area set!
-	if (!pFromPlot || !pToPlot || pToPlot->getArea()!=-1)
+	if ((pFromPlot == 0) || (pToPlot == 0) || pToPlot->getArea()!=-1)
 		return FALSE;
 
 	//small misuse ...
 	if (data.iTypeParameter == 0)
 		//simple connectivity check only
-		return BothHaveSamePassabilityAndDomain(pToPlot, pFromPlot);
+		return static_cast<int>(BothHaveSamePassabilityAndDomain(pToPlot, pFromPlot));
 	else
 	{
 		//simple connectivity check for a start
@@ -2261,13 +2261,13 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		const CvAStarNode* rl = node->m_apNeighbors[eRearLeft];
 		const CvAStarNode* rr = node->m_apNeighbors[eRearRight];
 
-		if (rl)
+		if (rl != 0)
 		{
 			CvPlot* pTest = kMap.plotUnchecked(rl->m_iX, rl->m_iY);
 			if (!BothHaveSamePassabilityAndDomain(pToPlot, pTest))
 				return FALSE;
 		}
-		if (rr)
+		if (rr != 0)
 		{
 			CvPlot* pTest = kMap.plotUnchecked(rr->m_iX, rr->m_iY);
 			if (!BothHaveSamePassabilityAndDomain(pToPlot, pTest))
@@ -2286,7 +2286,7 @@ int LandmassValid(const CvAStarNode* parent, const CvAStarNode* node, const SPat
 		return TRUE;
 
 	CvMap& kMap = GC.getMap();
-	return kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater();
+	return static_cast<int>(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->isWater() == kMap.plotUnchecked(node->m_iX, node->m_iY)->isWater());
 }
 
 // DERIVED CLASSES (which have more convenient ways to access our various pathfinders)
@@ -2374,7 +2374,7 @@ CvAStarNode* CvTwoLayerPathFinder::GetPartialMoveNode(int iCol, int iRow)
 //	version for unit pathing
 bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 {
-	if (!temp)
+	if (temp == 0)
 		return false;
 
 	if (temp->m_kCostCacheData.bIsRevealedToTeam)
@@ -2385,8 +2385,8 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 		if (NeedToCheckStacking(temp))
 			return false;
 
-	if (temp->m_kCostCacheData.bPlotVisibleToTeam && !(temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK)) 
-		if (temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !temp->m_kCostCacheData.iMoveFlags && CvUnit::MOVEFLAG_IGNORE_ENEMIES))
+	if (temp->m_kCostCacheData.bPlotVisibleToTeam && ((temp->m_kCostCacheData.iMoveFlags & CvUnit::MOVEFLAG_ATTACK) == 0)) 
+		if (temp->m_kCostCacheData.bIsEnemyCity || (temp->m_kCostCacheData.bIsVisibleEnemyCombatUnit && (temp->m_kCostCacheData.iMoveFlags == 0) && (CvUnit::MOVEFLAG_IGNORE_ENEMIES != 0)))
 			return false;
 
 	return true;
@@ -2395,13 +2395,13 @@ bool CvTwoLayerPathFinder::CanEndTurnAtNode(const CvAStarNode* temp) const
 bool CvTwoLayerPathFinder::CommonNeighborIsPassable(const CvAStarNode * a, const CvAStarNode * b) const
 {
 	//assume a and b are not direct neighbors ... don't check it because it's usually redundant
-	if (!a || !b)
+	if ((a == 0) || (b == 0))
 		return false;
 
 	for (int i = 0; i < 6; i++)
 	{
 		CvAStarNode* check = a->m_apNeighbors[i];
-		if (check && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)
+		if ((check != 0) && plotDistance(check->m_iX, check->m_iY, b->m_iX, b->m_iY) == 1)
 			if (check->m_kCostCacheData.bCanEnterTerrainIntermediate && check->m_kCostCacheData.bCanEnterTerritoryIntermediate)
 				return true;
 	}
@@ -2446,7 +2446,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 		!next->m_kCostCacheData.bCanEnterTerrainPermanent;
 
 	bool bAttrition = false;
-	if (pUnitDataCache->pUnit && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
+	if ((pUnitDataCache->pUnit != 0) && pUnitDataCache->pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_UNWELCOME_EVANGELIST)))
 	{
 		CvPlot* pCurrentPlot = GC.getMap().plotUnchecked(current->m_iX, current->m_iY);
 		CvPlot* pNextPlot = GC.getMap().plotUnchecked(next->m_iX, next->m_iY);
@@ -2498,7 +2498,7 @@ bool CvTwoLayerPathFinder::Configure(const SPathFinderUserData& config)
 	if (config.ePlayer != NO_PLAYER && !HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER))
 	{
 		CvUnit* pUnit = GET_PLAYER(config.ePlayer).getUnit(config.iUnitID);
-		if (pUnit) //force an update before starting the actual pathfinding
+		if (pUnit != 0) //force an update before starting the actual pathfinding
 			GET_PLAYER(config.ePlayer).GetPlotDanger(*pUnit->plot(), pUnit, UnitIdContainer(), 0);
 	}
 
@@ -2523,7 +2523,7 @@ void CvTwoLayerPathFinder::SanitizeFlags()
 		return;
 
 	CvUnit* pUnit = GET_PLAYER(m_sData.ePlayer).getUnit(m_sData.iUnitID);
-	if (!pUnit)
+	if (pUnit == 0)
 		return;
 
 	//ignore this flag if we'd be stuck otherwise
@@ -2765,7 +2765,7 @@ ReachablePlots CvPathFinder::GetPlotsInReach(int iXstart, int iYstart, const SPa
 
 ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SPathFinderUserData & data)
 {
-	if (!pStartPlot)
+	if (pStartPlot == 0)
 		return ReachablePlots();
 
 	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
@@ -2780,7 +2780,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 
 	map<CvPlot*,SPath> result;
 
-	if (!Configure(data) || !pStartPlot)
+	if (!Configure(data) || (pStartPlot == 0))
 	{
 		if(!bHadLock)
 			gDLL->ReleaseGameCoreLock();
@@ -2951,7 +2951,7 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	const CvUnit* pUnit = pCacheData->pUnit;
-	if (!pUnit)
+	if (pUnit == 0)
 		return FALSE;
 
 	//distance
@@ -2990,11 +2990,11 @@ int RebaseGetExtraChildren(const CvAStarNode* node, const CvAStar* finder, vecto
 	CvPlayer& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot)
+	if(pPlot == 0)
 		return 0;
 
 	CvCity* pCity = pPlot->getPlotCity();
-	if (!pCity)
+	if (pCity == 0)
 		return 0;
 
 	// if there is a city and the city is on our team
@@ -3052,7 +3052,7 @@ void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 		pCacheData->m_bCanCrossMountain = kPlayer.CanCrossMountain();
 
 		CvPlayerTraits* pPlayerTraits = kPlayer.GetPlayerTraits();
-		if (pPlayerTraits)
+		if (pPlayerTraits != 0)
 		{
 			pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
 			pCacheData->m_bIsWoodlandMovementBonus = pPlayerTraits->IsWoodlandMovementBonus();
@@ -3222,7 +3222,7 @@ int TradePathWaterValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	//ocean needs trait or tech
 	if (pNewPlot->isDeepWater())
 	{
-		return pCacheData->CanCrossOcean();
+		return static_cast<int>(pCacheData->CanCrossOcean());
 	}
 	//coast is almost always ok
 	else if (pNewPlot->isShallowWater())
@@ -3252,7 +3252,7 @@ int TradePathWaterValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		//only single plot canals on plots without resource
 		//not that this is asymmetric, we can build a canal into a city but not out of a city ... shouldn't matter too much
 		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
-			return pNewPlot->getResourceType() == NO_RESOURCE;
+			return static_cast<int>(pNewPlot->getResourceType() == NO_RESOURCE);
 	}
 
 	return FALSE;
@@ -3340,7 +3340,7 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return !pToPlot->isWater();
+		return static_cast<int>(!pToPlot->isWater());
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
@@ -3353,7 +3353,7 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 		if (pToPlot->getTeam() == kPlayer.getTeam())
 			return TRUE;
 		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
+			return static_cast<int>(finder->IsPathDest(node->m_iX, node->m_iY));
 	}
 
 	//check terrain
@@ -3375,7 +3375,7 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return pToPlot->isWater();
+		return static_cast<int>(pToPlot->isWater());
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
@@ -3388,7 +3388,7 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 		if (pToPlot->getTeam() == kPlayer.getTeam())
 			return TRUE;
 		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
+			return static_cast<int>(finder->IsPathDest(node->m_iX, node->m_iY));
 	}
 
 	//check terrain
@@ -3414,7 +3414,7 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 
 	//wildcard. simplified checks
 	if (data.ePlayer == NO_PLAYER)
-		return true;
+		return 1;
 
 	//can't go into the dark
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
@@ -3427,13 +3427,13 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 		if (pToPlot->getTeam() == kPlayer.getTeam())
 			return TRUE;
 		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
+			return static_cast<int>(finder->IsPathDest(node->m_iX, node->m_iY));
 	}
 
 	//check terrain
 	if (pToPlot->isWater())
 	{
-		if (parent)
+		if (parent != 0)
 		{
 			//allow moving into water only at the start plot (useful for recruiting)
 			CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);	
@@ -3535,7 +3535,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	data.iFlags = bAssumeOpenBorders ? CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE : 0; //slight misuse but who cares
 
 	SPath result;
-	if (!pPathOut)
+	if (pPathOut == 0)
 		pPathOut = &result;
 
 	*pPathOut = GC.GetStepFinder().GetPath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), data);
@@ -3549,8 +3549,8 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	ePathType = PT_UNIT_MOVEMENT;
 	iFlags = _iFlags;
 	iMaxTurns = _iMaxTurns;
-	ePlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;
-	iUnitID = pUnit ? pUnit->GetID() : 0;
+	ePlayer = pUnit != 0 ? pUnit->getOwner() : NO_PLAYER;
+	iUnitID = pUnit != 0 ? pUnit->GetID() : 0;
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;

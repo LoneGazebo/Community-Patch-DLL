@@ -258,7 +258,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			DoAcceptedDeal(eFromPlayer, kDeal, iDealValue, iValueImOffering, iValueTheyreOffering);
 		}
 
-		if(pDeal)
+		if(pDeal != 0)
 		{
 			pDeal->SetRequestingPlayer(NO_PLAYER);
 		}
@@ -1459,7 +1459,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer)
 {
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if (!pkResourceInfo)
+	if (pkResourceInfo == 0)
 		return 0;
 
 	//Integer zero check...
@@ -1593,7 +1593,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		{
 			// Goddess of Festivals bonus
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				if ((iNumAvailableToUs + GetPlayer()->getResourceExport(eResource)) <= 0)
 				{
@@ -1673,7 +1673,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					// Do we have any WLTKD modifiers at the city level?
 					int iCityModifier = iPlayerModifier; // Add the player modifier for each city
 					iCityModifier += pLoopCity->GetYieldFromWLTKD(eYield);
-					if (pReligion)
+					if (pReligion != 0)
 						iCityModifier += pReligion->m_Beliefs.GetYieldFromWLTKD(eYield, GetPlayer()->GetID(), pLoopCity);
 
 					iTotalModifier += iCityModifier;
@@ -1748,7 +1748,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						for (int iPlotLoop = 0; iPlotLoop < iNumWorkablePlots; iPlotLoop++)
 						{
 							CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iPlotLoop);
-							if (pLoopPlot && pLoopPlot->getResourceType() == eResource)
+							if ((pLoopPlot != 0) && pLoopPlot->getResourceType() == eResource)
 							{
 								iItemValue += OneGPTScaled * iNumYieldChangeBonuses; // Okay to double count; monopoly resources placed between two cities are extra valuable
 							}
@@ -1846,9 +1846,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		}
 		if (iNumAvailableToUs == 1)
 		{
-			int iFactor = GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() ? 2 : 3;
+			int iFactor = GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() != 0 ? 2 : 3;
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
-			if (pReligion)
+			if (pReligion != 0)
 			{
 				for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 				{
@@ -1930,7 +1930,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 		
 		int iFactor = 1;
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetPlayer()->GetReligions()->GetStateReligion(), GetPlayer()->GetID());
-		if (pReligion)
+		if (pReligion != 0)
 		{
 			for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
@@ -2030,7 +2030,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 		return INT_MAX;
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if (!pkResourceInfo)
+	if (pkResourceInfo == 0)
 		return INT_MAX;
 
 	if (iResourceQuantity == 0)
@@ -2297,7 +2297,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool bPeaceTreatyTrade /* = false */)
 {
 	//can't trade capitals ever
-	if (!pCity || pCity->isCapital())
+	if ((pCity == 0) || pCity->isCapital())
 		return INT_MAX;
 
 	//note that it can also happen that a player pretends to buy a city they already own, just to see the appropriate price
@@ -2351,7 +2351,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 	for(int iI = RING1_PLOTS; iI < RING5_PLOTS; iI++)
 	{
 		CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
-		if (!pLoopPlot)
+		if (pLoopPlot == 0)
 			continue;
 
 		//if it belongs to the city
@@ -2480,7 +2480,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	// Scale up or down by deal duration at this game speed
 	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
-	if (pkStdSpeedInfo)
+	if (pkStdSpeedInfo != 0)
 	{
 		iItemValue *= GC.getGame().getGameSpeedInfo().GetDealDuration();
 		iItemValue /= pkStdSpeedInfo->GetDealDuration();
@@ -3134,7 +3134,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	TeamTypes eTeamDeclaringWar = GET_PLAYER(ePlayerDeclaringWar).getTeam();
 	PlayerTypes eWithPlayer = GET_TEAM(eWithTeam).getLeaderID();
 	CvCity* pCapital = GET_PLAYER(ePlayerDeclaringWar).getCapitalCity();
-	if (!pCapital)
+	if (pCapital == 0)
 	{
 		return INT_MAX;
 	}
@@ -3353,7 +3353,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		return INT_MAX;
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague)
+	if (pLeague == 0)
 		return INT_MAX;
 
 	int iDealDuration = GC.getGame().getGameSpeedInfo().GetDealDuration();
@@ -3607,7 +3607,7 @@ void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 
 	CvWeightedVector<int> viTradeValues;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(pLeague == NULL || !pLeague)
+	if(pLeague == NULL || (pLeague == 0))
 	{
 		return;
 	}
@@ -3686,7 +3686,7 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(pLeague == NULL || !pLeague)
+	if(pLeague == NULL || (pLeague == 0))
 	{
 		return;
 	}
@@ -4580,7 +4580,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	{
 		//make sure we're not just flipping two border towns
 		CvCity* pTheirClosest = GET_PLAYER(eThem).GetClosestCityByPathLength(pLoopCity->plot());
-		if (pTheirClosest && pDeal->IsCityTrade(eThem, pTheirClosest->getX(), pTheirClosest->getY()))
+		if ((pTheirClosest != 0) && pDeal->IsCityTrade(eThem, pTheirClosest->getX(), pTheirClosest->getY()))
 			continue;
 
 		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem, pDeal->IsPeaceTreatyTrade(eThem));
@@ -4660,7 +4660,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	{
 		//make sure we're not just flipping two border towns
 		CvCity* pOurClosest = GetPlayer()->GetClosestCityByPathLength(pLoopCity->plot());
-		if (pOurClosest && pDeal->IsCityTrade(GetPlayer()->GetID(), pOurClosest->getX(), pOurClosest->getY()))
+		if ((pOurClosest != 0) && pDeal->IsCityTrade(GetPlayer()->GetID(), pOurClosest->getX(), pOurClosest->getY()))
 			continue;
 
 		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem, pDeal->IsPeaceTreatyTrade(eThem));
@@ -6140,7 +6140,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	//check their cities
 	for (CvCity* pTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pTheirCity != NULL; pTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
 	{
-		if(!pTheirCity)
+		if(pTheirCity == 0)
 			continue;
 
 		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, m_pPlayer->GetID(), TRADE_ITEM_CITIES, pTheirCity->getX(), pTheirCity->getY()))
@@ -6170,7 +6170,7 @@ bool CvDealAI::IsMakeOfferForCityExchange(PlayerTypes eOtherPlayer, CvDeal* pDea
 	//check my cities
 	for(CvCity* pMyCity = GetPlayer()->firstCity(&iCityLoop); pMyCity != NULL; pMyCity = GetPlayer()->nextCity(&iCityLoop))
 	{
-		if(!pMyCity)
+		if(pMyCity == 0)
 			continue;
 
 		if(pDeal->IsPossibleToTradeItem(m_pPlayer->GetID(), eOtherPlayer, TRADE_ITEM_CITIES, pMyCity->getX(), pMyCity->getY()))
@@ -6436,7 +6436,7 @@ bool CvDealAI::IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	CvAssert(eOtherPlayer < MAX_MAJOR_CIVS);
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(!pLeague)
+	if(pLeague == 0)
 	{
 		return false;
 	}
@@ -7045,7 +7045,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes) iI);
-		if(pUnitEntry)
+		if(pUnitEntry != 0)
 		{
 			if(pUnitEntry->GetPrereqAndTech() == eTech)
 			{
@@ -7062,7 +7062,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
 		CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo((BuildingTypes) iI);
-		if(pBuildingEntry)
+		if(pBuildingEntry != 0)
 		{
 			if(pBuildingEntry->GetPrereqAndTech() == eTech)
 			{
@@ -7074,7 +7074,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(iI = 0; iI < GC.getNumProjectInfos(); iI++)
 	{
 		CvProjectEntry* pProjectEntry = GC.getProjectInfo((ProjectTypes) iI);
-		if(pProjectEntry)
+		if(pProjectEntry != 0)
 		{
 			if(pProjectEntry->GetTechPrereq() == eTech)
 			{
@@ -7086,7 +7086,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		CvBuildInfo* pBuildInfo = GC.getBuildInfo((BuildTypes) iI);
-		if(pBuildInfo)
+		if(pBuildInfo != 0)
 		{
 			if(pBuildInfo->getTechPrereq() == eTech)
 			{
@@ -7098,7 +7098,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	for(iI = 0; iI < GC.getNumResourceInfos(); iI++)
 	{
 		CvResourceInfo* pResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
-		if(pResourceInfo)
+		if(pResourceInfo != 0)
 		{
 			TechTypes eRevealTech = (TechTypes)pResourceInfo->getTechReveal();
 			if (GetPlayer()->GetPlayerTraits()->IsAlternateResourceTechs())

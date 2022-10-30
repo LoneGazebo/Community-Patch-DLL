@@ -36,7 +36,7 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 #endif
 
 		//only after loading, force danger update (only known enemy units are serialized)
-		if(!bWarStateChanged && kPlayer.m_pDangerPlots)
+		if(!bWarStateChanged && (kPlayer.m_pDangerPlots != 0))
 			kPlayer.UpdateDangerPlots(true);
 
 		if (bWarStateChanged)

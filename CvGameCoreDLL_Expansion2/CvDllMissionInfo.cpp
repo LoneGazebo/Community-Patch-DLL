@@ -22,8 +22,8 @@ CvDllMissionInfo::~CvDllMissionInfo()
 //------------------------------------------------------------------------------
 void* CvDllMissionInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvMissionInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvMissionInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

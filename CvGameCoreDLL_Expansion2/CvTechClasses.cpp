@@ -538,7 +538,7 @@ bool CvTechEntry::IsWaterWork() const
 /// Grants free promotion?
 int CvTechEntry::IsFreePromotion(int i) const
 {
-	return m_pabFreePromotion ? m_pabFreePromotion[i] : -1;
+	return m_pabFreePromotion != 0 ? static_cast<int>(m_pabFreePromotion[i]) : -1;
 }
 
 /// Provides historical quote
@@ -583,13 +583,13 @@ void CvTechEntry::SetSoundMP(const char* szVal)
 /// How much extra movement does it give you in this domain?
 int CvTechEntry::GetDomainExtraMoves(int i) const
 {
-	return m_piDomainExtraMoves ? m_piDomainExtraMoves[i] : -1;
+	return m_piDomainExtraMoves != 0 ? m_piDomainExtraMoves[i] : -1;
 }
 
 /// How much is range extended in this domain?
 int CvTechEntry::GetTradeRouteDomainExtraRange(int i) const
 {
-	return m_piTradeRouteDomainExtraRange ? m_piTradeRouteDomainExtraRange[i] : -1;
+	return m_piTradeRouteDomainExtraRange != 0 ? m_piTradeRouteDomainExtraRange[i] : -1;
 }
 
 
@@ -598,19 +598,19 @@ int CvTechEntry::GetFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : -1;
 }
 
 /// Prerequisite techs with OR
 int CvTechEntry::GetPrereqOrTechs(int i) const
 {
-	return m_piPrereqOrTechs ? m_piPrereqOrTechs[i] : -1;
+	return m_piPrereqOrTechs != 0 ? m_piPrereqOrTechs[i] : -1;
 }
 
 /// Prerequisite techs with AND
 int CvTechEntry::GetPrereqAndTechs(int i) const
 {
-	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
+	return m_piPrereqAndTechs != 0 ? m_piPrereqAndTechs[i] : -1;
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
@@ -800,7 +800,7 @@ void CvPlayerTechs::Reset()
 	if(!m_pPlayer->isMinorCiv() && !m_pPlayer->isBarbarian() && m_pPlayer->getCivilizationType() != NO_CIVILIZATION)
 	{
 		CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
-		if(pkInfo)
+		if(pkInfo != 0)
 		{
 			// Loop through all building classes
 			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -811,7 +811,7 @@ void CvPlayerTechs::Reset()
 				if(eBuilding != -1)
 					pkBuildingInfo = pkGameBuildings->GetEntry(eBuilding);
 
-				if(pkBuildingInfo)
+				if(pkBuildingInfo != 0)
 				{
 					// Is this one overridden for our civ?
 					if(pkInfo->isCivilizationBuildingOverridden(iI))
@@ -891,7 +891,7 @@ void CvPlayerTechs::Reset()
 					if(eCivilizationUnit != NO_UNIT)
 					{
 						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
-						if(pkUnitEntry)
+						if(pkUnitEntry != 0)
 						{
 							int iTech = pkUnitEntry->GetPrereqAndTech();
 							if(iTech != NO_TECH)
@@ -908,7 +908,7 @@ void CvPlayerTechs::Reset()
 			for(int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 			{
 				CvImprovementEntry* pkImprovementEntry = GC.getImprovementInfo((ImprovementTypes)iI);
-				if(pkImprovementEntry)
+				if(pkImprovementEntry != 0)
 				{
 					if(pkImprovementEntry->IsSpecificCivRequired() && pkImprovementEntry->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 					{
@@ -916,7 +916,7 @@ void CvPlayerTechs::Reset()
 						for(int jJ = 0; jJ < GC.getNumBuildInfos(); jJ++)
 						{
 							CvBuildInfo* pkBuildEntry = GC.getBuildInfo((BuildTypes)jJ);
-							if(pkBuildEntry && pkBuildEntry->getImprovement() == iI)
+							if((pkBuildEntry != 0) && pkBuildEntry->getImprovement() == iI)
 							{
 								int iTech = pkBuildEntry->getTechPrereq();
 								if(iTech != NO_TECH)
@@ -938,13 +938,13 @@ void CvPlayerTechs::Reset()
 			TraitTypes eTraitLoop = (TraitTypes) iTraitLoop;
 			// Do we have this trait?
 			const CvLeaderHeadInfo* pkLeaderInfo = &m_pPlayer->getLeaderInfo();
-			if(pkLeaderInfo)
+			if(pkLeaderInfo != 0)
 			{
 				if(!pkLeaderInfo->hasTrait(iTraitLoop))  // This trait check disregards tech prereqs and obsoletes
 					continue;
 
 				CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTraitLoop);
-				if(pkTraitInfo)
+				if(pkTraitInfo != 0)
 				{
 					// Maya Calendar trait - We want to heavily weight the unlock tech
 					if(pkTraitInfo->IsMayaCalendarBonuses())
@@ -1218,14 +1218,14 @@ void CvPlayerTechs::SetLocalePriorities()
 					{
 						const BuildTypes eBuild = static_cast<BuildTypes>(iBuildIndex);
 						CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-						if(pkBuildInfo)
+						if(pkBuildInfo != 0)
 						{
 							// If this is the improvement we're looking for
 							const ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 							if(eImprovement != NO_IMPROVEMENT)
 							{
 								CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-								if (pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource))
+								if ((pkImprovementInfo != 0) && pkImprovementInfo->IsConnectsResource(eResource))
 								{
 									if (pLoopPlot->canHaveImprovement(eImprovement))
 										multiplierValue++;
@@ -1462,7 +1462,7 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 	}
 #endif
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(m_pPlayer->GetID());
@@ -1559,7 +1559,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(m_pPlayer->GetID());
@@ -1661,7 +1661,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if(pkTechInfo)
+			if(pkTechInfo != 0)
 			{
 				CvString szCurrentTech = (CvString) pkTechInfo->GetType();
 				if(szCurrentTech == "TECH_HORSEBACK_RIDING")
@@ -1696,7 +1696,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if(pkTechInfo)
+			if(pkTechInfo != 0)
 			{
 				if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTech))
 				{
@@ -1909,7 +1909,7 @@ void CvPlayerTechs::CheckHasUUTech()
 {
 	bool bHas = false;
 	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
-	if (pkInfo)
+	if (pkInfo != 0)
 	{
 		// Loop through all units
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -1924,7 +1924,7 @@ void CvPlayerTechs::CheckHasUUTech()
 				if (eCivilizationUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
-					if (pkUnitEntry)
+					if (pkUnitEntry != 0)
 					{
 						// No recon units!
 						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
@@ -1982,7 +1982,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 
 	bool bWillHaveSoon = false;
 	CvCivilizationInfo* pkInfo = GC.getCivilizationInfo(m_pPlayer->getCivilizationType());
-	if (pkInfo)
+	if (pkInfo != 0)
 	{
 		// Loop through all units
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -1994,7 +1994,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 				if (eCivilizationUnit != NO_UNIT)
 				{
 					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eCivilizationUnit);
-					if (pkUnitEntry)
+					if (pkUnitEntry != 0)
 					{
 						// No recon units!
 						if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA)
@@ -2007,7 +2007,7 @@ void CvPlayerTechs::CheckWillHaveUUTechSoon()
 							if (iTech != NO_TECH && !m_pPlayer->HasTech((TechTypes)iTech))
 							{
 								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)iTech);
-								if (pkTechInfo)
+								if (pkTechInfo != 0)
 								{
 									if (IsResearchingTech((TechTypes)iTech))
 									{
@@ -2303,7 +2303,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 	int iNumSavedTechs = 0;
 	kStream >> iNumSavedTechs;
 
-	if(iNumSavedTechs)
+	if(iNumSavedTechs != 0)
 	{
 		int iNumActiveTechs = m_pTechs->GetNumTechs();
 
@@ -2336,7 +2336,7 @@ void CvTeamTechs::Write(FDataStream& kStream) const
 	kStream << m_eLastTechAcquired;
 	kStream << m_iNumTechs;
 
-	if(m_pTechs != NULL && m_pTechs->GetNumTechs())
+	if(m_pTechs != NULL && (m_pTechs->GetNumTechs() != 0))
 	{
 		// Write out an array of all the active tech's hash types so we can re-map on loading if need be.
 		int iNumTechs = m_pTechs->GetNumTechs();
@@ -2384,7 +2384,7 @@ void CvTeamTechs::SetHasTech(TechTypes eIndex, bool bNewValue)
 			SetLastTechAcquired(eIndex);
 
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if(pkScriptSystem)
+		if(pkScriptSystem != 0)
 		{
 			CvLuaArgsHandle args;
 			args->Push(m_pTeam->GetID());
@@ -2610,7 +2610,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	int iModifier = 100;
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
-	if(pkHandicapInfo)
+	if(pkHandicapInfo != 0)
 	{
 		iModifier *= (pkHandicapInfo->getResearchPercent());
 		iModifier /= 100;

@@ -29,9 +29,9 @@ struct SCityTiebreak : public STiebreakGenerator
 		//it can happen that there is no current city if the plot has never been updated because it's very remote
 		CvCity* pA = kPlayerA.getCity(iFeatureA);
 		CvCity* pB = kPlayerB.getCity(iFeatureB);
-		if (!pA)
+		if (pA == 0)
 			return 1;
-		else if (!pB)
+		else if (pB == 0)
 			return -1;
 
 		//now look at the founding dates
@@ -251,7 +251,7 @@ void CvDistanceMapByPlots::Update()
 			for (int iPlotIndex = 0; iPlotIndex < nPlots; iPlotIndex++)
 			{
 				CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
-				if (!pPlot)
+				if (pPlot == 0)
 					continue;
 
 				int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());

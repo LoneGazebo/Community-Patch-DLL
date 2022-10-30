@@ -83,7 +83,7 @@ void CvProjectProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	for(iProject = 0; iProject < GC.GetGameProjects()->GetNumProjects(); iProject++)
 	{
 		entry = GC.GetGameProjects()->GetEntry(iProject);
-		if(entry)
+		if(entry != 0)
 		{
 			// Set its weight by looking at project's weight for this flavor and using iWeight multiplier passed in
 			m_ProjectAIWeights.IncreaseWeight(iProject, entry->GetFlavorValue(eFlavor) * iWeight);
@@ -101,7 +101,7 @@ int CvProjectProductionAI::GetWeight(ProjectTypes eProject)
 ProjectTypes CvProjectProductionAI::RecommendProject()
 {
 	CvAssert(m_pCity);
-	if(!m_pCity)
+	if(m_pCity == 0)
 		return NO_PROJECT;
 
 	int iProjectLoop = 0;
@@ -153,7 +153,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 		return SR_IMPOSSIBLE;
 
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-	if(!pkProjectInfo)
+	if(pkProjectInfo == 0)
 		return SR_IMPOSSIBLE;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
@@ -370,7 +370,7 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		CvString strLogName;
 
 		CvAssert(m_pCity);
-		if(!m_pCity) return;
+		if(m_pCity == 0) return;
 
 		// Find the name of this civ and city
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
@@ -380,7 +380,7 @@ void CvProjectProductionAI::LogPossibleBuilds()
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
-		if(!pLog) return;
+		if(pLog == 0) return;
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

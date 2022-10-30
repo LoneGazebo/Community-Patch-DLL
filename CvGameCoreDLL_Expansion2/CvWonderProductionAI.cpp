@@ -53,7 +53,7 @@ void CvWonderProductionAI::Reset()
 	m_WonderAIWeights.clear();
 
 	// Loop through reading each one and adding it to our vector
-	if(m_pBuildings)
+	if(m_pBuildings != 0)
 	{
 		for(int i = 0; i < m_pBuildings->GetNumBuildings(); i++)
 		{
@@ -114,7 +114,7 @@ void CvWonderProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	for(int iBldg = 0; iBldg < m_pBuildings->GetNumBuildings(); iBldg++)
 	{
 		CvBuildingEntry* entry = m_pBuildings->GetEntry(iBldg);
-		if(entry)
+		if(entry != 0)
 		{
 			CvBuildingEntry& kBuilding = *entry;
 			if(IsWonder(kBuilding))
@@ -153,7 +153,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 		{
 			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBldgLoop);
 			CvBuildingEntry* pkBuildingInfo = m_pBuildings->GetEntry(eBuilding);
-			if (!pkBuildingInfo)
+			if (pkBuildingInfo == 0)
 				continue;
 
 			if (!pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))

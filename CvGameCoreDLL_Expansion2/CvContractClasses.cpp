@@ -118,13 +118,13 @@ int CvContractEntry::GetYieldCost(YieldTypes eYield) const
 {
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piYieldCost ? m_piYieldCost[eYield] : -1;
+	return m_piYieldCost != 0 ? m_piYieldCost[eYield] : -1;
 }
 int CvContractEntry::GetFlavorValue(FlavorTypes eFlavor) const
 {
 	CvAssertMsg(eFlavor < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(eFlavor > -1, "Index out of bounds");
-	return m_piFlavor ? m_piFlavor[eFlavor] : -1;
+	return m_piFlavor != 0 ? m_piFlavor[eFlavor] : -1;
 }
 
 bool CvContractEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
@@ -322,7 +322,7 @@ CvContract* CvPlayerContracts::GetContract(ContractTypes eContract)
 		return NULL;
 
 	CvContractEntry* pContract = GC.getContractInfo(eContract);
-	if(pContract)
+	if(pContract != 0)
 	{
 		return GC.getGame().GetGameContracts()->GetActiveContract(eContract);
 	}
@@ -337,7 +337,7 @@ bool CvPlayerContracts::PlayerHasAnyContract() const
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes) iI))
+		if((pContract != 0) && PlayerHasContract((ContractTypes) iI))
 		{
 			return true;
 		}
@@ -354,7 +354,7 @@ void CvPlayerContracts::SetActiveContract(ContractTypes eContract, bool bValue)
 void CvPlayerContracts::StartContract(ContractTypes eContract)
 {
 	CvContractEntry* pContract = GC.getContractInfo((ContractTypes)eContract);
-	if(pContract)
+	if(pContract != 0)
 	{
 		int iTurns = pContract->GetTurns();
 		int iValue = 0;
@@ -392,7 +392,7 @@ void CvPlayerContracts::StartContract(ContractTypes eContract)
 void CvPlayerContracts::EndContract(ContractTypes eContract)
 {
 	CvContractEntry* pContract = GC.getContractInfo(eContract);
-	if(pContract)
+	if(pContract != 0)
 	{
 		SetActiveContract(eContract, false);
 	}
@@ -404,10 +404,10 @@ int CvPlayerContracts::GetContractGoldMaintenance()
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		if((pContract != 0) && PlayerHasContract((ContractTypes)iI))
 		{
 			CvContract* pContractInfo = GetContract((ContractTypes)iI);
-			if(pContractInfo)
+			if(pContractInfo != 0)
 			{
 				if(pContractInfo->m_iContractMaintenance != 0)
 				{
@@ -421,7 +421,7 @@ int CvPlayerContracts::GetContractGoldMaintenance()
 void CvPlayerContracts::ChangeContractEndTurn(ContractTypes eContract, int iValue)
 {
 	CvContract* pContract = GetContract(eContract);
-	if(pContract && iValue != 0)
+	if((pContract != 0) && iValue != 0)
 	{
 		pContract->m_iContractTurns += iValue;
 	}
@@ -435,10 +435,10 @@ bool CvPlayerContracts::UnitIsActiveContractUnit(UnitTypes eUnit)
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		if((pContract != 0) && PlayerHasContract((ContractTypes)iI))
 		{
 			CvContract* pContractInfo = GetContract((ContractTypes)iI);
-			if(pContractInfo)
+			if(pContractInfo != 0)
 			{
 				if(GC.getGame().GetContractUnits((ContractTypes)iI, eUnit) > 0)
 				{
@@ -456,7 +456,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 		return;
 
 	CvContractEntry* pContract = GC.getContractInfo(eContract);
-	if(pContract)
+	if(pContract != 0)
 	{
 		for(int iI = 0; iI < GC.getNumUnitInfos(); iI++)
 		{
@@ -466,7 +466,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 				continue;
 
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-			if(pkUnitInfo)
+			if(pkUnitInfo != 0)
 			{
 				int iNumUnits = GC.getGame().GetContractUnits(eContract, eUnit);
 				if(iNumUnits > 0)
@@ -513,7 +513,7 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 
 						// Valid Promotion for this Unit?
 						PromotionTypes ePromotion = pContract->GetPromotionType();
-						if(pUnit && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
+						if((pUnit != 0) && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
 						{
 							pUnit->setHasPromotion(ePromotion, true);
 						}
@@ -526,14 +526,14 @@ void CvPlayerContracts::InitContractUnits(ContractTypes eContract)
 							// Init unit
 							pUnit = m_pPlayer->initUnit(eUnit, pBestCity->getX(), pBestCity->getY(), pkUnitInfo->GetDefaultUnitAIType(), REASON_DEFAULT, false, true, 0, 0, eContract);
 							CvAssert(pUnit);
-							if (pUnit)
+							if (pUnit != 0)
 							{
 								if (!pUnit->jumpToNearestValidPlotWithinRange(5))
 									pUnit->kill(false);		// Could not find a spot!
 
 								// Valid Promotion for this Unit?
 								PromotionTypes ePromotion = pContract->GetPromotionType();
-								if(pUnit && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
+								if((pUnit != 0) && ePromotion != NO_PROMOTION && ::IsPromotionValidForUnitCombatType(ePromotion, pUnit->getUnitType()))
 								{
 									pUnit->setHasPromotion(ePromotion, true);
 								}
@@ -570,7 +570,7 @@ int CvPlayerContracts::GetContractTurnsRemaining(ContractTypes eContract)
 		return -1;
 
 	CvContract* pContract = GetContract(eContract);
-	if(pContract)
+	if(pContract != 0)
 	{
 		int iStart = pContract->m_iContractTurnStart;
 		int iTurns = pContract->m_iContractTurns;
@@ -587,7 +587,7 @@ int CvPlayerContracts::GetNumActivePlayerContracts() const
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes) iI))
+		if((pContract != 0) && PlayerHasContract((ContractTypes) iI))
 		{
 			iNum++;
 		}
@@ -600,7 +600,7 @@ void CvPlayerContracts::DoTurn()
 	for(int iI = 0; iI < GC.getNumContractInfos(); iI++)
 	{
 		CvContractEntry* pContract = GC.getContractInfo((ContractTypes)iI);
-		if(pContract && PlayerHasContract((ContractTypes)iI))
+		if((pContract != 0) && PlayerHasContract((ContractTypes)iI))
 		{
 			if(GetContractTurnsRemaining((ContractTypes)iI) <= 0)
 			{
@@ -617,7 +617,7 @@ CvContractEntry* CvPlayerContracts::GetContractEntry(ContractTypes eContract)
 		return NULL;
 
 	CvContract* pContract = GetContract(eContract);
-	if (!pContract)
+	if (pContract == 0)
 		return NULL;
 
 	return GC.getContractInfo(pContract->m_eContract);
@@ -647,7 +647,7 @@ void CvGameContracts::Init()
 			continue;
 
 		CvContractEntry* pContract = GC.getContractInfo(eContract);
-		if(pContract)
+		if(pContract != 0)
 		{
 			int iTurns = pContract->GetTurns();
 			int iMaintenance = pContract->GetMaintenance();

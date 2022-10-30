@@ -19,7 +19,7 @@ int CustomMods::eventHook(const char* szName, const char* p, ...) {
 	va_list vl = NULL;
 	va_start(vl, p);
 
-	for (const char* it = p; *it; ++it) {
+	for (const char* it = p; *it != 0; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(!!va_arg(vl, int));
@@ -45,7 +45,7 @@ int CustomMods::eventTestAll(const char* szName, const char* p, ...) {
 	va_list vl = NULL;
 	va_start(vl, p);
 
-	for (const char* it = p; *it; ++it) {
+	for (const char* it = p; *it != 0; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(!!va_arg(vl, int));
@@ -71,7 +71,7 @@ int CustomMods::eventTestAny(const char* szName, const char* p, ...) {
 	va_list vl = NULL;
 	va_start(vl, p);
 
-	for (const char* it = p; *it; ++it) {
+	for (const char* it = p; *it != 0; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(!!va_arg(vl, int));
@@ -97,7 +97,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 	va_list vl = NULL;
 	va_start(vl, p);
 
-	for (const char* it = p; *it; ++it) {
+	for (const char* it = p; *it != 0; ++it) {
 		if (*it == 'b') {
 			// It's a boolean
 			args->Push(!!va_arg(vl, int));
@@ -119,7 +119,7 @@ int CustomMods::eventAccumulator(int &iValue, const char* szName, const char* p,
 
 int CustomMods::eventHook(const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem) {
+	if (pkScriptSystem != 0) {
 		bool bResult = false;
 		if (LuaSupport::CallHook(pkScriptSystem, szName, args.get(), bResult)) {
 			return GAMEEVENTRETURN_HOOK;
@@ -131,7 +131,7 @@ int CustomMods::eventHook(const char* szName, CvLuaArgsHandle &args) {
 
 int CustomMods::eventTestAll(const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem) {
+	if (pkScriptSystem != 0) {
 		bool bResult = false;
 		if (LuaSupport::CallTestAll(pkScriptSystem, szName, args.get(), bResult)) {
 			if (bResult) {
@@ -147,7 +147,7 @@ int CustomMods::eventTestAll(const char* szName, CvLuaArgsHandle &args) {
 
 int CustomMods::eventTestAny(const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem) {
+	if (pkScriptSystem != 0) {
 		bool bResult = false;
 		if (LuaSupport::CallTestAny(pkScriptSystem, szName, args.get(), bResult)) {
 			if (bResult) {
@@ -163,7 +163,7 @@ int CustomMods::eventTestAny(const char* szName, CvLuaArgsHandle &args) {
 
 int CustomMods::eventAccumulator(int &iValue, const char* szName, CvLuaArgsHandle &args) {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem) {
+	if (pkScriptSystem != 0) {
 		if (LuaSupport::CallAccumulator(pkScriptSystem, szName, args.get(), iValue)) {
 			return GAMEEVENTRETURN_TRUE;
 		}
@@ -232,7 +232,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 
 			bool bPrefixError = (strncmp(szName, szBadPrefix, strlen(szBadPrefix)) == 0);
 
-			if (iValue && iDbUpdates) {
+			if ((iValue != 0) && (iDbUpdates != 0)) {
 				Database::Results kUpdates;
 				char szQuery[512] = {0};
 
@@ -584,7 +584,7 @@ void CheckSentinel(uint value)
 
 #if defined(STACKWALKER)
 	FILogFile* pLog=LOGFILEMGR.GetLog( "DeserializationCallstack.log", FILogFile::kDontTimeStamp );
-	if (pLog)
+	if (pLog != 0)
 	{
 		gStackWalker.SetLog(pLog);
 		gStackWalker.ShowCallstack();

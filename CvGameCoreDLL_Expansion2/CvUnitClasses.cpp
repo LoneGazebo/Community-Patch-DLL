@@ -140,7 +140,7 @@ CvUnitEntry::CvUnitEntry(void) :
 #if defined(MOD_BALANCE_CORE)
 	m_bFoundMid(false),
 	m_bFoundLate(false),
-	m_iFoundColony(false),
+	m_iFoundColony(0),
 	m_bIsCityAttackSupport(false),
 	m_iGPExtra(0),
 	m_iGoodyModifier(0),
@@ -1514,7 +1514,7 @@ int CvUnitEntry::GetPrereqAndTechs(int i) const
 {
 	CvAssertMsg(i < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
+	return m_piPrereqAndTechs != 0 ? m_piPrereqAndTechs[i] : -1;
 }
 
 /// Resources consumed to construct
@@ -1522,7 +1522,7 @@ int CvUnitEntry::GetResourceQuantityRequirement(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityRequirements ? m_piResourceQuantityRequirements[i] : -1;
+	return m_piResourceQuantityRequirements != 0 ? m_piResourceQuantityRequirements[i] : -1;
 }
 
 /// Resources consumed to construct
@@ -1530,7 +1530,7 @@ int CvUnitEntry::GetResourceQuantityExpended(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityExpended ? m_piResourceQuantityExpended[i] : -1;
+	return m_piResourceQuantityExpended != 0 ? m_piResourceQuantityExpended[i] : -1;
 }
 
 /// Production boost for having a specific building in city
@@ -1562,7 +1562,7 @@ int CvUnitEntry::GetProductionTraits(int i) const
 {
 	CvAssertMsg(i < GC.getNumTraitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piProductionTraits ? m_piProductionTraits[i] : -1;
+	return m_piProductionTraits != 0 ? m_piProductionTraits[i] : -1;
 }
 
 /// Find value of flavors associated with this building
@@ -1570,7 +1570,7 @@ int CvUnitEntry::GetFlavorValue(int i) const
 {
 	CvAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : 0;
 }
 
 /// What can this unit upgrade into?
@@ -1578,7 +1578,7 @@ bool CvUnitEntry::GetUpgradeUnitClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbUpgradeUnitClass ? m_pbUpgradeUnitClass[i] : false;
+	return m_pbUpgradeUnitClass != 0 ? m_pbUpgradeUnitClass[i] : false;
 }
 
 /// What AIs strategies can this unit adopt
@@ -1586,7 +1586,7 @@ bool CvUnitEntry::GetUnitAIType(int i) const
 {
 	CvAssertMsg(i < NUM_UNITAI_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbUnitAIType ? m_pbUnitAIType[i] : false;
+	return m_pbUnitAIType != 0 ? m_pbUnitAIType[i] : false;
 }
 
 /// AI strategies this unit can NOT adopt
@@ -1594,7 +1594,7 @@ bool CvUnitEntry::GetNotUnitAIType(int i) const
 {
 	CvAssertMsg(i < NUM_UNITAI_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbNotUnitAIType ? m_pbNotUnitAIType[i] : false;
+	return m_pbNotUnitAIType != 0 ? m_pbNotUnitAIType[i] : false;
 }
 
 /// What improvements can this unit build?
@@ -1602,7 +1602,7 @@ bool CvUnitEntry::GetBuilds(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbBuilds ? m_pbBuilds[i] : false;
+	return m_pbBuilds != 0 ? m_pbBuilds[i] : false;
 }
 
 /// Type(s) of great people represented by this unit
@@ -1610,7 +1610,7 @@ bool CvUnitEntry::GetGreatPeoples(int i) const
 {
 	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbGreatPeoples ? m_pbGreatPeoples[i] : false;
+	return m_pbGreatPeoples != 0 ? m_pbGreatPeoples[i] : false;
 }
 
 /// Is this unit required to construct a certain building?
@@ -1618,7 +1618,7 @@ bool CvUnitEntry::GetBuildings(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbBuildings ? m_pbBuildings[i] : false;
+	return m_pbBuildings != 0 ? m_pbBuildings[i] : false;
 }
 
 /// Does this Unit need a certain BuildingClass in this City to train?
@@ -1626,7 +1626,7 @@ bool CvUnitEntry::GetBuildingClassRequireds(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbBuildingClassRequireds ? m_pbBuildingClassRequireds[i] : false;
+	return m_pbBuildingClassRequireds != 0 ? m_pbBuildingClassRequireds[i] : false;
 }
 
 
@@ -1634,7 +1634,7 @@ int CvUnitEntry::GetScalingFromOwnedImprovements(int i) const
 {
 	CvAssertMsg(i < GC.getNumImprovementInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piScalingFromOwnedImprovements ? m_piScalingFromOwnedImprovements[i] : -1;
+	return m_piScalingFromOwnedImprovements != 0 ? m_piScalingFromOwnedImprovements[i] : -1;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -1643,21 +1643,21 @@ bool CvUnitEntry::GetBuildOnFound(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbBuildOnFound? m_pbBuildOnFound[i] : false;
+	return m_pbBuildOnFound != 0? m_pbBuildOnFound[i] : false;
 }
 /// Does this Unit need a certain BuildingClass in this City to purchase?
 bool CvUnitEntry::GetBuildingClassPurchaseRequireds(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbBuildingClassPurchaseRequireds ? m_pbBuildingClassPurchaseRequireds[i] : false;
+	return m_pbBuildingClassPurchaseRequireds != 0 ? m_pbBuildingClassPurchaseRequireds[i] : false;
 }
 /// Does this Unit get a new combat strength when reaching a new Era?
 int CvUnitEntry::GetEraCombatStrength(int i) const
 {
 	CvAssertMsg(i < GC.getNumEraInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piEraCombatStrength ? m_piEraCombatStrength[i] : -1;
+	return m_piEraCombatStrength != 0 ? m_piEraCombatStrength[i] : -1;
 }
 
 /// Accessor:: Does this Unit have a different CombatType in a new Era?
@@ -1667,7 +1667,7 @@ int CvUnitEntry::GetUnitNewEraCombatType(int i, int j) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < GC.getNumEraInfos(), "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiEraUnitCombatType ? m_ppiEraUnitCombatType[i][j] : 0;
+	return m_ppiEraUnitCombatType != 0 ? m_ppiEraUnitCombatType[i][j] : 0;
 }
 int* CvUnitEntry::GetUnitNewEraCombatTypeChangesArray(int i)
 {
@@ -1680,7 +1680,7 @@ int CvUnitEntry::GetUnitNewEraPromotions(int i, int j) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < GC.getNumEraInfos(), "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiEraUnitPromotions ? m_ppiEraUnitPromotions[i][j] : 0;
+	return m_ppiEraUnitPromotions != 0 ? m_ppiEraUnitPromotions[i][j] : 0;
 }
 
 int* CvUnitEntry::GetUnitNewEraPromotionsChangesArray(int i)
@@ -1711,7 +1711,7 @@ bool CvUnitEntry::GetFreePromotions(int i) const
 {
 	CvAssertMsg(i < GC.getNumPromotionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbFreePromotions ? m_pbFreePromotions[i] : false;
+	return m_pbFreePromotions != 0 ? m_pbFreePromotions[i] : false;
 }
 
 /// Project required to train this unit?
@@ -1763,7 +1763,7 @@ const char* CvUnitEntry::GetUnitNames(int i) const
 {
 	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return (m_paszUnitNames) ? m_paszUnitNames[i] : NULL;
+	return (m_paszUnitNames) != 0 ? m_paszUnitNames[i] : NULL;
 }
 
 /// Unique great works created by individual units.
@@ -1771,7 +1771,7 @@ GreatWorkType CvUnitEntry::GetGreatWorks(int i) const
 {
 	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return (m_paeGreatWorks) ? m_paeGreatWorks[i] : NO_GREAT_WORK;
+	return (m_paeGreatWorks) != 0 ? m_paeGreatWorks[i] : NO_GREAT_WORK;
 }
 
 bool CvUnitEntry::IsGreatWorkUnit() const
@@ -1789,7 +1789,7 @@ EraTypes CvUnitEntry::GetGreatPersonEra(int i) const
 {
 	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return (m_paeGreatPersonEra) ? m_paeGreatPersonEra[i] : NO_ERA;
+	return (m_paeGreatPersonEra) != 0 ? m_paeGreatPersonEra[i] : NO_ERA;
 }
 /// Resource required for this unit
 int CvUnitEntry::GetResourceType() const
@@ -1860,7 +1860,7 @@ int CvUnitEntry::GetCargoSpace() const
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
+		if(pkPromotionInfo != 0)
 		{
 			if(GetFreePromotions(iLoop))
 			{

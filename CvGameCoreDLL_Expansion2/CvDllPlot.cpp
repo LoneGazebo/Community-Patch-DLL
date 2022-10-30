@@ -25,8 +25,8 @@ CvDllPlot::~CvDllPlot()
 //------------------------------------------------------------------------------
 void* CvDllPlot::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvPlot1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvPlot1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -280,13 +280,13 @@ bool CvDllPlot::IsRoutePillaged() const
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlot::GetPlotCity() const
 {
-	CvCity* pkCity = m_pPlot ? m_pPlot->getPlotCity() : NULL;
+	CvCity* pkCity = m_pPlot != 0 ? m_pPlot->getPlotCity() : NULL;
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlot::GetWorkingCity() const
 {
-	CvCity* pkCity = m_pPlot ? m_pPlot->getEffectiveOwningCity() : NULL;
+	CvCity* pkCity = m_pPlot != 0 ? m_pPlot->getEffectiveOwningCity() : NULL;
 	return (NULL != pkCity)? new CvDllCity(pkCity) : NULL;
 }
 //------------------------------------------------------------------------------

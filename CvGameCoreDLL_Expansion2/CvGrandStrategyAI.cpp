@@ -51,7 +51,7 @@ int CvAIGrandStrategyXMLEntry::GetFlavorValue(int i) const
 {
 	FAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	FAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : -1;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
@@ -59,7 +59,7 @@ int CvAIGrandStrategyXMLEntry::GetSpecializationBoost(YieldTypes eYield) const
 {
 	FAssertMsg(eYield < NUM_YIELD_TYPES, "Index out of bounds");
 	FAssertMsg(eYield > -1, "Index out of bounds");
-	return m_piSpecializationBoost ? m_piSpecializationBoost[(int)eYield] : 0;
+	return m_piSpecializationBoost != 0 ? m_piSpecializationBoost[(int)eYield] : 0;
 }
 
 /// What Flavors will be added by adopting this Grand Strategy?
@@ -67,7 +67,7 @@ int CvAIGrandStrategyXMLEntry::GetFlavorModValue(int i) const
 {
 	FAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	FAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorModValue ? m_piFlavorModValue[i] : 0;
+	return m_piFlavorModValue != 0 ? m_piFlavorModValue[i] : 0;
 }
 
 
@@ -608,7 +608,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if (pkPolicyInfo)
+		if (pkPolicyInfo != 0)
 		{
 			if (GetPlayer()->GetPlayerPolicies()->HasPolicy(ePolicy) && !GetPlayer()->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
@@ -701,7 +701,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 				if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if (pkLoopBuilding)
+					if (pkLoopBuilding != 0)
 					{
 						for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
@@ -730,7 +730,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if (pReligion)
+		if (pReligion != 0)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
@@ -903,7 +903,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	{
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if(pkPolicyInfo != 0)
 		{
 			if(GetPlayer()->GetPlayerPolicies()->HasPolicy(ePolicy) && !GetPlayer()->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
@@ -944,7 +944,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					if(pkLoopBuilding != 0)
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
@@ -977,7 +977,7 @@ int CvGrandStrategyAI::GetCulturePriority()
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if (pReligion)
+		if (pReligion != 0)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
@@ -1000,9 +1000,9 @@ int CvGrandStrategyAI::GetCulturePriority()
 							continue;
 
 						CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-						if(pkLoopBuilding)
+						if(pkLoopBuilding != 0)
 						{
-							if(pEntry->GetBuildingClassTourism(pkLoopBuilding->GetBuildingClassType()))
+							if(pEntry->GetBuildingClassTourism(pkLoopBuilding->GetBuildingClassType()) != 0)
 							{
 								iPriorityBonus += 100;
 								break;
@@ -1101,7 +1101,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	{
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if(pkPolicyInfo != 0)
 		{
 			if(GetPlayer()->GetPlayerPolicies()->HasPolicy(ePolicy) && !GetPlayer()->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
@@ -1142,7 +1142,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					if(pkLoopBuilding != 0)
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
@@ -1175,7 +1175,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if (pReligion)
+		if (pReligion != 0)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
@@ -1186,7 +1186,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 				CvBeliefEntry* pEntry = pkBeliefs->GetEntry(eBelief);
 				if (pEntry && pReligion->m_Beliefs.HasBelief(eBelief) && pReligion->m_Beliefs.IsBeliefValid(eBelief, eReligion, m_pPlayer->GetID(), pHolyCity))
 				{
-					if(pEntry->GetExtraVotes())
+					if(pEntry->GetExtraVotes() != 0)
 					{
 						iPriorityBonus += pEntry->GetExtraVotes();
 					}
@@ -1437,7 +1437,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	{
 		const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if(pkPolicyInfo != 0)
 		{
 			if(GetPlayer()->GetPlayerPolicies()->HasPolicy(ePolicy) && !GetPlayer()->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
@@ -1478,7 +1478,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuildingLoop) > 0)
 				{
 					CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-					if(pkLoopBuilding)
+					if(pkLoopBuilding != 0)
 					{
 						for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 						{
@@ -1511,7 +1511,7 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	if (eReligion != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
-		if (pReligion)
+		if (pReligion != 0)
 		{
 			CvCity* pHolyCity = pReligion->GetHolyCity();
 			CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
@@ -1861,7 +1861,7 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 		return false;
 
 	pGrandStrategy = GetAIGrandStrategies()->GetEntry((int)eGrandStrategy);
-	if(pGrandStrategy)
+	if(pGrandStrategy != 0)
 	{
 		strGrandStrategyName = (CvString) pGrandStrategy->GetType();
 		if(strGrandStrategyName == "AIGRANDSTRATEGY_CONQUEST")

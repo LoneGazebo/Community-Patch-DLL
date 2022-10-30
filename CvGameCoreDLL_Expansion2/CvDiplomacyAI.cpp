@@ -721,7 +721,7 @@ void CvDiplomacyAI::update()
 				m_aGreetPlayers.erase(itr);
 
 				const char* szText = GetDiploStringForMessage(DIPLO_MESSAGE_INTRO);
-				if (szText)
+				if (szText != 0)
 				{
 					CvDiplomacyRequests::SendRequest(GetID(), eActivePlayer, DIPLO_UI_STATE_DEFAULT_ROOT, szText, LEADERHEAD_ANIM_INTRO);
 				}
@@ -1473,7 +1473,7 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 		if (leader != NO_LEADER)
 		{
 			CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
-			if (pkLeaderHeadInfo)
+			if (pkLeaderHeadInfo != 0)
 			{
 				int ID = (int) GetID();
 				int iSeed = ID * ID * ID;
@@ -1599,7 +1599,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	if (leader != NO_LEADER)
 	{
 		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
-		if (pkLeaderHeadInfo)
+		if (pkLeaderHeadInfo != 0)
 		{
 			ePrimaryVictory = pkLeaderHeadInfo->GetPrimaryVictoryPursuit();
 			eSecondaryVictory = pkLeaderHeadInfo->GetSecondaryVictoryPursuit();
@@ -2885,7 +2885,7 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 int CvDiplomacyAI::GetDiplomaticVictoryProgress() const
 {
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague || !m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_LEAGUES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)) || GC.getGame().IsGameWon())
+	if ((pLeague == 0) || !m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive() || GC.getGame().isOption(GAMEOPTION_NO_LEAGUES) || !GC.getGame().isVictoryValid((VictoryTypes)GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true)) || GC.getGame().IsGameWon())
 	{
 		return 0;
 	}
@@ -2942,7 +2942,7 @@ int CvDiplomacyAI::GetScienceVictoryProgress() const
 	{
 		const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
 		CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-		if (pkProjectInfo)
+		if (pkProjectInfo != 0)
 		{
 			iProjectsRequired += pkProjectInfo->GetVictoryMinThreshold(eSpaceVictory);
 			iProjectsCompleted += GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eProject);
@@ -3775,7 +3775,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 					PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
 					CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
 					CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
-					if (iCurPlayer != ePlayer && iCurPlayer != GetID() && pNotifications)
+					if (iCurPlayer != ePlayer && iCurPlayer != GetID() && (pNotifications != 0))
 					{
 						const char* strThisPlayerName = NULL;
 						const char* strOtherPlayerName = NULL;
@@ -3820,7 +3820,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 					GET_PLAYER(eThirdParty).GetDiplomacyAI()->ChangeRecentAssistValue(GetID(), 300);
 
 					CvNotifications* pNotify = GetPlayer()->GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF");
@@ -3829,7 +3829,7 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
 					pNotify = GET_PLAYER(eThirdParty).GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_DOF");
@@ -4834,7 +4834,7 @@ void CvDiplomacyAI::SetDoFBroken(PlayerTypes ePlayer, bool bValue, bool bSkipTra
 				PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
 				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
 				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
-				if (iCurPlayer != ePlayer && iCurPlayer !=GetID() && pNotifications)
+				if (iCurPlayer != ePlayer && iCurPlayer !=GetID() && (pNotifications != 0))
 				{
 					const char* strThisPlayerName = NULL;
 					const char* strOtherPlayerName = NULL;
@@ -5293,13 +5293,13 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 	int iMinDistance = INT_MAX;
 
 	CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
-	if (!pTheirCapital || !pTheirCapital->plot())
+	if ((pTheirCapital == 0) || (pTheirCapital->plot() == 0))
 		return AGGRESSIVE_POSTURE_NONE;
 
 	for (CvCity* pOtherCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pOtherCity != NULL; pOtherCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 	{
 		CvPlot* pCityPlot = pOtherCity->plot();
-		if (!pCityPlot)
+		if (pCityPlot == 0)
 			continue;
 
 		// Ignore their capital
@@ -5321,7 +5321,7 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 		for (CvCity* pOurLoopCity = m_pPlayer->firstCity(&iCityLoop2); pOurLoopCity != NULL; pOurLoopCity = m_pPlayer->nextCity(&iCityLoop2))
 		{
 			CvPlot* pOurCityPlot = pOurLoopCity->plot();
-			if (!pOurCityPlot)
+			if (pOurCityPlot == 0)
 				continue;
 
 			// If we acquired our city after they founded theirs, they're not being aggressive
@@ -8989,7 +8989,7 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 				else
 				{
 					CvNotifications* pNotify = GetPlayer()->GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -8998,7 +8998,7 @@ void CvDiplomacyAI::DoUpdateCoopWarStates()
 						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
 					pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -9069,7 +9069,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 		else
 		{
 			CvNotifications* pNotify = GetPlayer()->GetNotifications();
-			if (pNotify)
+			if (pNotify != 0)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -9078,7 +9078,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 				pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 			pNotify = GET_PLAYER(eAllyPlayer).GetNotifications();
-			if (pNotify)
+			if (pNotify != 0)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -9094,7 +9094,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 	else
 	{
 		CvNotifications* pNotify = GetPlayer()->GetNotifications();
-		if (pNotify)
+		if (pNotify != 0)
 		{
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -9103,7 +9103,7 @@ void CvDiplomacyAI::DoStartCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetP
 			pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 		}
 		pNotify = GET_PLAYER(eAllyPlayer).GetNotifications();
-		if (pNotify)
+		if (pNotify != 0)
 		{
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -10135,9 +10135,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					iNumOurCitiesInDanger++;
 					iDangerMod++;
 
-					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
-					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
 					if (pLoopCity->isUnderSiege())
@@ -10163,11 +10163,11 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else
 				{
-					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					{
 						iNumOurCitiesInDanger++;
 					}
-					else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					else if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					{
 						iNumOurCitiesInDanger++;
 					}
@@ -10204,9 +10204,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					iNumTheirCitiesInDanger++;
 					iDangerMod++;
 					
-					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
-					if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 						iDangerMod++;
 
 					if (pLoopCity->isInDangerOfFalling(true) || pLoopCity->isUnderSiege())
@@ -10224,11 +10224,11 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else if (pLoopCity->isRevealed(GetTeam(), false, true))
 				{
-					if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					if ((pLandZone != 0) && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					{
 						iNumTheirCitiesInDanger++;
 					}
-					else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
+					else if ((pWaterZone != 0) && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 					{
 						iNumTheirCitiesInDanger++;
 					}
@@ -10374,7 +10374,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 
 					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
+					if ((pCapital != 0) && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
@@ -12019,7 +12019,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 		}
 
 		CvCity* pTheirCapital = GET_PLAYER(ePlayer).getCapitalCity();
-		if (!pTheirCapital || !pTheirCapital->plot())
+		if ((pTheirCapital == 0) || (pTheirCapital->plot() == 0))
 			continue;
 
 		bool bFoundOne = false;
@@ -12027,7 +12027,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
-			if (!pCityPlot)
+			if (pCityPlot == 0)
 				continue;
 
 			// Ignore their capital
@@ -12062,7 +12062,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 			for (CvCity* pOurLoopCity = GetPlayer()->firstCity(&iLoop2); pOurLoopCity != NULL; pOurLoopCity = GetPlayer()->nextCity(&iLoop2))
 			{
 				CvPlot* pOurCityPlot = pOurLoopCity->plot();
-				if (!pOurCityPlot)
+				if (pOurCityPlot == 0)
 					continue;
 
 				// If we acquired our city after they founded theirs, they're not being aggressive
@@ -12700,7 +12700,7 @@ void CvDiplomacyAI::DoTestPromises()
 					SetPlayerExpansionPromiseState(eLoopPlayer, NO_PROMISE_STATE);
 
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED", GET_PLAYER(GetID()).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_EXPANSION_PROMISE_EXPIRED_S");
@@ -12747,7 +12747,7 @@ void CvDiplomacyAI::DoTestPromises()
 					SetPlayerBorderPromiseState(eLoopPlayer, NO_PROMISE_STATE);
 
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BORDER_PROMISE_EXPIRED", GET_PLAYER(GetID()).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_BORDER_PROMISE_EXPIRED_S");
@@ -16315,7 +16315,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// No? Then our diplomacy is glad for it.
-		else if (pLeague && !bUntrustworthy && (IsGoingForDiploVictory() || !bProvokedUs))
+		else if ((pLeague != 0) && !bUntrustworthy && (IsGoingForDiploVictory() || !bProvokedUs))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 		}
@@ -20085,7 +20085,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// SANCTIONED - Less FRIENDLY
 	////////////////////////////////////
 
-	if (pLeague && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
+	if ((pLeague != 0) && pLeague->IsTradeEmbargoed(eMyPlayer, ePlayer))
 	{
 		// Did they participate in sanctioning us or vice versa?
 		if (HasEverSanctionedUs(ePlayer) || HasTriedToSanctionUs(ePlayer) || pTheirDiplo->HasEverSanctionedUs(eMyPlayer) || pTheirDiplo->HasTriedToSanctionUs(eMyPlayer))
@@ -22263,7 +22263,7 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 
 	PlayerTypes ePrimeLeagueAlly = NO_PLAYER;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (!pLeague)
+	if (pLeague == 0)
 	{
 		SetPrimeLeagueAlly(NO_PLAYER);
 		return;
@@ -22520,7 +22520,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 
 	// Sanctioned?
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
+	if ((pLeague != 0) && pLeague->IsTradeEmbargoed(GetID(), ePlayer))
 		return false;
 
 	// Did we just meet them? Let's not make a DP quite yet.
@@ -24206,7 +24206,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 				if (IsAtWar(eLoopPlayer) || GetCivApproach(eLoopPlayer) == CIV_APPROACH_WAR)
 				{
 					CvCity* pkLoopPlayerCity = GET_PLAYER(eLoopPlayer).getCapitalCity();
-					if (pkLoopPlayerCity) // It's possible this is not valid
+					if (pkLoopPlayerCity != 0) // It's possible this is not valid
 					{
 						// All of us neighbors on same landmass?
 						if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS && GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_NEIGHBORS)
@@ -24516,7 +24516,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 			{
 				CvPlot* pCityPlot = pLoopCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
 
-				if (pCityPlot && pCityPlot->getOwner() == ePlayer && pCityPlot->IsImprovementEmbassy())
+				if ((pCityPlot != 0) && pCityPlot->getOwner() == ePlayer && pCityPlot->IsImprovementEmbassy())
 				{
 					if (GET_PLAYER(pCityPlot->GetPlayerThatBuiltImprovement()).getTeam() == GetTeam())
 					{
@@ -24636,7 +24636,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	bool bLog = bMyTurn && GC.getLogging() && GC.getAILogging(); // Only log this once per turn to prevent log spam
 	int iLoop = 0;
 
-	if (!pCapital || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
+	if ((pCapital == 0) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -26884,7 +26884,7 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			//hmm, seems we changed our mind. abort the operation if it's still ongoing
 			CvAIOperation* pCurrentSneakAttackOperation = GetPlayer()->getFirstOffensiveAIOperation(eTargetPlayer);
-			if (pCurrentSneakAttackOperation)
+			if (pCurrentSneakAttackOperation != 0)
 			{
 				pCurrentSneakAttackOperation->LogOperationSpecialMessage("War goal changed, probably another war is more important");
 				pCurrentSneakAttackOperation->SetToAbort(AI_ABORT_DIPLO_OPINION_CHANGE);
@@ -27115,7 +27115,7 @@ void CvDiplomacyAI::DoCounters()
 					SetDenouncedPlayer(eLoopPlayer, false);
 
 					// Notify the target of the denouncement that it has expired.
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
 						Localization::String	strInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED");
@@ -27132,7 +27132,7 @@ void CvDiplomacyAI::DoCounters()
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), false);
 
 					// Notify both parties that our friendship has expired.
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(GetID()).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
@@ -27140,7 +27140,7 @@ void CvDiplomacyAI::DoCounters()
 					}
 
 					pNotifications = GET_PLAYER(GetID()).GetNotifications();
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
 						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
@@ -27245,7 +27245,7 @@ bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWe
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if(pkResourceInfo)
+		if(pkResourceInfo != 0)
 		{
 			// Only look at Luxuries
 			if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -27274,7 +27274,7 @@ bool CvDiplomacyAI::IsLuxuryRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWe
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if(pkResource)
+		if(pkResource != 0)
 		{
 			// Only look at Luxuries
 			if(pkResource->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -28762,7 +28762,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 							if(GC.getGame().isFinalInitialized())
 							{
 								CvNotifications* pNotifications = kTargetPlayer.GetNotifications();
-								if(pNotifications)
+								if(pNotifications != 0)
 								{
 									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GetPlayer()->getNameKey());
 									pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strBuffer, -1, -1, GetID());
@@ -30356,7 +30356,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	{
 		IntrigueNotificationMessage* pNotificationMessage = GetPlayer()->GetEspionage()->GetRecentIntrigueInfo(ePlayer);
 		CvAssertMsg(pNotificationMessage, "pNotificationMessage is null. Whut?");
-		if (pNotificationMessage)
+		if (pNotificationMessage != 0)
 		{
 			CvAssertMsg(pNotificationMessage->m_eSourcePlayer != NO_PLAYER, "There is no plotter! What's going on");
 			PlayerTypes ePlotterPlayer = pNotificationMessage->m_eSourcePlayer;
@@ -30368,7 +30368,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				if(pNotificationMessage->m_iCityX != -1 && pNotificationMessage->m_iCityY != -1)
 				{
 					CvPlot* pPlot = GC.getMap().plot(pNotificationMessage->m_iCityX, pNotificationMessage->m_iCityY);
-					if(pPlot)
+					if(pPlot != 0)
 					{
 						pCity = pPlot->getPlotCity();
 					}
@@ -30394,7 +30394,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					switch(eIntrigueType)
 					{
 					case INTRIGUE_TYPE_ARMY_SNEAK_ATTACK:
-						if(pCity)
+						if(pCity != 0)
 						{
 							szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_KNOWN_CITY, NO_PLAYER, szPlayerName, pCity->getNameKey());
 						}
@@ -30404,7 +30404,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						}
 						break;
 					case INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK:
-						if(pCity)
+						if(pCity != 0)
 						{
 							szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_KNOWN_CITY, NO_PLAYER, szPlayerName, pCity->getNameKey());
 						}
@@ -31320,7 +31320,7 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 			if(IsPlayerValid(eCurPlayer) 
 				&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kCurPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){
 				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
-				if(pNotifications){
+				if(pNotifications != 0){
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
 					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
@@ -31335,7 +31335,7 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 		if(IsPlayerValid(eForSpecificPlayer) 
 			&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kSpecificPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){	
 			CvNotifications* pNotifications = kSpecificPlayer.GetNotifications();
-			if(pNotifications){
+			if(pNotifications != 0){
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
 				strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
 				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
@@ -31902,7 +31902,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		bWantsToBullyGold = true;
 		bWantsToMakeGoldGift = false;
 	}
-	else if (GetPlayer()->GetBullyGlobalCSReduction())
+	else if (GetPlayer()->GetBullyGlobalCSReduction() != 0)
 	{
 		bWantsToBullyUnit = true;
 		bWantsToBullyGold = true;
@@ -31966,7 +31966,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					CvArea* pMinorArea = pMinorCapital->plot()->area();
 					bool bPresenceInArea = false;
 					int iMajorCapitalsInArea = 0;
-					if(pMinorArea)
+					if(pMinorArea != 0)
 					{
 						// Do we have a city here?
 						if(pMinorArea->getCitiesPerPlayer(eID) > 0)
@@ -31982,7 +31982,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 							if(GET_PLAYER(eMajorRivalLoop).isAlive())
 							{
 								CvCity* pCapital = GET_PLAYER(eMajorRivalLoop).getCapitalCity();
-								if(pCapital && pCapital->plot())
+								if((pCapital != 0) && (pCapital->plot() != 0))
 								{
 									CvPlot* pPlot = pCapital->plot();
 									if(pPlot->isVisible(GetTeam()))
@@ -32166,7 +32166,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					}
 
 					// having traits that give us bonuses also make us want to spend gold
-					if (m_pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() > 0 || m_pPlayer->GetPlayerTraits()->GetCityStateBonusModifier())
+					if (m_pPlayer->GetPlayerTraits()->GetCityStateFriendshipModifier() > 0 || (m_pPlayer->GetPlayerTraits()->GetCityStateBonusModifier() != 0))
 					{
 						iValue += /*100*/ GD_INT_GET(MC_GIFT_WEIGHT_DIPLO_VICTORY);
 					}
@@ -33292,7 +33292,7 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		IntrigueNotificationMessage* pNotificationMessage = m_pPlayer->GetEspionage()->GetRecentIntrigueInfo(ePlayer);
-		if (pNotificationMessage)
+		if (pNotificationMessage != 0)
 		{
 			// if this player has an untold plot against a player
 			if(pNotificationMessage->m_eSourcePlayer != NO_PLAYER)
@@ -38106,7 +38106,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 
 		CvPlayer* pMinor = &GET_PLAYER(eMinor);
 		CvAssertMsg(pMinor, "Error triggering gameplay effects for diplomacy event involving a Protected city-state. Please send Anton your save file and version.");
-		if (!pMinor)
+		if (pMinor == 0)
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
@@ -38284,7 +38284,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		
 		CvPlayer* pMinor = &GET_PLAYER(eMinor);
 		CvAssertMsg(pMinor, "Error triggering gameplay effects for breaking a Pledge to Protect a city-state. Please send Anton your save file and version.");
-		if (!pMinor)
+		if (pMinor == 0)
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
@@ -41985,7 +41985,7 @@ void CvDiplomacyAI::CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotif
 			if (bNotify && GetCoopWarState(eThirdParty, ePlayer) == COOP_WAR_STATE_PREPARING)
 			{
 				CvNotifications* pNotify = GetPlayer()->GetNotifications();
-				if (pNotify)
+				if (pNotify != 0)
 				{
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -41994,7 +41994,7 @@ void CvDiplomacyAI::CancelCoopWarsAgainstPlayer(PlayerTypes ePlayer, bool bNotif
 					pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 				}
 				pNotify = GET_PLAYER(eThirdParty).GetNotifications();
-				if (pNotify)
+				if (pNotify != 0)
 				{
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_INVALID_TARGET");
@@ -42031,7 +42031,7 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 				if (!bNotified)
 				{
 					CvNotifications* pNotify = GetPlayer()->GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION");
@@ -42039,7 +42039,7 @@ void CvDiplomacyAI::CancelCoopWarsWithPlayer(PlayerTypes ePlayer, bool bPenalty)
 						pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 					}
 					pNotify = GET_PLAYER(ePlayer).GetNotifications();
-					if (pNotify)
+					if (pNotify != 0)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION");
@@ -42071,7 +42071,7 @@ void CvDiplomacyAI::CancelAllCoopWars()
 		{
 			PlayerTypes eThirdParty = (PlayerTypes) iThirdPartyLoop;
 
-			if (pNotify && !bNotified && GetCoopWarState(eLoopPlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
+			if ((pNotify != 0) && !bNotified && GetCoopWarState(eLoopPlayer, eThirdParty) == COOP_WAR_STATE_PREPARING)
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_S");
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_ELIMINATED");
@@ -43339,7 +43339,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
 		CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
 		CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			const char* strThisPlayerName = NULL;
 			const char* strOtherPlayerName = NULL;
@@ -43739,7 +43739,7 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if (pMinor && pMinorCivAI)
+				if ((pMinor != 0) && (pMinorCivAI != 0))
 				{
 					if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) && pMinorCivAI->GetQuestData1(GetID(), MINOR_CIV_QUEST_DENOUNCE_MAJOR) == ePlayer)
 					{
@@ -46569,7 +46569,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 			else
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eTheirStateReligion, NO_PLAYER);
-				if (!pReligion)
+				if (pReligion == 0)
 					return 0;
 
 				// If the religion's founder is our teammate, don't apply a penalty if that teammate is still alive.
@@ -47974,7 +47974,7 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 		{
 			CvDiploModifierInfo* pDiploModifierInfo = GC.getDiploModifierInfo((DiploModifierTypes) iI);
 			
-			if (pDiploModifierInfo && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) 
+			if ((pDiploModifierInfo != 0) && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) 
 			{
 				iModifier = 0;
 				
@@ -48007,7 +48007,7 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 int CvDiplomacyAI::GetScenarioModifier1(PlayerTypes ePlayer)
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(GetID());
@@ -48026,7 +48026,7 @@ int CvDiplomacyAI::GetScenarioModifier1(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetScenarioModifier2(PlayerTypes ePlayer)
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(GetID());
@@ -48045,7 +48045,7 @@ int CvDiplomacyAI::GetScenarioModifier2(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(GetID());
@@ -48069,7 +48069,7 @@ int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 /// Are we *actively* trying and wanting to liberate a city?
 bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiberate)
 {
-	if (!pCity)
+	if (pCity == 0)
 		return false;
 
 	if (ePlayerToLiberate == NO_PLAYER)
@@ -48133,7 +48133,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if (pMinor && pMinorCivAI)
+				if ((pMinor != 0) && (pMinorCivAI != 0))
 				{
 					if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_LIBERATION))
 					{
@@ -48177,7 +48177,7 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 /// Only used for CvPlayerAI::AI_conquerCity()
 bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayerToLiberate)
 {
-	if (!pCity)
+	if (pCity == 0)
 		return false;
 
 	if (ePlayerToLiberate == NO_PLAYER)
@@ -48346,7 +48346,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot /* = NULL */)
 {
 	// Failsafe
-	if (!pPlot && (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT))
+	if ((pPlot == 0) && (eTheftType == THEFT_TYPE_TRADE_ROUTE || eTheftType == THEFT_TYPE_PLOT))
 		return true;
 
 	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER || ePlayer == GetID() || !GET_PLAYER(ePlayer).isAlive())
@@ -49724,7 +49724,7 @@ int CvDiplomacyAI::GetEstimatePlayerFlavorValue(PlayerTypes ePlayer, FlavorTypes
 	if (leader != NO_LEADER)
 	{
 		CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
-		if (pkLeaderHeadInfo)
+		if (pkLeaderHeadInfo != 0)
 		{
 			iRtnValue = pkLeaderHeadInfo->getFlavorValue((int)eFlavor);
 		}
@@ -51889,7 +51889,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 	{
 		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
-		if(pOperation)
+		if(pOperation != 0)
 		{
 			bShowOperationProgress = true;
 			int iOperationPercentMustered = pOperation->PercentFromMusterPointToTarget();
@@ -51909,7 +51909,7 @@ void CvDiplomacyAI::LogWarState(CvString& strString, PlayerTypes ePlayer)
 	{
 		CvAIOperation* pOperation = GetPlayer()->getFirstOffensiveAIOperation(ePlayer);
 
-		if(pOperation)
+		if(pOperation != 0)
 		{
 			bShowOperationProgress = true;
 			int iOperationPercentMustered = pOperation->PercentFromMusterPointToTarget();
@@ -52938,7 +52938,7 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 			}
 		}
 	}
-	else if (pLeague && GC.getGame().GetGameLeagues()->IsCityStateEmbargo(eObserver))
+	else if ((pLeague != 0) && GC.getGame().GetGameLeagues()->IsCityStateEmbargo(eObserver))
 	{
 		bSanctioned = true;
 	}
@@ -52946,7 +52946,7 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 	iWarmongerValue *= max(0, 100 + iWarmongerStrengthModifier);
 	iWarmongerValue /= 100;
 
-	if (pLeague)
+	if (pLeague != 0)
 	{
 		// DECREASE if opponent is sanctioned.
 		if (bSanctioned && MOD_BALANCE_VP)
@@ -52976,7 +52976,7 @@ int CvDiplomacyAIHelpers::GetWarmongerTriggerPenalty(PlayerTypes eWarmonger, Tea
 
 void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eConqueror, PlayerTypes eCityOwner)
 {
-	if (!pCity || eConqueror == NO_PLAYER || !GET_PLAYER(eConqueror).isMajorCiv() || eCityOwner == NO_PLAYER || GET_PLAYER(eCityOwner).isBarbarian())
+	if ((pCity == 0) || eConqueror == NO_PLAYER || !GET_PLAYER(eConqueror).isMajorCiv() || eCityOwner == NO_PLAYER || GET_PLAYER(eCityOwner).isBarbarian())
 		return;
 
 	for (int iObservingMajorLoop = 0; iObservingMajorLoop < MAX_MAJOR_CIVS; iObservingMajorLoop++)
@@ -52998,7 +52998,7 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eC
 
 void CvDiplomacyAIHelpers::ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLiberator, PlayerTypes eNewOwner)
 {
-	if (!pCity || eLiberator == NO_PLAYER || !GET_PLAYER(eLiberator).isMajorCiv() || eNewOwner == NO_PLAYER || GET_PLAYER(eNewOwner).isBarbarian())
+	if ((pCity == 0) || eLiberator == NO_PLAYER || !GET_PLAYER(eLiberator).isMajorCiv() || eNewOwner == NO_PLAYER || GET_PLAYER(eNewOwner).isBarbarian())
 		return;
 
 	for (int iObservingMajorLoop = 0; iObservingMajorLoop < MAX_MAJOR_CIVS; iObservingMajorLoop++)
@@ -53405,7 +53405,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	// ////////////////////////////////////
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague)
+	if (pLeague != 0)
 	{
 		// Sanctioned player? Worth half.
 		if (MOD_BALANCE_VP && pLeague->IsTradeEmbargoed(eObserver, eCityOwner) && !bHisLossIsOurOwn)
@@ -53814,7 +53814,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	// ////////////////////////////////////
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if (pLeague)
+	if (pLeague != 0)
 	{
 		// Sanctioned player? Worth half.
 		if (MOD_BALANCE_VP && pLeague->IsTradeEmbargoed(eObserver, eNewOwner) && !bHisGainIsOurOwn)
@@ -56294,7 +56294,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if(pkResource)
+		if(pkResource != 0)
 		{
 			// Only look at Luxuries
 			if(pkResource->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -56323,7 +56323,7 @@ bool CvDiplomacyAI::IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if(pkResourceInfo)
+		if(pkResourceInfo != 0)
 		{
 			// Only look at Luxuries
 			if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)

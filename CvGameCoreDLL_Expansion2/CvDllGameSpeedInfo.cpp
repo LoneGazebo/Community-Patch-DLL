@@ -22,8 +22,8 @@ CvDllGameSpeedInfo::~CvDllGameSpeedInfo()
 //------------------------------------------------------------------------------
 void* CvDllGameSpeedInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvGameSpeedInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvGameSpeedInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

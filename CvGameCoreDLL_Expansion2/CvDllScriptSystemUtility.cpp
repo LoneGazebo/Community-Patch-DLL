@@ -34,8 +34,8 @@ CvDllScriptSystemUtility::~CvDllScriptSystemUtility()
 //------------------------------------------------------------------------------
 void* CvDllScriptSystemUtility::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvScriptSystemUtility1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvScriptSystemUtility1::GetInterfaceId()) != 0))
 	{
 		return this;
 	}
@@ -142,7 +142,7 @@ ICvUnit1* CvDllScriptSystemUtility::GetCvUnitInstance(lua_State* L, int index, b
 void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& stream)
 {
 	CvReplayInfo* pkReplay = FNEW(CvReplayInfo(), c_eMPoolTypeGame, 0);
-	if(pkReplay)
+	if(pkReplay != 0)
 	{
 		if(!pkReplay->read(stream))
 		{
@@ -151,7 +151,7 @@ void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& s
 		}
 	}
 
-	if(pkReplay)
+	if(pkReplay != 0)
 	{
 		lua_createtable(L, 0, 0);
 		const int t = lua_gettop(L);
@@ -335,13 +335,13 @@ void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& s
 						lua_pushinteger(L, plotState.m_eFeature);
 						lua_setfield(L, -2, "FeatureType");
 
-						lua_pushinteger(L, plotState.m_bNEOfRiver);
+						lua_pushinteger(L, static_cast<lua_Integer>(plotState.m_bNEOfRiver));
 						lua_setfield(L, -2, "NEOfRiver");
 
-						lua_pushinteger(L, plotState.m_bWOfRiver);
+						lua_pushinteger(L, static_cast<lua_Integer>(plotState.m_bWOfRiver));
 						lua_setfield(L, -2, "WOfRiver");
 
-						lua_pushinteger(L, plotState.m_bNWOfRiver);
+						lua_pushinteger(L, static_cast<lua_Integer>(plotState.m_bNWOfRiver));
 						lua_setfield(L, -2, "NWOfRiver");
 
 						lua_rawseti(L, -2, i);

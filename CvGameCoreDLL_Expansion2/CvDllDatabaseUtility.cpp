@@ -62,8 +62,8 @@ CvDllDatabaseUtility::~CvDllDatabaseUtility()
 //------------------------------------------------------------------------------
 void* CvDllDatabaseUtility::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvDLLDatabaseUtility1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvDLLDatabaseUtility1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -157,7 +157,7 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 					const int rowid = kTypes.GetInt("ID");
 					const char* szType = kTypes.GetText("Type");
-					if(szType)
+					if(szType != 0)
 						GC.setInfoTypeFromString(szType, rowid);
 				}
 			}
@@ -746,7 +746,7 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 	for(int i = 0; i < GC.getNumCivilizationInfos(); ++i)
 	{
 		CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo((CivilizationTypes) i);
-		if(pkCivilization)
+		if(pkCivilization != 0)
 		{
 			if(pkCivilization->isPlayable())
 				numPlayableCivilizations++;
@@ -848,7 +848,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<NUM_COMMAND_TYPES; i++)
 	{
 		CvCommandInfo* commandInfo = GC.getCommandInfo((CommandTypes)i);
-		if(commandInfo)
+		if(commandInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = commandInfo->getOrderPriority();
@@ -860,7 +860,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<NUM_INTERFACEMODE_TYPES; i++)
 	{
 		CvInterfaceModeInfo* interfaceInfo = GC.getInterfaceModeInfo((InterfaceModeTypes)i);
-		if(interfaceInfo)
+		if(interfaceInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = interfaceInfo->getOrderPriority();
@@ -872,7 +872,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<GC.getNumBuildInfos(); i++)
 	{
 		CvBuildInfo* buildInfo = GC.getBuildInfo((BuildTypes)i);
-		if(buildInfo)
+		if(buildInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = buildInfo->getOrderPriority();
@@ -884,7 +884,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<GC.getNumPromotionInfos(); i++)
 	{
 		CvPromotionEntry* promotionEntry = GC.getPromotionInfo((PromotionTypes)i);
-		if(promotionEntry)
+		if(promotionEntry != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = promotionEntry->getOrderPriority();
@@ -896,7 +896,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<GC.getNumSpecialistInfos(); i++)
 	{
 		CvSpecialistInfo* specialistInfo = GC.getSpecialistInfo((SpecialistTypes)i);
-		if(specialistInfo)
+		if(specialistInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = specialistInfo->getOrderPriority();
@@ -908,7 +908,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<NUM_CONTROL_TYPES; i++)
 	{
 		CvControlInfo* controlInfo = GC.getControlInfo((ControlTypes)i);
-		if(controlInfo)
+		if(controlInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = controlInfo->getOrderPriority();
@@ -920,7 +920,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<GC.getNumAutomateInfos(); i++)
 	{
 		CvAutomateInfo* automateInfo = GC.getAutomateInfo(i);
-		if(automateInfo)
+		if(automateInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = automateInfo->getOrderPriority();
@@ -932,7 +932,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 	for(i=0; i<iNumMissionTypes; i++)
 	{
 		CvMissionInfo* missionInfo = GC.getMissionInfo((MissionTypes)i);
-		if(missionInfo)
+		if(missionInfo != 0)
 		{
 			piIndexList[iTotalActionInfoCount] = i;
 			piPriorityList[iTotalActionInfoCount] = missionInfo->getOrderPriority();

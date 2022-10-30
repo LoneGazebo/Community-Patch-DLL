@@ -598,15 +598,15 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 	{
 		FlavorTypes eFlavor = (FlavorTypes)i;
 		int iFlavorValue = 0;
-		if(pBuilding)
+		if(pBuilding != 0)
 		{
 			iFlavorValue = pBuilding->GetFlavorValue(eFlavor);
 		}
-		else if(pUnit)
+		else if(pUnit != 0)
 		{
 			iFlavorValue = pUnit->GetFlavorValue(eFlavor);
 		}
-		else if(pProject)
+		else if(pProject != 0)
 		{
 			iFlavorValue = pProject->GetFlavorValue(eFlavor);
 		}

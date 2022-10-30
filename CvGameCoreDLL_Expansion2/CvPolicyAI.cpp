@@ -159,7 +159,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	{
 		const PolicyBranchTypes ePolicyBranch = static_cast<PolicyBranchTypes>(iBranchLoop);
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
-		if(pkPolicyBranchInfo)
+		if(pkPolicyBranchInfo != 0)
 		{
 			if(m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
 			{
@@ -177,7 +177,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		const PolicyBranchTypes ePolicyBranch2 = static_cast<PolicyBranchTypes>(iBranchLoop2);
 		CvPolicyBranchEntry* pkPolicyBranchInfo2 = GC.getPolicyBranchInfo(ePolicyBranch2);
 		// Do we already have a different policy branch unlocked?
-		if (pkPolicyBranchInfo2 && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
+		if ((pkPolicyBranchInfo2 != 0) && m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch2))
 		{
 			// Have we not finished it yet? If we can finish it, let's not open a new one.
 			if (!m_pCurrentPolicies->HasPolicy((PolicyTypes)pkPolicyBranchInfo2->GetFreeFinishingPolicy()) && CanContinuePolicyBranch(ePolicyBranch2))
@@ -195,7 +195,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		{
 			const PolicyBranchTypes ePolicyBranch = static_cast<PolicyBranchTypes>(iBranchLoop);
 			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
-			if(pkPolicyBranchInfo)
+			if(pkPolicyBranchInfo != 0)
 			{
 				if(bStartedAMutuallyExclusiveBranch && pkPolicyBranchInfo->IsMutuallyExclusive())
 				{
@@ -556,7 +556,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	for (int iPolicyBranchLoop = 0; iPolicyBranchLoop < GC.getNumPolicyBranchInfos(); iPolicyBranchLoop++)
 	{
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo((PolicyBranchTypes)iPolicyBranchLoop);
-		if (pkPolicyBranchInfo && pkPolicyBranchInfo->IsPurchaseByLevel())
+		if ((pkPolicyBranchInfo != 0) && pkPolicyBranchInfo->IsPurchaseByLevel())
 		{
 			int iWeight = WeighBranch(pPlayer, (PolicyBranchTypes)iPolicyBranchLoop) / 25;
 			if ((PolicyBranchTypes)iPolicyBranchLoop == eFreedomBranch)
@@ -682,7 +682,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(pPlayer->GetID());
@@ -859,7 +859,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if(pkPolicyInfo != 0)
 		{
 			if (pkPolicyInfo->GetPolicyBranchType() == eBranch)
 			{
@@ -868,7 +868,7 @@ int CvPolicyAI::GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes 
 					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
 
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if (!pkBuildingClassInfo)
+					if (pkBuildingClassInfo == 0)
 					{
 						continue;
 					}
@@ -919,7 +919,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
 		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-		if(pkPolicyInfo)
+		if(pkPolicyInfo != 0)
 		{
 			if (pkPolicyInfo->GetPolicyBranchType() == eBranch)
 			{
@@ -928,7 +928,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 					eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
 
 					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if (!pkBuildingClassInfo)
+					if (pkBuildingClassInfo == 0)
 					{
 						continue;
 					}
@@ -938,7 +938,7 @@ int CvPolicyAI::GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBr
 					{
 						// Don't count a building that can only be built in conquered cities
 						CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-						if (!pkEntry || pkEntry->IsNoOccupiedUnhappiness())
+						if ((pkEntry == 0) || pkEntry->IsNoOccupiedUnhappiness())
 						{
 							continue;
 						}
@@ -2332,13 +2332,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	if (PolicyInfo->GetNewCityFreeBuilding() != NO_BUILDINGCLASS)
 	{
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(PolicyInfo->GetNewCityFreeBuilding());
-		if (pkBuildingClassInfo)
+		if (pkBuildingClassInfo != 0)
 		{
 			const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetNewCityFreeBuilding())));
 			if (NO_BUILDING != eBuilding)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if (pkBuildingInfo)
+				if (pkBuildingInfo != 0)
 				{
 					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, true, true, true);
 					if (iValue > 0)
@@ -2365,7 +2365,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += 50;
 		}
 	}
-	if (PolicyInfo->GetBullyGlobalCSReduction())
+	if (PolicyInfo->GetBullyGlobalCSReduction() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsDiplomat())
 		{
@@ -2398,7 +2398,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += 25 * GET_TEAM(pPlayer->getTeam()).GetNumVassals();
 		}
 	}
-	if (PolicyInfo->GetVassalYieldBonusModifier() && GET_TEAM(pPlayer->getTeam()).GetNumVassals() > 0)
+	if ((PolicyInfo->GetVassalYieldBonusModifier() != 0) && GET_TEAM(pPlayer->getTeam()).GetNumVassals() > 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
@@ -2409,7 +2409,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += 10;
 		}
 	}
-	if (PolicyInfo->GetCSYieldBonusModifier() && pPlayer->GetNumCSAllies() > 0)
+	if ((PolicyInfo->GetCSYieldBonusModifier() != 0) && pPlayer->GetNumCSAllies() > 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
@@ -2530,7 +2530,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 25;
 		}
 	}
-	if (PolicyInfo->IsHalfSpecialistUnhappiness() != 0)
+	if (static_cast<int>(PolicyInfo->IsHalfSpecialistUnhappiness()) != 0)
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 		{
@@ -2541,7 +2541,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 50;
 		}
 	}
-	if (PolicyInfo->IsHalfSpecialistFood() != 0)
+	if (static_cast<int>(PolicyInfo->IsHalfSpecialistFood()) != 0)
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 		{
@@ -2552,7 +2552,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_FOOD] += 150;
 		}
 	}
-	if (PolicyInfo->IsHalfSpecialistFoodCapital() != 0)
+	if (static_cast<int>(PolicyInfo->IsHalfSpecialistFoodCapital()) != 0)
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism())
 		{
@@ -2796,7 +2796,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += 50;
 		}
 	}
-	if (PolicyInfo->GetNoUnhappinessExpansion() != 0)
+	if (static_cast<int>(PolicyInfo->GetNoUnhappinessExpansion()) != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
 		{
@@ -2821,10 +2821,10 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	if (PolicyInfo->GetFreeBuildingOnConquest() != NO_BUILDING)
 	{
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(PolicyInfo->GetFreeBuildingOnConquest());
-		if (pkBuildingInfo)
+		if (pkBuildingInfo != 0)
 		{
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(pkBuildingInfo->GetBuildingClassType());
-			if (pkBuildingClassInfo)
+			if (pkBuildingClassInfo != 0)
 			{
 				int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(PolicyInfo->GetFreeBuildingOnConquest(), 10, true, true, true);
 				if (iValue > 0)
@@ -3448,13 +3448,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		eBuildingClass = (BuildingClassTypes)iI;
 
 		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-		if (pkBuildingClassInfo)
+		if (pkBuildingClassInfo != 0)
 		{
 			const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 			if (NO_BUILDING != eBuilding)
 			{
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-				if (pkBuildingInfo && pkBuildingInfo->GetPolicyType() == ePolicy)
+				if ((pkBuildingInfo != 0) && pkBuildingInfo->GetPolicyType() == ePolicy)
 				{
 					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 10, true, true, true);
 					if (iValue > 0)
@@ -3495,7 +3495,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[YIELD_CULTURE] += PolicyInfo->GetBuildingClassCultureChange(eBuildingClass) * iNumCities;
 			}
 		}
-		if (PolicyInfo->GetBuildingClassHappiness(eBuildingClass))
+		if (PolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
@@ -3506,7 +3506,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[YIELD_FOOD] += PolicyInfo->GetBuildingClassHappiness(eBuildingClass) * iNumCities;
 			}
 		}
-		if (PolicyInfo->GetBuildingClassProductionModifier(eBuildingClass))
+		if (PolicyInfo->GetBuildingClassProductionModifier(eBuildingClass) != 0)
 		{
 			if (pPlayerTraits->IsExpansionist())
 			{
@@ -3517,7 +3517,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				yield[YIELD_PRODUCTION] += (PolicyInfo->GetBuildingClassProductionModifier(eBuildingClass) * iNumCities) / 25;
 			}
 		}
-		if (PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass))
+		if (PolicyInfo->GetBuildingClassTourismModifier(eBuildingClass) != 0)
 		{
 			if (pPlayerTraits->IsTourism())
 			{
@@ -3530,13 +3530,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 		if (PolicyInfo->GetFreeChosenBuilding(eBuildingClass) != 0) 
 		{
-			if (pkBuildingClassInfo)
+			if (pkBuildingClassInfo != 0)
 			{
 				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 				if (NO_BUILDING != eBuilding)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
+					if (pkBuildingInfo != 0)
 					{
 						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, (10 * PolicyInfo->GetFreeChosenBuilding(eBuildingClass)), true, true, true);
 						if (iValue > 0)
@@ -3560,13 +3560,13 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		}
 		if (PolicyInfo->GetAllCityFreeBuilding() == eBuildingClass)
 		{
-			if (pkBuildingClassInfo)
+			if (pkBuildingClassInfo != 0)
 			{
 				const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(PolicyInfo->GetAllCityFreeBuilding())));
 				if (NO_BUILDING != eBuilding)
 				{
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
+					if (pkBuildingInfo != 0)
 					{
 						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, 15, true, true, true);
 						if (iValue > 0)
@@ -3639,12 +3639,12 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		eUnitClass = (UnitClassTypes)iI;
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if (!pkUnitClassInfo)
+		if (pkUnitClassInfo == 0)
 			continue;
 		
 		const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 		CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-		if (!pUnitEntry)
+		if (pUnitEntry == 0)
 			continue;
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0;
 		if (PolicyInfo->GetUnitClassProductionModifiers(eUnitClass) != 0)
@@ -3687,14 +3687,14 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 		if (pPlayer->getCapitalCity() != NULL)
 		{
-			if (PolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, /*INDUSTRIAL*/ GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA)) != 0)
+			if (static_cast<int>(PolicyInfo->IsFaithPurchaseUnitClass(eUnitClass, /*INDUSTRIAL*/ GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA))) != 0)
 			{
 				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-				if (pkUnitClassInfo)
+				if (pkUnitClassInfo != 0)
 				{
 					const UnitTypes eUnit = pPlayer->GetSpecificUnitType(eUnitClass);
 					CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-					if (pUnitEntry)
+					if (pUnitEntry != 0)
 					{
 						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
 						if (pPlayerTraits->IsReligious())
@@ -3706,11 +3706,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				}
 			}
 			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-			if (pkUnitClassInfo)
+			if (pkUnitClassInfo != 0)
 			{
 				const UnitTypes eUnit = (UnitTypes)pPlayer->GetSpecificUnitType(eUnitClass);
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
+				if ((pUnitEntry != 0) && pUnitEntry->GetPolicyType() == ePolicy)
 				{
 					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
 					if (pPlayerTraits->IsWarmonger())
@@ -4020,7 +4020,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		ePromotion = (PromotionTypes)iI;
 
-		if (PolicyInfo->IsFreePromotion(ePromotion))
+		if (PolicyInfo->IsFreePromotion(ePromotion) != 0)
 		{
 			if (pPlayerTraits->IsWarmonger())
 			{
@@ -4592,7 +4592,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	}
 
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-	if (pkPolicyInfo)
+	if (pkPolicyInfo != 0)
 	{
 		for (int iFlavor = 0; iFlavor < GC.getNumFlavorTypes(); iFlavor++)
 		{
@@ -4803,7 +4803,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	if (ePolicyBranch != NO_POLICY_BRANCH_TYPE)
 	{
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
-		if (pkPolicyBranchInfo)
+		if (pkPolicyBranchInfo != 0)
 		{
 			//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
 			if (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch(ePolicyBranch) > 0 || m_pCurrentPolicies->IsPolicyBranchUnlocked(ePolicyBranch))
@@ -4854,13 +4854,13 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 	int iWeight = 0;
 
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
-	if(pkPolicyBranchInfo)
+	if(pkPolicyBranchInfo != 0)
 	{
 		for(int iPolicyLoop = 0; iPolicyLoop < m_pCurrentPolicies->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 		{
 			const PolicyTypes ePolicyLoop = static_cast<PolicyTypes>(iPolicyLoop);
 			CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(ePolicyLoop);
-			if(pkLoopPolicyInfo)
+			if(pkLoopPolicyInfo != 0)
 			{
 				// Policy we don't have?
 				if(!m_pCurrentPolicies->HasPolicy(ePolicyLoop))
@@ -4885,13 +4885,13 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 			if (pPlayer->getCapitalCity() != NULL)
 			{
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if (pkBuildingClassInfo)
+				if (pkBuildingClassInfo != 0)
 				{
 					const BuildingTypes eBuilding = ((BuildingTypes)(pPlayer->getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 					if (NO_BUILDING != eBuilding)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if (pkBuildingInfo)
+						if (pkBuildingInfo != 0)
 						{
 							if (pkBuildingInfo->GetPolicyBranchType() != NO_POLICY_BRANCH_TYPE && pkBuildingInfo->GetPolicyBranchType() == eBranch)
 							{
@@ -4943,7 +4943,7 @@ bool CvPolicyAI::IsBranchEffectiveInGame(PolicyBranchTypes eBranch)
 {
 	CvPolicyBranchEntry* pBranchInfo = GC.getPolicyBranchInfo(eBranch);
 	CvAssertMsg(pBranchInfo, "Branch info not found! Please send Anton your save file and version.");
-	if (!pBranchInfo) return false;
+	if (pBranchInfo == 0) return false;
 	
 	if (pBranchInfo->IsDelayWhenNoReligion())
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))

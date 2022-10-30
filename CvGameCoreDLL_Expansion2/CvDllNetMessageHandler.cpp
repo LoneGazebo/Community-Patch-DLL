@@ -29,10 +29,10 @@ CvDllNetMessageHandler::~CvDllNetMessageHandler()
 //------------------------------------------------------------------------------
 void* CvDllNetMessageHandler::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvNetMessageHandler1::GetInterfaceId() ||
-	        guidInterface == ICvNetMessageHandler2::GetInterfaceId() ||
-			guidInterface == ICvNetMessageHandler3::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvNetMessageHandler1::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvNetMessageHandler2::GetInterfaceId()) != 0) ||
+			((guidInterface == ICvNetMessageHandler3::GetInterfaceId()) != 0))
 	{
 		return this;
 	}
@@ -73,7 +73,7 @@ void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitI
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-	if(pkUnit)
+	if(pkUnit != 0)
 	{
 		pkUnit->AutoMission();
 	}
@@ -99,7 +99,7 @@ void CvDllNetMessageHandler::ResponseBarbarianRansom(PlayerTypes ePlayer, int iO
 	else if (iOptionChosen == 1)
 	{
 		CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-		if (pkUnit)
+		if (pkUnit != 0)
 			pkUnit->kill(true, BARBARIAN_PLAYER);
 	}
 }
@@ -226,7 +226,7 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
-	if(pkCity && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
+	if((pkCity != 0) && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
 	{
 		pkCity->Purchase(eUnitType, eBuildingType, eProjectType, static_cast<YieldTypes>(ePurchaseYield));
 	}
@@ -274,7 +274,7 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
-	if(pkUnit)
+	if(pkUnit != 0)
 	{
 		pkUnit->kill(true, ePlayer);
 	}
@@ -355,7 +355,7 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 	CvBeliefEntry* pEntry = pkBeliefs->GetEntry((int)eBelief);
 
 	// Pantheon belief, or adding one through Reformation?
-	if (pEntry && ePlayer != NO_PLAYER)
+	if ((pEntry != 0) && ePlayer != NO_PLAYER)
 	{
 		if (pEntry->IsPantheonBelief())
 		{
@@ -402,7 +402,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
 	CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
-	if(pkCity && ePlayer != NO_PLAYER)
+	if((pkCity != 0) && ePlayer != NO_PLAYER)
 	{
 		CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanFoundReligion(ePlayer, eReligion, szCustomName, eBelief1, eBelief2, eBelief3, eBelief4, pkCity);
 		if(eResult == CvGameReligions::FOUNDING_OK)
@@ -416,7 +416,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 			if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE)
 			{
 				CvNotifications* pNotifications = kPlayer.GetNotifications();
-				if(pNotifications)
+				if(pNotifications != 0)
 				{
 					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RELIGION");
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
@@ -449,7 +449,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 		if(kPlayer.isHuman() && eResult != CvGameReligions::FOUNDING_NO_RELIGIONS_AVAILABLE && pkCity)
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
@@ -469,7 +469,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
-	if(pPlayerEspionage)
+	if(pPlayerEspionage != 0)
 	{
 		if(iTargetCity == -1)
 		{
@@ -484,7 +484,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 				PlayerTypes eTargetPlayer = (PlayerTypes)iTargetPlayer;
 				CvCity* pCity = GET_PLAYER(eTargetPlayer).getCity(iTargetCity);
 				CvAssertMsg(pCity, "pCity is null");
-				if(pCity)
+				if(pCity != 0)
 				{
 					pPlayerEspionage->MoveSpyTo(pCity, iSpyIndex, bAsDiplomat);
 					GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
@@ -507,7 +507,7 @@ void CvDllNetMessageHandler::ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyI
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
 	CvAssertMsg(pPlayerEspionage, "pPlayerEspionage is null");
-	if(pPlayerEspionage)
+	if(pPlayerEspionage != 0)
 	{
 		bool bCoupSuccess = pPlayerEspionage->AttemptCoup(iSpyIndex);
 	}
@@ -1052,7 +1052,7 @@ void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, Unit
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != 0)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
@@ -1071,7 +1071,7 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != 0)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
@@ -1091,7 +1091,7 @@ void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer,
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != 0)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, true, false);
@@ -1143,7 +1143,7 @@ void CvDllNetMessageHandler::ResponseRenameCity(PlayerTypes ePlayer, int iCityID
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
-	if(pkCity)
+	if(pkCity != 0)
 	{
 		CvString strName = szName;
 		pkCity->setName(strName);
@@ -1158,7 +1158,7 @@ void CvDllNetMessageHandler::ResponseRenameUnit(PlayerTypes ePlayer, int iUnitID
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-	if(pkUnit)
+	if(pkUnit != 0)
 	{
 		CvString strName = szName;
 		pkUnit->setName(strName);
@@ -1253,7 +1253,7 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 		return;
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
-	if(pCity)
+	if(pCity != 0)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
 
@@ -1263,7 +1263,7 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 		} else {
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem) 
+		if (pkScriptSystem != 0) 
 		{
 			CvLuaArgsHandle args;
 			args->Push(ePlayer);
@@ -1339,7 +1339,7 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 			{
 				CvUnit* pkUnit2 = pkTargetPlot->getUnitByIndex(iI);
 
-				if(pkUnit2 && pkUnit2->IsCombatUnit() && pkUnit->IsCombatUnit() && pkUnit->getDomainType()==pkUnit2->getDomainType())
+				if((pkUnit2 != 0) && pkUnit2->IsCombatUnit() && pkUnit->IsCombatUnit() && pkUnit->getDomainType()==pkUnit2->getDomainType())
 				{
 					// Start the swap
 					pkUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), iData1, iData2, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, bShift, true);
@@ -1360,7 +1360,7 @@ void CvDllNetMessageHandler::ResponseUpdateCityCitizens(PlayerTypes ePlayer, int
 		return;
 
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
-	if(NULL != pCity && pCity->GetCityCitizens())
+	if(NULL != pCity && (pCity->GetCityCitizens() != 0))
 	{
 		CvCityCitizens* pkCitizens = pCity->GetCityCitizens();
 		if(pkCitizens != NULL)

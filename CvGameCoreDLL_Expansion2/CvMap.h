@@ -165,7 +165,7 @@ public:
 
 	inline int isPlot(int iX, int iY) const
 	{
-		return ((iX >= 0) && (iX < getGridWidth()) && (iY >= 0) && (iY < getGridHeight()));
+		return static_cast<int>((iX >= 0) && (iX < getGridWidth()) && (iY >= 0) && (iY < getGridHeight()));
 	}
 
 	inline int numPlots() const
@@ -249,7 +249,7 @@ public:
 		}
 		int iMapX = coordRange(iX, getGridWidth(), isWrapX());
 		int iMapY = coordRange(iY, getGridHeight(), isWrapY());
-		return ((isPlot(iMapX, iMapY)) ? &(m_pMapPlots[plotNum(iMapX, iMapY)]) : NULL);
+		return ((isPlot(iMapX, iMapY)) != 0 ? &(m_pMapPlots[plotNum(iMapX, iMapY)]) : NULL);
 	}
 	__forceinline CvPlot* plotCheckInvalid(int iX, int iY) const
 	{

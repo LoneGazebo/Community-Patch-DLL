@@ -77,7 +77,7 @@ int CvCitySpecializationXMLEntry::GetFlavorValue(int i) const
 {
 	FAssertMsg(i < GC.getNumFlavorTypes(), "Index out of bounds");
 	FAssertMsg(i > -1, "Index out of bounds");
-	return m_piFlavorValue ? m_piFlavorValue[i] : -1;
+	return m_piFlavorValue != 0 ? m_piFlavorValue[i] : -1;
 }
 
 /// Yield associated with this specialization
@@ -348,7 +348,7 @@ void CvCitySpecializationAI::DoTurn()
 		if (eOldWonder != m_eNextWonderDesired)
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
-			if (pkBuildingInfo)
+			if (pkBuildingInfo != 0)
 				LogMsg(CvString("Next desired wonder is ") + pkBuildingInfo->GetDescription());
 		}
 
@@ -490,7 +490,7 @@ CvWeightedVector<YieldTypes> CvCitySpecializationAI::WeightSpecializations()
 
 		 //   Add in any contribution from the current grand strategy
 		 CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
-		 if (grandStrategy)
+		 if (grandStrategy != 0)
 		 {
 			 if (grandStrategy->GetSpecializationBoost(YIELD_FOOD) > 0)
 			 {
@@ -576,7 +576,7 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	// Is our capital under threat?
 	AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
 	CvCity* pCapital = m_pPlayer->getCapitalCity();
-	if(pCapital && eCityStrategy != NO_AICITYSTRATEGY && pCapital->GetCityStrategyAI()->IsUsingCityStrategy(eCityStrategy))
+	if((pCapital != 0) && eCityStrategy != NO_AICITYSTRATEGY && pCapital->GetCityStrategyAI()->IsUsingCityStrategy(eCityStrategy))
 	{
 		iEmergencyUnitWeight += /*50*/ GD_INT_GET(AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_CAPITAL_THREAT);
 	}
@@ -641,7 +641,7 @@ CvWeightedVector<ProductionSpecializationSubtypes> CvCitySpecializationAI::Weigh
 	}
 
 	CvAIGrandStrategyXMLEntry* grandStrategy = GC.getAIGrandStrategyInfo(m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy());
-	if(grandStrategy)
+	if(grandStrategy != 0)
 	{
 		if(grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION) > 0)
 		{
@@ -981,7 +981,7 @@ CvCity* CvCitySpecializationAI::FindBestWonderCity() const
 		for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(m_eNextWonderDesired);
-			if (!pkBuildingInfo)
+			if (pkBuildingInfo == 0)
 				continue;
 
 			if (pLoopCity->IsBestForWonder(pkBuildingInfo->GetBuildingClassType()))
@@ -1216,7 +1216,7 @@ bool CvCitySpecializationAI::CanBuildSpaceshipParts()
 	{
 		const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
-		if(pkUnitEntry)
+		if(pkUnitEntry != 0)
 		{
 			if(pkUnitEntry->GetSpaceshipProject() != NO_PROJECT)
 			{

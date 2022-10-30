@@ -1116,19 +1116,19 @@ TechTypes CvTraitEntry::GetCapitalFreeBuildingPrereqTech() const
 }
 int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
-	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
+	return m_piYieldFromRouteMovement != 0 ? m_piYieldFromRouteMovement[i] : -1;
 }
 int CvTraitEntry::YieldFromOwnPantheon(int i) const
 {
-	return m_piYieldFromOwnPantheon ? m_piYieldFromOwnPantheon[i] : -1;
+	return m_piYieldFromOwnPantheon != 0 ? m_piYieldFromOwnPantheon[i] : -1;
 }
 int CvTraitEntry::YieldFromHistoricEvent(int i) const
 {
-	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
+	return m_piYieldFromHistoricEvent != 0 ? m_piYieldFromHistoricEvent[i] : -1;
 }
 int CvTraitEntry::YieldFromLevelUp(int i) const
 {
-	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
+	return m_piYieldFromLevelUp != 0 ? m_piYieldFromLevelUp[i] : -1;
 }
 /// Accessor:: does this civ get a free great work when it conquers a city?
 bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
@@ -1398,49 +1398,49 @@ int CvTraitEntry::GetProductionBonusModifierConquest() const
 /// Accessor:: 1 extra yield comes all tiles with a base yield of this
 int CvTraitEntry::GetExtraYieldThreshold(int i) const
 {
-	return m_paiExtraYieldThreshold ? m_paiExtraYieldThreshold[i] : -1;
+	return m_paiExtraYieldThreshold != 0 ? m_paiExtraYieldThreshold[i] : -1;
 }
 
 /// Accessor:: Additional yield
 int CvTraitEntry::GetYieldChange(int i) const
 {
-	return m_paiYieldChange ? m_paiYieldChange[i] : -1;
+	return m_paiYieldChange != 0 ? m_paiYieldChange[i] : -1;
 }
 
 /// Accessor:: Extra yield from strategic resources
 int CvTraitEntry::GetYieldChangeStrategicResources(int i) const
 {
-	return m_paiYieldChangeStrategicResources ? m_paiYieldChangeStrategicResources[i] : -1;
+	return m_paiYieldChangeStrategicResources != 0 ? m_paiYieldChangeStrategicResources[i] : -1;
 }
 
 /// Accessor:: Extra yield from natural wonders
 int CvTraitEntry::GetYieldChangeNaturalWonder(int i) const
 {
-	return m_paiYieldChangeNaturalWonder ? m_paiYieldChangeNaturalWonder[i] : -1;
+	return m_paiYieldChangeNaturalWonder != 0 ? m_paiYieldChangeNaturalWonder[i] : -1;
 }
 
 /// Accessor:: Extra yield from trade partners
 int CvTraitEntry::GetYieldChangePerTradePartner(int i) const
 {
-	return m_paiYieldChangePerTradePartner ? m_paiYieldChangePerTradePartner[i] : -1;
+	return m_paiYieldChangePerTradePartner != 0 ? m_paiYieldChangePerTradePartner[i] : -1;
 }
 
 /// Accessor:: Extra yield from incoming trade routes
 int CvTraitEntry::GetYieldChangeIncomingTradeRoute(int i) const
 {
-	return m_paiYieldChangeIncomingTradeRoute ? m_paiYieldChangeIncomingTradeRoute[i] : -1;
+	return m_paiYieldChangeIncomingTradeRoute != 0 ? m_paiYieldChangeIncomingTradeRoute[i] : -1;
 }
 
 /// Accessor:: Modifier to yield
 int CvTraitEntry::GetYieldModifier(int i) const
 {
-	return m_paiYieldModifier ? m_paiYieldModifier[i] : -1;
+	return m_paiYieldModifier != 0 ? m_paiYieldModifier[i] : -1;
 }
 
 /// Accessor:: Additional quantity of strategic resources
 int CvTraitEntry::GetStrategicResourceQuantityModifier(int i) const
 {
-	return m_piStrategicResourceQuantityModifier ? m_piStrategicResourceQuantityModifier[i] : -1;
+	return m_piStrategicResourceQuantityModifier != 0 ? m_piStrategicResourceQuantityModifier[i] : -1;
 }
 
 /// Accessor:: Additional quantity of a specific resource
@@ -1448,7 +1448,7 @@ int CvTraitEntry::GetResourceQuantityModifier(int i) const
 {
 	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceQuantityModifiers ? m_piResourceQuantityModifiers[i] : -1;
+	return m_piResourceQuantityModifiers != 0 ? m_piResourceQuantityModifiers[i] : -1;
 }
 
 /// Accessor:: Extra yield from an improvement
@@ -1458,7 +1458,7 @@ int CvTraitEntry::GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldType
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiImprovementYieldChanges ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiImprovementYieldChanges != 0 ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -1468,7 +1468,7 @@ int CvTraitEntry::GetYieldFromTileEarnTerrainType(TerrainTypes eIndex1, YieldTyp
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTileEarnTerrainType ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTileEarnTerrainType != 0 ? m_ppiYieldFromTileEarnTerrainType[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1477,7 +1477,7 @@ int CvTraitEntry::GetYieldFromTilePurchaseTerrainType(TerrainTypes eIndex1, Yiel
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTilePurchaseTerrainType ? m_ppiYieldFromTilePurchaseTerrainType[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTilePurchaseTerrainType != 0 ? m_ppiYieldFromTilePurchaseTerrainType[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1486,7 +1486,7 @@ int CvTraitEntry::GetYieldFromTileConquest(TerrainTypes eIndex1, YieldTypes eInd
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTileConquest ? m_ppiYieldFromTileConquest[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTileConquest != 0 ? m_ppiYieldFromTileConquest[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1495,7 +1495,7 @@ int CvTraitEntry::GetYieldFromTileCultureBomb(TerrainTypes eIndex1, YieldTypes e
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTileCultureBomb ? m_ppiYieldFromTileCultureBomb[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTileCultureBomb != 0 ? m_ppiYieldFromTileCultureBomb[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1504,7 +1504,7 @@ int CvTraitEntry::GetYieldFromTileStealCultureBomb(TerrainTypes eIndex1, YieldTy
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTileStealCultureBomb ? m_ppiYieldFromTileStealCultureBomb[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTileStealCultureBomb != 0 ? m_ppiYieldFromTileStealCultureBomb[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1513,7 +1513,7 @@ int CvTraitEntry::GetYieldFromTileSettle(TerrainTypes eIndex1, YieldTypes eIndex
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldFromTileSettle ? m_ppiYieldFromTileSettle[eIndex1][eIndex2] : 0;
+	return m_ppiYieldFromTileSettle != 0 ? m_ppiYieldFromTileSettle[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const
@@ -1522,7 +1522,7 @@ int CvTraitEntry::GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, Yi
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiYieldChangePerImprovementBuilt ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
+	return m_ppiYieldChangePerImprovementBuilt != 0 ? m_ppiYieldChangePerImprovementBuilt[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const
@@ -1552,21 +1552,21 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiPlotYieldChanges != 0 ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 #if defined(MOD_BALANCE_CORE)
 int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
 {
-	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
+	return m_piYieldFromHistoricEvent != 0? m_piYieldFromHistoricEvent[i] : -1;
 }
 int CvTraitEntry::GetYieldFromLevelUp(int i) const
 {
-	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
+	return m_piYieldFromLevelUp != 0 ? m_piYieldFromLevelUp[i] : -1;
 }
 int CvTraitEntry::GetYieldFromOwnPantheon(int i) const
 {
-	return m_piYieldFromOwnPantheon? m_piYieldFromOwnPantheon[i] : -1;
+	return m_piYieldFromOwnPantheon != 0? m_piYieldFromOwnPantheon[i] : -1;
 }
 std::pair<int, int> CvTraitEntry::GetTradeRouteEndYield(YieldTypes eYield) const
 {
@@ -1579,39 +1579,39 @@ std::pair<int, int> CvTraitEntry::GetTradeRouteEndYield(YieldTypes eYield) const
 }
 int CvTraitEntry::GetYieldFromRouteMovement(int i) const
 {
-	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
+	return m_piYieldFromRouteMovement != 0 ? m_piYieldFromRouteMovement[i] : -1;
 }
 int CvTraitEntry::GetYieldFromExport(int i) const
 {
-	return m_piYieldFromExport ? m_piYieldFromExport[i] : -1;
+	return m_piYieldFromExport != 0 ? m_piYieldFromExport[i] : -1;
 }
 int CvTraitEntry::GetYieldFromImport(int i) const
 {
-	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
+	return m_piYieldFromImport != 0 ? m_piYieldFromImport[i] : -1;
 }
 int CvTraitEntry::GetYieldFromTilePurchase(int i) const
 {
-	return m_piYieldFromTilePurchase ? m_piYieldFromTilePurchase[i] : -1;
+	return m_piYieldFromTilePurchase != 0 ? m_piYieldFromTilePurchase[i] : -1;
 }
 int CvTraitEntry::GetYieldFromTileEarn(int i) const
 {
-	return m_piYieldFromTileEarn ? m_piYieldFromTileEarn[i] : -1;
+	return m_piYieldFromTileEarn != 0 ? m_piYieldFromTileEarn[i] : -1;
 }
 int CvTraitEntry::GetYieldFromCSAlly(int i) const
 {
-	return m_piYieldFromCSAlly ? m_piYieldFromCSAlly[i] : -1;
+	return m_piYieldFromCSAlly != 0 ? m_piYieldFromCSAlly[i] : -1;
 }
 int CvTraitEntry::GetYieldFromCSFriend(int i) const
 {
-	return m_piYieldFromCSFriend ? m_piYieldFromCSFriend[i] : -1;
+	return m_piYieldFromCSFriend != 0 ? m_piYieldFromCSFriend[i] : -1;
 }
 int CvTraitEntry::GetYieldFromSettle(int i) const
 {
-	return m_piYieldFromSettle ? m_piYieldFromSettle[i] : -1;
+	return m_piYieldFromSettle != 0 ? m_piYieldFromSettle[i] : -1;
 }
 int CvTraitEntry::GetYieldFromConquest(int i) const
 {
-	return m_piYieldFromConquest ? m_piYieldFromConquest[i] : -1;
+	return m_piYieldFromConquest != 0 ? m_piYieldFromConquest[i] : -1;
 }
 int CvTraitEntry::GetVotePerXCSAlliance() const
 {
@@ -1647,19 +1647,19 @@ int CvTraitEntry::GetNumPledgeDomainProductionModifier(DomainTypes eDomain) cons
 {
 	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
-	return m_piNumPledgesDomainProdMod ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
+	return m_piNumPledgesDomainProdMod != 0 ? m_piNumPledgesDomainProdMod[(int)eDomain] : 0;
 }
 int CvTraitEntry::GetDomainFreeExperienceModifier(DomainTypes eDomain) const
 {
 	CvAssertMsg((int)eDomain < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg((int)eDomain > -1, "Index out of bounds");
-	return m_piDomainFreeExperienceModifier ? m_piDomainFreeExperienceModifier[(int)eDomain] : 0;
+	return m_piDomainFreeExperienceModifier != 0 ? m_piDomainFreeExperienceModifier[(int)eDomain] : 0;
 }
 int CvTraitEntry::GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 {
 	CvAssertMsg((int)eUnitClass < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg((int)eUnitClass > -1, "Index out of bounds");
-	return m_piFreeUnitClassesDOW ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
+	return m_piFreeUnitClassesDOW != 0 ? m_piFreeUnitClassesDOW[(int)eUnitClass] : 0;
 }
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
@@ -1688,53 +1688,53 @@ int CvTraitEntry::GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, Yield
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiBuildingClassYieldChanges ? m_ppiBuildingClassYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiBuildingClassYieldChanges != 0 ? m_ppiBuildingClassYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetCapitalYieldChanges(int i) const
 {
-	return m_piCapitalYieldChanges ? m_piCapitalYieldChanges[i] : -1;
+	return m_piCapitalYieldChanges != 0 ? m_piCapitalYieldChanges[i] : -1;
 }
 
 int CvTraitEntry::GetCityYieldChanges(int i) const
 {
-	return m_piCityYieldChanges ? m_piCityYieldChanges[i] : -1;
+	return m_piCityYieldChanges != 0 ? m_piCityYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetPermanentYieldChangeWLTKD(int i) const
 {
-	return m_piPermanentYieldChangeWLTKD ? m_piPermanentYieldChangeWLTKD[i] : -1;
+	return m_piPermanentYieldChangeWLTKD != 0 ? m_piPermanentYieldChangeWLTKD[i] : -1;
 }
 
 int CvTraitEntry::GetCoastalCityYieldChanges(int i) const
 {
-	return m_piCoastalCityYieldChanges ? m_piCoastalCityYieldChanges[i] : -1;
+	return m_piCoastalCityYieldChanges != 0 ? m_piCoastalCityYieldChanges[i] : -1;
 }
 
 int CvTraitEntry::GetGreatWorkYieldChanges(int i) const
 {
-	return m_piGreatWorkYieldChanges ? m_piGreatWorkYieldChanges[i] : -1;
+	return m_piGreatWorkYieldChanges != 0 ? m_piGreatWorkYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetArtifactYieldChanges(int i) const
 {
-	return m_piArtifactYieldChanges ? m_piArtifactYieldChanges[i] : -1;
+	return m_piArtifactYieldChanges != 0 ? m_piArtifactYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetArtYieldChanges(int i) const
 {
-	return m_piArtYieldChanges ? m_piArtYieldChanges[i] : -1;
+	return m_piArtYieldChanges != 0 ? m_piArtYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetLitYieldChanges(int i) const
 {
-	return m_piLitYieldChanges ? m_piLitYieldChanges[i] : -1;
+	return m_piLitYieldChanges != 0 ? m_piLitYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetMusicYieldChanges(int i) const
 {
-	return m_piMusicYieldChanges ? m_piMusicYieldChanges[i] : -1;
+	return m_piMusicYieldChanges != 0 ? m_piMusicYieldChanges[i] : -1;
 }
 int CvTraitEntry::GetSeaPlotYieldChanges(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piSeaPlotYieldChanges ? m_piSeaPlotYieldChanges[i] : 0;
+	return m_piSeaPlotYieldChanges != 0 ? m_piSeaPlotYieldChanges[i] : 0;
 }
 int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -1742,7 +1742,7 @@ int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiFeatureYieldChanges ? m_ppiFeatureYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiFeatureYieldChanges != 0 ? m_ppiFeatureYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const
@@ -1751,7 +1751,7 @@ int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eInd
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiResourceYieldChanges != 0 ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const
@@ -1760,31 +1760,31 @@ int CvTraitEntry::GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiTerrainYieldChanges ? m_ppiTerrainYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiTerrainYieldChanges != 0 ? m_ppiTerrainYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetYieldFromKills(YieldTypes eYield) const
 {
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromKills ? m_piYieldFromKills[(int)eYield] : 0;
+	return m_piYieldFromKills != 0 ? m_piYieldFromKills[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 {
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
-	return m_piYieldFromBarbarianKills ? m_piYieldFromBarbarianKills[(int)eYield] : 0;
+	return m_piYieldFromBarbarianKills != 0 ? m_piYieldFromBarbarianKills[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldChangeTradeRoute(int i) const
 {
-	return m_piYieldChangeTradeRoute ? m_piYieldChangeTradeRoute[i] : 0;
+	return m_piYieldChangeTradeRoute != 0 ? m_piYieldChangeTradeRoute[i] : 0;
 }
 
 int CvTraitEntry::GetYieldChangeWorldWonder(int i) const
 {
-	return m_piYieldChangeWorldWonder ? m_piYieldChangeWorldWonder[i] : 0;
+	return m_piYieldChangeWorldWonder != 0 ? m_piYieldChangeWorldWonder[i] : 0;
 }
 
 int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const
@@ -1793,7 +1793,7 @@ int CvTraitEntry::GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eInde
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiTradeRouteYieldChange ? m_ppiTradeRouteYieldChange[eIndex1][eIndex2] : 0;
+	return m_ppiTradeRouteYieldChange != 0 ? m_ppiTradeRouteYieldChange[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Extra yield from an improvement
@@ -1803,7 +1803,7 @@ int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes 
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiSpecialistYieldChanges ? m_ppiSpecialistYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiSpecialistYieldChanges != 0 ? m_ppiSpecialistYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
@@ -1812,7 +1812,7 @@ int CvTraitEntry::GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTyp
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] : 0;
+	return m_ppiGreatPersonExpendedYield != 0 ? m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] : 0;
 }
 int CvTraitEntry::GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -1820,48 +1820,48 @@ int CvTraitEntry::GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes e
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiGreatPersonBornYield ? m_ppiGreatPersonBornYield[eIndex1][eIndex2] : 0;
+	return m_ppiGreatPersonBornYield != 0 ? m_ppiGreatPersonBornYield[eIndex1][eIndex2] : 0;
 }
 int CvTraitEntry::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
-	return m_piGoldenAgeGreatPersonRateModifier ? m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
+	return m_piGoldenAgeGreatPersonRateModifier != 0 ? m_piGoldenAgeGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
-	return m_piGreatPersonCostReduction ? m_piGreatPersonCostReduction[(int)eGreatPerson] : 0;
+	return m_piGreatPersonCostReduction != 0 ? m_piGreatPersonCostReduction[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
-	return m_piPerPuppetGreatPersonRateModifier ? m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
+	return m_piPerPuppetGreatPersonRateModifier != 0 ? m_piPerPuppetGreatPersonRateModifier[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
-	return m_piGreatPersonGWAM ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
+	return m_piGreatPersonGWAM != 0 ? m_piGreatPersonGWAM[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eGreatPerson > -1, "Index out of bounds");
-	return m_piGoldenAgeFromGreatPersonBirth ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
+	return m_piGoldenAgeFromGreatPersonBirth != 0 ? m_piGoldenAgeFromGreatPersonBirth[(int)eGreatPerson] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonProgressFromPolicyUnlock(GreatPersonTypes eIndex) const
 {
 	CvAssertMsg((int)eIndex < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
 	CvAssertMsg((int)eIndex > -1, "Index out of bounds");
-	return m_piGreatPersonProgressFromPolicyUnlock ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
+	return m_piGreatPersonProgressFromPolicyUnlock != 0 ? m_piGreatPersonProgressFromPolicyUnlock[(int)eIndex] : 0;
 }
 
 int CvTraitEntry::GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const
@@ -1898,7 +1898,7 @@ int CvTraitEntry::GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldT
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiCityYieldFromUnimprovedFeature ? m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] : 0;
+	return m_ppiCityYieldFromUnimprovedFeature != 0 ? m_ppiCityYieldFromUnimprovedFeature[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Extra yield from an unimproved feature
@@ -1908,7 +1908,7 @@ int CvTraitEntry::GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTy
 	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
 	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
-	return m_ppiUnimprovedFeatureYieldChanges ? m_ppiUnimprovedFeatureYieldChanges[eIndex1][eIndex2] : 0;
+	return m_ppiUnimprovedFeatureYieldChanges != 0 ? m_ppiUnimprovedFeatureYieldChanges[eIndex1][eIndex2] : 0;
 }
 
 /// Accessor:: Additional moves for a class of combat unit
@@ -2466,88 +2466,88 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #endif
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("FreeUnit");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_iFreeUnitClassType = GC.getInfoTypeForString(szTextVal, true);
 	}
 
 	szTextVal = kResults.GetText("FreeUnitPrereqTech");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeUnitPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("EnemyWarSawPactPromotion");
-	if (szTextVal)
+	if (szTextVal != 0)
 	{
 		m_iEnemyWarSawPactPromotion = (PromotionTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 	szTextVal = kResults.GetText("BestUnitImprovement");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_iBestUnitImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 	szTextVal = kResults.GetText("FreeBuildingPrereqTech");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 	szTextVal = kResults.GetText("CapitalFreeBuildingPrereqTech");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
 	szTextVal = kResults.GetText("CombatBonusImprovement");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 
 	szTextVal = kResults.GetText("ObsoleteTech");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_iObsoleteTech = GC.getInfoTypeForString(szTextVal, true);
 	}
 
 	szTextVal = kResults.GetText("PrereqTech");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_iPrereqTech = GC.getInfoTypeForString(szTextVal, true);
 	}
 
 	szTextVal = kResults.GetText("FreeBuilding");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 #if defined(MOD_TRAITS_OTHER_PREREQS)
 	if (MOD_TRAITS_OTHER_PREREQS) {
 		szTextVal = kResults.GetText("ObsoleteBelief");
-		if(szTextVal)
+		if(szTextVal != 0)
 		{
 			m_iObsoleteBelief = GC.getInfoTypeForString(szTextVal, true);
 			CUSTOMLOG("%s is %i", szTextVal, m_iObsoleteBelief);
 		}
 
 		szTextVal = kResults.GetText("PrereqBelief");
-		if(szTextVal)
+		if(szTextVal != 0)
 		{
 			m_iPrereqBelief = GC.getInfoTypeForString(szTextVal, true);
 			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqBelief);
 		}
 
 		szTextVal = kResults.GetText("ObsoletePolicy");
-		if(szTextVal)
+		if(szTextVal != 0)
 		{
 			m_iObsoletePolicy = GC.getInfoTypeForString(szTextVal, true);
 			CUSTOMLOG("%s is %i", szTextVal, m_iObsoletePolicy);
 		}
 
 		szTextVal = kResults.GetText("PrereqPolicy");
-		if(szTextVal)
+		if(szTextVal != 0)
 		{
 			m_iPrereqPolicy = GC.getInfoTypeForString(szTextVal, true);
 			CUSTOMLOG("%s is %i", szTextVal, m_iPrereqPolicy);
@@ -2556,20 +2556,20 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #endif
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("FreeCapitalBuilding");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeCapitalBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 	szTextVal = kResults.GetText("FreeUnitOnConquest");
 
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeUnitOnConquest = (UnitTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
 	szTextVal = kResults.GetText("FreeBuildingOnConquest");
-	if(szTextVal)
+	if(szTextVal != 0)
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
@@ -3302,7 +3302,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iFreePolicyPerXTechs = kResults.GetInt("FreePolicyPerXTechs");
 
 	szTextVal = kResults.GetText("GPFaithPurchaseEra");
-	if (szTextVal)
+	if (szTextVal != 0)
 	{
 		m_eGPFaithPurchaseEra = (EraTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
@@ -4284,7 +4284,7 @@ void CvPlayerTraits::InitPlayerTraits()
 	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
 		m_vLeaderHasTrait[iI] = false;
-		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
+		if ((m_pPlayer != 0) && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait( (TraitTypes)iI ))
 		{
 			m_vLeaderHasTrait[iI] = true;
 			m_vPotentiallyActiveLeaderTraits.push_back( (TraitTypes)iI );
@@ -5715,7 +5715,7 @@ bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
 			}
 
 			CvPlot *pOriginalCapitalPlot = GC.getMap().plot(m_pPlayer->GetOriginalCapitalX(), m_pPlayer->GetOriginalCapitalY());
-			if (pOriginalCapitalPlot)
+			if (pOriginalCapitalPlot != 0)
 			{
 				if (pOriginalCapitalPlot->getArea() == iArea)
 				{
@@ -6513,11 +6513,11 @@ void CvPlayerTraits::SpawnBestUnitsOnImprovementDOW(CvCity *pCity)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		if(pkUnitClassInfo != 0)
 		{
 			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-			if(pUnitEntry)
+			if(pUnitEntry != 0)
 			{
 				if(!pCity->canTrain(eUnit))
 				{
@@ -6628,7 +6628,7 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 			}
 
 			CvPlot *pOriginalCapitalPlot = GC.getMap().plot(m_pPlayer->GetOriginalCapitalX(), m_pPlayer->GetOriginalCapitalY());
-			if (pOriginalCapitalPlot)
+			if (pOriginalCapitalPlot != 0)
 			{
 				if (pOriginalCapitalPlot->getArea() == iArea)
 				{
@@ -6715,7 +6715,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 				if(pAdjacentPlot->isWater())
 				{
 					CvUnit* pNavalUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
-					if(pNavalUnit)
+					if(pNavalUnit != 0)
 					{
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 						if (ConvertBarbarianNavalUnit(pByUnit, pNavalUnit))
@@ -6751,7 +6751,7 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 	{
 		// Find this player's capital
 		CvCity* pCapital = m_pPlayer->getCapitalCity();
-		if(pCapital)
+		if(pCapital != 0)
 		{
 			if(pCapital->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
@@ -7183,7 +7183,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 	if(eDesiredGreatPerson != NO_UNIT)
 	{
 		CvCity* pCity = m_pPlayer->GetGreatPersonSpawnCity(eDesiredGreatPerson);
-		if(pCity)
+		if(pCity != 0)
 		{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
@@ -7292,13 +7292,13 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		if(pkUnitClassInfo != 0)
 		{
 			const UnitTypes eUnit = m_pPlayer->GetSpecificUnitType(eUnitClass);
 			if (eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
-				if (pUnitEntry)
+				if (pUnitEntry != 0)
 				{
 					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 					{
@@ -7711,7 +7711,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	for (int iI = 0; iI < GC.getNumTraitInfos(); iI++)
 	{
 		m_vLeaderHasTrait[iI] = false;
-		if (m_pPlayer && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait((TraitTypes)iI))
+		if ((m_pPlayer != 0) && m_pPlayer->isMajorCiv() && m_pPlayer->isAlive() && m_pPlayer->getLeaderInfo().hasTrait((TraitTypes)iI))
 		{
 			m_vLeaderHasTrait[iI] = true;
 			m_vPotentiallyActiveLeaderTraits.push_back((TraitTypes)iI);
@@ -7779,7 +7779,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 		{
 			if (MOD_EVENTS_UNIT_CAPTURE) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), 0, 2);
 			}
 #endif
 			pGiftUnit->finishMoves();
@@ -7797,7 +7797,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 		{
 				if (MOD_EVENTS_UNIT_CAPTURE) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), 0, 2);
 				}
 #endif
 				pGiftUnit->finishMoves();
@@ -7857,7 +7857,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 
 #if defined(MOD_EVENTS_UNIT_CAPTURE)
 		if (MOD_EVENTS_UNIT_CAPTURE) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 3);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), 0, 3);
 		}
 #endif
 
@@ -7869,7 +7869,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 		pGiftUnit->finishMoves(); // No move first turn
 
 		// Validate that the achievement is reached by a live human and active player at the same time
-		if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && m_pPlayer->getLeaderInfo().GetType() && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
+		if (MOD_API_ACHIEVEMENTS && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && (m_pPlayer->getLeaderInfo().GetType() != 0) && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBSNAVALCONVERTED, 10, ACHIEVEMENT_SPECIAL_BARBARYPIRATE);
 		}

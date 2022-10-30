@@ -225,7 +225,7 @@ void CvNotifications::EndOfTurnCleanup(void)
 /// Adds a new notification to the list
 int CvNotifications::AddByName(const char* pszNotificationName, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData)
 {
-	if (pszNotificationName && pszNotificationName[0] != 0)
+	if ((pszNotificationName != 0) && pszNotificationName[0] != 0)
 	{
 		return Add((NotificationTypes) FString::Hash(pszNotificationName), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 	}
@@ -738,7 +738,7 @@ void CvNotifications::Activate(Notification& notification)
 	{
 		// Jon say - do like Sid would!
 		CvCity* pCity = GET_PLAYER(m_ePlayer).getCapitalCity();
-		if(pCity)
+		if(pCity != 0)
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pCity->plot());
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
@@ -780,7 +780,7 @@ void CvNotifications::Activate(Notification& notification)
 	{
 		int iQuestFlags = notification.m_iExtraGameData;
 		CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
-		if(pPlot)
+		if(pPlot != 0)
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
@@ -799,7 +799,7 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_PRODUCTION:
 	{
 		CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();//GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
-		if(!pCity || (pCity->getOwner() != m_ePlayer))
+		if((pCity == 0) || (pCity->getOwner() != m_ePlayer))
 		{
 			return;
 		}
@@ -826,7 +826,7 @@ void CvNotifications::Activate(Notification& notification)
 	{
 		if (MOD_UI_CITY_EXPANSION) {
 			CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();
-			if (!pCity) {
+			if (pCity == 0) {
 				return;
 			}
 
@@ -849,7 +849,7 @@ void CvNotifications::Activate(Notification& notification)
 		} else {
 			// Default behavior is to move the camera to the X,Y passed in
 			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
-			if (pPlot) {
+			if (pPlot != 0) {
 				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
 				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
@@ -862,10 +862,10 @@ void CvNotifications::Activate(Notification& notification)
 	case NOTIFICATION_UNIT_PROMOTION:
 	{
 		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(notification.m_iExtraGameData);
-		if(pUnit)
+		if(pUnit != 0)
 		{
 			CvPlot* pPlot = pUnit->plot();
-			if(pPlot)
+			if(pPlot != 0)
 			{
 				CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 				CvInterfacePtr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
@@ -924,14 +924,14 @@ void CvNotifications::Activate(Notification& notification)
 	break;
 	case NOTIFICATION_FOUND_PANTHEON:
 	{
-		CvPopupInfo kPopup(BUTTONPOPUP_FOUND_PANTHEON, m_ePlayer, true /*bPantheonBelief*/);
+		CvPopupInfo kPopup(BUTTONPOPUP_FOUND_PANTHEON, m_ePlayer, 1 /*bPantheonBelief*/);
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;
 
 	case NOTIFICATION_ADD_REFORMATION_BELIEF:
 	{
-		CvPopupInfo kPopup(BUTTONPOPUP_FOUND_PANTHEON, m_ePlayer, false /*bPantheonBelief*/);
+		CvPopupInfo kPopup(BUTTONPOPUP_FOUND_PANTHEON, m_ePlayer, 0 /*bPantheonBelief*/);
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;
@@ -1112,7 +1112,7 @@ void CvNotifications::Activate(Notification& notification)
 			CityEventTypes eEvent = (CityEventTypes)notification.m_iGameDataIndex;
 			int iSpyID = notification.m_iExtraGameData;
 			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
-			if (pPlot)
+			if (pPlot != 0)
 			{
 				CvPopupInfo kPopup(BUTTONPOPUP_MODDER_12, m_ePlayer, eEvent, pPlot->GetPlotIndex(), iSpyID);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -1124,7 +1124,7 @@ void CvNotifications::Activate(Notification& notification)
 		{
 			CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
 			CvCity* pCity = pPlot->getPlotCity();
-			if (pCity)
+			if (pCity != 0)
 			{
 				std::vector<int> tempInt = pCity->getCaptureDataInt();
 				std::vector<bool> tempBool = pCity->getCaptureDataBool();
@@ -1141,7 +1141,7 @@ void CvNotifications::Activate(Notification& notification)
 	default:	// Default behavior is to move the camera to the X,Y passed in
 	{
 		CvPlot* pPlot = GC.getMap().plot(notification.m_iX, notification.m_iY);
-		if(pPlot)
+		if(pPlot != 0)
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
@@ -1660,7 +1660,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();//GET_PLAYER(m_ePlayer).getCity(notification.m_iGameDataIndex);
 
 		// if the city no longer exists
-		if(!pCity || (pCity->getOwner() != m_ePlayer))
+		if((pCity == 0) || (pCity->getOwner() != m_ePlayer))
 		{
 			return true;
 		}
@@ -1685,7 +1685,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
 
 			// if the city no longer exists, is a puppet, or doesn't belong to the active player
-			if (!pCity || pCity->IsPuppet() || (pCity->getOwner() != GC.getGame().getActivePlayer())) {
+			if ((pCity == 0) || pCity->IsPuppet() || (pCity->getOwner() != GC.getGame().getActivePlayer())) {
 				// we no longer need the notification
 				return true;
 			}
@@ -1720,7 +1720,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_UNIT_PROMOTION:
 	{
 		CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_aNotifications[iIndex].m_iExtraGameData);
-		if(!pUnit || !pUnit->isPromotionReady())
+		if((pUnit == 0) || !pUnit->isPromotionReady())
 		{
 			return true;
 		}
@@ -1927,7 +1927,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		{
 			int iCityID = m_aNotifications[iIndex].m_iExtraGameData;
 			CvCity* pCity = GET_PLAYER(m_ePlayer).getCity(iCityID);
-			if(!pCity || pCity == NULL || pCity->getOwner() != m_ePlayer)
+			if((pCity == 0) || pCity == NULL || pCity->getOwner() != m_ePlayer)
 			{
 				pCity->SetEventActive(eCityEvent, false);
 				return true;
@@ -1978,7 +1978,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		if (eCityEvent != NO_EVENT_CITY)
 		{
 			CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
-			if (!pCity)
+			if (pCity == 0)
 				return true;
 			
 			if (pCity->GetCityEspionage()->HasPendingEvents(m_ePlayer))
@@ -2034,7 +2034,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case -364200720:
 	{
 		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
-		if (!pCity)
+		if (pCity == 0)
 			return true;
 
 		if (!pCity->isPendingCapture())
@@ -2214,7 +2214,7 @@ void CvNotifications::AddToPlayer(PlayerTypes ePlayer, NotificationTypes eNotifi
 		if(kPlayer.isLocalPlayer())
 		{
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				pNotifications->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 			}

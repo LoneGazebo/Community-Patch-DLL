@@ -396,7 +396,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if (MOD_BALANCE_VP && !bPeaceDeal && eItem != TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
+		if ((pLeague != 0) && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
 		{
 			return false;
 		}
@@ -479,7 +479,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
+			if (pkScriptSystem != 0)
 			{
 				// Construct and push in some event arguments.
 				CvLuaArgsHandle args;
@@ -562,7 +562,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if (!pkResourceInfo)
+			if (pkResourceInfo == 0)
 				return false;
 
 			// Must be a Luxury or Strategic Resource
@@ -640,7 +640,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 			// Make sure the city actually exists
 			CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
-			CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
+			CvCity* pCity = pPlot != 0 ? pPlot->getPlotCity() : NULL;
 			if (pCity == NULL)
 				return false;
 
@@ -1104,7 +1104,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			if (!pLeague)
+			if (pLeague == 0)
 				return false;
 
 			int iID = iData1;
@@ -1218,7 +1218,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-				if (pPlot && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
+				if ((pPlot != 0) && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
 					return true;
 			}
 
@@ -1255,7 +1255,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				return false;
 
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if (!pkTechInfo || pkTechInfo->IsRepeat())
+			if ((pkTechInfo == 0) || pkTechInfo->IsRepeat())
 				return false;
 
 			// We don't own this tech
@@ -1489,7 +1489,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 	if (MOD_BALANCE_VP && !bPeaceDeal)
 	{
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-		if (pLeague && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
+		if ((pLeague != 0) && pLeague->IsTradeEmbargoed(ePlayer, eToPlayer))
 		{
 			return strError; // Handled at the LUA level
 		}
@@ -2147,7 +2147,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 				{
 					CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-					if (pPlot && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
+					if ((pPlot != 0) && pPlot->isRevealed(eFromTeam) && !pPlot->isRevealed(eToTeam))
 					{
 						bFoundOne = true;
 						break;
@@ -2216,7 +2216,7 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 
 			// First, obtain the Lua script system.
 			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-			if (pkScriptSystem)
+			if (pkScriptSystem != 0)
 			{
 				// Construct and push in some event arguments.
 				CvLuaArgsHandle args(2);
@@ -3225,7 +3225,7 @@ void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	CvCity* pCity = GET_PLAYER(eFrom).getCity(iCityID);
-	if (!pCity)
+	if (pCity == 0)
 		return;
 
 	int x = pCity->getX();
@@ -4152,10 +4152,10 @@ bool CvGameDeals::RemoveProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPla
 {
 	CvDeal* pDeal = GetProposedMPDeal(eFromPlayer, eToPlayer, latest);
 
-	if (!pDeal)
+	if (pDeal == 0)
 		return false;
 
-	if (pDealOut)
+	if (pDealOut != 0)
 		*pDealOut = *pDeal;
 
 	m_ProposedDeals.erase(std::remove(m_ProposedDeals.begin(), m_ProposedDeals.end(), *pDeal), m_ProposedDeals.end());
@@ -5682,11 +5682,11 @@ void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
+		if(GetProposedDeal(eCancelPlayer, eLoopPlayer) != 0)
 		{//deal from eCancelPlayer
 			FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
 		}
-		if(GetProposedDeal(eLoopPlayer, eCancelPlayer))
+		if(GetProposedDeal(eLoopPlayer, eCancelPlayer) != 0)
 		{//deal to eCancelPlayer
 			FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
 		}
@@ -5720,7 +5720,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		pNotifications = GET_PLAYER(eFromPlayer).GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_GPT_FROM_US", toPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_GPT_FROM_US", toPlayer.getNameKey());
@@ -5728,7 +5728,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_GPT_TO_US", fromPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_GPT_TO_US", fromPlayer.getNameKey());
@@ -5748,10 +5748,10 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		const char* szResourceDescription = (pkResourceInfo)? pkResourceInfo->GetDescriptionKey() : "";
+		const char* szResourceDescription = (pkResourceInfo) != 0? pkResourceInfo->GetDescriptionKey() : "";
 
 		pNotifications = fromPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_RESOURCE_FROM_US", toPlayer.getNameKey(), szResourceDescription);
@@ -5760,7 +5760,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_RESOURCE_TO_US", fromPlayer.getNameKey(), szResourceDescription);
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_RESOURCE_TO_US", fromPlayer.getNameKey(), szResourceDescription);
@@ -5773,7 +5773,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		GET_TEAM(eFromTeam).SetAllowsOpenBordersToTeam(eToTeam, false);
 
 		pNotifications = fromPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_OPEN_BORDERS_FROM_US", toPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_OPEN_BORDERS_FROM_US", toPlayer.getNameKey());
@@ -5781,7 +5781,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_OPEN_BORDERS_TO_US", fromPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_OPEN_BORDERS_TO_US", fromPlayer.getNameKey());
@@ -5795,7 +5795,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		GET_TEAM(eToTeam).SetHasDefensivePact(eFromTeam, false);
 
 		pNotifications = fromPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_DEFENSIVE_PACT_FROM_US", toPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_DEFENSIVE_PACT_FROM_US", toPlayer.getNameKey());
@@ -5803,7 +5803,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 
 		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_DEFENSIVE_PACT_TO_US", fromPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_DEFENSIVE_PACT_TO_US", fromPlayer.getNameKey());
@@ -5827,7 +5827,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();
 #if defined(MOD_BALANCE_CORE)
 			CvCity* pCapital = toPlayer.getCapitalCity();
-			if (pCapital)
+			if (pCapital != 0)
 			{
 				toPlayer.doInstantYield(INSTANT_YIELD_TYPE_RESEARCH_AGREMEENT, false, NO_GREATPERSON, NO_BUILDING, iBeakersBonus, false, NO_PLAYER, NULL, false, pCapital, false, false, false, YIELD_SCIENCE);
 			}
@@ -5849,7 +5849,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			}
 
 			pNotifications = toPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_NTFN_RA_FREE_TECH", fromPlayer.getNameKey());
 				strSummary = GetLocalizedText("TXT_KEY_NTFN_RA_FREE_TECH_S", fromPlayer.getNameKey());
@@ -5859,7 +5859,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		else
 		{
 			pNotifications = toPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				if(GET_TEAM(eFromTeam).isAtWar(eToTeam))
 				{
@@ -5882,7 +5882,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		GET_TEAM(eFromTeam).setForcePeace(eToTeam, false);
 
 		pNotifications = toPlayer.GetNotifications();
-		if(pNotifications)
+		if(pNotifications != 0)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_PEACE", fromPlayer.getNameKey());
 			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_PEACE");
@@ -5902,7 +5902,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		{
 			// Notification for FROM player
 			pNotifications = fromPlayer.GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_PEACE", targetPlayer->getNameKey());
 				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_PEACE");
@@ -5911,7 +5911,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 
 			// Notification for TARGET player
 			pNotifications = targetPlayer->GetNotifications();
-			if(pNotifications)
+			if(pNotifications != 0)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_DEAL_EXPIRED_PEACE", fromPlayer.getNameKey());
 				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_DEAL_EXPIRED_PEACE");
@@ -6200,7 +6200,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 #if defined(MOD_BALANCE_CORE)
 void CvGameDeals::LogDealFailed(CvDeal* pDeal, bool bNoRenew, bool bNotAccepted, bool bNotValid)
 {
-	if(GC.getLogging() && GC.getAILogging() && pDeal)
+	if(GC.getLogging() && GC.getAILogging() && (pDeal != 0))
 	{
 		CvString strLogName;
 

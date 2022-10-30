@@ -97,7 +97,7 @@ CvNotificationEntry* CvNotificationXMLEntries::GetByID(uint hHash)
 // Get an entry by name
 CvNotificationEntry* CvNotificationXMLEntries::GetByString(const char* pszName)
 {
-	if (pszName && pszName[0] != 0)
+	if ((pszName != 0) && pszName[0] != 0)
 		return GetByID(FString::Hash(pszName));
 	return NULL;
 }

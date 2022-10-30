@@ -21,8 +21,8 @@ CvDllTeam::~CvDllTeam()
 //------------------------------------------------------------------------------
 void* CvDllTeam::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvTeam1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvTeam1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -159,7 +159,7 @@ void CvDllTeam::Write(FDataStream& kStream) const
 int CvDllTeam::GetTechCount() const
 {
 	CvTeamTechs* pkTeamTechs = m_pTeam->GetTeamTechs();
-	if (pkTeamTechs)
+	if (pkTeamTechs != 0)
 	{
 		return pkTeamTechs->GetNumTechsKnown();
 	}
@@ -170,9 +170,9 @@ int CvDllTeam::GetTechs(TechTypes* pkTechArray, uint uiArraySize) const
 {
 	int iFoundTechs = 0;
 	CvTeamTechs* pkTeamTechs = m_pTeam->GetTeamTechs();
-	if (pkTeamTechs)
+	if (pkTeamTechs != 0)
 	{
-		for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos() && uiArraySize--; iTechLoop++)
+		for (int iTechLoop = 0; iTechLoop < GC.getNumTechInfos() && ((uiArraySize--) != 0u); iTechLoop++)
 		{
 			if (pkTeamTechs->HasTech((TechTypes) iTechLoop) || pkTeamTechs->GetTechCount((TechTypes)iTechLoop) > 0)
 			{

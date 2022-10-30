@@ -23,8 +23,8 @@ CvDllGameAsynch::~CvDllGameAsynch()
 //------------------------------------------------------------------------------
 void* CvDllGameAsynch::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvGame1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvGame1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

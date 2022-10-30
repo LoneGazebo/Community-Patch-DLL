@@ -1986,15 +1986,15 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 	{
 		/* Try to log the callstack */
 		FILogFile* pLog=LOGFILEMGR.GetLog( "Callstack.log", FILogFile::kDontTimeStamp );
-		if (pLog)
+		if (pLog != 0)
 		{
 			pLog->Msg("Gamecore Callstack\n");
 
 			gStackWalker.SetLog(pLog);	
-			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			gStackWalker.ShowCallstack( GetCurrentThread(), pep != 0 ? pep->ContextRecord : NULL );
 
 			pLog->Msg("\nLua Callstack\n");
-			if (gLuaState)
+			if (gLuaState != 0)
 				LuaSupport::DumpCallStack(gLuaState,pLog);
 
 			pLog->Close();
@@ -2348,17 +2348,17 @@ CvRandom& CvGlobals::getASyncRand()
 
 void CvGlobals::InitializePathfinders(int iX, int iY, bool bWx, bool bWy)
 {
-	if (m_pathFinder)
+	if (m_pathFinder != 0)
 	{
 		m_pathFinder->Initialize(iX, iY, bWx, bWy);
 		m_pathFinder->SetName("unit pf");
 	}
-	if (m_interfacePathFinder)
+	if (m_interfacePathFinder != 0)
 	{
 		m_interfacePathFinder->Initialize(iX, iY, bWx, bWy);
 		m_interfacePathFinder->SetName("iface pf");
 	}
-	if (m_stepFinder)
+	if (m_stepFinder != 0)
 	{
 		m_stepFinder->Initialize(iX, iY, bWx, bWy);
 		m_stepFinder->SetName("stepfinder");
@@ -4267,7 +4267,7 @@ void CvGlobals::LogMessage(const char* szMessage)
 	if(getLogging())
 	{
 		FILogFile* pLog = LOGFILEMGR.GetLog("GameCore.log", 0);
-		if(pLog)
+		if(pLog != 0)
 			pLog->Msg(szMessage);
 	}
 }
@@ -6512,7 +6512,7 @@ void CvGlobals::SetGameDatabase(Database::Connection* pGameDatabase)
 {
 	if(m_pGameDatabase != pGameDatabase)
 	{
-		if(m_pGameDatabase)
+		if(m_pGameDatabase != 0)
 			m_kGlobalDefinesLookup.Release();
 
 		m_pGameDatabase = pGameDatabase;

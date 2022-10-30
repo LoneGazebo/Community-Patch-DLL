@@ -223,7 +223,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		if (pLoopUnit->IsGarrisoned())
 		{
 			CvCity* pCity = pLoopUnit->GetGarrisonedCity();
-			if (pCity)
+			if (pCity != 0)
 			{
 				CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 				if (pLoopUnit != pGarrison || pLoopUnit->plot() != pCity->plot())
@@ -239,7 +239,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		if (pLoopCity->HasGarrison())
 		{
 			CvUnit* pUnit = pLoopCity->GetGarrisonedUnit();
-			if (pUnit)
+			if (pUnit != 0)
 			{
 				CvCity *pGarrisonCity = pUnit->GetGarrisonedCity();
 				if (pLoopCity != pGarrisonCity || pLoopCity->plot() != pGarrisonCity->plot())
@@ -256,7 +256,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 void CvPlayerAI::AI_unitUpdate()
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem != 0)
 	{
 		CvLuaArgsHandle args;
 		args->Push(GetID());
@@ -509,7 +509,7 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 		if(eDesiredGreatPerson != NO_UNIT)
 		{
 			CvCity* pCapital = getCapitalCity();
-			if(pCapital)
+			if(pCapital != 0)
 			{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 				pCapital->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
@@ -637,7 +637,7 @@ void CvPlayerAI::AI_considerAnnex()
 	// if our capital city is puppeted, annex it
 	// can happen if we lose our real capital
 	CvCity* pCapital = getCapitalCity();
-	if (pCapital && pCapital->IsPuppet())
+	if ((pCapital != 0) && pCapital->IsPuppet())
 	{
 		pCapital->DoAnnex();
 		return;
@@ -656,7 +656,7 @@ void CvPlayerAI::AI_considerAnnex()
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
 		CvBuildingEntry* buildingInfo = GC.getBuildingInfo(eBuilding);
 
-		if (buildingInfo)
+		if (buildingInfo != 0)
 		{
 			if (buildingInfo->IsNoOccupiedUnhappiness() && canConstruct(eBuilding))
 			{
@@ -746,7 +746,7 @@ void CvPlayerAI::AI_considerAnnex()
 		sort(options.begin(), options.end());
 
 		CvCity* pTargetCity = options.front().option;
-		if (pTargetCity)
+		if (pTargetCity != 0)
 		{
 			if (pTargetCity->IsRazing())
 				unraze(pTargetCity);
@@ -971,7 +971,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 									if (pkEventChoiceInfo->getDamageCity() != 0 || pkEventChoiceInfo->getDamageGarrison() != 0)
 									{
 										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
-										if (pCity && pCity->isUnderSiege())
+										if ((pCity != 0) && pCity->isUnderSiege())
 											iOurFlavor *= 10;
 									}
 
@@ -1189,14 +1189,14 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, b
 void CvPlayerAI::CityCommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
 	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
-	if (pThisOperation)
+	if (pThisOperation != 0)
 		pThisOperation->CommitToBuildNextUnit(thisSlot);
 }
 
 void CvPlayerAI::CityUncommitToBuildUnitForOperationSlot(OperationSlot thisSlot)
 {
 	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
-	if(pThisOperation)
+	if(pThisOperation != 0)
 		pThisOperation->UncommitToBuildUnit(thisSlot);
 }
 
@@ -1205,7 +1205,7 @@ void CvPlayerAI::CityFinishedBuildingUnitForOperationSlot(OperationSlot thisSlot
 	// find this operation
 	CvAIOperation* pThisOperation = getAIOperation(thisSlot.m_iOperationID);
 	CvArmyAI* pThisArmy = getArmyAI(thisSlot.m_iArmyID);
-	if(pThisOperation && pThisArmy && pThisUnit)
+	if((pThisOperation != 0) && (pThisArmy != 0) && (pThisUnit != 0))
 	{
 		pThisArmy->AddUnit(pThisUnit->GetID(), thisSlot.m_iSlotID,true);
 		pThisOperation->FinishedBuildingUnit(thisSlot);
@@ -1238,7 +1238,7 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		return;
 
 	int iLoop = 0;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != 0; pLoopUnit = nextUnit(&iLoop))
 	{
 #if defined(MOD_BALANCE_CORE)
 		if(pLoopUnit->IsCityAttackSupport())
@@ -1308,13 +1308,13 @@ void CvPlayerAI::ProcessGreatPeople(void)
 bool PreparingForWar(CvPlayerAI* pPlayer)
 {
 	CvAssertMsg(pPlayer, "Need a player");
-	if(!pPlayer)
+	if(pPlayer == 0)
 	{
 		return false;
 	}
 	CvMilitaryAI* pMilitaryAI = pPlayer->GetMilitaryAI();
 	CvAssertMsg(pMilitaryAI, "No military AI");
-	if(!pMilitaryAI)
+	if(pMilitaryAI == 0)
 	{
 		return false;
 	}
@@ -1402,7 +1402,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	// If closing in on a Culture win, go for the Concert Tour
 	if (GetDiplomacyAI()->IsGoingForCultureVictory() || (GetCulture()->GetNumCivsInfluentialOn() > (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 2)))
 	{
-		if(pTarget)
+		if(pTarget != 0)
 		{
 			if (pTarget->getOwner() != NO_PLAYER && GET_PLAYER(pTarget->getOwner()).isMajorCiv())
 			{
@@ -1425,7 +1425,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 
 	if ((GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= (/*2*/ GD_INT_GET(AI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT) / 2))
 	{
-		if(pTarget)
+		if(pTarget != 0)
 		{
 			return GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
@@ -1563,7 +1563,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 
 	// Attempt to find a target for our special mission
 	CvPlot* pTarget = GreatMerchantWantsCash() ? FindBestMerchantTargetPlotForCash(pGreatMerchant) : FindBestMerchantTargetPlotForPuppet(pGreatMerchant);
-	if (pTarget)
+	if (pTarget != 0)
 	{
 		if (!pGreatMerchant->CanFoundColony())
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1657,7 +1657,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	int iCommanders = 0;
 	int iCitadels = 0;
 	int iLoop = 0;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != 0; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsGreatGeneral())
 		{
@@ -1692,7 +1692,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	if(iCitadels==0)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
-		if (pTargetPlot)
+		if (pTargetPlot != 0)
 			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
@@ -1708,11 +1708,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
 	// sometimes we have no choice
-	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
+	if ((pUnit != 0) && !pUnit->GetReligionData()->IsFullStrength())
 		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 
 	// CASE 1: I have an enhanced religion. 
-	if (pMyReligion && pMyReligion->m_bEnhanced)
+	if ((pMyReligion != 0) && pMyReligion->m_bEnhanced)
 	{
 		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
@@ -1732,7 +1732,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	}
 
 	// CASE 2: I have a religion that hasn't yet been enhanced
-	else if (pMyReligion && pMyReligion->GetHolyCity()->getOwner() == pUnit->getOwner())
+	else if ((pMyReligion != 0) && pMyReligion->GetHolyCity()->getOwner() == pUnit->getOwner())
 	{
 		//always enhance (if we still own the holy city)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1784,7 +1784,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 
 	int iGreatAdmiralCount = 0;
 	int iLoop = 0;
-	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != 0; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (pLoopUnit->IsGreatAdmiral() && pLoopUnit->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_USE_POWER) // should not count the admirals set for use_power as it expends all at the same turn
 		{
@@ -1813,7 +1813,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
 	CvPlot* pPlot = FindBestDiplomatTargetPlot(pGreatDiplomat);
-	if (pPlot && !bTheAustriaException && !bTheVeniceException)
+	if ((pPlot != 0) && !bTheAustriaException && !bTheVeniceException)
 	{
 		if ((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
@@ -1845,7 +1845,7 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 
 CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 {
-	if (!pMerchant)
+	if (pMerchant == 0)
 		return NULL;
 
 	int iBestScore = 0;
@@ -1862,7 +1862,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 			continue;
 
 		int iLoop = 0;
-		for (CvCity* pCity=kPlayer.firstCity(&iLoop); pCity; pCity=kPlayer.nextCity(&iLoop))
+		for (CvCity* pCity=kPlayer.firstCity(&iLoop); pCity != 0; pCity=kPlayer.nextCity(&iLoop))
 		{
 			if (!pCity->plot()->isAdjacentRevealed(getTeam()))
 				continue;
@@ -1891,7 +1891,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 
 CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 {
-	if(!pMerchant)
+	if(pMerchant == 0)
 		return NULL;
 
 	// distance and plot id
@@ -1905,7 +1905,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 			continue;
 
 		CvCity* pCity = kPlayer.getCapitalCity();
-		if (!pCity || !pCity->isRevealed(getTeam(),false,true))
+		if ((pCity == 0) || !pCity->isRevealed(getTeam(),false,true))
 			continue;
 
 		// Is this a minor we are friendly with?
@@ -1931,7 +1931,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 
 CvPlot* CvPlayerAI::FindBestDiplomatTargetPlot(CvUnit* pUnit)
 {
-	if (!pUnit)
+	if (pUnit == 0)
 		return NULL;
 
 	//don't go too far out, it's dangerous
@@ -1954,7 +1954,7 @@ CvPlot* CvPlayerAI::FindBestDiplomatTargetPlot(CvUnit* pUnit)
 			CvCity* pCity = GET_PLAYER(pPlot->getOwner()).getCapitalCity();
 
 			CvPlot* pBuildPlot = HomelandAIHelpers::GetPlotForEmbassy(pUnit, pCity);
-			if (pBuildPlot)
+			if (pBuildPlot != 0)
 				return pBuildPlot;
 			else
 				badTargets.insert(pPlot->getOwner());
@@ -1980,7 +1980,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				//want to have at least on revealed plot as target for pathfinding
-				if(pLoopCity && pLoopCity->plot()->isAdjacentRevealed(pUnit->getTeam()))
+				if((pLoopCity != 0) && pLoopCity->plot()->isAdjacentRevealed(pUnit->getTeam()))
 				{
 					//we often have multiple messengers active at the same time, don't all go to the same target
 					if (std::find(vIgnoreCities.begin(), vIgnoreCities.end(), pLoopCity->GetID()) != vIgnoreCities.end())
@@ -2409,7 +2409,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgno
 
 CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 {
-	if(!pMusician)
+	if(pMusician == 0)
 		return NULL;
 
 	// Find target civ
@@ -2420,12 +2420,12 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 	//try the closest city first
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	CvCity* pTargetCity = GC.getGame().GetClosestCityByPlots(pMusician->plot(), eTargetPlayer);
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
+	if ((pTargetCity != 0) && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	//fallback, try the capital
 	pTargetCity = GET_PLAYER(eTargetPlayer).getCapitalCity();
-	if (pTargetCity && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
+	if ((pTargetCity != 0) && pMusician->GeneratePath(pTargetCity->plot(), iFlags, 23))
 		return pMusician->GetPathLastPlot();
 
 	return NULL;
@@ -2433,7 +2433,7 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pMusician)
 
 CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable)
 {
-	if (!pUnit)
+	if (pUnit == 0)
 		return NULL;
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
@@ -2444,7 +2444,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	if (eBuild == NO_BUILD)
 	{
 		CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
-		if (!pkUnitEntry || !pUnit->isCultureBomb())
+		if ((pkUnitEntry == 0) || !pUnit->isCultureBomb())
 			return NULL;
 
 		iRange = range(pkUnitEntry->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);
@@ -2452,12 +2452,12 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	else
 	{
 		CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
-		if (!pkBuildInfo)
+		if (pkBuildInfo == 0)
 			return NULL;
 
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (!pkImprovementInfo)
+		if (pkImprovementInfo == 0)
 			return NULL;
 
 		iRange = range(pkImprovementInfo->GetCultureBombRadius() + GetCultureBombBoost(), 1, 5);

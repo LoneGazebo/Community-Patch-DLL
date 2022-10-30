@@ -23,8 +23,8 @@ CvDllWorldInfo::~CvDllWorldInfo()
 //------------------------------------------------------------------------------
 void* CvDllWorldInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvWorldInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvWorldInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

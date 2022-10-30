@@ -125,7 +125,7 @@ void CvCityManager::OnCityDestroyed(CvCity* pkCity)
 const CvCityManager::CityList& CvCityManager::GetNearbyCities(CvCity* pkCity)
 {
 	CvAssert(pkCity);
-	if (pkCity)
+	if (pkCity != 0)
 	{
 		CityMap::const_iterator itr = ms_kCityMap.find(pkCity);
 

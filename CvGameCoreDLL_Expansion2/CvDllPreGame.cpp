@@ -22,9 +22,9 @@ CvDllPreGame::~CvDllPreGame()
 //------------------------------------------------------------------------------
 void* CvDllPreGame::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvPreGame1::GetInterfaceId() ||
-		guidInterface == ICvPreGame2::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvPreGame1::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvPreGame2::GetInterfaceId()) != 0))
 	{
 		return this;
 	}

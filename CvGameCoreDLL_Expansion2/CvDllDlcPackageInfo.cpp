@@ -22,8 +22,8 @@ CvDllDlcPackageInfo::~CvDllDlcPackageInfo()
 //------------------------------------------------------------------------------
 void* CvDllDlcPackageInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvDlcPackageInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvDlcPackageInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -90,8 +90,8 @@ CvDllDlcPackageInfoList::~CvDllDlcPackageInfoList()
 //------------------------------------------------------------------------------
 void* CvDllDlcPackageInfoList::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvEnumerator::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvEnumerator::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

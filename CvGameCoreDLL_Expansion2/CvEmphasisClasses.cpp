@@ -58,7 +58,7 @@ int CvEmphasisEntry::GetYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piYieldModifiers ? m_piYieldModifiers[i] : -1;
+	return m_piYieldModifiers != 0 ? m_piYieldModifiers[i] : -1;
 }
 
 //=====================================
@@ -215,7 +215,7 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			if(pkEmphasis->GetYieldChange(iI))
+			if(pkEmphasis->GetYieldChange(iI) != 0)
 			{
 				m_aiEmphasizeYieldCount[iI] += ((IsEmphasize(eIndex)) ? 1 : -1);
 				CvAssert(GetEmphasizeYieldCount((YieldTypes)iI) >= 0);

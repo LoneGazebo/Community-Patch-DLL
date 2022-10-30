@@ -269,7 +269,7 @@ int CvArea::GetNumBadPlots() const
 
 void CvArea::UpdateBadPlotsCount(CvPlot* pPlot)
 {
-	if (!pPlot || pPlot->getArea() == GetID())
+	if ((pPlot == 0) || pPlot->getArea() == GetID())
 		return;
 
 	if(isWater())

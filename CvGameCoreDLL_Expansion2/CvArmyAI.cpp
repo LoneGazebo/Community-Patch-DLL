@@ -77,7 +77,7 @@ void CvArmyAI::Kill()
 	ReleaseAllUnits();
 
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(m_iOperationID);
-	if (pOperation)
+	if (pOperation != 0)
 		pOperation->DeleteArmyAI(m_iID);
 
 	//this calls the destructor
@@ -161,7 +161,7 @@ int CvArmyAI::GetMovementRate()
 	CvUnit* pUnit = NULL;
 
 	pUnit = GetFirstUnit();
-	while(pUnit)
+	while(pUnit != 0)
 	{
 		iNumUnits++;
 		iTotalMovementAllowance += pUnit->baseMoves(pUnit->isEmbarked());
@@ -184,7 +184,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	int iNumUnits = 0;
 
 	CvUnit* pUnit = GetFirstUnit();
-	if (!pUnit)
+	if (pUnit == 0)
 		return NULL;
 
 	int iTotalX2 = 0;
@@ -198,7 +198,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 	iNumUnits++;
 
 	pUnit = GetNextUnit(pUnit);
-	while(pUnit)
+	while(pUnit != 0)
 	{
 		int iDX = pUnit->getX() - iRefX;
 		int iDY = pUnit->getY() - iRefY;
@@ -238,15 +238,15 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 
 	//this handles wrapped coordinates
 	CvPlot* pCOM = GC.getMap().plot(iAvgX, iAvgY);
-	if (!pCOM)
+	if (pCOM == 0)
 		return NULL;
 
-	if (pfVarX)
+	if (pfVarX != 0)
 	{
 		float fVarX = (iTotalX2/fNUnits) - (iTotalX/fNUnits)*(iTotalX/fNUnits);
 		*pfVarX = fVarX;
 	}
-	if (pfVarY)
+	if (pfVarY != 0)
 	{
 		float fVarY = (iTotalY2/fNUnits) - (iTotalY/fNUnits)*(iTotalY/fNUnits);
 		*pfVarY = fVarY;
@@ -258,10 +258,10 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 		pUnit = GetFirstUnit();
 		std::vector<SPlotWithScore> vPlots;
 		CvPlot* pGoal = GetGoalPlot();
-		while (pUnit)
+		while (pUnit != 0)
 		{
 			int iDistToCOM = plotDistance(*pUnit->plot(),*pCOM);
-			int iDistToTarget = pGoal ? plotDistance(*pUnit->plot(),*pGoal) : 0;
+			int iDistToTarget = pGoal != 0 ? plotDistance(*pUnit->plot(),*pGoal) : 0;
 			vPlots.push_back( SPlotWithScore(pUnit->plot(),iDistToCOM*100+iDistToTarget) );
 
 			pUnit = GetNextUnit(pUnit);
@@ -281,13 +281,13 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 /// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetClosestUnitDistance(CvPlot* pPlot)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	int iSmallestDistance = INT_MAX;
 	CvUnit* pUnit = GetFirstUnit();
 
-	while(pUnit)
+	while(pUnit != 0)
 	{
 		int iNewDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 		if(iNewDistance < iSmallestDistance)
@@ -303,13 +303,13 @@ int CvArmyAI::GetClosestUnitDistance(CvPlot* pPlot)
 /// Return distance from this plot of unit in army farthest away
 int CvArmyAI::GetFurthestUnitDistance(CvPlot* pPlot)
 {
-	if (!pPlot)
+	if (pPlot == 0)
 		return INT_MAX;
 
 	int iLargestDistance = 0;
 	CvUnit* pUnit = GetFirstUnit();
 
-	while(pUnit)
+	while(pUnit != 0)
 	{
 		int iNewDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 		if(iNewDistance > iLargestDistance)
@@ -368,7 +368,7 @@ size_t CvArmyAI::GetNumSlotsFilled() const
 void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 {
 	CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
-	if (!pOperation)
+	if (pOperation == 0)
 		return;
 
 	CvPlot* pCurrentArmyPlot = GetCurrentPlot();
@@ -434,7 +434,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 bool CvArmyAI::IsAllOceanGoing()
 {
 	CvUnit* pUnit = GetFirstUnit();
-	while(pUnit)
+	while(pUnit != 0)
 	{
 		if(pUnit->getDomainType() != DOMAIN_SEA)
 		{
@@ -478,7 +478,7 @@ int CvArmyAI::GetTotalPower()
 CvFormationSlotEntry CvArmyAI::GetSlotInfo(size_t iSlotID) const
 {
 	CvMultiUnitFormationInfo* thisFormation = GetFormation();
-	if (thisFormation && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
+	if ((thisFormation != 0) && iSlotID >= 0 && iSlotID < thisFormation->getNumFormationSlotEntries())
 		return thisFormation->getFormationSlotEntry(iSlotID);
 
 	return CvFormationSlotEntry();
@@ -552,7 +552,7 @@ void CvArmyAI::SetGoalPlot(CvPlot* pGoalPlot)
 {
 	CvAssertMsg(pGoalPlot, "Setting army goal to a NULL plot - please show Ed and send save.");
 
-	if(pGoalPlot)
+	if(pGoalPlot != 0)
 	{
 		m_iGoalX = pGoalPlot->getX();
 		m_iGoalY = pGoalPlot->getY();
@@ -593,7 +593,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 
 	// Finally, compute when we think this unit will arrive at the next checkpoint
 	CvPlot* pMusterPlot = GetCurrentPlot();
-	if(pMusterPlot)
+	if(pMusterPlot != 0)
 	{
 		int iFlags = CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF | CvUnit::MOVEFLAG_IGNORE_ZOC;
 		int iTurnsToReachCheckpoint = pThisUnit->TurnsToReachTarget(pMusterPlot, iFlags, /*10*/ GD_INT_GET(AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY));
@@ -602,7 +602,7 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvAIOperation* pOperation = GET_PLAYER(GetOwner()).getAIOperation(GetOperationID());
-			if (pOperation)
+			if (pOperation != 0)
 			{
 				CvString strMsg;
 				strMsg.Format("Added %s %d to slot %d in army %d. ETA at (%d:%d) is %d ", pThisUnit->getName().c_str(),

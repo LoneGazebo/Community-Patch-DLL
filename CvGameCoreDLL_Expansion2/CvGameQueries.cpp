@@ -30,7 +30,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(i);
 		CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-		if(pkUnitClassInfo)
+		if(pkUnitClassInfo != 0)
 		{
 			const UnitTypes eDefaultUnit = (UnitTypes) pkUnitClassInfo->getDefaultUnitIndex();
 

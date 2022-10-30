@@ -87,7 +87,7 @@ void CvProcessProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	for(iProcess = 0; iProcess < GC.getNumProcessInfos(); iProcess++)
 	{
 		entry = GC.getProcessInfo((ProcessTypes)iProcess);
-		if (entry)
+		if (entry != 0)
 		{
 			// Set its weight by looking at project's weight for this flavor and using iWeight multiplier passed in
 			m_ProcessAIWeights.IncreaseWeight(iProcess, entry->GetFlavorValue(eFlavor) * iWeight);
@@ -104,7 +104,7 @@ int CvProcessProductionAI::GetWeight(ProcessTypes eProject)
 int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight)
 {
 	CvProcessInfo* pProcess = GC.getProcessInfo(eProcess);
-	if(!pProcess)
+	if(pProcess == 0)
 		return SR_IMPOSSIBLE;
 
 	if(iTempWeight < 1)
@@ -319,7 +319,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	{
 		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
 		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
-		if (pInfo && pInfo->GetProcess() == eProcess)
+		if ((pInfo != 0) && pInfo->GetProcess() == eProcess)
 		{
 			bIsProject = true;
 			if (m_pCity->getProductionProcess() == eProcess)
@@ -504,7 +504,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		CvString strLogName;
 
 		CvAssert(m_pCity);
-		if(!m_pCity) return;
+		if(m_pCity == 0) return;
 
 		// Find the name of this civ and city
 		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
@@ -514,7 +514,7 @@ void CvProcessProductionAI::LogPossibleBuilds()
 		FILogFile* pLog = NULL;
 		pLog = LOGFILEMGR.GetLog(m_pCity->GetCityStrategyAI()->GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 		CvAssert(pLog);
-		if(!pLog) return;
+		if(pLog == 0) return;
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());

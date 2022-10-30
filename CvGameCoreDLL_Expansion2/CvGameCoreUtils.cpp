@@ -107,7 +107,7 @@ int plotDistance(int iIndexA, int iIndexB)
 	CvMap& kMap = GC.getMap();
 	CvPlot* pA = kMap.plotByIndex(iIndexA);
 	CvPlot* pB = kMap.plotByIndex(iIndexB);
-	if (pA && pB)
+	if ((pA != 0) && (pB != 0))
 		return plotDistance(pA->getX(),pA->getY(),pB->getX(),pB->getY());
 	else
 		return INT_MAX;
@@ -205,7 +205,7 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 /// This function will return the CvPlot associated with the Index (0 to 36) of a City at iX,iY.  The lower the Index the closer the Plot is to the City (roughly)
 CvPlot* iterateRingPlots(const CvPlot* pCenter, int iIndex)
 {
-	if (pCenter)
+	if (pCenter != 0)
 		return iterateRingPlots(pCenter->getX(),pCenter->getY(),iIndex);
 
 	return NULL;
@@ -416,7 +416,7 @@ bool isBeforeUnitCycle(const CvUnit* pFirstUnit, const CvUnit* pSecondUnit)
 	CvAssert(pSecondUnit != NULL);
 	CvAssert(pFirstUnit != pSecondUnit);
 
-	if(!pFirstUnit || !pSecondUnit)
+	if((pFirstUnit == 0) || (pSecondUnit == 0))
 		return false;
 
 	if(pFirstUnit->getOwner() != pSecondUnit->getOwner())
@@ -694,7 +694,7 @@ int getTechScore(TechTypes eTech)
 int getWonderScore(BuildingClassTypes eWonderClass)
 {
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eWonderClass);
-	if(pkBuildingClassInfo)
+	if(pkBuildingClassInfo != 0)
 	{
 		if(isLimitedWonderClass(*pkBuildingClassInfo))
 			return 5;
@@ -749,7 +749,7 @@ bool isTechRequiredForUnit(TechTypes eTech, UnitTypes eUnit)
 bool isTechRequiredForBuilding(TechTypes eTech, BuildingTypes eBuilding)
 {
 	CvBuildingEntry* info = GC.getBuildingInfo(eBuilding);
-	if(info)
+	if(info != 0)
 	{
 		if(info->GetPrereqAndTech() == eTech)
 		{
@@ -771,7 +771,7 @@ bool isTechRequiredForBuilding(TechTypes eTech, BuildingTypes eBuilding)
 bool isTechRequiredForProject(TechTypes eTech, ProjectTypes eProject)
 {
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-	if(pkProjectInfo)
+	if(pkProjectInfo != 0)
 	{
 		if(pkProjectInfo->GetTechPrereq() == eTech)
 		{
@@ -785,7 +785,7 @@ bool isTechRequiredForProject(TechTypes eTech, ProjectTypes eProject)
 bool isWorldUnitClass(UnitClassTypes eUnitClass)
 {
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	if(pkUnitClassInfo)
+	if(pkUnitClassInfo != 0)
 	{
 		return (pkUnitClassInfo->getMaxGlobalInstances() != -1);
 	}
@@ -795,7 +795,7 @@ bool isWorldUnitClass(UnitClassTypes eUnitClass)
 bool isTeamUnitClass(UnitClassTypes eUnitClass)
 {
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	if(pkUnitClassInfo)
+	if(pkUnitClassInfo != 0)
 	{
 		return (pkUnitClassInfo->getMaxTeamInstances() != -1);
 	}
@@ -805,7 +805,7 @@ bool isTeamUnitClass(UnitClassTypes eUnitClass)
 bool isNationalUnitClass(UnitClassTypes eUnitClass)
 {
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	if(pkUnitClassInfo)
+	if(pkUnitClassInfo != 0)
 	{
 		return (pkUnitClassInfo->getMaxPlayerInstances() != -1);
 	}
@@ -815,7 +815,7 @@ bool isNationalUnitClass(UnitClassTypes eUnitClass)
 bool isUnitLimitPerCity(UnitClassTypes eUnitClass)
 {
 	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	if(pkUnitClassInfo)
+	if(pkUnitClassInfo != 0)
 	{
 		return (pkUnitClassInfo->getUnitInstancePerCity() != -1);
 	}
@@ -835,7 +835,7 @@ bool isLimitedUnitClass(UnitClassTypes eUnitClass)
 bool isWorldProject(ProjectTypes eProject)
 {
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-	if(pkProjectInfo)
+	if(pkProjectInfo != 0)
 	{
 		return (pkProjectInfo->GetMaxGlobalInstances() != -1);
 	}
@@ -845,7 +845,7 @@ bool isWorldProject(ProjectTypes eProject)
 bool isTeamProject(ProjectTypes eProject)
 {
 	CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-	if(pkProjectInfo)
+	if(pkProjectInfo != 0)
 	{
 		return (pkProjectInfo->GetMaxTeamInstances() != -1);
 	}
@@ -863,14 +863,14 @@ TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-	if(pkUnitInfo)
+	if(pkUnitInfo != 0)
 	{
 		int iBestValue = 0;
 		for(int iI = 0; iI < GC.getNumTechInfos(); iI++)
 		{
 			const TechTypes eTech = static_cast<TechTypes>(iI);
 			CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-			if(pkTechInfo)
+			if(pkTechInfo != 0)
 			{
 				if(kPlayer.GetPlayerTechs()->CanResearch(eTech))
 				{
@@ -946,7 +946,7 @@ bool PUF_isEnemy(const CvUnit* pUnit, int iData1, int iData2)
 		return false;
 	}
 
-	return (iData2 ? eOtherTeam != eOurTeam : atWar(eOtherTeam, eOurTeam));
+	return (iData2 != 0 ? eOtherTeam != eOurTeam : atWar(eOtherTeam, eOurTeam));
 }
 
 bool PUF_isVisible(const CvUnit* pUnit, int iData1, int)
@@ -980,7 +980,7 @@ bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 		return false;
 	}
 
-	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, (PlayerTypes)iData1));
+	return (iData2 != 0 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, (PlayerTypes)iData1));
 }
 
 bool PUF_canDefend(const CvUnit* pUnit, int, int)
@@ -1046,11 +1046,11 @@ bool PUF_isFiniteRange(const CvUnit* pUnit, int, int)
 
 bool isPickableName(const char* szName)
 {
-	if(szName)
+	if(szName != 0)
 	{
 		int iLen = strlen(szName);
 
-		if(!_stricmp(&szName[iLen-6], "NOPICK"))
+		if(_stricmp(&szName[iLen-6], "NOPICK") == 0)
 		{
 			return false;
 		}
@@ -1159,7 +1159,7 @@ void boolsToString(const bool* pBools, int iNumBools, CvString* szOut)
 void stringToBools(const char* szString, int* iNumBools, bool** ppBools)
 {
 	CvAssertMsg(szString, "null string");
-	if(szString)
+	if(szString != 0)
 	{
 		*iNumBools = strlen(szString);
 		*ppBools = FNEW(bool[*iNumBools], c_eCiv5GameplayDLL, 0);
@@ -1492,7 +1492,7 @@ bool GetGUIDSegment(const char* pszGUID, uint* puiIndex, T& kDest)
 //	---------------------------------------------------------------------------
 bool ExtractGUID(const char* pszGUID, GUID& kGUID, UINT* puiStartIndex /* = NULL */)
 {
-	if(pszGUID)
+	if(pszGUID != 0)
 	{
 		UINT uiIndex = (puiStartIndex != NULL)?(*puiStartIndex):0;
 
@@ -1510,7 +1510,7 @@ bool ExtractGUID(const char* pszGUID, GUID& kGUID, UINT* puiStartIndex /* = NULL
 						}
 					}
 
-					if(puiStartIndex)
+					if(puiStartIndex != 0)
 						*puiStartIndex = uiIndex;
 					return true;
 				}

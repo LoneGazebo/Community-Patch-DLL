@@ -24,8 +24,8 @@ CvDllMinorCivInfo::~CvDllMinorCivInfo()
 //------------------------------------------------------------------------------
 void* CvDllMinorCivInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvMinorCivInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvMinorCivInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

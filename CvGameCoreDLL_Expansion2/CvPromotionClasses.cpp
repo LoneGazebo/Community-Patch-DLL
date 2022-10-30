@@ -424,7 +424,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		m_iNearbyImprovementCombatBonus = kResults.GetInt("NearbyImprovementCombatBonus");
 		m_iNearbyImprovementBonusRange = kResults.GetInt("NearbyImprovementBonusRange");
 		const char* szTextVal = kResults.GetText("CombatBonusImprovement");
-		if (szTextVal) {
+		if (szTextVal != 0) {
 			m_eCombatBonusImprovement = (ImprovementTypes)GC.getInfoTypeForString(szTextVal, true);
 		}
 	}
@@ -501,7 +501,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_BALANCE_CORE)
 	m_iNearbyCityCombatMod = kResults.GetInt("NearbyCityCombatMod");
 	m_iNearbyFriendlyCityCombatMod = kResults.GetInt("NearbyFriendlyCityCombatMod");
-	m_iNearbyEnemyCityCombatMod = kResults.GetBool("NearbyEnemyCityCombatMod");
+	m_iNearbyEnemyCityCombatMod = static_cast<int>(kResults.GetBool("NearbyEnemyCityCombatMod"));
 	m_bIsNearbyPromotion = kResults.GetBool("IsNearbyPromotion");
 	m_iNearbyRange = kResults.GetInt("NearbyRange");
 	const char* szConvertDomainUnit = kResults.GetText("ConvertDomainUnit");
@@ -718,7 +718,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -780,7 +780,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -834,7 +834,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -861,7 +861,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -887,7 +887,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -914,7 +914,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if (!pResults) return false;
+		if (pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -941,7 +941,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -970,7 +970,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1008,7 +1008,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1071,7 +1071,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1101,7 +1101,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1130,7 +1130,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -1158,7 +1158,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 		}
 
 		CvAssert(pResults);
-		if(!pResults) return false;
+		if(pResults == 0) return false;
 
 		pResults->Bind(1, szPromotionType);
 
@@ -2611,7 +2611,7 @@ int CvPromotionEntry::GetTerrainAttackPercent(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainAttackPercent)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_piTerrainAttackPercent != 0))
 	{
 		return m_piTerrainAttackPercent[i];
 	}
@@ -2625,7 +2625,7 @@ int CvPromotionEntry::GetTerrainDefensePercent(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainDefensePercent)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_piTerrainDefensePercent != 0))
 	{
 		return m_piTerrainDefensePercent[i];
 	}
@@ -2639,7 +2639,7 @@ int CvPromotionEntry::GetFeatureAttackPercent(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureAttackPercent)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_piFeatureAttackPercent != 0))
 	{
 		return m_piFeatureAttackPercent[i];
 	}
@@ -2653,7 +2653,7 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeatureDefensePercent)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_piFeatureDefensePercent != 0))
 	{
 		return m_piFeatureDefensePercent[i];
 	}
@@ -2666,7 +2666,7 @@ int CvPromotionEntry::GetYieldModifier(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldModifier)
+	if(i > -1 && i < NUM_YIELD_TYPES && (m_piYieldModifier != 0))
 	{
 		return m_piYieldModifier[i];
 	}
@@ -2679,7 +2679,7 @@ int CvPromotionEntry::GetYieldChange(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	if (i > -1 && i < NUM_YIELD_TYPES && m_piYieldChange)
+	if (i > -1 && i < NUM_YIELD_TYPES && (m_piYieldChange != 0))
 	{
 		return m_piYieldChange[i];
 	}
@@ -2691,7 +2691,7 @@ int CvPromotionEntry::GetYieldFromScouting(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromScouting)
+	if(i > -1 && i < NUM_YIELD_TYPES && (m_piYieldFromScouting != 0))
 	{
 		return m_piYieldFromScouting[i];
 	}
@@ -2704,7 +2704,7 @@ int CvPromotionEntry::GetYieldFromKills(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromKills)
+	if(i > -1 && i < NUM_YIELD_TYPES && (m_piYieldFromKills != 0))
 	{
 		return m_piYieldFromKills[i];
 	}
@@ -2717,7 +2717,7 @@ int CvPromotionEntry::GetGarrisonYield(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < NUM_YIELD_TYPES && m_piGarrisonYield)
+	if(i > -1 && i < NUM_YIELD_TYPES && (m_piGarrisonYield != 0))
 	{
 		return m_piGarrisonYield[i];
 	}
@@ -2730,7 +2730,7 @@ int CvPromotionEntry::GetFortificationYield(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < NUM_YIELD_TYPES && m_piFortificationYield)
+	if (i > -1 && i < NUM_YIELD_TYPES && (m_piFortificationYield != 0))
 	{
 		return m_piFortificationYield[i];
 	}
@@ -2743,7 +2743,7 @@ int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromBarbarianKills)
+	if(i > -1 && i < NUM_YIELD_TYPES && (m_piYieldFromBarbarianKills != 0))
 	{
 		return m_piYieldFromBarbarianKills[i];
 	}
@@ -2757,7 +2757,7 @@ int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piUnitCombatModifierPercent)
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && (m_piUnitCombatModifierPercent != 0))
 	{
 		return m_piUnitCombatModifierPercent[i];
 	}
@@ -2771,7 +2771,7 @@ int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassModifierPercent)
+	if(i > -1 && i < GC.getNumUnitClassInfos() && (m_piUnitClassModifierPercent != 0))
 	{
 		return m_piUnitClassModifierPercent[i];
 	}
@@ -2785,7 +2785,7 @@ int CvPromotionEntry::GetDomainModifierPercent(int i) const
 	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainModifierPercent)
+	if(i > -1 && i < NUM_DOMAIN_TYPES && (m_piDomainModifierPercent != 0))
 	{
 		return m_piDomainModifierPercent[i];
 	}
@@ -2799,7 +2799,7 @@ int CvPromotionEntry::GetUnitClassAttackModifier(int i) const
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassAttackModifier)
+	if(i > -1 && i < GC.getNumUnitClassInfos() && (m_piUnitClassAttackModifier != 0))
 	{
 		return m_piUnitClassAttackModifier[i];
 	}
@@ -2813,7 +2813,7 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 	CvAssertMsg(i < GC.getNumUnitClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassDefenseModifier)
+	if(i > -1 && i < GC.getNumUnitClassInfos() && (m_piUnitClassDefenseModifier != 0))
 	{
 		return m_piUnitClassDefenseModifier[i];
 	}
@@ -2828,7 +2828,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatModifierPercent(int i) co
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatModifierPercent)
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && (m_piCombatModPerAdjacentUnitCombatModifierPercent != 0))
 	{
 		return m_piCombatModPerAdjacentUnitCombatModifierPercent[i];
 	}
@@ -2842,7 +2842,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatAttackModifier(int i) con
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatAttackModifier)
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && (m_piCombatModPerAdjacentUnitCombatAttackModifier != 0))
 	{
 		return m_piCombatModPerAdjacentUnitCombatAttackModifier[i];
 	}
@@ -2856,7 +2856,7 @@ int CvPromotionEntry::GetCombatModPerAdjacentUnitCombatDefenseModifier(int i) co
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_piCombatModPerAdjacentUnitCombatDefenseModifier)
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && (m_piCombatModPerAdjacentUnitCombatDefenseModifier != 0))
 	{
 		return m_piCombatModPerAdjacentUnitCombatDefenseModifier[i];
 	}
@@ -2889,7 +2889,7 @@ int CvPromotionEntry::GetFeaturePassableTech(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_piFeaturePassableTech)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_piFeaturePassableTech != 0))
 	{
 		return m_piFeaturePassableTech[i];
 	}
@@ -2903,7 +2903,7 @@ bool CvPromotionEntry::GetTerrainDoubleMove(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainDoubleMove)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_pbTerrainDoubleMove != 0))
 	{
 		return m_pbTerrainDoubleMove[i];
 	}
@@ -2917,7 +2917,7 @@ bool CvPromotionEntry::GetFeatureDoubleMove(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureDoubleMove)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_pbFeatureDoubleMove != 0))
 	{
 		return m_pbFeatureDoubleMove[i];
 	}
@@ -2932,7 +2932,7 @@ bool CvPromotionEntry::GetTerrainHalfMove(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainHalfMove)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_pbTerrainHalfMove != 0))
 	{
 		return m_pbTerrainHalfMove[i];
 	}
@@ -2946,7 +2946,7 @@ bool CvPromotionEntry::GetTerrainExtraMove(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainExtraMove)
+	if (i > -1 && i < GC.getNumTerrainInfos() && (m_pbTerrainExtraMove != 0))
 	{
 		return m_pbTerrainExtraMove[i];
 	}
@@ -2960,7 +2960,7 @@ bool CvPromotionEntry::GetFeatureHalfMove(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureHalfMove)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_pbFeatureHalfMove != 0))
 	{
 		return m_pbFeatureHalfMove[i];
 	}
@@ -2974,7 +2974,7 @@ bool CvPromotionEntry::GetFeatureExtraMove(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureExtraMove)
+	if (i > -1 && i < GC.getNumFeatureInfos() && (m_pbFeatureExtraMove != 0))
 	{
 		return m_pbFeatureExtraMove[i];
 	}
@@ -2989,7 +2989,7 @@ bool CvPromotionEntry::GetTerrainDoubleHeal(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainDoubleHeal)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_pbTerrainDoubleHeal != 0))
 	{
 		return m_pbTerrainDoubleHeal[i];
 	}
@@ -3003,7 +3003,7 @@ bool CvPromotionEntry::GetFeatureDoubleHeal(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureDoubleHeal)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_pbFeatureDoubleHeal != 0))
 	{
 		return m_pbFeatureDoubleHeal[i];
 	}
@@ -3017,7 +3017,7 @@ bool CvPromotionEntry::GetTerrainImpassable(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_pbTerrainImpassable)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_pbTerrainImpassable != 0))
 	{
 		return m_pbTerrainImpassable[i];
 	}
@@ -3031,7 +3031,7 @@ int CvPromotionEntry::GetTerrainPassableTech(int i) const
 	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumTerrainInfos() && m_piTerrainPassableTech)
+	if(i > -1 && i < GC.getNumTerrainInfos() && (m_piTerrainPassableTech != 0))
 	{
 		return m_piTerrainPassableTech[i];
 	}
@@ -3045,7 +3045,7 @@ bool CvPromotionEntry::GetFeatureImpassable(int i) const
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumFeatureInfos() && m_pbFeatureImpassable)
+	if(i > -1 && i < GC.getNumFeatureInfos() && (m_pbFeatureImpassable != 0))
 	{
 		return m_pbFeatureImpassable[i];
 	}
@@ -3059,7 +3059,7 @@ bool CvPromotionEntry::GetUnitCombatClass(int i) const
 	CvAssertMsg(i < GC.getNumUnitCombatClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && m_pbUnitCombat)
+	if(i > -1 && i < GC.getNumUnitCombatClassInfos() && (m_pbUnitCombat != 0))
 	{
 		return m_pbUnitCombat[i];
 	}
@@ -3073,7 +3073,7 @@ bool CvPromotionEntry::GetCivilianUnitType(int i) const
 	CvAssertMsg(i < GC.getNumUnitInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if(i > -1 && i < GC.getNumUnitInfos() && m_pbCivilianUnitType)
+	if(i > -1 && i < GC.getNumUnitInfos() && (m_pbCivilianUnitType != 0))
 	{
 		return m_pbCivilianUnitType[i];
 	}
@@ -3107,7 +3107,7 @@ bool CvPromotionEntry::IsUnitNaming(int i) const
 {
 	CvAssertMsg(i < GC.getNumPromotionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbUnitName ? m_pbUnitName[i] : false;
+	return m_pbUnitName != 0 ? m_pbUnitName[i] : false;
 }
 
 void CvPromotionEntry::GetUnitName(UnitTypes eUnit, CvString& sUnitName) const
@@ -3130,7 +3130,7 @@ bool CvPromotionEntry::IsPostCombatRandomPromotion(int i) const
 {
 	CvAssertMsg(i < GC.getNumPromotionInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_pbPostCombatRandomPromotion ? m_pbPostCombatRandomPromotion[i] : false;
+	return m_pbPostCombatRandomPromotion != 0 ? m_pbPostCombatRandomPromotion[i] : false;
 }
 
 //=====================================
@@ -3295,7 +3295,7 @@ void CvUnitPromotions::UpdateCache()
 			if(m_kHasPromotion.GetBit(iPromotion))
 			{
 				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
-				if(promotion)
+				if(promotion != 0)
 				{
 					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(iTerrain);
 					if(eTech != NO_TECH)
@@ -3318,7 +3318,7 @@ void CvUnitPromotions::UpdateCache()
 			if(m_kHasPromotion.GetBit(iPromotion))
 			{
 				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
-				if(promotion)
+				if(promotion != 0)
 				{
 					TechTypes eTech = (TechTypes) promotion->GetFeaturePassableTech(iFeature);
 					if (eTech != NO_TECH)
@@ -3344,7 +3344,7 @@ bool CvUnitPromotions::HasAllowFeaturePassable() const
 bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType, TeamTypes eTeam) const
 {
 	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
-	if (!teamTechs)
+	if (teamTechs == 0)
 		return false;
 
 	std::vector<TechTypes> reqTechs = m_featurePassableCache[eFeatureType];
@@ -3365,7 +3365,7 @@ bool CvUnitPromotions::HasAllowTerrainPassable() const
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType, TeamTypes eTeam) const
 {
 	CvTeamTechs* teamTechs = eTeam != NO_TEAM ? GET_TEAM(eTeam).GetTeamTechs() : NULL;
-	if(!teamTechs) 
+	if(teamTechs == 0) 
 		return false;
 
 	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
@@ -3388,7 +3388,7 @@ int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 	{
 		PromotionTypes ePromotion = (PromotionTypes)iLoop;
 		CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-		if(promotion && HasPromotion(ePromotion))
+		if((promotion != 0) && HasPromotion(ePromotion))
 		{
 			iSum += promotion->GetUnitClassAttackModifier(eUnitClass);
 		}
@@ -3408,7 +3408,7 @@ int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 	{
 		PromotionTypes ePromotion = (PromotionTypes)iLoop;
 		CvPromotionEntry* promotion = GC.getPromotionInfo(ePromotion);
-		if(promotion && HasPromotion(ePromotion))
+		if((promotion != 0) && HasPromotion(ePromotion))
 		{
 			iSum += promotion->GetUnitClassDefenseModifier(eUnitClass);
 		}
@@ -3421,7 +3421,7 @@ int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eIndex, CvUnit* pThisUnit)
 {
 	CvPromotionEntry *pkEntry = GC.GetGamePromotions()->GetEntry(eIndex);
-	if (!pkEntry || !pThisUnit)
+	if ((pkEntry == 0) || (pThisUnit == 0))
 		return NO_PROMOTION;
 
 	std::vector<int> aPossiblePromotions;
@@ -3580,7 +3580,7 @@ void PromotionArrayHelpers::Write(FDataStream& kStream, const CvBitfield& kPromo
 		if (bValue)
 		{
 			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-			if(pkPromotionInfo)
+			if(pkPromotionInfo != 0)
 			{
 				uint uiHash = FString::Hash( pkPromotionInfo->GetType() );		// Save just the hash
 				kStream << uiHash;

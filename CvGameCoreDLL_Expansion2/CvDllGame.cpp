@@ -34,9 +34,9 @@ CvDllGame::~CvDllGame()
 //------------------------------------------------------------------------------
 void* CvDllGame::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvGame1::GetInterfaceId()	 ||
-		guidInterface == ICvGame2::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvGame1::GetInterfaceId()) != 0)	 ||
+		((guidInterface == ICvGame2::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -451,7 +451,7 @@ void CvDllGame::SetPausePlayer(PlayerTypes eNewValue)
 //------------------------------------------------------------------------------
 void CvDllGame::SetTimeStr(_Inout_z_cap_c_(256) char* szString, int iGameTurn, bool bSave)
 {
-	if(szString)
+	if(szString != 0)
 	{
 		CvString strString;
 		CvGameTextMgr::setDateStr(strString,

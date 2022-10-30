@@ -40,7 +40,7 @@ void CvBuildingProductionAI::Reset()
 	m_BuildingAIWeights.clear();
 
 	// Loop through reading each one and add an entry with 0 weight to our vector
-	if(m_pCityBuildings)
+	if(m_pCityBuildings != 0)
 	{
 		for(int i = 0; i < m_pCityBuildings->GetPossibleBuildings()->GetNumBuildings(); i++)
 		{
@@ -94,7 +94,7 @@ void CvBuildingProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 	for(int iBuilding = 0; iBuilding < pkBuildings->GetNumBuildings(); iBuilding++)
 	{
 		CvBuildingEntry* entry = pkBuildings->GetEntry(iBuilding);
-		if(entry)
+		if(entry != 0)
 		{
 			// Set its weight by looking at building's weight for this flavor and using iWeight multiplier passed in
 			m_BuildingAIWeights.IncreaseWeight(iBuilding, entry->GetFlavorValue(eFlavor) * iWeight);
@@ -203,7 +203,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 				{
 					const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-					if (pkUnitInfo && pkBuildingInfo->GetNumFreeUnits(iUnitLoop) > 0)
+					if ((pkUnitInfo != 0) && pkBuildingInfo->GetNumFreeUnits(iUnitLoop) > 0)
 					{
 						// Don't need Great Prophets if we can't found a religion
 						if (pkUnitInfo->IsFoundReligion())
@@ -295,10 +295,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			if (eMinor != NO_PLAYER)
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
-				if (pMinor)
+				if (pMinor != 0)
 				{
 					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
+					if ((pMinorCivAI != 0) && pMinorCivAI->IsActiveQuestForPlayer(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS))
 					{
 						if ((BuildingTypes)pMinorCivAI->GetQuestData1(m_pCity->getOwner(), MINOR_CIV_QUEST_BUILD_X_BUILDINGS) == eBuilding)
 						{
@@ -416,7 +416,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-		if(pkResource)
+		if(pkResource != 0)
 		{
 			//Building uses resources? Not if we're a puppet or automated, thanks! 
 			if(pkBuildingInfo->GetResourceQuantityRequirement(eResource) > 0 && (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated()))
@@ -478,7 +478,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		if (kPlayer.IsEmpireUnhappy())
 		{
 			CvBuildingEntry* pkLoopBuilding = GC.getBuildingInfo(eBuildingLoop);
-			if(pkLoopBuilding)
+			if(pkLoopBuilding != 0)
 			{
 				if(pkBuildingInfo->GetBuildingClassHappiness(pkLoopBuilding->GetBuildingClassType()) > 0)
 				{
@@ -758,7 +758,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 #if defined(MOD_BALANCE_CORE)
 				int iTempMod = 0;
 #endif
-				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain))
+				if(pkBuildingInfo->GetDomainFreeExperience(eTestDomain) > 0 || (pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain) != 0))
 				{
 					iTempBonus += (m_pCity->getDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperience(eTestDomain) + pkBuildingInfo->GetDomainFreeExperiencePerGreatWork(eTestDomain));
 				}		
@@ -806,7 +806,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		{
 			const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
 			CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-			if(pkUnitCombatClassInfo)
+			if(pkUnitCombatClassInfo != 0)
 			{
 				int iTempBonus = 0;
 				if(pkBuildingInfo->GetUnitCombatProductionModifier(eUnitCombatClass) > 0)
@@ -1088,7 +1088,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (eTech != NO_TECH)
 	{
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eTech);
-		if (pEntry)
+		if (pEntry != 0)
 		{
 			EraTypes eEra = (EraTypes)pEntry->GetEra();
 			if (eEra != NO_ERA)

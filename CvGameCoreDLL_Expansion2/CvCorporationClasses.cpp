@@ -124,7 +124,7 @@ int CvCorporationEntry::GetResourceMonopolyAnd(int i) const
 {
 	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyAnd ? m_piResourceMonopolyAnd[i] : -1;
+	return m_piResourceMonopolyAnd != 0 ? m_piResourceMonopolyAnd[i] : -1;
 }
 
 /// Prerequisite resources with OR
@@ -132,21 +132,21 @@ int CvCorporationEntry::GetResourceMonopolyOr(int i) const
 {
 	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
+	return m_piResourceMonopolyOrs != 0 ? m_piResourceMonopolyOrs[i] : -1;
 }
 
 int CvCorporationEntry::GetNumFreeResource(int i) const
 {
 	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piNumFreeResource ? m_piNumFreeResource[i] : -1;
+	return m_piNumFreeResource != 0 ? m_piNumFreeResource[i] : -1;
 }
 
 int CvCorporationEntry::GetUnitResourceProductionModifier(int i) const
 {
 	CvAssertMsg(i < /*5*/ GD_INT_GET(NUM_BUILDING_RESOURCE_PREREQS), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piUnitResourceProductionModifier ? m_piUnitResourceProductionModifier[i] : -1;
+	return m_piUnitResourceProductionModifier != 0 ? m_piUnitResourceProductionModifier[i] : -1;
 }
 
 /// Yield Modifier for Trade Routes to cities from an office to cities with a Franchise
@@ -154,14 +154,14 @@ int CvCorporationEntry::GetTradeRouteMod(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piTradeRouteMod ? m_piTradeRouteMod[i] : -1;
+	return m_piTradeRouteMod != 0 ? m_piTradeRouteMod[i] : -1;
 }
 
 int CvCorporationEntry::GetTradeRouteCityMod(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piTradeRouteCityMod ? m_piTradeRouteCityMod[i] : -1;
+	return m_piTradeRouteCityMod != 0 ? m_piTradeRouteCityMod[i] : -1;
 }
 
 /// Change to Resource yield by type
@@ -171,7 +171,7 @@ int CvCorporationEntry::GetResourceYieldChange(int i, int j) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppaiResourceYieldChange ? m_ppaiResourceYieldChange[i][j] : -1;
+	return m_ppaiResourceYieldChange != 0 ? m_ppaiResourceYieldChange[i][j] : -1;
 }
 
 /// Array of changes to Resource yield
@@ -189,7 +189,7 @@ int CvCorporationEntry::GetSpecialistYieldChange(int i, int j) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppaiSpecialistYieldChange ? m_ppaiSpecialistYieldChange[i][j] : -1;
+	return m_ppaiSpecialistYieldChange != 0 ? m_ppaiSpecialistYieldChange[i][j] : -1;
 }
 
 /// Array of changes to specialist yield
@@ -257,19 +257,19 @@ bool CvCorporationEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	// This is not ideal, but Corporations are loaded last, and I want an easy way to tell if a building class is owned by a Corporation
 	// Note: Intellisense may lie here! This will compile (declared as friend)
 	CvBuildingClassInfo* pkBuildingInfo = GC.getBuildingClassInfo(m_eHeadquartersBuildingClass);
-	if (pkBuildingInfo)
+	if (pkBuildingInfo != 0)
 	{
 		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
 		pkBuildingInfo->m_bIsHeadquarters = true;
 	}
 	pkBuildingInfo = GC.getBuildingClassInfo(m_eOfficeBuildingClass);
-	if (pkBuildingInfo)
+	if (pkBuildingInfo != 0)
 	{
 		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
 		pkBuildingInfo->m_bIsOffice = true;
 	}
 	pkBuildingInfo = GC.getBuildingClassInfo(m_eFranchiseBuildingClass);
-	if (pkBuildingInfo)
+	if (pkBuildingInfo != 0)
 	{
 		pkBuildingInfo->m_eCorporationType = (CorporationTypes) GetID();
 		pkBuildingInfo->m_bIsFranchise = true;
@@ -419,7 +419,7 @@ CvCorporation::CvCorporation(CorporationTypes eCorporation, PlayerTypes eFounder
 	, m_iHeadquartersCityX(-1)
 	, m_iHeadquartersCityY(-1)
 {
-	if(pHeadquarters)
+	if(pHeadquarters != 0)
 	{
 		m_iHeadquartersCityX = pHeadquarters->getX();
 		m_iHeadquartersCityY = pHeadquarters->getY();
@@ -667,7 +667,7 @@ void CvPlayerCorporations::DestroyCorporation()
 		if (GET_PLAYER(eLoopPlayer).isAlive())
 		{
 			CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-			if (pNotifications && m_pPlayer->GetID())
+			if ((pNotifications != 0) && (m_pPlayer->GetID() != 0))
 			{
 				Localization::String strSummary;
 				Localization::String strMessage;
@@ -782,10 +782,10 @@ CvCity* CvPlayerCorporations::GetHeadquarters() const
 		return NULL;
 
 	CvCorporation* pCorporation = GC.getGame().GetGameCorporations()->GetCorporation(GetFoundedCorporation());
-	if(pCorporation)
+	if(pCorporation != 0)
 	{
 		CvPlot* pHQPlot = GC.getMap().plot(pCorporation->m_iHeadquartersCityX, pCorporation->m_iHeadquartersCityY);
-		if(pHQPlot)
+		if(pHQPlot != 0)
 		{
 			return pHQPlot->getPlotCity();
 		}
@@ -955,7 +955,7 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 	if (eOriginPlayer == GC.getGame().getActivePlayer())
 	{
 		pNotifications = kOriginPlayer.GetNotifications();
-		if (pNotifications)
+		if (pNotifications != 0)
 		{
 			Localization::String strSummary;
 			Localization::String strMessage;
@@ -973,7 +973,7 @@ void CvPlayerCorporations::BuildFranchiseInCity(CvCity* pOriginCity, CvCity* pDe
 	else if (eDestPlayer == GC.getGame().getActivePlayer())
 	{
 		pNotifications = kDestPlayer.GetNotifications();
-		if (pNotifications)
+		if (pNotifications != 0)
 		{
 			Localization::String strSummary;
 			Localization::String strMessage;
@@ -1096,7 +1096,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 		if (iSpreadChance <= iBaseChance)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
-			if (pBuildingInfo)
+			if (pBuildingInfo != 0)
 			{
 				pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1, true);
 
@@ -1118,7 +1118,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 				{
 					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-					if (pNotifications)
+					if (pNotifications != 0)
 					{
 						Localization::String strSummary;
 						Localization::String strMessage;
@@ -1135,7 +1135,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				else if(pBestCity->getOwner() == GC.getGame().getActivePlayer())
 				{
 					CvNotifications* pNotifications = GET_PLAYER(pBestCity->getOwner()).GetNotifications();
-					if(pNotifications)
+					if(pNotifications != 0)
 					{
 						Localization::String strSummary;
 						Localization::String strMessage;
@@ -1295,7 +1295,7 @@ CvString CvPlayerCorporations::GetTradeRouteBenefit()
 CvCorporationEntry * CvPlayerCorporations::GetCorporationEntry() const
 {
 	CvCorporation* pCorporation = GetCorporation();
-	if (!pCorporation)
+	if (pCorporation == 0)
 		return NULL;
 
 	return GC.getCorporationInfo(pCorporation->m_eCorporation);
@@ -1632,7 +1632,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 			return;
 
 		pkBuilding = GC.getBuildingInfo(eFranchise);
-		if (!pkBuilding || !pkBuilding->IsCorp())
+		if ((pkBuilding == 0) || !pkBuilding->IsCorp())
 			return;
 	}
 
@@ -1668,7 +1668,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 					continue;
 
 				pkBuilding = GC.getBuildingInfo(eFranchise);
-				if (!pkBuilding || !pkBuilding->IsCorp())
+				if ((pkBuilding == 0) || !pkBuilding->IsCorp())
 					return;
 			}
 			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pCity->HasBuilding(eFranchise))
@@ -1676,7 +1676,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 				pCity->GetCityBuildings()->SetNumRealBuilding(eFranchise, 0);
 
 				CvNotifications* pNotifications = GET_PLAYER(pCity->getOwner()).GetNotifications();
-				if (pNotifications)
+				if (pNotifications != 0)
 				{
 					Localization::String strSummary;
 					Localization::String strMessage;
@@ -1693,7 +1693,7 @@ void CvPlayerCorporations::ClearCorporationFromForeignCities(bool bMinorsOnly, b
 				}
 
 				pNotifications = m_pPlayer->GetNotifications();
-				if (pNotifications)
+				if (pNotifications != 0)
 				{
 					Localization::String strSummary;
 					Localization::String strMessage;
@@ -1966,7 +1966,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 			continue;
 
 		CvNotifications* pNotification = GET_PLAYER(eLoopPlayer).GetNotifications();
-		if(!pNotification)
+		if(pNotification == 0)
 			continue;
 
 		// We founded the Corporation
@@ -1977,7 +1977,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 			strMessage = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED");
 			strMessage << (pkCorporationInfo->GetDescription());
 			strSummary = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_SUMMARY");
-			if(pNotification)
+			if(pNotification != 0)
 			{
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, ePlayer);
 			}
@@ -2014,7 +2014,7 @@ void CvGameCorporations::FoundCorporation(PlayerTypes ePlayer, CorporationTypes 
 
 			strMessage << (pkCorporationInfo->GetDescriptionKey());
 			 
-			if(pNotification)
+			if(pNotification != 0)
 			{
 				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, ePlayer);
 			}

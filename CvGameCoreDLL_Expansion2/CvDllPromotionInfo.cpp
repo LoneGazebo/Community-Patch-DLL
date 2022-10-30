@@ -23,8 +23,8 @@ CvDllPromotionInfo::~CvDllPromotionInfo()
 //------------------------------------------------------------------------------
 void* CvDllPromotionInfo::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvPromotionInfo1::GetInterfaceId())
+	if(((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+	        ((guidInterface == ICvPromotionInfo1::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;

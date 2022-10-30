@@ -34,10 +34,10 @@ CvDllPlayer::~CvDllPlayer()
 //------------------------------------------------------------------------------
 void* CvDllPlayer::QueryInterface(GUID guidInterface)
 {
-	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvPlayer1::GetInterfaceId() ||
-		guidInterface == ICvPlayer2::GetInterfaceId() ||
-		guidInterface == ICvPlayer3::GetInterfaceId())
+	if(	((guidInterface == ICvUnknown::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvPlayer1::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvPlayer2::GetInterfaceId()) != 0) ||
+		((guidInterface == ICvPlayer3::GetInterfaceId()) != 0))
 	{
 		IncrementReference();
 		return this;
@@ -286,7 +286,7 @@ ICvCity1* CvDllPlayer::GetCity(int iID)
 ICvUnit1* CvDllPlayer::GetUnit(int iID)
 {
 	CvUnit* pkUnit = m_pPlayer->getUnit(iID);
-	if(pkUnit)
+	if(pkUnit != 0)
 	{
 		return new CvDllUnit(pkUnit);
 	}
@@ -441,11 +441,11 @@ void CvDllPlayer::RebroadcastNotifications(void)
 bool CvDllPlayer::GetCurrentResearchTech(TechTypes* pkTech, int *pkTurnsLeft) const
 {
 	CvPlayerTechs* pkTechs = m_pPlayer->GetPlayerTechs();
-	if (pkTechs)
+	if (pkTechs != 0)
 	{
-		if (pkTech)
+		if (pkTech != 0)
 			*pkTech = pkTechs->GetCurrentResearch();
-		if (pkTurnsLeft)
+		if (pkTurnsLeft != 0)
 			*pkTurnsLeft = pkTechs->GetResearchTurnsLeft(pkTechs->GetCurrentResearch(), false);
 		return true;
 	}

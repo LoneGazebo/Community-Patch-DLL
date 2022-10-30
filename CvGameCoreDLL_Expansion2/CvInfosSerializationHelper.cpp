@@ -139,7 +139,7 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
 	FStringFixedBuffer(sTemp, 256);
 	kStream >> sTemp;
-	if(bValid) *bValid = true;
+	if(bValid != 0) *bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
 	{
 		int iType = GC.getInfoTypeForString(sTemp);
@@ -149,7 +149,7 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 		}
 		else
 		{
-			if(bValid) *bValid = false;
+			if(bValid != 0) *bValid = false;
 			CvString szError;
 			szError.Format("LOAD ERROR: Type not found: %s", sTemp.c_str());
 			GC.LogMessage(szError.GetCString());
@@ -164,7 +164,7 @@ int Read(FDataStream& kStream, bool* bValid /*= NULL*/)
 int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 {
 	uint uiHash = 0;
-	if(bValid) *bValid = true;
+	if(bValid != 0) *bValid = true;
 	kStream >> uiHash;
 	if(uiHash != 0)
 	{
@@ -179,7 +179,7 @@ int ReadHashed(FDataStream& kStream, bool* bValid /*= NULL*/)
 			szError.Format("LOAD ERROR: Type not found for hash: %u", uiHash);
 			GC.LogMessage(szError.GetCString());
 			CvAssertMsg(false, szError);
-			if(bValid) *bValid = false;
+			if(bValid != 0) *bValid = false;
 		}
 	}
 
@@ -192,11 +192,11 @@ int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid /*= NUL
 {
 	FStringFixedBuffer(sTemp, 256);
 	kStream >> sTemp;
-	if (bValid) *bValid = true;
+	if (bValid != 0) *bValid = true;
 	if(sTemp.GetLength() > 0 && sTemp != "NO_TYPE")
 	{
 		Database::Connection* pDB = GC.GetGameDatabase();
-		if(pDB)
+		if(pDB != 0)
 		{
 			Database::Results kResults;
 			CvString szCommand;
@@ -209,11 +209,11 @@ int ReadDBLookup(FDataStream& kStream, const char* szTable, bool* bValid /*= NUL
 					return kResults.GetInt(0);
 				}
 				else
-					if (bValid) *bValid = false;
+					if (bValid != 0) *bValid = false;
 			}
 		}
 		else
-			if (bValid) *bValid = false;
+			if (bValid != 0) *bValid = false;
 	}
 	
 	return -1;
@@ -271,7 +271,7 @@ IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(ImprovementTypes, getImprovementInfo, N
 /// Helper function to write out an info type ID as string
 bool Write(FDataStream& kStream, const CvBaseInfo* pkInfo)
 {
-	if(pkInfo)
+	if(pkInfo != 0)
 	{
 		FStringFixedBuffer(sTemp, 256);
 		sTemp = pkInfo->GetType();
@@ -291,7 +291,7 @@ bool Write(FDataStream& kStream, const CvBaseInfo* pkInfo)
 /// Helper function to write out an info type ID as a hash
 bool WriteHashed(FDataStream& kStream, const CvBaseInfo* pkInfo)
 {
-	if(pkInfo && pkInfo->GetType() && pkInfo->GetType()[0] != 0)
+	if((pkInfo != 0) && (pkInfo->GetType() != 0) && pkInfo->GetType()[0] != 0)
 	{
 		uint uiHash = FString::Hash(pkInfo->GetType());
 		kStream << uiHash;

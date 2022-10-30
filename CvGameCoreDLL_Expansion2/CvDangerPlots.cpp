@@ -164,7 +164,7 @@ void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRan
 	for (int i = 0; i < RING_PLOTS[iRange]; i++)
 	{
 		CvPlot* pPotentialHiddedUnitPlot = iterateRingPlots(pOrigin, i);
-		if (pPotentialHiddedUnitPlot && 
+		if ((pPotentialHiddedUnitPlot != 0) && 
 			!pPotentialHiddedUnitPlot->isVisible(thisTeam) && 
 			!pPotentialHiddedUnitPlot->isImpassable(eEnemyTeam))
 		{
@@ -254,7 +254,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				for(int iDY = -(iRange); iDY <= iRange; iDY++)
 				{
 					pLoopPlot = plotXYWithRangeCheck(pCityPlot->getX(), pCityPlot->getY(), iDX, iDY, iRange);
-					if(!pLoopPlot || pLoopPlot == pCityPlot)
+					if((pLoopPlot == 0) || pLoopPlot == pCityPlot)
 						continue;
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
@@ -495,7 +495,7 @@ bool CvDangerPlots::ShouldIgnoreUnit(const CvUnit* pUnit, bool bIgnoreVisibility
 bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility)
 {
 	//ignore nonexistent cities
-	if(!pCity)
+	if(pCity == 0)
 		return true;
 
 	//never ignore then
@@ -511,7 +511,7 @@ bool CvDangerPlots::ShouldIgnoreCity(const CvCity* pCity, bool bIgnoreVisibility
 bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
 {
 	//ignore nonexistent citadels
-	if(!pCitadelPlot)
+	if(pCitadelPlot == 0)
 		return true;
 
 	//never ignore then
@@ -616,7 +616,7 @@ void CvDangerPlots::SetDirty()
 // Get the maximum damage a non-specified unit could receive at this plot in the next turn
 int CvDangerPlotContents::GetDanger(bool bFixedDamageOnly)
 {
-	if (!m_pPlot)
+	if (m_pPlot == 0)
 		return 0;
 
 	int iPlotDamage = m_iImprovementDamage;
@@ -718,7 +718,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 	else
 	{
 		CvUnit* pInterceptor = m_pPlot->GetBestInterceptor(pUnit->getOwner(), pUnit);
-		if (pInterceptor)
+		if (pInterceptor != 0)
 		{
 			// Air sweeps take modified damage from interceptors
 			if (iAirAction == AIR_ACTION_SWEEP)
@@ -766,7 +766,7 @@ int CvDangerPlotContents::GetAirUnitDamage(const CvUnit* pUnit, AirActionType iA
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction)
 {
-	if (!m_pPlot || !pUnit)
+	if ((m_pPlot == 0) || (pUnit == 0))
 		return 0;
 
 	// Air units only take damage from interceptions
@@ -785,7 +785,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))
 			return MAX_INT;
 
-		if (pFriendlyCity)
+		if (pFriendlyCity != 0)
 		{
 			// Can't hide in a city forever
 			if (pFriendlyCity->isInDangerOfFalling())
@@ -846,7 +846,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			return m_lastResults[i].second;
 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
-	if (pFriendlyCity)
+	if (pFriendlyCity != 0)
 	{
 		int iCityDanger = GetDanger(pFriendlyCity, pUnit);
 		if (iCityDanger + pFriendlyCity->getDamage() < pFriendlyCity->GetMaxHitPoints() + 50) //add a margin for error
@@ -939,7 +939,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 // Get the maximum damage city could receive this turn if it were in this plot
 int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendGarrison)
 {
-	if (!m_pPlot || !pCity)
+	if ((m_pPlot == 0) || (pCity == 0))
 		return 0;
 
 	int iPlotDamage = 0;
@@ -1022,7 +1022,7 @@ int CvDangerPlotContents::GetDanger(const CvCity* pCity, const CvUnit* pPretendG
 
 	//if we have a garrison, split the damage
 	CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-	if (pGarrison)
+	if (pGarrison != 0)
 	{
 		int iUnitShare = (iPlotDamage*2*pGarrison->GetMaxHitPoints())/(pCity->GetMaxHitPoints()+2*pGarrison->GetMaxHitPoints());
 		iPlotDamage -= iUnitShare;

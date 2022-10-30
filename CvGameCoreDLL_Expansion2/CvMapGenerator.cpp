@@ -127,12 +127,12 @@ int CvMapGenerator::pGetMapInitData(lua_State* L)
 
 			lua_getfield(L, t, "WrapX");
 			if(!lua_isnoneornil(L, -1))
-				pArgs->pkMapInitData->m_bWrapX = lua_toboolean(L, -1);
+				pArgs->pkMapInitData->m_bWrapX = (lua_toboolean(L, -1) != 0);
 			lua_pop(L, 1);
 
 			lua_getfield(L, t, "WrapY");
 			if(!lua_isnoneornil(L, -1))
-				pArgs->pkMapInitData->m_bWrapY = lua_toboolean(L, -1);
+				pArgs->pkMapInitData->m_bWrapY = (lua_toboolean(L, -1) != 0);
 
 			lua_getfield(L, t, "TopLatitude");
 			if(!lua_isnoneornil(L, -1))
@@ -170,10 +170,10 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 				lua_pushnil(L);  /* first key */
 				while(lua_next(L, -2) != 0)
 				{
-					if(lua_isnumber(L, -2) && lua_isboolean(L, -1))
+					if((lua_isnumber(L, -2) != 0) && lua_isboolean(L, -1))
 					{
 						const TeamTypes eTeam = static_cast<TeamTypes>(lua_tointeger(L, -2));
-						const bool bOverride = lua_toboolean(L, -1);
+						const bool bOverride = lua_toboolean(L, -1) != 0;
 						if(eTeam >= 0 && eTeam < MAX_TEAMS)
 						{
 							pArgs->pkOverrides->GrantInitialFreeTechsPerTeam[eTeam] = bOverride;
@@ -191,10 +191,10 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 				lua_pushnil(L);  /* first key */
 				while(lua_next(L, -2) != 0)
 				{
-					if(lua_isnumber(L, -2) && lua_isboolean(L, -1))
+					if((lua_isnumber(L, -2) != 0) && lua_isboolean(L, -1))
 					{
 						const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, -2));
-						const bool bOverride = lua_toboolean(L, -1);
+						const bool bOverride = lua_toboolean(L, -1) != 0;
 						if(ePlayer >= 0 && ePlayer < MAX_PLAYERS)
 						{
 							pArgs->pkOverrides->GrantInitialGoldPerPlayer[ePlayer] = bOverride;
@@ -212,10 +212,10 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 				lua_pushnil(L);  /* first key */
 				while(lua_next(L, -2) != 0)
 				{
-					if(lua_isnumber(L, -2) && lua_isboolean(L, -1))
+					if((lua_isnumber(L, -2) != 0) && lua_isboolean(L, -1))
 					{
 						const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, -2));
-						const bool bOverride = lua_toboolean(L, -1);
+						const bool bOverride = lua_toboolean(L, -1) != 0;
 						if(ePlayer >= 0 && ePlayer < MAX_PLAYERS)
 						{
 							pArgs->pkOverrides->GrantInitialCulturePerPlayer[ePlayer] = bOverride;
@@ -233,10 +233,10 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 				lua_pushnil(L);  /* first key */
 				while(lua_next(L, -2) != 0)
 				{
-					if(lua_isnumber(L, -2) && lua_isboolean(L, -1))
+					if((lua_isnumber(L, -2) != 0) && lua_isboolean(L, -1))
 					{
 						const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, -2));
-						const bool bOverride = lua_toboolean(L, -1);
+						const bool bOverride = lua_toboolean(L, -1) != 0;
 						if(ePlayer >= 0 && ePlayer < MAX_PLAYERS)
 						{
 							pArgs->pkOverrides->ClearResearchQueuePerPlayer[ePlayer] = bOverride;
@@ -254,10 +254,10 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 				lua_pushnil(L);  /* first key */
 				while(lua_next(L, -2) != 0)
 				{
-					if(lua_isnumber(L, -2) && lua_isboolean(L, -1))
+					if((lua_isnumber(L, -2) != 0) && lua_isboolean(L, -1))
 					{
 						const PlayerTypes ePlayer = static_cast<PlayerTypes>(lua_tointeger(L, -2));
-						const bool bOverride = lua_toboolean(L, -1);
+						const bool bOverride = lua_toboolean(L, -1) != 0;
 						if(ePlayer >= 0 && ePlayer < MAX_PLAYERS)
 						{
 							pArgs->pkOverrides->GrantInitialUnitsPerPlayer[ePlayer] = bOverride;
