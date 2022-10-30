@@ -787,7 +787,7 @@ function HappinessTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_EMPIRE_PENALTIES",-pPlayer:GetUnhappinessGrowthPenalty(),
 			-pPlayer:GetUnhappinessSettlerCostPenalty(),-pPlayer:GetUnhappinessCombatStrengthPenalty())
 		end
-		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]";
+		strText = strText .. "[/COLOR][NEWLINE][NEWLINE][COLOR:150:255:150:255]";
 		
 		-- First do Happiness
 		local TotalHappiness = pPlayer:GetHappinessFromCitizenNeeds();
