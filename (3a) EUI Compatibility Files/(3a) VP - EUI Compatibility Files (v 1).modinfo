@@ -69,7 +69,6 @@
     <File md5="18263390EFC5B5085E08A49822C575F8" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>
     <File md5="2556EAF60E06710E802875DB79DD59DE" import="1">ImprovedTopPanel/FontIconsITP.dds</File>
     <File md5="B30AEDD6FA9ECD5ED869AB544D045A41" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="1738B50EE9820D4F78BE202FBA02C9AA" import="0">ImprovedTopPanel/Text.sql</File>
     <File md5="26A3768F54FD5C478CC5EC75C2856A45" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="DEAAD04AD0476211B7FA8FF47E846A30" import="1">ImprovedTopPanel/TopPanel.xml</File>
   </Files>
@@ -78,7 +77,6 @@
       <UpdateDatabase>EUI/NeededText.xml</UpdateDatabase>
       <UpdateDatabase>EUI/EUI_text_en_us.xml</UpdateDatabase>
       <UpdateDatabase>StackedPromotionIcons/StackedPromotionIcons.sql</UpdateDatabase>
-      <UpdateDatabase>ImprovedTopPanel/Text.sql</UpdateDatabase>
       <UpdateDatabase>ImprovedTopPanel/Text.xml</UpdateDatabase>
       <UpdateDatabase>ImprovedTopPanel/FontIconsITP.xml</UpdateDatabase>
     </OnModActivated>

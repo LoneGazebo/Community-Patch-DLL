@@ -101,8 +101,23 @@ function UpdateData()
 				local happypop = pPlayer:GetHappinessFromCitizenNeeds()
 				local unhappypop = pPlayer:GetUnhappinessFromCitizenNeeds()
 				local percent = pPlayer:GetExcessHappiness()
+				
+				local percentString = ""
+				if percent >= 75 then --ecstatic
+					percentString = "[ICON_CITIZEN] [COLOR_FONT_GREEN]"..percent.."%[ENDCOLOR]"
+				elseif percent < 75 and percent > 60 then -- content
+					percentString = "[ICON_CITIZEN] [COLOR_POSITIVE_TEXT]"..percent.."%[ENDCOLOR]"
+				elseif percent <= 60 and percent >= 50 then -- swing vote
+					percentString = "[ICON_CITIZEN] [COLOR_SELECTED_TEXT]"..percent.."%[ENDCOLOR]"
+				elseif percent < 50 and percent >= 35 then  -- unhappy
+					percentString = "[ICON_CITIZEN] [COLOR_FONT_RED]"..percent.."%[ENDCOLOR]"
+				elseif percent < 35 and percent >= 20 then  -- very unhappy
+					percentString = "[ICON_CITIZEN] [COLOR_RED]"..percent.."%[ENDCOLOR]"
+				else -- 20<= winter palace vibes
+					percentString = "[ICON_CITIZEN] [COLOR_RED]"..percent.."%[ENDCOLOR]"
+				end
 
-				strHappiness = Locale.ConvertTextKey("TXT_KEY_HAPPINESS_TOP_PANEL_VP", percent, unhappypop, happypop);
+				strHappiness = Locale.ConvertTextKey("TXT_KEY_HAPPINESS_TOP_PANEL_VP", percentString, unhappypop, happypop);
 			end
 			
 			Controls.HappinessString:SetText(strHappiness);
