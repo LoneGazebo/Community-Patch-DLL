@@ -1674,6 +1674,14 @@
 		<Row Tag="TXT_KEY_RO_TAB_MAP">
 			<Text>Map</Text>
 		</Row>
+	<!-- UI - Improved Military Overview -->
+		<Row Tag="TXT_KEY_XP">
+			<Text>XP</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MO_SORT_XP">
+			<Text>Sort By XP</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>
