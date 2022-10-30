@@ -157,7 +157,7 @@ public:
 	void SetArtDefineTag(const char* szVal);
 
 	ImprovementUsageTypes GetImprovementUsage() const;
-	void SetImprovementUsage(const ImprovementUsageTypes usageType);
+	void SetImprovementUsage(ImprovementUsageTypes usageType);
 
 	int GetWorldSoundscapeScriptId() const;
 

@@ -155,7 +155,7 @@ public:
 	void DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
 	void DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, bool bForced, CvCity::eUpdateMode updateMode);
 	void DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding, CvCity::eUpdateMode updateMode);
-	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, const BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode);
+	bool DoRemoveWorstSpecialist(SpecialistTypes eDontChangeSpecialist, BuildingTypes eDontRemoveFromBuilding, CvCity::eUpdateMode updateMode);
 
 	int GetNumDefaultSpecialists() const;
 	void ChangeNumDefaultSpecialists(int iChange, CvCity::eUpdateMode updateMode);

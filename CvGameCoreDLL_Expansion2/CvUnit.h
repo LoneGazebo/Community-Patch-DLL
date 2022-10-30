@@ -525,7 +525,7 @@ public:
 	bool DoCultureBomb();
 	void PerformCultureBomb(int iRadius);
 	int getNumberOfCultureBombs() const;
-	void setNumberOfCultureBombs(const int iBombs);
+	void setNumberOfCultureBombs(int iBombs);
 
 	bool canGoldenAge(const CvPlot* pPlot, bool bTestVisible = false) const;
 	int getGAPBlast();
@@ -1607,7 +1607,7 @@ public:
 	void setUnitName(const CvString& strNewValue);
 #endif
 	const CvString getNameNoDesc() const;
-	void setName(const CvString strNewValue);
+	void setName(CvString strNewValue);
 #if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
 	const CvString getGreatName() const;
 	void setGreatName(const CvString& strName);
@@ -2430,7 +2430,7 @@ protected:
 #endif
 
 	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
-	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker, bool bCheckChances) const;
 	bool DoFallBack(const CvUnit& pAttacker);
 
 private:

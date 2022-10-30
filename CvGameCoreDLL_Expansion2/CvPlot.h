@@ -741,7 +741,7 @@ public:
 	int GetPlotIndex() const;
 
 	char GetContinentType() const;
-	void SetContinentType(const char cContinent);
+	void SetContinentType(char cContinent);
 
 	const CvSyncArchive<CvPlot>& getSyncArchive() const;
 	CvSyncArchive<CvPlot>& getSyncArchive();

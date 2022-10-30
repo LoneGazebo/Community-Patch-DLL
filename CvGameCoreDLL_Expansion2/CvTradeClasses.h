@@ -295,7 +295,7 @@ public:
 	int GetTradeConnectionValueTimes100 (const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	void UpdateTradeConnectionValues (void); // updates the all the values for the trade routes that go to and from this player
 
-	int GetTradeValuesAtCityTimes100 (const CvCity* const pCity, YieldTypes eYield);
+	int GetTradeValuesAtCityTimes100 (const CvCity* pCity, YieldTypes eYield);
 
 	int GetAllTradeValueTimes100 (YieldTypes eYield) const;
 	int GetAllTradeValueFromPlayerTimes100 (YieldTypes eYield, PlayerTypes ePlayer) const;

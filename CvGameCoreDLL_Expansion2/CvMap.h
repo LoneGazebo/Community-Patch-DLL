@@ -47,7 +47,7 @@ public:
 	bool isLake() const;
 
 	char GetContinentType() const;
-	void SetContinentType(const char cContinent);
+	void SetContinentType(char cContinent);
 
 	void ChangeCentroidX(int iDelta);
 	void ChangeCentroidY(int iDelta);

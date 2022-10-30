@@ -48,7 +48,7 @@ public:
 	//access the items indirectly by index
 	T* GetAt(int iIndex) const;
 	bool RemoveAt(int iIndex);
-	int GetIndexForID(const int iID) const;
+	int GetIndexForID(int iID) const;
 
 	//create a new item
 	T* Add();

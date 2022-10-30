@@ -361,9 +361,9 @@ public:
 	int GetPrereqPolicy() const;
 #endif
 	int GetResourceQuantityModifier(int i) const;
-	int GetMovesChangeUnitCombat(const int unitCombatID) const;
+	int GetMovesChangeUnitCombat(int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
-	int GetMovesChangeUnitClass(const int unitClassID) const;
+	int GetMovesChangeUnitClass(int unitClassID) const;
 	int GetGAPToYield(int i) const;
 	int GetMountainRangeYield(int i) const;
 	int GetNumPledgeDomainProductionModifier(DomainTypes eDomain) const;
@@ -381,7 +381,7 @@ public:
 	int GetYieldChangePerImprovementBuilt(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromBarbarianCampClear(YieldTypes eIndex1, bool bEraScaling) const;
 #endif
-	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
+	int GetMaintenanceModifierUnitCombat(int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #if defined(MOD_BALANCE_CORE)
@@ -443,23 +443,23 @@ public:
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
-	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+	bool IsFreePromotionUnitCombat(int promotionID, int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
-	bool IsSpecialUpgradeUnitClass(const int unitClassesID, const int unitID) const;
-	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
-	int GetGoldenAgeYieldModifier(const int iYield) const;
+	bool IsSpecialUpgradeUnitClass(int unitClassesID, int unitID) const;
+	bool IsFreePromotionUnitClass(int promotionID, int unitClassID) const;
+	int GetGoldenAgeYieldModifier(int iYield) const;
 	std::pair<int, bool> GetUnitCombatProductionCostModifier(const int unitCombatID) const;
 	int GetNonSpecialistFoodChange() const;
 	bool IsNoBuild(BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
-	bool UnitClassCanBuild(const int buildID, const int unitClassID) const;
+	bool UnitClassCanBuild(int buildID, int unitClassID) const;
 	bool TerrainClaimBoost(TerrainTypes eTerrain);
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
-	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(const bool bInternationalOnly) const;
+	TradeRouteProductionSiphon GetTradeRouteProductionSiphon(bool bInternationalOnly) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	AlternateResourceTechs GetAlternateResourceTechs(const ResourceTypes eResource) const;
+	AlternateResourceTechs GetAlternateResourceTechs(ResourceTypes eResource) const;
 #endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
@@ -1775,9 +1775,9 @@ public:
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
 	}
 #endif
-	int GetMovesChangeUnitCombat(const int unitCombatID) const;
+	int GetMovesChangeUnitCombat(int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
-	int GetMovesChangeUnitClass(const int unitClassID) const;
+	int GetMovesChangeUnitClass(int unitClassID) const;
 	int GetYieldChangeFromTileEarnTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangeFromTilePurchaseTerrainType(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldChangeFromTileConquest(TerrainTypes eTerrain, YieldTypes eYield) const;
@@ -1789,7 +1789,7 @@ public:
 	void UpdateYieldChangeImprovementTypes();
 	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
 #endif
-	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
+	int GetMaintenanceModifierUnitCombat(int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #if defined(MOD_BALANCE_CORE)
@@ -1975,18 +1975,18 @@ public:
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
-	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+	bool HasFreePromotionUnitCombat(int promotionID, int unitCombatID) const;
 #if defined(MOD_BALANCE_CORE)
-	bool HasSpecialUnitUpgrade(const int unitClassID, const int unitID) const;
-	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
-	bool HasUnitClassCanBuild(const int buildID, const int unitClassID) const;	
+	bool HasSpecialUnitUpgrade(int unitClassID, int unitID) const;
+	bool HasFreePromotionUnitClass(int promotionID, int unitClassID) const;
+	bool HasUnitClassCanBuild(int buildID, int unitClassID) const;	
 	int GetGoldenAgeYieldModifier(YieldTypes eYield) const;
 	std::pair <int, bool> GetUnitCombatProductionCostModifier(UnitCombatTypes eUnitCombat) const;
 	int GetNonSpecialistFoodChange() const
 	{
 		return m_iNonSpecialistFoodChange;
 	}
-	bool IsNoBuild(const BuildTypes eBuild) const;
+	bool IsNoBuild(BuildTypes eBuild) const;
 	int GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const;
 #endif
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)

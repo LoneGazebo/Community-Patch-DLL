@@ -275,7 +275,7 @@ public:
 	int GetSpecialistExtraYield(int i) const;
 	int* GetSpecialistExtraYieldArray() const;
 	int IsFreePromotion(int i) const;
-	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+	bool IsFreePromotionUnitCombat(int promotionID, int unitCombatID) const;
 #if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 	bool HasFaithPurchaseUnitClasses() const;
 	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;

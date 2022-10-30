@@ -1200,7 +1200,7 @@ public:
 	int getMinimumVassalTaxTurns() const;
 
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
-	void allocateGameTurnInfos(const int iSize);
+	void allocateGameTurnInfos(int iSize);
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 

@@ -32,10 +32,10 @@ public:
 	Database::Results* PrepareResults(const std::string& strKey, const char* szStmt);
 
 	//!Allocates an array to count and zero's memory.
-	void InitializeArray(int*& pArray, const size_t count, int iDefault = 0);
-	void InitializeArray(bool*& pArray, const size_t count, bool bDefault = false);
-	void InitializeArray(float*& pArray, const size_t count, float fDefault = 0.0f);
-	void Initialize2DArray(int**& ppArray, const size_t iCount1, const size_t iCount2, int iDefault = 0);
+	void InitializeArray(int*& pArray, size_t count, int iDefault = 0);
+	void InitializeArray(bool*& pArray, size_t count, bool bDefault = false);
+	void InitializeArray(float*& pArray, size_t count, float fDefault = 0.0f);
+	void Initialize2DArray(int**& ppArray, size_t iCount1, size_t iCount2, int iDefault = 0);
 
 	//!Allocates an array to Count(szTableName) and zero's memory.
 	template<typename T>
