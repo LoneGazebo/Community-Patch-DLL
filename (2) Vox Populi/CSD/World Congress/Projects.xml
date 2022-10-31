@@ -342,7 +342,8 @@
 			<Text>Secretary-General</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_UNITED_NATIONS_3_HELP">
-			<Text>United Nations wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.)</Text>
+			<Text>United Nations wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress if the world has reached the Atomic Era.)</Text>
+
 		</Row>
 	</Language_en_US>  
 </GameData>

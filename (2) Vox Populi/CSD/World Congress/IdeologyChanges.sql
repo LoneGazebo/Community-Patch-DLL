@@ -295,7 +295,7 @@ SET Text = '[NEWLINE][ICON_BULLET]{1_NumVotes} from previous attmepts at Global 
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_EXTRA_VOTES' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]Global Hegemony[ENDCOLOR] proposal on alternating sessions if a [COLOR_POSITIVE_TEXT]World Ideology Resolution[ENDCOLOR] is active'
+SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]Global Hegemony[ENDCOLOR] proposal on alternating sessions if the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] have been built and a [COLOR_POSITIVE_TEXT]World Ideology Resolution[ENDCOLOR] is active'
 WHERE Tag = 'TXT_KEY_LEAGUE_SPLASH_MESSAGE_ERA_DIPLO_VICTORY_POSSIBLE' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -315,16 +315,12 @@ SET Text = 'Without a clear winner garnering the support of at least {1_NumDeleg
 WHERE Tag = 'TXT_KEY_NOTIFICATION_LEAGUE_VOTING_RESULT_WORLD_LEADER_FAIL_DETAILS' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The World Congress is reborn as the United Nations.  A special session to is called to choose the host of this powerful new diplomatic force.  The United Nations will continue as before, but regular sessions will alternate with sessions allowing civilizations to try and claim Global Hegemony, making [COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR] possible. To enable these sessions, a [COLOR_POSITIVE_TEXT]World Ideology Resolution[ENDCOLOR] must be active.'
+SET Text = 'The World Congress is reborn as the United Nations.  A special session is called to choose the host of this powerful new diplomatic force.  The United Nations will continue as before, but regular sessions will alternate with sessions allowing civilizations to try and claim Global Hegemony, making [COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR] possible.  To enable these sessions, a [COLOR_POSITIVE_TEXT]World Ideology Resolution[ENDCOLOR] must be active.'
 WHERE Tag = 'TXT_KEY_LEAGUE_SPECIAL_SESSION_START_UNITED_NATIONS_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Diplomacy[NEWLINE][NEWLINE]Turns until the United Nations convenes: {1_TurnsUntilSession}[NEWLINE][NEWLINE]Turns until the next [COLOR_POSITIVE_TEXT]Global Hegemony[ENDCOLOR] proposal: {2_TurnsUntilVictorySession}[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Diplomatic Victory[ENDCOLOR] is now possible, if a [COLOR_POSITIVE_TEXT]World Ideology Resolution[ENDCOLOR] is active.'
 WHERE Tag = 'TXT_KEY_EO_DIPLOMACY_AND_VICTORY_SESSION' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The world has entered the {@1_EraName}, either because of technological advances or completed resolutions.'
-WHERE Tag = 'TXT_KEY_LEAGUE_SPLASH_MESSAGE_GAME_ERA' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 --United Nations Addition
 
