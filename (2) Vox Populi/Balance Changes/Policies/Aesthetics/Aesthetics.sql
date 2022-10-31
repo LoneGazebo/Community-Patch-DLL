@@ -8,10 +8,10 @@ WHERE Type = 'POLICY_BRANCH_AESTHETICS';
 
 UPDATE Policies
 SET
-	GreatWriterRateModifier = 0,
-	GreatArtistRateModifier = 0,
-	GreatMusicianRateModifier = 0,
-	GreatPeopleRateModifier = 25
+	GreatWriterRateModifier = 25,
+	GreatArtistRateModifier = 25,
+	GreatMusicianRateModifier = 25,
+	GreatPeopleRateModifier = 0
 WHERE Type = 'POLICY_AESTHETICS';
 
 INSERT INTO Policy_BuildingClassProductionModifiers
@@ -21,68 +21,64 @@ VALUES
 	('POLICY_AESTHETICS', 'BUILDINGCLASS_MUSICIANS_GUILD', 100),
 	('POLICY_AESTHETICS', 'BUILDINGCLASS_ARTISTS_GUILD', 100);
 
-
+INSERT INTO Policy_GoldenAgeYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_AESTHETICS', 'YIELD_CULTURE', 10);
 -- Cultural Centers (now Humanism)
+
+UPDATE Policies
+SET
+	GoldenAgeMeterMod = -25
+WHERE Type = 'POLICY_CULTURAL_CENTERS';
 
 DELETE FROM Policy_BuildingClassProductionModifiers
 WHERE PolicyType = 'POLICY_CULTURAL_CENTERS';
-
-INSERT INTO Policy_MusicYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_CULTURAL_CENTERS', 'YIELD_GOLD', 4);
 
 INSERT INTO Policy_LitYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_CULTURAL_CENTERS', 'YIELD_GOLDEN_AGE_POINTS', 3);
 
-INSERT INTO Policy_ArtYieldChanges
-	(PolicyType, YieldType, Yield)
+INSERT INTO Policy_BuildingClassHappiness
+	(PolicyType, BuildingClassType, Happiness)
 VALUES
-	('POLICY_CULTURAL_CENTERS', 'YIELD_CULTURE', 2);
-
-INSERT INTO Policy_ArtifactYieldChanges
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_CULTURAL_CENTERS', 'YIELD_SCIENCE', 2);
-
-INSERT INTO Policy_SpecialistExtraYields
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_CULTURAL_CENTERS', 'YIELD_CULTURE', 1);
-
+	('POLICY_CULTURAL_CENTERS', 'BUILDINGCLASS_WRITERS_GUILD', 1),
+	('POLICY_CULTURAL_CENTERS', 'BUILDINGCLASS_ARTISTS_GUILD', 1),
+	('POLICY_CULTURAL_CENTERS', 'BUILDINGCLASS_MUSICIANS_GUILD', 1);
 
 -- Fine Arts (now Refinement)
 
 UPDATE Policies
 SET
 	HappinessToCulture = 0,
-	HappinessPerXGreatWorks = 3
+	NoUnhappfromXSpecialists = 1
 WHERE Type = 'POLICY_FINE_ARTS';
 
-INSERT INTO Policy_BuildingClassHappiness
-	(PolicyType, BuildingClassType, Happiness)
+INSERT INTO Policy_ArtYieldChanges
+	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_FINE_ARTS', 'BUILDINGCLASS_WRITERS_GUILD', 1),
-	('POLICY_FINE_ARTS', 'BUILDINGCLASS_ARTISTS_GUILD', 1),
-	('POLICY_FINE_ARTS', 'BUILDINGCLASS_MUSICIANS_GUILD', 1);
+	('POLICY_FINE_ARTS', 'YIELD_CULTURE', 2);
 
-
+INSERT INTO Policy_SpecialistExtraYields
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_FINE_ARTS', 'YIELD_CULTURE', 1);
+	
 -- Flourishing of the Arts (now Heritage)
 
 UPDATE Policies
 SET
 	CultureWonderMultiplier = 0,
 	GoldenAgeTurns = 0,
-	CulturePerWonder = 0
+	CulturePerWonder = 0,
+	LandmarksTourismPercent = 25
 WHERE Type = 'POLICY_FLOURISHING_OF_ARTS';
 
-INSERT INTO Policy_YieldFromWorldWonderConstruction
+INSERT INTO Policy_MusicYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_FLOURISHING_OF_ARTS', 'YIELD_GOLDEN_AGE_POINTS', 200);
-
+	('POLICY_FLOURISHING_OF_ARTS', 'YIELD_GOLD', 4);
 
 -- Artistic Genius (National Treasure)
 
@@ -94,10 +90,15 @@ SET
 	NumFreeGreatPeople = 1
 WHERE Type = 'POLICY_ARTISTIC_GENIUS';
 
-INSERT INTO Policy_YieldGPExpend
+INSERT INTO Policy_ArtifactYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_ARTISTIC_GENIUS', 'YIELD_GOLD', 50);
+	('POLICY_ARTISTIC_GENIUS', 'YIELD_SCIENCE', 2);
+
+INSERT INTO Policy_YieldFromWorldWonderConstruction
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_ARTISTIC_GENIUS', 'YIELD_GOLD', 250);
 
 
 -- Cultural Exchange
@@ -106,13 +107,9 @@ UPDATE Policies
 SET
 	SharedReligionTourismModifier = 0,
 	TradeRouteTourismModifier = 0,
-	OpenBordersTourismModifier = 10
+	OpenBordersTourismModifier = 10,
+	HappinessPerXGreatWorks = 3
 WHERE Type = 'POLICY_ETHICS';
-
-INSERT INTO Policy_GoldenAgeYieldMod
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_ETHICS', 'YIELD_CULTURE', 10);
 
 
 -- Finisher
@@ -146,7 +143,6 @@ SET
 WHERE Type = 'POLICY_AESTHETICS_FINISHER';
 
 
-
 ----------------------
 -- Combined Insertions
 ----------------------
@@ -178,4 +174,4 @@ VALUES
 	('POLICY_ETHICS', 'BUILDINGCLASS_OPERA_HOUSE', 'YIELD_CULTURE', 2),
 	('POLICY_ETHICS', 'BUILDINGCLASS_OPERA_HOUSE', 'YIELD_PRODUCTION', 2),
 	('POLICY_FLOURISHING_OF_ARTS', 'BUILDINGCLASS_UNIVERSITY', 'YIELD_TOURISM', 4),
-	('POLICY_FLOURISHING_OF_ARTS', 'BUILDINGCLASS_UNIVERSITY', 'YIELD_GOLDEN_AGE_POINTS', 6);
+	('POLICY_FLOURISHING_OF_ARTS', 'BUILDINGCLASS_UNIVERSITY', 'YIELD_GOLDEN_AGE_POINTS', 4);

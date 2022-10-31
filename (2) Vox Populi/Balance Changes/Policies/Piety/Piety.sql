@@ -133,14 +133,14 @@ SET
 WHERE Type = 'POLICY_THEOCRACY';
 
 
--- Reformation (now Burghers)
+-- Reformation (now Fiefdoms)
 
 UPDATE Policies
 SET
 	AddReformationBelief = 0,
-	DoubleBorderGrowthGA = 1,
+	DoubleBorderGrowthGA = 0,
 	DoubleBorderGrowthWLTKD = 1,
-	NoUnhappfromXSpecialists = 1,
+	HappyPerMilitaryUnit = 10,
 	PortraitIndex = 47
 WHERE Type = 'POLICY_REFORMATION';
 
@@ -148,12 +148,6 @@ INSERT INTO Policy_WLTKDYieldMod
 	(PolicyType, YieldType, Yield)
 VALUES
 	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
-
-INSERT INTO Policy_GoldenAgeYieldMod
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_REFORMATION', 'YIELD_PRODUCTION', 15);
-
 
 -- Free Religion (now Serfdom)
 
