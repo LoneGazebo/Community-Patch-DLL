@@ -48,17 +48,39 @@ UPDATE Language_en_US
 SET Text = 'You may initiate a Diplomatic Mission that can improve your [ICON_INFLUENCE] Influence with this City-State.'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_GIFT_GOLD_TT' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
+-- Civilopedia Updates
+
 UPDATE Language_en_US
-SET Text = '[COLOR_YELLOW]Once the United Nations World Congress Project is completed, the World Congress becomes the United Nations. Diplomatic Victory becomes possible once this is achieved, and a World Ideology is active.[ENDCOLOR] To win Diplomatic Victory, a civilization must receive enough delegate support on a Global Hegemony resolution.[NEWLINE][NEWLINE]Unlike other resolutions, the Global Hegemony resolution cannot be proposed by a civilization. Instead, every other session of the Congress is dedicated to deciding it. During these sessions, which alternate with sessions of regular proposals, the World Leader resolution is automatically proposed to the Congress and no other proposals are made.[NEWLINE][NEWLINE]The amount of delegate support required to win depends on the number of civilizations and city-states in the game, and can be seen on the World Congress and Victory Progress screens. If no civilization receives enough support to win a World Leader resolution, the two civilizations that received the most support will permanently gain additional delegates.'
+SET Text = 'A resolution is a change to the game world that is proposed to and decided by the civilizations of the World Congress. For example, a resolution can embargo trade routes with a certain civilization, increase the culture from Wonders, prevent the construction of nuclear weapons, or award someone Diplomatic Victory. A resolution may also repeal a previously passed resolution, reversing its effects. [NEWLINE][NEWLINE][COLOR_YELLOW]Only three civilizations get to propose resolutions: the current host of the Congress, and the other two players who have the most delegates.[ENDCOLOR][NEWLINE][NEWLINE]All civilizations get to help decide the outcome of proposed resolutions once the Congress is in session. They do so by allocating their delegates towards the outcome they desire: "Yea" to help it pass or "Nay" to help it fail. Some resolutions require choosing a civilization rather than simply "Yea" or "Nay".[NEWLINE][NEWLINE]Once all civilizations have used their delegates, the resolution''s outcome is decided by whichever option received the most delegate support. If there is a tie, the resolution fails.'
+WHERE Tag = 'TXT_KEY_CONGRESS_RESOLUTIONS_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Resolutions[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CONGRESS_RESOLUTIONS_HEADING2_TITLE' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Proposed resolutions to the Congress are decided through the use of delegates. Once a session of the Congress begins, civilizations divide their delegates as they like between proposed resolutions to support the outcomes they desire. Delegates support "Yea" in order to help pass the resolution, or "Nay" in order to help prevent it from passing. Some resolutions require choosing a civilization rather than simply "Yea" or "Nay".[NEWLINE][NEWLINE]Delegates can be obtained in the following ways:[NEWLINE][NEWLINE]  [COLOR_GREEN]Base Value[ENDCOLOR]: Each Civilization has a basic amount of Delegates depending on the current Era of the World Congress (starting with 1 Delegate when the World Congress is founded, then 1 additional Delegate per Era).[NEWLINE][NEWLINE] [COLOR_GREEN]Host Status[ENDCOLOR]: The Host of the World Congress gets 1-2 additional Delegates, depending on Era.[NEWLINE][NEWLINE]  [COLOR_GREEN]City State Alliances[ENDCOLOR]: Each City State Alliace grants 1 additional Delegate. Once the United Nations are founded, this number increases to 2 Delegates per Alliance.[NEWLINE][NEWLINE] [COLOR_GREEN]City State Embassies[ENDCOLOR]: [COLOR_YELLOW]Each Embassy built in a City State grants 1 additional Delegate.[ENDCOLOR][NEWLINE][NEWLINE]  [COLOR_GREEN]World Religions[ENDCOLOR]: If a Religion has been designated as the official World Religion by the World Congress, all Civilizations following it will get an additional Delegate. [COLOR_YELLOW]The founder of the World Religions also gets an additional Delegates for each foreign Civilization following the World Religion.[ENDCOLOR][NEWLINE][NEWLINE]  [COLOR_GREEN]Religious Authority[ENDCOLOR]: [COLOR_YELLOW]A Civilization that has founded a Religion and built the corresponding National Wonder gets 1 additional Delegate for every 10 Cities following the Religion.[ENDCOLOR][NEWLINE][NEWLINE]  [COLOR_GREEN]World Ideology[ENDCOLOR]: If an Ideology has been designated as the official World Ideology by the World Congress, all Civilizations following the ideology will get 1 additional Delegate [COLOR_YELLOW]and 1 additional Delegate for each foreign Civilization following the World Ideology.[ENDCOLOR][NEWLINE][NEWLINE]  [COLOR_GREEN]Policies and Wonders[ENDCOLOR]: Some Social Policies, National Wonders and World Wonders grant additional Delegates in different ways.[NEWLINE][NEWLINE]  [COLOR_GREEN]Globalization[ENDCOLOR]: When the Technology "Globalization" has been researched, each Diplomat in a foreign Capital grants 1 additional Delegate.'
+WHERE Tag = 'TXT_KEY_CONGRESS_DELEGATES_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Delegates[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CONGRESS_DELEGATES_HEADING2_TITLE' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Diplomatic Victory is only possible after the World Congress has become the United Nations. The United Nations are founded once half of the civilizations in the game reach the Atomic Era (or one civilization reaches the Information era). [COLOR_YELLOW]As a further requirement, the World Congress Resolution "United Nations" must have been passed and the United Nations World Wonder must have been built by a civilization. It is possible to achieve a Diplomatic Victory even if you have not built the United Nations yourself.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CONGRESS_UN_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]The United Nations[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CONGRESS_UN_HEADING2_TITLE' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Once the World Congress has become the United Nations, Diplomatic Victory becomes possible if a World Ideology is active.[ENDCOLOR] To win Diplomatic Victory, a civilization must receive enough delegate support on a Global Hegemony resolution.[NEWLINE][NEWLINE]Unlike other resolutions, the Global Hegemony resolution cannot be proposed by a civilization. Instead, every other session of the United Nations is dedicated to deciding it if a World Ideology is active. During these sessions, which alternate with sessions of regular proposals, the World Leader resolution is automatically proposed to the Congress and no other proposals are made.[NEWLINE][NEWLINE]The amount of delegate support required to win depends on the number of civilizations and city-states in the game, and can be seen on the World Congress and Victory Progress screens. If no civilization receives enough support to win a World Leader resolution, the two civilizations that received the most support will permanently gain additional delegates.'
 WHERE Tag = 'TXT_KEY_CONGRESS_VICTORY_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Diplomatic Victory[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CONGRESS_VICTORY_HEADING2_TITLE' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Once the United Nations World Congress Project is completed, the World Congress becomes the United Nations. Diplomatic Victory becomes possible once this is achieved, and a World Ideology is active. These prerequisites unlocks the Elect World Leader resolution, the winner of which will achieve a Diplomatic Victory.'
-WHERE Tag = 'TXT_KEY_CONGRESS_UN_HEADING2_BODY' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_TEXT' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'They will reward the player(s) with the largest number of new Followers.'

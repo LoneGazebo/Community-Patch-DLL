@@ -15,6 +15,17 @@
 			<InsertBefore>CONCEPT_CITY_BANNER</InsertBefore>
 		</Row>
 		<Row>
+			<Type>CONCEPT_CITY_STATE_EMBASSIES</Type>
+			<Topic>TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC</Topic>
+			<Description>TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_DESCRIPTION</Description>
+			<Summary>TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_SUMMARY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_ADV_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CITYSTATE</CivilopediaHeaderType>
+			<InsertAfter>CONCEPT_CITY_STATE_DIPLOMACY_VICTORY</InsertAfter>
+			<InsertBefore>CONCEPT_CITY_STATE_BULLYING</InsertBefore>
+		</Row>
+		<Row>
 			<Type>CONCEPT_HISTORIC_EVENT</Type>
 			<Topic>TXT_KEY_TOPIC_CULTURE</Topic>
 			<Description>TXT_KEY_HISTORIC_EVENT</Description>
@@ -126,6 +137,20 @@
 		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_ADVISOR_QUESTION">
 			<Text>What are Yields Scaling with Era?</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC">
+			<Text>[COLOR_GREEN]City State Embassies[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_SUMMARY">
+			<Text>City State Embassies are an additional method in Vox Populi to gain Delegates in the World Congress. To establish an Embassy in a City State, move a Great Diplomat to a land tile of the City State and select "Establish an Embassy". An Embassy grants 1 additional Delegate in the World Congress. In each City State, only one Embassy can be established by a Civilization, so be quick. When a Civilization is conquered, all of its City State Embassies are transferred to the conquering Civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_QUESTION">
+			<Text>What are City State Embassies?</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_HISTORIC_EVENT">
 			<Text>[COLOR_GREEN]Historic Events[ENDCOLOR]</Text>
 		</Row>
