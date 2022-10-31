@@ -2213,11 +2213,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
-	{
-		return false;
-	}
-
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
 
@@ -2277,6 +2272,16 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
+	if(pkImprovementInfo->IsCoastMakesValid() && (isWater() && !isLake()))
+	{
+		bValid = true;
+	}
+
+	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
+	{
+		bValid = true;
+	}
+
 	if(pkImprovementInfo->IsHillsMakesValid() && isHills())
 	{
 		bValid = true;
@@ -2313,6 +2318,30 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	if((getFeatureType() != NO_FEATURE) && pkImprovementInfo->GetFeatureMakesValid(getFeatureType()))
 	{
 		bValid = true;
+	}
+
+	int iAdjacentSameImprovementMakesValid = pkImprovementInfo->GetXSameAdjacentMakesValid();
+	if (iAdjacentSameImprovementMakesValid > 0)
+	{
+		int iAdjacentSameImprovement = 0;
+
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL)
+			{
+				if (pLoopPlot->getImprovementType() == eImprovement)
+				{
+					iAdjacentSameImprovement++;
+				}
+			}
+		}
+
+		if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
+		{
+			bValid = true;
+		}
 	}
 
 	if(!bValid)
@@ -7217,6 +7246,9 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 			continue;
 
 		if(pImprovementInfo->IsWater() != isWater())
+			continue;
+
+		if(pImprovementInfo->IsCoastMakesValid() != (isWater() && !isLake()))
 			continue;
 
 		eImprovementNeeded = eImprovement;

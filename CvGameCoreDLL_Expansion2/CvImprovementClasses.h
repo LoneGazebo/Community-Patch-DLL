@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -127,7 +127,8 @@ public:
 	bool IsRemovesResource() const;
 	bool IsPromptWhenComplete() const;
 	bool IsWater() const;
-	bool IsCoastal() const;
+	bool IsCoastMakesValid() const; // the coast itself (water)
+	bool IsCoastal() const; // land near coast
 	bool IsDestroyedWhenPillaged() const;
 	bool IsDisplacePillager() const;
 	bool IsBuildableOnResources() const;
@@ -146,6 +147,7 @@ public:
 	int GetGrantsVision() const;
 #endif
 	bool IsNoTwoAdjacent() const;
+	int GetXSameAdjacentMakesValid() const;
 	bool IsAdjacentLuxury() const;
 	bool IsAllowsWalkWater() const;
 	bool IsCreatedByGreatPerson() const;
@@ -294,6 +296,7 @@ protected:
 	bool m_bRemovesResource;
 	bool m_bPromptWhenComplete;
 	bool m_bWater;
+	bool m_bCoastMakesValid;
 	bool m_bCoastal;
 	bool m_bDestroyedWhenPillaged;
 	bool m_bDisplacePillager;
@@ -313,7 +316,8 @@ protected:
 	int m_iGrantsVision;
 #endif
 	bool m_bNoTwoAdjacent;
-    bool m_bAdjacentLuxury;
+	int m_iXSameAdjacentMakesValid;
+	bool m_bAdjacentLuxury;
 	bool m_bAllowsWalkWater;
 	bool m_bCreatedByGreatPerson;
 	bool m_bSpecificCivRequired;

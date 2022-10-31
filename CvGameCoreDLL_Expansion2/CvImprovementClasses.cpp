@@ -127,6 +127,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bRemovesResource(false),
 	m_bPromptWhenComplete(false),
 	m_bWater(false),
+	m_bCoastMakesValid(false),
 	m_bCoastal(false),
 	m_bDestroyedWhenPillaged(false),
 	m_bDisplacePillager(false),
@@ -147,6 +148,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iMovesChange(0),
 #endif
 	m_bNoTwoAdjacent(false),
+	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
 	m_bAllowsWalkWater(false),
 	m_bCreatedByGreatPerson(false),
@@ -294,6 +296,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bRemovesResource = kResults.GetBool("RemovesResource");
 	m_bPromptWhenComplete = kResults.GetBool("PromptWhenComplete");
 	m_bWater = kResults.GetBool("Water");
+	m_bCoastMakesValid = kResults.GetBool("CoastMakesValid");
 	m_bCoastal = kResults.GetBool("Coastal");
 	m_bDestroyedWhenPillaged = kResults.GetBool("DestroyedWhenPillaged");
 	m_bDisplacePillager = kResults.GetBool("DisplacePillager");
@@ -335,6 +338,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iMovesChange = kResults.GetInt("MovesChange");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
+	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
 	m_bAllowsWalkWater = kResults.GetBool("AllowsWalkWater");
 	m_bCreatedByGreatPerson = kResults.GetBool("CreatedByGreatPerson");
@@ -1084,7 +1088,13 @@ bool CvImprovementEntry::IsWater() const
 	return m_bWater;
 }
 
-/// Is this only placed on the coast?
+/// Requires coast terrain (not lake) to build
+bool CvImprovementEntry::IsCoastMakesValid() const
+{
+	return m_bCoastMakesValid;
+}
+
+/// Is this only placed on land near the coast?
 bool CvImprovementEntry::IsCoastal() const
 {
 	return m_bCoastal;
@@ -1171,6 +1181,11 @@ int CvImprovementEntry::GetGrantsVision() const
 bool CvImprovementEntry::IsNoTwoAdjacent() const
 {
 	return m_bNoTwoAdjacent;
+}
+
+int CvImprovementEntry::GetXSameAdjacentMakesValid() const
+{
+	return m_iXSameAdjacentMakesValid;
 }
 
 /// Does this improvement need to be built next to a luxury resource?
