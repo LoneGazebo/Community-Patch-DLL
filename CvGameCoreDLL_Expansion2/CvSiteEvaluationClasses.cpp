@@ -321,6 +321,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	int iNaturalWonderCount = 0;
 	int iDesertCount = 0;
 	int iWetlandsCount = 0;
+	int iFloodPlainsCount = 0;
 	int iIncaHillsCount = 0;
 
 	int iLakeCount = 0;
@@ -483,9 +484,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		{
 			++iBrazilJungleCount;
 		}
-		else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
+		else if (ePlotFeature == FEATURE_MARSH)
 		{
 			++iWetlandsCount;
+		}
+		else if (ePlotFeature == FEATURE_FLOOD_PLAINS)
+		{
+			++iFloodPlainsCount;
 		}
 
 		if (pLoopPlot->IsNaturalWonder())
@@ -558,12 +563,12 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)
 		{
-			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;	
+			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;
 			if (pDebug) vQualifiersPositive.push_back("(C) natural wonders");
 		}
 
 		// Custom code for Brazil
-		ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
+		ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);
 		if(eBrazilImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
@@ -572,14 +577,18 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
-					iCivModifier += iBrazilJungleCount * m_iBrazilMultiplier;
+					if (pkEntry->GetFeatureMakesValid(FEATURE_JUNGLE))
+						iCivModifier += iBrazilJungleCount * m_iBrazilMultiplier;
+					else if (pkEntry->GetFeatureMakesValid(FEATURE_FOREST))
+						iCivModifier += iIroquoisForestCount * m_iBrazilMultiplier;
+						
 					if (pDebug) vQualifiersPositive.push_back("(C) jungle");
 				}
 			}
 		}
 
 		// Custom code for Morocco
-		ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);  
+		ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);
 		if(eMoroccoImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
@@ -595,7 +604,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for France
-		ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);  
+		ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);
 		if(eFranceImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eFranceImprovement);
@@ -611,7 +620,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		//Custom code for Netherlands
-		ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);  
+		ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);
 		if(ePolderImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
@@ -620,7 +629,14 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
-					iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
+					if(pkEntry->IsFreshWaterMakesValid())
+					{
+						iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
+						iCivModifier += iFloodPlainsCount * m_iNetherlandsMultiplier;
+					}
+					else if(pkEntry->GetFeatureMakesValid(FEATURE_MARSH))
+						iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
+
 					if(pkEntry->IsAdjacentLake())
 						iCivModifier += (iLakeCount * m_iNetherlandsMultiplier);
 					if (pDebug) vQualifiersPositive.push_back("(C) wetlands");
@@ -629,7 +645,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Inca
-		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
+		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);
 		if(eIncaImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
@@ -1164,12 +1180,12 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity
 /// Constructor
 CvSiteEvaluatorForSettler::CvSiteEvaluatorForSettler(void)
 {
-	m_iBrazilMultiplier = 1000;	//fertility boost from jungles
-	m_iSpainMultiplier = 5000;	//fertility boost from natural wonders
-	m_iCelticMultiplier = 2000;
+	m_iBrazilMultiplier = 1000; //fertility boost from jungles and/or forest
+	m_iSpainMultiplier = 5000; //fertility boost from natural wonders
+	m_iCelticMultiplier = 2000; //fertility boost from unimproved forest
 	m_iMorrocoMultiplier = 1000; //fertility boost from desert
 	m_iFranceMultiplier = 1000; //fertility boost from resources
-	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
+	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and/or flood plains
 	m_iIncaMultiplier = 100; //fertility boost for hill tiles surrounded my mountains
 }
 
