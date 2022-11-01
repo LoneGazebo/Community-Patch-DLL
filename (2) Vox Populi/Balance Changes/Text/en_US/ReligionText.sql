@@ -62,7 +62,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY';
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +2 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith in coastal Cities'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Fishing Boats and Atolls. +2 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith in Coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA';
 
 
@@ -252,7 +252,7 @@ SET Text = 'Hero Worship'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City, as well as [ICON_GREAT_GENERAL] Great General Points (if City is landlocked) or [ICON_GREAT_ADMIRAL] Great Admiral Points (if City is coastal). Bonus scales with City Population and Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Great Altar National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'Receive [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points when you conquer a City, as well as [ICON_GREAT_GENERAL] Great General Points (if City is landlocked) or [ICON_GREAT_ADMIRAL] Great Admiral Points (if City is Coastal). Bonus scales with City Population and Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Great Altar National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith, +15% Military Unit [ICON_PRODUCTION] Production; +5 [ICON_PRODUCTION] Production from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_INTERFAITH_DIALOGUE';
 
 
