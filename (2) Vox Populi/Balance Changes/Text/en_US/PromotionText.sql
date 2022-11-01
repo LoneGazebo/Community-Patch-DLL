@@ -522,7 +522,7 @@
 	WHERE Tag = 'PROMOTION_HEAL_IF_DESTROY_ENEMY_HELP';
 
 	UPDATE Language_en_US
-	SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Compass[ENDCOLOR].[NEWLINE]May move through Ocean Tiles if ending on a Coast Tile.'
+	SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Compass[ENDCOLOR].[NEWLINE]May move through visible Ocean Tiles if ending on a visible Coast Tile.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 	UPDATE Language_en_US

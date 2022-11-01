@@ -127,7 +127,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
 INSERT INTO Language_en_US
 		(Tag,										Text)
-VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through Ocean Tiles if ending on a Coastal Tile.');
+VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through visible Ocean Tiles if ending on a visible Coast Tile.');
 
 UPDATE UnitPromotions
 SET Help = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP'
@@ -138,7 +138,7 @@ SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO';
 
 UPDATE Language_en_US
-SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through Ocean Tiles if ending on a Coastal Tile.'
+SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through visible Ocean Tiles if ending on a visible Coast Tile.'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 -- Siege Units
