@@ -172,6 +172,8 @@ public:
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray();
 	int GetYieldChangePerEra(int i) const;
+	int GetWLTKDYieldChange(int i) const;
+	int* GetWLTKDYieldChangeArray();
 	int GetRiverSideYieldChange(int i) const;
 	int* GetRiverSideYieldChangeArray();
 	int GetCoastalLandYieldChange(int i) const;
@@ -334,6 +336,7 @@ protected:
 	int* m_piPrereqNatureYield;
 	int* m_piYieldChange;
 	int* m_piYieldPerEra;
+	int* m_piWLTKDYieldChange;
 	int* m_piRiverSideYieldChange;
 	int* m_piCoastalLandYieldChange;
 	int* m_piHillsYieldChange;

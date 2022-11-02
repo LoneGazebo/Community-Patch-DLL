@@ -1647,20 +1647,20 @@ int CvLuaPlot::lCalculateTotalBestNatureYield(lua_State* L)
 	return BasicLuaMethod(L, &CvPlot::calculateTotalBestNatureYield);
 }
 //------------------------------------------------------------------------------
-//int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute);
+//int calculateImprovementYieldChange(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, bool bOptimal, RouteTypes eAssumeThisRoute);
 int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 {
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const ImprovementTypes eImprovement = (ImprovementTypes)lua_tointeger(L, 2);
 	const YieldTypes eYield = (YieldTypes)lua_tointeger(L,3);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
-	const bool bOptional = luaL_optbool(L, 5, false);
+	const bool bOptimal = luaL_optbool(L, 5, false);
 
 	RouteTypes eRoute = (RouteTypes)luaL_optint(L, 6, NUM_ROUTE_TYPES);
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
 
-	const int iResult = pkPlot->calculateImprovementYield(eImprovement, eYield, pkPlot->calculateBestNatureYield(eYield, ePlayer), ePlayer, bOptional, eRoute);
+	const int iResult = pkPlot->calculateImprovementYield(eYield, pkPlot->calculateBestNatureYield(eYield, ePlayer), ePlayer, eImprovement, pkPlot->getEffectiveOwningCity(), bOptimal, eRoute);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
