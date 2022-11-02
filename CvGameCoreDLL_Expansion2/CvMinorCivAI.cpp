@@ -4577,7 +4577,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		bool bCoastal = false;
 		if (GetPlayer()->getStartingPlot() != NULL)
 		{
-			if (GetPlayer()->getStartingPlot()->isCoastalLand())
+			if (GetPlayer()->getStartingPlot()->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 			{
 				if (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
 				{
@@ -4590,7 +4590,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 						if (GET_PLAYER(ePlayer).isAlive())
 						{
-							if (GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
+							if (GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 							{
 								iCoastal++;
 							}
@@ -4598,7 +4598,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 						}
 					}
 					//If at least a quarter of all major civ players start on the coast, we should give out boats too.
-					if (iCoastal >= (iPlayers+3) / 4)
+					if (iCoastal*4 >= iPlayers)
 					{
 						bCoastal = true;
 					}
@@ -14181,8 +14181,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	bool bBoatsAllowed = MOD_GLOBAL_CS_GIFT_SHIPS && pMinorCapital->isCoastal();
 
 	// What's their closest city? If they have at least one coastal city, allow spawning naval units
-	int iLowestDistance = 1000;
-	int iLowestCoastalDistance = 1000;
+	int iLowestDistance = MAX_INT;
+	int iLowestCoastalDistance = MAX_INT;
 	int iCityLoop = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 	{
@@ -14195,7 +14195,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			iLowestDistance = iDistance;
 			pClosestCity = pLoopCity;
 
-			if (pLoopCity->isCoastal() && iDistance < iLowestCoastalDistance)
+			if (pLoopCity->isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)) && iDistance < iLowestCoastalDistance)
 			{
 				iLowestCoastalDistance = iDistance;
 				pClosestCoastalCity = pLoopCity;
