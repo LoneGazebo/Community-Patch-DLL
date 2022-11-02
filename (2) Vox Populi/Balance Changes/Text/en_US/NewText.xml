@@ -59,7 +59,7 @@
 			<Text>Rhiannon, the Sovereign</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
-			<Text>+3 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in coastal Cities. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens working Sea tiles in your Cities. +2 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall.</Text>
+			<Text>+3 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in Coastal Cities. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens working Sea tiles in your Cities. +2 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
 			<Text>Mannanan, Son of the Sea</Text>

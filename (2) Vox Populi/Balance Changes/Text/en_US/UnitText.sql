@@ -311,7 +311,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_FRIGATE';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Galley is a Barbarian unit which remains in coastal hexes, looking for embarked units to destroy. The Galley can annoy cities and units near the coast.'
+	SET Text = 'The Galley is a Barbarian unit which remains in coast tiles, looking for embarked units to destroy. The Galley can annoy cities and units near the coast.'
 	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
 
 	UPDATE Language_en_US
@@ -339,7 +339,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARAVEL';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Frigate is an upgrade over the Galleass. Its Range, Combat and Ranged Combat Strengths are much larger than the older naval unit. The Frigate can clear the seas of any Caravels, Triremes, and Barbarian units still afloat. It cannot, however, fire on non-coastal Land Tiles.'
+	SET Text = 'The Frigate is an upgrade over the Galleass. Its Range, Combat and Ranged Combat Strengths are much larger than the older naval unit. The Frigate can clear the seas of any Caravels, Triremes, and Barbarian units still afloat. It cannot, however, fire on non-Coastal Land Tiles.'
 	WHERE Tag = 'TXT_KEY_UNIT_FRIGATE_STRATEGY';
 
 	UPDATE Language_en_US
