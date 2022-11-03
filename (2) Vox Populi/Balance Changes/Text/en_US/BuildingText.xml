@@ -296,6 +296,9 @@
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT">
 			<Text>Refinery</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS">
+			<Text>Bastion Fort</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD">
 			<Text>Mine Field</Text>
 		</Row>
@@ -335,6 +338,9 @@
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
 			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. With the Minefield in place, enemy ships are stopped immediately after entering the city's territory and are no longer safe to sit back on local ocean tiles outside of range from retaliation from land. Due to their resource requirement, Minefields are best limited to locations particularly vulnerable to naval sieges. Use Minefields to blunt a naval invasion, and then outmaneuver it with your own navy.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS_STRATEGY">
+			<Text>The Bastion Fort is a Renaissance-era military building that increases Defense Strength and Hit Points, making the city more difficult to capture. It allows the City to Ranged Strike indirectly, ignoring Line of Sight. Increases Military Units supplied by this City''s population by 10%. Also helps with managing the Empire Size Modifier in this City. The city must possess a Castle before it can construct a Bastion Fort.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_STRATEGY">
 			<Text>The Interpretive Center greatly increases the power of Landmark improvements, and converts Culture from tiles into Tourism, greatly aiding a Cultural Victory.</Text>
 		</Row>
@@ -367,6 +373,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>Produces 1 [ICON_RES_IRON] Iron, [ICON_RES_COAL] Coal, and [ICON_RES_OIL] Oil.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS_HELP">
+			<Text>Military Units Supplied by this City''s population increased by 10%. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending their turn in Ocean Tiles owned by this city take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast with a Harbor.</Text>
@@ -403,6 +412,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT">
 			<Text>Refined coal is the product of the application of a coal upgrading technology that removes moisture and certain pollutants from lower-rank coals such as sub-bituminous and lignite (brown) coals and raising their calorific values. Coal refining or upgrading technologies are typically pre-combustion treatments and/or processes that alter the characteristics of a coal before it is burned. The goals of pre-combustion coal upgrading technologies are to increase efficiency and reduce emissions when coal is burned. Depending on the situation, pre-combustion technology can be used in place of or as a supplement to post-combustion technologies to control emissions from coal-fueled boilers. A primary benefit of refined coal is the capacity to reduce the net volume of carbon emissions that is currently emitted from power generators and would reduce the amount of emissions that is proposed to be managed via emerging carbon sequestration methodologies. Refined coal technologies have primarily been developed in the United States, several similar technologies have been researched, developed and tested in Victoria, Australia, including the Densified coal technology (Coldry Process) developed to alter the chemical bonds of brown coal to create a product that is cleaner, stable (not prone to spontaneous combustion), exportable and of sufficiently high calorific value to be a black coal equivalent.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_FORTRESS_TEXT">
+			<Text>As cannons came to dominate the battlefields, pressure was put on military engineers to design static fortifications that could withstand weapons that could tear through the outer walls of ealier stone castles. New emphasis was put on earthworks and sloped, or angled walls that would either absorb or deflect a hit from cannonballs. New styles of defenses sported polygonal shapes with numerous bastions and ravelins, triangular outcroppings that always presented an enemy with an angled surface. These forts denied the attacker a direct hit onto a flat curtain wall, where a cannon could do the most damage. Meanwhile, these bulwarks offered overlapping field of fire along the length of the nearby walls, creating 'dead zones' where attackers were exposed to multiple walls' gunfire.[NEWLINE][NEWLINE]These new Bastion Forts were made as a response to France's repeated invasions of Italy in the early 1500s. None other than Michaelangelo himself is credited with designing one of the first bastion forts to defend his home of Florence from the French, and designs spread from Italy to Europe, and to the rest of globe.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT">
 			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>

@@ -97,7 +97,24 @@
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_REC">
 			<Text>It will increase the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_IMPROVEMENT_SIHEYUAN">
+			<Text>Siheyuan</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_SIHEYUAN_TEXT">
+			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Provides 1 additional [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when worked by a city experiencing a "We Love The Empress Day".[NEWLINE][NEWLINE]The stately Siheyuan are a mainstay of Chinese architecture dating back to antiquity. The style is often referred to as a Chinese quadrangle, and is used from relatively dwellings and monasteries to the most grand palaces. The Forbidden City in Beijing is designed as an enormous Siheyuan. All siheyuan are positioned along a east-west axis, with the main entrance facing south. The universality of this plan allows sequential siheyuan to be arranged in long rows, creating sprawling suburbs in many of China's largest cities. The narrow alleyways between these rows of Siheyuan are known as hutongs in northern China, forming long market streets similar to middle-eastern bazaars. Recent changes in city planning and construction have resulted in many historic neighbourhoods being demolished, but there have been coordinated efforts to preserve some districts as a valuable piece of Chinese cultural identity.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_SIHEYUAN_HELP">
+			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Provides 1 additional [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when worked by a city experiencing a "We Love The Empress Day".</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SIHEYUAN">
+			<Text>Build a [LINK=IMPROVEMENT_SIHEYUAN]Siheyuan[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SIHEYUAN_HELP">
+			<Text>Constructs a Siheyuan, which increases [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides more yields when the nearby city is in a "We Love The Empress Day".</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_SIHEYUAN_REC">
+			<Text>It will increase [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Removes any features on the tile. Provides more yields when the nearby city is in a "We Love The Empress Day".</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_HORSE">
 			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>

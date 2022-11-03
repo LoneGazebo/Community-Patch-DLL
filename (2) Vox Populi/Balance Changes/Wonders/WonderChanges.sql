@@ -183,7 +183,7 @@ VALUES ('BUILDING_ANGKOR_WAT' , 'YIELD_FAITH' , '1');
 -- Alhambra
 
 UPDATE Buildings
-SET PolicyType = 'POLICY_HONOR_FINISHER', Cost = '400', CultureRateModifier = '0', FreePromotion = 'PROMOTION_ALHAMBRA', TrainedFreePromotion = NULL
+SET PolicyType = 'POLICY_HONOR_FINISHER', Cost = '400', CultureRateModifier = '10', FreePromotion = 'PROMOTION_ALHAMBRA', TrainedFreePromotion = NULL
 WHERE Type = 'BUILDING_ALHAMBRA';
 
 -- Mosque of Djenne
@@ -242,7 +242,7 @@ VALUES ('BUILDING_FORBIDDEN_PALACE' , 'HURRY_GOLD' , '-15');
 -- Himeji Castle
 
 UPDATE Buildings
-SET Cost = '800', GlobalDefenseMod = '10', CitySupplyFlat = '5'
+SET Cost = '800', GlobalDefenseMod = '10', CitySupplyFlat = '5', FreeBuildingThisCity = 'BUILDINGCLASS_FORTRESS'
 WHERE Type = 'BUILDING_HIMEJI_CASTLE';
 
 -- Chichen Itza
@@ -455,7 +455,7 @@ VALUES
 
 -- Sydney Opera House
 UPDATE Buildings
-SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '0', MinAreaSize = '10'
+SET PrereqTech = 'TECH_SATELLITES', Cost = '2300', CultureRateModifier = '25', MinAreaSize = '10'
 WHERE Type = 'BUILDING_SYDNEY_OPERA_HOUSE';
 
 -- Move Apollo 

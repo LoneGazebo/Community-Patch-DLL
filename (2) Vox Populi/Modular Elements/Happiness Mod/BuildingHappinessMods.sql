@@ -68,14 +68,18 @@ WHERE Type = 'BUILDING_CASTLE';
 
 UPDATE Buildings
 SET EmpireSizeModifierReduction = '-5'
-WHERE Type = 'BUILDING_ARSENAL';
+WHERE Type = 'BUILDING_FORTRESS';
 
 UPDATE Buildings
 SET EmpireSizeModifierReduction = '-5'
 WHERE Type = 'BUILDING_KREPOST';
 
 UPDATE Buildings
-SET EmpireSizeModifierReduction = '-10'
+SET EmpireSizeModifierReduction = '-5'
+WHERE Type = 'BUILDING_ARSENAL';
+
+UPDATE Buildings
+SET EmpireSizeModifierReduction = '-5'
 WHERE Type = 'BUILDING_MILITARY_BASE';
 
 UPDATE Buildings
@@ -215,10 +219,6 @@ WHERE Type = 'BUILDING_ORACLE';
 UPDATE Buildings
 SET IlliteracyFlatReduction = '1'
 WHERE Type = 'BUILDING_LIBRARY';
-
-UPDATE Buildings
-SET IlliteracyFlatReduction = '1'
-WHERE Type = 'BUILDING_PAPER_MAKER';
 
 UPDATE Buildings
 SET IlliteracyFlatReduction = '1'

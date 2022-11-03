@@ -1,0 +1,5 @@
+<Asset>
+  <Mesh file="siheyuan_neighborhood.gr2" source="Max" />
+  <Texture file="siheyuan.dds" source="Max" />
+  <Texture file="black_sref.dds" source="Max" />
+</Asset>

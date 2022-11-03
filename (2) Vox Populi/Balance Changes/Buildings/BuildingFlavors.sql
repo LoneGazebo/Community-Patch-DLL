@@ -263,6 +263,12 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_WINDMILL', 'FLAVOR_PRODUCTION', 30),
 ('BUILDING_WINDMILL', 'FLAVOR_GROWTH', 10),
 ('BUILDING_WINDMILL', 'FLAVOR_GREAT_PEOPLE', 2),
+---------------------------
+('BUILDING_FORTRESS', 'FLAVOR_CITY_DEFENSE', 25),
+
+('BUILDING_KREPOST', 'FLAVOR_CITY_DEFENSE', 25),  --- Ostrog
+('BUILDING_KREPOST', 'FLAVOR_PRODUCTION', 20),
+('BUILDING_KREPOST', 'FLAVOR_GOLD', 20),
 ---------------------------------------------------
 --------- Industrial
 ------------------------
@@ -270,11 +276,6 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_STOCKYARD', 'FLAVOR_GOLD', 10),
 ('BUILDING_STOCKYARD', 'FLAVOR_PRODUCTION', 10),
 --------------------------------
-('BUILDING_ARSENAL', 'FLAVOR_CITY_DEFENSE', 25),
-
-('BUILDING_KREPOST', 'FLAVOR_CITY_DEFENSE', 25),  --- Ostrog
-('BUILDING_KREPOST', 'FLAVOR_PRODUCTION', 20),
-------------------------------
 ('BUILDING_FACTORY', 'FLAVOR_PRODUCTION', 100),
 ('BUILDING_FACTORY', 'FLAVOR_GREAT_PEOPLE', 2),
 --------------------------------
@@ -307,6 +308,8 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_THEATRE', 'FLAVOR_I_TRADE_ORIGIN', 20),
 -------------------------
 --------Modern
+('BUILDING_ARSENAL', 'FLAVOR_CITY_DEFENSE', 25),
+----------------
 ('BUILDING_BROADCAST_TOWER', 'FLAVOR_CULTURE', 75),
 ----------------
 ('BUILDING_HOSPITAL', 'FLAVOR_GROWTH', 35),

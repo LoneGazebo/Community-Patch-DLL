@@ -1,0 +1,16 @@
+<Asset>
+  <Mesh file="siheyuan_neighborhood_PL.gr2" source="Max" />
+  <Texture file="siheyuan_PL.dds" source="Max" />
+  <Texture file="MED_Trading_Post_SREF.dds" source="Max" />
+  <Texture file="MED_Trading_Post_DIFF.dds" source="Max" />
+  <Texture file="Fort_MID_SREF.dds" source="Max" />
+  <Texture file="Kasbah_DIFF.dds" source="Max" />
+  <Texture file="black_sref.dds" source="Max" />
+
+  <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
+  <BoneUsage>
+    <Bone name="Point01" />
+  </BoneUsage>
+  <TimedTrigger file="fx_triggers_Siheyuan.ftsxml" source="Tool" model="siheyuan" state="0,1,2,3"/>
+</Asset>
+
