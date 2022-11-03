@@ -1,0 +1,9 @@
+<Asset>
+  <Mesh file="siheyuan_neighborhood_HB.gr2" source="Max" />
+  <Texture file="MED_Trading_Post_SREF.dds" source="Max" />
+  <Texture file="MED_Trading_Post_DIFF.dds" source="Max" />
+  <Texture file="Fort_MID_SREF.dds" source="Max" />
+  <Texture file="Kasbah_DIFF.dds" source="Max" />
+  <Texture file="black_sref.dds" source="Max" />
+  <Texture file="siheyuan.dds" source="Max" />
+</Asset>

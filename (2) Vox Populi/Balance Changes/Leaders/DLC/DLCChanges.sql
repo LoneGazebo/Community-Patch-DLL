@@ -5,11 +5,6 @@ SET InvestmentModifier = '-15'
 WHERE Type = 'TRAIT_INGENIOUS';
 
 -- Babylon 
-
-UPDATE Buildings
-SET CityRangedStrikeRange = '1'
-WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
-
 UPDATE Buildings
 SET SpecialistType = 'SPECIALIST_SCIENTIST'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
@@ -419,11 +414,6 @@ INSERT INTO Trait_YieldFromTileStealCultureBomb (TraitType, TerrainType, YieldTy
 
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_GOLD', 10 FROM Terrains;
 INSERT INTO Trait_YieldFromTileSettle 		(TraitType, TerrainType, YieldType, Yield) SELECT 'TRAIT_SEVEN_CITIES', Type, 'YIELD_FAITH', 4 FROM Terrains;
-
-
-UPDATE Buildings
-SET CitySupplyModifier = '10'
-WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)
