@@ -386,7 +386,7 @@ void CvArmyAI::UpdateCheckpointTurnsAndRemoveBadUnits()
 				continue;
 
 			//let tactical AI handle units which are badly hurt
-			if (pUnit->shouldHeal())
+			if (pUnit->shouldHeal(true))
 				RemoveUnit(m_FormationEntries[iI].GetUnitID(),false);
 			else if (pUnit->getArmyID() != GetID())
 				//failsafe - make sure the army ID is set

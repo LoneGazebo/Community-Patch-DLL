@@ -563,7 +563,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Brazil
-		ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
+		static ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
 		if(eBrazilImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
@@ -579,7 +579,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Morocco
-		ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);  
+		static ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);
 		if(eMoroccoImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
@@ -595,7 +595,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for France
-		ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);  
+		static ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);
 		if(eFranceImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eFranceImprovement);
@@ -611,7 +611,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		//Custom code for Netherlands
-		ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);  
+		static ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);
 		if(ePolderImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
@@ -629,7 +629,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Inca
-		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
+		static ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);
 		if(eIncaImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);

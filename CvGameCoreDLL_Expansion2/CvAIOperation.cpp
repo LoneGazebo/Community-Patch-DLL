@@ -1588,7 +1588,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 			CvPlot *pCenterOfMass = pThisArmy->GetCenterOfMass();
 			if (pCenterOfMass && pTarget)
 			{
-				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange());
+				bool bInPlace = (plotDistance(*pCenterOfMass, *pTarget) <= GetDeployRange()) && (pThisArmy->GetFurthestUnitDistance(pTarget) < 2*GetDeployRange());
 
 				//check for nearby enemy (for sneak attacks)
 				if (!bInPlace && GET_PLAYER(m_eOwner).IsAtPeaceWith(m_eEnemy))
@@ -2295,7 +2295,7 @@ void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 	int iLoop;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
 	{
-		if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
+		if (pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal(false))
 		{
 			pCarrier = pLoopUnit;
 			break;

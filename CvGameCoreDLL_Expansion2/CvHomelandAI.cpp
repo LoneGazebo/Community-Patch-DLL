@@ -4445,7 +4445,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 		}
 
 		//only combat-ready units for now
-		if(pUnit->shouldHeal())
+		if(pUnit->shouldHeal(false))
 			vHealingUnits.push_back(pUnit);
 		else
 			vCombatReadyUnits.push_back(pUnit);

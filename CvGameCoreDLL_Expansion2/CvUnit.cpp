@@ -28578,7 +28578,7 @@ void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
 
-	if (iNewArmyID!=-1 && shouldHeal())
+	if (iNewArmyID!=-1 && shouldHeal(true))
 	{
 		//shouldn't happen
 		OutputDebugString("warning: damaged unit recruited into army!\n");

@@ -13,6 +13,7 @@
 #include "CvEconomicAI.h"
 #include "CvEnumSerialization.h"
 #include "CvUnitCombat.h"
+#include "CvGrandStrategyAI.h"
 #include "cvStopWatch.h"
 #include "CvMilitaryAI.h"
 #include "CvTypes.h"
@@ -2689,7 +2690,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 				iMinDistForThisUnit = iDistance;
 		}
 
-		if (iMinDistForThisUnit < 4)
+		if (iMinDistForThisUnit <= 4)
 			vUnitsFinal.push_back(vUnitsInitial[i]);
 	}
 
@@ -2734,7 +2735,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget, Cv
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (!pUnit->isDelayedDeath() && pUnit->canMove())
+		if (!pUnit->isDelayedDeath() && pUnit->canMove() && !pUnit->TurnProcessed()) //ignore units used during CheckForEnemiesNearArmy
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -3675,7 +3676,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 
 		//embark only when it's safe
 		CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->GetPathEndFirstTurnPlot());
-		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !pUnit->isEmbarked())
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
 		ExecuteMoveToPlot(pUnit, pLongRangeTarget, true, iFlags);
@@ -3693,7 +3694,10 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pUnit->GetDanger() > pUnit->healRate(NULL) || (!pUnit->IsCombatUnit() && pUnit->plot()->getNumDefenders(pUnit->getOwner()) == 0))
 			ExecuteMovesToSafestPlot(pUnit);
 		else
+		{
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
+			pUnit->SetTurnProcessed(true);
+		}
 	}
 
 	return bSuccess;
@@ -3768,7 +3772,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 					continue; //must be a neutral unit or one of ours
 			}
 
-			if (bAttack)
+			if (bAttack && pUnit->IsCanAttackWithMove())
 			{
 				//check if attack makes sense
 				if (TacticalAIHelpers::IsAttackNetPositive(pUnit,pEvalPlot))
@@ -3776,7 +3780,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 					choices.push_back( SAssignment(pUnit,pEvalPlot,pUnit->GetMaxHitPoints()+1,true) );
 				}
 			}
-			else
+			else if (!bAttack)
 			{
 				//check danger
 				int iScore = pUnit->GetMaxHitPoints() - pUnit->GetDanger(pEvalPlot) + iBonus;
@@ -5487,7 +5491,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 		if (pUnitPlot->getPlotCity()->isInDangerOfFalling(true))
 			return true;
 
-		if (pUnit->shouldHeal() && m_pPlayer->GetPlotDanger(pUnitPlot->getPlotCity())>0)
+		if (pUnit->shouldHeal(true) && m_pPlayer->GetPlotDanger(pUnitPlot->getPlotCity())>0)
 			return true;
 	}
 	else
@@ -5496,7 +5500,7 @@ bool CvTacticalAI::ShouldRebase(CvUnit* pUnit) const
 		if (pCarrier && pCarrier->isProjectedToDieNextTurn())
 			return true;
 
-		if (pUnit->shouldHeal() && pCarrier->GetDanger(pUnitPlot)>0)
+		if (pUnit->shouldHeal(true) && pCarrier->GetDanger(pUnitPlot)>0)
 			return true;
 	}
 
@@ -7137,10 +7141,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		switch (eAggLvl)
 		{
 		case AL_LOW:
-			fAggFactor *= 0.5f + fAggBias / 10; //bias is at least 0.9
+			//want to do more damage than we take
+			fAggFactor *= 0.7f;
 			break;
 		case AL_MEDIUM:
-			fAggFactor *= 0.90f + fAggBias / 10; //bias is at least 0.9
+			//accept slightly more damage than we deal
+			fAggFactor *= 1.1f;
 			break;
 		case AL_HIGH:
 			//we check whether we can survive a counterattack in ScoreTurnEnd
@@ -7155,6 +7161,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			return;
 		}
 
+		//bias depends on the ratio of friendly to enemy units
 		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
 		if (iScaledDamage - iDamageReceived + iExtraScore < 0)
 		{
@@ -7283,6 +7290,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iNumAttacks, const CvTacticalPosition& assumedPosition)
 {
 	int iBestAttackScore = 0;
+	int iVisiblityScore = 0;
 
 	//check how much damage we can do to the enemies around this plot
 	//works for both melee and ranged
@@ -7296,44 +7304,33 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 			if (!pLoopPlot)
 				continue;
 
-			//performance optimization. before looking up the tactical plot, check if there is an enemy here
-			if (pLoopPlot->getNumUnits() == 0 && !pLoopPlot->isCity())
-				continue;
-			//if there was one of our units there initially, it cannot be an enemy (not a 100% check but good enough)
-			else if (pLoopPlot->getNumUnits() > 0 && pLoopPlot->headUnitNode()->eOwner == assumedPosition.getPlayer())
-				continue;
-
 			//now look up the plot and see if the enemy is still there
-			const CvTacticalPlot& enemyPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
-			if (enemyPlot.isValid() && enemyPlot.isEnemy())
+			const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot(pLoopPlot->GetPlotIndex());
+			if (!targetPlot.isValid())
+				continue;
+			
+			if (targetPlot.isEnemy())
 			{
-				//don't attack cities with non-siege units if the real target is something else
-				if (enemyPlot.isEnemyCity() && assumedPosition.getTarget() != pLoopPlot && iMaxRange>1 && pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD)
-					continue;
-
 				//we don't care for damage here but let's reuse the scoring function
 				STacticalAssignment temp;
-				ScoreAttack(enemyPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
-
-				if (temp.iScore > iBestAttackScore)
-				{
-					//don't break formation if there are many enemies around
-					if (temp.eAssignmentType == A_MELEEKILL && enemyPlot.getNumAdjacentEnemies(DomainForUnit(pUnit)) > 3)
-						continue;
-
-					iBestAttackScore = temp.iScore;
-				}
+				ScoreAttack(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
+				temp.iScore = max(temp.iScore, iBestAttackScore);
 			}
+
+			//give a bonus to plots with high visibility, an enemy might come into range next turn!
+			//however, we are only interested in the "forward" direction ... hard to tell where that is exactly
+			if (iRange > 1 && targetPlot.getEnemyDistance() <= 3)
+				iVisiblityScore++; 
 		}
 	}
 
 	//for simplicity assume we will get the same score for multiple attacks
 	if (iNumAttacks>0)
 		//we want the real attacks to have higher scores than movement to guarantee they are picked so divide by 2!
-		return iNumAttacks * iBestAttackScore / 2;
+		return iNumAttacks * iBestAttackScore / 2 + iVisiblityScore;
 	else
 		//if we can't do it this turn then reduce the score even further because the attack is still hypothetical
-		return iBestAttackScore / 4;
+		return iBestAttackScore / 4 + iVisiblityScore;
 }
 
 int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
@@ -7482,14 +7479,11 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		return result;
 
 	//careful when moving into edge plots, they may hold surprises
-	//so ranged units should not move there unless adjacent already
+	//so siege units should not move there unless adjacent already
 	//instead move to an intermediate plot and maybe restart the sim if new enemies are revealed
-	if (pUnit->IsCanAttackRanged() && testPlot.isEdgePlot())
-	{
-		const CvPlot* pUnitPlot = assumedPosition.getTactPlot(unit.iPlotIndex).getPlot();
-		if (plotDistance(*pUnitPlot, *pTestPlot) > 1)
+	if (pUnit->AI_getUnitAIType()== UNITAI_CITY_BOMBARD && testPlot.isEdgePlot())
+		if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),-1)==0)
 			return result;
-	}
 
 	//different contributions
 	int iDamageScore = 0;
@@ -7511,11 +7505,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	iMiscScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
 	//note: it might happen we call this when all enemies are killed. 
-	//in that case plot type FARAWAY is ok. score will still be positive because of bias.
-
-	//when in doubt use the plot with better sight (maybe check seeFromLevel instead?)
-	if (pTestPlot->isHills() || pTestPlot->isMountain())
-		iMiscScore++;
+	//so miscScore will be negative but overall score will still be positive because of bias.
 
 	if (testPlot.isEnemyCivilian()) //unescorted civilian
 	{
@@ -8338,7 +8328,6 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
 	gPossibleMoves.clear();
-	gPossibleMoves.reserve(23); //just a reasonably high number to avoid re-allocations
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
@@ -8577,7 +8566,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	updateMovePlotsIfRequired();
 
 	gOverAllChoices.clear();
-	gOverAllChoices.reserve(iMaxBranches*iMaxChoicesPerUnit);
 	gChoicePerUnit.clear();
 
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
@@ -8792,31 +8780,6 @@ bool STacticalAssignment::isOffensive() const
 	return false;
 }
 
-bool CvTacticalPosition::canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const
-{ 
-	//copy the unit ... we want to modify it
-	const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
-
-	//the new score for the next turn of combat (assuming the enemy doesn't move ...)
-	//we calculated the initial score with zero moves left, ignoring attacks
-	//this is important because we might have killed an enemy depriving us of the sweet score
-	//so we only check position and danger!
-	iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex), *this, EM_FINAL).iScore;
-
-	//note that the score may well be lower than the initial score if we killed an enemy.
-	//also melee units might have taken attacker damage, so their danger score increased.
-	if (unit.eLastAssignment == A_MELEEKILL || unit.eLastAssignment == A_MELEEKILL_NO_ADVANCE)
-		iNextTurnScore += 50;
-
-	//if we have many units we can afford to allow some extra danger!
-	if (iNextTurnScore > -10 * nOurUnits)
-		return true;
-
-	//initial score could have been even more negative
-	//must be better than before to catch the case where both are invalid
-	return (iNextTurnScore > iInitialScore);
-}
-
 //see if all the plots where our units would end their turn are acceptable
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
 bool CvTacticalPosition::addFinishMovesIfAcceptable()
@@ -8839,15 +8802,16 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 			bHaveException = true;
 
 		//make sure we don't leave a unit in an impossible position
-		int iNextTurnScore = 0;
-		if (!bHaveException && !canStayInPlotUntilNextTurn(unit,pInitial->iScore,iNextTurnScore))
+		const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
+		int iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex), *this, EM_FINAL).iScore;
+		if (!bHaveException && iNextTurnScore < 1)
 			return false;
 
 		//everyone ends their turn unless the unit is blocked, then we may use them for other tasks
 		if (unit.eLastAssignment != A_BLOCKED)
 		{
 			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
-			iTotalScore += (iNextTurnScore - pInitial->iScore);
+			iTotalScore += max(0, iNextTurnScore - pInitial->iScore); //don't make the score worse because we killed something!
 		}
 
 		//do this last so we can debug better, do not put a continue in the loop because endless ...
@@ -8871,8 +8835,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		}
 
 		//if the unit is adjacent to the enemy, we want it to stay and provide cover if possible
-		int iNextTurnScore = 0;
-		if (!canStayInPlotUntilNextTurn(*itUnit,pInitial->iScore,iNextTurnScore))
+		int iNextTurnScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, EM_FINAL).iScore;
+		if (iNextTurnScore < 1)
 			return false;
 
 		assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, iNextTurnScore, A_FINISH));
@@ -9781,6 +9745,10 @@ float CvTacticalPosition::getAggressionBias() const
 {
 	//avoid extreme ratios, use the sqrt
 	float fUnitNumberRatio = sqrtf(nOurUnits / float(max(1,(int)nEnemies)));
+
+	int iFlavorOffense = GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	if (iFlavorOffense > 6)
+		fUnitNumberRatio += 0.1f;
 
 	return max( 0.9f, fUnitNumberRatio ); //<1 indicates we're fewer but don't stop attacking because of that
 }

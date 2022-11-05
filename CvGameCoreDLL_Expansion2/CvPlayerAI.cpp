@@ -1709,7 +1709,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 
 	// sometimes we have no choice
 	if (pUnit && !pUnit->GetReligionData()->IsFullStrength())
-		eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
+		return GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 
 	// CASE 1: I have an enhanced religion. 
 	if (pMyReligion && pMyReligion->m_bEnhanced)
@@ -1731,11 +1731,14 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		}
 	}
 
-	// CASE 2: I have a religion that hasn't yet been enhanced
+	// CASE 2: I have a religion that hasn't yet been enhanced and we still have the holy city
 	else if (pMyReligion && pMyReligion->GetHolyCity()->getOwner() == pUnit->getOwner())
 	{
-		//always enhance (if we still own the holy city)
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		// emergency re-conversions needed? hopefully not
+		if (pMyReligion->GetHolyCity()->GetCityReligions()->GetReligiousMajority() == eReligion)
+			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		else
+			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 	}
 
 	// CASE 3: No religion for me yet

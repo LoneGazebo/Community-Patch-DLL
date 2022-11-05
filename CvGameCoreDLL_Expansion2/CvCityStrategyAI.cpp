@@ -783,7 +783,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
-			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);		
+			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+
+			//dirty hack to allow barbarian cities to build units ... barbarians don't use flavors, so their weights are all zero
+			if (m_pCity->getOwner() == BARBARIAN_PLAYER)
+				iTempWeight = max(iTempWeight, 1);
+
 			if(iTempWeight > 0)
 			{
 				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
