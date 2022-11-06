@@ -10,8 +10,6 @@ SELECT 'Any', 'Constructed', '1',  'ART_DEF_IMPROVEMENT_JFD_MACHU', 'SNAPSHOT', 
 
 -- Improvements
 --------------------------------------------------------------------------------------------------------------------------
-INSERT INTO Language_en_US (Tag, Text)
-	VALUES ('TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU', 'Mountain City');
 INSERT OR REPLACE INTO Improvements
 		(Type,								Description,							ArtDefineTag,						GraphicalOnly)
 SELECT	'IMPROVEMENT_JFD_MACHU_PICCHU',		'TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU',	'ART_DEF_IMPROVEMENT_JFD_MACHU',	1;
