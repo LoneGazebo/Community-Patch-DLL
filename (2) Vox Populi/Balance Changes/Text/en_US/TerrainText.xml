@@ -59,6 +59,9 @@
 		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_REC">
 			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.[NEWLINE]Gains [ICON_CULTURE] Culture from adjacent Cities and [ICON_FOOD] Food, [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from adjacent resources.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU">
+			<Text>Mountain City</Text>
+		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_KUNA">
 			<Text>Kuna</Text>
 		</Row>
