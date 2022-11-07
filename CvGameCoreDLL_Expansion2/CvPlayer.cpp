@@ -7202,6 +7202,11 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 					CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 					if(pkSpecialistInfo)
 					{
+						int iValue = pkEventChoiceInfo->getGlobalSpecialistYieldChange(eSpecialist, eYield);
+						//ignore if we don't need to be here.
+						if (iValue <= 0)
+							continue;
+
 						int iLoop;
 						for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 						{
@@ -7213,7 +7218,7 @@ void CvPlayer::DoCancelEventChoice(EventChoiceTypes eChosenEventChoice)
 							{
 								continue;
 							}
-							pLoopCity->ChangeEventSpecialistYield(eSpecialist, eYield, pkEventChoiceInfo->getGlobalSpecialistYieldChange(eSpecialist, eYield) * -1);
+							pLoopCity->ChangeEventSpecialistYield(eSpecialist, eYield, iValue * -1);
 						}
 						bChanged = true;
 					}
@@ -11134,7 +11139,7 @@ void CvPlayer::doTurn()
 			DoEvents();
 		}
 	}
-	if (GetEspionage() != NULL)
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED && GetEspionage() != NULL)
 		GetEspionage()->ProcessSpyFocus();
 
 	updateYieldPerTurnHistory();

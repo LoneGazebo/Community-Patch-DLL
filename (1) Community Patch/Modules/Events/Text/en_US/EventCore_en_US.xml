@@ -226,6 +226,9 @@
 		<Row Tag="TXT_KEY_EVENT_YIELD_DURATION">
 			<Text>{1_Num} Turns</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_DURATION">
+			<Text>({1_Num} Turns)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SIPHON_PAST">
 			<Text>Total Amount Siphoned: {3_Value} {2_Icon} {1_Yield}</Text>
 		</Row>
@@ -324,11 +327,11 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NEED_SUPER_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Must be Very Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Empire must be Very Unhappy</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NEED_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Must be Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Empire must be Unhappy</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NEED_TRADE_SLOT">

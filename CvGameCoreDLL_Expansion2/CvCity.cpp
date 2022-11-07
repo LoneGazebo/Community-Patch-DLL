@@ -4211,7 +4211,7 @@ bool CvCity::IsCityEventValid(CityEventTypes eEvent)
 
 	return true;
 }
-bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive)
+bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive, bool bIgnorePlayer)
 {
 	if (eChosenEventChoice == NO_EVENT_CHOICE_CITY)
 		return false;
@@ -4355,55 +4355,114 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isRequiresGarrison() && !HasGarrison())
 		return false;
 
-	if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion(false) == NO_RELIGION)
-		return false;
-
-	if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
-		return false;
-
-	if (pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
-		return false;
-
-	if (pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
-		return false;
-
-	if (pkEventInfo->getObsoleteEra() != -1 && kPlayer.GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
-		return false;
-
 	if (pkEventInfo->getMinimumPopulation() > 0 && getPopulation() < pkEventInfo->getMinimumPopulation())
 		return false;
-
-	if (pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
-		return false;
-
-	if (pkEventInfo->getRequiredPolicy() != -1 && !kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
-		return false;
-
-	if (pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
-		return false;
-
-	if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
-		return false;
-
-	if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
-		return false;
-
-	if (pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
-		return false;
-
-	if (pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
-		return false;
-
-	if (pkEventInfo->getRequiredStateReligion() != -1)
-	{
-		if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
-			return false;
-	}
 
 	if (!pkEventInfo->isRequiresHolyCity() && pkEventInfo->getRequiredReligion() != -1)
 	{
 		if (GetCityReligions()->GetReligiousMajority() != (ReligionTypes)pkEventInfo->getRequiredReligion())
 			return false;
+	}
+
+	if (!bIgnorePlayer)
+	{
+		if (pkEventInfo->hasStateReligion() && kPlayer.GetReligions()->GetStateReligion(false) == NO_RELIGION)
+			return false;
+
+		if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+			return false;
+
+		if (pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+			return false;
+
+		if (pkEventInfo->getRequiredEra() != -1 && kPlayer.GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+			return false;
+
+		if (pkEventInfo->getObsoleteEra() != -1 && kPlayer.GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+			return false;
+
+		if (pkEventInfo->getRequiredCiv() != -1 && getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
+			return false;
+
+		if (pkEventInfo->getRequiredPolicy() != -1 && !kPlayer.GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+			return false;
+
+		if (pkEventInfo->getRequiredIdeology() != -1 && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+			return false;
+
+		if (pkEventInfo->hasPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
+			return false;
+
+		if (pkEventInfo->lacksPlayerReligion() && kPlayer.GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
+			return false;
+
+		if (pkEventInfo->hasPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+			return false;
+
+		if (pkEventInfo->lacksPlayerMajority() && kPlayer.GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+			return false;
+
+		if (pkEventInfo->getRequiredStateReligion() != -1)
+		{
+			if (kPlayer.GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
+				return false;
+		}
+
+		if (pkEventInfo->isRequiresIdeology() && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+			return false;
+
+		if (pkEventInfo->isRequiresWar() && kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+			return false;
+
+
+		if (pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
+			return false;
+
+		if (pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
+			return false;
+
+		if (pkEventInfo->hasMetAnotherCiv())
+		{
+			if (GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
+				return false;
+		}
+
+		if (pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
+			return false;
+
+		if (pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
+			return false;
+
+		if (pkEventInfo->isRequiresWarMinor())
+		{
+			bool bHas = false;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+				// Is this a player we have relations with?
+				if (GET_PLAYER(eLoopPlayer).isBarbarian())
+				{
+					continue;
+				}
+				if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+				{
+					continue;
+				}
+				if (eLoopPlayer != getOwner())
+				{
+					if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+					{
+						bHas = true;
+						break;
+					}
+				}
+			}
+			if (!bHas)
+			{
+				return false;
+			}
+		}
 	}
 
 	if (pkEventInfo->isRequiresHolyCity())
@@ -4419,11 +4478,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				return false;
 		}
 	}
-	if (pkEventInfo->isRequiresIdeology() && kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
-		return false;
-
-	if (pkEventInfo->isRequiresWar() && kPlayer.GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
-		return false;
 
 	if (pkEventInfo->hasCityConnection() && !IsRouteToCapitalConnected())
 		return false;
@@ -4443,24 +4497,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->hasPantheon() && GetCityReligions()->GetReligiousMajority() != RELIGION_PANTHEON)
 		return false;
 
-	if (pkEventInfo->isUnhappy() && !kPlayer.IsEmpireUnhappy())
-		return false;
-
-	if (pkEventInfo->isSuperUnhappy() && !kPlayer.IsEmpireSuperUnhappy())
-		return false;
-
-	if (pkEventInfo->hasMetAnotherCiv())
-	{
-		if (GET_TEAM(getTeam()).getHasMetCivCount(true) <= 0)
-			return false;
-	}
-
-	if (pkEventInfo->isMaster() && GET_TEAM(getTeam()).GetNumVassals() <= 0)
-		return false;
-
-	if (pkEventInfo->isVassal() && !GET_TEAM(getTeam()).IsVassalOfSomeone())
-		return false;
-
 	if (pkEventInfo->hasNearbyFeature() != -1)
 	{
 		FeatureTypes eFeature = (FeatureTypes)pkEventInfo->hasNearbyFeature();
@@ -4477,37 +4513,6 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 		{
 			if (!HasTerrain(eTerrain))
 				return false;
-		}
-	}
-
-	if (pkEventInfo->isRequiresWarMinor())
-	{
-		bool bHas = false;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-			// Is this a player we have relations with?
-			if (GET_PLAYER(eLoopPlayer).isBarbarian())
-			{
-				continue;
-			}
-			if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				continue;
-			}
-			if (eLoopPlayer != getOwner())
-			{
-				if (GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-				{
-					bHas = true;
-					break;
-				}
-			}
-		}
-		if (!bHas)
-		{
-			return false;
 		}
 	}
 
@@ -4763,8 +4768,106 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		}
 	}
 
-	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
+	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true, true))
 		return false;
+
+	if (pkEventInfo->hasStateReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetStateReligion(false) == NO_RELIGION)
+		return false;
+
+	if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+		return false;
+
+	if (pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+		return false;
+
+	if (pkEventInfo->getRequiredEra() != -1 && GET_PLAYER(eSpyOwner).GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+		return false;
+
+	if (pkEventInfo->getObsoleteEra() != -1 && GET_PLAYER(eSpyOwner).GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+		return false;
+
+	if (pkEventInfo->getRequiredCiv() != -1 && GET_PLAYER(eSpyOwner).getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
+		return false;
+
+	if (pkEventInfo->getRequiredPolicy() != -1 && !GET_PLAYER(eSpyOwner).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+		return false;
+
+	if (pkEventInfo->getRequiredIdeology() != -1 && GET_PLAYER(eSpyOwner).GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+		return false;
+
+	if (pkEventInfo->hasPlayerReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->lacksPlayerReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->hasPlayerMajority() && GET_PLAYER(eSpyOwner).GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->lacksPlayerMajority() && GET_PLAYER(eSpyOwner).GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if (GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
+			return false;
+	}
+
+	if (pkEventInfo->isRequiresIdeology() && GET_PLAYER(eSpyOwner).GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+		return false;
+
+	if (pkEventInfo->isRequiresWar() && GET_PLAYER(eSpyOwner).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		return false;
+
+
+	if (pkEventInfo->isUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireUnhappy())
+		return false;
+
+	if (pkEventInfo->isSuperUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireSuperUnhappy())
+		return false;
+
+	if (pkEventInfo->hasMetAnotherCiv())
+	{
+		if (GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).getHasMetCivCount(true) <= 0)
+			return false;
+	}
+
+	if (pkEventInfo->isMaster() && GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetNumVassals() <= 0)
+		return false;
+
+	if (pkEventInfo->isVassal() && !GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).IsVassalOfSomeone())
+		return false;
+
+	if (pkEventInfo->isRequiresWarMinor())
+	{
+		bool bHas = false;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if (GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if (eLoopPlayer != getOwner())
+			{
+				if (GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					bHas = true;
+					break;
+				}
+			}
+		}
+		if (!bHas)
+		{
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -4874,8 +4977,106 @@ bool CvCity::IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoi
 		}
 	}
 
-	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true))
+	if (!IsCityEventChoiceValid(eEventChoice, eEvent, true, true))
 		return false;
+
+	if (pkEventInfo->hasStateReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetStateReligion(false) == NO_RELIGION)
+		return false;
+
+	if (pkEventInfo->getPrereqTech() != -1 && !GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+		return false;
+
+	if (pkEventInfo->getObsoleteTech() != -1 && GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEventInfo->getPrereqTech()))
+		return false;
+
+	if (pkEventInfo->getRequiredEra() != -1 && GET_PLAYER(eSpyOwner).GetCurrentEra() < (EraTypes)pkEventInfo->getRequiredEra())
+		return false;
+
+	if (pkEventInfo->getObsoleteEra() != -1 && GET_PLAYER(eSpyOwner).GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
+		return false;
+
+	if (pkEventInfo->getRequiredCiv() != -1 && GET_PLAYER(eSpyOwner).getCivilizationType() != (CivilizationTypes)pkEventInfo->getRequiredCiv())
+		return false;
+
+	if (pkEventInfo->getRequiredPolicy() != -1 && !GET_PLAYER(eSpyOwner).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkEventInfo->getRequiredPolicy()))
+		return false;
+
+	if (pkEventInfo->getRequiredIdeology() != -1 && GET_PLAYER(eSpyOwner).GetPlayerPolicies()->GetLateGamePolicyTree() != (PolicyBranchTypes)pkEventInfo->getRequiredIdeology())
+		return false;
+
+	if (pkEventInfo->hasPlayerReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() != GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->lacksPlayerReligion() && GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() == GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->hasPlayerMajority() && GET_PLAYER(eSpyOwner).GetReligions()->GetReligionInMostCities() != GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->lacksPlayerMajority() && GET_PLAYER(eSpyOwner).GetReligions()->GetReligionInMostCities() == GetCityReligions()->GetReligiousMajority())
+		return false;
+
+	if (pkEventInfo->getRequiredStateReligion() != -1)
+	{
+		if (GET_PLAYER(eSpyOwner).GetReligions()->GetOwnedReligion() != pkEventInfo->getRequiredStateReligion())
+			return false;
+	}
+
+	if (pkEventInfo->isRequiresIdeology() && GET_PLAYER(eSpyOwner).GetPlayerPolicies()->GetLateGamePolicyTree() == NO_POLICY_BRANCH_TYPE)
+		return false;
+
+	if (pkEventInfo->isRequiresWar() && GET_PLAYER(eSpyOwner).GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+		return false;
+
+
+	if (pkEventInfo->isUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireUnhappy())
+		return false;
+
+	if (pkEventInfo->isSuperUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireSuperUnhappy())
+		return false;
+
+	if (pkEventInfo->hasMetAnotherCiv())
+	{
+		if (GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).getHasMetCivCount(true) <= 0)
+			return false;
+	}
+
+	if (pkEventInfo->isMaster() && GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).GetNumVassals() <= 0)
+		return false;
+
+	if (pkEventInfo->isVassal() && !GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).IsVassalOfSomeone())
+		return false;
+
+	if (pkEventInfo->isRequiresWarMinor())
+	{
+		bool bHas = false;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+
+			// Is this a player we have relations with?
+			if (GET_PLAYER(eLoopPlayer).isBarbarian())
+			{
+				continue;
+			}
+			if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				continue;
+			}
+			if (eLoopPlayer != getOwner())
+			{
+				if (GET_TEAM(GET_PLAYER(eSpyOwner).getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					bHas = true;
+					break;
+				}
+			}
+		}
+		if (!bHas)
+		{
+			return false;
+		}
+	}
 
 	return true;
 }
@@ -5168,7 +5369,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		}
 	}
 }
-CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex, PlayerTypes eSpyOwner, bool bFromEsp)
+CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex, PlayerTypes eSpyOwner)
 {
 	CvString CoreYieldTip = "";
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
@@ -5199,109 +5400,18 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	CvString yieldCityTip = "";
 	CvString yieldSpecialistTip = "";
 	CvString turnsTip = "";
+	CvString durationTip = "";
 
 	bool bPopup = false;
-	if (iSpyIndex != -1)
+	//only show these messages if the spy owner is a human
+	if (iSpyIndex != -1 && GET_PLAYER(eSpyOwner).isHuman())
 	{
-		//only show these messages if the spy owner is a human
-		if (GET_PLAYER(eSpyOwner).isHuman())
+		CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
+		if (pSpy)
 		{
-			if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_DETECTED)
-			{
-				Localization::String localizedDurationText;
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DETECTED");
-
-				const char* const localized = localizedDurationText.toUTF8();
-				if (localized)
-				{
-					spyTip += localized;
-				}
+			spyTip = pSpy->GetSiphonHistory();
+			if (spyTip != "")
 				bPopup = true;
-			}
-			else if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_IDENTIFIED)
-			{
-				Localization::String localizedDurationText;
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_IDENTIFIED");
-
-				const char* const localized = localizedDurationText.toUTF8();
-				if (localized)
-				{
-					spyTip += localized;
-				}
-				bPopup = true;
-			}
-			else if (GetCityEspionage()->GetSpyResult(eSpyOwner) == SPY_RESULT_KILLED)
-			{
-				Localization::String localizedDurationText;
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_KILLED");
-
-				const char* const localized = localizedDurationText.toUTF8();
-				if (localized)
-				{
-					spyTip += localized;
-				}
-				bPopup = true;
-			}
-
-			int iSpyRate = GET_PLAYER(eSpyOwner).GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, this, iSpyIndex);
-			if (iSpyRate > 0)
-			{
-				int iSpyTurns = GetEspionageRankingForEspionage(eSpyOwner, eEventChoice);
-
-				int iTurnsLeft = iSpyTurns / iSpyRate;
-				if (iSpyTurns % iSpyRate > 0)
-				{
-					iTurnsLeft++;
-				}
-
-				int iKillChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_KILL, this, eEventChoice, true);
-				int iIdentifyChance = GET_PLAYER(eSpyOwner).GetEspionage()->GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, this, eEventChoice, true);
-
-				Localization::String localizedDurationText;
-				localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_SPY_DURATION_SCALED");
-				localizedDurationText << iTurnsLeft;
-				localizedDurationText << iIdentifyChance;
-				localizedDurationText << iKillChance;
-
-				const char* const localized = localizedDurationText.toUTF8();
-				if (localized)
-				{
-					spyTip += localized;
-				}
-			}
-
-			CvEspionageSpy* pSpy = (GET_PLAYER(eSpyOwner).GetEspionage()->GetSpyByID(iSpyIndex));
-			if (pSpy)
-			{
-				if (!bFromEsp)
-				{
-					Localization::String localizedSiphonText;
-
-					localizedSiphonText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SIPHON_PAST");
-
-					if (pSpy->m_eSiphonYield != NO_YIELD)
-					{
-						CvYieldInfo* pYield = GC.getYieldInfo(pSpy->m_eSiphonYield);
-						if (pYield)
-						{
-							localizedSiphonText << pYield->GetDescription();
-							localizedSiphonText << pYield->getIconString();
-							localizedSiphonText << pSpy->m_iYieldSiphon;
-						}
-					}
-					CvString tempStr = localizedSiphonText.toUTF8();
-					if (tempStr != "")
-					{
-						spyTip += tempStr;
-						spyTip += "[NEWLINE][NEWLINE]";
-					}
-					pSpy->SetSiphonHistory(spyTip);
-				}
-				else
-				{
-					spyTip = pSpy->GetSiphonHistory();
-				}
-			}
 		}
 	}
 
@@ -5497,6 +5607,20 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		}
 	}
 
+	if (eSpyOwner != NO_PLAYER && iSpyIndex != -1)
+	{
+		int iDuration = GetSpyTurnsToCompleteMission(eSpyOwner, eEventChoice, iSpyIndex);
+
+		Localization::String localizedDurationText;
+		localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_MISSION_DURATION");
+
+		localizedDurationText << iDuration;
+		const char* const localized = localizedDurationText.toUTF8();
+		if (localized)
+		{
+			durationTip += localized;
+		}	
+	}
 
 	localizedCoreText << yieldCostTip;	
 	localizedCoreText << yieldInstantTip;	
@@ -5505,6 +5629,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 	localizedCoreText << turnsTip;
 	localizedCoreText << spyTip;
 	localizedCoreText << playerEventTip;
+	localizedCoreText << durationTip;
 
 	const char* const finallocalized = localizedCoreText.toUTF8();
 	if (finallocalized)
@@ -6459,11 +6584,8 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						{
 							if (pSpy->m_eSpyFocus == eEventChoice)
 							{
-								if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
-								{
-									GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer);
-									bAlreadyApplied = true;
-								}
+								GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer, NO_EVENT, true, true);
+								bAlreadyApplied = true;
 							}
 						}
 					}
@@ -7982,12 +8104,19 @@ int CvCity::GetEspionageRanking() const
 	VALIDATE_OBJECT
 	return m_iCitySpyRank;
 }
-int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const
+int CvCity::GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex) const
 {
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		return m_iCitySpyRank;
 
-	int iRank = m_iCitySpyRank;
+	CvEspionageSpy* pSpy = GET_PLAYER(ePlayer).GetEspionage()->GetSpyByID(iSpyIndex);
+	if (!pSpy)
+		return 30;
+
+	////////////
+	// CITY SPY DEFENSE MODIFIER
+	///////////
+	int iRank = m_iCitySpyRank / 20;
 	int iRankingMod = 0;
 	if (ePlayer != NO_PLAYER)
 	{
@@ -8003,8 +8132,9 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		int iNumTimesStolenModifier = GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer] * GetCityEspionage()->m_aiNumTimesCityRobbed[ePlayer];
 
 		iRankingMod += iPolicyDifference + iTechDifference + iNumTimesStolenModifier;
+		iRank *= 100 + iRankingMod;
+		iRank /= 100;
 	}
-
 	
 	CvModEventCityChoiceInfo* pkEventInfo = NULL;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
@@ -8012,8 +8142,6 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		pkEventInfo = GC.getCityEventChoiceInfo(eEventChoice);
 		if (pkEventInfo != NULL)
 		{
-			iRankingMod += pkEventInfo->getEspionageDifficultyModifier();
-
 			if (pkEventInfo->getWonderUnderConstructionSpeedMod() != 0)
 			{
 				BuildingTypes eBuilding = getProductionBuilding();
@@ -8043,10 +8171,42 @@ int CvCity::GetEspionageRankingForEspionage(PlayerTypes ePlayer, CityEventChoice
 		}
 	}
 
-	iRank *= 100 + iRankingMod;
-	iRank /= 100;
+	////////////
+	// SPY OFFENSE MODIFIER
+	///////////
 
-	return iRank;
+	int iBaseSpyPower = /*100 in CP, 1 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
+
+	int iSpyRank = pSpy->GetSpyRank(ePlayer);
+	iSpyRank += GET_PLAYER(ePlayer).GetCulture()->GetInfluenceMajorCivSpyRankBonus(this->getOwner());
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED && GET_TEAM(GET_PLAYER(this->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(ePlayer).getTeam()))
+	{
+		iSpyRank += 1;
+	}
+	iSpyRank *= /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+
+	int iMyPoliciesEspionageModifier = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
+
+	iBaseSpyPower *= iMyPoliciesEspionageModifier + GC.getGame().getGameSpeedInfo().getSpyRatePercent() + iSpyRank;
+	iBaseSpyPower /= 100;
+
+	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice == NO_EVENT_CHOICE ? pSpy->m_eSpyFocus : eEventChoice);
+	if (pkEventChoiceInfo == NULL)
+		//basic value?
+		return 30;
+
+	//MODIFIER!
+	int iDurationMod = iRank - iBaseSpyPower;
+
+	//TURNS!
+	int iTurnsLeft = pkEventChoiceInfo->getEspionageMissionDuration();
+
+	iTurnsLeft *= iDurationMod;
+	iTurnsLeft /= 100;
+
+	iTurnsLeft = range(iTurnsLeft, pkEventChoiceInfo->getEspionageMissionDuration() / 2, pkEventChoiceInfo->getEspionageMissionDuration() * 2);
+
+	return iTurnsLeft;
 }
 void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 {
@@ -8056,7 +8216,7 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	{
 		if (GetTurnsSinceLastRankMessage() >= /*60*/ GD_INT_GET(BALANCE_SPY_SABOTAGE_RATE) * 2)
 		{
-			if ((iNewRank / 100) < GetEspionageRanking() && GetEspionageRanking() < 600 && GetEspionageRanking() > 100)
+			if (iNewRank < GetEspionageRanking() && GetEspionageRanking() < 600 && GetEspionageRanking() > 100)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
@@ -8115,7 +8275,7 @@ void CvCity::ResetEspionageRanking()
 }
 void CvCity::InitEspionageRanking()
 {
-	m_iCitySpyRank = /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
+	m_iCitySpyRank = MOD_BALANCE_CORE_SPIES_ADVANCED ? 10 : /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
 
 	if (GC.getLogging())
 	{
@@ -16089,7 +16249,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
 	}
-	updateExtraSpecialistYield();
+	updateExtraSpecialistYield(eSpecialist);
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
 	// Culture
@@ -27030,7 +27190,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
+void CvCity::updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
@@ -27039,10 +27199,15 @@ void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 	int iOldYield = getExtraSpecialistYield(eYield);
 	int iNewYield = 0;
 
-	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+	if (eSpecialist == NO_SPECIALIST)
 	{
-		iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
+		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
+		{
+			iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
+		}
 	}
+	else
+		iNewYield += getExtraSpecialistYield(eYield, eSpecialist);
 
 	if (iOldYield != iNewYield)
 	{
@@ -27061,6 +27226,15 @@ void CvCity::updateExtraSpecialistYield()
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		updateExtraSpecialistYield((YieldTypes)iI);
+	}
+}
+
+void CvCity::updateExtraSpecialistYield(SpecialistTypes eSpecialist)
+{
+	VALIDATE_OBJECT
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		updateExtraSpecialistYield((YieldTypes)iI, eSpecialist);
 	}
 }
 
