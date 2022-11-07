@@ -727,7 +727,7 @@ SET PrereqTech = 'TECH_ROCKETRY'
 WHERE Type = 'BUILDING_MILITARY_BASE';
 
 UPDATE Buildings
-SET EspionageModifier = '-25'
+SET EspionageModifier = '-50'
 WHERE Type = 'BUILDING_MILITARY_BASE';
 
 -- Bomb Shelter
@@ -863,7 +863,7 @@ SET PrereqTech = 'TECH_ELECTRONICS'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 UPDATE Buildings
-SET EspionageModifier = '-25'
+SET EspionageModifier = '-50'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 UPDATE Buildings
@@ -878,7 +878,7 @@ VALUES
 
 -- Constabulary
 UPDATE Buildings
-SET EspionageModifier = '-25'
+SET EspionageModifier = '-50'
 WHERE Type = 'BUILDING_CONSTABLE';
 
 UPDATE Buildings

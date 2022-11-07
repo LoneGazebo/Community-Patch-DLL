@@ -6224,10 +6224,9 @@ int CvLuaCity::lGetScaledEventChoiceValue(lua_State* L)
 	const bool bYieldsOnly = lua_toboolean(L, 3);
 	const int iSpyID = luaL_optint(L, 4, -1);
 	const PlayerTypes eSpyOwner = (PlayerTypes)luaL_optint(L, 5, NO_PLAYER);
-	const bool bEspPopup = luaL_optbool(L, 6, false);
 	if(eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly, iSpyID, eSpyOwner, bEspPopup);
+		CoreYieldTip = pkCity->GetScaledHelpText(eEventChoice, bYieldsOnly, iSpyID, eSpyOwner);
 	}
 
 	lua_pushstring(L, CoreYieldTip.c_str());

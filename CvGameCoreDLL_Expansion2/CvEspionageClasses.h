@@ -82,7 +82,7 @@ public:
 	void ResetSpySiphon();
 	CvString GetSiphonHistory();
 	void ResetSiphonHistory();
-	void SetSiphonHistory(const CvString& string);
+	void UpdateSiphonHistory(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
 
 	// Public data
 	int m_iName;
@@ -226,7 +226,7 @@ public:
 	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false, bool bFirstTime = false);
 	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
-	int GetSpyPower(CvCity* pCity, int iSpyIndex);
+	int GetSpyPower(CvCity* pCity, int iSpyIndex, int iSpyState);
 	int GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy = false);
 
 	const char* GetSpyRankName(int iRank) const;

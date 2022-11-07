@@ -3470,7 +3470,7 @@ public:
 	int GetIdentificationModifier() const;
 	int GetDeathModifier() const;
 	int GetSpyLevelRequired() const;
-	int getEspionageDifficultyModifier() const;
+	int getEspionageMissionDuration() const;
 	int getEspionageExperience() const;
 	int getDamageCity() const;
 	int getDamageGarrison() const;
@@ -3605,7 +3605,7 @@ protected:
 	int m_iIdentificationModifier;
 	int m_iDeathModifier;
 	int m_iSpyLevelRequired;
-	int m_iDifficultyModEsp;
+	int m_iEspDuration;
 	int m_iSpyExperience;
 	bool m_bIsMissionSetup;
 	bool m_bRequiresCounterSpy;
