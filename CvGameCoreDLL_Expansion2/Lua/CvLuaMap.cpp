@@ -255,7 +255,7 @@ int CvLuaMap::lGetArea(lua_State* L)
 {
 	const int iID = lua_tointeger(L, 1);
 
-	CvArea* pArea = GC.getMap().getArea(iID);
+	CvArea* pArea = GC.getMap().getAreaById(iID);
 	if(pArea)
 	{
 		CvLuaArea::Push(L, pArea);

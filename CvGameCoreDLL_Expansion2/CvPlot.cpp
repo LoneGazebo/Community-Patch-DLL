@@ -1053,7 +1053,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 					continue;
 
 				//look at the "landmass", not at the area - areas may be very small and multiple areas make one body of water
-				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmassById(pAdjacentPlot->getLandmass());
 				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iMinWaterSize)
 					return true;
 			}
@@ -1144,7 +1144,7 @@ void CvPlot::updateWaterFlags() const
 	//------- first check lakes and coasts
 	if (isWater())
 	{
-		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
+		CvLandmass* pLandmass = GC.getMap().getLandmassById(m_iLandmass);
 		m_bIsLake = pLandmass ? pLandmass->isLake() : false;
 		m_bIsAdjacentToWater = false; //by definition
 		m_bIsAdjacentToLand = false; //may be set to true later
@@ -4927,7 +4927,7 @@ int CvPlot::getLatitude() const
 //	--------------------------------------------------------------------------------
 CvArea* CvPlot::area() const
 {
-	return GC.getMap().getArea(getArea());
+	return GC.getMap().getAreaById(getArea());
 }
 
 
@@ -4968,7 +4968,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 	//manual version
 	for (vector<int>::iterator i1 = myAreas.begin(); i1 != myAreas.end(); ++i1)
 	{
-		CvArea* a1 = GC.getMap().getArea(*i1);
+		CvArea* a1 = GC.getMap().getAreaById(*i1);
 		if (!bAllowWater && a1->isWater())
 			continue;
 		if (!bAllowLand && !a1->isWater())
@@ -4976,7 +4976,7 @@ bool CvPlot::hasSharedAdjacentArea(const CvPlot* pOther, bool bAllowLand, bool b
 
 		for (vector<int>::iterator i2 = theirAreas.begin(); i2 != theirAreas.end(); ++i2)
 		{
-			CvArea* a2 = GC.getMap().getArea(*i2);
+			CvArea* a2 = GC.getMap().getAreaById(*i2);
 
 			//don't need to check for water/land again, id is enough
 			if (a1->GetID() == a2->GetID())
@@ -5025,7 +5025,7 @@ void CvPlot::setLandmass(int iNewValue)
 	if(m_iLandmass != iNewValue)
 	{
 		// cleanup old one
-		CvLandmass* pLandmass = GC.getMap().getLandmass(m_iLandmass);
+		CvLandmass* pLandmass = GC.getMap().getLandmassById(m_iLandmass);
 		if(pLandmass != NULL)
 		{
 			pLandmass->changeNumTiles(-1);
@@ -5041,7 +5041,7 @@ void CvPlot::setLandmass(int iNewValue)
 
 		m_iLandmass = iNewValue;
 
-		pLandmass = GC.getMap().getLandmass(m_iLandmass);
+		pLandmass = GC.getMap().getLandmassById(m_iLandmass);
 		if(pLandmass != NULL)
 		{
 			pLandmass->changeNumTiles(1);
@@ -5053,7 +5053,7 @@ void CvPlot::setLandmass(int iNewValue)
 
 CvLandmass * CvPlot::landmass() const
 {
-	return GC.getMap().getLandmass(m_iLandmass);
+	return GC.getMap().getLandmassById(m_iLandmass);
 }
 
 //	--------------------------------------------------------------------------------
@@ -5093,7 +5093,7 @@ bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bo
 	//manual version
 	for (vector<int>::iterator i1 = myLandmasses.begin(); i1 != myLandmasses.end(); ++i1)
 	{
-		CvLandmass* a1 = GC.getMap().getLandmass(*i1);
+		CvLandmass* a1 = GC.getMap().getLandmassById(*i1);
 		if (!bAllowWater && a1->isWater())
 			continue;
 		if (!bAllowLand && !a1->isWater())
@@ -5101,7 +5101,7 @@ bool CvPlot::hasSharedAdjacentLandmass(const CvPlot* pOther, bool bAllowLand, bo
 
 		for (vector<int>::iterator i2 = theirLandmasses.begin(); i2 != theirLandmasses.end(); ++i2)
 		{
-			CvLandmass* a2 = GC.getMap().getLandmass(*i2);
+			CvLandmass* a2 = GC.getMap().getLandmassById(*i2);
 
 			//don't need to check for water/land again, id is enough
 			if (a1->GetID() == a2->GetID())
@@ -6846,7 +6846,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 #endif
 			{
 				GC.getMap().ChangeNumNaturalWonders(1);
-				GC.getMap().getArea(getArea())->ChangeNumNaturalWonders(1);
+				GC.getMap().getAreaById(getArea())->ChangeNumNaturalWonders(1);
 			}
 		}
 		if(eOldFeature != NO_FEATURE)
@@ -6859,7 +6859,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 #endif
 			{
 				GC.getMap().ChangeNumNaturalWonders(-1);
-				GC.getMap().getArea(getArea())->ChangeNumNaturalWonders(-1);
+				GC.getMap().getAreaById(getArea())->ChangeNumNaturalWonders(-1);
 			}
 		}
 

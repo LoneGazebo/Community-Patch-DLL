@@ -2411,7 +2411,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 	std::vector<int> landmasses = pCity->plot()->getAllAdjacentLandmasses();
 	for (std::vector<int>::iterator it=landmasses.begin(); it!=landmasses.end(); ++it)
 	{
-		CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
+		CvLandmass* pkLandmass = GC.getMap().getLandmassById(*it);
 		if (pkLandmass->isWater())
 		{
 			if (pkLandmass->isLake())

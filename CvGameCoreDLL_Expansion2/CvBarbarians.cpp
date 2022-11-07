@@ -569,7 +569,7 @@ void CvBarbarians::DoCamps()
 				continue;
 
 			// No camps on 1-tile islands
-			if(pLoopPlot->getArea()==-1 || kMap.getArea(pLoopPlot->getArea())->getNumTiles() == 1)
+			if(pLoopPlot->getArea()==-1 || kMap.getAreaById(pLoopPlot->getArea())->getNumTiles() == 1)
 				continue;
 
 			// No camps on resources or improvements

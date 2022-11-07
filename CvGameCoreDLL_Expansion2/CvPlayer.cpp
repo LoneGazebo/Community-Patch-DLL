@@ -48436,7 +48436,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//check for new continent
-		const CvLandmass* pLandmass = GC.getMap().getLandmass(pPlot->getLandmass());
+		const CvLandmass* pLandmass = GC.getMap().getLandmassById(pPlot->getLandmass());
 		const CvCity* pCapital = getCapitalCity();
 
 		//if we want offshore expansion, manipulate the distance scaler

@@ -325,8 +325,6 @@ bool IsTestStrategy_TooManyUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_MostlyOnTheCoast(CvPlayer* pPlayer);
-bool IsTestStrategy_NavalMap(CvPlayer* pPlayer);
-bool IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer);
 bool IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer);
 bool IsTestStrategy_TechLeader(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer);

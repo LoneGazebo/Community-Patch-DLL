@@ -764,11 +764,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	//don't need to update landmass stats, that is implied by area changes
-	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
+	GC.getMap().getAreaById(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), 1);
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
-		CvArea* pkArea = GC.getMap().getArea(*it);
+		CvArea* pkArea = GC.getMap().getAreaById(*it);
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), 1);
 	}
@@ -2203,11 +2203,11 @@ void CvCity::PreKill()
 	pPlot->setIsCity(false, m_iID, getWorkPlotDistance());
 
 	//don't need to update landmass stats, that is implied by area changes
-	GC.getMap().getArea(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
+	GC.getMap().getAreaById(pPlot->getArea())->changeCitiesPerPlayer(getOwner(), -1);
 	std::vector<int> areas = pPlot->getAllAdjacentAreas();
 	for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 	{
-		CvArea* pkArea = GC.getMap().getArea(*it);
+		CvArea* pkArea = GC.getMap().getAreaById(*it);
 		if (pkArea->isWater())
 			pkArea->changeCitiesPerPlayer(getOwner(), -1);
 	}
@@ -18490,7 +18490,7 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 		std::vector<int> areas = plot()->getAllAdjacentAreas();
 		for (std::vector<int>::iterator it = areas.begin(); it != areas.end(); ++it)
 		{
-			CvArea* pkArea = GC.getMap().getArea(*it);
+			CvArea* pkArea = GC.getMap().getAreaById(*it);
 			if (pkArea->isWater())
 				pkArea->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
 		}

@@ -4579,30 +4579,20 @@ void CvMinorCivAI::DoPickUniqueUnit()
 		{
 			if (GetPlayer()->getStartingPlot()->isCoastalLand())
 			{
-				if (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore)
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
-					bCoastal = true;
-				}
-				else
-				{
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+					if (GET_PLAYER(ePlayer).isAlive())
 					{
-						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-						if (GET_PLAYER(ePlayer).isAlive())
+						if (GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
 						{
-							if (GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand())
-							{
-								iCoastal++;
-							}
-							iPlayers++;
+							iCoastal++;
 						}
-					}
-					//If at least a quarter of all major civ players start on the coast, we should give out boats too.
-					if (iCoastal >= (iPlayers+3) / 4)
-					{
-						bCoastal = true;
+						iPlayers++;
 					}
 				}
+				//If the majority of major civ players start on the coast, we should give out boats too.
+				bCoastal = (iCoastal > iPlayers / 2);
 			}
 
 			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/ false, /*bIncludeStartEraUnits*/ true, /*bIncludeOldEras*/ false, /*bIncludeRanged*/ true, 
@@ -9262,7 +9252,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 
 	if(GET_PLAYER(ePlayer).getStartingPlot() != NULL)
 	{
-		CvArea* pPlayerArea = GC.getMap().getArea(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
+		CvArea* pPlayerArea = GC.getMap().getAreaById(GET_PLAYER(ePlayer).getStartingPlot()->getArea());
 
 		vector<ResourceTypes> veValidResources;
 
@@ -10637,7 +10627,7 @@ bool CvMinorCivAI::IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer)
 	}
 
 	// Player hasn't yet found all the NWs in his area
-	int iNumNaturalWondersInStartingArea = GC.getMap().getArea(pPlayer->getStartingPlot()->getArea())->GetNumNaturalWonders();
+	int iNumNaturalWondersInStartingArea = GC.getMap().getAreaById(pPlayer->getStartingPlot()->getArea())->GetNumNaturalWonders();
 	if(pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
 	{
 		return false;

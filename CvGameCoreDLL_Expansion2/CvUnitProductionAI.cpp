@@ -317,7 +317,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
 	if (!bFree && bCombat)
 	{
-		CvLandmass* pLM = GC.getMap().getLandmass(m_pCity->plot()->getLandmass());
+		CvLandmass* pLM = GC.getMap().getLandmassById(m_pCity->plot()->getLandmass());
 		if(pLM != NULL && pLM->getNumTiles() <= 3)
 		{
 			if (eDomain == DOMAIN_LAND && m_pCity->HasGarrison() && !bForOperation)
@@ -346,7 +346,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		std::vector<int> landmasses = m_pCity->plot()->getAllAdjacentLandmasses();
 		for (std::vector<int>::iterator it=landmasses.begin(); it!=landmasses.end(); ++it)
 		{
-			CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
+			CvLandmass* pkLandmass = GC.getMap().getLandmassById(*it);
 			if (pkLandmass->isWater())
 			{
 				iWaterTiles += pkLandmass->getNumTiles();
@@ -1077,12 +1077,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
 			{
 				iFlavorExpansion += 25;
-			}
-
-			EconomicAIStrategyTypes eExpandOtherOffshore = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOtherOffshore))
-			{
-				iFlavorExpansion += 15;
 			}
 		}
 

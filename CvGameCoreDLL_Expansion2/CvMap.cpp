@@ -176,7 +176,7 @@ int CvLandmass::getUnitsPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getUnitsPerPlayer(eIndex);
+		iResult += GC.getMap().getAreaById(*it)->getUnitsPerPlayer(eIndex);
 
 	return iResult;
 }
@@ -184,7 +184,7 @@ int CvLandmass::getEnemyUnits(PlayerTypes eIndex) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getEnemyUnits(eIndex);
+		iResult += GC.getMap().getAreaById(*it)->getEnemyUnits(eIndex);
 
 	return iResult;
 }
@@ -192,7 +192,7 @@ int CvLandmass::getCitiesPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getCitiesPerPlayer(eIndex);
+		iResult += GC.getMap().getAreaById(*it)->getCitiesPerPlayer(eIndex);
 
 	return iResult;
 }
@@ -200,7 +200,7 @@ int CvLandmass::getPopulationPerPlayer(PlayerTypes eIndex) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getPopulationPerPlayer(eIndex);
+		iResult += GC.getMap().getAreaById(*it)->getPopulationPerPlayer(eIndex);
 
 	return iResult;
 }
@@ -208,7 +208,7 @@ int CvLandmass::getNumRevealedTiles(TeamTypes eTeam) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getNumRevealedTiles(eTeam);
+		iResult += GC.getMap().getAreaById(*it)->getNumRevealedTiles(eTeam);
 
 	return iResult;
 }
@@ -216,7 +216,7 @@ int CvLandmass::getNumUnrevealedTiles(TeamTypes eTeam) const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getNumUnrevealedTiles(eTeam);
+		iResult += GC.getMap().getAreaById(*it)->getNumUnrevealedTiles(eTeam);
 
 	return iResult;
 }
@@ -224,7 +224,7 @@ int CvLandmass::getNumUnits() const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getNumUnits();
+		iResult += GC.getMap().getAreaById(*it)->getNumUnits();
 
 	return iResult;
 }
@@ -232,7 +232,7 @@ int CvLandmass::getNumCities() const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getNumCities();
+		iResult += GC.getMap().getAreaById(*it)->getNumCities();
 
 	return iResult;
 }
@@ -240,7 +240,7 @@ int CvLandmass::getTotalPopulation() const
 {
 	int iResult = 0;
 	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
-		iResult += GC.getMap().getArea(*it)->getTotalPopulation();
+		iResult += GC.getMap().getAreaById(*it)->getTotalPopulation();
 
 	return iResult;
 }
@@ -1412,11 +1412,15 @@ int CvMap::getNumLandAreas()
 
 
 //	--------------------------------------------------------------------------------
-CvArea* CvMap::getArea(int iID)
+CvArea* CvMap::getAreaById(int iID)
 {
 	return m_areas.Get(iID);
 }
 
+CvArea* CvMap::getAreaByIndex(int iIndex)
+{
+	return m_areas.GetAt(iIndex);
+}
 
 //	--------------------------------------------------------------------------------
 CvArea* CvMap::addArea()
@@ -1896,7 +1900,7 @@ void CvMap::DoPlaceNaturalWonders()
 		}
 
 		// Can't have too many NWs in one Area
-		if(getArea(pRandPlot->getArea())->GetNumNaturalWonders() >= iMaxNWsOneArea)
+		if(getAreaById(pRandPlot->getArea())->GetNumNaturalWonders() >= iMaxNWsOneArea)
 		{
 			continue;
 		}
@@ -2197,7 +2201,7 @@ void CvMap::DefaultContinentStamper()
 	int iLargeContinentsY[iNumContinentTypes] = {0,0,0,0};
 	for(int i=0; i < iNumLargeContinents; i++)
 	{
-		CvLandmass* pLandmass = getLandmass(iLargeContinentsID[i]);
+		CvLandmass* pLandmass = getLandmassById(iLargeContinentsID[i]);
 		iLargeContinentsX[i] = pLandmass->GetCentroidX();
 		iLargeContinentsY[i] = pLandmass->GetCentroidY();
 	}
@@ -2232,7 +2236,7 @@ void CvMap::DefaultContinentStamper()
 	for(int iI = 0; iI < numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = plotByIndexUnchecked(iI);
-		CvLandmass* pLandmass = getLandmass(pLoopPlot->getLandmass());
+		CvLandmass* pLandmass = getLandmassById(pLoopPlot->getLandmass());
 		if(pLandmass != NULL)
 		{
 			pLoopPlot->SetContinentType(pLandmass->GetContinentType());
@@ -2241,46 +2245,22 @@ void CvMap::DefaultContinentStamper()
 }
 
 //	--------------------------------------------------------------------------------
-int CvMap::getIndexAfterLastLandmass()
-{
-	return m_landmasses.GetIndexAfterLast();
-}
-
-
-//	--------------------------------------------------------------------------------
 int CvMap::getNumLandmasses()
 {
 	return m_landmasses.GetCount();
 }
 
-
 //	--------------------------------------------------------------------------------
-int CvMap::getNumLandLandmasses()
-{
-	CvLandmass* pLoopLandmass;
-	int iNumLandLandmasses;
-	int iLoop;
-
-	iNumLandLandmasses = 0;
-
-	for(pLoopLandmass = GC.getMap().firstLandmass(&iLoop); pLoopLandmass != NULL; pLoopLandmass = GC.getMap().nextLandmass(&iLoop))
-	{
-		if(!(pLoopLandmass->isWater()))
-		{
-			iNumLandLandmasses++;
-		}
-	}
-
-	return iNumLandLandmasses;
-}
-
-
-//	--------------------------------------------------------------------------------
-CvLandmass* CvMap::getLandmass(int iID)
+CvLandmass* CvMap::getLandmassById(int iID)
 {
 	return m_landmasses.Get(iID);
 }
 
+//	--------------------------------------------------------------------------------
+CvLandmass* CvMap::getLandmassByIndex(int iIndex)
+{
+	return m_landmasses.GetAt(iIndex);
+}
 
 //	--------------------------------------------------------------------------------
 CvLandmass* CvMap::addLandmass()

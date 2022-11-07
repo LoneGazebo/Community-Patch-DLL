@@ -326,7 +326,7 @@ void CvStartPositioner::DivideContinentIntoRegions(const CvContinent& continent)
 	CvStartRegion region;
 	region.m_uiFertility = continent.GetFertility();
 	region.m_iAreaID = continent.GetArea();
-	region.m_Boundaries = GC.getMap().getArea(continent.GetArea())->getAreaBoundaries();
+	region.m_Boundaries = GC.getMap().getAreaById(continent.GetArea())->getAreaBoundaries();
 
 	// Make sure this is a continent that is getting a start region
 	if(continent.GetNumRegions() > 0)
@@ -367,7 +367,7 @@ void CvStartPositioner::ComputeTileFertilityValues()
 		if(iFertility > 0)
 		{
 			// Add to total for area
-			CvArea* pArea = GC.getMap().getArea(pLoopPlot->getArea());
+			CvArea* pArea = GC.getMap().getAreaById(pLoopPlot->getArea());
 			CvAssert(pArea);
 			if(!pArea) 
 				continue;

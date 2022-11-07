@@ -6557,11 +6557,8 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		// If this is the holy city and it has been converted, want to go there no matter what
 		if (pLoopCity == pHolyCity && eMajorityReligion != eReligion)
 		{
-#if defined(MOD_BALANCE_CORE)
 			vCandidates.push_back(SPlotWithScore(pLoopCity->plot(), 100000));
-#else
-			return pHolyCity;
-#endif
+			continue;
 		}
 
 		CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
@@ -10650,25 +10647,11 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
 				{
-					if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && !(GC.getMap().GetAIMapHint() & ciMapHint_Naval))
-					{
-						iScore += 200;
-					}
-					else
-					{
-						iScore += 100;
-					}
+					iScore += 100;
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
 				{
-					if (m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() && GC.getMap().GetAIMapHint() & ciMapHint_Naval)
-					{
-						iScore += 200;
-					}
-					else
-					{
-						iScore += 100;
-					}
+					iScore += 100;
 				}
 				else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 				{
