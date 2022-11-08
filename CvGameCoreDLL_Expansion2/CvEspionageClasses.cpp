@@ -6044,6 +6044,13 @@ CvString CvPlayerEspionage::GetLogFileName() const
 	return strLogName;
 }
 
+CvString CvPlayerEspionage::GetScoringLogFileName() const
+{
+	CvString strLogName;
+	strLogName = "EspionageScoringLog.csv";
+	return strLogName;
+}
+
 void CvPlayerEspionage::LogEspionageMsg(CvString& strMsg)
 {
 	if(GC.getLogging())
@@ -6053,6 +6060,24 @@ void CvPlayerEspionage::LogEspionageMsg(CvString& strMsg)
 		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d,", GC.getGame().getElapsedGameTurns());
+		strBaseString += m_pPlayer->getCivilizationShortDescription();
+		strBaseString += ",";
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
+void CvPlayerEspionage::LogEspionageScoringMsg(CvString& strMsg)
+{
+	if (GC.getLogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		FILogFile* pLog = NULL;
+
+		pLog = LOGFILEMGR.GetLog(GetScoringLogFileName(), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d,", GC.getGame().getElapsedGameTurns());
@@ -6641,13 +6666,13 @@ struct PlayerAndTechTurnEval
 void CvEspionageAI::DoTurn()
 {
 	// no humans, minor civs, or barbarians allowed!
-	if(m_pPlayer->isHuman() || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
+	if (m_pPlayer->isHuman() || m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
 	{
 		return;
 	}
 #if defined(MOD_BALANCE_CORE)
 	//No spies? No need!
-	if(m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
+	if (m_pPlayer->GetEspionage()->GetNumAliveSpies() <= 0)
 		return;
 #endif
 
@@ -6678,7 +6703,7 @@ void CvEspionageAI::DoTurn()
 			}
 
 			pSpy->m_bEvaluateReassignment = true;
-			if(GC.getLogging())
+			if (GC.getLogging())
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: UN constructed/reassign, %d,", ui);
@@ -6710,20 +6735,41 @@ void CvEspionageAI::DoTurn()
 
 	std::vector<ScoreCityEntry> aCityScores;
 
+	std::stable_sort(apCityDiplomat.begin(), apCityDiplomat.end(), ScoreCityEntryHighEval());
+	std::stable_sort(apCityOffense.begin(), apCityOffense.end(), ScoreCityEntryHighEval());
+	std::stable_sort(apCityDefense.begin(), apCityDefense.end(), ScoreCityEntryHighEval());
+	std::stable_sort(apCityMinor.begin(), apCityMinor.end(), ScoreCityEntryHighEval());
+
 	for (uint i = 0; i < apCityDiplomat.size(); i++)
+	{
+		//reduce score for each of this type, so we don't just go full in on one type of spy
+		apCityDiplomat[i].m_iScore = apCityDiplomat[i].m_iScore + (i * -5);
 		aCityScores.push_back(apCityDiplomat[i]);
+	}
 	for (uint i = 0; i < apCityOffense.size(); i++)
+	{
+		//reduce score for each of this type, so we don't just go full in on one type of spy
+		apCityOffense[i].m_iScore = apCityOffense[i].m_iScore + (i * -5);
 		aCityScores.push_back(apCityOffense[i]);
+	}
 	for (uint i = 0; i < apCityDefense.size(); i++)
+	{
+		//reduce score for each of this type, so we don't just go full in on one type of spy
+		apCityDefense[i].m_iScore = apCityDefense[i].m_iScore + (i * -5);
 		aCityScores.push_back(apCityDefense[i]);
+	}
 	for (uint i = 0; i < apCityMinor.size(); i++)
+	{
+		//reduce score for each of this type, so we don't just go full in on one type of spy
+		apCityMinor[i].m_iScore = apCityMinor[i].m_iScore + (i * -5);
 		aCityScores.push_back(apCityMinor[i]);
+	}
 
 	std::stable_sort(aCityScores.begin(), aCityScores.end(), ScoreCityEntryHighEval());
 
 	if (GC.getLogging())
 	{
-		for (uint i = 0; i < min((uint)pEspionage->GetNumSpies(), (uint)aCityScores.size()); i++)
+		for (uint i = 0; i < (uint)aCityScores.size(); i++)
 		{
 			CvString strScore = "";
 			strScore.Format("Score: %d,", aCityScores[i].m_iScore);
@@ -6741,7 +6787,7 @@ void CvEspionageAI::DoTurn()
 			strMsg += ",";
 			strMsg += GET_PLAYER(aCityScores[i].m_pCity->getOwner()).getCivilizationShortDescription();
 			strMsg += ",";
-			pEspionage->LogEspionageMsg(strMsg);
+			pEspionage->LogEspionageScoringMsg(strMsg);
 		}
 	}
 

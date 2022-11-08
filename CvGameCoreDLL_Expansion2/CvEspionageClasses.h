@@ -277,7 +277,9 @@ public:
 	bool HasSharedIntrigueAboutMe(PlayerTypes eFromPlayer);
 
 	CvString GetLogFileName(void) const;
+	CvString GetScoringLogFileName(void) const;
 	void LogEspionageMsg(CvString& strMsg);
+	void LogEspionageScoringMsg(CvString& strMsg);
 
 	SpyList m_aSpyList;
 	std::vector<int> m_aiSpyListNameOrder;
