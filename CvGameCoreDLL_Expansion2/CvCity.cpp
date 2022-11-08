@@ -8188,7 +8188,7 @@ int CvCity::GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTyp
 	iBaseSpyPower *= iMyPoliciesEspionageModifier + GC.getGame().getGameSpeedInfo().getSpyRatePercent() + iSpyRank;
 	iBaseSpyPower /= 100;
 
-	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice == NO_EVENT_CHOICE ? pSpy->m_eSpyFocus : eEventChoice);
+	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice == NO_EVENT_CHOICE_CITY ? pSpy->m_eSpyFocus : eEventChoice);
 	if (pkEventChoiceInfo == NULL)
 		//basic value?
 		return 30;
