@@ -22,7 +22,6 @@ public:
 	CvPlayerAI();
 	virtual ~CvPlayerAI();
 
-	// inlined for performance reasons
 	static CvPlayerAI& getPlayer(PlayerTypes ePlayer);
 	static bool IsValid(PlayerTypes ePlayer)
 	{

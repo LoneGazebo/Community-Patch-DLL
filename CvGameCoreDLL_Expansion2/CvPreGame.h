@@ -283,7 +283,6 @@ SlotStatus                                 slotStatus(PlayerTypes eID);
 unsigned int                               syncRandomSeed();
 int                                        targetScore();
 bool                                       transferredMap();                    // setupddata
-TeamTypes                                  teamType(PlayerTypes p);
 const CvTurnTimerInfo&                     turnTimerInfo();
 TurnTimerTypes                             turnTimer();
 const std::string&                         versionString();

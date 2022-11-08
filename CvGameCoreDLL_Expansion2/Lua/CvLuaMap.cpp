@@ -20,9 +20,9 @@
 #include "CvLuaMap.h"
 #include "CvLuaPlot.h"
 
-#include "..\CvFractal.h"
-#include "..\CvMap.h"
-#include "..\CvGameCoreUtils.h"
+#include "../CvFractal.h"
+#include "../CvMap.h"
+#include "../CvGameCoreUtils.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 

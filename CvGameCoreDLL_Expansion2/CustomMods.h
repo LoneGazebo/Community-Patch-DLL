@@ -5,7 +5,7 @@
 #define CUSTOM_MODS_H
 
 // Custom #defines used by all DLLs
-#include "..\CvGameCoreDLLUtil\include\CustomModsGlobal.h"
+#include "../CvGameCoreDLLUtil/include/CustomModsGlobal.h"
 
 /****************************************************************************
  ****************************************************************************
@@ -932,7 +932,7 @@ enum BattleTypeTypes
 
 
 // Game Event wrappers
-#include "Lua\CvLuaSupport.h"
+#include "Lua/CvLuaSupport.h"
 #define GAMEEVENTINVOKE_HOOK    gCustomMods.eventHook
 #define GAMEEVENTINVOKE_TESTANY gCustomMods.eventTestAny
 #define GAMEEVENTINVOKE_TESTALL gCustomMods.eventTestAll
