@@ -627,6 +627,7 @@ DELETE FROM Buildings WHERE Type = 'BUILDING_PAPER_MAKER';
 DELETE FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 DELETE FROM Civilization_BuildingClassOverrides WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 DELETE FROM Building_Flavors WHERE BuildingType = 'BUILDING_PAPER_MAKER';
+DELETE FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 
 UPDATE Traits
 SET GreatGeneralRateModifier = '0'

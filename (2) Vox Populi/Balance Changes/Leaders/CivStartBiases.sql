@@ -54,6 +54,7 @@ VALUES
 INSERT INTO Civilization_Start_Region_Avoid
 	(CivilizationType, RegionType)
 VALUES
+	('CIVILIZATION_CHINA', 'REGION_HILLS'), 	-- UI needs flat land
 	('CIVILIZATION_POLAND', 'REGION_JUNGLE'),   -- Medieval UB wants Sheep/Cattle/Horses
 	('CIVILIZATION_POLAND', 'REGION_FOREST');
 
