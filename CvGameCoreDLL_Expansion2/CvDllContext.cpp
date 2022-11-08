@@ -551,7 +551,7 @@ bool CvDllGameContext::GetDefineSTRING(char* szBuffer, size_t lenBuffer, const c
 		CvString strDefine;
 		if (gGlobals.getDatabaseValue(szName, strDefine, bReportErrors))
 		{
-			strncpy_s(szBuffer, lenBuffer, strDefine.c_str(), strDefine.size());
+			strcpy_s(szBuffer, lenBuffer, strDefine);
 			return true;
 		}
 	}
