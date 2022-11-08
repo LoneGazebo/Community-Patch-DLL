@@ -70,10 +70,6 @@ SET FinishSeaTRTourism = '6'
 WHERE Type = 'BUILDING_BAZAAR';
 
 UPDATE Traits
-SET EventTourismBoost = '0'
-WHERE Type = 'TRAIT_LAND_TRADE_GOLD';
-
-UPDATE Traits
 SET EventGP = '15'
 WHERE Type = 'TRAIT_LAND_TRADE_GOLD';
 
@@ -384,14 +380,6 @@ VALUES		('GREAT_WORK_THE_CROWN_JEWELS', 'GREAT_WORK_ART',	'TXT_KEY_GREAT_WORK_TH
 -- Germany -- New UA
 
 -- Bismarck -- Hanse Yield Per Pop
-
-UPDATE Buildings
-SET FinishLandTRTourism = '0'
-WHERE Type = 'BUILDING_HANSE';
-
-UPDATE Buildings
-SET FinishSeaTRTourism = '0'
-WHERE Type = 'BUILDING_HANSE';
 
 UPDATE Buildings
 SET CityStateTradeRouteProductionModifier = '5'

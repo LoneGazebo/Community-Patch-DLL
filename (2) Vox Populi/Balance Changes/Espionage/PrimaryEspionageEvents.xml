@@ -206,6 +206,7 @@
 			<DeathModifier>25</DeathModifier>
 			<StealNumTechs>1</StealNumTechs>
 			<EspionageMissionDuration>50</EspionageMissionDuration>
+			<IgnoreLocalForeignSpies>true</IgnoreLocalForeignSpies>
 			<SpyLevelRequired>2</SpyLevelRequired>
 		</Row>
 		<!-- STEAL GW -->
