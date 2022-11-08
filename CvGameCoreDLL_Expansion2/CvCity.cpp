@@ -24464,7 +24464,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	//Blockade
 	if (eIndex == YIELD_GOLD && isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
 	{
-		if (/*0 in CP, -25 in VP*/ GD_INT_GET(BLOCKADE_GOLD_PENALTY) != 0 && isCoastal() && IsBlockaded(DOMAIN_SEA))
+		if (/*0 in CP, -25 in VP*/ GD_INT_GET(BLOCKADE_GOLD_PENALTY) != 0 && IsBlockaded(DOMAIN_SEA))
 		{
 			iTempMod = GD_INT_GET(BLOCKADE_GOLD_PENALTY);
 			iModifier += iTempMod;

@@ -3311,7 +3311,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 	return pBestPlot;	
 }
 
-/// Find our port operation operations against this enemy should leave from
+/// Find the closest city from which we can sail to the provided plot
 CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot)
 {
 	if (ePlayer==NO_PLAYER || !pRefPlot)
