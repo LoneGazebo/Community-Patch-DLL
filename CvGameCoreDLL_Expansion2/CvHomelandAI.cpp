@@ -366,7 +366,7 @@ void CvHomelandAI::FindHomelandTargets()
 
 							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eNavalImprovement);
 							//sometimes we have different improvements for the same resource on land and water
-							if (!pImprovement->IsWater())
+							if (!(pImprovement->IsWater() || pImprovement->IsCoastMakesValid()))
 								continue;
 
 							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType()))

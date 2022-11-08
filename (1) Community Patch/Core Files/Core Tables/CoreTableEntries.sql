@@ -983,6 +983,12 @@ ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
 -- Improvements can be made valid by being adjacent to a city
 ALTER TABLE Improvements ADD COLUMN 'Cityside' BOOLEAN DEFAULT 0;
 
+-- Improvements can be made valid by being adjacent to X of the same improvement
+ALTER TABLE Improvements ADD COLUMN 'XSameAdjacentMakesValid' INTEGER DEFAULT 0;
+
+-- Improvements can be made valid by being on coast terrain
+ALTER TABLE Improvements ADD COLUMN 'CoastMakesValid' BOOLEAN DEFAULT 0;
+
 -- Improvements can generate vision for builder x tiles away (radially)
 ALTER TABLE Improvements ADD COLUMN 'GrantsVisionXTiles' INTEGER DEFAULT 0;
 

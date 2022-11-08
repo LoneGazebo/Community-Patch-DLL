@@ -2213,11 +2213,6 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
-	if(pkImprovementInfo->IsAdjacentCity() && !IsAdjacentCity())
-	{
-		return false;
-	}
-
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
 
@@ -2277,6 +2272,16 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		return false;
 	}
 
+	if(pkImprovementInfo->IsCoastMakesValid() && (isWater() && !isLake()))
+	{
+		bValid = true;
+	}
+
+	if(pkImprovementInfo->IsAdjacentCity() && IsAdjacentCity())
+	{
+		bValid = true;
+	}
+
 	if(pkImprovementInfo->IsHillsMakesValid() && isHills())
 	{
 		bValid = true;
@@ -2313,6 +2318,30 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	if((getFeatureType() != NO_FEATURE) && pkImprovementInfo->GetFeatureMakesValid(getFeatureType()))
 	{
 		bValid = true;
+	}
+
+	int iAdjacentSameImprovementMakesValid = pkImprovementInfo->GetXSameAdjacentMakesValid();
+	if (iAdjacentSameImprovementMakesValid > 0)
+	{
+		int iAdjacentSameImprovement = 0;
+
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL)
+			{
+				if (pLoopPlot->getImprovementType() == eImprovement)
+				{
+					iAdjacentSameImprovement++;
+				}
+			}
+		}
+
+		if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
+		{
+			bValid = true;
+		}
 	}
 
 	if(!bValid)
@@ -7201,6 +7230,9 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 		if(pImprovementInfo->IsWater() != isWater())
 			continue;
 
+		if(pImprovementInfo->IsCoastMakesValid() != (isWater() && !isLake()))
+			continue;
+
 		eImprovementNeeded = eImprovement;
 	}
 
@@ -9684,9 +9716,9 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateBestNatureYield(YieldTypes eIndex, PlayerTypes ePlayer) const
+int CvPlot::calculateBestNatureYield(YieldTypes eYield, PlayerTypes ePlayer) const
 {
-	return std::max(calculateNatureYield(eIndex, ePlayer, NULL, false), calculateNatureYield(eIndex, ePlayer, NULL, true));
+	return std::max(calculateNatureYield(eYield, ePlayer, NULL, false), calculateNatureYield(eYield, ePlayer, NULL, true));
 }
 
 
@@ -9696,7 +9728,7 @@ int CvPlot::calculateTotalBestNatureYield(PlayerTypes ePlayer) const
 	return (calculateBestNatureYield(YIELD_FOOD, ePlayer) + calculateBestNatureYield(YIELD_PRODUCTION, ePlayer) + calculateBestNatureYield(YIELD_GOLD, ePlayer));
 }
 
-int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
+int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const
 {
 	if (!pOwningCity || !pMajorityReligion || ePlayer == NO_PLAYER)
 		return 0;
@@ -9751,7 +9783,7 @@ int CvPlot::calculateReligionImprovementYield(ImprovementTypes eImprovement, Yie
 	return iReligionChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, bool bOptimal, RouteTypes eAssumeThisRoute) const
+int CvPlot::calculateImprovementYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, bool bOptimal, RouteTypes eAssumeThisRoute) const
 {
 	ResourceTypes eResource;
 	int iBestYield = 0;
@@ -9837,6 +9869,14 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 		}
 	}
 
+	if (pOwningCity != NULL)
+	{
+		if (pOwningCity->GetWeLoveTheKingDayCounter() > 0)
+		{
+			iYield += pImprovement->GetWLTKDYieldChange(eYield);
+		}
+	}
+
 	if(isRiver())
 	{
 		iYield += pImprovement->GetRiverSideYieldChange(eYield);
@@ -9851,12 +9891,11 @@ int CvPlot::calculateImprovementYield(ImprovementTypes eImprovement, YieldTypes 
 	{
 		iYield += pImprovement->GetHillsYieldChange(eYield);
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if (getFeatureType() != NO_FEATURE)
 	{
 		iYield += pImprovement->GetFeatureYieldChanges(getFeatureType(), eYield);
 	}
-#endif
 
 	// Check to see if there's a bonus to apply before doing any looping
 	if(pImprovement->GetAdjacentCityYieldChange(eYield) > 0 ||
@@ -10304,14 +10343,6 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 		if (eFeature != NO_FEATURE)
 		{
 			iYield += pOwningCity->GetFeatureExtraYield(eFeature, eYield);
-
-			if (eImprovement != NO_IMPROVEMENT)
-			{
-				if (pImprovement)
-				{
-					iYield += pImprovement->GetFeatureYieldChanges(eFeature, eYield);
-				}
-			}
 		}
 		
 		iYield += pOwningCity->GetPlotExtraYield(getPlotType(), eYield);
@@ -10494,20 +10525,20 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	}
 	else
 	{
-		ePlayer = getOwner() != NO_PLAYER ? getOwner() : NO_PLAYER;
-		eImprovement = getImprovementType() != NO_IMPROVEMENT ? getImprovementType() : NO_IMPROVEMENT;
-		eRoute = getRouteType() != NO_ROUTE ? getRouteType() : NO_ROUTE;
+		ePlayer = getOwner();
+		eImprovement = getImprovementType();
+		eRoute = getRouteType();
 	}
 
 	int iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, false, bDisplay);
-	iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, eRoute);
+	iYield += calculateImprovementYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, false, eRoute);
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
 	{
-		iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
+		iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pPlayerPantheon, NULL);
 		iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
 	}
 #endif
@@ -13144,11 +13175,11 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYield(eImprovement, eYield, iYield, ePlayer, false, getRouteType()) + calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+		iYield += calculateImprovementYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, false, getRouteType()) + calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
 		{
-			iYield += calculateReligionImprovementYield(eImprovement, eYield, ePlayer, pOwningCity, pPlayerPantheon, NULL);
+			iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pPlayerPantheon, NULL);
 		}
 #endif
 	}

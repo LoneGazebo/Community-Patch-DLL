@@ -143,18 +143,25 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	
+	<!-- Improvement: allows an adjacent improvement of the same type to boost the base yield of this improvement -->
 	<Table name="Improvement_YieldAdjacentSameType">
 		<!-- Refer to Improvements.CultureAdjacentSameType -->
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<!-- Improvement: allows two adjacent improvements of the same type to boost the base yield of this improvement -->
 	<Table name="Improvement_YieldAdjacentTwoSameType">
 		<!-- Refer to Improvements.CultureAdjacentSameType -->
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<!-- Improvement: allows a city's "We Love the King Day" to boost the base yield of this improvement when controlled by the city -->
+	<Table name="Improvement_WLTKDYields">
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
 	</Table>
 
 	<Table name="Policy_CityYieldFromUnimprovedFeature">
@@ -1858,34 +1865,35 @@
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 	</Table>
-	<!-- Improvement: allows an improvement to boost the base yield of an adjacent improvement -->
+	<!-- Improvement: allows this improvement to boost the base yield of another adjacent improvement -->
 	<Table name="Improvement_AdjacentImprovementYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="OtherImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Improvement: allows a resource to boost the base yield of an adjacent improvement -->
+	<!-- Improvement: allows a resource to boost the base yield of this improvement when adjacent -->
 	<Table name="Improvement_AdjacentResourceYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<!-- Improvement: allows a terrain to boost the base yield of this improvement when adjacent-->
 	<Table name="Improvement_AdjacentTerrainYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Improvement: allows an improvement to boost the base yield of an adjacent feature -->
+	<!-- Improvement: allows a feature to boost the base yield of this improvement when adjacent -->
 	<Table name="Improvement_AdjacentFeatureYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
-	<!-- Improvement: allows an improvement to boost the base yield of an adjacent improvement -->
+	<!-- Improvement: allows a feature to boost the base yield of this improvement when on the same tile -->
 	<Table name="Improvement_FeatureYieldChanges">
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="FeatureType" type="text" reference="Features(Type)"/>

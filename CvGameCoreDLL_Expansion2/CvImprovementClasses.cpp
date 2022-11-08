@@ -127,6 +127,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bRemovesResource(false),
 	m_bPromptWhenComplete(false),
 	m_bWater(false),
+	m_bCoastMakesValid(false),
 	m_bCoastal(false),
 	m_bDestroyedWhenPillaged(false),
 	m_bDisplacePillager(false),
@@ -147,6 +148,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iMovesChange(0),
 #endif
 	m_bNoTwoAdjacent(false),
+	m_iXSameAdjacentMakesValid(0),
 	m_bAdjacentLuxury(false),
 	m_bAllowsWalkWater(false),
 	m_bCreatedByGreatPerson(false),
@@ -158,6 +160,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_piPrereqNatureYield(NULL),
 	m_piYieldChange(NULL),
 	m_piYieldPerEra(NULL),
+	m_piWLTKDYieldChange(NULL),
 	m_piRiverSideYieldChange(NULL),
 	m_piCoastalLandYieldChange(NULL),
 	m_piHillsYieldChange(NULL),
@@ -190,6 +193,7 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_piPrereqNatureYield);
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldPerEra);
+	SAFE_DELETE_ARRAY(m_piWLTKDYieldChange);
 	SAFE_DELETE_ARRAY(m_piRiverSideYieldChange);
 	SAFE_DELETE_ARRAY(m_piCoastalLandYieldChange);
 	SAFE_DELETE_ARRAY(m_piHillsYieldChange);
@@ -294,6 +298,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bRemovesResource = kResults.GetBool("RemovesResource");
 	m_bPromptWhenComplete = kResults.GetBool("PromptWhenComplete");
 	m_bWater = kResults.GetBool("Water");
+	m_bCoastMakesValid = kResults.GetBool("CoastMakesValid");
 	m_bCoastal = kResults.GetBool("Coastal");
 	m_bDestroyedWhenPillaged = kResults.GetBool("DestroyedWhenPillaged");
 	m_bDisplacePillager = kResults.GetBool("DisplacePillager");
@@ -335,6 +340,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iMovesChange = kResults.GetInt("MovesChange");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
+	m_iXSameAdjacentMakesValid = kResults.GetInt("XSameAdjacentMakesValid");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
 	m_bAllowsWalkWater = kResults.GetBool("AllowsWalkWater");
 	m_bCreatedByGreatPerson = kResults.GetBool("CreatedByGreatPerson");
@@ -411,6 +417,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	kUtility.SetYields(m_piCoastalLandYieldChange, "Improvement_CoastalLandYields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piFreshWaterChange, "Improvement_FreshWaterYields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piHillsYieldChange, "Improvement_HillsYields", "ImprovementType", szImprovementType);
+	kUtility.SetYields(m_piWLTKDYieldChange, "Improvement_WLTKDYields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piRiverSideYieldChange, "Improvement_RiverSideYields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piPrereqNatureYield, "Improvement_PrereqNatureYields", "ImprovementType", szImprovementType);
 
@@ -1084,7 +1091,13 @@ bool CvImprovementEntry::IsWater() const
 	return m_bWater;
 }
 
-/// Is this only placed on the coast?
+/// Requires coast terrain (not lake) to build
+bool CvImprovementEntry::IsCoastMakesValid() const
+{
+	return m_bCoastMakesValid;
+}
+
+/// Is this only placed on land near the coast?
 bool CvImprovementEntry::IsCoastal() const
 {
 	return m_bCoastal;
@@ -1171,6 +1184,11 @@ int CvImprovementEntry::GetGrantsVision() const
 bool CvImprovementEntry::IsNoTwoAdjacent() const
 {
 	return m_bNoTwoAdjacent;
+}
+
+int CvImprovementEntry::GetXSameAdjacentMakesValid() const
+{
+	return m_iXSameAdjacentMakesValid;
 }
 
 /// Does this improvement need to be built next to a luxury resource?
@@ -1274,6 +1292,19 @@ int CvImprovementEntry::GetYieldChangePerEra(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldPerEra ? m_piYieldPerEra[i] : 0;
+}
+
+// How much the city having a We Love the King Day improves the yield of this improvement
+int CvImprovementEntry::GetWLTKDYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piWLTKDYieldChange ? m_piWLTKDYieldChange[i] : 0;	
+}
+
+int* CvImprovementEntry::GetWLTKDYieldChangeArray()
+{
+	return m_piWLTKDYieldChange;
 }
 
 /// How much being next to a river improves the yield of this improvement
