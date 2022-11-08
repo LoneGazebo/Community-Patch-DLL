@@ -14211,7 +14211,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	if (!pClosestCity)
 		pClosestCity = pMajorCapital;
 
-	if (pClosestCoastalCity == NULL)
+	if (!pClosestCoastalCity)
 		bBoatsAllowed = false;
 
 	// Which Unit to choose?

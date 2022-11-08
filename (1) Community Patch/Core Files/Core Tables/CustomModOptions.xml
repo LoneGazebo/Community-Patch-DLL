@@ -107,7 +107,7 @@
     
     <!-- Units gifted from City States receive XP from their spawning city, not the CS capital (v84) -->
     <!-- See also: "Global - City States Gifts" -->
-    <Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="1"/>
+    <Row Class="4" Name="GLOBAL_CS_GIFTS_LOCAL_XP" Value="0"/>
     
     <!-- City States allied to a major behave as an overseas territory of that major (v39) -->
     <!-- See also: "Global - City States Overseas Territory" -->
