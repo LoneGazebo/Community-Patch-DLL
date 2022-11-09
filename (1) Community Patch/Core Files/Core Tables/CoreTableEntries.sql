@@ -1559,6 +1559,7 @@ ALTER TABLE Buildings ADD 'BuildingDefenseModifier' INTEGER DEFAULT 0;
 
 -- Define a modifier for all tile/building based tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD 'LandmarksTourismPercent' INTEGER DEFAULT 0;
 
 -- Define a modifier for all great work tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;

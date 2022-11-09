@@ -114,7 +114,7 @@ SET Text = 'The AI has massive bonuses at all stages of the game. You have been 
 WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Only the best players in the world will beat this level.'
+SET Text = 'Muuuhahaha! Good luck, sucker!'
 WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';
 
 -- Top Panel Tooltip Adjustment (make generic for more than just founder beliefs)

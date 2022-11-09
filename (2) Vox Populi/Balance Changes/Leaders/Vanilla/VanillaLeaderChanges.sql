@@ -611,11 +611,11 @@ WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
 
 -- China
 -- Remove the paper maker for new Siheyuan improvement
-DELETE FROM Buildings WHERE Type = 'BUILDING_PAPER_MAKER';
 DELETE FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 DELETE FROM Civilization_BuildingClassOverrides WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 DELETE FROM Building_Flavors WHERE BuildingType = 'BUILDING_PAPER_MAKER';
 DELETE FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_PAPER_MAKER';
+DELETE FROM Buildings WHERE Type = 'BUILDING_PAPER_MAKER';
 
 UPDATE Traits
 SET GreatGeneralRateModifier = '0'
@@ -637,14 +637,9 @@ UPDATE Traits
 SET PermanentYieldsDecreaseEveryEra = '1'
 WHERE Type = 'TRAIT_ART_OF_WAR';
 
---UPDATE Traits
---SET GrowthBoon = '10'
---WHERE Type = 'TRAIT_ART_OF_WAR';
-
 INSERT INTO Trait_PermanentYieldChangeWLTKD
 	(TraitType, YieldType, Yield)
 VALUES
---	('TRAIT_ART_OF_WAR', 'YIELD_GOLD', 1),
 	('TRAIT_ART_OF_WAR', 'YIELD_FOOD', 2);
 
 -- New Vanilla Leader Data and Yields
@@ -1139,7 +1134,7 @@ VALUES		('UNIT_WORKER', 'BUILD_SIHEYUAN');
 ------------------------------				
 INSERT INTO BuildFeatures	
 			(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-INSERT		('BUILD_SIHEYUAN', 'FEATURE_JUNGLE', 'TECH_TRAPPING', 400, 40, 1),
+VALUES		('BUILD_SIHEYUAN', 'FEATURE_JUNGLE', 'TECH_TRAPPING', 400, 40, 1),
 			('BUILD_SIHEYUAN', 'FEATURE_FOREST', 'TECH_MINING', 300, 40, 1),
 			('BUILD_SIHEYUAN', 'FEATURE_MARSH', 'TECH_MASONRY', 600, 0, 1);
 --==========================================================================================================================
