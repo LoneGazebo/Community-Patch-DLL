@@ -140,11 +140,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Barbarians/BarbarianChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Minors/MinorBonuses.sql</FileName>
       </Action>
       <Action>
@@ -526,6 +521,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Units/UnitFreePromotions.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Barbarians/BarbarianChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>

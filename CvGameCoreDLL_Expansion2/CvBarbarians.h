@@ -45,14 +45,12 @@ public:
 
 	// Turn Stuff
 	static void DoCamps();
-	static void DoUnits();
 
 	// Unleash the beast
-	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
+	static void SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnReason eReason);
 
 private:
-	static bool CanBarbariansSpawn();
-	static UnitTypes GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eUnitAI, ResourceTypes eNearbyResource = NO_RESOURCE);
+	static UnitTypes GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes ePreferredUnitAI, PlayerTypes eUniqueUnitPlayer, vector<ResourceTypes>& vValidResources, int iAdditionalSeed);
 	static short* m_aiBarbSpawnerCounter;
 	static short* m_aiBarbSpawnerNumUnitsSpawned;
 };

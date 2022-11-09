@@ -41,6 +41,10 @@ VALUES
 UPDATE Units SET CityAttackOnly = '1', Combat = '0', Cost = '100', DefaultUnitAI = 'UNITAI_CITY_SPECIAL', CombatClass = NULL, Moves = '4', Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', PrereqTech = 'TECH_ARCHERY', ObsoleteTech = 'TECH_GUNPOWDER', Pillage = '0', GoodyHutUpgradeUnitClass = NULL  WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+INSERT INTO Civilization_UnitClassOverrides
+	(CivilizationType, UnitClassType, UnitType)
+VALUES
+	('CIVILIZATION_ASSYRIA', 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'UNIT_ASSYRIAN_SIEGE_TOWER');
 
 UPDATE Defines Set Value = '40' WHERE Name = 'SAPPED_CITY_ATTACK_MODIFIER';
 
@@ -608,21 +612,3 @@ UPDATE Units SET Class = 'UNITCLASS_TERCIO', GoodyHutUpgradeUnitClass = 'UNITCLA
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_RIFLEMAN' WHERE UnitType = 'UNIT_ZULU_IMPI';
 
 UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_ZULU_IMPI';
-
-
--- NEW DATA
-
-INSERT INTO Civilization_UnitClassOverrides
-	(CivilizationType, UnitClassType, UnitType)
-VALUES
-	('CIVILIZATION_ASSYRIA', 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'UNIT_ASSYRIAN_SIEGE_TOWER'),
-	('CIVILIZATION_BARBARIAN', 'UNITCLASS_ELEPHANT_RIDER', NULL );
-
-
-DELETE FROM Civilization_UnitClassOverrides
-WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND
-UnitClassType IN (
-	'UNITCLASS_CAVALRY',
-	'UNITCLASS_MECHANIZED_INFANTRY',
-	'UNITCLASS_IRONCLAD',
-	'UNITCLASS_MISSILE_CRUISER');

@@ -4941,17 +4941,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	}
 
 	// barbarians get a bonus unit out of the deal!
-	if (m_pPlayer->isBarbarian())
+	if (pUnit->isBarbarian())
 	{
-		int iLoop = 0;
-		for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
-		{
-			if (pLoopUnit->plot() == pPlunderPlot)
-			{
-				CvBarbarians::DoSpawnBarbarianUnit(pPlunderPlot, true, true);
-				break;
-			}
-		}
+		CvBarbarians::SpawnBarbarianUnits(pPlunderPlot, 1, BARB_SPAWN_PLUNDERED_TRADE_ROUTE);
 	}
 
 	if (eOwningPlayer != NO_PLAYER && m_pPlayer->isMajorCiv() && GET_PLAYER(eOwningPlayer).isMajorCiv())

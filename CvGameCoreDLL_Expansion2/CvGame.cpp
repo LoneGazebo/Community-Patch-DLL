@@ -799,17 +799,21 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	if (MOD_BALANCE_CORE_DIFFICULTY)
 	{
+		int iBarbReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn();
 		int iPlusMinus = /*2*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION);
-		if (iPlusMinus == 0)
-			m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn();
+
+		if (iBarbReleaseTurn <= 0)
+			m_iEarliestBarbarianReleaseTurn = 0;
+		else if (iPlusMinus == 0)
+			m_iEarliestBarbarianReleaseTurn = iBarbReleaseTurn;
 		else
 		{
 			int iRand = GC.getGame().getJonRandNum((iPlusMinus*2)+1, "barb release");
-			m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + iRand - iPlusMinus;
+			m_iEarliestBarbarianReleaseTurn = std::max(0, iBarbReleaseTurn + iRand - iPlusMinus);
 		}
-	}		
+	}
 	else
-		m_iEarliestBarbarianReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release");
+		m_iEarliestBarbarianReleaseTurn = std::max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release"));
 
 	UpdateGameEra();
 	// What route type forms an industrial connection
@@ -9345,11 +9349,6 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 {
 	if(pCity == NULL)
 		return false;
-
-	if(ePlayer == BARBARIAN_PLAYER)
-	{
-		SetBarbarianReleaseTurn(0);
-	}
 
 	if(iNumber <= 0)
 		return false;

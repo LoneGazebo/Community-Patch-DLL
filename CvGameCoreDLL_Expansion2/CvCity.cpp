@@ -4335,6 +4335,15 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	if (pkEventInfo->isResistance() && GetResistanceTurns() <= 0)
 		return false;
 
+	if (pkEventInfo->getRandomBarbs() > 0)
+	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+			return false;
+
+		if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+			return false;
+	}
+
 	if (pkEventInfo->isWLTKD() && GetWeLoveTheKingDayCounter() <= 0)
 		return false;
 
@@ -5993,6 +6002,20 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		DisabledTT += localizedDurationText.toUTF8();
 	}
 
+	if (pkEventInfo->getRandomBarbs() > 0)
+	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BARBARIANS_ENABLED");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+		else if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_TOO_EARLY_FOR_BARBARIANS");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+	}
+
 	if (pkEventInfo->isWLTKD() && GetWeLoveTheKingDayCounter() <= 0)
 	{
 		localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BE_WLTKD");
@@ -7452,7 +7475,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
-				GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
+				CvBarbarians::SpawnBarbarianUnits(plot(), iNumRebels, BARB_SPAWN_EVENT);
 			}
 			if (pkEventChoiceInfo->getFreeScaledUnits() > 0)
 			{
@@ -21465,31 +21488,20 @@ bool CvCity::DoRazingTurn()
 				}
 				else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 				{
-					bool bNotification = GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, this, iNumRebels, false, false, false, false);
-					if (bNotification)
+					CvBarbarians::SpawnBarbarianUnits(plot(), iNumRebels, BARB_SPAWN_UPRISING);
+					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+					if (pNotifications)
 					{
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
+						Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY", getName()));
 
-							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
-							pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-						}
-						CvNotifications* pNotifications2 = GET_PLAYER(eFormerOwner).GetNotifications();
-						if (pNotifications2)
-						{
-							Localization::String strMessage(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY", getName()));
-
-							Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDLY_PARTISANS_NEAR_RAZING_CITY_S", getName()));
-							pNotifications2->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
-						}
-						if (GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
-							GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-						}
+						Localization::String strSummary(GetLocalizedText("TXT_KEY_NOTIFICATION_PARTISANS_NEAR_RAZING_CITY_S", getName()));
+						pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+					}
+					if (GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Unfriendly Partisans near %s. Number: %d.", getName().c_str(), iNumRebels);
+						GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
 			}

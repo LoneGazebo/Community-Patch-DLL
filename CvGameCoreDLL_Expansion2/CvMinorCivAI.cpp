@@ -18,6 +18,7 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 #include "CvMilitaryAI.h"
+#include "CvBarbarians.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -9147,19 +9148,14 @@ void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 void CvMinorCivAI::DoRebellion()
 {
 	// In hundreds
-	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 60); //Based on number of military units of CS.
+	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * 60; //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * 200;
 	iNumRebels /= 100;
 
-	// Find a city to pop up a bad man
-	CvCity* pBestCity = GetPlayer()->getCapitalCity();
-
-	// Found a place to set up an uprising?
-	if(pBestCity != NULL)
-	{
-		GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pBestCity, iNumRebels, false, false, false, false);
-	}
+	CvCity* pCapital = GetPlayer()->getCapitalCity();
+	if (pCapital && pCapital->plot())
+		CvBarbarians::SpawnBarbarianUnits(pCapital->plot(), iNumRebels, BARB_SPAWN_HORDE_QUEST);
 }
 
 bool CvMinorCivAI::IsValidRebellion()

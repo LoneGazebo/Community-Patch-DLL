@@ -6,11 +6,6 @@ UPDATE Defines SET Value = '10' WHERE Name = 'DEFENSIVE_PACT_LIMIT_SCALER'; -- A
 UPDATE Defines SET Value = '2' WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_BASE'; -- Limit for AI players. Only does anything if lower than the base limit.
 UPDATE Defines SET Value = '10' WHERE Name = 'AI_DEFENSIVE_PACT_LIMIT_SCALER'; -- Limit for AI players. Only does anything if lower than the base limit.
 
--- Barbarians
-UPDATE Defines SET Value = '125' WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD'; -- 12.5%
-UPDATE Defines SET Value = '2' WHERE Name = 'BARBARIAN_INITIAL_SPAWN_TURN';
-UPDATE Defines SET Value = '2' WHERE Name = 'AI_TACTICAL_BARBARIAN_RELEASE_VARIATION';
-
 -- War
 UPDATE Defines SET Value = '3' WHERE Name = 'EMBARKED_UNIT_MOVEMENT';
 UPDATE Defines SET Value = '300' WHERE Name = 'MAX_CITY_HIT_POINTS';

@@ -34,10 +34,8 @@
 #include "CvImprovementClasses.h"
 #include "CvBuilderTaskingAI.h"
 #include "CvDangerPlots.h"
-#if defined(MOD_BALANCE_CORE)
 #include "CvDistanceMap.h"
 #include "CvBarbarians.h"
-#endif
 #include "CvGoodyHuts.h"
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
@@ -6273,6 +6271,15 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 	if(pkEventInfo->getObsoleteEra() != -1 && GetCurrentEra() >= (EraTypes)pkEventInfo->getObsoleteEra())
 		return false;
 
+	if (pkEventInfo->getRandomBarbs() > 0)
+	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+			return false;
+
+		if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+			return false;
+	}
+
 	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getTotalPopulation() < pkEventInfo->getMinimumNationalPopulation())
 		return false;
 
@@ -7512,6 +7519,20 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		localizedDurationText = Localization::Lookup("TXT_KEY_OBSOLETE_ERA");
 		localizedDurationText << GC.getEraInfo((EraTypes)pkEventInfo->getObsoleteEra())->GetDescription();
 		DisabledTT += localizedDurationText.toUTF8();
+	}
+
+	if(pkEventInfo->getRandomBarbs() > 0)
+	{
+		if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BARBARIANS_ENABLED");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
+		else if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_TOO_EARLY_FOR_BARBARIANS");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
 	}
 
 	if(pkEventInfo->getMinimumNationalPopulation() > 0 && getTotalPopulation() < pkEventInfo->getMinimumNationalPopulation())
@@ -9089,9 +9110,6 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			}
 			if(pkEventChoiceInfo->getRandomBarbs() > 0)
 			{
-				if (GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
-					return;
-				
 				// In hundreds
 				int iNumRebels = pkEventChoiceInfo->getRandomBarbs();
 
@@ -9109,7 +9127,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 						{
 							continue;
 						}
-						GC.getGame().DoSpawnUnitsAroundTargetCity(BARBARIAN_PLAYER, pLoopCity, iNumRebels, false, false, false, false);
+						CvBarbarians::SpawnBarbarianUnits(pLoopCity->plot(), iNumRebels, BARB_SPAWN_EVENT);
 					}
 				}
 			}
@@ -11224,7 +11242,6 @@ void CvPlayer::doTurnPostDiplomacy()
 		else
 		{
 			CvBarbarians::DoCamps();
-			CvBarbarians::DoUnits();
 			DoUpdateWarPeaceTurnCounters();
 		}
 
@@ -15007,185 +15024,6 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	return true;
 }
 
-#if defined(MOD_BALANCE_CORE)
-bool CvPlayer::canBarbariansTrain(UnitTypes eUnit, bool bIgnoreUniqueUnitStatus, ResourceTypes eResourceNearby) const
-{
-	CvUnitEntry* pUnitInfoPtr = GC.getUnitInfo(eUnit);
-	if (pUnitInfoPtr == NULL)
-		return false;
-
-	CvUnitEntry& pUnitInfo = *pUnitInfoPtr;
-
-	const UnitClassTypes eUnitClass = (UnitClassTypes)pUnitInfo.GetUnitClassType();
-	if (eUnitClass == NO_UNITCLASS)
-	{
-		return false;
-	}
-
-	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-	if (pkUnitClassInfo == NULL)
-	{
-		return false;
-	}
-
-	if (GetPlayerTraits()->NoTrain(eUnitClass))
-	{
-		return false;
-	}
-
-	// Should we check whether this Unit has been blocked out by the civ XML?
-	if (!bIgnoreUniqueUnitStatus)
-	{
-		UnitTypes eThisPlayersUnitType = GetSpecificUnitType(eUnitClass);
-
-		// If the player isn't allowed to train this Unit (via XML) then return false
-		if (eThisPlayersUnitType != eUnit)
-		{
-			return false;
-		}
-	}
-
-	if (pUnitInfo.GetProductionCost() == -1)
-	{
-		return false;
-	}
-
-	//Policy Requirement
-	PolicyTypes ePolicy = (PolicyTypes)pUnitInfo.GetPolicyType();
-	if (ePolicy != NO_POLICY)
-	{
-		if (!GetPlayerPolicies()->HasPolicy(ePolicy))
-		{
-			return false;
-		}
-	}
-
-	if (pUnitInfo.IsFoundReligion() || pUnitInfo.IsSpreadReligion() || pUnitInfo.IsRemoveHeresy())
-	{
-		return false;
-	}
-	// Builder Limit
-	if (pUnitInfo.GetWorkRate() > 0 && pUnitInfo.GetDomainType() == DOMAIN_LAND)
-	{
-		return false;
-	}
-
-	// Tech requirements
-	if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTech()))))
-	{
-		return false;
-	}
-
-	int iI = 0;
-	for (iI = 0; iI < /*3*/ GD_INT_GET(NUM_UNIT_AND_TECH_PREREQS); iI++)
-	{
-		if (pUnitInfo.GetPrereqAndTechs(iI) != NO_TECH)
-		{
-			if (!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetPrereqAndTechs(iI)))))
-			{
-				return false;
-			}
-		}
-	}
-
-	// Obsolete Tech
-	if ((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH)
-	{
-		if (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
-		{
-			return false;
-		}
-	}
-
-	// Game Unit Class Max
-	if (GC.getGame().isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Team Unit Class Max
-	if (GET_TEAM(getTeam()).isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Player Unit Class Max
-	if (isUnitClassMaxedOut(eUnitClass))
-	{
-		return false;
-	}
-
-	// Spaceship part we already have?
-	ProjectTypes eProject = (ProjectTypes)pUnitInfo.GetSpaceshipProject();
-	if (eProject != NO_PROJECT)
-	{
-		return false;
-	}
-
-	// Settlers
-	if (pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-	{
-		return false;
-	}
-
-	// Project required?
-	ProjectTypes ePrereqProject = (ProjectTypes)pUnitInfo.GetProjectPrereq();
-	if (ePrereqProject != NO_PROJECT)
-	{
-		return false;
-	}
-
-	// Resource Requirements
-	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-	{
-		const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
-		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo)
-		{
-			const int iNumResource = pUnitInfo.GetResourceQuantityRequirement(eResource);
-
-			if (iNumResource > 0 && eResource != eResourceNearby)
-			{
-				return false;
-			}
-
-#if defined(MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-			if (MOD_UNITS_RESOURCE_QUANTITY_TOTALS)
-			{
-				int iNumResourceTotal = pUnitInfo.GetResourceQuantityTotal(eResource);
-
-				if (iNumResourceTotal > 0 && eResource != eResourceNearby)
-				{
-					return false;
-				}
-			}
-#endif
-		}
-
-	}
-
-	if (pUnitInfo.GetNukeDamageLevel() != -1)
-	{
-		return false;
-	}
-	//Had to set it this way because Barbarian land units are "SPECIALUNIT_CARGO_ARMY" in MOD_CARGO_SHIPS. Need to be able to spawn them.
-	SpecialUnitTypes eSpedcialPeople = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-	SpecialUnitTypes eSpedcialFighter = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
-	SpecialUnitTypes eSpedcialStealth = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_STEALTH");
-	SpecialUnitTypes eSpedcialMissile = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_MISSILE");
-	if ((pUnitInfo.GetSpecialUnitType() == eSpedcialPeople) || (pUnitInfo.GetSpecialUnitType() == eSpedcialFighter) || (pUnitInfo.GetSpecialUnitType() == eSpedcialStealth) || (pUnitInfo.GetSpecialUnitType() == eSpedcialMissile))
-	{
-		return false;
-	}
-
-	if (pUnitInfo.IsTrade())
-	{
-		return false;
-	}
-
-	return true;
-}
-#endif
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 {
@@ -20828,9 +20666,13 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 /// Uprisings pop up if the empire is Very Unhappy
 void CvPlayer::DoUpdateUprisings()
 {
-	if ((MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy()) || IsEmpireSuperUnhappy())
+	if ((MOD_BALANCE_VP && IsEmpireVeryUnhappy()) || IsEmpireSuperUnhappy())
 	{
-		if (MOD_BALANCE_CORE_HAPPINESS && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+			return;
+
+		// No uprisings until the Barbarian release turn
+		if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 			return;
 
 		// If we're very unhappy, make the counter wind down
@@ -20910,7 +20752,7 @@ void CvPlayer::DoUprising()
 	// In hundreds
 	int iNumRebels = /*100*/ GD_INT_GET(UPRISING_NUM_BASE);
 	int iExtra = getNumCities() + GC.getGame().getSmallFakeRandNum(getNumCities(), GetPseudoRandomSeed());
-		
+
 	iNumRebels += iExtra * /*20*/ GD_INT_GET(UPRISING_NUM_CITY_COUNT);
 	iNumRebels /= 100;
 
@@ -20920,122 +20762,21 @@ void CvPlayer::DoUprising()
 
 	int iLoop = 0;
 	CvGame& theGame = GC.getGame();
-	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		int iTempWeight = pLoopCity->getPopulation();
 		iTempWeight += theGame.getSmallFakeRandNum(10, GetPseudoRandomSeed() + pLoopCity->plot()->GetPlotIndex());
 
-		if(iTempWeight > iBestWeight)
+		if (iTempWeight > iBestWeight)
 		{
 			iBestWeight = iTempWeight;
 			pBestCity = pLoopCity;
 		}
 	}
 
-	// Found a place to set up an uprising?
-	if(pBestCity != NULL)
-	{
-		int iBestPlot = -1;
-		int iBestPlotWeight = -1;
-		CvPlot* pPlot = NULL;
-
-		CvCityCitizens* pCitizens = pBestCity->GetCityCitizens();
-
-		// Start at 1, since ID 0 is the city plot itself
-
-		for(int iPlotLoop = 1; iPlotLoop < pBestCity->GetNumWorkablePlots(); iPlotLoop++)
-		{
-			pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-			if(!pPlot)		// Should be valid, but make sure
-				continue;
-
-			// Can't be impassable
-			if(!pPlot->isValidMovePlot(GetID()))
-				continue;
-
-			// Can't be water
-			if(pPlot->isWater())
-				continue;
-
-			// Can't be ANOTHER city
-			if(pPlot->isCity())
-				continue;
-
-			// Don't place on a plot where a unit is already standing
-			if(pPlot->getNumUnits() > 0)
-				continue;
-
-			int iTempWeight = theGame.getSmallFakeRandNum(10, GetPseudoRandomSeed() + iPlotLoop);
-
-			// Add weight if there's an improvement here!
-			if(pPlot->getImprovementType() != NO_IMPROVEMENT)
-			{
-				iTempWeight += 4;
-
-				// If there's also a resource, even more weight!
-				if(pPlot->getResourceType(getTeam()) != NO_RESOURCE)
-					iTempWeight += 3;
-			}
-
-			// Add weight if there's a defensive bonus for this plot
-			if(pPlot->defenseModifier(BARBARIAN_TEAM, false, false))
-				iTempWeight += 4;
-
-			// Don't pick plots that aren't ours
-			if(pPlot->getOwner() != GetID())
-				iTempWeight = -1;
-
-			if(iTempWeight > iBestPlotWeight)
-			{
-				iBestPlotWeight = iTempWeight;
-				iBestPlot = iPlotLoop;
-			}
-		}
-
-		// Found valid plot
-		if(iBestPlot != -1)
-		{
-			// Make barbs able to enter ANYONE'S territory
-			theGame.SetBarbarianReleaseTurn(0);
-
-			pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
-
-			// Pick a unit type
-			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_REBELS");
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_REBELS_SUMMARY");
-				pNotifications->Add(NOTIFICATION_REBELS, strMessage.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), eUnit, BARBARIAN_PLAYER);
-			}
-
-			// Init unit
-			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-			iNumRebels--;	// Reduce the count since we just added the seed rebel
-
-			// Loop until all rebels are placed
-			do
-			{
-				iNumRebels--;
-
-				// Pick a new unit type (for variety)
-				UnitTypes eUnit = theGame.GetRandomSpawnUnitType(GetID(), /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-
-				// Init unit
-				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				CvAssert(pUnit);
-				if (pUnit)
-				{
-					if (!pUnit->jumpToNearestValidPlotWithinRange(5))
-						pUnit->kill(false);		// Could not find a spot!
-				}
-			}
-			while(iNumRebels > 0);
-		}
-	}
+	// Found a place to set up an uprising? Unleash the beast!
+	if (pBestCity != NULL)
+		CvBarbarians::SpawnBarbarianUnits(pBestCity->plot(), iNumRebels, BARB_SPAWN_UPRISING);
 }
 
 //	--------------------------------------------------------------------------------

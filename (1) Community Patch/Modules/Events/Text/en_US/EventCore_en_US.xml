@@ -492,6 +492,14 @@
 		<Row Tag="TXT_KEY_NEED_BE_RESISTANCE">
 			<Text>[NEWLINE] [ICON_BULLET] City must be in Resistance</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_NEED_BARBARIANS_ENABLED">
+			<Text>[NEWLINE] [ICON_BULLET] Barbarians must be enabled</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOO_EARLY_FOR_BARBARIANS">
+			<Text>[NEWLINE] [ICON_BULLET] Barbarians are not allowed to enter owned territory yet</Text>
+		</Row>
 	
 		<Row Tag="TXT_KEY_NEED_BE_RIVER">
 			<Text>[NEWLINE] [ICON_BULLET] City must be on a river</Text>

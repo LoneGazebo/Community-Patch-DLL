@@ -17,10 +17,6 @@ INSERT INTO Unit_ClassUpgrades
 			(UnitType, 			UnitClassType)
 VALUES		('UNIT_VP_SLINGER', 'UNITCLASS_ARCHER');
 
-INSERT INTO Civilization_UnitClassOverrides 
-			(CivilizationType, 			UnitClassType, 			UnitType)
-VALUES		('CIVILIZATION_BARBARIAN',	'UNITCLASS_VP_SLINGER', null);
-
 -- Tercio Class, used later
 INSERT INTO UnitClasses (Type, Description, DefaultUnit) 
 VALUES ('UNITCLASS_TERCIO', 'TXT_KEY_UNIT_SPANISH_TERCIO', 'UNIT_SPANISH_TERCIO');
