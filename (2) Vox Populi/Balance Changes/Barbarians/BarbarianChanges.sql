@@ -185,3 +185,16 @@ INSERT INTO Civilization_UnitClassOverrides
 SELECT 'CIVILIZATION_BARBARIAN', UnitClassType_Temp, NULL FROM Civilization_UnitClassOverrides_BarbarianDisabler;
 
 DROP TABLE Civilization_UnitClassOverrides_BarbarianDisabler;
+
+-- Barbarian now can spawn these unit classes
+DELETE FROM Civilization_UnitClassOverrides WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND UnitClassType IN (
+	'UNITCLASS_KNIGHT',
+	'UNITCLASS_LANCER',
+	'UNITCLASS_TANK',
+	'UNITCLASS_ANTI_TANK_GUN',
+	'UNITCLASS_MODERN_ARMOR',
+	'UNITCLASS_HELICOPTER_GUNSHIP',
+	'UNITCLASS_BATTLESHIP',
+	'UNITCLASS_SUBMARINE',
+	'UNITCLASS_NUCLEAR_SUBMARINE'
+);
