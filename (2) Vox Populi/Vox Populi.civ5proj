@@ -978,6 +978,34 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(UI) Religion Spread (Vox Populi)</Name>
+        <Id>ba4d7977-e47e-4145-8577-bd562b0173a3</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(UI) Filters in Trade Route Overview (Vox Populi)</Name>
+        <Id>f30c5651-8fce-44c8-abe6-4bc9bd582098</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Archaeology Aesthetic Adjustments</Name>
+        <Id>10732c4a-9be6-4d41-8ca0-9ffea0dcb19c</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>UI - Show XP in Military Overview</Name>
+        <Id>5e4c5a89-f4e0-44f1-9590-da744d7950d5</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>
