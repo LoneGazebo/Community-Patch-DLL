@@ -29,6 +29,10 @@ local g_VPTipTable = {
 "SHIFT+LCLICK on the Next Turn button to issue a skip turn order to all idle Units. This can be used if you're experiencing the glitch that prevents progressing to the next turn.",
 -- "CTRL+RCLICK on a notification to quickly clear all notifications.",
 "Specialists can be locked in Vox Populi by clicking on an empty Specialist slot in the city screen.",
+"Farms, lumber mills, logging camps and the Hunnic Eki gain additional yields when adjacenct to two others. Build them in triangles to maximize their output.",
+"Landmarks you build give you happiness, no matter where you build them. Building a landmark for another civ will give you happiness and a nice relationship boost.",
+"If all units are given orders, you can press W to deselect the currently selected unit. This will keep you from accidentally issuing a move order while browsing the map.",
+"Check your the monopoly overview before building the East India Company. An extra luxury from the right city might give you a new monopoly.",	
 }
 
 function getVPTip()
