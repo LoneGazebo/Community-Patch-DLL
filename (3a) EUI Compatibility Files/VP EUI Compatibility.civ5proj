@@ -75,6 +75,13 @@
     <ModContent>
     </ModContent>
     <ModBlockers>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(UI) Promotion Flags EUI (for VP)</Name>
+        <Id>17498aae-f116-4961-83cf-2fc270dc56dc</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>    
     </ModBlockers>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <ReloadAudioSystem>true</ReloadAudioSystem>
