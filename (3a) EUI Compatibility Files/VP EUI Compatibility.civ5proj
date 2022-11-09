@@ -28,7 +28,7 @@
       </Action>
       <Action>
         <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type> 
+        <Type>UpdateDatabase</Type>
         <FileName>EUI/EUI_text_en_us.xml</FileName>
       </Action>
       <Action>
@@ -40,11 +40,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>PromotionFlags/PromotionBaseData.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>ImprovedTopPanel/Text.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -282,10 +277,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="ImprovedTopPanel/Text.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="ImprovedTopPanel/Text.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
