@@ -32765,7 +32765,7 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 												}
 												else if (pFromUnit && MOD_LOCAL_GENERALS_NEAREST_CITY)
 												{
-													CvCity* pNearestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(pFromUnit->getOwner(), pFromUnit->plot());
+													CvCity* pNearestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(pFromUnit->getOwner(), pFromUnit->plot(), 1);
 
 													if (pNearestCity != NULL)
 													{

@@ -4126,7 +4126,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			// GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND (normally handled in tactical AI)
 			// NO_GREAT_PEOPLE_DIRECTIVE_TYPE
 
-			CvCity* pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_pPlayer->GetID(), pUnit->plot());
+			CvCity* pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_pPlayer->GetID(), pUnit->plot(), 1);
 			if (pCity)
 				ExecuteMoveToTarget(pUnit, pCity->plot(), CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
 			if (pUnit->canMove())

@@ -14176,7 +14176,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	// What's their closest city? If they have at least one coastal city, allow spawning naval units
 	CvCity* pClosestCity = NULL;
-	CvCity* pClosestCoastalCity = bBoatsAllowed ? OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pMinorCapital->plot()) : NULL;
+	CvCity* pClosestCoastalCity = bBoatsAllowed ? OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pMinorCapital->plot(), /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)) : NULL;
 
 	int iLowestDistance = MAX_INT;
 	int iLowestCoastalDistance = MAX_INT;
@@ -17433,7 +17433,7 @@ void CvMinorCivAI::returnIncomingUnitGift(PlayerTypes eMajor)
 				CvCity* pClosestCity = NULL;
 				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 				{
-					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pFromPlot);
+					pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pFromPlot, 1);
 				}
 				else
 				{

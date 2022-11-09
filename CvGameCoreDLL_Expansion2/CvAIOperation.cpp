@@ -923,7 +923,7 @@ bool CvAIOperation::BuyFinalUnit()
 
 	CvCity* pCity = NULL;
 	if (IsNavalOperation())
-		pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,GetMusterPlot());
+		pCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,GetMusterPlot(),1);
 	else
 		pCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(GetMusterPlot());
 
@@ -1464,7 +1464,7 @@ void CvAIOperationMilitary::Init(CvCity* pTargetCity, CvCity* pMusterCity)
 		if (!pMusterCity)
 		{
 			if (IsNavalOperation())
-				pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget);
+				pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget, 1);
 			else
 				pMusterCity = GET_PLAYER(m_eOwner).GetClosestCity(pTarget, 23, true);
 		}
@@ -1753,7 +1753,7 @@ void CvAIOperationCivilian::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 	{
 		CvCity* pClosestCity = NULL;
 		if (IsNavalOperation())
-			pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pOurCivilian->plot());
+			pClosestCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pOurCivilian->plot(), 1);
 		else if (!pMusterPlot->IsFriendlyTerritory(m_eOwner))
 			pClosestCity = GET_PLAYER(m_eOwner).GetClosestCityByPathLength(pOurCivilian->plot());
 
@@ -2211,7 +2211,7 @@ void CvAIOperationNavalSuperiority::Init(CvCity* pTarget, CvCity* pMuster)
 		return;
 
 	if (!pMuster)
-		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget->plot());
+		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget->plot(), 1);
 
 	if (!pMuster)
 		pMuster = pTarget;
@@ -2273,7 +2273,7 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 
 	if (ppMuster)
 	{
-		CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,pTarget);
+		CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,pTarget,1);
 		if (pMusterCity && pMusterCity->isCoastal())
 			*ppMuster = pMusterCity->plot();
 		else
@@ -2332,7 +2332,7 @@ void CvAIOperationCarrierGroup::Init(CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 			int iDistance = GET_PLAYER(m_eOwner).GetCityDistancePathLength(pCenterPlot);
 			if (iDistance < iClosestDistance)
 			{
-				CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCenterPlot);
+				CvCity* pMusterCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCenterPlot, 1);
 				if (!pMusterCity)
 					continue;
 
@@ -2391,7 +2391,7 @@ AIOperationAbortReason CvAIOperationCarrierGroup::VerifyOrAdjustTarget(CvArmyAI*
 
 	if (pNewTarget==NULL)
 	{
-		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition);
+		CvCity* pHomeCity = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pCurrentPosition, 1);
 		if (!pHomeCity)
 			return AI_ABORT_NO_TARGET;
 
@@ -2483,7 +2483,7 @@ void CvAIOperationCityAttackNaval::Init(CvCity* pTarget, CvCity* pMuster)
 
 	if(pMuster == NULL || !pMuster->isCoastal())
 	{
-		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,pTarget->plot());
+		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner,pTarget->plot(), 1);
 	}
 
 	CvPlot* pMusterPlot = NULL;
@@ -2565,7 +2565,7 @@ void CvAIOperationCityAttackCombined::Init(CvCity* pTarget, CvCity* pMuster)
 		return;
 
 	if (!pMuster)
-		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget->plot());
+		pMuster = OperationalAIHelpers::GetClosestFriendlyCoastalCity(m_eOwner, pTarget->plot(), 1);
 
 	if (!pMuster)
 		return;
@@ -3312,7 +3312,7 @@ CvPlot* OperationalAIHelpers::FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, P
 }
 
 /// Find the closest city from which we can sail to the provided plot
-CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot)
+CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot, int iMinWaterSize)
 {
 	if (ePlayer==NO_PLAYER || !pRefPlot)
 		return NULL;
@@ -3324,7 +3324,7 @@ CvCity* OperationalAIHelpers::GetClosestFriendlyCoastalCity(PlayerTypes ePlayer,
 	//todo: use a simple water path length lookup once we have it
 	for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if(pLoopCity->isCoastal() && pLoopCity->HasAccessToLandmass(pRefPlot->getLandmass()))
+		if(pLoopCity->isCoastal(iMinWaterSize) && pLoopCity->HasAccessToLandmass(pRefPlot->getLandmass()))
 		{
 			int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pRefPlot->getX(), pRefPlot->getY());
 			if(iDistance >= 0 && iDistance < iBestDistance)

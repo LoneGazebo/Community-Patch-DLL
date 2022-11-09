@@ -5603,7 +5603,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	if (!pBestPlot)
 	{
 		CvCity* pClosestCity = (getDomainType()==DOMAIN_SEA) ? 
-			OperationalAIHelpers::GetClosestFriendlyCoastalCity(getOwner(),plot()) : 
+			OperationalAIHelpers::GetClosestFriendlyCoastalCity(getOwner(),plot(), 1) : 
 			GET_PLAYER(getOwner()).GetClosestCityByPlots(plot());
 		if (pClosestCity)
 			return jumpToNearestValidPlotWithinRange(6, pClosestCity->plot());

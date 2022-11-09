@@ -2325,26 +2325,24 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 	{
 		int iAdjacentSameImprovement = 0;
 
-		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 		{
 			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-			if(pLoopPlot != NULL)
+			if (pLoopPlot && pLoopPlot->getImprovementType() == eImprovement)
 			{
-				if (pLoopPlot->getImprovementType() == eImprovement)
+				iAdjacentSameImprovement++;
+
+				if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
 				{
-					iAdjacentSameImprovement++;
+					bValid = true;
+					break;
 				}
 			}
 		}
-
-		if (iAdjacentSameImprovement >= iAdjacentSameImprovementMakesValid)
-		{
-			bValid = true;
-		}
 	}
 
-	if(!bValid)
+	if (!bValid)
 	{
 		return false;
 	}

@@ -584,7 +584,7 @@ namespace OperationalAIHelpers
 	CvPlot* FindEnemiesNearHomelandPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, DomainTypes eDomain, CvPlot* pRefPlot, int iMaxDistance);
 	bool IsSlotRequired(PlayerTypes ePlayer, const OperationSlot& thisOperationSlot);
 	int IsUnitSuitableForRecruitment(CvUnit* pLoopUnit, const ReachablePlots& turnsFromMuster, CvPlot* pTarget,	bool bMustEmbark, bool bMustBeDeepWaterNaval, const vector<pair<size_t,CvFormationSlotEntry>>& availableSlots);
-	CvCity* GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot);
+	CvCity* GetClosestFriendlyCoastalCity(PlayerTypes ePlayer, const CvPlot* pRefPlot, int iMinWaterSize);
 	pair<CvCity*, CvCity*> GetClosestCoastalCityPair(PlayerTypes ePlayerA, PlayerTypes ePlayerB);
 }
 
