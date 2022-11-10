@@ -670,6 +670,13 @@ INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_NO_RESOURCE_MULTI
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_UU_MULTIPLIER', '150'; -- 50% extra score to Unique Units, if permitted
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_PREFERRED_TYPE', '200'; -- 100% extra score for the specific type of unit (UNIT_AI) the Barbs are looking for
 
+-- Horde Quest
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARB_SPAWN_INTERVAL', '4'; -- Spawn barbs every X turns, including the initial turn. No Barbs will be spawned on the final turn.
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_PER_CS_UNIT', '60'; -- # of Barbs per CS military unit. 100 = 1.
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_PER_ERA_BASE', '0'; -- # of Barbs per era past Ancient. 100 = 1.
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND', '200'; -- Maximum random extra Barbs per era past Ancient. 100 = 1.
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_MIN', '2'; -- Minimum # of Barbs
+
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (VP)

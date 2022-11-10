@@ -11635,18 +11635,21 @@ void CvGame::DoBarbCountdown()
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
-		if (!GET_PLAYER(eMinor).isAlive() || !GET_PLAYER(eMinor).isMinorCiv())
+		if (!GET_PLAYER(eMinor).isMinorCiv())
 			continue;
 
 		int iTurnsSinceRebellion = GET_PLAYER(eMinor).GetMinorCivAI()->GetTurnsSinceRebellion();
 		if (iTurnsSinceRebellion > 0)
 		{
 			GET_PLAYER(eMinor).GetMinorCivAI()->ChangeTurnsSinceRebellion(-1);
-			bool bSpawnRebels = (iTurnsSinceRebellion > 1) && (iTurnsSinceRebellion % 4 == 0); // Spawn rebels once every 4 turns
-
-			if (bSpawnRebels)
+			if (iTurnsSinceRebellion > 1 && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).getCapitalCity())
 			{
-				GET_PLAYER(eMinor).GetMinorCivAI()->DoRebellion();
+				// Spawn rebels once every X turns, and never on the final turn
+				bool bSpawnRebels = iTurnsSinceRebellion == /*20*/ GD_INT_GET(MINOR_QUEST_REBELLION_TIMER);
+				bSpawnRebels |= iTurnsSinceRebellion % /*4*/ std::max(GD_INT_GET(MINOR_QUEST_REBELLION_BARB_SPAWN_INTERVAL), 1) == 0;
+
+				if (bSpawnRebels)
+					GET_PLAYER(eMinor).GetMinorCivAI()->DoRebellion();
 			}
 		}
 	}

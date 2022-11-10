@@ -9156,10 +9156,14 @@ void CvMinorCivAI::SetTurnsSinceRebellion(int iValue)
 void CvMinorCivAI::DoRebellion()
 {
 	// In hundreds
-	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * 60; //Based on number of military units of CS.
+	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * /*60*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_CS_UNIT); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
-	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * 200;
+	iNumRebels += iExtraRoll * /*0*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_BASE);
+	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
 	iNumRebels /= 100;
+
+	if (iNumRebels < /*2*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_MIN))
+		iNumRebels = GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_MIN);
 
 	CvCity* pCapital = GetPlayer()->getCapitalCity();
 	if (pCapital && pCapital->plot())

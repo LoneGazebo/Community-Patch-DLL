@@ -961,12 +961,14 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		return;
 
 	// ---------- SPAWNING RULES ---------- //
-	// Plundered Trade Route or Event - cannot use resources; no spawn cap
-	// Encampment - can use unowned resources within 3 tiles; spawn cap of 2 within 3 tiles
-	// City - can use resources owned by the city and unowned resources within 3 tiles; can use the UU of the player the city was captured from; spawn cap of 4 within 3 tiles
-	// Revolt - can use resources owned by the player being revolted against as well as their UUs; no spawn cap
+	// Plundered Trade Route - cannot use resources; can only spawn adjacent; no spawn cap
+	// Encampment - can use unowned resources within 3 tiles; can only spawn adjacent; spawn cap of 2 within 3 tiles
+	// City - can use resources owned by the city and unowned resources within 3 tiles; can use the UU of the player the city was captured from; can only spawn adjacent; spawn cap of 4 within 3 tiles
+	// Uprising or Partisans - can use resources owned by the player being revolted against as well as their UUs; no spawn cap
 	// Horde Quest or City-State capture - can use any resources owned by the City-State; if militaristic and UU is land, can also use their UU; no spawn cap; can't spawn adjacent to city
 	// City Capture - unused by default - can use resources owned by the city and unowned resources within 3 tiles; can use the UU of the player the city was captured from; no spawn cap
+	// Event - cannot use resources; no spawn cap
+	// Non-Barbarian UUs cannot be used in Community Patch only.
 	// The spawn cap is ignored if a unit is spawning into an undefended encampment or city.
 	// Boats can only be spawned from encampments or captured cities on turn 30 or later.
 	// ----------------------------------- //
@@ -991,13 +993,8 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		iMaxBarbarianRange = /*4*/ GD_INT_GET(MAX_BARBARIANS_FROM_CITY_NEARBY_RANGE);
 		break;
 	case BARB_SPAWN_CITY_CAPTURE:
-		iMaxSpawnRadius = 5;
-		bNotBasePlot = true;
-		break;
 	case BARB_SPAWN_UPRISING:
-		iMaxSpawnRadius = 5;
-		bNotBasePlot = true;
-		break;
+	case BARB_SPAWN_PARTISANS:
 	case BARB_SPAWN_EVENT:
 		iMaxSpawnRadius = 5;
 		bNotBasePlot = true;
@@ -1039,7 +1036,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		{
 			eUniqueUnitPlayer = pPlot->getPlotCity()->getOriginalOwner();
 		}
-		else if (eReason == BARB_SPAWN_UPRISING || eReason == BARB_SPAWN_HORDE_QUEST || eReason == BARB_SPAWN_CITY_STATE_CAPTURE)
+		else if (eReason == BARB_SPAWN_UPRISING || eReason == BARB_SPAWN_PARTISANS || eReason == BARB_SPAWN_HORDE_QUEST || eReason == BARB_SPAWN_CITY_STATE_CAPTURE)
 		{
 			eUniqueUnitPlayer = pPlot->getOwner();
 		}
@@ -1047,72 +1044,69 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 
 	// Can we use resources?
 	vector<ResourceTypes> vValidResources;
-	if (MOD_BALANCE_VP)
+	if (eReason == BARB_SPAWN_NEW_ENCAMPMENT || eReason == BARB_SPAWN_FROM_ENCAMPMENT || eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_CAPTURE)
 	{
-		if (eReason == BARB_SPAWN_NEW_ENCAMPMENT || eReason == BARB_SPAWN_FROM_ENCAMPMENT || eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_CAPTURE)
+		// First check the current tile
+		ResourceTypes eResource = pPlot->getResourceType();
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource)
+			vValidResources.push_back(eResource);
+
+		// Now look for any others within 3 tiles
+		for (int iI = 0; iI < RING_PLOTS[3]; iI++)
 		{
-			// First check the current tile
-			ResourceTypes eResource = pPlot->getResourceType();
-			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-			if (pkResource)
-				vValidResources.push_back(eResource);
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
+			if (!pLoopPlot)
+				continue;
 
-			// Now look for any others within 3 tiles
-			for (int iI = 0; iI < RING_PLOTS[3]; iI++)
+			if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != BARBARIAN_PLAYER)
+				continue;
+
+			eResource = pLoopPlot->getResourceType();
+			pkResource = GC.getResourceInfo(eResource);
+			if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
 			{
-				CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
-				if (!pLoopPlot)
-					continue;
-
-				if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != BARBARIAN_PLAYER)
-					continue;
-
-				eResource = pLoopPlot->getResourceType();
-				pkResource = GC.getResourceInfo(eResource);
-				if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
-				{
-					vValidResources.push_back(eResource);
-				}
+				vValidResources.push_back(eResource);
 			}
 		}
-		else if (eReason == BARB_SPAWN_UPRISING)
-		{
-			// We can use any resource owned by the city owner
-			PlayerTypes eMajor = pPlot->getOwner();
+	}
+	else if (eReason == BARB_SPAWN_UPRISING || eReason == BARB_SPAWN_PARTISANS)
+	{
+		// We can use any resource owned by the city owner
+		PlayerTypes eMajor = pPlot->getOwner();
 
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-				if (pkResource)
-				{
-					if (GET_PLAYER(eMajor).getNumResourceTotal(eResource) > 0)
-						vValidResources.push_back(eResource);
-				}
-			}
-		}
-		else if (eReason == BARB_SPAWN_HORDE_QUEST || eReason == BARB_SPAWN_CITY_STATE_CAPTURE)
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
-			// First check the current tile
-			PlayerTypes eMinor = pPlot->getOwner();
-			ResourceTypes eResource = pPlot->getResourceType();
+			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource)
-				vValidResources.push_back(eResource);
-
-			// Now look for any others within 3 tiles
-			for (int iI = 0; iI < RING_PLOTS[3]; iI++)
 			{
-				CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
-				if (!pLoopPlot || pLoopPlot->getOwner() != eMinor)
-					continue;
-
-				eResource = pLoopPlot->getResourceType();
-				pkResource = GC.getResourceInfo(eResource);
-				if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
-				{
+				if (GET_PLAYER(eMajor).getNumResourceTotal(eResource) > 0)
 					vValidResources.push_back(eResource);
-				}
+			}
+		}
+	}
+	else if (eReason == BARB_SPAWN_HORDE_QUEST || eReason == BARB_SPAWN_CITY_STATE_CAPTURE)
+	{
+		// First check the current tile
+		PlayerTypes eMinor = pPlot->getOwner();
+		ResourceTypes eResource = pPlot->getResourceType();
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if (pkResource)
+			vValidResources.push_back(eResource);
+
+		// Now look for any others within 3 tiles
+		for (int iI = 0; iI < RING_PLOTS[3]; iI++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
+			if (!pLoopPlot || pLoopPlot->getOwner() != eMinor)
+				continue;
+
+			eResource = pLoopPlot->getResourceType();
+			pkResource = GC.getResourceInfo(eResource);
+			if (pkResource && std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
+			{
+				vValidResources.push_back(eResource);
 			}
 		}
 	}
@@ -1160,7 +1154,8 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 				"Spawned from City",
 				"Captured City",
 				"Plundered Trade Route",
-				"Uprising from Unhappiness or Razing",
+				"Partisans from City Razing",
+				"Uprising from Unhappiness",
 				"Horde or Rebellion Quest",
 				"Capturing City-State after failed Horde or Rebellion Quest",
 				"Event" };
@@ -1268,12 +1263,13 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			"Spawned from City",
 			"Captured City",
 			"Plundered Trade Route",
-			"Uprising from Unhappiness or Razing",
+			"Partisans from City Razing",
+			"Uprising from Unhappiness",
 			"Horde or Rebellion Quest",
 			"Capturing City-State after failed Horde or Rebellion Quest",
 			"Event" };
 
-		strLogString.Format("Spawned %d Barbarian unit(s). Spawn Reason: %s, units were spawned around X: %d, Y: %d", iNumUnitsSpawned, reasons[eReason], pPlot->getX(), pPlot->getY());
+		strLogString.Format("Spawned %d Barbarian unit(s). Spawn Reason: %s, units were spawned within %d plots of X: %d, Y: %d", iNumUnitsSpawned, reasons[eReason], iMaxSpawnRadius, pPlot->getX(), pPlot->getY());
 		GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
 	}
 }
