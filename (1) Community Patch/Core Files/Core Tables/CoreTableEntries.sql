@@ -596,8 +596,8 @@ ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' INTEGER DEFAULT 0;
 -- Increases City Defense - needs to be in 100s value
 ALTER TABLE Policies ADD COLUMN 'DefenseBoostAllCities' INTEGER DEFAULT 0;
 
--- Global Happiness Based on # of Citizens in Empire
-
+-- Community Patch: Global Happiness Based on # of Citizens in Empire
+-- Vox Populi: Local Happiness for each X Citizens in this city
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' INTEGER DEFAULT 0;
 
 -- War Weariness Mod - Positive values make it harder to accumulate war weariness.
