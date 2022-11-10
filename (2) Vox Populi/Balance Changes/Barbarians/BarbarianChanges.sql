@@ -1,6 +1,6 @@
 -- Spawning and Release
 INSERT INTO Improvement_ValidTerrains (ImprovementType, TerrainType) VALUES ('IMPROVEMENT_BARBARIAN_CAMP', 'TERRAIN_SNOW');
-UPDATE Defines SET Value = '20' WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD'; -- 2% of eligible tiles will spawn a camp on the initial spawn turn
+UPDATE Defines SET Value = '25' WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD'; -- 2.5% of eligible tiles will spawn a camp on the initial spawn turn
 UPDATE Defines SET Value = '5' WHERE Name = 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA'; -- ... plus 0.5% per era for advanced starts
 UPDATE Defines SET Value = '2' WHERE Name = 'BARBARIAN_INITIAL_SPAWN_TURN'; -- Barbarian camps start spawning on this turn
 UPDATE Defines SET Value = '2' WHERE Name = 'AI_TACTICAL_BARBARIAN_RELEASE_VARIATION'; -- Barbarian release turn is modified by +/- this number, then scaled with game speed

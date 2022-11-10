@@ -511,11 +511,11 @@ void CvBarbarians::DoCamps()
 	int iNumCampsToAdd = 0;
 	bool bInitialSpawning = kGame.getElapsedGameTurns() == iInitialSpawnTurn;
 
-	// At the end of turn 2, spawn camps in 2% of eligible tiles, plus 0.5% per era for advanced starts
+	// At the end of turn 2, spawn camps in 2.5% of eligible tiles, plus 0.5% per era for advanced starts
 	// In Community Patch only at the end of turn 0, spawn 1/3 of the maximum number of camps
 	if (bInitialSpawning)
 	{
-		iNumCampsToAdd = /*20 in VP, 33 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD);
+		iNumCampsToAdd = /*25 in VP, 33 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD);
 
 		if (MOD_BALANCE_VP)
 			iNumCampsToAdd += GC.getGame().getStartEra() > 0 ? (GC.getGame().getStartEra() * /*5 in VP, 0 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA)) : 0;
