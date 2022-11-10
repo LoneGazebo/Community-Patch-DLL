@@ -4943,7 +4943,13 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	// barbarians get a bonus unit out of the deal!
 	if (pUnit->isBarbarian())
 	{
-		CvBarbarians::SpawnBarbarianUnits(pPlunderPlot, 1, BARB_SPAWN_PLUNDERED_TRADE_ROUTE);
+		int iNumExtraUnits = /*1*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN), iGameEra = GC.getGame().getCurrentEra();
+		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_CHILL) : 0;
+		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_RAGING) : 0;
+		if (iGameEra > 0)
+			iNumExtraUnits += iGameEra * /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_PER_ERA) / 100;
+
+		CvBarbarians::SpawnBarbarianUnits(pPlunderPlot, iNumExtraUnits, BARB_SPAWN_PLUNDERED_TRADE_ROUTE);
 	}
 
 	if (eOwningPlayer != NO_PLAYER && m_pPlayer->isMajorCiv() && GET_PLAYER(eOwningPlayer).isMajorCiv())

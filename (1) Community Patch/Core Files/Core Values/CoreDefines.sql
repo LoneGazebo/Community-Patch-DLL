@@ -592,19 +592,88 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FAITH_PERCENTAGE_VALUE', '10';
 
 
 -- Barbarians
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA', '0';
-UPDATE Defines SET Value = '4' WHERE Name = 'BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP';
+
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BARBARIAN_HEAL_RATE', '0'; -- The rate at which Barbarian units heal.
+
+-- Camp Spawning
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA', '0'; -- VP Only: increase to target % of camps to spawn (for the initial spawning) per era. 10 = 1%.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', '1'; -- # of tiles required in a landmass for a camp to spawn.
+UPDATE Defines SET Value = '4' WHERE Name = 'BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP'; -- Camps can't spawn within X tiles of another camp OR city.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP', '2'; -- Min. distance between new camps and a recently cleared camp OR city.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_CLEARED_MIN_TURNS_TO_RESPAWN', '15'; -- Number of turns before a camp OR city is no longer considered recently cleared. Does not scale with game speed.
 UPDATE Defines SET Value = '33' WHERE Name = 'BARBARIAN_CAMP_COASTAL_SPAWN_ROLL'; -- target % of Barbarian camps to create on the coast
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BARBARIAN_HEAL_RATE', '0';
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_CLEARED_MIN_TURNS_TO_RESPAWN', '15';
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP', '2';
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', '1';
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_INITIAL_SPAWN_TURN', '0';
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_INITIAL_SPAWN_TURN', '0'; -- After X turns have elapsed, Barbarians will spawn for the first time. Minimum 0.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_SPAWN_RATE', '2'; -- Vox Populi only: A camp will spawn every X turns after the initial spawn.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_SPAWN_RATE_RAGING', '-1'; -- Vox Populi only: Spawn rate change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_SPAWN_RATE_CHILL', '1'; -- Vox Populi only: Spawn rate change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_NUM_AFTER_INITIAL', '1'; -- The number of camps to spawn each turn if the random roll succeeds (Community Patch) or next spawn turn occurs (Vox Populi).
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_NUM_AFTER_INITIAL_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_NUM_AFTER_INITIAL_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+
+-- Unit Spawn Timers
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_INITIAL_SPAWN_TURN_FROM_SPAWNER', '10'; -- Barbarians can start spawning from camps and cities after this many turns have passed.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_INITIAL_SPAWN_SPAWNER_DELAY', '0'; -- Camps and cities created on the initial spawn turn have X turns added to their next spawn delay.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_MIN_SPAWN_DELAY', '2'; -- Min. number of turns between spawns
+-- Encampments
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT', '12'; -- Base spawn delay from encampment.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAND', '10'; -- Additional random spawn delay from encampment.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_CHILL_MULTIPLIER', '200'; -- 2x spawn delay for encampments with Chill Barbarians enabled
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAGING_MULTIPLIER', '50'; -- 0.5x spawn delay for encampments with Raging Barbarians enabled
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_SPAWN_DELAY_REDUCTION_PER_SPAWN', '-1'; -- Reduction to spawn timer per spawned unit (not counting any initially spawned second unit)
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_MAX_SPAWN_DELAY_REDUCTION', '-3'; -- Max. reduction to spawn timer from spawned units
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_ATTACKED_DELAY_MULTIPLIER', '50'; -- 0.5x current spawn time if a camp is attacked
+-- Cities
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY', '6'; -- Base spawn delay from city.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_RAND', '5'; -- Additional random spawn delay from city.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_CHILL_MULTIPLIER', '150'; -- 1.5x spawn delay for cities with Chill Barbarians enabled
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_RAGING_MULTIPLIER', '50'; -- 0.5x spawn delay for cities with Raging Barbarians enabled
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CITY_SPAWN_DELAY_REDUCTION_PER_SPAWN', '-1'; -- Reduction to spawn timer per spawned unit
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CITY_MAX_SPAWN_DELAY_REDUCTION', '-3'; -- Max. reduction to spawn timer from spawned units
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CITY_ATTACKED_DELAY_MULTIPLIER', '50'; -- 0.5x current spawn time if a city is attacked
+
+-- Number of Units Spawned
+-- Encampment Creation
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN', '1'; -- The number of units an encampment spawns when created (first spawning turn only).
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_CHILL', '-1'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_INITIAL_ENCAMPMENT_CREATION_SPAWN_PER_ERA', '0'; -- Extra units added per era (first spawning turn only). Number of extra units = this value * (era #) / 100, rounded down.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN', '1'; -- The number of units an encampment spawns when created.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_ENCAMPMENT_CREATION_SPAWN_PER_ERA', '0'; -- Extra units added per era. Number of extra units = this value * (era #) / 100, rounded down.
+-- City Capture
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN', '0'; -- The number of units spawned when a city is captured. In VP when a Barbarian Horde/Rebellion quest is failed, one unit (which captures the city) is created first, then this number is added.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_PER_ERA', '0'; -- Extra units added per era. Number of extra units = this value * (era #) / 100, rounded down.
+-- Encampment Spawn
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_ENCAMPMENT_SPAWN', '1'; -- The number of units an encampment spawns AFTER the encampment is initially created.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_ENCAMPMENT_SPAWN_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_ENCAMPMENT_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_ENCAMPMENT_SPAWN_PER_ERA', '0'; -- Extra units added per era. Number of extra units = this value * (era #) / 100, rounded down.
+-- City Spawn
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_CITY_SPAWN', '1'; -- The number of units a city spawns.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_CITY_SPAWN_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_CITY_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PER_CITY_SPAWN_PER_ERA', '0'; -- Extra units added per era. Number of extra units = this value * (era #) / 100, rounded down.
+INSERT INTO Defines (Name, Value) SELECT 'MAX_BARBARIANS_FROM_CITY_NEARBY', '4'; -- Max. # of Barbarians within MAX_BARBARIANS_FROM_CITY_NEARBY_RANGE tiles of the city.
+INSERT INTO Defines (Name, Value) SELECT 'MAX_BARBARIANS_FROM_CITY_NEARBY_RANGE', '4'; -- Range for MAX_BARBARIANS_FROM_CITY_NEARBY.
+-- Trade Route Plunder
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN', '1'; -- # of units the Barbarians spawn when they plunder a Trade Route.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_CHILL', '0'; -- Change if Chill Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_RAGING', '0'; -- Change if Raging Barbarians is enabled.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_PER_ERA', '0'; -- Extra units added per era. Number of extra units = this value * (era #) / 100, rounded down.
+
+-- Unit Spawn Selection
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_NUM_CANDIDATES', '5'; -- randomly choose from the top X candidates
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_NO_RESOURCE_MULTIPLIER', '150'; -- 50% extra score to units without resource requirements
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_UU_MULTIPLIER', '150'; -- 50% extra score to Unique Units, if permitted
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_UNIT_SPAWN_PREFERRED_TYPE', '200'; -- 100% extra score for the specific type of unit (UNIT_AI) the Barbs are looking for
 
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (CBO)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '2'; -- India Growth (CBO)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '2'; -- India Growth (VP)
 INSERT INTO Defines (Name, Value) SELECT 'GWAM_THRESHOLD_DECREASE', '0'; -- Great People Rate Mod (Note, this is a subtraction, so positive = negative)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', '-50'; -- Building Investments Base Rate
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNIT_INVESTMENT_BASELINE', '-50'; -- Unit Investments Base Rate
@@ -624,14 +693,14 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SCOUT_XP_RANDOM_VALUE', '12';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SCOUT_XP_BASE', '1';
 
 -- City-States
-INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_CP_QUESTS', '1'; -- New CBP Quests
+INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_CP_QUESTS', '1'; -- New VP Quests
 INSERT INTO Defines (Name, Value) SELECT 'MOD_BALANCE_CORE_MINIMUM_RANKING_PTP', '60'; -- PTP Military Power Needed
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_WAR_COOLDOWN_RATE', '50'; -- How long till a City-State forgets that a major aggressively attacked it?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MINOR_PROTECTION_MINIMUM_DURATION', '10'; -- How long before a major can revoke a PtP to a CS?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS', '5'; -- Bonus to CS capital's CS for each PtP
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX', '25'; -- Max bonus to CS capital's CS from PtPs
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_ALLIANCE_DEFENSE_BONUS', '25'; -- Bonus to CS capital's CS for having an ally
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', '5'; -- Max number of CSs calc'd for bonus for Greek UA (CBO)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', '5'; -- Max number of CSs calc'd for bonus for Greek UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_MINOR_RATIO', '10';
 
 -- Spies

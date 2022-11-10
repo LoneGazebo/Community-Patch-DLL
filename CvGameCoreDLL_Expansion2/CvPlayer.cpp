@@ -4660,7 +4660,17 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// City acquired by Barbarians? Start the spawn counter.
 	if (pNewCity && isBarbarian())
+	{
+		// Extra units?
+		int iNumExtraUnits = /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN), iEra = GC.getGame().getCurrentEra();
+		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_CHILL) : 0;
+		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_RAGING) : 0;
+		if (iEra > 0)
+			iNumExtraUnits += iEra * /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_CITY_CAPTURE_SPAWN_PER_ERA) / 100;
+
+		CvBarbarians::SpawnBarbarianUnits(pCityPlot, iNumExtraUnits, BARB_SPAWN_CITY_CAPTURE);
 		CvBarbarians::ActivateBarbSpawner(pCityPlot);
+	}
 
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
