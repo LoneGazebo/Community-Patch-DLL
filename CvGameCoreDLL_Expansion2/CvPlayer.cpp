@@ -31368,9 +31368,15 @@ int CvPlayer::GetTechNeedModifier() const
 	// Modifier increasing needs based on how many techs this player is ahead of the median # of techs researched (disabled by default)
 	int iTechDifference = iOurTech - GC.getGame().GetMedianTechsResearched();
 	if (iTechDifference > 0)
+	{
 		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDIAN);
+		iTechDifference /= 100;
+	}
 	else if (iTechDifference < 0)
+	{
 		iTechDifference *= /*0*/ GD_INT_GET(TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN);
+		iTechDifference /= 100;
+	}
 
 	return iPercentResearched + iTechDifference;
 }

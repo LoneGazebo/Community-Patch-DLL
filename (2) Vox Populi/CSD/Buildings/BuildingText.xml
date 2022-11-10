@@ -97,7 +97,7 @@
 			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_HAPPINESS_1] Happiness in the City in which it is built.[NEWLINE][NEWLINE]Receive 2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points whenever an owned unit is killed, scaling with Era. Forts, Citadels and Landmarks provide +2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when worked.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
-			<Text>May only be built collaboratively through the World Congress. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the City.[NEWLINE][NEWLINE]All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.</Text>
+			<Text>May only be built collaboratively through the World Congress. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City.[NEWLINE][NEWLINE]All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP">
 			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned Cities. The Empire enters a [ICON_GOLDEN_AGE] Golden Age.</Text>

@@ -243,7 +243,7 @@ SET Text = ' Receive a free Great Person of your choice.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_2_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Olympic Village wonder appears in [ICON_CAPITAL] Capital. (Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the City. All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.)'
+SET Text = 'Olympic Village wonder appears in [ICON_CAPITAL] Capital. (Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City. All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.)'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- Arts/Sciences Funding

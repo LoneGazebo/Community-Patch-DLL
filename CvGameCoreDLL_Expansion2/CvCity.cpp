@@ -21497,7 +21497,7 @@ bool CvCity::DoRazingTurn()
 						}
 					}
 				}
-				else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+				else if (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) && GC.getGame().getGameTurn() >= GC.getGame().GetBarbarianReleaseTurn())
 				{
 					CvBarbarians::SpawnBarbarianUnits(plot(), iNumRebels, BARB_SPAWN_UPRISING);
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
