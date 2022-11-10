@@ -1047,7 +1047,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int GetEspionageRanking() const;
-	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex) const;
+	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
 	void ChangeEspionageRanking(int iRank, bool bNotify);
 	void ResetEspionageRanking();
 	void InitEspionageRanking();

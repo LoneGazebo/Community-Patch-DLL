@@ -100,7 +100,7 @@
 			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]{8_MissionLength}[ENDCOLOR]{6_Spy}Target City: Expand number of tiles visible around City for {5_Turns}.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]{8_MissionLength}[ENDCOLOR][NEWLINE]{6_Spy}Target City: Expand number of tiles visible around City for {5_Turns}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">

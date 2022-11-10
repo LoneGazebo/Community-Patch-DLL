@@ -38,7 +38,7 @@
 			<SpyVisionDuration>15</SpyVisionDuration>
 			<IDModifier>0</IDModifier>
 			<DeathModifier>0</DeathModifier>
-			<EspionageMissionDuration>15</EspionageMissionDuration>
+			<EspionageMissionDuration>20</EspionageMissionDuration>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
 			<IgnoreLocalForeignSpies>true</IgnoreLocalForeignSpies>
 			<SpyVisionRange>3</SpyVisionRange>
@@ -81,7 +81,7 @@
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<ExperienceGainedModifier>50</ExperienceGainedModifier>
-			<EspionageMissionDuration>25</EspionageMissionDuration>
+			<EspionageMissionDuration>30</EspionageMissionDuration>
 			<IDModifier>50</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>
@@ -95,7 +95,7 @@
 			<EventDuration>-1</EventDuration>
 			<MissionSetup>true</MissionSetup>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
-			<EspionageMissionDuration>25</EspionageMissionDuration>
+			<EspionageMissionDuration>30</EspionageMissionDuration>
 			<IDModifier>50</IDModifier>
 			<DeathModifier>15</DeathModifier>
 			<SpyLevelRequired>0</SpyLevelRequired>

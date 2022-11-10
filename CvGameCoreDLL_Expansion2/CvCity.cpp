@@ -5378,6 +5378,10 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 }
 CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex, PlayerTypes eSpyOwner)
 {
+	bool bSpyMissionEnd = bYieldsOnly && iSpyIndex > -1;
+	if (bSpyMissionEnd)
+		bYieldsOnly = false;
+
 	CvString CoreYieldTip = "";
 	CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eEventChoice);
 	if (pkEventChoiceInfo == NULL)
@@ -5613,20 +5617,23 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			turnsTip += localized;
 		}
 	}
-
-	if (eSpyOwner != NO_PLAYER && iSpyIndex != -1)
+	if (!bSpyMissionEnd)
 	{
-		int iDuration = GetSpyTurnsToCompleteMission(eSpyOwner, eEventChoice, iSpyIndex);
-
-		Localization::String localizedDurationText;
-		localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_MISSION_DURATION");
-
-		localizedDurationText << iDuration;
-		const char* const localized = localizedDurationText.toUTF8();
-		if (localized)
+		if (eSpyOwner != NO_PLAYER && iSpyIndex != -1)
 		{
-			durationTip += localized;
-		}	
+			int iProgress = GetCityEspionage()->m_aiAmount[eSpyOwner];
+			int iDuration = GetSpyTurnsToCompleteMission(eSpyOwner, eEventChoice, iSpyIndex, iProgress);
+
+			Localization::String localizedDurationText;
+			localizedDurationText = Localization::Lookup("TXT_KEY_ESPIONAGE_MISSION_DURATION");
+
+			localizedDurationText << iDuration;
+			const char* const localized = localizedDurationText.toUTF8();
+			if (localized)
+			{
+				durationTip += localized;
+			}
+		}
 	}
 
 	localizedCoreText << yieldCostTip;	
@@ -6633,6 +6640,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						bDefer = true;
 
 					eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyFocusResult(eSpyOwner, this, iEspionageValue, eEventChoice, bDefer);
+					pSpy->UpdateSiphonHistory(this, eSpyOwner, iEspionageValue, pSpy->m_eSpyFocus, eResult);
 
 					//if setup, we don't actually fire the choice right now...we wait!
 					if (bDefer && !pkEventChoiceInfo->isExpiresOnCounterSpyExit())
@@ -8125,7 +8133,7 @@ int CvCity::GetEspionageRanking() const
 	VALIDATE_OBJECT
 	return m_iCitySpyRank;
 }
-int CvCity::GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex) const
+int CvCity::GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress) const
 {
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		return m_iCitySpyRank;
@@ -8222,12 +8230,15 @@ int CvCity::GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTyp
 	//TURNS!
 	int iTurnsLeft = pkEventChoiceInfo->getEspionageMissionDuration();
 
-	iTurnsLeft *= iDurationMod;
+	iTurnsLeft *= (100 + iDurationMod);
 	iTurnsLeft /= 100;
 
 	iTurnsLeft = range(iTurnsLeft, pkEventChoiceInfo->getEspionageMissionDuration() / 2, pkEventChoiceInfo->getEspionageMissionDuration() * 2);
 
-	return iTurnsLeft;
+	if (iProgress == 0)
+		return iTurnsLeft;
+
+	return iTurnsLeft - iProgress;
 }
 void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 {

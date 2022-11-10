@@ -82,7 +82,7 @@ public:
 	void ResetSpySiphon();
 	CvString GetSiphonHistory();
 	void ResetSiphonHistory();
-	void UpdateSiphonHistory(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
+	void UpdateSiphonHistory(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, CvSpyResult eResult = NUM_SPY_RESULTS);
 
 	// Public data
 	int m_iName;
