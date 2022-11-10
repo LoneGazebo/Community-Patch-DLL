@@ -7334,6 +7334,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		{
 			return false;
 		}
+		if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+		{
+			return false;
+		}
 
 		if(SpawnHorde() == NO_PLAYER && !IsHordeActive())
 		{
@@ -7344,6 +7348,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	else if(eQuest == MINOR_CIV_QUEST_REBELLION)
 	{
 		if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
+		{
+			return false;
+		}
+		if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
 		{
 			return false;
 		}
