@@ -847,7 +847,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoInitializePersonality(true);
 
 				// Military skill rating
-				int iStartingMilitaryRating = (getStartEra() > 0) ? (/*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE) * getStartEra()) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
+				int iStartingMilitaryRating = getStartEra() > 0 ? (getStartEra() * /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE)) : /*1000*/ GD_INT_GET(MILITARY_RATING_STARTING_VALUE);
 				GET_PLAYER(ePlayer).SetMilitaryRating(iStartingMilitaryRating);
 			}
 			// Minor Civ init

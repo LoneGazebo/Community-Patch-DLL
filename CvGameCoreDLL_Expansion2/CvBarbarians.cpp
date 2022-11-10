@@ -511,11 +511,17 @@ void CvBarbarians::DoCamps()
 	int iNumCampsToAdd = 0;
 	bool bInitialSpawning = kGame.getElapsedGameTurns() == iInitialSpawnTurn;
 
-	// At the end of turn 2, spawn camps in 8.5% of eligible tiles
+	// At the end of turn 2, spawn camps in 2% of eligible tiles, plus 0.5% per era for advanced starts
 	// In Community Patch only at the end of turn 0, spawn 1/3 of the maximum number of camps
 	if (bInitialSpawning)
 	{
-		iNumCampsToAdd = /*85 in VP, 33 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD);
+		iNumCampsToAdd = /*20 in VP, 33 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_OF_TARGET_TO_ADD);
+
+		if (MOD_BALANCE_VP)
+			iNumCampsToAdd += GC.getGame().getStartEra() > 0 ? (GC.getGame().getStartEra() * /*5 in VP, 0 in CP*/ GD_INT_GET(BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA)) : 0;
+
+		if (iNumCampsToAdd <= 0)
+			iNumCampsToAdd = 1;
 	}
 	else
 	{
@@ -611,6 +617,12 @@ void CvBarbarians::DoCamps()
 
 			continue;
 		}
+		// Initial spawning in Ancient or Classical Era? Avoid spawning too close to starting Settlers (treat them like capitals).
+		else if (MOD_BALANCE_VP && bInitialSpawning && GC.getGame().getStartEraInfo().getStartingUnitMultiplier() <= 1 && pLoopPlot->getFirstUnitOfAITypeOtherTeam(BARBARIAN_TEAM, UNITAI_SETTLE) != NULL)
+		{
+			MajorCapitals.push_back(pLoopPlot->GetPlotIndex());
+			continue;
+		}
 
 		// Not adding any camps this turn? No need to proceed!
 		if (iNumCampsToAdd <= 0)
@@ -674,21 +686,27 @@ void CvBarbarians::DoCamps()
 		}
 	}
 
-	// How many camps can we have on the map? VP: No limit!
-	int iMaximumCamps = MOD_BALANCE_VP ? vPotentialPlots.size() : vPotentialPlots.size() / std::max(theMap.getWorldInfo().getFogTilesPerBarbarianCamp(), 1);
-	if (iMaximumCamps <= 0 || iNumCampsInExistence >= iMaximumCamps)
-		return;
-
-	// If this is the initial spawning, let's calculate how many camps to place on the map
-	if (bInitialSpawning)
+	// Community Patch only: Calculate maximum number of camps
+	if (!MOD_BALANCE_VP)
 	{
-		iNumCampsToAdd *= iMaximumCamps;
-		iNumCampsToAdd /= MOD_BALANCE_VP ? 1000 : 100;
-	}
+		int iMaximumCamps = vPotentialPlots.size() / std::max(theMap.getWorldInfo().getFogTilesPerBarbarianCamp(), 1);
+		if (iMaximumCamps <= 0 || iNumCampsInExistence >= iMaximumCamps)
+			return;
 
-	// Make sure not to exceed the limit
-	if ((iNumCampsInExistence + iNumCampsToAdd) >= iMaximumCamps)
-		iNumCampsToAdd = iMaximumCamps - iNumCampsInExistence;
+		// If this is the initial spawning, let's calculate how many camps to place on the map
+		if (bInitialSpawning)
+		{
+			iNumCampsToAdd *= iMaximumCamps;
+			iNumCampsToAdd /= 100;
+
+			if (iNumCampsToAdd <= 0)
+				iNumCampsToAdd = 1;
+		}
+
+		// Make sure not to exceed the limit
+		if ((iNumCampsInExistence + iNumCampsToAdd) >= iMaximumCamps)
+			iNumCampsToAdd = iMaximumCamps - iNumCampsInExistence;
+	}
 
 	// Not adding any camps this turn? We're done here!
 	if (iNumCampsToAdd <= 0)
@@ -768,6 +786,16 @@ void CvBarbarians::DoCamps()
 
 	// How many units should we spawn from new encampments?
 	int iNumInitialUnits = GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS) ? 1 : 2;
+
+	// Vox Populi: If this is the first turn, how many camps should we spawn?
+	if (MOD_BALANCE_VP && bInitialSpawning)
+	{
+		iNumCampsToAdd *= vValidPlots.size();
+		iNumCampsToAdd /= 1000;
+
+		if (iNumCampsToAdd <= 0)
+			iNumCampsToAdd = 1;
+	}
 
 	// Place the camps on the map
 	do
