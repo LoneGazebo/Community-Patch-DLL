@@ -536,7 +536,6 @@ void CvBarbarians::DoCamps()
 {
 	CvGame& kGame = GC.getGame();
 	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
-	ImprovementTypes eEmbassy = (ImprovementTypes)GD_INT_GET(EMBASSY_IMPROVEMENT);
 	CvImprovementEntry* pkCampInfo = GC.getImprovementInfo(eCamp);
 	int iGameTurn = GC.getGame().getGameTurn();
 	int iInitialSpawnTurn = /*0 in CP, 2 in VP*/ std::max(GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN), 0);
@@ -690,7 +689,7 @@ void CvBarbarians::DoCamps()
 		// No camps on Improvements in Community Patch only, and no camps on embassies ever
 		if (eImprovement != NO_IMPROVEMENT)
 		{
-			if (!MOD_BALANCE_VP || eImprovement == eEmbassy)
+			if (!MOD_BALANCE_VP || GC.getImprovementInfo(eImprovement)->IsPermanent())
 				continue;
 		}
 

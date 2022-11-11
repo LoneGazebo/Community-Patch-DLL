@@ -12081,7 +12081,6 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		else if (pkUnitInfo->IsFound())
 		{
 			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
-
 			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 
 			// Can't be lower than -75% from Unhappiness.
@@ -12404,7 +12403,6 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		else if (pkUnitInfo->IsFound())
 		{
 			int iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
-
 			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 
 			// Can't be lower than -75% from Unhappiness.
@@ -13205,14 +13203,20 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		int iTempMod = 0;
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
 
-		if (bCombat)
+		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
+		if (bCombat && pUnitEntry->IsFound())
+		{
+			int iCombatPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY) * -1);
+			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
+			iTempMod = std::min(iCombatPenalty, iSettlerPenalty);
+		}
+		else if (bCombat)
 		{
 			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY) * -1);
 		}
 		else if (pUnitEntry->IsFound())
 		{
 			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1);
-
 			iTempMod += GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
 		}
 
