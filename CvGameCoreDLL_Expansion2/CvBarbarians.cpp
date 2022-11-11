@@ -1157,7 +1157,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 				"Partisans from City Razing",
 				"Uprising from Unhappiness",
 				"Horde or Rebellion Quest",
-				"Capturing City-State after failed Horde or Rebellion Quest",
+				"Captured City-State after failed Horde or Rebellion Quest",
 				"Event" };
 
 			strLogString.Format("Spawned single Barbarian unit. Spawn Reason: %s, X: %d, Y: %d", reasons[eReason], pPlot->getX(), pPlot->getY());
@@ -1266,7 +1266,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			"Partisans from City Razing",
 			"Uprising from Unhappiness",
 			"Horde or Rebellion Quest",
-			"Capturing City-State after failed Horde or Rebellion Quest",
+			"Captured City-State after failed Horde or Rebellion Quest",
 			"Event" };
 
 		strLogString.Format("Spawned %d Barbarian unit(s). Spawn Reason: %s, units were spawned within %d plots of X: %d, Y: %d", iNumUnitsSpawned, reasons[eReason], iMaxSpawnRadius, pPlot->getX(), pPlot->getY());

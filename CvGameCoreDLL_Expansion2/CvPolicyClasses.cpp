@@ -313,7 +313,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPressureMod(0),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
-	m_iGarrisonsOccupiedUnhapppinessMod(0),
+	m_iGarrisonsOccupiedUnhappinessMod(0),
 	m_iTradeReligionModifier(0),
 	m_iXPopulationConscription(0),
 	m_iBestNumberLandCombatUnitClass(0),
@@ -725,7 +725,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
+	m_iGarrisonsOccupiedUnhappinessMod = kResults.GetInt("GarrisonsOccupiedUnhappinessMod");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	m_iXPopulationConscription = kResults.GetInt("XPopulationConscription");
 	m_iBestNumberLandCombatUnitClass = kResults.GetInt("BestNumberLandCombatUnitClass");
@@ -3102,9 +3102,9 @@ int CvPolicyEntry::GetYieldGPExpend(int i) const
 	return m_piYieldGPExpend[i];
 }
 /// Does this Policy grant unhappiness reduction from garrisons?
-int CvPolicyEntry::GetGarrisonsOccupiedUnhapppinessMod() const
+int CvPolicyEntry::GetGarrisonsOccupiedUnhappinessMod() const
 {
-	return m_iGarrisonsOccupiedUnhapppinessMod;
+	return m_iGarrisonsOccupiedUnhappinessMod;
 }
 /// Does this Policy grant religios pressure from trade?
 int CvPolicyEntry::GetTradeReligionModifier() const

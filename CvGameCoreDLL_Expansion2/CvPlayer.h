@@ -1882,8 +1882,8 @@ public:
 	int getUnitsInLiberatedCities()	const;
 	void changeUnitsInLiberatedCities(int iChange);
 
-	int GetGarrisonsOccupiedUnhapppinessMod() const;
-	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
+	int GetGarrisonsOccupiedUnhappinessMod() const;
+	void changeGarrisonsOccupiedUnhappinessMod(int iChange);
 
 	int GetXPopulationConscription() const;
 	void changeXPopulationConscription(int iChange);
@@ -3135,7 +3135,7 @@ protected:
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iGarrisonsOccupiedUnhapppinessMod;
+	int m_iGarrisonsOccupiedUnhappinessMod;
 	int m_iXPopulationConscription;
 	int m_iExtraMoves;
 	int m_iNoUnhappinessExpansion;
@@ -3943,7 +3943,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFoodChange)
 SYNC_ARCHIVE_VAR(int, m_iWarWearinessModifier)
 SYNC_ARCHIVE_VAR(int, m_iWarScoreModifier)
-SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhapppinessMod)
+SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhappinessMod)
 SYNC_ARCHIVE_VAR(int, m_iXPopulationConscription)
 SYNC_ARCHIVE_VAR(int, m_iExtraMoves)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappinessExpansion)

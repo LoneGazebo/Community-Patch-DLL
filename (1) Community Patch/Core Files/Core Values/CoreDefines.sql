@@ -542,9 +542,9 @@ INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '90
 INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '100'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 100 (+1%). Does not support negative values.
 
 -- Unhappiness from Other Sources
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded up)
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_PILLAGED_TILE', '0.50'; -- Unhappiness point per pillaged plot owned by city. (rounded up)
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_ISOLATED_POP', '0.33'; -- Unhappiness point per pop if unconnected or blockaded. (rounded up)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded down)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_PILLAGED_TILE', '0.50'; -- Unhappiness point per pillaged plot owned by city. (rounded down)
+INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_ISOLATED_POP', '0.34'; -- Unhappiness point per pop if unconnected or blockaded. (rounded down)
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_SPECIALIST', '100'; -- 100 = 1 unhappiness per specialist.
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_X_PUPPET_CITIZENS', '4'; -- Puppets produce flat unhappiness based on # of citizens in the city. This is the divisor.
 INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', '34'; -- This is the % of empire population that war weariness is capped at.

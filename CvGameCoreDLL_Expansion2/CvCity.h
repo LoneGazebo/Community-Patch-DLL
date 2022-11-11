@@ -872,6 +872,7 @@ public:
 	CvString GetCityUnhappinessBreakdown(bool bIncludeMedian = false, bool bCityBanner = false);
 	CvString GetCityHappinessBreakdown();
 
+	int GetUnhappinessFromOccupation() const;
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromPillagedTiles() const;
 	int GetDistress(bool bForceRecalc) const;

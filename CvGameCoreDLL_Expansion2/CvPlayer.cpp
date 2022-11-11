@@ -676,7 +676,7 @@ CvPlayer::CvPlayer() :
 	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
 	, m_aiDomainFreeExperiencePerGreatWorkGlobal()
-	, m_iGarrisonsOccupiedUnhapppinessMod()
+	, m_iGarrisonsOccupiedUnhappinessMod()
 	, m_iXPopulationConscription()
 	, m_iExtraMoves()
 	, m_iNoUnhappinessExpansion()
@@ -1532,7 +1532,7 @@ void CvPlayer::uninit()
 	m_iUnitSupplyFromExpendedGP = 0;
 	m_iMissionaryExtraStrength = 0;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	m_iGarrisonsOccupiedUnhapppinessMod = 0;
+	m_iGarrisonsOccupiedUnhappinessMod = 0;
 	m_iXPopulationConscription = 0;
 	m_iExtraMoves = 0;
 	m_iNoUnhappinessExpansion = 0;
@@ -22418,8 +22418,6 @@ int CvPlayer::GetUnhappinessFromPuppetCitySpecialists() const
 int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
 	int iUnhappiness = 0;
-	double fUnhappinessPerPop = /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION) * 100;
-
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
@@ -22442,30 +22440,7 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 			bCityValid = true;
 
 		if (bCityValid)
-		{
-			int iPopulation = pLoopCity->getPopulation();
-			int iUnhappinessFromThisCity = int(double(iPopulation) * fUnhappinessPerPop);
-
-			// Mod (Policies, etc.)
-			if (GetOccupiedPopulationUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GetOccupiedPopulationUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-
-			if (MOD_BALANCE_VP)
-			{
-				if (GetGarrisonsOccupiedUnhapppinessMod() != 0 && pLoopCity->HasGarrison())
-				{
-					iUnhappinessFromThisCity *= (100 + GetGarrisonsOccupiedUnhapppinessMod());
-					iUnhappinessFromThisCity /= 100;
-				}
-				if (iUnhappinessFromThisCity > iPopulation)
-					iUnhappinessFromThisCity = iPopulation;
-			}
-
-			iUnhappiness += iUnhappinessFromThisCity;
-		}
+			iUnhappiness += pLoopCity->GetUnhappinessFromOccupation();
 	}
 
 	if (!MOD_BALANCE_CORE_DIFFICULTY)
@@ -34932,15 +34907,15 @@ void CvPlayer::changeReligionYieldRateModifier(YieldTypes eIndex, int iChange)
 	}
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetGarrisonsOccupiedUnhapppinessMod() const
+int CvPlayer::GetGarrisonsOccupiedUnhappinessMod() const
 {
-	return m_iGarrisonsOccupiedUnhapppinessMod;
+	return m_iGarrisonsOccupiedUnhappinessMod;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeGarrisonsOccupiedUnhapppinessMod(int iChange)
+void CvPlayer::changeGarrisonsOccupiedUnhappinessMod(int iChange)
 {
-	m_iGarrisonsOccupiedUnhapppinessMod += iChange;
+	m_iGarrisonsOccupiedUnhappinessMod += iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetXPopulationConscription() const
@@ -43556,7 +43531,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		ChangeNoUnhappyIsolation(pPolicy->GetNoUnhappyIsolation() * iChange);
 		ChangeDoubleBorderGrowthGA(pPolicy->GetDoubleBorderGrowthGA() * iChange);
 		ChangeDoubleBorderGrowthWLTKD(pPolicy->GetDoubleBorderGrowthWLTKD() * iChange);
-		changeGarrisonsOccupiedUnhapppinessMod(pPolicy->GetGarrisonsOccupiedUnhapppinessMod() * iChange);
+		changeGarrisonsOccupiedUnhappinessMod(pPolicy->GetGarrisonsOccupiedUnhappinessMod() * iChange);
 		changeTradeReligionModifier(pPolicy->GetTradeReligionModifier() * iChange);
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
 		if (pPolicy->GetIncreasedQuestInfluence() != 0)
@@ -45658,7 +45633,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSpecialistFoodChange);
 	visitor(player.m_iWarWearinessModifier);
 	visitor(player.m_iWarScoreModifier);
-	visitor(player.m_iGarrisonsOccupiedUnhapppinessMod);
+	visitor(player.m_iGarrisonsOccupiedUnhappinessMod);
 	visitor(player.m_iXPopulationConscription);
 	visitor(player.m_iExtraMoves);
 	visitor(player.m_iNoUnhappinessExpansion);

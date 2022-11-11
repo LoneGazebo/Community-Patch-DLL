@@ -22137,33 +22137,18 @@ int CvCity::updateNetHappiness()
 		return 0;
 	}
 
-	if (MOD_BALANCE_VP)
-	{
-		if (IsRazing() || IsResistance())
-		{
-			m_iHappinessDelta = -getPopulation();
-			return m_iHappinessDelta;
-		}
-		else if (IsPuppet())
-		{
-			m_iHappinessDelta = 0;
-			return 0;
-		}
-	}
-
-	int iPositiveHappiness = GetLocalHappiness();
-	int iNegativeHappiness = GetUnhappinessAggregated();
-
 	if (IsRazing() || IsResistance())
 	{
-		iNegativeHappiness += int(getPopulation() * /*1.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
+		m_iHappinessDelta = -getPopulation();
+		return m_iHappinessDelta;
 	}
-	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
+	else if (IsPuppet())
 	{
-		iNegativeHappiness += int(getPopulation() * /*1.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION));
+		m_iHappinessDelta = 0;
+		return 0;
 	}
 
-	m_iHappinessDelta = iPositiveHappiness - iNegativeHappiness;
+	m_iHappinessDelta = GetLocalHappiness() - GetUnhappinessAggregated();
 	return m_iHappinessDelta;
 }
 
@@ -22222,14 +22207,13 @@ int CvCity::GetUnhappinessAggregated() const
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
 		return getUnhappinessFromSpecialists(iSpecialists) + (iPopulation / max(1, /*4*/ GD_INT_GET(UNHAPPINESS_PER_X_PUPPET_CITIZENS)));
 	}
-	else if (IsOccupied() && !IsNoOccupiedUnhappiness())
-	{
-		iUnhappiness += range(int(iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION)), 0, iPopulation);
-	}
+
+	if (MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS)
+		iPopulation = INT_MAX;
 
 	// Some of these calls are expensive, so avoid doing them if we've already reached the cap
 	// Order is also nonstandard to save on performance
-	int iSource = 0;
+	int iSource = GetUnhappinessFromOccupation();
 
 	if (iUnhappiness < iPopulation)
 	{
@@ -22294,9 +22278,9 @@ int CvCity::GetUnhappinessAggregated() const
 			iUnhappiness += iSource;
 	}
 
-	// Unhappiness caps at city population (except specialists)
-	if (iUnhappiness > getPopulation())
-		iUnhappiness = getPopulation();
+	// Unhappiness is capped at city population (except specialists)
+	if (iUnhappiness > iPopulation)
+		iUnhappiness = iPopulation;
 
 	iSource = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
 	if (iSource > 0)
@@ -22699,7 +22683,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	int iTotalUnhappiness = 0;
 	int iSource = 0;
 
-	iSource = (IsOccupied() && !IsNoOccupiedUnhappiness()) ? range(int(iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION)), 0, iPopulation) : 0;
+	iSource = GetUnhappinessFromOccupation();
 	if (iSource > 0)
 	{
 		iTotalUnhappiness += iSource;
@@ -22770,7 +22754,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	}
 
 	// Unhappiness is capped at city population (except specialists)
-	if (iTotalUnhappiness > iPopulation)
+	if (iTotalUnhappiness > iPopulation && !MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS)
 		iTotalUnhappiness = iPopulation;
 
 	iSource = getUnhappinessFromSpecialists(GetCityCitizens()->GetTotalSpecialistCount());
@@ -23272,7 +23256,8 @@ int CvCity::GetDistress(bool bForceRecalc) const
 
 	int iDistress = GetDistressRaw(bForceRecalc) - GetDistressFlatReduction() - GET_PLAYER(getOwner()).GetDistressFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
-	return range(iDistress, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range(iDistress, 0, iLimit);
 }
 
 int CvCity::GetDistressRaw(bool bForceRecalc) const
@@ -23289,7 +23274,8 @@ int CvCity::GetDistressRaw(bool bForceRecalc) const
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	float fDistress = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
 
-	return range((int)fDistress, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range((int)fDistress, 0, iLimit);
 }
 
 float CvCity::GetBasicNeedsMedian(bool bForceRecalc, int iAdditionalModifier) const
@@ -23317,7 +23303,8 @@ int CvCity::GetPoverty(bool bForceRecalc) const
 
 	int iPoverty = GetPovertyRaw(bForceRecalc) - GetPovertyFlatReduction() - GET_PLAYER(getOwner()).GetPovertyFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
-	return range(iPoverty, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range(iPoverty, 0, iLimit);
 }
 
 int CvCity::GetPovertyRaw(bool bForceRecalc) const
@@ -23334,7 +23321,8 @@ int CvCity::GetPovertyRaw(bool bForceRecalc) const
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	float fPoverty = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
 
-	return range((int)fPoverty, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range((int)fPoverty, 0, iLimit);
 }
 
 float CvCity::GetGoldMedian(bool bForceRecalc, int iAdditionalModifier) const
@@ -23362,7 +23350,8 @@ int CvCity::GetIlliteracy(bool bForceRecalc) const
 
 	int iIlliteracy = GetIlliteracyRaw(bForceRecalc) - GetIlliteracyFlatReduction() - GET_PLAYER(getOwner()).GetIlliteracyFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
-	return range(iIlliteracy, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range(iIlliteracy, 0, iLimit);
 }
 
 int CvCity::GetIlliteracyRaw(bool bForceRecalc) const
@@ -23379,7 +23368,8 @@ int CvCity::GetIlliteracyRaw(bool bForceRecalc) const
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	float fIlliteracy = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
 
-	return range((int)fIlliteracy, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range((int)fIlliteracy, 0, iLimit);
 }
 
 float CvCity::GetScienceMedian(bool bForceRecalc, int iAdditionalModifier) const
@@ -23407,7 +23397,8 @@ int CvCity::GetBoredom(bool bForceRecalc) const
 
 	int iBoredom = GetBoredomRaw(bForceRecalc) - GetBoredomFlatReduction() - GET_PLAYER(getOwner()).GetBoredomFlatReductionGlobal();
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
-	return range(iBoredom, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range(iBoredom, 0, iLimit);
 }
 
 int CvCity::GetBoredomRaw(bool bForceRecalc) const
@@ -23424,7 +23415,8 @@ int CvCity::GetBoredomRaw(bool bForceRecalc) const
 	int iPopulation = bForceRecalc ? getPopulation() + 1 : getPopulation();
 	float fBoredom = ceil(iPopulation - (iTotalYield / fMedianYieldPerPop));
 
-	return range((int)fBoredom, 0, iPopulation);
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range((int)fBoredom, 0, iLimit);
 }
 
 float CvCity::GetCultureMedian(bool bForceRecalc, int iAdditionalModifier) const
@@ -23451,13 +23443,35 @@ int CvCity::GetUnhappinessFromPillagedTiles() const
 	int iPillagedTiles = GetNumPillagedPlots();
 	if (iPillagedTiles > 0)
 	{
-		float fUnhappiness = 0.0f;
+		float fUnhappiness = 0.00f;
 		float fUnhappyPerTile = /*0.50f*/ GD_FLOAT_GET(UNHAPPINESS_PER_PILLAGED_TILE);
 		fUnhappiness += (float)iPillagedTiles * fUnhappyPerTile;
-		return range((int)fUnhappiness, 0, getPopulation());
+
+		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : getPopulation();
+		return range((int)fUnhappiness, 0, iLimit);
 	}
 
 	return 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetUnhappinessFromOccupation() const
+{
+	if (IsPuppet() || !IsOccupied() || IsNoOccupiedUnhappiness())
+		return 0;
+
+	int iPopulation = getPopulation();
+	float fUnhappiness = 0.00f;
+	fUnhappiness += iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION);
+
+	if (HasGarrison())
+	{
+		fUnhappiness *= 100 + GET_PLAYER(getOwner()).GetGarrisonsOccupiedUnhappinessMod();
+		fUnhappiness /= 100;
+	}
+
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
+	return range((int)fUnhappiness, 0, iLimit);
 }
 
 //	--------------------------------------------------------------------------------
@@ -23469,13 +23483,14 @@ int CvCity::GetUnhappinessFromFamine() const
 	int iDiff = foodDifference(true, true);
 	if (iDiff < 0 && !isFoodProduction())
 	{
-		iDiff = (iDiff * -1);
+		iDiff *= -1;
 
-		float fUnhappiness = 0.0f;
+		float fUnhappiness = 0.00f;
 		float fUnhappyPerDeficit = /*1.0f*/ GD_FLOAT_GET(UNHAPPINESS_PER_STARVING_POP);
 		fUnhappiness += (float)iDiff * fUnhappyPerDeficit;
 
-		return range((int)fUnhappiness, 0, getPopulation());
+		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : getPopulation();
+		return range((int)fUnhappiness, 0, iLimit);
 	}
 
 	return 0;
@@ -23512,7 +23527,8 @@ int CvCity::GetUnhappinessFromReligiousUnrest() const
 			fUnhappiness /= 100;
 
 			int iUnhappiness = (int)fUnhappiness - GetReligiousUnrestFlatReduction() - GET_PLAYER(getOwner()).GetReligiousUnrestFlatReductionGlobal();
-			return range(iUnhappiness, 0, getPopulation());
+			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : getPopulation();
+			return range(iUnhappiness, 0, iLimit);
 		}
 	}
 
@@ -23558,10 +23574,11 @@ int CvCity::GetUnhappinessFromIsolation() const
 	float fUnhappiness = 0.00f;
 	if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
 	{
-		fUnhappiness += ceil((float)getPopulation() * /*0.33f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP));
+		fUnhappiness += (float)getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
 	}
 
-	return range((int)fUnhappiness, 0, getPopulation());
+	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : getPopulation();
+	return range((int)fUnhappiness, 0, iLimit);
 }
 
 int CvCity::getJFDSpecialUnhappinessSources() const

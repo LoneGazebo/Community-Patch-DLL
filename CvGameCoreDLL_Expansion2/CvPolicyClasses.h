@@ -331,7 +331,7 @@ public:
 	int GetPressureMod() const;
 	int GetYieldFromBorderGrowth(int i) const;
 	int GetYieldGPExpend(int i) const;
-	int GetGarrisonsOccupiedUnhapppinessMod() const;
+	int GetGarrisonsOccupiedUnhappinessMod() const;
 	int GetTradeReligionModifier() const;
 	int GetXPopulationConscription() const;
 	int GetBestNumberLandCombatUnitClass() const;
@@ -774,7 +774,7 @@ private:
 	int m_iPressureMod;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;
-	int m_iGarrisonsOccupiedUnhapppinessMod;
+	int m_iGarrisonsOccupiedUnhappinessMod;
 	int m_iTradeReligionModifier;
 	int m_iXPopulationConscription;
 	int m_iBestNumberLandCombatUnitClass;

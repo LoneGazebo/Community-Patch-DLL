@@ -712,7 +712,7 @@ ALTER TABLE Traits ADD COLUMN 'MountainPass' BOOLEAN DEFAULT 0;
 -- New Policies
 
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
-ALTER TABLE Policies ADD COLUMN 'GarrisonsOccupiedUnhapppinessMod' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'GarrisonsOccupiedUnhappinessMod' INTEGER DEFAULT 0;
 
 -- Spawns a free unit at x population for a city.
 ALTER TABLE Policies ADD COLUMN 'XPopulationConscription' INTEGER DEFAULT 0;

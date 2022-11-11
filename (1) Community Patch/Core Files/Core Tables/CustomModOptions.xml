@@ -799,8 +799,8 @@
 	<Row Class="6" Name="BALANCE_CORE_HAPPINESS" Value="0"/>
 	<!-- The national happiness sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_HAPPINESS_NATIONAL" Value="0"/>
-	<!-- The luxury happiness sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_HAPPINESS_LUXURY" Value="0"/>
+	<!-- VP: Unhappiness is NOT capped by city population -->
+	<Row Class="6" Name="BALANCE_CORE_UNCAPPED_UNHAPPINESS" Value="0"/>
 	<!-- The national wonder sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_POP_REQ_BUILDINGS" Value="0"/>
 	<!-- The settler reset city growth sub-feature of COMMUNITY_PATCH -->

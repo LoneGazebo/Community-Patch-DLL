@@ -3081,15 +3081,15 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetGreatGeneralExtraBonus();
 		}
 	}
-	if (PolicyInfo->GetGarrisonsOccupiedUnhapppinessMod() != 0)
+	if (PolicyInfo->GetGarrisonsOccupiedUnhappinessMod() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger())
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetGarrisonsOccupiedUnhapppinessMod() * 10;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetGarrisonsOccupiedUnhappinessMod() * 10;
 		}
 		else
 		{
-			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetGarrisonsOccupiedUnhapppinessMod() * 2;
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetGarrisonsOccupiedUnhappinessMod() * 2;
 		}
 	}
 	if (PolicyInfo->GetTradeReligionModifier() != 0)
