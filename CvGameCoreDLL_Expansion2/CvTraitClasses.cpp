@@ -165,11 +165,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iRazeSpeedModifier(0),
 	m_iDOFGreatPersonModifier(0),
 	m_iLuxuryHappinessRetention(0),
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
 	m_iExtraSupply(0),
 	m_iExtraSupplyPerCity(0),
 	m_iExtraSupplyPerPopulation(0),
-#endif
 	m_iExtraSpies(0),
 	m_iUnresearchedTechBonusFromKills(0),
 	m_iExtraFoundedCityTerritoryClaimRange(0),
@@ -990,7 +988,6 @@ int CvTraitEntry::GetLuxuryHappinessRetention() const
 	return m_iLuxuryHappinessRetention;
 }
 
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
 /// Accessor: number of extra base units supplied
 int CvTraitEntry::GetExtraSupply() const
 {
@@ -1008,7 +1005,6 @@ int CvTraitEntry::GetExtraSupplyPerPopulation() const
 {
 	return m_iExtraSupplyPerPopulation;
 }
-#endif
 
 /// Accessor: number of extra spies
 int CvTraitEntry::GetExtraSpies() const
@@ -2428,13 +2424,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iRazeSpeedModifier					= kResults.GetInt("RazeSpeedModifier");
 	m_iDOFGreatPersonModifier				= kResults.GetInt("DOFGreatPersonModifier");
 	m_iLuxuryHappinessRetention				= kResults.GetInt("LuxuryHappinessRetention");
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
-	if (MOD_TRAITS_EXTRA_SUPPLY) {
-		m_iExtraSupply						= kResults.GetInt("ExtraSupply");
-		m_iExtraSupplyPerCity				= kResults.GetInt("ExtraSupplyPerCity");
-		m_iExtraSupplyPerPopulation			= kResults.GetInt("ExtraSupplyPerPopulation");
-	}
-#endif
+	m_iExtraSupply							= kResults.GetInt("ExtraSupply");
+	m_iExtraSupplyPerCity					= kResults.GetInt("ExtraSupplyPerCity");
+	m_iExtraSupplyPerPopulation				= kResults.GetInt("ExtraSupplyPerPopulation");
 	m_iExtraSpies							= kResults.GetInt("ExtraSpies");
 	m_iUnresearchedTechBonusFromKills		= kResults.GetInt("UnresearchedTechBonusFromKills");
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
@@ -4526,11 +4518,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iRazeSpeedModifier += trait->GetRazeSpeedModifier();
 			m_iDOFGreatPersonModifier += trait->GetDOFGreatPersonModifier();
 			m_iLuxuryHappinessRetention += trait->GetLuxuryHappinessRetention();
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
 			m_iExtraSupply += trait->GetExtraSupply();
 			m_iExtraSupplyPerCity += trait->GetExtraSupplyPerCity();
 			m_iExtraSupplyPerPopulation += trait->GetExtraSupplyPerPopulation();
-#endif
 			m_iExtraSpies += trait->GetExtraSpies();
 			m_iUnresearchedTechBonusFromKills += trait->GetUnresearchedTechBonusFromKills();
 			m_iExtraFoundedCityTerritoryClaimRange += trait->GetExtraFoundedCityTerritoryClaimRange();
@@ -5321,11 +5311,9 @@ void CvPlayerTraits::Reset()
 	m_iRazeSpeedModifier = 0;
 	m_iDOFGreatPersonModifier = 0;
 	m_iLuxuryHappinessRetention = 0;
-#if defined(MOD_TRAITS_EXTRA_SUPPLY)
 	m_iExtraSupply = 0;
 	m_iExtraSupplyPerCity = 0;
 	m_iExtraSupplyPerPopulation = 0;
-#endif
 	m_iExtraSpies = 0;
 	m_iUnresearchedTechBonusFromKills = 0;
 	m_iExtraFoundedCityTerritoryClaimRange = 0;

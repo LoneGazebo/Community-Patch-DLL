@@ -1096,7 +1096,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			// otherwise, pick using weighted randomization from the top choices
 			else
 			{
-				selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city build from Top Choices");
+				selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city build from Top Choices");
 			}
 		}
 
@@ -1404,7 +1404,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	if (m_Buildables.GetTotalWeight() > 0)
 	{
-		selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city hurry from Top Choices");
+		selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city hurry from Top Choices");
 		return selection;
 	}
 

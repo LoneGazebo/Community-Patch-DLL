@@ -3708,15 +3708,16 @@ int CvPlayerReligions::GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAd
 		iCost /= 100;
 
 		// Adjust for difficulty
-		if (!MOD_BALANCE_CORE_DIFFICULTY && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv())
+		if (m_pPlayer->isMajorCiv())
 		{
-			iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
+			iCost *= m_pPlayer->getHandicapInfo().getProphetPercent();
 			iCost /= 100;
-		}
-		if (MOD_ALTERNATIVE_DIFFICULTY && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv())
-		{
-			iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
-			iCost /= 100;
+
+			if (!m_pPlayer->isHuman())
+			{
+				iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
+				iCost /= 100;
+			}
 		}
 	}
 
@@ -6155,7 +6156,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6196,7 +6197,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6237,7 +6238,7 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6278,7 +6279,7 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6322,7 +6323,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6363,7 +6364,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 	if (beliefChoices.size() > 0)
 	{
 		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 

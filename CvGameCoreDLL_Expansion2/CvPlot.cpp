@@ -11321,8 +11321,8 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 								const CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo((HandicapTypes)iStandardHandicap);
 								if(pkHandicapInfo)
 								{
-									iFinderGold *= pkHandicapInfo->getBarbCampGold();
-									iFinderGold /= GC.getGame().getHandicapInfo().getBarbCampGold();
+									iFinderGold *= pkHandicapInfo->getBarbarianCampGold();
+									iFinderGold /= GC.getGame().getHandicapInfo().getBarbarianCampGold();
 								}
 							}
 						}

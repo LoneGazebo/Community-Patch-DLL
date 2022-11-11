@@ -2610,10 +2610,19 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 	int iModifier = 100;
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
-	if(pkHandicapInfo)
+	if (pkHandicapInfo)
 	{
-		iModifier *= (pkHandicapInfo->getResearchPercent());
+		iModifier *= pkHandicapInfo->getResearchPercent();
 		iModifier /= 100;
+		iModifier *= std::max(0, ((pkHandicapInfo->getResearchPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+		iModifier /= 100;
+		if (!m_pTeam->isHuman())
+		{
+			iModifier *= pkHandicapInfo->getAIResearchPercent();
+			iModifier /= 100;
+			iModifier *= std::max(0, ((GC.getGame().getHandicapInfo().getAIResearchPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+			iModifier /= 100;
+		}
 	}
 	iModifier *= (GC.getMap().getWorldInfo().getResearchPercent());
 	iModifier /= 100;

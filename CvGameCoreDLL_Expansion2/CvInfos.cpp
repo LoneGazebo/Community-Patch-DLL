@@ -2962,109 +2962,271 @@ bool CvHurryInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 //					CvHandicapInfo
 //======================================================================================================
 CvHandicapInfo::CvHandicapInfo() :
-	m_iStartingLocationPercent(0),
+	// Player Bonuses
+	m_iMapPlacementPriority(0),
+	m_iStartingGold(0),
+	m_iStartingPolicyPoints(0),
+	m_iAdvancedStartPointsMod(0),
 	m_iHappinessDefault(0),
 	m_iHappinessDefaultCapital(0),
 	m_iExtraHappinessPerLuxury(0),
-	m_iNumCitiesUnhappinessMod(0),
+	m_iEmpireSizeUnhappinessMod(0),
 	m_iPopulationUnhappinessMod(0),
-	m_iStartingGold(0),
-	m_iStartingPolicyPoints(0),
-	m_iGoldFreeUnits(0),
-	m_iProductionFreeUnits(0),
-	m_iProductionFreeUnitsPerCity(0),
-	m_iProductionFreeUnitsPopulationPercent(0),
-	m_iImprovementMaintenancePercent(0),
-	m_iUnitCostPercent(0),
-	m_iBuildingCostPercent(0),
-	m_iResearchPercent(0),
-	m_iPolicyPercent(0),
-	m_iImprovementCostPercent(0),
-	m_iCityProductionChoiceCutoffThreshold(0),
-	m_iTechChoiceCutoffThreshold(0),
-	m_iPolicyChoiceCutoffThreshold(0),
-	m_iBeliefChoiceCutoffThreshold(0),
-	m_iInflationPercent(0),
 	m_iFreeCulturePerTurn(0),
-	m_iAttitudeChange(0),
-	m_iNoTechTradeModifier(0),
-	m_iTechTradeKnownModifier(0),
-	m_iBarbCampGold(0),
-	m_iBarbSpawnMod(0),
-	m_iBarbarianCombatModifier(0),
-	m_iAIBarbarianCombatModifier(0),
-	m_iEarliestBarbarianReleaseTurn(0),
-	m_iBarbarianLandTargetRange(0),
-	m_iBarbarianSeaTargetRange(0),
-	m_iStartingDefenseUnits(0),
-	m_iStartingMinorDefenseUnits(0),
+	m_iMaintenanceFreeUnits(0),
+	m_iUnitSupplyBase(0),
+	m_iUnitSupplyPerCity(0),
+	m_iUnitSupplyPopulationPercent(0),
+	m_iUnitSupplyBonusPercent(0),
+	m_iUnitSupplyPerEraModifier(0),
+	m_iStartingUnitMultiplier(0),
 	m_iStartingWorkerUnits(0),
+	m_iStartingDefenseUnits(0),
 	m_iStartingExploreUnits(0),
-	m_iAIStartingUnitMultiplier(0),
-	m_iAIStartingDefenseUnits(0),
-	m_iAIStartingWorkerUnits(0),
-	m_iAIStartingExploreUnits(0),
-	m_iAIDeclareWarProb(0),
-	m_iHumanStrengthPerceptionMod(0),
-	m_iAIWorkRateModifier(0),
-	m_iAIUnhappinessPercent(0),
-	m_iAIGrowthPercent(0),
-	m_iAITechPercent(0),
-	m_iAITechCatchUpMod(0),
-	m_iAIPolicyCatchUpMod(0),
-	m_iAIPolicyPercent(0),
-	m_iAICivilianPercent(0),
-	m_iAIProphetPercent(0),
-	m_iAIGreatPersonPercent(0),
-	m_iAIGoldenAgePercent(0),
-	m_iAITrainPercent(0),
-	m_iAIWorldTrainPercent(0),
-	m_iAIConstructPercent(0),
-	m_iAIWorldConstructPercent(0),
-	m_iAICreatePercent(0),
-	m_iAIWorldCreatePercent(0),
-	m_iAIBuildingCostPercent(0),
-	m_iAIUnitCostPercent(0),
-	m_iAIUnitSupplyPercent(0),
-	m_iAIUnitUpgradePercent(0),
-	m_iAIInflationPercent(0),
-	m_iAIPerEraModifier(0),
-	m_iHumanPerEraMod(0),
-	m_iAITechPerEraMod(0),
-	m_iAIPolicyPerEraMod(0),
-	m_iAIGrowthPerEraMod(0),
-	m_iAIConstructPerEraMod(0),
-	m_iAIFreeXP(0),
-	m_iAIFreeXPPercent(0),
+	m_iWorkRateModifier(0),
+	m_iImprovementCostPercent(0),
+	m_iBuildingCostPercent(0),
+	m_iUnitCostPercent(0),
+	m_iInflationPercent(0),
+	m_iUnitUpgradePercent(0),
+	m_iUnitUpgradePerEraModifier(0),
+	m_iGrowthPercent(0),
+	m_iGrowthPerEraModifier(0),
+	m_iResearchPercent(0),
+	m_iResearchPerEraModifier(0),
+	m_iTechCatchUpMod(0),
+	m_iPolicyPercent(0),
+	m_iPolicyPerEraModifier(0),
+	m_iPolicyCatchUpMod(0),
+	m_iProphetPercent(0),
+	m_iGreatPeoplePercent(0),
+	m_iGoldenAgePercent(0),
+	m_iCivilianPercent(0),
+	m_iCivilianPerEraModifier(0),
+	m_iTrainPercent(0),
+	m_iTrainPerEraModifier(0),
+	m_iWorldTrainPercent(0),
+	m_iConstructPercent(0),
+	m_iConstructPerEraModifier(0),
+	m_iWorldConstructPercent(0),
+	m_iCreatePercent(0),
+	m_iCreatePerEraModifier(0),
+	m_iWorldCreatePercent(0),
+	m_iProcessBonus(0),
+	m_iProcessPerEraModifier(0),
+	m_iFreeXP(0),
+	m_iFreeXPPercent(0),
+	m_iCombatBonus(0),
 	m_iResistanceCap(0),
-	m_iAIResistanceCap(0),
+	m_iVisionBonus(0),
+	// VP Difficulty Bonus
+	m_iDifficultyBonusTurnInterval(0),
 	m_iDifficultyBonusBase(0),
 	m_iDifficultyBonusEarly(0),
 	m_iDifficultyBonusMid(0),
 	m_iDifficultyBonusLate(0),
-	m_iVisionBonus(0),
+
+	// AI Bonuses
+	m_iAIStartingGold(0),
+	m_iAIStartingPolicyPoints(0),
+	m_iAIAdvancedStartPointsMod(0),
+	m_iAIHappinessDefault(0),
+	m_iAIHappinessDefaultCapital(0),
+	m_iAIExtraHappinessPerLuxury(0),
+	m_iAIEmpireSizeUnhappinessMod(0),
+	m_iAIPopulationUnhappinessMod(0),
+	m_iAIFreeCulturePerTurn(0),
+	m_iAIMaintenanceFreeUnits(0),
+	m_iAIUnitSupplyBase(0),
+	m_iAIUnitSupplyPerCity(0),
+	m_iAIUnitSupplyPopulationPercent(0),
+	m_iAIUnitSupplyBonusPercent(0),
+	m_iAIUnitSupplyPerEraModifier(0),
+	m_iAIStartingUnitMultiplier(0),
+	m_iAIStartingWorkerUnits(0),
+	m_iAIStartingDefenseUnits(0),
+	m_iAIStartingExploreUnits(0),
+	m_iAIWorkRateModifier(0),
+	m_iAIImprovementCostPercent(0),
+	m_iAIBuildingCostPercent(0),
+	m_iAIUnitCostPercent(0),
+	m_iAIInflationPercent(0),
+	m_iAIUnitUpgradePercent(0),
+	m_iAIUnitUpgradePerEraModifier(0),
+	m_iAIGrowthPercent(0),
+	m_iAIGrowthPerEraModifier(0),
+	m_iAIResearchPercent(0),
+	m_iAIResearchPerEraModifier(0),
+	m_iAITechCatchUpMod(0),
+	m_iAIPolicyPercent(0),
+	m_iAIPolicyPerEraModifier(0),
+	m_iAIPolicyCatchUpMod(0),
+	m_iAIProphetPercent(0),
+	m_iAIGreatPeoplePercent(0),
+	m_iAIGoldenAgePercent(0),
+	m_iAICivilianPercent(0),
+	m_iAICivilianPerEraModifier(0),
+	m_iAITrainPercent(0),
+	m_iAITrainPerEraModifier(0),
+	m_iAIWorldTrainPercent(0),
+	m_iAIConstructPercent(0),
+	m_iAIConstructPerEraModifier(0),
+	m_iAIWorldConstructPercent(0),
+	m_iAICreatePercent(0),
+	m_iAICreatePerEraModifier(0),
+	m_iAIWorldCreatePercent(0),
+	m_iAIProcessBonus(0),
+	m_iAIProcessPerEraModifier(0),
+	m_iAIFreeXP(0),
+	m_iAIFreeXPPercent(0),
+	m_iAICombatBonus(0),
+	m_iAIResistanceCap(0),
+	m_iAIVisionBonus(0),
+	// VP Difficulty Bonus
+	m_iAIDifficultyBonusTurnInterval(0),
+	m_iAIDifficultyBonusBase(0),
+	m_iAIDifficultyBonusEarly(0),
+	m_iAIDifficultyBonusMid(0),
+	m_iAIDifficultyBonusLate(0),
+
+	// City-States
+	m_iStartingCityStateWorkerUnits(0),
+	m_iStartingCityStateDefenseUnits(0),
+	m_iCityStateWorkRateModifier(0),
+	m_iCityStateGrowthPercent(0),
+	m_iCityStateGrowthPerEraModifier(0),
+	m_iCityStateCivilianPercent(0),
+	m_iCityStateCivilianPerEraModifier(0),
+	m_iCityStateTrainPercent(0),
+	m_iCityStateTrainPerEraModifier(0),
+	m_iCityStateConstructPercent(0),
+	m_iCityStateConstructPerEraModifier(0),
+	m_iCityStateCreatePercent(0),
+	m_iCityStateCreatePerEraModifier(0),
+	m_iCityStateFreeXP(0),
+	m_iCityStateFreeXPPercent(0),
+	m_iCityStateCombatBonus(0),
+	m_iCityStateVisionBonus(0),
+
+	// Barbarians
+	m_iEarliestBarbarianReleaseTurn(0),
+	m_iBonusVSBarbarians(0),
+	m_iAIBonusVSBarbarians(0),
+	m_iBarbarianCampGold(0),
+	m_iAIBarbarianCampGold(0),
+	m_iBarbarianSpawnDelay(0),
+	m_iBarbarianLandTargetRange(0),
+	m_iBarbarianSeaTargetRange(0),
+
+	// AI Behavior Modifiers
+	// Weighted Randomized Choices
+	m_iCityProductionChoiceCutoffThreshold(0),
+	m_iTechChoiceCutoffThreshold(0),
+	m_iPolicyChoiceCutoffThreshold(0),
+	m_iBeliefChoiceCutoffThreshold(0),
+	// Tactical AI
+	m_iTacticalOffenseMinCompletedPositions(0),
+	m_iTacticalOffenseMaxCompletedPositions(0),
+	m_iTacticalOffenseMaxBranches(0),
+	m_iTacticalOffenseMaxChoicesPerUnit(0),
+	m_iTacticalDefenseMinCompletedPositions(0),
+	m_iTacticalDefenseMaxCompletedPositions(0),
+	m_iTacticalDefenseMaxBranches(0),
+	m_iTacticalDefenseMaxChoicesPerUnit(0),
+	// Diplomacy AI
+	m_iLandDisputePercent(0),
+	m_iWonderDisputePercent(0),
+	m_iMinorCivDisputePercent(0),
+	m_iVictoryDisputePercent(0),
+	m_iVictoryDisputeMod(0),
+	m_iVictoryBlockPercent(0),
+	m_iVictoryBlockMod(0),
+	m_iWonderBlockPercent(0),
+	m_iWonderBlockMod(0),
+	m_iTechBlockPercent(0),
+	m_iTechBlockMod(0),
+	m_iPolicyBlockPercent(0),
+	m_iPolicyBlockMod(0),
+	m_iPeaceTreatyDampenerTurns(0),
+	m_iHumanStrengthPerceptionMod(0),
+	m_iHumanTradeModifier(0),
+	m_iAggressionIncrease(0),
+	m_iHumanOpinionChange(0),
+	m_iHumanWarApproachChangeFlat(0),
+	m_iHumanWarApproachChangePercent(0),
+	m_iHumanHostileApproachChangeFlat(0),
+	m_iHumanHostileApproachChangePercent(0),
+	m_iHumanDeceptiveApproachChangeFlat(0),
+	m_iHumanDeceptiveApproachChangePercent(0),
+	m_iHumanGuardedApproachChangeFlat(0),
+	m_iHumanGuardedApproachChangePercent(0),
+	m_iHumanAfraidApproachChangeFlat(0),
+	m_iHumanAfraidApproachChangePercent(0),
+	m_iHumanNeutralApproachChangeFlat(0),
+	m_iHumanNeutralApproachChangePercent(0),
+	m_iHumanFriendlyApproachChangeFlat(0),
+	m_iHumanFriendlyApproachChangePercent(0),
+	m_iAIOpinionChange(0),
+	m_iAIWarApproachChangeFlat(0),
+	m_iAIWarApproachChangePercent(0),
+	m_iAIHostileApproachChangeFlat(0),
+	m_iAIHostileApproachChangePercent(0),
+	m_iAIDeceptiveApproachChangeFlat(0),
+	m_iAIDeceptiveApproachChangePercent(0),
+	m_iAIGuardedApproachChangeFlat(0),
+	m_iAIGuardedApproachChangePercent(0),
+	m_iAIAfraidApproachChangeFlat(0),
+	m_iAIAfraidApproachChangePercent(0),
+	m_iAINeutralApproachChangeFlat(0),
+	m_iAINeutralApproachChangePercent(0),
+	m_iAIFriendlyApproachChangeFlat(0),
+	m_iAIFriendlyApproachChangePercent(0),
+
 	m_iNumGoodies(0),
 	m_piGoodies(NULL),
 	m_pbFreeTechs(NULL),
-	m_pbAIFreeTechs(NULL)
+	m_pbAIFreeTechs(NULL),
+	m_ppiDifficultyBonus(NULL),
+	m_ppiAIDifficultyBonus(NULL)
 {
 }
+
 //------------------------------------------------------------------------------
 CvHandicapInfo::~CvHandicapInfo()
 {
 	SAFE_DELETE_ARRAY(m_piGoodies);
 	SAFE_DELETE_ARRAY(m_pbFreeTechs);
 	SAFE_DELETE_ARRAY(m_pbAIFreeTechs);
+	if (m_ppiDifficultyBonus != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiDifficultyBonus);
+	}
+	if (m_ppiAIDifficultyBonus != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiAIDifficultyBonus);
+	}
+}
+
+/// PLAYER BONUSES
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getMapPlacementPriority() const
+{
+	return m_iMapPlacementPriority;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getStartingLocationPercent() const
+int CvHandicapInfo::getStartingGold() const
 {
-	return m_iStartingLocationPercent;
+	return m_iStartingGold;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingPolicyPoints() const
 {
 	return m_iStartingPolicyPoints;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAdvancedStartPointsMod() const
+{
+	return m_iAdvancedStartPointsMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getHappinessDefault() const
@@ -3082,9 +3244,9 @@ int CvHandicapInfo::getExtraHappinessPerLuxury() const
 	return m_iExtraHappinessPerLuxury;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getNumCitiesUnhappinessMod() const
+int CvHandicapInfo::getEmpireSizeUnhappinessMod() const
 {
-	return m_iNumCitiesUnhappinessMod;
+	return m_iEmpireSizeUnhappinessMod;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getPopulationUnhappinessMod() const
@@ -3092,149 +3254,44 @@ int CvHandicapInfo::getPopulationUnhappinessMod() const
 	return m_iPopulationUnhappinessMod;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getStartingGold() const
-{
-	return m_iStartingGold;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getGoldFreeUnits() const
-{
-	return m_iGoldFreeUnits;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getProductionFreeUnits() const
-{
-	return m_iProductionFreeUnits;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getProductionFreeUnitsPerCity() const
-{
-	return m_iProductionFreeUnitsPerCity;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getProductionFreeUnitsPopulationPercent() const
-{
-	return m_iProductionFreeUnitsPopulationPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getUnitCostPercent() const
-{
-	return m_iUnitCostPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getImprovementMaintenancePercent() const
-{
-	return m_iImprovementMaintenancePercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getBuildingCostPercent() const
-{
-	return m_iBuildingCostPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getResearchPercent() const
-{
-	return m_iResearchPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getPolicyPercent() const
-{
-	return m_iPolicyPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getImprovementCostPercent() const
-{
-	return m_iImprovementCostPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::GetCityProductionChoiceCutoffThreshold() const
-{
-	return m_iCityProductionChoiceCutoffThreshold;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::GetTechChoiceCutoffThreshold() const
-{
-	return m_iTechChoiceCutoffThreshold;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::GetPolicyChoiceCutoffThreshold() const
-{
-	return m_iPolicyChoiceCutoffThreshold;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::GetBeliefChoiceCutoffThreshold() const
-{
-	return m_iBeliefChoiceCutoffThreshold;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getInflationPercent() const
-{
-	return m_iInflationPercent;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getFreeCulturePerTurn() const
 {
 	return m_iFreeCulturePerTurn;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAttitudeChange() const
+int CvHandicapInfo::getMaintenanceFreeUnits() const
 {
-	return m_iAttitudeChange;
+	return m_iMaintenanceFreeUnits;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getNoTechTradeModifier() const
+int CvHandicapInfo::getUnitSupplyBase() const
 {
-	return m_iNoTechTradeModifier;
+	return m_iUnitSupplyBase;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getTechTradeKnownModifier() const
+int CvHandicapInfo::getUnitSupplyPerCity() const
 {
-	return m_iTechTradeKnownModifier;
+	return m_iUnitSupplyPerCity;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getBarbCampGold() const
+int CvHandicapInfo::getUnitSupplyPopulationPercent() const
 {
-	return m_iBarbCampGold;
+	return m_iUnitSupplyPopulationPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getBarbSpawnMod() const
+int CvHandicapInfo::getUnitSupplyBonusPercent() const
 {
-	return m_iBarbSpawnMod;
+	return m_iUnitSupplyBonusPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getBarbarianCombatModifier() const
+int CvHandicapInfo::getUnitSupplyPerEraModifier() const
 {
-	return m_iBarbarianCombatModifier;
+	return m_iUnitSupplyPerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIBarbarianCombatModifier() const
+int CvHandicapInfo::getStartingUnitMultiplier() const
 {
-	return m_iAIBarbarianCombatModifier;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getEarliestBarbarianReleaseTurn() const
-{
-	return m_iEarliestBarbarianReleaseTurn;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getBarbarianLandTargetRange() const
-{
-	return m_iBarbarianLandTargetRange;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getBarbarianSeaTargetRange() const
-{
-	return m_iBarbarianSeaTargetRange;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getStartingDefenseUnits() const
-{
-	return m_iStartingDefenseUnits;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getStartingMinorDefenseUnits() const
-{
-	return m_iStartingMinorDefenseUnits;
+	return m_iStartingUnitMultiplier;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingWorkerUnits() const
@@ -3242,9 +3299,305 @@ int CvHandicapInfo::getStartingWorkerUnits() const
 	return m_iStartingWorkerUnits;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getStartingDefenseUnits() const
+{
+	return m_iStartingDefenseUnits;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingExploreUnits() const
 {
 	return m_iStartingExploreUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWorkRateModifier() const
+{
+	return m_iWorkRateModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getImprovementCostPercent() const
+{
+	return m_iImprovementCostPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBuildingCostPercent() const
+{
+	return m_iBuildingCostPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getUnitCostPercent() const
+{
+	return m_iUnitCostPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getInflationPercent() const
+{
+	return m_iInflationPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getUnitUpgradePercent() const
+{
+	return m_iUnitUpgradePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getUnitUpgradePerEraModifier() const
+{
+	return m_iUnitUpgradePerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getGrowthPercent() const
+{
+	return m_iGrowthPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getGrowthPerEraModifier() const
+{
+	return m_iGrowthPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getResearchPercent() const
+{
+	return m_iResearchPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getResearchPerEraModifier() const
+{
+	return m_iResearchPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTechCatchUpMod() const
+{
+	return m_iTechCatchUpMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyPercent() const
+{
+	return m_iPolicyPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyPerEraModifier() const
+{
+	return m_iPolicyPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyCatchUpMod() const
+{
+	return m_iPolicyCatchUpMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getProphetPercent() const
+{
+	return m_iProphetPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getGreatPeoplePercent() const
+{
+	return m_iGreatPeoplePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getGoldenAgePercent() const
+{
+	return m_iGoldenAgePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCivilianPercent() const
+{
+	return m_iCivilianPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCivilianPerEraModifier() const
+{
+	return m_iCivilianPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTrainPercent() const
+{
+	return m_iTrainPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTrainPerEraModifier() const
+{
+	return m_iTrainPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWorldTrainPercent() const
+{
+	return m_iWorldTrainPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getConstructPercent() const
+{
+	return m_iConstructPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getConstructPerEraModifier() const
+{
+	return m_iConstructPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWorldConstructPercent() const
+{
+	return m_iWorldConstructPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCreatePercent() const
+{
+	return m_iCreatePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCreatePerEraModifier() const
+{
+	return m_iCreatePerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWorldCreatePercent() const
+{
+	return m_iWorldCreatePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getProcessBonus() const
+{
+	return m_iProcessBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getProcessPerEraModifier() const
+{
+	return m_iProcessPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getFreeXP() const
+{
+	return m_iFreeXP;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getFreeXPPercent() const
+{
+	return m_iFreeXPPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCombatBonus() const
+{
+	return m_iCombatBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getResistanceCap() const
+{
+	return m_iResistanceCap;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getVisionBonus() const
+{
+	return m_iVisionBonus;
+}
+/// VP DIFFICULTY BONUS
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getDifficultyBonusTurnInterval() const
+{
+	return m_iDifficultyBonusTurnInterval;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getDifficultyBonusBase() const
+{
+	return m_iDifficultyBonusBase;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getDifficultyBonusEarly() const
+{
+	return m_iDifficultyBonusEarly;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getDifficultyBonusMid() const
+{
+	return m_iDifficultyBonusMid;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getDifficultyBonusLate() const
+{
+	return m_iDifficultyBonusLate;
+}
+int CvHandicapInfo::getYieldMultiplierForDifficultyBonus(int i, int j) const
+{
+	CvAssertMsg(i < NUM_HISTORIC_EVENT_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiDifficultyBonus[i][j];
+}
+
+/// AI BONUSES
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIStartingGold() const
+{
+	return m_iAIStartingGold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIStartingPolicyPoints() const
+{
+	return m_iAIStartingPolicyPoints;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIAdvancedStartPointsMod() const
+{
+	return m_iAIAdvancedStartPointsMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHappinessDefault() const
+{
+	return m_iAIHappinessDefault;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHappinessDefaultCapital() const
+{
+	return m_iAIHappinessDefaultCapital;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIExtraHappinessPerLuxury() const
+{
+	return m_iAIExtraHappinessPerLuxury;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIEmpireSizeUnhappinessMod() const
+{
+	return m_iAIEmpireSizeUnhappinessMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPopulationUnhappinessMod() const
+{
+	return m_iAIPopulationUnhappinessMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIFreeCulturePerTurn() const
+{
+	return m_iAIFreeCulturePerTurn;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIMaintenanceFreeUnits() const
+{
+	return m_iAIMaintenanceFreeUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyBase() const
+{
+	return m_iAIUnitSupplyBase;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyPerCity() const
+{
+	return m_iAIUnitSupplyPerCity;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyPopulationPercent() const
+{
+	return m_iAIUnitSupplyPopulationPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyBonusPercent() const
+{
+	return m_iAIUnitSupplyBonusPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyPerEraModifier() const
+{
+	return m_iAIUnitSupplyPerEraModifier;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIStartingUnitMultiplier() const
@@ -3252,14 +3605,14 @@ int CvHandicapInfo::getAIStartingUnitMultiplier() const
 	return m_iAIStartingUnitMultiplier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIStartingDefenseUnits() const
-{
-	return m_iAIStartingDefenseUnits;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIStartingWorkerUnits() const
 {
 	return m_iAIStartingWorkerUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIStartingDefenseUnits() const
+{
+	return m_iAIStartingDefenseUnits;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIStartingExploreUnits() const
@@ -3267,99 +3620,14 @@ int CvHandicapInfo::getAIStartingExploreUnits() const
 	return m_iAIStartingExploreUnits;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIDeclareWarProb() const
-{
-	return m_iAIDeclareWarProb;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getHumanStrengthPerceptionMod() const
-{
-	return m_iHumanStrengthPerceptionMod;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIWorkRateModifier() const
 {
 	return m_iAIWorkRateModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIUnhappinessPercent() const
+int CvHandicapInfo::getAIImprovementCostPercent() const
 {
-	return m_iAIUnhappinessPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIGrowthPercent() const
-{
-	return m_iAIGrowthPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAITechPercent() const
-{
-	return m_iAITechPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAITechCatchUpMod() const
-{
-	return m_iAITechCatchUpMod;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIPolicyCatchUpMod() const
-{
-	return m_iAIPolicyCatchUpMod;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIPolicyPercent() const
-{
-	return m_iAIPolicyPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAICivilianPercent() const
-{
-	return m_iAICivilianPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIProphetPercent() const
-{
-	return m_iAIProphetPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIGreatPersonPercent() const
-{
-	return m_iAIGreatPersonPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIGoldenAgePercent() const
-{
-	return m_iAIGoldenAgePercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAITrainPercent() const
-{
-	return m_iAITrainPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIWorldTrainPercent() const
-{
-	return m_iAIWorldTrainPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIConstructPercent() const
-{
-	return m_iAIConstructPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIWorldConstructPercent() const
-{
-	return m_iAIWorldConstructPercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAICreatePercent() const
-{
-	return m_iAICreatePercent;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIWorldCreatePercent() const
-{
-	return m_iAIWorldCreatePercent;
+	return m_iAIImprovementCostPercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIBuildingCostPercent() const
@@ -3372,9 +3640,9 @@ int CvHandicapInfo::getAIUnitCostPercent() const
 	return m_iAIUnitCostPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIUnitSupplyPercent() const
+int CvHandicapInfo::getAIInflationPercent() const
 {
-	return m_iAIUnitSupplyPercent;
+	return m_iAIInflationPercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIUnitUpgradePercent() const
@@ -3382,39 +3650,129 @@ int CvHandicapInfo::getAIUnitUpgradePercent() const
 	return m_iAIUnitUpgradePercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIInflationPercent() const
+int CvHandicapInfo::getAIUnitUpgradePerEraModifier() const
 {
-	return m_iAIInflationPercent;
+	return m_iAIUnitUpgradePerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIPerEraModifier() const
+int CvHandicapInfo::getAIGrowthPercent() const
 {
-	return m_iAIPerEraModifier;
+	return m_iAIGrowthPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getHumanPerEraMod() const
+int CvHandicapInfo::getAIGrowthPerEraModifier() const
 {
-	return m_iHumanPerEraMod;
+	return m_iAIGrowthPerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAITechPerEraMod() const
+int CvHandicapInfo::getAIResearchPercent() const
 {
-	return m_iAITechPerEraMod;
+	return m_iAIResearchPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIPolicyPerEraMod() const
+int CvHandicapInfo::getAIResearchPerEraModifier() const
 {
-	return m_iAIPolicyPerEraMod;
+	return m_iAIResearchPerEraModifier;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIGrowthPerEraMod() const
+int CvHandicapInfo::getAITechCatchUpMod() const
 {
-	return m_iAIGrowthPerEraMod;
+	return m_iAITechCatchUpMod;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIConstructPerEraMod() const
+int CvHandicapInfo::getAIPolicyPercent() const
 {
-	return m_iAIConstructPerEraMod;
+	return m_iAIPolicyPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPolicyPerEraModifier() const
+{
+	return m_iAIPolicyPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIPolicyCatchUpMod() const
+{
+	return m_iAIPolicyCatchUpMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIProphetPercent() const
+{
+	return m_iAIProphetPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGreatPeoplePercent() const
+{
+	return m_iAIGreatPeoplePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGoldenAgePercent() const
+{
+	return m_iAIGoldenAgePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAICivilianPercent() const
+{
+	return m_iAICivilianPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAICivilianPerEraModifier() const
+{
+	return m_iAICivilianPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAITrainPercent() const
+{
+	return m_iAITrainPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAITrainPerEraModifier() const
+{
+	return m_iAITrainPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIWorldTrainPercent() const
+{
+	return m_iAIWorldTrainPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIConstructPercent() const
+{
+	return m_iAIConstructPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIConstructPerEraModifier() const
+{
+	return m_iAIConstructPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIWorldConstructPercent() const
+{
+	return m_iAIWorldConstructPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAICreatePercent() const
+{
+	return m_iAICreatePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAICreatePerEraModifier() const
+{
+	return m_iAICreatePerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIWorldCreatePercent() const
+{
+	return m_iAIWorldCreatePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIProcessBonus() const
+{
+	return m_iAIProcessBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIProcessPerEraModifier() const
+{
+	return m_iAIProcessPerEraModifier;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIFreeXP() const
@@ -3427,14 +3785,9 @@ int CvHandicapInfo::getAIFreeXPPercent() const
 	return m_iAIFreeXPPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getNumGoodies() const
+int CvHandicapInfo::getAICombatBonus() const
 {
-	return m_iNumGoodies;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getResistanceCap() const
-{
-	return m_iResistanceCap;
+	return m_iAICombatBonus;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIResistanceCap() const
@@ -3442,27 +3795,481 @@ int CvHandicapInfo::getAIResistanceCap() const
 	return m_iAIResistanceCap;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAIVisionBonus() const
+{
+	return m_iAIVisionBonus;
+}
+/// VP DIFFICULTY BONUS
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIDifficultyBonusTurnInterval() const
+{
+	return m_iAIDifficultyBonusTurnInterval;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusBase() const
 {
-	return m_iDifficultyBonusBase;
+	return m_iAIDifficultyBonusBase;
 }
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusEarly() const
 {
-	return m_iDifficultyBonusEarly;
+	return m_iAIDifficultyBonusEarly;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusMid() const
 {
-	return m_iDifficultyBonusMid;
+	return m_iAIDifficultyBonusMid;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIDifficultyBonusLate() const
 {
-	return m_iDifficultyBonusLate;
+	return m_iAIDifficultyBonusLate;
 }
-int CvHandicapInfo::getAIVisionBonus() const
+int CvHandicapInfo::getYieldMultiplierForAIDifficultyBonus(int i, int j) const
 {
-	return m_iVisionBonus;
+	CvAssertMsg(i < NUM_HISTORIC_EVENT_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiAIDifficultyBonus[i][j];
+}
+
+/// CITY-STATES
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getStartingCityStateWorkerUnits() const
+{
+	return m_iStartingCityStateWorkerUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getStartingCityStateDefenseUnits() const
+{
+	return m_iStartingCityStateDefenseUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateWorkRateModifier() const
+{
+	return m_iCityStateWorkRateModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateGrowthPercent() const
+{
+	return m_iCityStateGrowthPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateGrowthPerEraModifier() const
+{
+	return m_iCityStateGrowthPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateCivilianPercent() const
+{
+	return m_iCityStateCivilianPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateCivilianPerEraModifier() const
+{
+	return m_iCityStateCivilianPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateTrainPercent() const
+{
+	return m_iCityStateTrainPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateTrainPerEraModifier() const
+{
+	return m_iCityStateTrainPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateConstructPercent() const
+{
+	return m_iCityStateConstructPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateConstructPerEraModifier() const
+{
+	return m_iCityStateConstructPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateCreatePercent() const
+{
+	return m_iCityStateCreatePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateCreatePerEraModifier() const
+{
+	return m_iCityStateCreatePerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateFreeXP() const
+{
+	return m_iCityStateFreeXP;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateFreeXPPercent() const
+{
+	return m_iCityStateFreeXPPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateCombatBonus() const
+{
+	return m_iCityStateCombatBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateVisionBonus() const
+{
+	return m_iCityStateVisionBonus;
+}
+
+/// BARBARIANS
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getEarliestBarbarianReleaseTurn() const
+{
+	return m_iEarliestBarbarianReleaseTurn;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBonusVSBarbarians() const
+{
+	return m_iBonusVSBarbarians;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIBonusVSBarbarians() const
+{
+	return m_iAIBonusVSBarbarians;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBarbarianCampGold() const
+{
+	return m_iBarbarianCampGold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIBarbarianCampGold() const
+{
+	return m_iAIBarbarianCampGold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBarbarianSpawnDelay() const
+{
+	return m_iBarbarianSpawnDelay;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBarbarianLandTargetRange() const
+{
+	return m_iBarbarianLandTargetRange;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBarbarianSeaTargetRange() const
+{
+	return m_iBarbarianSeaTargetRange;
+}
+
+/// AI BEHAVIOR MODIFIERS
+/// WEIGHTED RANDOMIZED CHOICES
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityProductionChoiceCutoffThreshold() const
+{
+	return m_iCityProductionChoiceCutoffThreshold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTechChoiceCutoffThreshold() const
+{
+	return m_iTechChoiceCutoffThreshold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyChoiceCutoffThreshold() const
+{
+	return m_iPolicyChoiceCutoffThreshold;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getBeliefChoiceCutoffThreshold() const
+{
+	return m_iBeliefChoiceCutoffThreshold;
+}
+
+/// TACTICAL AI
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalOffenseMinCompletedPositions() const
+{
+	return m_iTacticalOffenseMinCompletedPositions;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalOffenseMaxCompletedPositions() const
+{
+	return m_iTacticalOffenseMaxCompletedPositions;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalOffenseMaxBranches() const
+{
+	return m_iTacticalOffenseMaxBranches;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalOffenseMaxChoicesPerUnit() const
+{
+	return m_iTacticalOffenseMaxChoicesPerUnit;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalDefenseMinCompletedPositions() const
+{
+	return m_iTacticalDefenseMinCompletedPositions;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalDefenseMaxCompletedPositions() const
+{
+	return m_iTacticalDefenseMaxCompletedPositions;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalDefenseMaxBranches() const
+{
+	return m_iTacticalDefenseMaxBranches;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTacticalDefenseMaxChoicesPerUnit() const
+{
+	return m_iTacticalDefenseMaxChoicesPerUnit;
+}
+
+/// DIPLOMACY AI
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getLandDisputePercent() const
+{
+	return m_iLandDisputePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWonderDisputePercent() const
+{
+	return m_iWonderDisputePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getMinorCivDisputePercent() const
+{
+	return m_iMinorCivDisputePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getVictoryDisputePercent() const
+{
+	return m_iVictoryDisputePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getVictoryDisputeMod() const
+{
+	return m_iVictoryDisputeMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getVictoryBlockPercent() const
+{
+	return m_iVictoryBlockPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getVictoryBlockMod() const
+{
+	return m_iVictoryBlockMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWonderBlockPercent() const
+{
+	return m_iWonderBlockPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getWonderBlockMod() const
+{
+	return m_iWonderBlockMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTechBlockPercent() const
+{
+	return m_iTechBlockPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getTechBlockMod() const
+{
+	return m_iTechBlockMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyBlockPercent() const
+{
+	return m_iPolicyBlockPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPolicyBlockMod() const
+{
+	return m_iPolicyBlockMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getPeaceTreatyDampenerTurns() const
+{
+	return m_iPeaceTreatyDampenerTurns;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanStrengthPerceptionMod() const
+{
+	return m_iHumanStrengthPerceptionMod;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanTradeModifier() const
+{
+	return m_iHumanTradeModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAggressionIncrease() const
+{
+	return m_iAggressionIncrease;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanOpinionChange() const
+{
+	return m_iHumanOpinionChange;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanWarApproachChangeFlat() const
+{
+	return m_iHumanWarApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanWarApproachChangePercent() const
+{
+	return m_iHumanWarApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanHostileApproachChangeFlat() const
+{
+	return m_iHumanHostileApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanHostileApproachChangePercent() const
+{
+	return m_iHumanHostileApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanDeceptiveApproachChangeFlat() const
+{
+	return m_iHumanDeceptiveApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanDeceptiveApproachChangePercent() const
+{
+	return m_iHumanDeceptiveApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanGuardedApproachChangeFlat() const
+{
+	return m_iHumanGuardedApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanGuardedApproachChangePercent() const
+{
+	return m_iHumanGuardedApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanAfraidApproachChangeFlat() const
+{
+	return m_iHumanAfraidApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanAfraidApproachChangePercent() const
+{
+	return m_iHumanAfraidApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanNeutralApproachChangeFlat() const
+{
+	return m_iHumanNeutralApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanNeutralApproachChangePercent() const
+{
+	return m_iHumanNeutralApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanFriendlyApproachChangeFlat() const
+{
+	return m_iHumanFriendlyApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getHumanFriendlyApproachChangePercent() const
+{
+	return m_iHumanFriendlyApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIOpinionChange() const
+{
+	return m_iAIOpinionChange;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIWarApproachChangeFlat() const
+{
+	return m_iAIWarApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIWarApproachChangePercent() const
+{
+	return m_iAIWarApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHostileApproachChangeFlat() const
+{
+	return m_iAIHostileApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIHostileApproachChangePercent() const
+{
+	return m_iAIHostileApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIDeceptiveApproachChangeFlat() const
+{
+	return m_iAIDeceptiveApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIDeceptiveApproachChangePercent() const
+{
+	return m_iAIDeceptiveApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGuardedApproachChangeFlat() const
+{
+	return m_iAIGuardedApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIGuardedApproachChangePercent() const
+{
+	return m_iAIGuardedApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIAfraidApproachChangeFlat() const
+{
+	return m_iAIAfraidApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIAfraidApproachChangePercent() const
+{
+	return m_iAIAfraidApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAINeutralApproachChangeFlat() const
+{
+	return m_iAINeutralApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAINeutralApproachChangePercent() const
+{
+	return m_iAINeutralApproachChangePercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIFriendlyApproachChangeFlat() const
+{
+	return m_iAIFriendlyApproachChangeFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIFriendlyApproachChangePercent() const
+{
+	return m_iAIFriendlyApproachChangePercent;
+}
+
+/// ARRAYS
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getNumGoodies() const
+{
+	return m_iNumGoodies;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getGoodies(int i) const
@@ -3485,93 +4292,232 @@ int CvHandicapInfo::isAIFreeTechs(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbAIFreeTechs[i];
 }
+
 //------------------------------------------------------------------------------
 bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
-	if(!CvBaseInfo::CacheResults(kResults, kUtility))
+	if (!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
-	m_iStartingLocationPercent = kResults.GetInt("StartingLocPercent");
+	// Player Bonuses
+	m_iMapPlacementPriority = kResults.GetInt("MapPlacementPriority");
+	m_iStartingGold = kResults.GetInt("StartingGold");
 	m_iStartingPolicyPoints = kResults.GetInt("StartingPolicyPoints");
+	m_iAdvancedStartPointsMod = kResults.GetInt("AdvancedStartPointsMod");
 	m_iHappinessDefault = kResults.GetInt("HappinessDefault");
 	m_iHappinessDefaultCapital = kResults.GetInt("HappinessDefaultCapital");
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
-	m_iNumCitiesUnhappinessMod = kResults.GetInt("NumCitiesUnhappinessMod");
+	m_iEmpireSizeUnhappinessMod = kResults.GetInt("EmpireSizeUnhappinessMod");
 	m_iPopulationUnhappinessMod = kResults.GetInt("PopulationUnhappinessMod");
-	m_iStartingGold = kResults.GetInt("Gold");
-	m_iGoldFreeUnits = kResults.GetInt("GoldFreeUnits");
-	m_iProductionFreeUnits = kResults.GetInt("ProductionFreeUnits");
-	m_iProductionFreeUnitsPerCity = kResults.GetInt("ProductionFreeUnitsPerCity");
-	m_iProductionFreeUnitsPopulationPercent = kResults.GetInt("ProductionFreeUnitsPopulationPercent");
-	m_iImprovementMaintenancePercent = kResults.GetInt("RouteCostPercent");
-	m_iUnitCostPercent = kResults.GetInt("UnitCostPercent");
-	m_iBuildingCostPercent = kResults.GetInt("BuildingCostPercent");
-	m_iResearchPercent = kResults.GetInt("ResearchPercent");
-	m_iPolicyPercent = kResults.GetInt("PolicyPercent");
-	m_iImprovementCostPercent = kResults.GetInt("ImprovementCostPercent");
-	m_iCityProductionChoiceCutoffThreshold = kResults.GetInt("CityProductionNumOptionsConsidered");
-	m_iTechChoiceCutoffThreshold = kResults.GetInt("TechNumOptionsConsidered");
-	m_iPolicyChoiceCutoffThreshold = kResults.GetInt("PolicyNumOptionsConsidered");
-	m_iBeliefChoiceCutoffThreshold = kResults.GetInt("BeliefNumOptionsConsidered");
-	m_iInflationPercent = kResults.GetInt("InflationPercent");
 	m_iFreeCulturePerTurn = kResults.GetInt("FreeCulturePerTurn");
-	m_iAttitudeChange = kResults.GetInt("AttitudeChange");
-	m_iNoTechTradeModifier = kResults.GetInt("NoTechTradeModifier");
-	m_iTechTradeKnownModifier = kResults.GetInt("TechTradeKnownModifier");
-	m_iBarbCampGold = kResults.GetInt("BarbCampGold");
-	m_iBarbSpawnMod = kResults.GetInt("BarbSpawnMod");
-	m_iBarbarianCombatModifier = kResults.GetInt("BarbarianBonus");
-	m_iAIBarbarianCombatModifier = kResults.GetInt("AIBarbarianBonus");
-	m_iEarliestBarbarianReleaseTurn = kResults.GetInt("EarliestBarbarianReleaseTurn");
-	m_iBarbarianLandTargetRange = kResults.GetInt("BarbarianLandTargetRange");
-	m_iBarbarianSeaTargetRange = kResults.GetInt("BarbarianSeaTargetRange");
-	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
-	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
+	m_iMaintenanceFreeUnits = kResults.GetInt("MaintenanceFreeUnits");
+	m_iUnitSupplyBase = kResults.GetInt("UnitSupplyBase");
+	m_iUnitSupplyPerCity = kResults.GetInt("UnitSupplyPerCity");
+	m_iUnitSupplyPopulationPercent = kResults.GetInt("UnitSupplyPopulationPercent");
+	m_iUnitSupplyBonusPercent = kResults.GetInt("UnitSupplyBonusPercent");
+	m_iUnitSupplyPerEraModifier = kResults.GetInt("UnitSupplyPerEraModifier");
+	m_iStartingUnitMultiplier = kResults.GetInt("StartingUnitMultiplier");
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
+	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
-	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
-	m_iAIStartingDefenseUnits = kResults.GetInt("AIStartingDefenseUnits");
-	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
-	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
-	m_iAIDeclareWarProb = kResults.GetInt("AIDeclareWarProb");
-	m_iHumanStrengthPerceptionMod = kResults.GetInt("HumanStrengthPerceptionMod");
-	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
-	m_iAIUnhappinessPercent = kResults.GetInt("AIUnhappinessPercent");
-	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
-	m_iAITechPercent = kResults.GetInt("AITechPercent");
-	m_iAITechCatchUpMod = kResults.GetInt("AITechCatchUpMod");
-	m_iAIPolicyCatchUpMod = kResults.GetInt("AIPolicyCatchUpMod");
-	m_iAIProphetPercent = kResults.GetInt("AIProphetPercent");
-	m_iAIPolicyPercent = kResults.GetInt("AIPolicyPercent");
-	m_iAICivilianPercent = kResults.GetInt("AICivilianPercent");
-	m_iAIGreatPersonPercent = kResults.GetInt("AIGreatPersonPercent");
-	m_iAIGoldenAgePercent = kResults.GetInt("AIGoldenAgePercent");
-	m_iAITrainPercent = kResults.GetInt("AITrainPercent");
-	m_iAIWorldTrainPercent = kResults.GetInt("AIWorldTrainPercent");
-	m_iAIConstructPercent = kResults.GetInt("AIConstructPercent");
-	m_iAIWorldConstructPercent = kResults.GetInt("AIWorldConstructPercent");
-	m_iAICreatePercent = kResults.GetInt("AICreatePercent");
-	m_iAIWorldCreatePercent = kResults.GetInt("AIWorldCreatePercent");
-	m_iAIBuildingCostPercent = kResults.GetInt("AIBuildingCostPercent");
-	m_iAIUnitCostPercent = kResults.GetInt("AIUnitCostPercent");
-	m_iAIUnitSupplyPercent = kResults.GetInt("AIUnitSupplyPercent");
-	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
-	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
-	m_iAIPerEraModifier = kResults.GetInt("AIPerEraModifier");
-	m_iHumanPerEraMod = kResults.GetInt("HumanPerEraMod");
-	m_iAITechPerEraMod = kResults.GetInt("AITechPerEraMod");
-	m_iAIPolicyPerEraMod = kResults.GetInt("AIPolicyPerEraMod");
-	m_iAIGrowthPerEraMod = kResults.GetInt("AIGrowthPerEraMod");
-	m_iAIConstructPerEraMod = kResults.GetInt("AIConstructPerEraMod");
-	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
-	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
+	m_iWorkRateModifier = kResults.GetInt("WorkRateModifier");
+	m_iImprovementCostPercent = kResults.GetInt("ImprovementCostPercent");
+	m_iBuildingCostPercent = kResults.GetInt("BuildingCostPercent");
+	m_iUnitCostPercent = kResults.GetInt("UnitCostPercent");
+	m_iInflationPercent = kResults.GetInt("InflationPercent");
+	m_iUnitUpgradePercent = kResults.GetInt("UnitUpgradePercent");
+	m_iUnitUpgradePerEraModifier = kResults.GetInt("UnitUpgradePerEraModifier");
+	m_iGrowthPercent = kResults.GetInt("GrowthPercent");
+	m_iGrowthPerEraModifier = kResults.GetInt("GrowthPerEraModifier");
+	m_iResearchPercent = kResults.GetInt("ResearchPercent");
+	m_iResearchPerEraModifier = kResults.GetInt("ResearchPerEraModifier");
+	m_iTechCatchUpMod = kResults.GetInt("TechCatchUpMod");
+	m_iPolicyPercent = kResults.GetInt("PolicyPercent");
+	m_iPolicyPerEraModifier = kResults.GetInt("PolicyPerEraModifier");
+	m_iPolicyCatchUpMod = kResults.GetInt("PolicyCatchUpMod");
+	m_iProphetPercent = kResults.GetInt("ProphetPercent");
+	m_iGreatPeoplePercent = kResults.GetInt("GreatPeoplePercent");
+	m_iGoldenAgePercent = kResults.GetInt("GoldenAgePercent");
+	m_iCivilianPercent = kResults.GetInt("CivilianPercent");
+	m_iCivilianPerEraModifier = kResults.GetInt("CivilianPerEraModifier");
+	m_iTrainPercent = kResults.GetInt("TrainPercent");
+	m_iTrainPerEraModifier = kResults.GetInt("TrainPerEraModifier");
+	m_iWorldTrainPercent = kResults.GetInt("WorldTrainPercent");
+	m_iConstructPercent = kResults.GetInt("ConstructPercent");
+	m_iConstructPerEraModifier = kResults.GetInt("ConstructPerEraModifier");
+	m_iWorldConstructPercent = kResults.GetInt("WorldConstructPercent");
+	m_iCreatePercent = kResults.GetInt("CreatePercent");
+	m_iCreatePerEraModifier = kResults.GetInt("CreatePerEraModifier");
+	m_iWorldCreatePercent = kResults.GetInt("WorldCreatePercent");
+	m_iProcessBonus = kResults.GetInt("ProcessBonus");
+	m_iProcessPerEraModifier = kResults.GetInt("ProcessPerEraModifier");
+	m_iFreeXP = kResults.GetInt("FreeXP");
+	m_iFreeXPPercent = kResults.GetInt("FreeXPPercent");
+	m_iCombatBonus = kResults.GetInt("CombatBonus");
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
-	m_iAIResistanceCap = kResults.GetInt("AIResistanceCap");
+	m_iVisionBonus = kResults.GetInt("VisionBonus");
+	// VP Difficulty Bonus
+	m_iDifficultyBonusTurnInterval = kResults.GetInt("DifficultyBonusTurnInterval");
 	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
 	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
 	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
 	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
-	m_iVisionBonus = kResults.GetInt("VisionBonus");
+
+	// AI Bonuses
+	m_iAIStartingGold = kResults.GetInt("AIStartingGold");
+	m_iAIStartingPolicyPoints = kResults.GetInt("AIStartingPolicyPoints");
+	m_iAIAdvancedStartPointsMod = kResults.GetInt("AIAdvancedStartPointsMod");
+	m_iAIHappinessDefault = kResults.GetInt("AIHappinessDefault");
+	m_iAIHappinessDefaultCapital = kResults.GetInt("AIHappinessDefaultCapital");
+	m_iAIExtraHappinessPerLuxury = kResults.GetInt("AIExtraHappinessPerLuxury");
+	m_iAIEmpireSizeUnhappinessMod = kResults.GetInt("AIEmpireSizeUnhappinessMod");
+	m_iAIPopulationUnhappinessMod = kResults.GetInt("AIPopulationUnhappinessMod");
+	m_iAIFreeCulturePerTurn = kResults.GetInt("AIFreeCulturePerTurn");
+	m_iAIMaintenanceFreeUnits = kResults.GetInt("AIMaintenanceFreeUnits");
+	m_iAIUnitSupplyBase = kResults.GetInt("AIUnitSupplyBase");
+	m_iAIUnitSupplyPerCity = kResults.GetInt("AIUnitSupplyPerCity");
+	m_iAIUnitSupplyPopulationPercent = kResults.GetInt("AIUnitSupplyPopulationPercent");
+	m_iAIUnitSupplyBonusPercent = kResults.GetInt("AIUnitSupplyBonusPercent");
+	m_iAIUnitSupplyPerEraModifier = kResults.GetInt("AIUnitSupplyPerEraModifier");
+	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
+	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
+	m_iAIStartingDefenseUnits = kResults.GetInt("AIStartingDefenseUnits");
+	m_iAIStartingExploreUnits = kResults.GetInt("AIStartingExploreUnits");
+	m_iAIWorkRateModifier = kResults.GetInt("AIWorkRateModifier");
+	m_iAIImprovementCostPercent = kResults.GetInt("AIImprovementCostPercent");
+	m_iAIBuildingCostPercent = kResults.GetInt("AIBuildingCostPercent");
+	m_iAIUnitCostPercent = kResults.GetInt("AIUnitCostPercent");
+	m_iAIInflationPercent = kResults.GetInt("AIInflationPercent");
+	m_iAIUnitUpgradePercent = kResults.GetInt("AIUnitUpgradePercent");
+	m_iAIUnitUpgradePerEraModifier = kResults.GetInt("AIUnitUpgradePerEraModifier");
+	m_iAIGrowthPercent = kResults.GetInt("AIGrowthPercent");
+	m_iAIGrowthPerEraModifier = kResults.GetInt("AIGrowthPerEraModifier");
+	m_iAIResearchPercent = kResults.GetInt("AIResearchPercent");
+	m_iAIResearchPerEraModifier = kResults.GetInt("AIResearchPerEraModifier");
+	m_iAITechCatchUpMod = kResults.GetInt("AITechCatchUpMod");
+	m_iAIPolicyPercent = kResults.GetInt("AIPolicyPercent");
+	m_iAIPolicyPerEraModifier = kResults.GetInt("AIPolicyPerEraModifier");
+	m_iAIPolicyCatchUpMod = kResults.GetInt("AIPolicyCatchUpMod");
+	m_iAIProphetPercent = kResults.GetInt("AIProphetPercent");
+	m_iAIGreatPeoplePercent = kResults.GetInt("AIGreatPeoplePercent");
+	m_iAIGoldenAgePercent = kResults.GetInt("AIGoldenAgePercent");
+	m_iAICivilianPercent = kResults.GetInt("AICivilianPercent");
+	m_iAICivilianPerEraModifier = kResults.GetInt("AICivilianPerEraModifier");
+	m_iAITrainPercent = kResults.GetInt("AITrainPercent");
+	m_iAITrainPerEraModifier = kResults.GetInt("AITrainPerEraModifier");
+	m_iAIWorldTrainPercent = kResults.GetInt("AIWorldTrainPercent");
+	m_iAIConstructPercent = kResults.GetInt("AIConstructPercent");
+	m_iAIConstructPerEraModifier = kResults.GetInt("AIConstructPerEraModifier");
+	m_iAIWorldConstructPercent = kResults.GetInt("AIWorldConstructPercent");
+	m_iAICreatePercent = kResults.GetInt("AICreatePercent");
+	m_iAICreatePerEraModifier = kResults.GetInt("AICreatePerEraModifier");
+	m_iAIWorldCreatePercent = kResults.GetInt("AIWorldCreatePercent");
+	m_iAIProcessBonus = kResults.GetInt("AIProcessBonus");
+	m_iAIProcessPerEraModifier = kResults.GetInt("AIProcessPerEraModifier");
+	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
+	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
+	m_iAICombatBonus = kResults.GetInt("AICombatBonus");
+	m_iAIResistanceCap = kResults.GetInt("AIResistanceCap");
+	m_iAIVisionBonus = kResults.GetInt("AIVisionBonus");
+	// VP Difficulty Bonus
+	m_iAIDifficultyBonusTurnInterval = kResults.GetInt("AIDifficultyBonusTurnInterval");
+	m_iAIDifficultyBonusBase = kResults.GetInt("AIDifficultyBonusBase");
+	m_iAIDifficultyBonusEarly = kResults.GetInt("AIDifficultyBonusA");
+	m_iAIDifficultyBonusMid = kResults.GetInt("AIDifficultyBonusB");
+	m_iAIDifficultyBonusLate = kResults.GetInt("AIDifficultyBonusC");
+
+	// City-States
+	m_iStartingCityStateWorkerUnits = kResults.GetInt("StartingCityStateWorkerUnits");
+	m_iStartingCityStateDefenseUnits = kResults.GetInt("StartingCityStateDefenseUnits");
+	m_iCityStateWorkRateModifier = kResults.GetInt("CityStateWorkRateModifier");
+	m_iCityStateGrowthPercent = kResults.GetInt("CityStateGrowthPercent");
+	m_iCityStateGrowthPerEraModifier = kResults.GetInt("CityStateGrowthPerEraModifier");
+	m_iCityStateCivilianPercent = kResults.GetInt("CityStateCivilianPercent");
+	m_iCityStateCivilianPerEraModifier = kResults.GetInt("CityStateCivilianPerEraModifier");
+	m_iCityStateTrainPercent = kResults.GetInt("CityStateTrainPercent");
+	m_iCityStateTrainPerEraModifier = kResults.GetInt("CityStateTrainPerEraModifier");
+	m_iCityStateConstructPercent = kResults.GetInt("CityStateConstructPercent");
+	m_iCityStateConstructPerEraModifier = kResults.GetInt("CityStateConstructPerEraModifier");
+	m_iCityStateCreatePercent = kResults.GetInt("CityStateCreatePercent");
+	m_iCityStateCreatePerEraModifier = kResults.GetInt("CityStateCreatePerEraModifier");
+	m_iCityStateFreeXP = kResults.GetInt("CityStateFreeXP");
+	m_iCityStateFreeXPPercent = kResults.GetInt("CityStateFreeXPPercent");
+	m_iCityStateCombatBonus = kResults.GetInt("CityStateCombatBonus");
+	m_iCityStateVisionBonus = kResults.GetInt("CityStateVisionBonus");
+
+	// Barbarians
+	m_iEarliestBarbarianReleaseTurn = kResults.GetInt("EarliestBarbarianReleaseTurn");
+	m_iBonusVSBarbarians = kResults.GetInt("BonusVSBarbarians");
+	m_iAIBonusVSBarbarians = kResults.GetInt("AIBonusVSBarbarians");
+	m_iBarbarianCampGold = kResults.GetInt("BarbarianCampGold");
+	m_iAIBarbarianCampGold = kResults.GetInt("AIBarbarianCampGold");
+	m_iBarbarianSpawnDelay = kResults.GetInt("BarbarianSpawnDelay");
+	m_iBarbarianLandTargetRange = kResults.GetInt("BarbarianLandTargetRange");
+	m_iBarbarianSeaTargetRange = kResults.GetInt("BarbarianSeaTargetRange");
+
+	// AI Behavior Modifiers
+	// Weighted Randomized Choices
+	m_iCityProductionChoiceCutoffThreshold = kResults.GetInt("CityProductionChoiceCutoffThreshold");
+	m_iTechChoiceCutoffThreshold = kResults.GetInt("TechChoiceCutoffThreshold");
+	m_iPolicyChoiceCutoffThreshold = kResults.GetInt("PolicyChoiceCutoffThreshold");
+	m_iBeliefChoiceCutoffThreshold = kResults.GetInt("BeliefChoiceCutoffThreshold");
+	// Tactical AI
+	m_iTacticalOffenseMinCompletedPositions = kResults.GetInt("TacticalOffenseMinCompletedPositions");
+	m_iTacticalOffenseMaxCompletedPositions = kResults.GetInt("TacticalOffenseMaxCompletedPositions");
+	m_iTacticalOffenseMaxBranches = kResults.GetInt("TacticalOffenseMaxBranches");
+	m_iTacticalOffenseMaxChoicesPerUnit = kResults.GetInt("TacticalOffenseMaxChoicesPerUnit");
+	m_iTacticalDefenseMinCompletedPositions = kResults.GetInt("TacticalDefenseMinCompletedPositions");
+	m_iTacticalDefenseMaxCompletedPositions = kResults.GetInt("TacticalDefenseMaxCompletedPositions");
+	m_iTacticalDefenseMaxBranches = kResults.GetInt("TacticalDefenseMaxBranches");
+	m_iTacticalDefenseMaxChoicesPerUnit = kResults.GetInt("TacticalDefenseMaxChoicesPerUnit");
+	// Diplomacy AI
+	m_iLandDisputePercent = kResults.GetInt("LandDisputePercent");
+	m_iWonderDisputePercent = kResults.GetInt("WonderDisputePercent");
+	m_iMinorCivDisputePercent = kResults.GetInt("MinorCivDisputePercent");
+	m_iVictoryDisputePercent = kResults.GetInt("VictoryDisputePercent");
+	m_iVictoryDisputeMod = kResults.GetInt("VictoryDisputeMod");
+	m_iVictoryBlockPercent = kResults.GetInt("VictoryBlockPercent");
+	m_iVictoryBlockMod = kResults.GetInt("VictoryBlockMod");
+	m_iWonderBlockPercent = kResults.GetInt("WonderBlockPercent");
+	m_iWonderBlockMod = kResults.GetInt("WonderBlockMod");
+	m_iTechBlockPercent = kResults.GetInt("TechBlockPercent");
+	m_iTechBlockMod = kResults.GetInt("TechBlockMod");
+	m_iPolicyBlockPercent = kResults.GetInt("PolicyBlockPercent");
+	m_iPolicyBlockMod = kResults.GetInt("PolicyBlockMod");
+	m_iPeaceTreatyDampenerTurns = kResults.GetInt("PeaceTreatyDampenerTurns");
+	m_iHumanStrengthPerceptionMod = kResults.GetInt("HumanStrengthPerceptionMod");
+	m_iHumanTradeModifier = kResults.GetInt("HumanTradeModifier");
+	m_iAggressionIncrease = kResults.GetInt("AggressionIncrease");
+	m_iHumanOpinionChange = kResults.GetInt("HumanOpinionChange");
+	m_iHumanWarApproachChangeFlat = kResults.GetInt("HumanWarApproachChangeFlat");
+	m_iHumanWarApproachChangePercent = kResults.GetInt("HumanWarApproachChangePercent");
+	m_iHumanHostileApproachChangeFlat = kResults.GetInt("HumanHostileApproachChangeFlat");
+	m_iHumanHostileApproachChangePercent = kResults.GetInt("HumanHostileApproachChangePercent");
+	m_iHumanDeceptiveApproachChangeFlat = kResults.GetInt("HumanDeceptiveApproachChangeFlat");
+	m_iHumanDeceptiveApproachChangePercent = kResults.GetInt("HumanDeceptiveApproachChangePercent");
+	m_iHumanGuardedApproachChangeFlat = kResults.GetInt("HumanGuardedApproachChangeFlat");
+	m_iHumanGuardedApproachChangePercent = kResults.GetInt("HumanGuardedApproachChangePercent");
+	m_iHumanAfraidApproachChangeFlat = kResults.GetInt("HumanAfraidApproachChangeFlat");
+	m_iHumanAfraidApproachChangePercent = kResults.GetInt("HumanAfraidApproachChangePercent");
+	m_iHumanNeutralApproachChangeFlat = kResults.GetInt("HumanNeutralApproachChangeFlat");
+	m_iHumanNeutralApproachChangePercent = kResults.GetInt("HumanNeutralApproachChangePercent");
+	m_iHumanFriendlyApproachChangeFlat = kResults.GetInt("HumanFriendlyApproachChangeFlat");
+	m_iHumanFriendlyApproachChangePercent = kResults.GetInt("HumanFriendlyApproachChangePercent");
+	m_iAIOpinionChange = kResults.GetInt("AIOpinionChange");
+	m_iAIWarApproachChangeFlat = kResults.GetInt("AIWarApproachChangeFlat");
+	m_iAIWarApproachChangePercent = kResults.GetInt("AIWarApproachChangePercent");
+	m_iAIHostileApproachChangeFlat = kResults.GetInt("AIHostileApproachChangeFlat");
+	m_iAIHostileApproachChangePercent = kResults.GetInt("AIHostileApproachChangePercent");
+	m_iAIDeceptiveApproachChangeFlat = kResults.GetInt("AIDeceptiveApproachChangeFlat");
+	m_iAIDeceptiveApproachChangePercent = kResults.GetInt("AIDeceptiveApproachChangePercent");
+	m_iAIGuardedApproachChangeFlat = kResults.GetInt("AIGuardedApproachChangeFlat");
+	m_iAIGuardedApproachChangePercent = kResults.GetInt("AIGuardedApproachChangePercent");
+	m_iAIAfraidApproachChangeFlat = kResults.GetInt("AIAfraidApproachChangeFlat");
+	m_iAIAfraidApproachChangePercent = kResults.GetInt("AIAfraidApproachChangePercent");
+	m_iAINeutralApproachChangeFlat = kResults.GetInt("AINeutralApproachChangeFlat");
+	m_iAINeutralApproachChangePercent = kResults.GetInt("AINeutralApproachChangePercent");
+	m_iAIFriendlyApproachChangeFlat = kResults.GetInt("AIFriendlyApproachChangeFlat");
+	m_iAIFriendlyApproachChangePercent = kResults.GetInt("AIFriendlyApproachChangePercent");
 
 	//Arrays
 	const char* szHandicapType = GetType();
@@ -3580,10 +4526,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	{
 		//First find out how many goodies there are.
 		Database::SingleResult kCount("count(*)");
-		if(DB.SelectAt(kCount, "HandicapInfo_Goodies", "HandicapType", szHandicapType))
+		if (DB.SelectAt(kCount, "HandicapInfo_Goodies", "HandicapType", szHandicapType))
 		{
 			m_iNumGoodies = kCount.GetInt(0);
-
 		}
 
 		m_piGoodies = FNEW(int[m_iNumGoodies], c_eCiv5GameplayDLL, 0);
@@ -3591,19 +4536,74 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 		char szSQL[512];
 		sprintf_s(szSQL, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = '%s';", szHandicapType);
 
-		if(DB.Execute(kArrayResults, szSQL))
+		if (DB.Execute(kArrayResults, szSQL))
 		{
 			int i = 0;
-			while(kArrayResults.Step())
+			while (kArrayResults.Step())
 			{
 				m_piGoodies[i++] = kArrayResults.GetInt(0);
 			}
 		}
-
 	}
 
 	kUtility.PopulateArrayByExistence(m_pbFreeTechs, "Technologies", "HandicapInfo_FreeTechs", "TechType", "HandicapType", szHandicapType);
 	kUtility.PopulateArrayByExistence(m_pbAIFreeTechs, "Technologies", "HandicapInfo_AIFreeTechs", "TechType", "HandicapType", szHandicapType);
+
+	const int iNumHistoricEvents = kUtility.MaxRows("HistoricEventTypes");
+	const int iNumYields = kUtility.MaxRows("Yields");
+
+	//Difficulty Bonus Yield Multipliers
+	{
+		kUtility.Initialize2DArray(m_ppiDifficultyBonus, iNumHistoricEvents, iNumYields);
+
+		std::string strKey = "HandicapInfos - DifficultyBonus";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Multiplier from HandicapInfo_DifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type where HandicapType = ?");
+		}
+
+		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
+
+		while (pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int historicevent_idx = pResults->GetInt(1);
+			CvAssert(historicevent_idx > -1);
+
+			const int multiplier = pResults->GetInt(2);
+
+			m_ppiDifficultyBonus[historicevent_idx][yield_idx] = multiplier;
+		}
+	}
+	//AI Difficulty Bonus Yield Multipliers
+	{
+		kUtility.Initialize2DArray(m_ppiAIDifficultyBonus, iNumHistoricEvents, iNumYields);
+
+		std::string strKey = "HandicapInfos - AIDifficultyBonus";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Multiplier from HandicapInfo_AIDifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type where HandicapType = ?");
+		}
+
+		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
+
+		while (pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int historicevent_idx = pResults->GetInt(1);
+			CvAssert(historicevent_idx > -1);
+
+			const int multiplier = pResults->GetInt(2);
+
+			m_ppiAIDifficultyBonus[historicevent_idx][yield_idx] = multiplier;
+		}
+	}
 
 	return true;
 }
@@ -7953,11 +8953,10 @@ bool CvEntityEventInfo::getUpdateFormation() const
 CvEraInfo::CvEraInfo() :
 	m_iStartingUnitMultiplier(0),
 	m_iStartingDefenseUnits(0),
-#if defined(MOD_BALANCE_CORE)
-	m_iStartingMinorDefenseUnits(0),
-#endif
+	m_iStartingCityStateDefenseUnits(0),
 	m_iStartingWorkerUnits(0),
 	m_iStartingExploreUnits(0),
+	m_iUnitSupplyBase(0),
 	m_iResearchAgreementCost(0),
 	m_iEmbarkedUnitDefense(0),
 	m_iStartingGold(0),
@@ -8005,12 +9004,11 @@ int CvEraInfo::getStartingDefenseUnits() const
 {
 	return m_iStartingDefenseUnits;
 }
-#if defined(MOD_BALANCE_CORE)
-int CvEraInfo::getStartingMinorDefenseUnits() const
+//------------------------------------------------------------------------------
+int CvEraInfo::getStartingCityStateDefenseUnits() const
 {
-	return m_iStartingMinorDefenseUnits;
+	return m_iStartingCityStateDefenseUnits;
 }
-#endif
 //------------------------------------------------------------------------------
 int CvEraInfo::getStartingWorkerUnits() const
 {
@@ -8020,6 +9018,11 @@ int CvEraInfo::getStartingWorkerUnits() const
 int CvEraInfo::getStartingExploreUnits() const
 {
 	return m_iStartingExploreUnits;
+}
+//------------------------------------------------------------------------------
+int CvEraInfo::getUnitSupplyBase() const
+{
+	return m_iUnitSupplyBase;
 }
 //------------------------------------------------------------------------------
 int CvEraInfo::getResearchAgreementCost() const
@@ -8232,11 +9235,10 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_bNoReligion				= kResults.GetBool("NoReligion");
 	m_iStartingUnitMultiplier	= kResults.GetInt("StartingUnitMultiplier");
 	m_iStartingDefenseUnits		= kResults.GetInt("StartingDefenseUnits");
-#if defined(MOD_BALANCE_CORE)
-	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
-#endif
+	m_iStartingCityStateDefenseUnits = kResults.GetInt("StartingCityStateDefenseUnits");
 	m_iStartingWorkerUnits		= kResults.GetInt("StartingWorkerUnits");
 	m_iStartingExploreUnits		= kResults.GetInt("StartingExploreUnits");
+	m_iUnitSupplyBase			= kResults.GetInt("UnitSupplyBase");
 	m_iResearchAgreementCost	= kResults.GetInt("ResearchAgreementCost");
 	m_iEmbarkedUnitDefense		= kResults.GetInt("EmbarkedUnitDefense");
 	m_iStartingGold				= kResults.GetInt("StartingGold");

@@ -87,7 +87,7 @@ SELECT 'DIPLOAI_SHOW_ALL_OPINION_VALUES', '0';
 -- [SHOW BASE HUMAN OPINION]
 -- If set to 1, a modifier explaining the AI's instinctive like/dislike of human players will be displayed in their table of opinion modifiers.
 -- This value is otherwise hidden unless Debug Mode is enabled due to being immersion-breaking.
--- Only does anything if AI Opinion score towards humans has been modified via OPINION_WEIGHT_BASE_HUMAN in DiploOpinionWeights.sql or AttitudeChange in DifficultyMod.xml.
+-- Only does anything if AI Opinion score towards humans has been modified via HumanOpinionChange in DifficultyMod.xml.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_SHOW_BASE_HUMAN_OPINION', '0';
 

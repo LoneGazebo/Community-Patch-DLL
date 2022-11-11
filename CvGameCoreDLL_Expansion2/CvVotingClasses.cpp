@@ -4846,7 +4846,24 @@ int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
 			{
 				for (uint i = 0; i < pProject->vProductionList.size(); i++)
 				{
-					iProgress += pProject->vProductionList[i];
+					PlayerTypes ePlayer = (PlayerTypes)i;
+					int iCivProgress = pProject->vProductionList[i];
+
+					if (GET_PLAYER(ePlayer).isMajorCiv())
+					{	
+						int iMod = GET_PLAYER(ePlayer).getHandicapInfo().getWorldCreatePercent() - 100;
+						iCivProgress *= 100;
+						iCivProgress /= std::max(100 + iMod, 1);
+
+						if (!GET_PLAYER(ePlayer).isHuman())
+						{
+							iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
+							iCivProgress *= 100;
+							iCivProgress /= std::max(100 + iMod, 1);
+						}
+					}
+
+					iProgress += iCivProgress;
 				}
 			}
 		}
@@ -4869,7 +4886,7 @@ bool CvLeague::CanMemberContribute(PlayerTypes ePlayer, LeagueProjectTypes eLeag
 	return false;
 }
 
-int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const
+int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, bool bDifficultyMod) const
 {
 	int iValue = 0;
 	if (ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
@@ -4883,23 +4900,33 @@ int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLea
 			}
 		}
 	}
-	return iValue;
+
+	if (bDifficultyMod)
+	{
+		int iMod = GET_PLAYER(ePlayer).getHandicapInfo().getWorldCreatePercent() - 100;
+		iValue *= 100;
+		iValue /= std::max(100 + iMod, 1);
+
+		if (!GET_PLAYER(ePlayer).isHuman())
+		{
+			iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
+			iValue *= 100;
+			iValue /= std::max(100 + iMod, 1);
+		}
+	}
+
+	return std::max(iValue, 0);
 }
 
 void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue)
 {
-#if !defined(MOD_BALANCE_CORE)
-	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
-	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
-	if (!bCanContribute) return;
-#endif
 	int iMatches = 0;
 	for (ProjectList::iterator it = m_vProjects.begin(); it != m_vProjects.end(); it++)
 	{
 		if (it->eType == eLeagueProject)
 		{
 			iMatches++;
-			it->vProductionList[ePlayer] = iValue;
+			it->vProductionList[ePlayer] = std::max(iValue, 0);
 		}
 	}
 	CvAssertMsg(iMatches == 1, "Unexpected case when contributing to a League Project. Please send Anton your save file and version.");
@@ -4907,18 +4934,12 @@ void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLe
 
 void CvLeague::ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange)
 {
-#if !defined(MOD_BALANCE_CORE)
-	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
-	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
-	if (!bCanContribute) return;
-#endif
-
-	SetMemberContribution(ePlayer, eLeagueProject, GetMemberContribution(ePlayer, eLeagueProject) + iChange);
+	SetMemberContribution(ePlayer, eLeagueProject, GetMemberContribution(ePlayer, eLeagueProject, false) + iChange);
 }
 
 CvLeague::ContributionTier CvLeague::GetMemberContributionTier(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject)
 {
-	float fContribution = (float) GetMemberContribution(ePlayer, eLeagueProject);
+	float fContribution = (float) GetMemberContribution(ePlayer, eLeagueProject, true);
 	ContributionTier eTier = CONTRIBUTION_TIER_0;
 	if (fContribution >= GetContributionTierThreshold(CONTRIBUTION_TIER_3, eLeagueProject))
 	{
@@ -6367,7 +6388,7 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 		iPercentCompleted = MIN(100, iPercentCompleted);
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_PROGRESS_COST");
 		sTemp << iPercentCompleted;
-		sTemp << GetMemberContribution(eObserver, eProject) / 100;
+		sTemp << GetMemberContribution(eObserver, eProject, true) / 100;
 		s += sTemp.toUTF8();
 	}
 	else
@@ -7047,6 +7068,9 @@ CvString CvLeague::GetGreatPersonRateModifierDetails(UnitClassTypes /*eGreatPers
 
 void CvLeague::CheckProjectAchievements()
 {
+	if (!MOD_API_ACHIEVEMENTS)
+		return;
+
 	for (MemberList::const_iterator member = m_vMembers.begin(); member != m_vMembers.end(); ++member)
 	{
 		if (member->ePlayer != NO_PLAYER && GET_PLAYER(member->ePlayer).isAlive() && GET_PLAYER(member->ePlayer).isHuman() && GET_PLAYER(member->ePlayer).isLocalPlayer())
@@ -7064,7 +7088,7 @@ void CvLeague::CheckProjectAchievements()
 				}
 			}
 
-			if (MOD_API_ACHIEVEMENTS && iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
+			if (iHighestContributorProjects >= GC.getNumLeagueProjectInfos() && GC.getNumLeagueProjectInfos() > 0)
 			{
 				gDLL->UnlockAchievement(ACHIEVEMENT_XP2_44);
 			}

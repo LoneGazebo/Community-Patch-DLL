@@ -3965,7 +3965,6 @@ bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStra
 /// Are we paying more in unit maintenance than we are taking in from our cities?
 bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 {
-#if defined(MOD_BALANCE_CORE)
 	if(pPlayer->GetTreasury()->AverageIncome100(10) <= -500 && pPlayer->GetTreasury()->GetGold() <= 100)
 	{
 		return true;
@@ -3974,18 +3973,14 @@ bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 	{
 		return true;
 	}
-	int iFreeUnits = 0;
-	int iPaidUnits = 0;
-	int iBaseUnitCost = 0;
-	int iExtraCost = 0;
 	if(pPlayer->GetTreasury()->AverageIncome100(15) <= -1500)
 	{
-		if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
+		if (pPlayer->GetTreasury()->CalculateUnitCost() > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
 		{
 			return true;
 		}
 	}
-#endif
+
 	return (pPlayer->GetUnitProductionMaintenanceMod()) != 0;
 }
 

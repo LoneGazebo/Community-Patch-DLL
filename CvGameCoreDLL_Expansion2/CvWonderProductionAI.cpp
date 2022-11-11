@@ -184,7 +184,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 		if (m_Buildables.GetTotalWeight() > 0)
 		{
 			iWonderWeight = m_Buildables.GetTotalWeight();
-			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetCityProductionChoiceCutoffThreshold(), &fcn, "Choosing wonder from Top Choices");
+			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing wonder from Top Choices");
 			return eSelection;
 		}
 		// Nothing with any weight

@@ -28,8 +28,6 @@
     <!-- Changes in Milae's Alternative Difficulty Mod -->
     <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
    <Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
-    <!-- Changes ABC Trigger to only be once every 10 turns -->
-   <Row Class="4" Name="ABC_TRIGGER_CHANGE" Value="0"/>
 
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
@@ -793,8 +791,6 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="0"/>
 	<!-- The minors sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINORS" Value="0"/>
-	<!-- The difficulty sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_DIFFICULTY" Value="0"/>
 	<!-- The city happiness sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_HAPPINESS" Value="0"/>
 	<!-- The national happiness sub-feature of COMMUNITY_PATCH -->
@@ -899,8 +895,6 @@
 	<Row Class="6" Name="BALANCE_NO_GAP_DURING_GA" Value="0"/>
     <!-- Settler units reduce population by 1 when completed. -->
     <Row Class="6" Name="BALANCE_CORE_SETTLERS_CONSUME_POP" Value="0"/>
-	<!-- Enable to allow war score and time to affect unit supply during wars. -->
-	<Row Class="6" Name="BALANCE_DYNAMIC_UNIT_SUPPLY" Value="0"/>
 	<!-- Beliefs with a 'RequiredCivilization' component are now only for that civ bonus-wise. -->
 	<Row Class="6" Name="BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV" Value="0"/>
 	<!-- Defensive Pacts only end if you attack the player you have the agreement with. -->

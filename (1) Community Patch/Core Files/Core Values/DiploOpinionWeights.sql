@@ -16,12 +16,6 @@ UPDATE Defines SET Value = '-160' WHERE Name = 'OPINION_THRESHOLD_ALLY';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_THRESHOLD_MAJOR_POSITIVE', '-15'; -- for positive modifiers
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_THRESHOLD_MAJOR_NEGATIVE', '15'; -- for negative modifiers
 
--- Base Opinion Weight (affects all AI players)
--- Can be used to add an opinion bonus or penalty to human and/or AI players.
--- Negative values add good opinion, positive values add bad opinion.
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BASE_HUMAN', '0';
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BASE_AI', '0';
-
 
 -- Opinion Modifiers
 

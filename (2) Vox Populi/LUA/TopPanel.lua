@@ -690,14 +690,13 @@ function GoldTipHandler( control )
 	strText = strText .. "[/COLOR]";
 	
 	local iUnitCost = pPlayer:CalculateUnitCost();
-	local iUnitSupply = pPlayer:CalculateUnitSupply();
 	local iBuildingMaintenance = pPlayer:GetBuildingGoldMaintenance();
 	local iImprovementMaintenance = pPlayer:GetImprovementGoldMaintenance();
 -- BEGIN C4DF
 	local iExpenseFromVassalTaxes = pPlayer:GetExpensePerTurnFromVassalTaxes();
 	local iVassalMaintenance = pPlayer:GetVassalGoldMaintenance();
 -- END C4DF
-	local iTotalExpenses = iUnitCost + iUnitSupply + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
+	local iTotalExpenses = iUnitCost + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
 -- BEGIN C4DF
 	if (iVassalMaintenance > 0) then
 		iTotalExpenses = iTotalExpenses + iVassalMaintenance;
@@ -712,9 +711,6 @@ function GoldTipHandler( control )
 	strText = strText .. "[NEWLINE]-" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_EXPENSES", iTotalExpenses);
 	if (iUnitCost ~= 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNIT_MAINT", iUnitCost);
-	end
-	if (iUnitSupply ~= 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_UNIT_SUPPLY", iUnitSupply);
 	end
 	if (iBuildingMaintenance ~= 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_BUILDING_MAINT", iBuildingMaintenance);

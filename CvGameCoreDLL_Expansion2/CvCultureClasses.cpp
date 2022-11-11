@@ -3660,7 +3660,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 			}
 		}
 	}
-	else if (MOD_BALANCE_CORE_DIFFICULTY && !m_pPlayer->isHuman() && m_pPlayer->isMajorCiv() && m_pPlayer->getNumCities() > 0)
+	else if (m_pPlayer->getNumCities() > 0)
 	{
 		m_pPlayer->DoDifficultyBonus(HISTORIC_EVENT_DIG);
 	}

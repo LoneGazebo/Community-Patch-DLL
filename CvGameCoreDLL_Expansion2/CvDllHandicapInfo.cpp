@@ -89,6 +89,6 @@ const char* CvDllHandicapInfo::GetDescription()
 //------------------------------------------------------------------------------
 int CvDllHandicapInfo::GetBarbSpawnMod()
 {
-	return m_pHandicapInfo->getBarbSpawnMod();
+	return m_pHandicapInfo->getBarbarianSpawnDelay();
 }
 //------------------------------------------------------------------------------

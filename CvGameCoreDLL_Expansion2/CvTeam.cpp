@@ -1688,17 +1688,17 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								bool bPrereqTech = GET_TEAM(kAttackingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
 								if(!bCombat)
 								{
-									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 								}
 								else if(bWarOnly && bPrereqTech)
 								{
-									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 								}
 								else
 								{
 									if(kAttackingPlayer.canTrainUnit(eLoopUnit, false, false, true))
 									{
-										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+										pNewUnitPlot = kAttackingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 									}
 								}
 							}
@@ -1711,17 +1711,17 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 								bool bPrereqTech = GET_TEAM(kDefendingPlayer.getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.GetGameUnits()->GetEntry(eLoopUnit)->GetPrereqAndTech());
 								if(!bCombat)
 								{
-									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 								}
 								else if(bWarOnly && bPrereqTech)
 								{
-									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+									pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 								}
 								else
 								{
 									if(kDefendingPlayer.canTrainUnit(eLoopUnit, false, false, true))
 									{
-										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+										pNewUnitPlot = kDefendingPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 									}
 								}
 							}
@@ -6566,8 +6566,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 						if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 						{
-							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
-							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA, 1);
+							int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA_CHANGE);
+							GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA_CHANGE, 1);
 							// Culture boost based on previous turns
 							if(iTourism > 0)
 							{
@@ -6722,8 +6722,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 									if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && kPlayer.isMajorCiv())
 									{
-										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA);
-										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA, 1);
+										int iTourism = GET_PLAYER(eLoopPlayer).GetHistoricEventTourism(HISTORIC_EVENT_ERA_CHANGE);
+										GET_PLAYER(eLoopPlayer).ChangeNumHistoricEvents(HISTORIC_EVENT_ERA_CHANGE, 1);
 										// Culture boost based on previous turns
 										if(iTourism > 0)
 										{
@@ -7936,7 +7936,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			{
 				eLoopUnit = kPlayer.GetSpecificUnitType((UnitClassTypes)iUnitClass);
 				iDefaultAI = GC.GetGameUnits()->GetEntry(eLoopUnit)->GetDefaultUnitAIType();
-				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+				pNewUnitPlot = kPlayer.addFreeUnit(eLoopUnit,false,(UnitAITypes)iDefaultAI);
 
 				// Notification below only tells user if their civ gets a Great Person from their trait.  But trait code allows ANY unit to be received from reaching a tech.
 				// So in the future we should use a different notification ("you received a new unit from your trait since you reached this tech") instead.

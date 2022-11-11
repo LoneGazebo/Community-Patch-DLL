@@ -1809,14 +1809,14 @@ int CvLuaPlayer::lDisbandUnit(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::disbandUnit);
 }
 //------------------------------------------------------------------------------
-//CvPlot *addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI)
+//CvPlot *addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI)
 int CvLuaPlayer::lAddFreeUnit(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
 	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 3, NO_UNITAI);
 
-	CvPlot* pkPlot = pkPlayer->addFreeUnit(eUnit, eUnitAI);
+	CvPlot* pkPlot = pkPlayer->addFreeUnit(eUnit, false, eUnitAI);
 	CvLuaPlot::Push(L, pkPlot);
 	return 1;
 }
@@ -2487,18 +2487,20 @@ int CvLuaPlayer::lCalculateUnitCost(lua_State* L)
 //int calculateUnitSupply();
 int CvLuaPlayer::lCalculateUnitSupply(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-
-	const int iResult = pkPlayer->calculateUnitSupply();
-	lua_pushinteger(L, iResult);
-	return 1;
+	luaL_error(L, "CalculateUnitSupply - function is deprecated");
 }
 
 //------------------------------------------------------------------------------
 //int GetNumMaintenanceFreeUnits();
 int CvLuaPlayer::lGetNumMaintenanceFreeUnits(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumMaintenanceFreeUnits);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+	bool bOnlyCombatUnits = luaL_optbool(L, 3, false);
+
+	const int iResult = pkPlayer->GetNumMaintenanceFreeUnits(eDomain, bOnlyCombatUnits);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
@@ -2524,7 +2526,8 @@ int CvLuaPlayer::lGetBaseUnitMaintenance(lua_State* L)
 	}
 
 	const CvHandicapInfo& playerHandicap = pkPlayer->getHandicapInfo();
-	int iFreeUnits = playerHandicap.getGoldFreeUnits();
+	int iFreeUnits = playerHandicap.getMaintenanceFreeUnits();
+	iFreeUnits += pkPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 
 	// Defined in XML by unit info type
 	iFreeUnits += pkPlayer->GetNumMaintenanceFreeUnits();
@@ -2607,7 +2610,7 @@ int CvLuaPlayer::lCalculateInflatedCosts(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->GetTreasury()->CalculateInflatedCosts();
+	const int iResult = pkPlayer->GetTreasury()->CalculateTotalCosts();
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4073,6 +4076,7 @@ int CvLuaPlayer::lGetHandicapHappiness(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	int iHappiness = pkPlayer->getHandicapInfo().getHappinessDefault() + GC.getGame().getGameSpeedInfo().GetStartingHappiness();
+	iHappiness += pkPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIHappinessDefault();
 	
 	lua_pushinteger(L, iHappiness);
 	return 1;
@@ -6423,7 +6427,10 @@ int CvLuaPlayer::lGetHappinessFromMinor(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetBarbarianCombatBonus(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetBarbarianCombatBonus);
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->GetBarbarianCombatBonus(false);
+	lua_pushboolean(L, bResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lSetBarbarianCombatBonus(lua_State* L)
@@ -13711,15 +13718,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 				iValue *= pDiplo->GetBoldness();
 
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() > 100)
 				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent();
+					iValue /= 500;
 				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getLandDisputePercent() > 100)
 				{
-					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GC.getGame().getHandicapInfo().getLandDisputePercent();
+					iValue /= 500;
 				}
 				else
 				{
@@ -13759,15 +13766,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 				iValue *= pDiplo->GetWonderCompetitiveness();
 
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() > 100)
 				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent();
+					iValue /= 500;
 				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getWonderDisputePercent() > 100)
 				{
-					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GC.getGame().getHandicapInfo().getWonderDisputePercent();
+					iValue /= 500;
 				}
 				else
 				{
@@ -13807,15 +13814,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 				iValue *= pDiplo->GetMinorCivCompetitiveness();
 
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() > 100)
 				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent();
+					iValue /= 500;
 				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getMinorCivDisputePercent() > 100)
 				{
-					iValue *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					iValue /= 1000;
+					iValue *= GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
+					iValue /= 500;
 				}
 				else
 				{

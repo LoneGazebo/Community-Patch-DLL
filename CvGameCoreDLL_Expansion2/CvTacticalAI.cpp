@@ -205,7 +205,7 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	// Initialize AI constants from XML
 	m_iRecruitRange = /*8*/ GD_INT_GET(AI_TACTICAL_RECRUIT_RANGE);
 	m_iLandBarbarianRange = max(1, GC.getGame().getHandicapInfo().getBarbarianLandTargetRange());
-	m_iSeaBarbarianRange = MOD_BALANCE_CORE_DIFFICULTY ? max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange()) : max(1, (GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange()/2));
+	m_iSeaBarbarianRange = max(1, GC.getGame().getHandicapInfo().getBarbarianSeaTargetRange());
 }
 
 /// Deallocate memory created in initialize
@@ -9949,10 +9949,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		return result;
 
 	//meta parameters depending on difficulty setting. bit lower than for offensive moves to optimize for runtime instead of quality (there are no enemies around)
-	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 7 : 13;
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 23 : 54;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 2 : 3;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 2 : 3;
+	int iMinCompletedPositions = GC.getGame().getHandicapInfo().getTacticalDefenseMinCompletedPositions();
+	int iMaxCompletedPositions = GC.getGame().getHandicapInfo().getTacticalDefenseMaxCompletedPositions();
+	int iMaxBranches = GC.getGame().getHandicapInfo().getTacticalDefenseMaxBranches();
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapInfo().getTacticalDefenseMaxChoicesPerUnit();
 
 	//set up the initial position
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
@@ -10177,10 +10177,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		return result;
 
 	//meta parameters depending on difficulty setting
-	int iMinCompletedPositions = GC.getGame().getHandicapType() < 2 ? 17 : 23;
-	int iMaxCompletedPositions = GC.getGame().getHandicapType() < 2 ? 23 : 54;
-	int iMaxBranches = GC.getGame().getHandicapType() < 2 ? 3 : 5;
-	int iMaxChoicesPerUnit = GC.getGame().getHandicapType() < 2 ? 3 : 5;
+	int iMinCompletedPositions = GC.getGame().getHandicapInfo().getTacticalOffenseMinCompletedPositions();
+	int iMaxCompletedPositions = GC.getGame().getHandicapInfo().getTacticalOffenseMaxCompletedPositions();
+	int iMaxBranches = GC.getGame().getHandicapInfo().getTacticalOffenseMaxBranches();
+	int iMaxChoicesPerUnit = GC.getGame().getHandicapInfo().getTacticalOffenseMaxChoicesPerUnit();
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();

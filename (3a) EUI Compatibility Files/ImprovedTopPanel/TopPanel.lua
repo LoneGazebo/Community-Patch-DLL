@@ -1174,7 +1174,6 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local goldPerTurnFromPolicies = 0
 
 	local unitCost = g_activePlayer:CalculateUnitCost()
-	local unitSupply = g_activePlayer:CalculateUnitSupply()
 	local buildingMaintenance = g_activePlayer:GetBuildingGoldMaintenance()
 	local improvementMaintenance = g_activePlayer:GetImprovementGoldMaintenance()
 -- BEGIN C4DF
@@ -1222,7 +1221,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 		beaconEnergyDelta = g_activePlayer:GetBeaconEnergyCostPerTurn()
 	end
 	tips:insert( L( "TXT_KEY_TP_AVAILABLE_GOLD", totalWealth ) )
-	local totalExpenses = unitCost + unitSupply + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + routeMaintenance + beaconEnergyDelta
+	local totalExpenses = unitCost + buildingMaintenance + improvementMaintenance + goldPerTurnToOtherPlayers + routeMaintenance + beaconEnergyDelta
 -- BEGIN C4DF
 	if (iVassalMaintenance > 0) then
 		totalExpenses = totalExpenses + iVassalMaintenance;
@@ -1277,7 +1276,6 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 --END
 	tips:insert( "[COLOR:255:150:150:255]" .. L("TXT_KEY_TP_TOTAL_EXPENSES", totalExpenses ) )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNIT_MAINT", unitCost )
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_UNIT_SUPPLY", g_currencyString), unitSupply )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_BUILDING_MAINT", g_currencyString), buildingMaintenance )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TILE_MAINT", g_currencyString), improvementMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )

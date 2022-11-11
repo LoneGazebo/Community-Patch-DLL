@@ -92,9 +92,9 @@ public:
 	void uninit();
 
 	void initFreeState(CvGameInitialItemsOverrides& kOverrides);
-	void initFreeUnits(CvGameInitialItemsOverrides& kOverrides);
-	void addFreeUnitAI(UnitAITypes eUnitAI, int iCount);
-	CvPlot* addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI);
+	void initFreeUnits();
+	void addFreeUnitAI(UnitAITypes eUnitAI, bool bGameStart, int iCount);
+	CvPlot* addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUnitAI = NO_UNITAI);
 
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL, CvUnitEntry* pkSettlerUnitEntry = NULL);
 
@@ -394,7 +394,6 @@ public:
 #endif
 
 	int calculateUnitCost() const;
-	int calculateUnitSupply() const;
 	int calculateResearchModifier(TechTypes eTech);
 	int calculateGoldRate() const;
 	int calculateGoldRateTimes100() const;
@@ -865,7 +864,7 @@ public:
 	void SetUnitUpgradeCostMod(int iValue);
 	void ChangeUnitUpgradeCostMod(int iChange);
 
-	int GetBarbarianCombatBonus(bool bIgnoreHandicap = false) const;
+	int GetBarbarianCombatBonus(bool bIgnoreHandicap) const;
 	void SetBarbarianCombatBonus(int iValue);
 	void ChangeBarbarianCombatBonus(int iChange);
 

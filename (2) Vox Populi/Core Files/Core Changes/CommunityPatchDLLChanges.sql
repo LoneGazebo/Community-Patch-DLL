@@ -8,10 +8,6 @@ WHERE Name = 'BALANCE_CORE_MINORS';
 
 UPDATE CustomModOptions
 SET Value = '1'
-WHERE Name = 'BALANCE_CORE_DIFFICULTY';
-
-UPDATE CustomModOptions
-SET Value = '1'
 WHERE Name = 'BALANCE_CORE_HAPPINESS';
 
 UPDATE CustomModOptions
@@ -209,10 +205,6 @@ WHERE Name = 'BALANCE_RETROACTIVE_PROMOS';
 UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'BALANCE_CORE_VICTORY_GAME_CHANGES';
-
-UPDATE CustomModOptions
-SET Value = '1'
-WHERE Name = 'BALANCE_DYNAMIC_UNIT_SUPPLY';
 
 UPDATE CustomModOptions
 SET Value = '1'

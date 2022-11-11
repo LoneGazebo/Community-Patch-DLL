@@ -144,7 +144,7 @@ public:
 //!  Key Attributes:
 //!  - Used in a vector when assigning start positions
 //!  - Allows sorting by start position
-//!  - Rank initially determined by field from Handicap XML ("StartingLocationPercent")
+//!  - Rank initially determined by field from Handicap XML ("MapPlacementPriority")
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvPlayerStartRank
 {

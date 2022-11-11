@@ -235,7 +235,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// Make our policy choice from the top choices
 	if (m_AdoptablePolicies.size() > 0)
 	{
-		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetPolicyChoiceCutoffThreshold(), &fcn, "Choosing policy from Top Choices");
+		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), &fcn, "Choosing policy from Top Choices");
 
 		// Log our choice
 		if (iRtnValue != (int)NO_POLICY)

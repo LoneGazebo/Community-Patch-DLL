@@ -632,7 +632,7 @@ public:
 	int GetProjectCost(LeagueProjectTypes eLeagueProject) const;
 	int GetProjectProgress(LeagueProjectTypes eLeagueProject);
 	bool CanMemberContribute(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const;
-	int GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const;
+	int GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, bool bDifficultyMod) const;
 	void SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue);
 	void ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange);
 	ContributionTier GetMemberContributionTier(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject);

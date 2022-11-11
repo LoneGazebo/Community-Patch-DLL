@@ -2459,7 +2459,7 @@ void CvPlayerTrade::MoveUnits (void)
 												}
 											}
 										}
-										else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+										else if (GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
 										{
 											GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_LAND);
 										}
@@ -2513,7 +2513,7 @@ void CvPlayerTrade::MoveUnits (void)
 												}
 											}
 										}
-										else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+										else if (GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
 										{
 											GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_SEA);
 										}
@@ -2541,7 +2541,7 @@ void CvPlayerTrade::MoveUnits (void)
 											}
 										}
 									}
-									else if (MOD_BALANCE_CORE_DIFFICULTY && !GET_PLAYER(pOriginCity->getOwner()).isHuman() && GET_PLAYER(pOriginCity->getOwner()).isMajorCiv() && GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
+									else if (GET_PLAYER(pOriginCity->getOwner()).getNumCities() > 0)
 									{
 										GET_PLAYER(pOriginCity->getOwner()).DoDifficultyBonus(HISTORIC_EVENT_TRADE_CS);
 									}
@@ -2551,7 +2551,7 @@ void CvPlayerTrade::MoveUnits (void)
 					}
 				}	
 #endif
-#if defined(MOD_EVENTS_TRADE_ROUTES)
+
 				if (MOD_EVENTS_TRADE_ROUTES) 
 				{
 					CvPlot* pDestPlot = GC.getMap().plot(iDestX, iDestY);
@@ -2565,7 +2565,6 @@ void CvPlayerTrade::MoveUnits (void)
 						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerTradeRouteCompleted, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eDomain, pTradeConnection->m_eConnectionType);
 					}
 				}
-#endif
 
 				// wipe trade route
 				pTrade->ClearTradeRoute(ui);

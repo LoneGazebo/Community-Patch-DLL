@@ -1059,18 +1059,42 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		changeNumExoticGoods(getUnitInfo().GetNumExoticGoods());
 	}
 
-	// free XP from handicap?
-	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
-	if (iXP && !kPlayer.isHuman() && canAcquirePromotionAny())
+	if (canAcquirePromotionAny())
 	{
-		changeExperienceTimes100(iXP * 100);
-	}
+		if (kPlayer.isMajorCiv())
+		{
+			// free XP from handicap?
+			int iXP = kPlayer.getHandicapInfo().getFreeXP();
+			iXP += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXP();
+			if (iXP > 0)
+			{
+				changeExperienceTimes100(iXP * 100);
+			}
 
-	// bonus xp in combat from handicap?
-	int iXPPercent = GC.getGame().getHandicapInfo().getAIFreeXPPercent();
-	if (iXPPercent && !kPlayer.isHuman() && canAcquirePromotionAny())
-	{
-		changeExperiencePercent(iXPPercent);
+			// bonus xp in combat from handicap?
+			int iXPPercent = kPlayer.getHandicapInfo().getFreeXPPercent();
+			iXPPercent += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercent();
+			if (iXPPercent > 0)
+			{
+				changeExperiencePercent(iXPPercent);
+			}
+		}
+		else if (kPlayer.isMinorCiv())
+		{
+			// free XP from handicap?
+			int iXP = GC.getGame().getHandicapInfo().getCityStateFreeXP();
+			if (iXP > 0)
+			{
+				changeExperienceTimes100(iXP * 100);
+			}
+
+			// bonus xp in combat from handicap?
+			int iXPPercent = GC.getGame().getHandicapInfo().getCityStateFreeXPPercent();
+			if (iXPPercent > 0)
+			{
+				changeExperiencePercent(iXPPercent);
+			}
+		}
 	}
 
 
@@ -1266,8 +1290,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 #if defined(MOD_BALANCE_CORE)
 	if(IsGreatPerson() && bHistoric)
 	{
-		int iTourism = kPlayer.GetHistoricEventTourism(HISTORIC_EVENT_GP);
-		kPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_GP, 1);
+		int iTourism = kPlayer.GetHistoricEventTourism(HISTORIC_EVENT_GREAT_PERSON);
+		kPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_GREAT_PERSON, 1);
 		// Culture boost based on previous turns
 		if(iTourism > 0)
 		{
@@ -14784,13 +14808,13 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
 
-	int iProductionBase = kPlayer.getProductionNeeded(getUnitType(), MOD_BALANCE_CORE_DIFFICULTY);
+	int iProductionBase = kPlayer.getProductionNeeded(getUnitType(), true);
 	if (iProductionBase == 0)
 	{
-		iProductionBase = kPlayer.getProductionNeeded(eUnit, MOD_BALANCE_CORE_DIFFICULTY) / 2;
+		iProductionBase = kPlayer.getProductionNeeded(eUnit, true) / 2;
 	}
 
-	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, MOD_BALANCE_CORE_DIFFICULTY) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
+	iPrice += (std::max(0, (kPlayer.getProductionNeeded(eUnit, true) - iProductionBase)) * /*2 in CP, 1 in VP*/ GD_INT_GET(UNIT_UPGRADE_COST_PER_PRODUCTION));
 
 	// Upgrades for later units are more expensive
 	const TechTypes eTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
@@ -14805,15 +14829,19 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 		iPrice = int(iPrice * fMultiplier);
 	}
 
-	if (!isHuman() && !isBarbarian())
+	if (kPlayer.isMajorCiv())
 	{
-		iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
+		iPrice *= kPlayer.getHandicapInfo().getUnitUpgradePercent();
 		iPrice /= 100;
 
-		// This applies the Per Era discount twice since it is already applied once in the getProductionNeeded() call
-		if (!MOD_BALANCE_CORE_DIFFICULTY)
+		iPrice *= std::max(0, ((kPlayer.getHandicapInfo().getUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+		iPrice /= 100;
+		if (!isHuman())
 		{
-			iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPerEraModifier() * GET_TEAM(getTeam()).GetCurrentEra()) + 100));
+			iPrice *= GC.getGame().getHandicapInfo().getAIUnitUpgradePercent();
+			iPrice /= 100;
+
+			iPrice *= std::max(0, ((GC.getGame().getHandicapInfo().getAIUnitUpgradePerEraModifier() * GC.getGame().getCurrentEra()) + 100));
 			iPrice /= 100;
 		}
 	}
@@ -15166,32 +15194,43 @@ int CvUnit::visibilityRange() const
 	VALIDATE_OBJECT
 
 	//in general vision range needs to be at least one, otherwise there will be stacking issues
-	int iRtnValue = (isHuman() || IsGainsXPFromScouting() || isTrade()) ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+	int iVisionRange = 0;
 
-	if(isEmbarked())
+	if (!IsGainsXPFromScouting() && !isTrade())
 	{
-		iRtnValue += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+		if (GET_PLAYER(m_eOwner).isMajorCiv())
+		{
+			iVisionRange += GET_PLAYER(m_eOwner).getHandicapInfo().getVisionBonus();
+			iVisionRange += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIVisionBonus();
+		}
+		else if (GET_PLAYER(m_eOwner).isMinorCiv())
+		{
+			iVisionRange += GC.getGame().getHandicapInfo().getCityStateVisionBonus();
+		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
+	if (isEmbarked())
+	{
+		iVisionRange += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+	}
 	else if (isTrade())
 	{
 		//special rules for trade units, default range is zero!
-		iRtnValue += GET_PLAYER(m_eOwner).GetTRVisionBoost();
+		iVisionRange += GET_PLAYER(m_eOwner).GetTRVisionBoost();
 
 		CorporationTypes eCorporation = GET_PLAYER(m_eOwner).GetCorporations()->GetFoundedCorporation();
 		if (eCorporation != NO_CORPORATION)
 		{
 			CvCorporationEntry* pkCorporation = GC.getCorporationInfo(eCorporation);
-			iRtnValue += pkCorporation ? pkCorporation->GetTradeRouteVisionBoost() : 0;
+			iVisionRange += pkCorporation ? pkCorporation->GetTradeRouteVisionBoost() : 0;
 		}
 	}
-#endif
 	else
 	{
-		iRtnValue += max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
+		iVisionRange += max(1, m_pUnitInfo->GetBaseSightRange() + m_iExtraVisibilityRange);
 	}
 
-	return iRtnValue;
+	return iVisionRange;
 }
 
 #if defined(MOD_PROMOTIONS_VARIABLE_RECON)
@@ -15816,19 +15855,24 @@ int CvUnit::workRate(bool bMax, BuildTypes /*eBuild*/) const
 
 	Modifiers += kPlayer.getWorkerSpeedModifier() + kPlayer.GetPlayerTraits()->GetWorkerSpeedModifier();
 
-	if (!kPlayer.isHuman() && !kPlayer.isBarbarian())
+	if (kPlayer.isMajorCiv())
 	{
-		Modifiers += GC.getGame().getHandicapInfo().getAIWorkRateModifier();
+		Modifiers += kPlayer.getHandicapInfo().getWorkRateModifier();
+		Modifiers += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIWorkRateModifier();
+	}
+	else if (kPlayer.isMinorCiv())
+	{
+		Modifiers += GC.getGame().getHandicapInfo().getCityStateWorkRateModifier();
 	}
 
 	iRate *= Modifiers + 100;
 	iRate /= 100;
-#if defined(MOD_CIV6_WORKER)
+
 	if (MOD_CIV6_WORKER)
 	{
 		iRate = 1;
 	}
-#endif
+
 	return iRate;
 }
 
@@ -16244,6 +16288,15 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 
+	// Modifier from difficulty?
+	if (kPlayer.isMajorCiv())
+	{
+		iModifier += kPlayer.getHandicapInfo().getCombatBonus();
+		iModifier += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
+	}
+	else if (kPlayer.isMinorCiv())
+		iModifier += GC.getGame().getHandicapInfo().getCityStateCombatBonus();
+
 	// If the empire is unhappy, then Units get a combat penalty
 	if (kPlayer.IsEmpireUnhappy())
 	{
@@ -16335,14 +16388,12 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
-	if(MOD_BALANCE_CORE_MILITARY_RESISTANCE && pOtherUnit != NULL)
+	if (pOtherUnit != NULL)
 	{
 		iModifier += GetResistancePower(pOtherUnit);
 	}
 
-#endif
 	////////////////////////
 	// KNOWN BATTLE PLOT
 	////////////////////////
@@ -16518,26 +16569,8 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		if(pOtherUnit->isBarbarian())
 		{
 			// Generic Barb Combat Bonus
-			iModifier += kPlayer.GetBarbarianCombatBonus();
+			iModifier += kPlayer.GetBarbarianCombatBonus(false);
 			iModifier += GetBarbarianCombatBonus();
-
-			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
-
-			// AI bonus
-			if (!isHuman())
-			{
-				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
-			}
-			// Minor bonus
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
-			{
-				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-			}
-
-			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-			{
-				iModifier += 25;
-			}
 		}
 
 		// Trait (player level) bonus against larger civs
@@ -16875,38 +16908,32 @@ int CvUnit::GetEmbarkedUnitDefense() const
 
 	return iRtnValue;
 }
-#if defined(MOD_BALANCE_CORE_MILITARY)
 //	--------------------------------------------------------------------------------
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
-	int iResistance = 0;
-	if (MOD_BALANCE_CORE_MILITARY_RESISTANCE)
-	{
-		if (pOtherUnit->getOwner() == NO_PLAYER)
-			return 0;
+	if (pOtherUnit->getOwner() == NO_PLAYER)
+		return 0;
 
-		if (pOtherUnit->isBarbarian() || isBarbarian())
-			return 0;
+	if (pOtherUnit->isBarbarian() || isBarbarian())
+		return 0;
 
-		if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
-			return 0;
+	if (GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isMinorCiv())
+		return 0;
 
-		// No bonus if we're attacking in their territory
-		if (plot()->getOwner() == pOtherUnit->getOwner())
-			return 0;
+	// No bonus if we're attacking in their territory
+	if (plot()->getOwner() == pOtherUnit->getOwner())
+		return 0;
 
-		iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
+	int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
 
-		// Not our territory?
-		if (plot()->IsFriendlyTerritory(getOwner()))
-			return iResistance;
-		else
-			return iResistance/2;
-	}
+	// Not our territory?
+	if (plot()->IsFriendlyTerritory(getOwner()))
+		return iResistance;
+	else
+		return iResistance/2;
 
 	return iResistance;
 }
-#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSiege(TeamTypes eTeam) const
 {
@@ -16988,6 +17015,15 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	// Extra combat percent
 	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
+
+	// Modifier from difficulty?
+	if (kPlayer.isMajorCiv())
+	{
+		iModifier += kPlayer.getHandicapInfo().getCombatBonus();
+		iModifier += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
+	}
+	else if (kPlayer.isMinorCiv())
+		iModifier += GC.getGame().getHandicapInfo().getCityStateCombatBonus();
 
 	// Kamikaze attack
 	if (getKamikazePercent() != 0)
@@ -17215,18 +17251,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		if(pOtherUnit->isBarbarian())
 		{
 			// Generic Barb Combat Bonus
-			iModifier += kPlayer.GetBarbarianCombatBonus();
-
-			const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
-
-			// AI bonus
-			if (!isHuman())
-				iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
-			// Minor bonus
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
-			{
-				iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-			}
+			iModifier += kPlayer.GetBarbarianCombatBonus(false);
+			iModifier += GetBarbarianCombatBonus();
 		}
 
 		// ATTACKING

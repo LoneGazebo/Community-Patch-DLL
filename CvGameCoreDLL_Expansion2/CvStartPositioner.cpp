@@ -147,10 +147,10 @@ vector<CvPlayerStartRank> GetPlayerStartOrder()
 				CvPlayerStartRank playerRank;
 				playerRank.m_iPlayerID = iI;
 
-				// Following assumes that StartingLocationPercent in Handicap XML rises in increments of 10!
+				// Following assumes that MapPlacementPriority in Handicap XML rises in increments of 1!
 				//    We put all the major civs first (values 1 to 100), using a random number to rank players at the same handicap
 				//    Then we put all the minor civs in next (values 100 to 1000).
-				playerRank.m_iRank = player.getHandicapInfo().getStartingLocationPercent();
+				playerRank.m_iRank = player.getHandicapInfo().getMapPlacementPriority() * 10;
 				if(player.isMinorCiv())
 				{
 					playerRank.m_iRank *= 10;
