@@ -175,11 +175,11 @@ SET Text = 'Fishing is the activity of trying to catch fish. Fishing usually tak
 WHERE Tag = 'TXT_KEY_TECH_SAILING_DESC';
 
 UPDATE Language_en_US
-SET Text = 'Military Theory'
+SET Text = 'Military Strategy'
 WHERE Tag = 'TXT_KEY_TECH_ARCHERY_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'Military theory is the analysis of normative behavior and trends in military affairs and military history, beyond simply describing events in war, Military theories, especially since the influence of Clausewitz in the nineteenth century, attempt to encapsulate the complex cultural, political and economic relationships between societies and the conflicts they create. Theories and conceptions of warfare have varied in different places throughout human history. The Chinese Sun Tzu is recognized by scholars to be one of the earliest military theorists. His now-iconic Art of War laid the foundations for operational planning, tactics, strategy and logistics. In India, Chanakya (350  275 BCE) laid the foundations of military theory through his seminal text called Arthashastra. While the views of Clausewitz, Sun Tzu and Kautilya are not directly applicable to the modern battlefield, they are still referenced and acknowledged by military theorists for the insights they provide, which are then adapted to modern times.'
+SET Text = 'Military strategy is a set of ideas implemented by military organizations to pursue desired strategic goals. Derived from the Greek word strategos, the term strategy was seen in its narrow sense as the art of the general, or the art of arrangement of troops. Military strategy deals with the planning and conduct of campaigns, the movement and disposition of forces, and the deception of the enemy. The father of Western modern strategic studies, Carl von Clausewitz (1780–1831), defined military strategy as the employment of battles to gain the end of war. Sun Tzu (544–496 BC) is often considered as the father of Eastern military strategy and greatly influenced Chinese, Japanese, Korean and Vietnamese historical and modern war tactics. The Eastern military strategy differs from the Western by focusing more on asymmetric warfare and deception.  In India, Chanakya has created an important strategic and political compendium with his seminal text Arthashastra.'
 WHERE Tag = 'TXT_KEY_TECH_ARCHERY_DESC';
 
 UPDATE Language_en_US
