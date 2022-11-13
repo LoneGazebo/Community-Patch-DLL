@@ -1075,7 +1075,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 -- Songhai
 --------------------
 UPDATE Language_en_US
-SET Text = 'Grants +1 [ICON_PRODUCTION] Production to all River tiles near the City, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your Civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_JADE] Jade: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
+SET Text = 'Grants +1 [ICON_PRODUCTION] Production to all River tiles near the City, and +10% [ICON_PRODUCTION] Production when constructing Buildings in this City.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your Civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_JADE] Jade: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP';
 
 UPDATE Language_en_US
