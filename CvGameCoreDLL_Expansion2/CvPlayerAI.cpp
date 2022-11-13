@@ -1716,7 +1716,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 	{
 		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET);
+		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET,false);
 
 		//Let's use our prophets for improvments instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);

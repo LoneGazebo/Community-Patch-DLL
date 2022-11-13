@@ -422,8 +422,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		//Sanity check for buildable support units.
 		if (!bFree && pkUnitEntry->IsCityAttackSupport() && !bForOperation)
 		{
-			int iTotalAlready = kPlayer.GetNumUnitsWithUnitAI(pkUnitEntry->GetDefaultUnitAIType());
-			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_BOMBARD, true, false);
+			int iTotalAlready = kPlayer.GetNumUnitsWithUnitAI(pkUnitEntry->GetDefaultUnitAIType(), false);
+			int iNum = kPlayer.GetNumUnitsWithUnitAI(UNITAI_CITY_BOMBARD, true);
 			if (iNum < iTotalAlready)
 			{
 				return SR_USELESS;
@@ -503,7 +503,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (eDomain == DOMAIN_LAND && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE)
 		{
 			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetExplorersNeeded();
-			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, false);
+			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
 			if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
 				iExplorersHave--;
 
@@ -513,19 +513,17 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				iBonus += iExploreBonus * 500;
 			}
 		}
-		//Need Sea Explorers?
-		if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_EXPLORE_SEA || pkUnitEntry->GetDefaultUnitAIType() == UNITAI_ATTACK_SEA)
-		{
-			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded();
-			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, false);
-			if (m_pCity->isProductionUnit() && m_pCity->getProductionUnit() == eUnit)
-				iExplorersHave--;
 
-			int iExploreBonus = iExplorersNeeded - iExplorersHave;
-			if (iExploreBonus > 0)
-			{
-				iBonus += iExploreBonus * 500;
-			}
+		//Need Sea Explorers?
+		if (EconomicAIHelpers::IsPotentialNavalExplorer(pkUnitEntry->GetDefaultUnitAIType()))
+		{
+			int iExplorersNeeded = kPlayer.GetEconomicAI()->GetNavalExplorersNeeded(); //this will always return at least one!
+			int iExplorersHave = kPlayer.GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true);
+			int iExplorersIdle = kPlayer.GetNumUnitsWithUnitAI(pkUnitEntry->GetDefaultUnitAIType(), true);
+
+			if (iExplorersNeeded > iExplorersHave + iExplorersIdle)
+				iBonus += 500;
+
 		}
 		//Naval Units Critically Needed?
 		if (eDomain == DOMAIN_SEA)
@@ -674,8 +672,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			//if we can build an airforce do so, independent of other players
 			//just take care that it's approximately evenly split between attack and defense
-			int ourBombers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR);
-			int ourFighters = kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR);
+			int ourBombers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false);
+			int ourFighters = kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false);
 			int emptySlots = m_pCity->GetMaxAirUnits() - m_pCity->plot()->countNumAirUnits(kPlayer.getTeam(), true);
 
 			switch (pkUnitEntry->GetDefaultUnitAIType())
@@ -706,7 +704,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			int iNeedAir = 0;
 			int iNumAA = kPlayer.GetMilitaryAI()->GetNumAAUnits();
-			int iOurAir =  + kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR) + kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR);
+			int iOurAir =  + kPlayer.GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false) + kPlayer.GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false);
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
@@ -714,7 +712,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID() && kPlayer.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && 
 					(kPlayer.GetProximityToPlayer(eLoopPlayer) == PLAYER_PROXIMITY_NEIGHBORS || GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())))
 				{
-					int iTheirAir = GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR) + GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR);
+					int iTheirAir = GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_DEFENSE_AIR, false) + GET_PLAYER(eLoopPlayer).GetNumUnitsWithUnitAI(UNITAI_ATTACK_AIR, false);
 
 					//they have no air units? Ignore!
 					if (iTheirAir == 0)
@@ -764,7 +762,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 
 			//There's 2 sitting around? Abort!
-			if (kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true, false) > 3)
+			if (kPlayer.GetNumUnitsWithUnitAI(UNITAI_MESSENGER, true) > 3)
 			{
 				return SR_USELESS;
 			}
@@ -1055,7 +1053,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		//Already have an idle settler out? Ignore.
-		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
+		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 		if (iNumSettlers > 1)
 		{
 			return SR_BALANCE;
@@ -1187,7 +1185,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 			else
 			{
-				int iNumArch = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true, false);
+				int iNumArch = kPlayer.GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 				if (iNumArch <= 0)
 				{
 					iBonus += 5000;
@@ -1278,7 +1276,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		if (m_pCity->plot()->getNumUnitsOfAIType(UNITAI_WORKER, m_pCity->getOwner()) > 0)
 			return SR_USELESS;
 
-		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 		int iMissingBuilders = kPlayer.getNumCities() - iNumBuilders;
 
 		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");

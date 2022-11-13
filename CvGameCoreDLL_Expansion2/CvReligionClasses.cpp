@@ -6994,7 +6994,7 @@ bool CvReligionAI::DoFaithPurchasesInCities(CvCity* pCity)
 							}
 							return true;
 						}
-						else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType()) <= iPurchaseAmount)
+						else if (m_pPlayer->GetNumUnitsWithUnitAI(pUnitEntry->GetDefaultUnitAIType(), false) <= iPurchaseAmount)
 						{
 							pCity->Purchase(eUnit, (BuildingTypes)-1, (ProjectTypes)-1, YIELD_FAITH);
 							if (GC.getLogging())

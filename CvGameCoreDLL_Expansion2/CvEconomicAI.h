@@ -299,6 +299,8 @@ FDataStream& operator>>(FDataStream&, CvPurchaseRequest&);
 
 namespace EconomicAIHelpers
 {
+
+bool IsPotentialNavalExplorer(UnitAITypes eType);
 int ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
 int GetWeightThresholdModifier(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 

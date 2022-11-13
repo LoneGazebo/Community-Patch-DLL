@@ -889,7 +889,16 @@ int CvEconomicAI::GetNavalExplorersNeeded() const
 {
 	return m_iNavalExplorersNeeded;
 }
+
 //	---------------------------------------------------------------------------
+bool EconomicAIHelpers::IsPotentialNavalExplorer(UnitAITypes eType)
+{
+	return eType == UNITAI_ATTACK_SEA ||
+		eType == UNITAI_RESERVE_SEA ||
+		eType == UNITAI_ASSAULT_SEA ||
+		(MOD_AI_UNIT_PRODUCTION && eType == UNITAI_SUBMARINE);
+}
+
 //compute score for yet-to-be revealed plots
 int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
@@ -1091,7 +1100,7 @@ int CvEconomicAI::GetPurchaseSaveAmount(PurchaseType ePurchase)
 /// What is the ratio of workers we have to the number of cities we have?
 double CvEconomicAI::GetWorkersToCitiesRatio()
 {
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false); // includes workers currently being produced
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true); // includes workers currently being produced
 	int iNumCities = m_pPlayer->getNumCities();
 	double fCurrentRatio = iNumWorkers / (double)iNumCities;
 
@@ -2073,7 +2082,7 @@ void CvEconomicAI::DoReconState()
 	// RECON ON OUR HOME CONTINENT
 
 	// How many Units do we have exploring or being trained to do this job?
-	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, true);
+	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
@@ -2162,7 +2171,7 @@ void CvEconomicAI::DoReconState()
 	}
 	else
 	{
-		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
+		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true);
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
 
 		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
@@ -2186,22 +2195,16 @@ void CvEconomicAI::DoReconState()
 			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
-					(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA ||
-					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
-
-						pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA ||
-						 MOD_AI_UNIT_PRODUCTION && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_SUBMARINE))
+				if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA &&
+					EconomicAIHelpers::IsPotentialNavalExplorer(pLoopUnit->getUnitInfo().GetDefaultUnitAIType()) &&
+					pLoopUnit->canUseForAIOperation())
 				{
-					if(pLoopUnit->canUseForAIOperation())
-					{
-						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
+					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 
-						if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
-							eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
-						else
-							eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
-					}
+					if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
+						eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+					else
+						eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 				}
 			}
 
@@ -2399,7 +2402,7 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 
 void CvEconomicAI::DisbandExtraWorkboats()
 {
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true);
 	int iNumCities = m_pPlayer->getNumCities();
 	if(iNumWorkers <= 0)
 		return;
@@ -2544,7 +2547,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	double fWorstCaseRatio = 0.25; // one worker for four cities
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 	if(iNumWorkers <= 0)
 		return;
 

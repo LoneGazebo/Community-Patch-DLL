@@ -1446,7 +1446,7 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 		{
 			if(kPlayer.isAlive())
 			{
-				if((kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false,false) == 0) && (kPlayer.getNumCities() == 0))
+				if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false) == 0 && kPlayer.getNumCities() == 0)
 				{
 					kPlayer.initFreeUnits(kOverrides);
 				}
