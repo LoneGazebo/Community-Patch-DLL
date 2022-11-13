@@ -28556,13 +28556,19 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 		int iHpLimit = GetMaxHitPoints() / 3;
 		return GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
-
-	//typically want to start healing before health becomes critical
-	int iAcceptableDamage = 20;
-	if (bAllowMoreDamage || iMaxHealRate==0)
-		iAcceptableDamage = 50;
-
-	return getDamage() > iAcceptableDamage;
+	//only run away if strictly necessary
+	else if (GetNumEnemyUnitsAdjacent()>0)
+	{
+		return isProjectedToDieNextTurn() || GetDanger() > GetCurrHitPoints();
+	}
+	else
+	{
+		//typically want to start healing before health becomes critical
+		int iAcceptableDamage = 20;
+		if (bAllowMoreDamage || iMaxHealRate == 0)
+			iAcceptableDamage = 50;
+		return getDamage() > iAcceptableDamage;
+	}
 }
 
 //	--------------------------------------------------------------------------------

@@ -4214,6 +4214,10 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 	if(!pUnit || !pTarget)
 		return false;
 
+	//for inspection in GUI
+	pUnit->SetMissionAI(MISSIONAI_TACTMOVE, pTarget, NULL);
+	pUnit->setTacticalMove(m_CurrentMoveUnits.getCurrentTacticalMove());
+
 	// Unit already at target plot?
 	if(pTarget == pUnit->plot() && pUnit->canEndTurnAtPlot(pTarget))
 	{
@@ -4263,9 +4267,6 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 				}
 			}
 
-			//for inspection in GUI
-			pUnit->SetMissionAI(MISSIONAI_TACTMOVE,pTarget,NULL);
-
 			if (bSetProcessed && bResult)
 				UnitProcessed(pUnit->GetID());
 		}
@@ -4286,8 +4287,6 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 				if (pWorkaround)
 				{
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
-					//for inspection in GUI
-					pUnit->SetMissionAI(MISSIONAI_TACTMOVE, pTarget, NULL);
 					if (bSetProcessed || !pUnit->canMove())
 						UnitProcessed(pUnit->GetID());
 					bResult = true;
@@ -7344,7 +7343,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	// * freshly revealed enemy units are not considered
 	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), iSelfDamage);
 	int iNumAdjFriendlies = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(eRelevantDomain) : testPlot.getNumAdjacentFriendlies(eRelevantDomain, -1);
-	bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() <= 3;
+	bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3;
 
 	//don't do it if it's a death trap (unless there is no other choice ...)
 	int iNumAdjEnemies = testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
@@ -7441,7 +7440,12 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 
 	//also occupy our own citadels
 	if (bIsFrontlineCitadel)
-		iResult += TACTICAL_COMBAT_CITADEL_BONUS;
+	{
+		if (pUnit->GetRange() > 1 || testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, -1)==0 || testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_LAND)>0)
+			iResult += TACTICAL_COMBAT_CITADEL_BONUS;
+		else
+			iResult += TACTICAL_COMBAT_CITADEL_BONUS/2;
+	}
 
 	//try not to be a sitting duck (faster than isNativeDomain but not entirely accurate)
 	if (pUnit->getDomainType() != testPlot.getPlot()->getDomain())
@@ -7543,11 +7547,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		//give a bonus for occupying a citadel even if it's just intermediate for now
 		//but we want our units to take turns soaking damage, so we have to incentivise moving in.
 		//bonus should be larger than 60 to override the difference between firstline/secondline base score.
-		if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() <= 3)
+		if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3)
 		{
-			//bonus if this is not suicide or nobody is around to take over
-			if (!pUnit->isProjectedToDieNextTurn() || testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND,-1) == 0)
+			if (pUnit->GetRange()>1 || testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, unit.iPlotIndex) == 0 || testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_LAND) > 0)
 	 			iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS;
+			else
+				iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS/2;
 		}
 	}
 
@@ -8880,7 +8885,7 @@ bool CvTacticalPosition::isImprovedPosition() const
 
 			int iInitialDistance = root->getTactPlot(initial->iFromPlotIndex).getEnemyDistance();
 			int iFinalDistance = finalPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);
-			bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer()) && finalPlot.getEnemyDistance() <= 3;
+			bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer()) && finalPlot.getEnemyDistance() < 3;
 
 			switch (unit->eStrategy)
 			{
