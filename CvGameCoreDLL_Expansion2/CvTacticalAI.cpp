@@ -4806,6 +4806,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				if (pLoopUnit->IsGarrisoned())
 					continue;
 
+				// Heal first, guards might be attacked
+				if (pLoopUnit->shouldHeal(false))
+					continue;
+
 				// No siege units or units without defensive bonuses as plot defenders
 				if (pLoopUnit->AI_getUnitAIType()==UNITAI_CITY_BOMBARD || pLoopUnit->noDefensiveBonus() || !pLoopUnit->canFortify(pTarget))
 					continue;
@@ -6961,7 +6965,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 	//AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART
 	//braveheart allows attacks for which you need luck to survive
-	int hpLimit[5] = {30,30,15,5,-5};
+	int hpLimit[5] = {80,60,40,20,-5};
 
 	if (tactPlot.isEnemyCity()) //a plot can be both a city and a unit - in that case we would attack the city
 	{
@@ -7047,7 +7051,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		if (!pUnit->IsCanAttackRanged()) //only for melee
 		{
 			//it works both ways!
-			int iDelta = tactPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1) - assumedPlot.getNumAdjacentEnemies(DomainForUnit(pUnit));
+			int iDelta = tactPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), assumedPlot.getPlotIndex()) - assumedPlot.getNumAdjacentEnemies(DomainForUnit(pUnit));
 			iDamageDealt += (iDelta*iDamageDealt) / 10;
 			iDamageReceived -= (iDelta*iDamageReceived) / 10;
 		}
@@ -7121,13 +7125,6 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	}
 	else
 	{
-		//if we're not killing an enemy don't commit suicide
-		if (bBelowHpLimitAfterMeleeAttack)
-		{
-			result.iScore = -INT_MAX;
-			return;
-		}
-
 		//note that we ignore melee attacks with advancing here (heavy charge promotion)
 		//because it's too much chance involved. instead we abort the execution later if necessary and restart
 		result.eAssignmentType = pUnit->IsCanAttackRanged() ? A_RANGEATTACK : A_MELEEATTACK;
@@ -7162,7 +7159,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 
 		//bias depends on the ratio of friendly to enemy units
 		int iScaledDamage = int(iDamageDealt*fAggBias*fAggFactor + 0.5f);
-		if (iScaledDamage - iDamageReceived + iExtraScore < 0)
+		if (bBelowHpLimitAfterMeleeAttack && (iScaledDamage - iDamageReceived + iExtraScore) < 0)
 		{
 			result.iScore = -INT_MAX;
 			return;
@@ -7178,8 +7175,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	if (bScoreReduction)
 		result.iScore /= 2;
 
-	//braveheart does not care about self-damage
-	result.iSelfDamage = (eAggLvl==AL_BRAVEHEART) ? iDamageReceived/2 : iDamageReceived;
+	result.iSelfDamage = iDamageReceived;
 	result.iDamage = iDamageDealt;
 }
 
@@ -7313,7 +7309,7 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 				//we don't care for damage here but let's reuse the scoring function
 				STacticalAssignment temp;
 				ScoreAttack(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
-				temp.iScore = max(temp.iScore, iBestAttackScore);
+				iBestAttackScore = max(temp.iScore, iBestAttackScore);
 			}
 
 			//give a bonus to plots with high visibility, an enemy might come into range next turn!
@@ -7329,7 +7325,7 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 		return iNumAttacks * iBestAttackScore / 2 + iVisiblityScore;
 	else
 		//if we can't do it this turn then reduce the score even further because the attack is still hypothetical
-		return iBestAttackScore / 4 + iVisiblityScore;
+		return (iBestAttackScore / 2 + iVisiblityScore) / 2;
 }
 
 int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
@@ -7382,7 +7378,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		if (iDanger / 2 > iRemainingHP && !bIsFrontlineCitadel)
 		{
 			//if there is nothing we would cover or we are low on health, don't do it at all
-			if (iNumAdjFriendlies == 0 || iRemainingHP < 37)
+			if (iRemainingHP*(iNumAdjFriendlies+1) < 23)
 				return INT_MAX;
 			//if we cover one other unit, then maybe
 			else if (iNumAdjFriendlies == 1)
@@ -7504,7 +7500,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		{  1, 12, 6, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
 		{ -1, 2, 12, 2, -1 }, //secondline
 		{ -1, 1, 8, 12, -1 }, //thirdline
-		{ -1, 1, 8,  8, -1 }, //support (should not occur here)
+		{ -1, 1, 8,  8, -1 }, //support (can happen for damaged melee units)
 	};
 	iMiscScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
@@ -7602,7 +7598,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 		{ -1, 12, 6, 4, 1 }, //firstline
 		{ -1, 1, 12, 8, 1 }, //secondline
 		{ -1, 1, 8, 12, 1 }, //thirdline
-		{ -1, 1, 4, 4, 1 }, //support (should not occur)
+		{ -1, 1, 8, 8, -1 }, //support (can happen for damaged melee units)
 	};
 	iMiscScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
@@ -8444,8 +8440,9 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 				bool bSuicide = false;
 				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
 				{
+					int iNumFriendlies = assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1);
 					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit.iSelfDamage);
-					if (iDanger > 2*pUnit->GetCurrHitPoints())
+					if (iDanger > 2 * pUnit->GetCurrHitPoints() * (iNumFriendlies+1))
 						bSuicide = true;
 				}
 

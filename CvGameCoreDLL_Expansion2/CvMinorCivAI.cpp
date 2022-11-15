@@ -14181,7 +14181,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 			iLowestDistance = iDistance;
 			pClosestCity = pLoopCity;
 
-			if (pLoopCity->isCoastal() && iDistance < iLowestCoastalDistance)
+			if (pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && iDistance < iLowestCoastalDistance)
 			{
 				iLowestCoastalDistance = iDistance;
 				pClosestCoastalCity = pLoopCity;
