@@ -1068,7 +1068,7 @@ VALUES 		('Any', 'UnderConstruction', 1.10, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNA
 ------------------------------
 INSERT INTO ArtDefine_StrategicView
 			(StrategicViewType, TileType, Asset)
-VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'Siheyuan128.128.dds');
+VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'Siheyuan128.dds');
 ------------------------------
 -- IconTextureAtlases
 ------------------------------
