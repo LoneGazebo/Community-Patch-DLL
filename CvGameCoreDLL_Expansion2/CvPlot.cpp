@@ -1097,12 +1097,17 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 				if (!pAdjacentPlot->isAdjacentToWater())
 					continue;
 			}
+			else
+			{
+				//unowned land tile
+				continue;
+			}
 
 			// add the plot to the list if it's not already in it
 			if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) 
 			{
 				vAccessibleWaterPlots.push_back(pAdjacentPlot);
-				if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot itself
+				if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot from which we started
 					return true;
 			}
 		}
