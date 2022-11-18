@@ -822,7 +822,6 @@ protected:
 	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
 	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	CvPlot* pTargetPlot;
-	bool isIsolatedTarget;
 
 	//just for debugging, should be unique
 	unsigned long long iID;
@@ -836,7 +835,7 @@ protected:
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(const SUnitStats& unit) const;
 	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
-	vector<STacticalAssignment> getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
+	void getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
 	CvTacticalPosition* addChild(CvTactPosStorage& storage);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
@@ -860,8 +859,9 @@ public:
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
 	void initFromParent(const CvTacticalPosition& parent); 
 
-	bool isComplete() const;
-	bool addFinishMovesIfAcceptable();
+	bool isExhausted() const;
+	bool isEarlyFinish() const;
+	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
 	bool isAttackOrImprovedPosition() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();

@@ -8349,14 +8349,14 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 		return ScorePlotForNonFightingUnitMove(unit, testPlot, movePlot, assumedPosition, evalMode);
 }
 
-vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
+void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
 	gPossibleMoves.clear();
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
 	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(unit.iUnitID);
 	if (!pUnit || !assumedUnitPlot.isValid())
-		return vector<STacticalAssignment>();
+		return;
 
 	//what is the score for simply staying put and doing nothing?
 	//important not to pass zero moves left, otherwise we might ignore possible attacks
@@ -8489,8 +8489,6 @@ vector<STacticalAssignment> CvTacticalPosition::getPreferredAssignmentsForUnit(c
 
 	if (gPossibleMoves.size()>(size_t)nMaxCount)
 		gPossibleMoves.erase( gPossibleMoves.begin()+nMaxCount, gPossibleMoves.end() );
-
-	return gPossibleMoves;
 }
 
 //if we have many units we won't look at all of them (for performance reasons)
@@ -8773,25 +8771,21 @@ vector<STacticalAssignment> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlo
 }
 
 //can we stop now?
-bool CvTacticalPosition::isComplete() const
+bool CvTacticalPosition::isEarlyFinish() const
 { 
 	//simple - all enemies are gone (check for non-zero to make sure we aren't trivially complete)
-	if (nEnemies>0 && nEnemies==killedEnemies.size())
-		return true;
+	return nEnemies > 0 && nEnemies == killedEnemies.size();
+}
 
-	//if this was an isolated target, we stop as soon as it has been killed (don't overcommit units)
-	//if it's a cluster of targets we have to continue because there's only one tactical target for the whole cluster
-	if (eAggression > AL_NONE && (isIsolatedTarget || pTargetPlot->isCity()))
-		if (getTactPlot(pTargetPlot->GetPlotIndex()).getEnemyDistance() > 0)
-			return true;
-
-	//finally, if we can't move anymore we must be done
+//do we have to stop now
+bool CvTacticalPosition::isExhausted() const
+{
 	return availableUnits.empty();
 }
 
 //see if all the plots where our units would end their turn are acceptable
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
-bool CvTacticalPosition::addFinishMovesIfAcceptable()
+bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 { 
 	//only units we have moved can be in this array
 	while (!notQuiteFinishedUnits.empty())
@@ -8827,33 +8821,10 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		notQuiteFinishedUnits.pop_back();
 	}
 
-	//also check units which can still move but which might be important to block the enemy
-	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
-	{
-		CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(itUnit->iUnitID);
-		const STacticalAssignment* pInitial = getInitialAssignment(itUnit->iUnitID);
-		if (!pInitial)
-			continue;
-
-		//melee only
-		if (pUnit->IsCanAttackWithMove())
-		{
-			//ignore units far from the enemy, can use them for other tasks
-			const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
-			if (tactPlot.getEnemyDistance() == 1)
-			{
-				//if the unit is adjacent to the enemy, we want it to stay and provide cover if possible
-				int iNextTurnScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, EM_FINAL).iScore;
-				if (iNextTurnScore > 0)
-				{
-					assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, iNextTurnScore, A_FINISH));
-					iTotalScore += (iNextTurnScore - pInitial->iScore);
-				}
-			}
-		}
-	}
-
-	return true;
+	//did we attack anything (offensive) or at least improve the arrangement of our units (defensive)?
+	if (!bEarlyFinish)
+		//order is important here, need to add finish moves first!
+		return isAttackOrImprovedPosition();
 }
 
 //although we try to pick "positive" moves only sometimes there are only bad choices
@@ -8943,12 +8914,6 @@ void CvTacticalPosition::countEnemies()
 		if (tactPlots[i].isEnemy())
 			nEnemies++; //units and cities
 	}
-
-	//for offense we need to know this
-	if (eAggression > AL_NONE)
-		isIsolatedTarget = (pTargetPlot->GetNumEnemyUnitsAdjacent(GET_PLAYER(ePlayer).getTeam(), NO_DOMAIN) == 0);
-	else
-		isIsolatedTarget = false;
 }
 
 void CvTacticalPosition::refreshVolatilePlotProperties()
@@ -9034,7 +8999,6 @@ CvTacticalPosition::CvTacticalPosition()
 	eAggression = AL_NONE;
 	nOurUnits = 0;
 	nEnemies = 0;
-	isIsolatedTarget = false;
 	iTotalScore = 0;
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
@@ -9050,7 +9014,6 @@ void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eA
 	eAggression = eAggLvl;
 	nOurUnits = 0;
 	nEnemies = 0;
-	isIsolatedTarget = false;
 	iTotalScore = 0;
 	iScoreOverParent = 0; 
 	parentPosition = NULL;
@@ -9076,7 +9039,6 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	eAggression = parent.eAggression;
 	nOurUnits = parent.nOurUnits;
 	nEnemies = parent.nEnemies;
-	isIsolatedTarget = parent.isIsolatedTarget;
 	iTotalScore = parent.iTotalScore;
 	iScoreOverParent = 0;
 	parentPosition = &parent;
@@ -9510,7 +9472,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		}
 		else if (pFutureExEnemyPlot->isCity())
 		{
-			//put an invalid unit ID as a placeholder so that isComplete() works
+			//put an invalid unit ID as a placeholder so that isEarlyFinish() works
 			killedEnemies.push_back(0);
 		}
 
@@ -9781,7 +9743,7 @@ ostream& operator << (ostream& out, const STacticalAssignment& arg)
 void CvTacticalPosition::dumpChildren(ofstream& out) const
 {
 	out << "n" << (void*)this << " [ label = \"id " << (void*)this << ": score " << iTotalScore << ", " << availableUnits.size() << " units\" ";
-	if (isComplete())
+	if (isEarlyFinish() || isExhausted())
 		out << " shape=box ";
 	out << "];\n";
 
@@ -10038,10 +10000,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
 				CvTacticalPosition* newPos = *it;
-				if (newPos->isComplete())
+				if (newPos->isEarlyFinish() || newPos->isExhausted())
 				{
-					//order is important here, need to add finish moves first
-					if (newPos->addFinishMovesIfAcceptable() && newPos->isAttackOrImprovedPosition())
+					if (newPos->addFinishMovesIfAcceptable(newPos->isEarlyFinish()))
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -10059,7 +10020,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		}
 		else
 		{
-			if (current->addFinishMovesIfAcceptable())
+			if (current->addFinishMovesIfAcceptable(false))
 			{
 				blockedPositions.push_back(current);
 				iTopScore = max(iTopScore, current->getScore());
@@ -10095,7 +10056,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 		//last chance - take the best open / blocked position
 		for (size_t i = 0; i < openPositionsHeap.size(); i++)
 		{
-			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable())
+			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
 				blockedPositions.push_back(openPositionsHeap[i]);
 		}
 
@@ -10270,10 +10231,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 			for (vector<CvTacticalPosition*>::const_iterator it = current->getChildren().begin(); it != current->getChildren().end(); ++it)
 			{
 				CvTacticalPosition* newPos = *it;
-				if (newPos->isComplete())
+				if (newPos->isEarlyFinish() || newPos->isExhausted())
 				{
-					//order is important here, need to add finish moves first
-					if (newPos->addFinishMovesIfAcceptable() && newPos->isAttackOrImprovedPosition())
+					if (newPos->addFinishMovesIfAcceptable(newPos->isEarlyFinish()))
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -10293,7 +10253,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		{
 			//apparently we're blocked from making further assignments, but maybe this position is still useful
 			//order is important here, need to add finish moves first
-			if (current->addFinishMovesIfAcceptable() && current->isAttackOrImprovedPosition())
+			if (current->addFinishMovesIfAcceptable(false))
 			{
 				blockedPositions.push_back(current);
 				iTopScore = max(iTopScore, current->getScore());
@@ -10331,7 +10291,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		//last chance - take the best open / blocked position
 		for (size_t i = 0; i < openPositionsHeap.size(); i++)
 		{
-			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable())
+			if (openPositionsHeap[i]->getScore() > iTopScore/2 && openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
 				blockedPositions.push_back(openPositionsHeap[i]);
 		}
 
