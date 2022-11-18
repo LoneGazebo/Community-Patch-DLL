@@ -9507,20 +9507,10 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 				}
 			}
 
-			int iDifficultyMod = 0;
-
-			// AI a bit less aggressive about this on lower difficulties
-			if (GET_PLAYER(ePlayer).isHuman())
-			{
-				int AIDeclareWarProb = GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-				if (AIDeclareWarProb < 150)
-					iDifficultyMod = 2;
-				else if (AIDeclareWarProb < 200)
-					iDifficultyMod = 1;
-			}
+			int iWonderBlockMod = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockMod() : GC.getGame().getHandicapInfo().getWonderBlockMod(); // 0 or negative
 
 			// Must have built several more Wonders than the median player in this game
-			if (iNumWonders > (iMedianNumWonders + /*3*/ GD_INT_GET(WONDER_SPAMMER_THRESHOLD) + iDifficultyMod))
+			if (iNumWonders > (iMedianNumWonders + /*3*/ GD_INT_GET(WONDER_SPAMMER_THRESHOLD) - iWonderBlockMod))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
 				if (iNumWonders >= (fAverageNumWonders * 1.5))
@@ -9643,11 +9633,11 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 		if (iTechDifference > 0)
 		{
 			BlockLevelTypes eBlockLevel = BLOCK_LEVEL_NONE;
-			int DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			int DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockMod() : GC.getGame().getHandicapInfo().getTechBlockMod();
 
 			// Multiply by DiploBalance flavor - we want to maintain a balance of power in the world...with us in the lead, of course
 			iTechDifference *= iDiploBalance;
-			iTechDifference += (DifficultyModifier / 50);
+			iTechDifference += DifficultyModifier;
 
 			if (iTechDifference >= /*30*/ GD_INT_GET(TECH_BLOCK_FIERCE_THRESHOLD))
 				eBlockLevel = BLOCK_LEVEL_FIERCE;
@@ -9762,11 +9752,11 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 		if (iPolicyDifference > 0)
 		{
 			BlockLevelTypes eBlockLevel = BLOCK_LEVEL_NONE;
-			int DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+			int DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockMod() : GC.getGame().getHandicapInfo().getPolicyBlockMod();
 
 			// Multiply by DiploBalance flavor - we want to maintain a balance of power in the world...with us in the lead, of course
 			iPolicyDifference *= iDiploBalance;
-			iPolicyDifference += (DifficultyModifier / 70);
+			iPolicyDifference += DifficultyModifier;
 
 			if (iPolicyDifference >= /*24*/ GD_INT_GET(POLICY_BLOCK_FIERCE_THRESHOLD))
 				eBlockLevel = BLOCK_LEVEL_FIERCE;
@@ -9852,11 +9842,11 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 
 			if (iVictoryDisputeWeight > 0)
 			{
-				int DifficultyModifier = GET_PLAYER(eLoopPlayer).isHuman() ? GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				int DifficultyModifier = GET_PLAYER(eLoopPlayer).isHuman() ? GET_PLAYER(eLoopPlayer).getHandicapInfo().getVictoryDisputeMod() : GC.getGame().getHandicapInfo().getVictoryDisputeMod();
 
 				// Add weight for Player's competitiveness (1 - 10)
 				iVictoryDisputeWeight *= GetVictoryCompetitiveness();
-				iVictoryDisputeWeight += DifficultyModifier / 70;
+				iVictoryDisputeWeight += DifficultyModifier;
 
 				// Now see what our new Dispute Level should be
 				if (iVictoryDisputeWeight >= /*80*/ GD_INT_GET(VICTORY_DISPUTE_FIERCE_THRESHOLD))
@@ -10042,12 +10032,12 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
 			if (iVictoryBlockWeight > 0)
 			{
-				int DifficultyModifier = GET_PLAYER(eLoopPlayer).isHuman() ? GET_PLAYER(eLoopPlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+				int DifficultyModifier = GET_PLAYER(eLoopPlayer).isHuman() ? GET_PLAYER(eLoopPlayer).getHandicapInfo().getVictoryBlockMod() : GC.getGame().getHandicapInfo().getVictoryBlockMod();
 
 				// Add weight for Player's victory competitiveness, meanness and diplobalance desires (1 - 10)
 				// Average of each is 5, and era goes up by one throughout game.
 				iVictoryBlockWeight += GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + iGameEra;
-				iVictoryBlockWeight += DifficultyModifier / 50;
+				iVictoryBlockWeight += DifficultyModifier;
 
 				// Now see what our new Block Level should be
 				if (iVictoryBlockWeight >= /*40*/ GD_INT_GET(VICTORY_BLOCK_FIERCE_THRESHOLD))
@@ -16677,7 +16667,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// VICTORY ISSUES
 	////////////////////////////////////
 
-	int DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
+	int DifficultyModifier = 0;
+	if (GET_PLAYER(ePlayer).isHuman())
+		DifficultyModifier = max(GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent(), GET_PLAYER(ePlayer).getHandicapInfo().getVictoryBlockPercent());
+	else
+		DifficultyModifier = max(GC.getGame().getHandicapInfo().getVictoryDisputePercent(), GC.getGame().getHandicapInfo().getVictoryBlockPercent());
 
 	if (IsCompetingForVictory() && iGameTurn > 150)
 	{
@@ -16687,22 +16681,22 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		switch (eMaxVictoryDispute)
 		{
 		case DISPUTE_LEVEL_NONE:
-			vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
-			vApproachScores[CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_NEUTRAL] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_FRIENDLY] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_FRIENDLY] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 500;
+			vApproachScores[CIV_APPROACH_NEUTRAL] += bProvokedUs ? 0 : vApproachBias[CIV_APPROACH_NEUTRAL] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 500;
 			break;
 		case DISPUTE_LEVEL_WEAK:
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 2000;
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 2000;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
 			break;
 		case DISPUTE_LEVEL_STRONG:
-			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1500;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 750;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 750;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 750;
 			break;
 		case DISPUTE_LEVEL_FIERCE:
-			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
-			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
-			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 1000;
+			vApproachScores[CIV_APPROACH_GUARDED] += vApproachBias[CIV_APPROACH_GUARDED] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 500;
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 500;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * max(iTheirEra, 1) * GetVictoryCompetitiveness() * DifficultyModifier / 500;
 			break;
 		}
 	}
@@ -16712,6 +16706,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	DisputeLevelTypes eDisputeLevel = GetLandDisputeLevel(ePlayer);
+	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
 	int iMultiplier = 1;
 	float fModifier = 1.000f;
 	bool bBonus = true; // territorial disputes should always play a major role ...
@@ -16773,12 +16768,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 	{
 		fModifier = (float)(iMultiplier * GetBoldness() * DifficultyModifier);
-		fModifier /= 1000;
+		fModifier /= 500;
 	}
 	else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 	{
 		fModifier = (float)(iMultiplier * (GetBoldness() + GetNeediness()) * DifficultyModifier);
-		fModifier /= 2000;
+		fModifier /= 1000;
 	}
 
 	switch (eDisputeLevel)
@@ -16810,6 +16805,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (bMetValidMinor)
 	{
 		eDisputeLevel = GetMinorCivDisputeLevel(ePlayer);
+		DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() : GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
 		iMultiplier = 1;
 		bBonus = false;
 		bVictoryCompetitor = false;
@@ -16876,12 +16872,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 		{
 			fModifier = (float)(iMultiplier * GetMinorCivCompetitiveness() * DifficultyModifier);
-			fModifier /= 1000;
+			fModifier /= 500;
 		}
 		else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 		{
 			fModifier = (float)(iMultiplier * (GetMinorCivCompetitiveness() + GetNeediness()) * DifficultyModifier);
-			fModifier /= 2000;
+			fModifier /= 1000;
 		}
 
 		switch (eDisputeLevel)
@@ -16912,6 +16908,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	eDisputeLevel = GetWonderDisputeLevel(ePlayer);
+	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() : GC.getGame().getHandicapInfo().getWonderDisputePercent();
 	iMultiplier = 1;
 	bBonus = false;
 	bVictoryCompetitor = false;
@@ -16987,12 +16984,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 	{
 		fModifier = (float)(iMultiplier * GetWonderCompetitiveness() * DifficultyModifier);
-		fModifier /= 1000;
+		fModifier /= 500;
 	}
 	else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 	{
 		fModifier = (float)(iMultiplier * (GetWonderCompetitiveness() + GetNeediness()) * DifficultyModifier);
-		fModifier /= 2000;
+		fModifier /= 1000;
 	}
 
 	switch (eDisputeLevel)
@@ -17026,6 +17023,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		////////////////////////////////////
 
 		BlockLevelTypes eBlockLevel = GetTechBlockLevel(ePlayer);
+		DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() : GC.getGame().getHandicapInfo().getTechBlockPercent();
 		iMultiplier = 1;
 		bBonus = false;
 		bVictoryCompetitor = false;
@@ -17085,12 +17083,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (eBlockLevel > BLOCK_LEVEL_NONE)
 		{
 			fModifier = (float)(iMultiplier * GetDiploBalance() * DifficultyModifier);
-			fModifier /= max(1000, 2000 - (iBlockEra * 250));
+			fModifier /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
 			fModifier = (float)(iMultiplier * (GetDiploBalance() + GetNeediness()) * DifficultyModifier);
-			fModifier /= 2000;
+			fModifier /= 1000;
 		}
 
 		switch (eBlockLevel)
@@ -17120,6 +17118,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		////////////////////////////////////
 
 		eBlockLevel = GetPolicyBlockLevel(ePlayer);
+		DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() : GC.getGame().getHandicapInfo().getPolicyBlockPercent();
 		iMultiplier = 1;
 		bBonus = false;
 		bVictoryCompetitor = false;
@@ -17189,12 +17188,12 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (eBlockLevel > BLOCK_LEVEL_NONE)
 		{
 			fModifier = (float)(iMultiplier * GetDiploBalance() * DifficultyModifier);
-			fModifier /= max(1000, 2000 - (iBlockEra * 250));
+			fModifier /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
 			fModifier = (float)(iMultiplier * (GetDiploBalance() + GetNeediness()) * DifficultyModifier);
-			fModifier /= 2000;
+			fModifier /= 1000;
 		}
 
 		switch (eBlockLevel)
@@ -19145,6 +19144,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Is this player a reckless expander?
 	////////////////////////////////////
 
+	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
+
 	if (IsPlayerRecklessExpander(ePlayer))
 	{
 		int iWarIncrease = vApproachBias[CIV_APPROACH_WAR] * 2;
@@ -19162,14 +19163,16 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iWarIncrease += vApproachBias[CIV_APPROACH_WAR] * 3;
 		}
 
-		vApproachScores[CIV_APPROACH_WAR] += iWarIncrease * GetBoldness() * DifficultyModifier / 1000;
-		vApproachScores[CIV_APPROACH_HOSTILE] += iHostileIncrease * GetBoldness() * DifficultyModifier / 1000;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetBoldness() * DifficultyModifier / 1000;
+		vApproachScores[CIV_APPROACH_WAR] += iWarIncrease * GetBoldness() * DifficultyModifier / 500;
+		vApproachScores[CIV_APPROACH_HOSTILE] += iHostileIncrease * GetBoldness() * DifficultyModifier / 500;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetBoldness() * DifficultyModifier / 500;
 	}
 
 	////////////////////////////////////
 	// Is this player spamming World Wonders?
 	////////////////////////////////////
+
+	DifficultyModifier = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockPercent() : GC.getGame().getHandicapInfo().getWonderBlockPercent();
 
 	if (IsPlayerWonderSpammer(ePlayer))
 	{
@@ -19188,9 +19191,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			iWarIncrease += vApproachBias[CIV_APPROACH_WAR] * 3;
 		}
 
-		vApproachScores[CIV_APPROACH_WAR] += iWarIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
-		vApproachScores[CIV_APPROACH_HOSTILE] += iHostileIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetWonderCompetitiveness() * DifficultyModifier / 1000;
+		vApproachScores[CIV_APPROACH_WAR] += iWarIncrease * GetWonderCompetitiveness() * DifficultyModifier / 500;
+		vApproachScores[CIV_APPROACH_HOSTILE] += iHostileIncrease * GetWonderCompetitiveness() * DifficultyModifier / 500;
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += iDeceptiveIncrease * GetWonderCompetitiveness() * DifficultyModifier / 500;
 	}
 
 	////////////////////////////////////
@@ -19215,40 +19218,37 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// COMMUNITY BALANCE OVERHAUL CHANGES
+	// VOX POPULI CHANGES
 	////////////////////////////////////
 
 	////////////////////////////////////
 	// Difficulty Bonus
 	////////////////////////////////////
 
-	int iDifficultyBonusBase = MOD_BALANCE_CORE_DIFFICULTY ? (min(10, max(0, (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase()/2)))) : 0; // normally ranges from 0 to 14
+	int iAggressionIncrease = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAggressionIncrease() : GC.getGame().getHandicapInfo().getAggressionIncrease();
 
-	if (MOD_BALANCE_CORE_DIFFICULTY)
+	// If we don't view them favorably, increase hostility based on game difficulty
+	if (eOpinion < CIV_OPINION_NEUTRAL)
 	{
-		// If we don't view them favorably, increase hostility based on game difficulty
-		if (eOpinion < CIV_OPINION_NEUTRAL)
-		{
-			int iDifficultyBonus = iDifficultyBonusBase - ((int)eOpinion * 2); // Unforgivable: -0, Enemy: -2, Competitor: -4
+		int iDifficultyBonus = iAggressionIncrease - ((int)eOpinion * 2); // Unforgivable: -0, Enemy: -2, Competitor: -4
 
-			if (iDifficultyBonus > 0)
+		if (iDifficultyBonus > 0)
+		{
+			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iDifficultyBonus / 2;
+			vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iDifficultyBonus / 2;
+			vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * iDifficultyBonus / 2;
+
+			if (bWantsOpportunityAttack)
+			{
+				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iDifficultyBonus;
+				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iDifficultyBonus;
+			}
+
+			// Easy target?
+			if (bEasyTarget)
 			{
 				vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iDifficultyBonus / 2;
 				vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iDifficultyBonus / 2;
-				vApproachScores[CIV_APPROACH_DECEPTIVE] += vApproachBias[CIV_APPROACH_DECEPTIVE] * iDifficultyBonus / 2;
-
-				if (bWantsOpportunityAttack)
-				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iDifficultyBonus;
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iDifficultyBonus;
-				}
-
-				// Easy target?
-				if (bEasyTarget)
-				{
-					vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iDifficultyBonus / 2;
-					vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * iDifficultyBonus / 2;
-				}
 			}
 		}
 	}
@@ -19322,10 +19322,15 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Scale based on personality (boldness), victory issues, and difficulty level
+	if (GET_PLAYER(ePlayer).isHuman())
+		DifficultyModifier = max(GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent(), GET_PLAYER(ePlayer).getHandicapInfo().getVictoryBlockPercent());
+	else
+		DifficultyModifier = max(GC.getGame().getHandicapInfo().getVictoryDisputePercent(), GC.getGame().getHandicapInfo().getVictoryBlockPercent());
+
 	iWarBonus *= (GetBoldness() + (int)GetVictoryDisputeLevel(ePlayer) + (int)GetVictoryBlockLevel(ePlayer)) * DifficultyModifier;
-	iWarBonus /= 1000;
+	iWarBonus /= 500;
 	iHostileBonus *= (GetMeanness() + (int)GetVictoryDisputeLevel(ePlayer) + (int)GetVictoryBlockLevel(ePlayer)) * DifficultyModifier;
-	iHostileBonus /= 1000;
+	iHostileBonus /= 500;
 
 	if (iWarBonus > 0 || iHostileBonus > 0)
 	{
@@ -19728,29 +19733,29 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// SQL BONUS/PENALTY
+	// XML BONUS/PENALTY FROM DIFFICULTY LEVEL
 	////////////////////////////////////
 
 	// Additional weight to approaches (flat +/-; configurable in DiploApproachWeights.sql)
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
-		vApproachScores[CIV_APPROACH_NEUTRAL] += /*0*/ GD_INT_GET(APPROACH_NEUTRAL_HUMAN);
-		vApproachScores[CIV_APPROACH_FRIENDLY] += /*0*/ GD_INT_GET(APPROACH_FRIENDLY_HUMAN);
-		vApproachScores[CIV_APPROACH_AFRAID] += /*0*/ GD_INT_GET(APPROACH_AFRAID_HUMAN);
-		vApproachScores[CIV_APPROACH_GUARDED] += /*0*/ GD_INT_GET(APPROACH_GUARDED_HUMAN);
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += /*0*/ GD_INT_GET(APPROACH_DECEPTIVE_HUMAN);
-		vApproachScores[CIV_APPROACH_HOSTILE] += /*0*/ GD_INT_GET(APPROACH_HOSTILE_HUMAN);
-		vApproachScores[CIV_APPROACH_WAR] += /*0*/ GD_INT_GET(APPROACH_WAR_HUMAN);
+		vApproachScores[CIV_APPROACH_NEUTRAL] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanNeutralApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanFriendlyApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_AFRAID] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanAfraidApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_GUARDED] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanGuardedApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanDeceptiveApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_HOSTILE] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanHostileApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_WAR] += GET_PLAYER(ePlayer).getHandicapInfo().getHumanWarApproachChangeFlat();
 	}
 	else
 	{
-		vApproachScores[CIV_APPROACH_NEUTRAL] += /*0*/ GD_INT_GET(APPROACH_NEUTRAL_AI);
-		vApproachScores[CIV_APPROACH_FRIENDLY] += /*0*/ GD_INT_GET(APPROACH_FRIENDLY_AI);
-		vApproachScores[CIV_APPROACH_AFRAID] += /*0*/ GD_INT_GET(APPROACH_AFRAID_AI);
-		vApproachScores[CIV_APPROACH_GUARDED] += /*0*/ GD_INT_GET(APPROACH_GUARDED_AI);
-		vApproachScores[CIV_APPROACH_DECEPTIVE] += /*0*/ GD_INT_GET(APPROACH_DECEPTIVE_AI);
-		vApproachScores[CIV_APPROACH_HOSTILE] += /*0*/ GD_INT_GET(APPROACH_HOSTILE_AI);
-		vApproachScores[CIV_APPROACH_WAR] += /*0*/ GD_INT_GET(APPROACH_WAR_AI);
+		vApproachScores[CIV_APPROACH_NEUTRAL] += GC.getGame().getHandicapInfo().getAINeutralApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_FRIENDLY] += GC.getGame().getHandicapInfo().getAIFriendlyApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_AFRAID] += GC.getGame().getHandicapInfo().getAIAfraidApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_GUARDED] += GC.getGame().getHandicapInfo().getAIGuardedApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_DECEPTIVE] += GC.getGame().getHandicapInfo().getAIDeceptiveApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_HOSTILE] += GC.getGame().getHandicapInfo().getAIHostileApproachChangeFlat();
+		vApproachScores[CIV_APPROACH_WAR] += GC.getGame().getHandicapInfo().getAIWarApproachChangeFlat();
 	}
 
 	//--------------------------------//
@@ -20296,54 +20301,54 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	////////////////////////////////////
-	// SQL BONUS/PENALTY
+	// XML BONUS/PENALTY FROM DIFFICULTY LEVEL
 	////////////////////////////////////
 
 	// Now add the percentage weight.
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_FRIENDLY_HUMAN_PERCENT)));
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_NEUTRAL_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanNeutralApproachChangePercent());
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 
-		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_AFRAID_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanFriendlyApproachChangePercent());
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+
+		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanAfraidApproachChangePercent());
 		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
 
-		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_GUARDED_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanGuardedApproachChangePercent());
 		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
 
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_DECEPTIVE_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanDeceptiveApproachChangePercent());
 		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
 
-		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_HOSTILE_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanHostileApproachChangePercent());
 		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
 
-		vApproachScores[CIV_APPROACH_WAR] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_WAR_HUMAN_PERCENT)));
+		vApproachScores[CIV_APPROACH_WAR] *= max(0, 100 + GET_PLAYER(ePlayer).getHandicapInfo().getHumanWarApproachChangePercent());
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
 	}
 	else
 	{
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_FRIENDLY_AI_PERCENT)));
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_NEUTRAL_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_NEUTRAL] *= max(0, 100 + GC.getGame().getHandicapInfo().getAINeutralApproachChangePercent());
 		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 
-		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_AFRAID_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_FRIENDLY] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIFriendlyApproachChangePercent());
+		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+
+		vApproachScores[CIV_APPROACH_AFRAID] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIAfraidApproachChangePercent());
 		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
 
-		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_GUARDED_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_GUARDED] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIGuardedApproachChangePercent());
 		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
 
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_DECEPTIVE_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_DECEPTIVE] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIDeceptiveApproachChangePercent());
 		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
 
-		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_HOSTILE_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_HOSTILE] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIHostileApproachChangePercent());
 		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
 
-		vApproachScores[CIV_APPROACH_WAR] *= max(0, (100 + /*0*/ GD_INT_GET(APPROACH_WAR_AI_PERCENT)));
+		vApproachScores[CIV_APPROACH_WAR] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIWarApproachChangePercent());
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
 	}
 
@@ -20401,14 +20406,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
-
-			if (MOD_BALANCE_CORE_DIFFICULTY)
-			{
-				iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
-				if (iPeaceDampenerTurns < 11)
-					iPeaceDampenerTurns = 11;
-			}
+			int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				bRecentPeaceTreaty = true;
@@ -22445,7 +22443,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDoF(PlayerTypes ePlayer)
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
+			int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
@@ -22514,7 +22512,7 @@ bool CvDiplomacyAI::IsGoodChoiceForDefensivePact(PlayerTypes ePlayer)
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
+			int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 				return false;
@@ -23030,7 +23028,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (iPeaceTreatyTurn > -1)
 				{
 					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-					int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
+					int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 					if (iTurnsSincePeace < iPeaceDampenerTurns)
 						continue;
@@ -23304,14 +23302,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 				if (iPeaceTreatyTurn > -1)
 				{
 					int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-					int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
-
-					if (MOD_BALANCE_CORE_DIFFICULTY)
-					{
-						iPeaceDampenerTurns -= GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() / 2;
-						if (iPeaceDampenerTurns < 11)
-							iPeaceDampenerTurns = 11;
-					}
+					int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 					if (iTurnsSincePeace < iPeaceDampenerTurns)
 					{
@@ -24403,7 +24394,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	if (iPeaceTreatyTurn > -1)
 	{
 		int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-		if (iTurnsSincePeace < /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER))
+		if (iTurnsSincePeace < GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns())
 		{
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 			vApproachScores[CIV_APPROACH_WAR] = 0;
@@ -27261,7 +27252,7 @@ bool CvDiplomacyAI::IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 
 	int iOurGold = GetPlayer()->GetTreasury()->GetGold();
 	int iOurGPT = GetPlayer()->calculateGoldRate();
-	int iOurExpenses = GetPlayer()->GetTreasury()->CalculateInflatedCosts();
+	int iOurExpenses = GetPlayer()->GetTreasury()->CalculateTotalCosts();
 	int iOurGrossIncome = iOurGPT + iOurExpenses;
 
 	// If we have no expenses, don't ask (and also don't crash)
@@ -27278,7 +27269,7 @@ bool CvDiplomacyAI::IsGoldRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeig
 
 	int iTheirGold = GET_PLAYER(ePlayer).GetTreasury()->GetGold();
 	int iTheirGPT = GET_PLAYER(ePlayer).calculateGoldRate();
-	int iTheirExpenses = GET_PLAYER(ePlayer).GetTreasury()->CalculateInflatedCosts();
+	int iTheirExpenses = GET_PLAYER(ePlayer).GetTreasury()->CalculateTotalCosts();
 	int iTheirGrossIncome = iTheirGPT + iTheirExpenses;
 
 	// Don't divide by zero please
@@ -34253,7 +34244,7 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 			if(iPeaceTreatyTurn != -1)
 			{
 				int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-				if (iTurnsSincePeace < /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER))
+				if (iTurnsSincePeace < GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns())
 					return;
 			}
 
@@ -41001,7 +40992,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = /*20*/ GD_INT_GET(TURNS_SINCE_PEACE_WEIGHT_DAMPENER);
+			int iPeaceDampenerTurns = GC.getGame().getHandicapInfo().getPeaceTreatyDampenerTurns();
 
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 			{
@@ -43582,7 +43573,13 @@ int CvDiplomacyAI::GetDenounceWeight(PlayerTypes ePlayer, bool bBias)
 	// Close to victory: Bonus based on difficulty level
 	if (IsEndgameAggressiveTo(ePlayer))
 	{
-		iWeight += GET_PLAYER(ePlayer).isHuman() ? (GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() / 20) : (GC.getGame().getHandicapInfo().getAIDeclareWarProb() / 20);
+		int iDifficultyMod = 0;
+		if (GET_PLAYER(ePlayer).isHuman())
+			iDifficultyMod += max(GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent(), GET_PLAYER(ePlayer).getHandicapInfo().getVictoryBlockPercent()) / 10;
+		else
+			iDifficultyMod += max(GC.getGame().getHandicapInfo().getVictoryDisputePercent(), GC.getGame().getHandicapInfo().getVictoryBlockPercent()) / 10;
+
+		iWeight += iDifficultyMod;
 	}
 
 	// Resurrected us: Huge penalty!
@@ -44670,17 +44667,11 @@ int CvDiplomacyAI::GetBaseOpinionScore(PlayerTypes ePlayer)
 	// Modder bonus/penalty to opinion
 	if (GET_PLAYER(ePlayer).isHuman())
 	{
-		iOpinionWeight += /*0*/ GD_INT_GET(OPINION_WEIGHT_BASE_HUMAN);
-
-		// Bonus or penalty from difficulty level?
-		if (MOD_BALANCE_CORE_DIFFICULTY)
-		{
-			iOpinionWeight += GET_PLAYER(ePlayer).getHandicapInfo().getAttitudeChange();
-		}
+		iOpinionWeight += GET_PLAYER(ePlayer).getHandicapInfo().getHumanOpinionChange();
 	}
 	else
 	{
-		iOpinionWeight += /*0*/ GD_INT_GET(OPINION_WEIGHT_BASE_AI);
+		iOpinionWeight += GC.getGame().getHandicapInfo().getAIOpinionChange();
 	}
 
 	return iOpinionWeight;
@@ -44736,20 +44727,20 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1500;
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
+			iOpinionWeight /= 750;
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() > 100)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent();
+				iOpinionWeight /= 500;
 			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getLandDisputePercent() > 100)
 			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getLandDisputePercent();
+				iOpinionWeight /= 500;
 			}
 			else
 			{
@@ -44803,20 +44794,20 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1500;
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() : GC.getGame().getHandicapInfo().getWonderDisputePercent();
+			iOpinionWeight /= 750;
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() > 100)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent();
+				iOpinionWeight /= 500;
 			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getWonderDisputePercent() > 100)
 			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getWonderDisputePercent();
+				iOpinionWeight /= 500;
 			}
 			else
 			{
@@ -44872,20 +44863,20 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 
 			if (iOpinionWeight > 0)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1500;
+				iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() : GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
+				iOpinionWeight /= 750;
 			}
 			else
 			{
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() > 200)
 				{
-					iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-					iOpinionWeight /= 1000;
+					iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent();
+					iOpinionWeight /= 500;
 				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getMinorCivDisputePercent() > 200)
 				{
-					iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-					iOpinionWeight /= 1000;
+					iOpinionWeight *= GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
+					iOpinionWeight /= 500;
 				}
 				else
 				{
@@ -44936,20 +44927,20 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() : GC.getGame().getHandicapInfo().getTechBlockPercent();
+			iOpinionWeight /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() > 100)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent();
+				iOpinionWeight /= 500;
 			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getTechBlockPercent() > 100)
 			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getTechBlockPercent();
+				iOpinionWeight /= 500;
 			}
 			else
 			{
@@ -45000,20 +44991,20 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= max(1000, 2000 - (iBlockEra * 250));
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() : GC.getGame().getHandicapInfo().getPolicyBlockPercent();
+			iOpinionWeight /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() > 200)
+			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() > 100)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent();
+				iOpinionWeight /= 500;
 			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getAIDeclareWarProb() > 200)
+			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getPolicyBlockPercent() > 100)
 			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-				iOpinionWeight /= 1000;
+				iOpinionWeight *= GC.getGame().getHandicapInfo().getPolicyBlockPercent();
+				iOpinionWeight /= 500;
 			}
 			else
 			{
@@ -45053,8 +45044,8 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const
 	{
 		iOpinionWeight += GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_PER_ERA);
 		iOpinionWeight *= GetVictoryCompetitiveness();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 500;
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent() : GC.getGame().getHandicapInfo().getVictoryDisputePercent();
+		iOpinionWeight /= 250;
 	}
 
 	return iOpinionWeight;
@@ -45088,8 +45079,8 @@ int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer) const
 	{
 		iOpinionWeight += GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_BLOCK_PER_ERA);
 		iOpinionWeight *= GetVictoryCompetitiveness();
-		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-		iOpinionWeight /= 1000;
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getVictoryBlockPercent() : GC.getGame().getHandicapInfo().getVictoryBlockPercent();
+		iOpinionWeight /= 500;
 	}
 
 	return iOpinionWeight;
@@ -45142,8 +45133,8 @@ int CvDiplomacyAI::GetRecklessExpanderScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GetBoldness();
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1000;
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
+			iOpinionWeight /= 500;
 		}
 	}
 
@@ -45163,21 +45154,11 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 
 		// For scaling, go with whichever value is smaller
 		int iWonderDifference = min(iCivDifference, iMedianDifference);
-		int iDifficultyMod = 0;
+		int iDifficultyMod = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockMod() : GC.getGame().getHandicapInfo().getWonderBlockMod();
 
-		// AI a bit less aggressive about this on lower difficulties
-		if (GET_PLAYER(ePlayer).isHuman())
+		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1 - iDifficultyMod))
 		{
-			int AIDeclareWarProb = GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb();
-			if (AIDeclareWarProb < 150)
-				iDifficultyMod = 2;
-			else if (AIDeclareWarProb < 200)
-				iDifficultyMod = 1;
-		}
-
-		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + iDifficultyMod + 1))
-		{
-			iOpinionWeight += ((iWonderDifference - (GD_INT_GET(WONDER_SPAMMER_THRESHOLD) + iDifficultyMod + 1)) * /*5*/ GD_INT_GET(OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER));
+			iOpinionWeight += ((iWonderDifference - (GD_INT_GET(WONDER_SPAMMER_THRESHOLD) + 1 - iDifficultyMod)) * /*5*/ GD_INT_GET(OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER));
 
 			if (iOpinionWeight > /*60*/ GD_INT_GET(OPINION_WEIGHT_WONDER_SPAMMER_CAP))
 			{
@@ -45192,8 +45173,8 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		if (iOpinionWeight > 0)
 		{
 			iOpinionWeight *= GetWonderCompetitiveness();
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getAIDeclareWarProb() : GC.getGame().getHandicapInfo().getAIDeclareWarProb();
-			iOpinionWeight /= 1500;
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockPercent() : GC.getGame().getHandicapInfo().getWonderBlockPercent();
+			iOpinionWeight /= 750;
 		}
 	}
 
@@ -56168,7 +56149,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 {
 	int iOurGold = GetPlayer()->GetTreasury()->GetGold();
 	int iOurGPT = GetPlayer()->calculateGoldRate();
-	int iOurExpenses = GetPlayer()->GetTreasury()->CalculateInflatedCosts();
+	int iOurExpenses = GetPlayer()->GetTreasury()->CalculateTotalCosts();
 	int iOurGrossIncome = iOurGPT + iOurExpenses;
 
 	// If we have no expenses, don't offer (and also don't crash)
@@ -56185,7 +56166,7 @@ bool CvDiplomacyAI::IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal)
 
 	int iTheirGold = GET_PLAYER(ePlayer).GetTreasury()->GetGold();
 	int iTheirGPT = GET_PLAYER(ePlayer).calculateGoldRate();
-	int iTheirExpenses = GET_PLAYER(ePlayer).GetTreasury()->CalculateInflatedCosts();
+	int iTheirExpenses = GET_PLAYER(ePlayer).GetTreasury()->CalculateTotalCosts();
 	int iTheirGrossIncome = iTheirGPT + iTheirExpenses;
 
 	// Don't divide by zero please

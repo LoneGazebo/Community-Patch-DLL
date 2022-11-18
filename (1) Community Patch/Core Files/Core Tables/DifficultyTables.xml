@@ -1,7 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Created by ModBuddy on 7/13/2015 9:15:47 PM -->
-<!-- VP players and modders: for a guide on what these difficulty settings do and how to customize them, see https://civ-5-cbp.fandom.com/wiki/Customizing_Difficulty_Levels -->
 <GameData>
+	<!-- Table definition -->
+	<Table name="HandicapInfos">
+		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
+		<Column name="Type" type="text" notnull="true" unique="true"/>
+		<Column name="Description" type="text" notnull="true" unique="true"/>
+		<Column name="Help" type="text" notnull="true" unique="true"/>
+		<Column name="PortraitIndex" type="integer" default="-1"/>
+		<Column name="IconAtlas" type="text" default="DIFFICULTY_ATLAS" reference="IconTextureAtlases(Atlas)"/>
+
+		<!-- Player Bonuses -->
+		<Column name="MapPlacementPriority" type="integer" default="1"/>
+		<Column name="StartingGold" type="integer" default="0"/>
+		<Column name="StartingPolicyPoints" type="integer" default="0"/>
+		<Column name="AdvancedStartPointsMod" type="integer" default="0"/>
+		<Column name="HappinessDefault" type="integer" default="0"/>
+		<Column name="HappinessDefaultCapital" type="integer" default="0"/>
+		<Column name="ExtraHappinessPerLuxury" type="integer" default="0"/>
+		<Column name="EmpireSizeUnhappinessMod" type="integer" default="0"/>
+		<Column name="PopulationUnhappinessMod" type="integer" default="0"/>
+		<Column name="FreeCulturePerTurn" type="integer" default="0"/>
+		<Column name="MaintenanceFreeUnits" type="integer" default="0"/>
+		<Column name="UnitSupplyBase" type="integer" default="0"/>
+		<Column name="UnitSupplyPerCity" type="integer" default="0"/>
+		<Column name="UnitSupplyPopulationPercent" type="integer" default="0"/>
+		<Column name="UnitSupplyBonusPercent" type="integer" default="0"/>
+		<Column name="UnitSupplyPerEraModifier" type="integer" default="0"/>
+		<Column name="StartingUnitMultiplier" type="integer" default="0"/>
+		<Column name="StartingWorkerUnits" type="integer" default="0"/>
+		<Column name="StartingDefenseUnits" type="integer" default="0"/>
+		<Column name="StartingExploreUnits" type="integer" default="0"/>
+		<Column name="WorkRateModifier" type="integer" default="0"/>
+		<Column name="ImprovementCostPercent" type="integer" default="100"/>
+		<Column name="BuildingCostPercent" type="integer" default="100"/>
+		<Column name="UnitCostPercent" type="integer" default="100"/>
+		<Column name="InflationPercent" type="integer" default="100"/>
+		<Column name="UnitUpgradePercent" type="integer" default="100"/>
+		<Column name="UnitUpgradePerEraModifier" type="integer" default="0"/>
+		<Column name="GrowthPercent" type="integer" default="100"/>
+		<Column name="GrowthPerEraModifier" type="integer" default="0"/>
+		<Column name="ResearchPercent" type="integer" default="100"/>
+		<Column name="ResearchPerEraModifier" type="integer" default="0"/>
+		<Column name="TechCatchUpMod" type="integer" default="0"/>
+		<Column name="PolicyPercent" type="integer" default="100"/>
+		<Column name="PolicyPerEraModifier" type="integer" default="0"/>
+		<Column name="PolicyCatchUpMod" type="integer" default="0"/>
+		<Column name="ProphetPercent" type="integer" default="100"/>
+		<Column name="GreatPeoplePercent" type="integer" default="100"/>
+		<Column name="GoldenAgePercent" type="integer" default="100"/>
+		<Column name="CivilianPercent" type="integer" default="100"/>
+		<Column name="CivilianPerEraModifier" type="integer" default="0"/>
+		<Column name="TrainPercent" type="integer" default="100"/>
+		<Column name="TrainPerEraModifier" type="integer" default="0"/>
+		<Column name="WorldTrainPercent" type="integer" default="100"/>
+		<Column name="ConstructPercent" type="integer" default="100"/>
+		<Column name="ConstructPerEraModifier" type="integer" default="0"/>
+		<Column name="WorldConstructPercent" type="integer" default="100"/>
+		<Column name="CreatePercent" type="integer" default="100"/>
+		<Column name="CreatePerEraModifier" type="integer" default="0"/>
+		<Column name="WorldCreatePercent" type="integer" default="100"/>
+		<Column name="ProcessBonus" type="integer" default="0"/>
+		<Column name="ProcessPerEraModifier" type="integer" default="0"/>
+		<Column name="FreeXP" type="integer" default="0"/>
+		<Column name="FreeXPPercent" type="integer" default="0"/>
+		<Column name="CombatBonus" type="integer" default="0"/>
+		<Column name="ResistanceCap" type="integer" default="0"/>
+		<Column name="VisionBonus" type="integer" default="0"/>
+		<!-- VP Difficulty Bonus -->
+		<Column name="DifficultyBonusTurnInterval" type="integer" default="0"/>
+		<Column name="DifficultyBonusBase" type="integer" default="0"/>
+		<Column name="DifficultyBonusA" type="integer" default="0"/>
+		<Column name="DifficultyBonusB" type="integer" default="0"/>
+		<Column name="DifficultyBonusC" type="integer" default="0"/>
+
+		<!-- AI Bonuses -->
+		<Column name="AIStartingGold" type="integer" default="0"/>
+		<Column name="AIStartingPolicyPoints" type="integer" default="0"/>
+		<Column name="AIAdvancedStartPointsMod" type="integer" default="0"/>
+		<Column name="AIHappinessDefault" type="integer" default="0"/>
+		<Column name="AIHappinessDefaultCapital" type="integer" default="0"/>
+		<Column name="AIExtraHappinessPerLuxury" type="integer" default="0"/>
+		<Column name="AIEmpireSizeUnhappinessMod" type="integer" default="0"/>
+		<Column name="AIPopulationUnhappinessMod" type="integer" default="0"/>
+		<Column name="AIFreeCulturePerTurn" type="integer" default="0"/>
+		<Column name="AIMaintenanceFreeUnits" type="integer" default="0"/>
+		<Column name="AIUnitSupplyBase" type="integer" default="0"/>
+		<Column name="AIUnitSupplyPerCity" type="integer" default="0"/>
+		<Column name="AIUnitSupplyPopulationPercent" type="integer" default="0"/>
+		<Column name="AIUnitSupplyBonusPercent" type="integer" default="0"/>
+		<Column name="AIUnitSupplyPerEraModifier" type="integer" default="0"/>
+		<Column name="AIStartingUnitMultiplier" type="integer" default="0"/>
+		<Column name="AIStartingWorkerUnits" type="integer" default="0"/>
+		<Column name="AIStartingDefenseUnits" type="integer" default="0"/>
+		<Column name="AIStartingExploreUnits" type="integer" default="0"/>
+		<Column name="AIWorkRateModifier" type="integer" default="0"/>
+		<Column name="AIImprovementCostPercent" type="integer" default="100"/>
+		<Column name="AIBuildingCostPercent" type="integer" default="100"/>
+		<Column name="AIUnitCostPercent" type="integer" default="100"/>
+		<Column name="AIInflationPercent" type="integer" default="100"/>
+		<Column name="AIUnitUpgradePercent" type="integer" default="100"/>
+		<Column name="AIUnitUpgradePerEraModifier" type="integer" default="0"/>
+		<Column name="AIGrowthPercent" type="integer" default="100"/>
+		<Column name="AIGrowthPerEraModifier" type="integer" default="0"/>
+		<Column name="AIResearchPercent" type="integer" default="100"/>
+		<Column name="AIResearchPerEraModifier" type="integer" default="0"/>
+		<Column name="AITechCatchUpMod" type="integer" default="0"/>
+		<Column name="AIPolicyPercent" type="integer" default="100"/>
+		<Column name="AIPolicyPerEraModifier" type="integer" default="0"/>
+		<Column name="AIPolicyCatchUpMod" type="integer" default="0"/>
+		<Column name="AIProphetPercent" type="integer" default="100"/>
+		<Column name="AIGreatPeoplePercent" type="integer" default="100"/>
+		<Column name="AIGoldenAgePercent" type="integer" default="100"/>
+		<Column name="AICivilianPercent" type="integer" default="100"/>
+		<Column name="AICivilianPerEraModifier" type="integer" default="0"/>
+		<Column name="AITrainPercent" type="integer" default="100"/>
+		<Column name="AITrainPerEraModifier" type="integer" default="0"/>
+		<Column name="AIWorldTrainPercent" type="integer" default="100"/>
+		<Column name="AIConstructPercent" type="integer" default="100"/>
+		<Column name="AIConstructPerEraModifier" type="integer" default="0"/>
+		<Column name="AIWorldConstructPercent" type="integer" default="100"/>
+		<Column name="AICreatePercent" type="integer" default="100"/>
+		<Column name="AICreatePerEraModifier" type="integer" default="0"/>
+		<Column name="AIWorldCreatePercent" type="integer" default="100"/>
+		<Column name="AIProcessBonus" type="integer" default="0"/>
+		<Column name="AIProcessPerEraModifier" type="integer" default="0"/>
+		<Column name="AIFreeXP" type="integer" default="0"/>
+		<Column name="AIFreeXPPercent" type="integer" default="0"/>
+		<Column name="AICombatBonus" type="integer" default="0"/>
+		<Column name="AIResistanceCap" type="integer" default="0"/>
+		<Column name="AIVisionBonus" type="integer" default="0"/>
+		<!-- VP Difficulty Bonus -->
+		<Column name="AIDifficultyBonusTurnInterval" type="integer" default="0"/>
+		<Column name="AIDifficultyBonusBase" type="integer" default="0"/>
+		<Column name="AIDifficultyBonusA" type="integer" default="0"/>
+		<Column name="AIDifficultyBonusB" type="integer" default="0"/>
+		<Column name="AIDifficultyBonusC" type="integer" default="0"/>
+
+		<!-- City-States -->
+		<Column name="StartingCityStateWorkerUnits" type="integer" default="0"/>
+		<Column name="StartingCityStateDefenseUnits" type="integer" default="0"/>
+		<Column name="CityStateWorkRateModifier" type="integer" default="0"/>
+		<Column name="CityStateGrowthPercent" type="integer" default="100"/>
+		<Column name="CityStateGrowthPerEraModifier" type="integer" default="0"/>
+		<Column name="CityStateCivilianPercent" type="integer" default="100"/>
+		<Column name="CityStateCivilianPerEraModifier" type="integer" default="0"/>
+		<Column name="CityStateTrainPercent" type="integer" default="100"/>
+		<Column name="CityStateTrainPerEraModifier" type="integer" default="0"/>
+		<Column name="CityStateConstructPercent" type="integer" default="100"/>
+		<Column name="CityStateConstructPerEraModifier" type="integer" default="0"/>
+		<Column name="CityStateCreatePercent" type="integer" default="100"/>
+		<Column name="CityStateCreatePerEraModifier" type="integer" default="0"/>
+		<Column name="CityStateFreeXP" type="integer" default="0"/>
+		<Column name="CityStateFreeXPPercent" type="integer" default="0"/>
+		<Column name="CityStateCombatBonus" type="integer" default="0"/>
+		<Column name="CityStateVisionBonus" type="integer" default="0"/>
+
+		<!-- Barbarians -->
+		<Column name="EarliestBarbarianReleaseTurn" type="integer" default="0"/>
+		<Column name="BonusVSBarbarians" type="integer" default="0"/>
+		<Column name="AIBonusVSBarbarians" type="integer" default="0"/>
+		<Column name="BarbarianCampGold" type="integer" default="25"/>
+		<Column name="AIBarbarianCampGold" type="integer" default="25"/>
+		<Column name="BarbarianSpawnDelay" type="integer" default="0"/>
+		<Column name="BarbarianLandTargetRange" type="integer" default="5"/>
+		<Column name="BarbarianSeaTargetRange" type="integer" default="8"/>
+
+		<!-- AI Behavior Modifiers -->
+		<!-- Weighted Randomized Choices -->
+		<Column name="CityProductionChoiceCutoffThreshold" type="integer" default="90"/>
+		<Column name="TechChoiceCutoffThreshold" type="integer" default="90"/>
+		<Column name="PolicyChoiceCutoffThreshold" type="integer" default="90"/>
+		<Column name="BeliefChoiceCutoffThreshold" type="integer" default="90"/>
+		<!-- Tactical AI -->
+		<Column name="TacticalOffenseMinCompletedPositions" type="integer" default="23"/>
+		<Column name="TacticalOffenseMaxCompletedPositions" type="integer" default="54"/>
+		<Column name="TacticalOffenseMaxBranches" type="integer" default="5"/>
+		<Column name="TacticalOffenseMaxChoicesPerUnit" type="integer" default="5"/>
+		<Column name="TacticalDefenseMinCompletedPositions" type="integer" default="13"/>
+		<Column name="TacticalDefenseMaxCompletedPositions" type="integer" default="54"/>
+		<Column name="TacticalDefenseMaxBranches" type="integer" default="3"/>
+		<Column name="TacticalDefenseMaxChoicesPerUnit" type="integer" default="3"/>
+		<!-- Diplomacy AI -->
+		<Column name="LandDisputePercent" type="integer" default="100"/>
+		<Column name="WonderDisputePercent" type="integer" default="100"/>
+		<Column name="MinorCivDisputePercent" type="integer" default="100"/>
+		<Column name="VictoryDisputePercent" type="integer" default="100"/>
+		<Column name="VictoryDisputeMod" type="integer" default="0"/>
+		<Column name="VictoryBlockPercent" type="integer" default="100"/>
+		<Column name="VictoryBlockMod" type="integer" default="0"/>
+		<Column name="WonderBlockPercent" type="integer" default="100"/>
+		<Column name="WonderBlockMod" type="integer" default="0"/>
+		<Column name="TechBlockPercent" type="integer" default="100"/>
+		<Column name="TechBlockMod" type="integer" default="0"/>
+		<Column name="PolicyBlockPercent" type="integer" default="100"/>
+		<Column name="PolicyBlockMod" type="integer" default="0"/>
+		<Column name="PeaceTreatyDampenerTurns" type="integer" default="20"/>
+		<Column name="HumanStrengthPerceptionMod" type="integer" default="0"/>
+		<Column name="HumanTradeModifier" type="integer" default="0"/>
+		<Column name="AggressionIncrease" type="integer" default="0"/>
+		<Column name="HumanOpinionChange" type="integer" default="0"/>
+		<Column name="HumanWarApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanWarApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanHostileApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanHostileApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanDeceptiveApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanDeceptiveApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanGuardedApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanGuardedApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanAfraidApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanAfraidApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanNeutralApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanNeutralApproachChangePercent" type="integer" default="0"/>
+		<Column name="HumanFriendlyApproachChangeFlat" type="integer" default="0"/>
+		<Column name="HumanFriendlyApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIOpinionChange" type="integer" default="0"/>
+		<Column name="AIWarApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIWarApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIHostileApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIHostileApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIDeceptiveApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIDeceptiveApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIGuardedApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIGuardedApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIAfraidApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIAfraidApproachChangePercent" type="integer" default="0"/>
+		<Column name="AINeutralApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AINeutralApproachChangePercent" type="integer" default="0"/>
+		<Column name="AIFriendlyApproachChangeFlat" type="integer" default="0"/>
+		<Column name="AIFriendlyApproachChangePercent" type="integer" default="0"/>
+	</Table>
+	<Table name="HandicapInfo_Goodies">
+		<Column name="HandicapType" type="text" notnull="true" reference="HandicapInfos(Type)"/>
+		<Column name="GoodyType" type="text" notnull="true" reference="GoodyHuts(Type)"/>
+	</Table>
+	<Table name="HandicapInfo_FreeTechs">
+		<Column name="HandicapType" type="text" notnull="true" reference="HandicapInfos(Type)"/>
+		<Column name="TechType" type="text" notnull="true" reference="Technologies(Type)"/>
+	</Table>
+	<Table name="HandicapInfo_AIFreeTechs">
+		<Column name="HandicapType" type="text" notnull="true" reference="HandicapInfos(Type)"/>
+		<Column name="TechType" type="text" notnull="true" reference="Technologies(Type)"/>
+	</Table>
+	<Table name="HandicapInfo_DifficultyBonus">
+		<Column name="HandicapType" type="text" notnull="true" reference="HandicapInfos(Type)"/>
+		<Column name="HistoricEventType" text="text" notnull="true" reference="HistoricEventTypes(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Multiplier" type="integer" notnull="true" default="0"/>
+	</Table>
+	<Table name="HandicapInfo_AIDifficultyBonus">
+		<Column name="HandicapType" type="text" notnull="true" reference="HandicapInfos(Type)"/>
+		<Column name="HistoricEventType" text="text" notnull="true" reference="HistoricEventTypes(Type)"/>
+		<Column name="YieldType" type="text" notnull="true" reference="Yields(Type)"/>
+		<Column name="Multiplier" type="integer" notnull="true" default="0"/>
+	</Table>
+	<!-- Table data -->
 	<HandicapInfos>
 		<Row>
 			<ID>0</ID>
@@ -14,26 +266,26 @@
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>9</HappinessDefault>
-			<HappinessDefaultCapital>3</HappinessDefaultCapital>
+			<HappinessDefault>15</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>1</ExtraHappinessPerLuxury>
-			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
-			<PopulationUnhappinessMod>-30</PopulationUnhappinessMod>
+			<EmpireSizeUnhappinessMod>-60</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-60</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
 			<UnitSupplyBase>10</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
+			<UnitSupplyPerCity>3</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
-			<StartingDefenseUnits>1</StartingDefenseUnits>
+			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<WorkRateModifier>0</WorkRateModifier>
-			<ImprovementCostPercent>60</ImprovementCostPercent>
-			<BuildingCostPercent>75</BuildingCostPercent>
-			<UnitCostPercent>75</UnitCostPercent>
+			<ImprovementCostPercent>34</ImprovementCostPercent>
+			<BuildingCostPercent>50</BuildingCostPercent>
+			<UnitCostPercent>50</UnitCostPercent>
 			<InflationPercent>100</InflationPercent>
 			<UnitUpgradePercent>100</UnitUpgradePercent>
 			<UnitUpgradePerEraModifier>0</UnitUpgradePerEraModifier>
@@ -42,7 +294,7 @@
 			<ResearchPercent>90</ResearchPercent>
 			<ResearchPerEraModifier>0</ResearchPerEraModifier>
 			<TechCatchUpMod>0</TechCatchUpMod>
-			<PolicyPercent>80</PolicyPercent>
+			<PolicyPercent>50</PolicyPercent>
 			<PolicyPerEraModifier>0</PolicyPerEraModifier>
 			<PolicyCatchUpMod>0</PolicyCatchUpMod>
 			<ProphetPercent>100</ProphetPercent>
@@ -64,7 +316,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>16</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -77,16 +329,16 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
 			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -94,40 +346,40 @@
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>0</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
+			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
 			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
+			<AIGrowthPercent>160</AIGrowthPercent>
 			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>175</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>110</AICivilianPercent>
+			<AICivilianPercent>175</AICivilianPercent>
 			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>110</AITrainPercent>
+			<AITrainPercent>175</AITrainPercent>
 			<AITrainPerEraModifier>0</AITrainPerEraModifier>
-			<AIWorldTrainPercent>110</AIWorldTrainPercent>
-			<AIConstructPercent>110</AIConstructPercent>
+			<AIWorldTrainPercent>160</AIWorldTrainPercent>
+			<AIConstructPercent>160</AIConstructPercent>
 			<AIConstructPerEraModifier>0</AIConstructPerEraModifier>
-			<AIWorldConstructPercent>110</AIWorldConstructPercent>
-			<AICreatePercent>110</AICreatePercent>
+			<AIWorldConstructPercent>160</AIWorldConstructPercent>
+			<AICreatePercent>160</AICreatePercent>
 			<AICreatePerEraModifier>0</AICreatePerEraModifier>
-			<AIWorldCreatePercent>110</AIWorldCreatePercent>
+			<AIWorldCreatePercent>160</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
 			<AIFreeXP>0</AIFreeXP>
 			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>64</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
@@ -140,15 +392,15 @@
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
+			<CityStateGrowthPercent>128</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
+			<CityStateCivilianPercent>210</CityStateCivilianPercent>
 			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>100</CityStateTrainPercent>
+			<CityStateTrainPercent>210</CityStateTrainPercent>
 			<CityStateTrainPerEraModifier>0</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>100</CityStateConstructPercent>
+			<CityStateConstructPercent>192</CityStateConstructPercent>
 			<CityStateConstructPerEraModifier>0</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>100</CityStateCreatePercent>
+			<CityStateCreatePercent>192</CityStateCreatePercent>
 			<CityStateCreatePerEraModifier>0</CityStateCreatePerEraModifier>
 			<CityStateFreeXP>0</CityStateFreeXP>
 			<CityStateFreeXPPercent>0</CityStateFreeXPPercent>
@@ -156,14 +408,14 @@
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>50</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>50</BonusVSBarbarians>
-			<AIBonusVSBarbarians>0</AIBonusVSBarbarians>
+			<EarliestBarbarianReleaseTurn>10000</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>70</BonusVSBarbarians>
+			<AIBonusVSBarbarians>75</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
-			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>6</BarbarianSeaTargetRange>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>8</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>1</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>2</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -198,7 +450,7 @@
 			<HumanStrengthPerceptionMod>0</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
 			<AggressionIncrease>0</AggressionIncrease>
-			<HumanOpinionChange>-10</HumanOpinionChange>
+			<HumanOpinionChange>-30</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
 			<HumanHostileApproachChangeFlat>0</HumanHostileApproachChangeFlat>
@@ -235,30 +487,30 @@
 			<Help>TXT_KEY_HANDICAP_CHIEFTAIN_HELP</Help>
 			<PortraitIndex>1</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>2</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>8</HappinessDefault>
-			<HappinessDefaultCapital>3</HappinessDefaultCapital>
-			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
-			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
-			<PopulationUnhappinessMod>-15</PopulationUnhappinessMod>
+			<HappinessDefault>12</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
+			<ExtraHappinessPerLuxury>1</ExtraHappinessPerLuxury>
+			<EmpireSizeUnhappinessMod>-40</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-40</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>9</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>7</UnitSupplyBase>
+			<UnitSupplyPerCity>3</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
-			<StartingDefenseUnits>1</StartingDefenseUnits>
+			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<WorkRateModifier>0</WorkRateModifier>
-			<ImprovementCostPercent>80</ImprovementCostPercent>
-			<BuildingCostPercent>90</BuildingCostPercent>
-			<UnitCostPercent>90</UnitCostPercent>
+			<ImprovementCostPercent>50</ImprovementCostPercent>
+			<BuildingCostPercent>67</BuildingCostPercent>
+			<UnitCostPercent>67</UnitCostPercent>
 			<InflationPercent>100</InflationPercent>
 			<UnitUpgradePercent>100</UnitUpgradePercent>
 			<UnitUpgradePerEraModifier>0</UnitUpgradePerEraModifier>
@@ -267,7 +519,7 @@
 			<ResearchPercent>95</ResearchPercent>
 			<ResearchPerEraModifier>0</ResearchPerEraModifier>
 			<TechCatchUpMod>0</TechCatchUpMod>
-			<PolicyPercent>90</PolicyPercent>
+			<PolicyPercent>67</PolicyPercent>
 			<PolicyPerEraModifier>0</PolicyPerEraModifier>
 			<PolicyCatchUpMod>0</PolicyCatchUpMod>
 			<ProphetPercent>100</ProphetPercent>
@@ -289,7 +541,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>24</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -302,16 +554,16 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
 			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
@@ -319,40 +571,40 @@
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>0</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
 			<AIBuildingCostPercent>100</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
+			<AIUnitUpgradePercent>65</AIUnitUpgradePercent>
 			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
+			<AIGrowthPercent>130</AIGrowthPercent>
 			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>130</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>105</AICivilianPercent>
+			<AICivilianPercent>130</AICivilianPercent>
 			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>105</AITrainPercent>
+			<AITrainPercent>130</AITrainPercent>
 			<AITrainPerEraModifier>0</AITrainPerEraModifier>
-			<AIWorldTrainPercent>105</AIWorldTrainPercent>
-			<AIConstructPercent>105</AIConstructPercent>
+			<AIWorldTrainPercent>130</AIWorldTrainPercent>
+			<AIConstructPercent>130</AIConstructPercent>
 			<AIConstructPerEraModifier>0</AIConstructPerEraModifier>
-			<AIWorldConstructPercent>105</AIWorldConstructPercent>
-			<AICreatePercent>105</AICreatePercent>
+			<AIWorldConstructPercent>130</AIWorldConstructPercent>
+			<AICreatePercent>130</AICreatePercent>
 			<AICreatePerEraModifier>0</AICreatePerEraModifier>
-			<AIWorldCreatePercent>105</AIWorldCreatePercent>
+			<AIWorldCreatePercent>130</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
 			<AIFreeXP>0</AIFreeXP>
 			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>48</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
@@ -365,15 +617,15 @@
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
+			<CityStateGrowthPercent>104</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
+			<CityStateCivilianPercent>156</CityStateCivilianPercent>
 			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>100</CityStateTrainPercent>
+			<CityStateTrainPercent>156</CityStateTrainPercent>
 			<CityStateTrainPerEraModifier>0</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>100</CityStateConstructPercent>
+			<CityStateConstructPercent>156</CityStateConstructPercent>
 			<CityStateConstructPerEraModifier>0</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>100</CityStateCreatePercent>
+			<CityStateCreatePercent>156</CityStateCreatePercent>
 			<CityStateCreatePerEraModifier>0</CityStateCreatePerEraModifier>
 			<CityStateFreeXP>0</CityStateFreeXP>
 			<CityStateFreeXPPercent>0</CityStateFreeXPPercent>
@@ -381,14 +633,14 @@
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>47</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>33</BonusVSBarbarians>
-			<AIBonusVSBarbarians>10</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
-			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>7</BarbarianSeaTargetRange>
+			<EarliestBarbarianReleaseTurn>60</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>60</BonusVSBarbarians>
+			<AIBonusVSBarbarians>70</AIBonusVSBarbarians>
+			<BarbarianCampGold>40</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>5</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>2</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>2</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -420,10 +672,10 @@
 			<PolicyBlockPercent>60</PolicyBlockPercent>
 			<PolicyBlockMod>1</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>20</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>5</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>0</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>2</AggressionIncrease>
-			<HumanOpinionChange>-5</HumanOpinionChange>
+			<AggressionIncrease>0</AggressionIncrease>
+			<HumanOpinionChange>-20</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
 			<HumanHostileApproachChangeFlat>0</HumanHostileApproachChangeFlat>
@@ -460,20 +712,20 @@
 			<Help>TXT_KEY_HANDICAP_WARLORD_HELP</Help>
 			<PortraitIndex>2</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>8</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>12</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
-			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
-			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
+			<EmpireSizeUnhappinessMod>-25</EmpireSizeUnhappinessMod>
+			<PopulationUnhappinessMod>-25</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>7</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -481,8 +733,8 @@
 			<StartingDefenseUnits>0</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
 			<WorkRateModifier>0</WorkRateModifier>
-			<ImprovementCostPercent>100</ImprovementCostPercent>
-			<BuildingCostPercent>100</BuildingCostPercent>
+			<ImprovementCostPercent>75</ImprovementCostPercent>
+			<BuildingCostPercent>85</BuildingCostPercent>
 			<UnitCostPercent>100</UnitCostPercent>
 			<InflationPercent>100</InflationPercent>
 			<UnitUpgradePercent>100</UnitUpgradePercent>
@@ -492,7 +744,7 @@
 			<ResearchPercent>100</ResearchPercent>
 			<ResearchPerEraModifier>0</ResearchPerEraModifier>
 			<TechCatchUpMod>0</TechCatchUpMod>
-			<PolicyPercent>100</PolicyPercent>
+			<PolicyPercent>85</PolicyPercent>
 			<PolicyPerEraModifier>0</PolicyPerEraModifier>
 			<PolicyCatchUpMod>0</PolicyCatchUpMod>
 			<ProphetPercent>100</ProphetPercent>
@@ -514,7 +766,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>32</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -527,57 +779,57 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>10</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>0</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
-			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>75</AIBuildingCostPercent>
 			<AIUnitCostPercent>100</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>100</AIUnitUpgradePercent>
+			<AIUnitUpgradePercent>55</AIUnitUpgradePercent>
 			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
+			<AIGrowthPercent>110</AIGrowthPercent>
 			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>110</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>100</AICivilianPercent>
+			<AICivilianPercent>110</AICivilianPercent>
 			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>100</AITrainPercent>
+			<AITrainPercent>110</AITrainPercent>
 			<AITrainPerEraModifier>0</AITrainPerEraModifier>
-			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>100</AIConstructPercent>
+			<AIWorldTrainPercent>110</AIWorldTrainPercent>
+			<AIConstructPercent>110</AIConstructPercent>
 			<AIConstructPerEraModifier>0</AIConstructPerEraModifier>
-			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>100</AICreatePercent>
+			<AIWorldConstructPercent>110</AIWorldConstructPercent>
+			<AICreatePercent>110</AICreatePercent>
 			<AICreatePerEraModifier>0</AICreatePerEraModifier>
-			<AIWorldCreatePercent>100</AIWorldCreatePercent>
+			<AIWorldCreatePercent>110</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
 			<AIFreeXP>0</AIFreeXP>
 			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>32</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
@@ -588,17 +840,17 @@
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
+			<CityStateGrowthPercent>88</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
+			<CityStateCivilianPercent>132</CityStateCivilianPercent>
 			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>100</CityStateTrainPercent>
+			<CityStateTrainPercent>132</CityStateTrainPercent>
 			<CityStateTrainPerEraModifier>0</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>100</CityStateConstructPercent>
+			<CityStateConstructPercent>132</CityStateConstructPercent>
 			<CityStateConstructPerEraModifier>0</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>100</CityStateCreatePercent>
+			<CityStateCreatePercent>132</CityStateCreatePercent>
 			<CityStateCreatePerEraModifier>0</CityStateCreatePerEraModifier>
 			<CityStateFreeXP>0</CityStateFreeXP>
 			<CityStateFreeXPPercent>0</CityStateFreeXPPercent>
@@ -606,14 +858,14 @@
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>44</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>20</BonusVSBarbarians>
-			<AIBonusVSBarbarians>20</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
-			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
+			<EarliestBarbarianReleaseTurn>20</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>50</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>30</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
+			<BarbarianSpawnDelay>3</BarbarianSpawnDelay>
+			<BarbarianLandTargetRange>2</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>3</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -647,8 +899,8 @@
 			<PeaceTreatyDampenerTurns>20</PeaceTreatyDampenerTurns>
 			<HumanStrengthPerceptionMod>10</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>4</AggressionIncrease>
-			<HumanOpinionChange>0</HumanOpinionChange>
+			<AggressionIncrease>2</AggressionIncrease>
+			<HumanOpinionChange>-10</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
 			<HumanHostileApproachChangeFlat>0</HumanHostileApproachChangeFlat>
@@ -685,20 +937,20 @@
 			<Help>TXT_KEY_HANDICAP_PRINCE_HELP</Help>
 			<PortraitIndex>3</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -739,7 +991,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>40</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -752,35 +1004,35 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>20</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIWorkRateModifier>25</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
-			<AIBuildingCostPercent>90</AIBuildingCostPercent>
-			<AIUnitCostPercent>90</AIUnitCostPercent>
+			<AIWorkRateModifier>0</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>100</AIBuildingCostPercent>
+			<AIUnitCostPercent>85</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>90</AIUnitUpgradePercent>
+			<AIUnitUpgradePercent>50</AIUnitUpgradePercent>
 			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
 			<AIGrowthPercent>100</AIGrowthPercent>
 			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
 			<AIProphetPercent>100</AIProphetPercent>
@@ -788,57 +1040,57 @@
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
 			<AICivilianPercent>100</AICivilianPercent>
 			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>90</AITrainPercent>
-			<AITrainPerEraModifier>-4</AITrainPerEraModifier>
+			<AITrainPercent>100</AITrainPercent>
+			<AITrainPerEraModifier>0</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>90</AIConstructPercent>
-			<AIConstructPerEraModifier>-4</AIConstructPerEraModifier>
+			<AIConstructPercent>100</AIConstructPercent>
+			<AIConstructPerEraModifier>0</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>90</AICreatePercent>
-			<AICreatePerEraModifier>-4</AICreatePerEraModifier>
+			<AICreatePercent>100</AICreatePercent>
+			<AICreatePerEraModifier>0</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
-			<AIFreeXP>10</AIFreeXP>
-			<AIFreeXPPercent>20</AIFreeXPPercent>
+			<AIFreeXP>0</AIFreeXP>
+			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>40</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
-			<AIDifficultyBonusBase>4</AIDifficultyBonusBase>
-			<AIDifficultyBonusA>320</AIDifficultyBonusA>
-			<AIDifficultyBonusB>190</AIDifficultyBonusB>
-			<AIDifficultyBonusC>100</AIDifficultyBonusC>
+			<AIDifficultyBonusBase>0</AIDifficultyBonusBase>
+			<AIDifficultyBonusA>0</AIDifficultyBonusA>
+			<AIDifficultyBonusB>0</AIDifficultyBonusB>
+			<AIDifficultyBonusC>0</AIDifficultyBonusC>
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
-			<CityStateWorkRateModifier>25</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>80</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
+			<CityStateCivilianPercent>120</CityStateCivilianPercent>
 			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>90</CityStateTrainPercent>
-			<CityStateTrainPerEraModifier>-4</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>90</CityStateConstructPercent>
-			<CityStateConstructPerEraModifier>-4</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>90</CityStateCreatePercent>
-			<CityStateCreatePerEraModifier>-4</CityStateCreatePerEraModifier>
-			<CityStateFreeXP>10</CityStateFreeXP>
-			<CityStateFreeXPPercent>20</CityStateFreeXPPercent>
+			<CityStateTrainPercent>120</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>0</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>120</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>0</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>120</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>0</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>0</CityStateFreeXP>
+			<CityStateFreeXPPercent>0</CityStateFreeXPPercent>
 			<CityStateCombatBonus>0</CityStateCombatBonus>
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>41</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>20</BonusVSBarbarians>
-			<AIBonusVSBarbarians>20</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
+			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>40</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>4</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -856,23 +1108,23 @@
 			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
 			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
-			<LandDisputePercent>80</LandDisputePercent>
-			<WonderDisputePercent>80</WonderDisputePercent>
-			<MinorCivDisputePercent>80</MinorCivDisputePercent>
-			<VictoryDisputePercent>90</VictoryDisputePercent>
+			<LandDisputePercent>85</LandDisputePercent>
+			<WonderDisputePercent>85</WonderDisputePercent>
+			<MinorCivDisputePercent>85</MinorCivDisputePercent>
+			<VictoryDisputePercent>100</VictoryDisputePercent>
 			<VictoryDisputeMod>2</VictoryDisputeMod>
-			<VictoryBlockPercent>90</VictoryBlockPercent>
+			<VictoryBlockPercent>100</VictoryBlockPercent>
 			<VictoryBlockMod>3</VictoryBlockMod>
-			<WonderBlockPercent>90</WonderBlockPercent>
+			<WonderBlockPercent>100</WonderBlockPercent>
 			<WonderBlockMod>-1</WonderBlockMod>
-			<TechBlockPercent>90</TechBlockPercent>
+			<TechBlockPercent>100</TechBlockPercent>
 			<TechBlockMod>3</TechBlockMod>
-			<PolicyBlockPercent>90</PolicyBlockPercent>
+			<PolicyBlockPercent>100</PolicyBlockPercent>
 			<PolicyBlockMod>2</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>18</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>15</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>20</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>6</AggressionIncrease>
+			<AggressionIncrease>4</AggressionIncrease>
 			<HumanOpinionChange>0</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
@@ -910,20 +1162,20 @@
 			<Help>TXT_KEY_HANDICAP_KING_HELP</Help>
 			<PortraitIndex>4</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>2</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>8</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -964,7 +1216,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>50</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -977,93 +1229,93 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-10</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-10</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>30</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIWorkRateModifier>35</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
+			<AIWorkRateModifier>20</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
 			<AIBuildingCostPercent>85</AIBuildingCostPercent>
-			<AIUnitCostPercent>85</AIUnitCostPercent>
+			<AIUnitCostPercent>80</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>80</AIUnitUpgradePercent>
-			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
-			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIUnitUpgradePercent>38</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-2</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>90</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-2</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>85</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>100</AICivilianPercent>
-			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
+			<AICivilianPercent>85</AICivilianPercent>
+			<AICivilianPerEraModifier>-2</AICivilianPerEraModifier>
 			<AITrainPercent>85</AITrainPercent>
-			<AITrainPerEraModifier>-6</AITrainPerEraModifier>
+			<AITrainPerEraModifier>-2</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
 			<AIConstructPercent>85</AIConstructPercent>
-			<AIConstructPerEraModifier>-6</AIConstructPerEraModifier>
+			<AIConstructPerEraModifier>-2</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>85</AICreatePercent>
-			<AICreatePerEraModifier>-6</AICreatePerEraModifier>
+			<AICreatePerEraModifier>-2</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
-			<AIFreeXP>15</AIFreeXP>
-			<AIFreeXPPercent>40</AIFreeXPPercent>
+			<AIFreeXP>10</AIFreeXP>
+			<AIFreeXPPercent>0</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>50</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
-			<AIDifficultyBonusBase>7</AIDifficultyBonusBase>
-			<AIDifficultyBonusA>335</AIDifficultyBonusA>
-			<AIDifficultyBonusB>210</AIDifficultyBonusB>
-			<AIDifficultyBonusC>123</AIDifficultyBonusC>
+			<AIDifficultyBonusBase>0</AIDifficultyBonusBase>
+			<AIDifficultyBonusA>0</AIDifficultyBonusA>
+			<AIDifficultyBonusB>0</AIDifficultyBonusB>
+			<AIDifficultyBonusC>0</AIDifficultyBonusC>
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
-			<CityStateWorkRateModifier>35</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
-			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
-			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>85</CityStateTrainPercent>
-			<CityStateTrainPerEraModifier>-6</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>85</CityStateConstructPercent>
-			<CityStateConstructPerEraModifier>-6</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>85</CityStateCreatePercent>
-			<CityStateCreatePerEraModifier>-6</CityStateCreatePerEraModifier>
-			<CityStateFreeXP>15</CityStateFreeXP>
-			<CityStateFreeXPPercent>40</CityStateFreeXPPercent>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateWorkRateModifier>20</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>72</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-2</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>102</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-2</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>102</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-2</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>102</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-2</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>102</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-2</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>10</CityStateFreeXP>
+			<CityStateFreeXPPercent>0</CityStateFreeXPPercent>
 			<CityStateCombatBonus>0</CityStateCombatBonus>
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>38</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>10</BonusVSBarbarians>
-			<AIBonusVSBarbarians>25</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
+			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>30</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>5</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>8</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>4</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -1081,9 +1333,9 @@
 			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
 			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
-			<LandDisputePercent>90</LandDisputePercent>
-			<WonderDisputePercent>90</WonderDisputePercent>
-			<MinorCivDisputePercent>90</MinorCivDisputePercent>
+			<LandDisputePercent>100</LandDisputePercent>
+			<WonderDisputePercent>100</WonderDisputePercent>
+			<MinorCivDisputePercent>100</MinorCivDisputePercent>
 			<VictoryDisputePercent>110</VictoryDisputePercent>
 			<VictoryDisputeMod>2</VictoryDisputeMod>
 			<VictoryBlockPercent>110</VictoryBlockPercent>
@@ -1095,9 +1347,9 @@
 			<PolicyBlockPercent>110</PolicyBlockPercent>
 			<PolicyBlockMod>2</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>16</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>20</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>25</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>9</AggressionIncrease>
+			<AggressionIncrease>6</AggressionIncrease>
 			<HumanOpinionChange>0</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
@@ -1135,20 +1387,20 @@
 			<Help>TXT_KEY_HANDICAP_EMPEROR_HELP</Help>
 			<PortraitIndex>5</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>7</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>7</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -1189,7 +1441,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>55</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -1202,93 +1454,93 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-19</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-19</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>30</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>0</AIStartingExploreUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
 			<AIBuildingCostPercent>80</AIBuildingCostPercent>
-			<AIUnitCostPercent>80</AIUnitCostPercent>
+			<AIUnitCostPercent>75</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>70</AIUnitUpgradePercent>
-			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
-			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIUnitUpgradePercent>32</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-3</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>80</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-3</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>80</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>100</AICivilianPercent>
-			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
+			<AICivilianPercent>80</AICivilianPercent>
+			<AICivilianPerEraModifier>-3</AICivilianPerEraModifier>
 			<AITrainPercent>80</AITrainPercent>
-			<AITrainPerEraModifier>-8</AITrainPerEraModifier>
+			<AITrainPerEraModifier>-3</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>80</AIConstructPercent>
-			<AIConstructPerEraModifier>-8</AIConstructPerEraModifier>
+			<AIConstructPercent>75</AIConstructPercent>
+			<AIConstructPerEraModifier>-3</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
 			<AICreatePercent>80</AICreatePercent>
-			<AICreatePerEraModifier>-8</AICreatePerEraModifier>
+			<AICreatePerEraModifier>-3</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
-			<AIFreeXP>20</AIFreeXP>
-			<AIFreeXPPercent>60</AIFreeXPPercent>
+			<AIFreeXP>10</AIFreeXP>
+			<AIFreeXPPercent>25</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>50</AIResistanceCap>
+			<AIResistanceCap>0</AIResistanceCap>
 			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
-			<AIDifficultyBonusBase>10</AIDifficultyBonusBase>
-			<AIDifficultyBonusA>350</AIDifficultyBonusA>
-			<AIDifficultyBonusB>230</AIDifficultyBonusB>
-			<AIDifficultyBonusC>145</AIDifficultyBonusC>
+			<AIDifficultyBonusBase>0</AIDifficultyBonusBase>
+			<AIDifficultyBonusA>0</AIDifficultyBonusA>
+			<AIDifficultyBonusB>0</AIDifficultyBonusB>
+			<AIDifficultyBonusC>0</AIDifficultyBonusC>
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
 			<CityStateWorkRateModifier>50</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
-			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
-			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>80</CityStateTrainPercent>
-			<CityStateTrainPerEraModifier>-8</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>80</CityStateConstructPercent>
-			<CityStateConstructPerEraModifier>-8</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>80</CityStateCreatePercent>
-			<CityStateCreatePerEraModifier>-8</CityStateCreatePerEraModifier>
-			<CityStateFreeXP>20</CityStateFreeXP>
-			<CityStateFreeXPPercent>60</CityStateFreeXPPercent>
+			<CityStateGrowthPercent>64</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-3</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>96</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-3</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>96</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-3</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>90</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-3</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>90</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-3</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>10</CityStateFreeXP>
+			<CityStateFreeXPPercent>25</CityStateFreeXPPercent>
 			<CityStateCombatBonus>0</CityStateCombatBonus>
 			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>35</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>10</BonusVSBarbarians>
-			<AIBonusVSBarbarians>25</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
+			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>20</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>9</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>3</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>5</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -1306,9 +1558,9 @@
 			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
 			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
-			<LandDisputePercent>100</LandDisputePercent>
-			<WonderDisputePercent>100</WonderDisputePercent>
-			<MinorCivDisputePercent>100</MinorCivDisputePercent>
+			<LandDisputePercent>110</LandDisputePercent>
+			<WonderDisputePercent>110</WonderDisputePercent>
+			<MinorCivDisputePercent>110</MinorCivDisputePercent>
 			<VictoryDisputePercent>125</VictoryDisputePercent>
 			<VictoryDisputeMod>2</VictoryDisputeMod>
 			<VictoryBlockPercent>125</VictoryBlockPercent>
@@ -1320,9 +1572,9 @@
 			<PolicyBlockPercent>125</PolicyBlockPercent>
 			<PolicyBlockMod>2</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>14</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>25</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>30</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>12</AggressionIncrease>
+			<AggressionIncrease>9</AggressionIncrease>
 			<HumanOpinionChange>0</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
@@ -1360,20 +1612,20 @@
 			<Help>TXT_KEY_HANDICAP_IMMORTAL_HELP</Help>
 			<PortraitIndex>6</PortraitIndex>
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>6</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>7</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -1414,7 +1666,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>65</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -1427,93 +1679,93 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-24</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-24</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>40</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
-			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIWorkRateModifier>60</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
-			<AIBuildingCostPercent>75</AIBuildingCostPercent>
-			<AIUnitCostPercent>75</AIUnitCostPercent>
+			<AIStartingWorkerUnits>1</AIStartingWorkerUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIWorkRateModifier>75</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>65</AIBuildingCostPercent>
+			<AIUnitCostPercent>65</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>60</AIUnitUpgradePercent>
-			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
-			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIUnitUpgradePercent>22</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-4</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>70</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-4</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>65</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>100</AICivilianPercent>
-			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>75</AITrainPercent>
-			<AITrainPerEraModifier>-9</AITrainPerEraModifier>
+			<AICivilianPercent>65</AICivilianPercent>
+			<AICivilianPerEraModifier>-4</AICivilianPerEraModifier>
+			<AITrainPercent>65</AITrainPercent>
+			<AITrainPerEraModifier>-4</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>75</AIConstructPercent>
-			<AIConstructPerEraModifier>-9</AIConstructPerEraModifier>
+			<AIConstructPercent>60</AIConstructPercent>
+			<AIConstructPerEraModifier>-4</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>75</AICreatePercent>
-			<AICreatePerEraModifier>-9</AICreatePerEraModifier>
+			<AICreatePercent>65</AICreatePercent>
+			<AICreatePerEraModifier>-4</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
-			<AIFreeXP>25</AIFreeXP>
-			<AIFreeXPPercent>80</AIFreeXPPercent>
+			<AIFreeXP>30</AIFreeXP>
+			<AIFreeXPPercent>50</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>50</AIResistanceCap>
-			<AIVisionBonus>1</AIVisionBonus>
+			<AIResistanceCap>0</AIResistanceCap>
+			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
-			<AIDifficultyBonusBase>12</AIDifficultyBonusBase>
-			<AIDifficultyBonusA>360</AIDifficultyBonusA>
-			<AIDifficultyBonusB>240</AIDifficultyBonusB>
-			<AIDifficultyBonusC>160</AIDifficultyBonusC>
+			<AIDifficultyBonusBase>0</AIDifficultyBonusBase>
+			<AIDifficultyBonusA>0</AIDifficultyBonusA>
+			<AIDifficultyBonusB>0</AIDifficultyBonusB>
+			<AIDifficultyBonusC>0</AIDifficultyBonusC>
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
-			<CityStateWorkRateModifier>60</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
-			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
-			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>75</CityStateTrainPercent>
-			<CityStateTrainPerEraModifier>-9</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>75</CityStateConstructPercent>
-			<CityStateConstructPerEraModifier>-9</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>75</CityStateCreatePercent>
-			<CityStateCreatePerEraModifier>-9</CityStateCreatePerEraModifier>
-			<CityStateFreeXP>25</CityStateFreeXP>
-			<CityStateFreeXPPercent>80</CityStateFreeXPPercent>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateWorkRateModifier>75</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>56</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-4</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>78</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-4</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>78</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-4</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>72</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-4</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>72</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-4</CityStateCreatePerEraModifier>
+			<CityStateFreeXP>30</CityStateFreeXP>
+			<CityStateFreeXPPercent>50</CityStateFreeXPPercent>
 			<CityStateCombatBonus>0</CityStateCombatBonus>
-			<CityStateVisionBonus>1</CityStateVisionBonus>
+			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>32</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>0</BonusVSBarbarians>
-			<AIBonusVSBarbarians>30</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
+			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
+			<BonusVSBarbarians>10</BonusVSBarbarians>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>6</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>9</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>6</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -1531,9 +1783,9 @@
 			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
 			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
-			<LandDisputePercent>115</LandDisputePercent>
-			<WonderDisputePercent>115</WonderDisputePercent>
-			<MinorCivDisputePercent>115</MinorCivDisputePercent>
+			<LandDisputePercent>125</LandDisputePercent>
+			<WonderDisputePercent>125</WonderDisputePercent>
+			<MinorCivDisputePercent>125</MinorCivDisputePercent>
 			<VictoryDisputePercent>134</VictoryDisputePercent>
 			<VictoryDisputeMod>3</VictoryDisputeMod>
 			<VictoryBlockPercent>134</VictoryBlockPercent>
@@ -1545,9 +1797,9 @@
 			<PolicyBlockPercent>134</PolicyBlockPercent>
 			<PolicyBlockMod>3</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>12</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>30</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>40</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>14</AggressionIncrease>
+			<AggressionIncrease>12</AggressionIncrease>
 			<HumanOpinionChange>0</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
@@ -1584,23 +1836,21 @@
 			<Description>TXT_KEY_HANDICAP_DEITY</Description>
 			<Help>TXT_KEY_HANDICAP_DEITY_HELP</Help>
 			<PortraitIndex>7</PortraitIndex>
-			<IconAtlas>DIFFICULTY_ATLAS</IconAtlas>
-
 			<!-- Player Bonuses -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
-			<HappinessDefault>5</HappinessDefault>
-			<HappinessDefaultCapital>1</HappinessDefaultCapital>
+			<HappinessDefault>9</HappinessDefault>
+			<HappinessDefaultCapital>0</HappinessDefaultCapital>
 			<ExtraHappinessPerLuxury>0</ExtraHappinessPerLuxury>
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>0</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
 			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
-			<UnitSupplyBase>6</UnitSupplyBase>
-			<UnitSupplyPerCity>1</UnitSupplyPerCity>
-			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
+			<UnitSupplyBase>5</UnitSupplyBase>
+			<UnitSupplyPerCity>2</UnitSupplyPerCity>
+			<UnitSupplyPopulationPercent>50</UnitSupplyPopulationPercent>
 			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
@@ -1641,7 +1891,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
-			<ResistanceCap>75</ResistanceCap>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -1654,93 +1904,93 @@
 			<AIStartingGold>0</AIStartingGold>
 			<AIStartingPolicyPoints>0</AIStartingPolicyPoints>
 			<AIAdvancedStartPointsMod>0</AIAdvancedStartPointsMod>
-			<AIHappinessDefault>8</AIHappinessDefault>
-			<AIHappinessDefaultCapital>2</AIHappinessDefaultCapital>
+			<AIHappinessDefault>15</AIHappinessDefault>
+			<AIHappinessDefaultCapital>0</AIHappinessDefaultCapital>
 			<AIExtraHappinessPerLuxury>0</AIExtraHappinessPerLuxury>
-			<AIEmpireSizeUnhappinessMod>0</AIEmpireSizeUnhappinessMod>
-			<AIPopulationUnhappinessMod>0</AIPopulationUnhappinessMod>
+			<AIEmpireSizeUnhappinessMod>-33</AIEmpireSizeUnhappinessMod>
+			<AIPopulationUnhappinessMod>-33</AIPopulationUnhappinessMod>
 			<AIFreeCulturePerTurn>0</AIFreeCulturePerTurn>
 			<AIMaintenanceFreeUnits>0</AIMaintenanceFreeUnits>
-			<AIUnitSupplyBase>8</AIUnitSupplyBase>
-			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
-			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyBase>7</AIUnitSupplyBase>
+			<AIUnitSupplyPerCity>3</AIUnitSupplyPerCity>
+			<AIUnitSupplyPopulationPercent>50</AIUnitSupplyPopulationPercent>
+			<AIUnitSupplyBonusPercent>50</AIUnitSupplyBonusPercent>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
-			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
-			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
-			<AIStartingExploreUnits>0</AIStartingExploreUnits>
-			<AIWorkRateModifier>70</AIWorkRateModifier>
-			<AIImprovementCostPercent>100</AIImprovementCostPercent>
-			<AIBuildingCostPercent>70</AIBuildingCostPercent>
-			<AIUnitCostPercent>70</AIUnitCostPercent>
+			<AIStartingUnitMultiplier>1</AIStartingUnitMultiplier>
+			<AIStartingWorkerUnits>2</AIStartingWorkerUnits>
+			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingExploreUnits>1</AIStartingExploreUnits>
+			<AIWorkRateModifier>100</AIWorkRateModifier>
+			<AIImprovementCostPercent>50</AIImprovementCostPercent>
+			<AIBuildingCostPercent>50</AIBuildingCostPercent>
+			<AIUnitCostPercent>50</AIUnitCostPercent>
 			<AIInflationPercent>100</AIInflationPercent>
-			<AIUnitUpgradePercent>50</AIUnitUpgradePercent>
-			<AIUnitUpgradePerEraModifier>0</AIUnitUpgradePerEraModifier>
-			<AIGrowthPercent>100</AIGrowthPercent>
-			<AIGrowthPerEraModifier>0</AIGrowthPerEraModifier>
-			<AIResearchPercent>100</AIResearchPercent>
+			<AIUnitUpgradePercent>15</AIUnitUpgradePercent>
+			<AIUnitUpgradePerEraModifier>-5</AIUnitUpgradePerEraModifier>
+			<AIGrowthPercent>55</AIGrowthPercent>
+			<AIGrowthPerEraModifier>-5</AIGrowthPerEraModifier>
+			<AIResearchPercent>85</AIResearchPercent>
 			<AIResearchPerEraModifier>0</AIResearchPerEraModifier>
 			<AITechCatchUpMod>0</AITechCatchUpMod>
-			<AIPolicyPercent>100</AIPolicyPercent>
+			<AIPolicyPercent>75</AIPolicyPercent>
 			<AIPolicyPerEraModifier>0</AIPolicyPerEraModifier>
 			<AIPolicyCatchUpMod>0</AIPolicyCatchUpMod>
-			<AIProphetPercent>100</AIProphetPercent>
+			<AIProphetPercent>50</AIProphetPercent>
 			<AIGreatPeoplePercent>100</AIGreatPeoplePercent>
 			<AIGoldenAgePercent>100</AIGoldenAgePercent>
-			<AICivilianPercent>100</AICivilianPercent>
-			<AICivilianPerEraModifier>0</AICivilianPerEraModifier>
-			<AITrainPercent>70</AITrainPercent>
-			<AITrainPerEraModifier>-10</AITrainPerEraModifier>
+			<AICivilianPercent>50</AICivilianPercent>
+			<AICivilianPerEraModifier>-5</AICivilianPerEraModifier>
+			<AITrainPercent>50</AITrainPercent>
+			<AITrainPerEraModifier>-5</AITrainPerEraModifier>
 			<AIWorldTrainPercent>100</AIWorldTrainPercent>
-			<AIConstructPercent>70</AIConstructPercent>
-			<AIConstructPerEraModifier>-10</AIConstructPerEraModifier>
+			<AIConstructPercent>50</AIConstructPercent>
+			<AIConstructPerEraModifier>-5</AIConstructPerEraModifier>
 			<AIWorldConstructPercent>100</AIWorldConstructPercent>
-			<AICreatePercent>70</AICreatePercent>
-			<AICreatePerEraModifier>-10</AICreatePerEraModifier>
+			<AICreatePercent>50</AICreatePercent>
+			<AICreatePerEraModifier>-5</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIProcessBonus>0</AIProcessBonus>
 			<AIProcessPerEraModifier>0</AIProcessPerEraModifier>
 			<AIFreeXP>30</AIFreeXP>
 			<AIFreeXPPercent>100</AIFreeXPPercent>
 			<AICombatBonus>0</AICombatBonus>
-			<AIResistanceCap>50</AIResistanceCap>
-			<AIVisionBonus>2</AIVisionBonus>
+			<AIResistanceCap>0</AIResistanceCap>
+			<AIVisionBonus>0</AIVisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<AIDifficultyBonusTurnInterval>0</AIDifficultyBonusTurnInterval>
-			<AIDifficultyBonusBase>14</AIDifficultyBonusBase>
-			<AIDifficultyBonusA>375</AIDifficultyBonusA>
-			<AIDifficultyBonusB>260</AIDifficultyBonusB>
-			<AIDifficultyBonusC>180</AIDifficultyBonusC>
+			<AIDifficultyBonusBase>0</AIDifficultyBonusBase>
+			<AIDifficultyBonusA>0</AIDifficultyBonusA>
+			<AIDifficultyBonusB>0</AIDifficultyBonusB>
+			<AIDifficultyBonusC>0</AIDifficultyBonusC>
 
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
-			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
-			<CityStateWorkRateModifier>70</CityStateWorkRateModifier>
-			<CityStateGrowthPercent>75</CityStateGrowthPercent>
-			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
-			<CityStateCivilianPercent>100</CityStateCivilianPercent>
-			<CityStateCivilianPerEraModifier>0</CityStateCivilianPerEraModifier>
-			<CityStateTrainPercent>70</CityStateTrainPercent>
-			<CityStateTrainPerEraModifier>-10</CityStateTrainPerEraModifier>
-			<CityStateConstructPercent>70</CityStateConstructPercent>
-			<CityStateConstructPerEraModifier>-10</CityStateConstructPerEraModifier>
-			<CityStateCreatePercent>70</CityStateCreatePercent>
-			<CityStateCreatePerEraModifier>-10</CityStateCreatePerEraModifier>
+			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateWorkRateModifier>100</CityStateWorkRateModifier>
+			<CityStateGrowthPercent>44</CityStateGrowthPercent>
+			<CityStateGrowthPerEraModifier>-5</CityStateGrowthPerEraModifier>
+			<CityStateCivilianPercent>60</CityStateCivilianPercent>
+			<CityStateCivilianPerEraModifier>-5</CityStateCivilianPerEraModifier>
+			<CityStateTrainPercent>60</CityStateTrainPercent>
+			<CityStateTrainPerEraModifier>-5</CityStateTrainPerEraModifier>
+			<CityStateConstructPercent>60</CityStateConstructPercent>
+			<CityStateConstructPerEraModifier>-5</CityStateConstructPerEraModifier>
+			<CityStateCreatePercent>60</CityStateCreatePercent>
+			<CityStateCreatePerEraModifier>-5</CityStateCreatePerEraModifier>
 			<CityStateFreeXP>30</CityStateFreeXP>
 			<CityStateFreeXPPercent>100</CityStateFreeXPPercent>
 			<CityStateCombatBonus>0</CityStateCombatBonus>
-			<CityStateVisionBonus>2</CityStateVisionBonus>
+			<CityStateVisionBonus>0</CityStateVisionBonus>
 
 			<!-- Barbarians -->
-			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
+			<EarliestBarbarianReleaseTurn>0</EarliestBarbarianReleaseTurn>
 			<BonusVSBarbarians>0</BonusVSBarbarians>
-			<AIBonusVSBarbarians>30</AIBonusVSBarbarians>
-			<BarbarianCampGold>50</BarbarianCampGold>
-			<AIBarbarianCampGold>50</AIBarbarianCampGold>
+			<AIBonusVSBarbarians>60</AIBonusVSBarbarians>
+			<BarbarianCampGold>25</BarbarianCampGold>
+			<AIBarbarianCampGold>25</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
-			<BarbarianLandTargetRange>7</BarbarianLandTargetRange>
-			<BarbarianSeaTargetRange>10</BarbarianSeaTargetRange>
+			<BarbarianLandTargetRange>4</BarbarianLandTargetRange>
+			<BarbarianSeaTargetRange>7</BarbarianSeaTargetRange>
 
 			<!-- AI Behavior Modifiers -->
 			<!-- Weighted Randomized Choices -->
@@ -1758,9 +2008,9 @@
 			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
 			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
-			<LandDisputePercent>125</LandDisputePercent>
-			<WonderDisputePercent>125</WonderDisputePercent>
-			<MinorCivDisputePercent>125</MinorCivDisputePercent>
+			<LandDisputePercent>134</LandDisputePercent>
+			<WonderDisputePercent>134</WonderDisputePercent>
+			<MinorCivDisputePercent>134</MinorCivDisputePercent>
 			<VictoryDisputePercent>150</VictoryDisputePercent>
 			<VictoryDisputeMod>3</VictoryDisputeMod>
 			<VictoryBlockPercent>150</VictoryBlockPercent>
@@ -1772,9 +2022,9 @@
 			<PolicyBlockPercent>150</PolicyBlockPercent>
 			<PolicyBlockMod>3</PolicyBlockMod>
 			<PeaceTreatyDampenerTurns>11</PeaceTreatyDampenerTurns>
-			<HumanStrengthPerceptionMod>35</HumanStrengthPerceptionMod>
+			<HumanStrengthPerceptionMod>50</HumanStrengthPerceptionMod>
 			<HumanTradeModifier>0</HumanTradeModifier>
-			<AggressionIncrease>16</AggressionIncrease>
+			<AggressionIncrease>15</AggressionIncrease>
 			<HumanOpinionChange>0</HumanOpinionChange>
 			<HumanWarApproachChangeFlat>0</HumanWarApproachChangeFlat>
 			<HumanWarApproachChangePercent>0</HumanWarApproachChangePercent>
@@ -1812,7 +2062,7 @@
 			<Help>TXT_KEY_HANDICAP_AI_DEFAULT</Help>
 			<!-- Player Bonuses -->
 			<!-- These bonuses are applied in addition to whatever bonuses the AI gets based on the game's difficulty level. -->
-			<MapPlacementPriority>3</MapPlacementPriority>
+			<MapPlacementPriority>1</MapPlacementPriority>
 			<StartingGold>0</StartingGold>
 			<StartingPolicyPoints>0</StartingPolicyPoints>
 			<AdvancedStartPointsMod>0</AdvancedStartPointsMod>
@@ -1866,6 +2116,7 @@
 			<FreeXP>0</FreeXP>
 			<FreeXPPercent>0</FreeXPPercent>
 			<CombatBonus>0</CombatBonus>
+			<ResistanceCap>0</ResistanceCap>
 			<VisionBonus>0</VisionBonus>
 			<!-- VP Difficulty Bonus -->
 			<DifficultyBonusTurnInterval>0</DifficultyBonusTurnInterval>
@@ -1875,938 +2126,64 @@
 			<DifficultyBonusC>0</DifficultyBonusC>
 		</Row>
 	</HandicapInfos>
-	<HandicapInfo_AIDifficultyBonus>
-		<!-- Prince -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
+	<HandicapInfo_AIFreeTechs>
 		<!-- King -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<TechType>TECH_POTTERY</TechType>
 		</Row>
 		<!-- Emperor -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_POTTERY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<TechType>TECH_MINING</TechType>
 		</Row>
 		<!-- Immortal -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_MINING</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_POTTERY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<TechType>TECH_ARCHERY</TechType>
 		</Row>
 		<!-- Deity -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_MINING</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_THE_WHEEL</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_POTTERY</TechType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
+			<TechType>TECH_ARCHERY</TechType>
 		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-	</HandicapInfo_AIDifficultyBonus>
+	</HandicapInfo_AIFreeTechs>
 	<HandicapInfo_Goodies>
 		<!-- Settler -->
 		<Row>
@@ -2839,23 +2216,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Rewards exclusive to Settler -->
 		<Row>
@@ -2897,23 +2262,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Warlord -->
 		<Row>
@@ -2946,23 +2299,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Prince -->
 		<Row>
@@ -2995,23 +2336,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- King -->
 		<Row>
@@ -3044,23 +2373,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Emperor -->
 		<Row>
@@ -3093,23 +2410,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Immortal -->
 		<Row>
@@ -3142,23 +2447,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Deity -->
 		<Row>
@@ -3191,23 +2484,11 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- AI Players -->
 		<Row>
@@ -3240,36 +2521,24 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_REVEAL_NEARBY_BARBS</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 	</HandicapInfo_Goodies>
 	<PostDefines>
 		<Row Name="STANDARD_HANDICAP">
-			<Key>HANDICAP_WARLORD</Key>
+			<Key>HANDICAP_PRINCE</Key>
 			<Table>HandicapInfos</Table>
 		</Row>
 		<Row Name="STANDARD_HANDICAP_QUICK">
-			<Key>HANDICAP_WARLORD</Key>
+			<Key>HANDICAP_PRINCE</Key>
 			<Table>HandicapInfos</Table>
 		</Row>
 		<Row Name="MULTIPLAYER_HANDICAP">
-			<Key>HANDICAP_WARLORD</Key>
+			<Key>HANDICAP_PRINCE</Key>
 			<Table>HandicapInfos</Table>
 		</Row>
 		<!-- Do not change these values! -->

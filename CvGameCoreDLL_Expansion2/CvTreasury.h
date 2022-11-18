@@ -81,18 +81,11 @@ public:
 	int GetLifetimeGrossGold() const;
 	int CalculateBaseNetGold();
 	int CalculateBaseNetGoldTimes100();
-	int CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost);
-	int CalculateUnitSupply();
-	int CalculatePreInflatedCosts();
-	int CalculateInflationRate();
-	int CalculateInflatedCosts();
+	int CalculateUnitCost();
+	int CalculateTotalCosts();
 	int GetExpensePerTurnUnitMaintenance() const
 	{
 		return m_iExpensePerTurnUnitMaintenance;
-	}
-	int GetExpensePerTurnUnitSupply() const
-	{
-		return m_iExpensePerTurnUnitSupply;
 	}
 
 	// Other Maintenance
@@ -131,7 +124,6 @@ protected:
 	int m_iGold;
 	int m_iGoldPerTurnFromDiplomacy;
 	int m_iExpensePerTurnUnitMaintenance;
-	int m_iExpensePerTurnUnitSupply;
 	int m_iCityConnectionGoldTimes100;
 #if defined(MOD_BALANCE_CORE)
 	int m_iInternalTradeGoldBonus;

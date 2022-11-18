@@ -1,53 +1,11 @@
--- Diplo Approach Weights (affects the interactions of AI major civs with other major civs)
--- Increasing these values will not always result in that approach being adopted; the AI sometimes sets the value for an approach to 0 under certain circumstances.
--- The total value for an approach is always capped below at 0.
-
--- Approaches towards humans
--- Flat +/- weight
-INSERT INTO Defines (Name, Value) VALUES
-('APPROACH_FRIENDLY_HUMAN', '0'),
-('APPROACH_NEUTRAL_HUMAN', '0'),
-('APPROACH_AFRAID_HUMAN', '0'),
-('APPROACH_GUARDED_HUMAN', '0'),
-('APPROACH_DECEPTIVE_HUMAN', '0'),
-('APPROACH_HOSTILE_HUMAN', '0'),
-('APPROACH_WAR_HUMAN', '0'),
-
--- % modifier to approach weight (positive values increase the approach weight by this percentage; negative values decrease it; applied after all other modifiers).
-('APPROACH_FRIENDLY_HUMAN_PERCENT', '0'),
-('APPROACH_NEUTRAL_HUMAN_PERCENT', '0'),
-('APPROACH_AFRAID_HUMAN_PERCENT', '0'),
-('APPROACH_GUARDED_HUMAN_PERCENT', '0'),
-('APPROACH_DECEPTIVE_HUMAN_PERCENT', '0'),
-('APPROACH_HOSTILE_HUMAN_PERCENT', '0'),
-('APPROACH_WAR_HUMAN_PERCENT', '0'),
-
-
--- Approaches towards other AI players
--- Flat +/- weight
-('APPROACH_FRIENDLY_AI', '0'),
-('APPROACH_NEUTRAL_AI', '0'),
-('APPROACH_AFRAID_AI', '0'),
-('APPROACH_GUARDED_AI', '0'),
-('APPROACH_DECEPTIVE_AI', '0'),
-('APPROACH_HOSTILE_AI', '0'),
-('APPROACH_WAR_AI', '0'),
-
--- % modifier to approach weight (positive values increase the approach weight by this percentage; negative values decrease it; applied after all other modifiers).
-('APPROACH_FRIENDLY_AI_PERCENT', '0'),
-('APPROACH_NEUTRAL_AI_PERCENT', '0'),
-('APPROACH_AFRAID_AI_PERCENT', '0'),
-('APPROACH_GUARDED_AI_PERCENT', '0'),
-('APPROACH_DECEPTIVE_AI_PERCENT', '0'),
-('APPROACH_HOSTILE_AI_PERCENT', '0'),
-('APPROACH_WAR_AI_PERCENT', '0'),
-
+-- Direct +/- and % weights to approach scores have been moved to DifficultyTables.xml (Community Patch) and DifficultyMod.xml (Vox Populi).
 
 -- Target Value Multipliers to Approach Weights
 -- WAR and HOSTILE approach scores are multiplied by whichever of these values is appropriate, and then divided by 100.
 -- NOTE: Target Value is also affected by proximity!
 
 -- Normal Target Value Multiplier (Major Civs)
+INSERT INTO Defines (Name, Value) VALUES
 ('MAJOR_WAR_MULTIPLIER_TARGET_SOFT', '150'),
 ('MAJOR_WAR_MULTIPLIER_TARGET_FAVORABLE', '125'),
 ('MAJOR_WAR_MULTIPLIER_TARGET_AVERAGE', '75'),
@@ -106,12 +64,6 @@ UPDATE Defines SET Value = '4' WHERE Name = 'APPROACH_WAR_CURRENTLY_WAR';
 -- Ignore City-State Default Weight
 -- Adds x times the AI's Ignore (Neutral) bias to the Ignore (Neutral) approach
 UPDATE Defines SET Value = '2' WHERE Name = 'MINOR_APPROACH_IGNORE_DEFAULT';
-
-
--- Peace Treaty Dampener Turns
--- Dissuades the AI from declaring war for a certain amount of time after a peace treaty has been signed.
--- NOTE: For MAJOR CIVS, this amount is reduced on higher difficulties.
-UPDATE Defines SET Value = '20' WHERE Name = 'TURNS_SINCE_PEACE_WEIGHT_DAMPENER';
 
 
 -- Approach Shift Rate

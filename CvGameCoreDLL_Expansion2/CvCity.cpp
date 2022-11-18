@@ -973,7 +973,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-	if (MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && !owningPlayer.isHuman() && bInitialFounding)
+	if (bInitialFounding)
 	{
 		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
 	}
@@ -2016,7 +2016,7 @@ void CvCity::setupWonderGraphics()
 								CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 								if (pLeague != NULL)
 								{
-									if (pLeague->IsProjectActive(eThisBuildingProject) && pLeague->GetMemberContribution(ePlayerID, eThisBuildingProject) > 0)
+									if (pLeague->IsProjectActive(eThisBuildingProject) && pLeague->GetMemberContribution(ePlayerID, eThisBuildingProject, true) > 0)
 									{
 										// Only show the graphic in the capital, since that is where the wonder would go
 										if (isCapital())
@@ -8063,8 +8063,8 @@ void CvCity::setEconomicValue(PlayerTypes ePossibleOwner, int iValue)
  /// Keeps track of local instant yield. use this in conjunction with getGameTurnFounded() to get an average
  void CvCity::ChangeInstantYieldTotal(YieldTypes eYield, int iValue)
  {
-	 VALIDATE_OBJECT;
-	 m_miInstantYieldsTotal[eYield] += iValue;
+	VALIDATE_OBJECT;
+	m_miInstantYieldsTotal[eYield] += iValue;
  }
  
  int CvCity::GetInstantYieldTotal(YieldTypes eYield)
@@ -11759,12 +11759,6 @@ int CvCity::getProductionNeeded(ProjectTypes eProject) const
 	{
 		iNumProductionNeeded += pProject->CostScalerNumberOfRepeats() * getProjectCount(eProject);
 		iNumProductionNeeded += pProject->CostScalerEra() * GET_PLAYER(getOwner()).GetCurrentEra();
-
-		if (MOD_ALTERNATIVE_DIFFICULTY && GC.getProjectInfo(eProject)->IsRepeatable() && !GET_PLAYER(getOwner()).isHuman() && GET_PLAYER(getOwner()).isMajorCiv())
-		{
-			iNumProductionNeeded *= GC.getGame().getHandicapInfo().getAIConstructPercent();
-			iNumProductionNeeded /= 100;
-		}
 	}
 
 	return max(1, iNumProductionNeeded);
@@ -12068,13 +12062,32 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 	if (MOD_BALANCE_VP)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
-		if (bCombat)
+
+		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
+		if (bCombat && pkUnitInfo->IsFound())
+		{
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
+			// Can't be lower than -75% from Unhappiness.
+			if (iSettlerPenalty < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
+			{
+				iSettlerPenalty = GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY);
+			}
+
+			int iCostMod = std::max(iWarWeariness, iSettlerPenalty*-1);
+			if (iCostMod > 0)
+			{
+				iCost *= 100 + iCostMod;
+				iCost /= 100;
+			}
+		}
+		else if (bCombat)
 		{
 			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
-				iCost *= (100 + iWarWeariness);
+				iCost *= 100 + iWarWeariness;
 				iCost /= 100;
 			}
 		}
@@ -12092,7 +12105,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iTempMod *= -1;
 
 			//Let's do the yield mods.
-			iCost *= (100 + iTempMod);
+			iCost *= 100 + iTempMod;
 			iCost /= 100;
 		}
 	}
@@ -12328,10 +12341,54 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if (!isHuman() && !isBarbarian())
+	if (pkUnitInfo->IsFoundReligion())
 	{
-		iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
+		iCost *= GET_PLAYER(getOwner()).getHandicapInfo().getProphetPercent();
 		iCost /= 100;
+
+		if (!GET_PLAYER(getOwner()).isHuman())
+		{
+			iCost *= GC.getGame().getHandicapInfo().getAIProphetPercent();
+			iCost /= 100;
+		}
+	}
+	else
+	{
+		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
+		if (bCombat)
+		{
+			iCost *= GET_PLAYER(getOwner()).getHandicapInfo().getTrainPercent();
+			iCost /= 100;
+
+			iCost *= std::max(0, GET_PLAYER(getOwner()).getHandicapInfo().getTrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
+			iCost /= 100;
+
+			if (!isHuman())
+			{
+				iCost *= GC.getGame().getHandicapInfo().getAITrainPercent();
+				iCost /= 100;
+
+				iCost *= std::max(0, GC.getGame().getHandicapInfo().getAITrainPerEraModifier() * GC.getGame().getCurrentEra() + 100);
+				iCost /= 100;
+			}
+		}
+		else
+		{
+			iCost *= GET_PLAYER(getOwner()).getHandicapInfo().getCivilianPercent();
+			iCost /= 100;
+
+			iCost *= std::max(0, GET_PLAYER(getOwner()).getHandicapInfo().getCivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
+			iCost /= 100;
+
+			if (!isHuman())
+			{
+				iCost *= GC.getGame().getHandicapInfo().getAICivilianPercent();
+				iCost /= 100;
+
+				iCost *= std::max(0, GC.getGame().getHandicapInfo().getAICivilianPerEraModifier() * GC.getGame().getCurrentEra() + 100);
+				iCost /= 100;
+			}
+		}
 	}
 
 	// Modify by any beliefs
@@ -12390,13 +12447,32 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	if (MOD_BALANCE_VP)
 	{
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
-		if (bCombat)
+
+		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
+		if (bCombat && pkUnitInfo->IsFound())
+		{
+			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
+			// Can't be lower than -75% from Unhappiness.
+			if (iSettlerPenalty < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
+			{
+				iSettlerPenalty = GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY);
+			}
+
+			int iCostMod = std::max(iWarWeariness, iSettlerPenalty*-1);
+			if (iCostMod > 0)
+			{
+				iCost *= 100 + iCostMod;
+				iCost /= 100;
+			}
+		}
+		else if (bCombat)
 		{
 			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
-				iCost *= (100 + iWarWeariness);
+				iCost *= 100 + iWarWeariness;
 				iCost /= 100;
 			}
 		}
@@ -12414,7 +12490,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 			iTempMod *= -1;
 
 			//Let's do the yield mods.
-			iCost *= (100 + iTempMod);
+			iCost *= 100 + iTempMod;
 			iCost /= 100;
 		}
 	}
@@ -12523,10 +12599,16 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	iCost /= 100;
 
 	// Adjust for difficulty
-	if (!isHuman() && !isBarbarian())
+	if (!isBarbarian())
 	{
-		iCost *= GC.getGame().getHandicapInfo().getAIConstructPercent();
+		iCost *= getHandicapInfo().getConstructPercent();
 		iCost /= 100;
+
+		if (!isHuman())
+		{
+			iCost *= GC.getGame().getHandicapInfo().getAIConstructPercent();
+			iCost /= 100;
+		}
 	}
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	/*
@@ -14315,8 +14397,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			if (!bNoBonus && bIsWonder)
 			{
-				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WONDER);
-				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WONDER, 1);
+				int iTourism = owningPlayer.GetHistoricEventTourism(HISTORIC_EVENT_WORLD_WONDER);
+				owningPlayer.ChangeNumHistoricEvents(HISTORIC_EVENT_WORLD_WONDER, 1);
 
 				if (iTourism > 0)
 				{
@@ -16227,7 +16309,12 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 			if (pkProcessInfo->getProductionToYieldModifier((YieldTypes)iI) <= 0)
 				continue;
 
-			changeProductionToYieldModifier(((YieldTypes)iI), ((pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI)) * iChange));
+			int iDifficultyMod = GET_PLAYER(getOwner()).getHandicapInfo().getProcessBonus();
+			iDifficultyMod += GET_PLAYER(getOwner()).getHandicapInfo().getProcessPerEraModifier() * GC.getGame().getCurrentEra();
+			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessBonus();
+			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessPerEraModifier() * GC.getGame().getCurrentEra();
+
+			changeProductionToYieldModifier((YieldTypes)iI, std::max(0, (pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI) + iDifficultyMod) * iChange));
 
 			UpdateCityYields((YieldTypes)iI);
 		}
@@ -17450,16 +17537,14 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			if (toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS", iTraitMod);
 		}
-		if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+
+		int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
+		if (MOD_BALANCE_VP && iSupply > 0)
 		{
-			int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
-			if (iSupply > 0)
-			{
-				int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
-				iTotalMod += iSupplyMod;
-				if (toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY", iSupplyMod);
-			}
+			int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
+			iTotalMod += iSupplyMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY", iSupplyMod);
 		}
 #endif
 		if (MOD_BALANCE_CORE)
@@ -17648,14 +17733,12 @@ int CvCity::getGrowthMods() const
 		int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
 		iTotalMod += iTraitMod;
 	}
-	if (MOD_BALANCE_DYNAMIC_UNIT_SUPPLY)
+
+	int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
+	if (MOD_BALANCE_VP && iSupply > 0)
 	{
-		int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
-		if (iSupply > 0)
-		{
-			int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
-			iTotalMod += iSupplyMod;
-		}
+		int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
+		iTotalMod += iSupplyMod;
 	}
 
 	if (MOD_BALANCE_CORE)
@@ -17887,7 +17970,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		iUnhappiness /= 100;
 
 		// Handicap mod
-		iUnhappiness *= GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod();
+		iUnhappiness *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		iUnhappiness /= 100;
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
@@ -22059,10 +22142,12 @@ int CvCity::GetLocalHappiness(int iPopMod, bool bExcludeEmpireContributions) con
 
 	if (isCapital())
 	{
-		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
+		if (MOD_BALANCE_VP && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
 			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital() * 2;
-		else
+		else if (kPlayer.isHuman())
 			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital();
+		else
+			iLocalHappiness += kPlayer.getHandicapInfo().getHappinessDefaultCapital() + GC.getGame().getHandicapInfo().getAIHappinessDefaultCapital();
 	}
 
 	if (MOD_BALANCE_CORE_JFD)
@@ -22091,9 +22176,16 @@ CvString CvCity::GetCityHappinessBreakdown()
 	int iPolicies = GetHappinessFromPolicies();
 	int iReligion = GetHappinessFromReligion();
 	int iOther = GetUnmoddedHappinessFromBuildings(); // misc. happiness
-	int iHandicap = isCapital() ? kPlayer.getHandicapInfo().getHappinessDefaultCapital() : 0;
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman())
-		iHandicap *= 2;
+	int iHandicap = 0;
+	if (isCapital())
+	{
+		if (MOD_BALANCE_VP && kPlayer.isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital() * 2;
+		else if (kPlayer.isHuman())
+			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital();
+		else
+			iHandicap += kPlayer.getHandicapInfo().getHappinessDefaultCapital() + GC.getGame().getHandicapInfo().getAIHappinessDefaultCapital();
+	}
 
 	int iTotal = iEmpire + iBuildings + iPolicies + iReligion + iOther + iHandicap;
 
@@ -22461,9 +22553,7 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 	iModifier += GetReducedEmpireSizeModifier(bForceRecalc, false);
 
 	// Modifier from difficulty level
-	iModifier += kPlayer.getHandicapInfo().getPopulationUnhappinessMod();
-	if (!kPlayer.isHuman())
-		iModifier += GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
+	iModifier += kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 
 	// Decrease from Carnival (Brazil UA)
 	if (GetWeLoveTheKingDayCounter() > 0)
@@ -22506,6 +22596,10 @@ int CvCity::GetEmpireSizeModifier() const
 
 	// Scale with map size
 	iEmpireMod *= std::min(100, GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent());
+	iEmpireMod /= 100;
+
+	// Difficulty level can modify this
+	iEmpireMod *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getEmpireSizeUnhappinessMod() + GC.getGame().getHandicapInfo().getAIEmpireSizeUnhappinessMod();
 	iEmpireMod /= 100;
 
 	return std::max(iEmpireMod, 0);
@@ -23077,7 +23171,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iTechMod = GetCachedTechNeedModifier();
 		int iCitySize = GetCitySizeModifier();
 		int iEmpireSize = GetReducedEmpireSizeModifier(false,false);
-		int iDifficultyMod = kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIUnhappinessPercent();
+		int iDifficultyMod = kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		int iTotalMod = iCapitalMod + iTechMod + iCitySize + iEmpireSize + iDifficultyMod;
 
 		// Is Capital
@@ -28179,31 +28273,10 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 #endif
 
 			// OTHER UNIT is a Barbarian
-			if (pDefender != NULL)
+			if (pDefender != NULL && pDefender->isBarbarian())
 			{
-				if (pDefender->isBarbarian())
-				{
-					// Generic Barb Combat Bonus
-					iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus();
-
-					const CvHandicapInfo& thisGameHandicap = GC.getGame().getHandicapInfo();
-
-					// AI bonus
-					if (!isHuman())
-					{
-						iModifier += thisGameHandicap.getAIBarbarianCombatModifier();
-					}
-					// Minor bonus
-					else if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						iModifier += (thisGameHandicap.getAIBarbarianCombatModifier() / 4);
-					}
-
-					if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-					{
-						iModifier += 25;
-					}
-				}
+				// Generic Barb Combat Bonus
+				iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus(false);
 			}
 
 			iValue *= (100 + iModifier);

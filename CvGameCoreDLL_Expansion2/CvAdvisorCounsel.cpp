@@ -1115,7 +1115,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		enum
 		{
 		    COST_UNIT_MAINTENANCE,
-		    COST_UNIT_SUPPLY,
 		    COST_BUILDING_MAINTENANCE,
 		    COST_IMPROVEMENT_MAINTENANCE,
 		    COST_DIPLOMACY,
@@ -1132,13 +1131,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					uiHighestCostCategory = ui;
 					iHighestCost = pTreasury->GetExpensePerTurnUnitMaintenance();
-				}
-				break;
-			case COST_UNIT_SUPPLY:
-				if(pTreasury->GetExpensePerTurnUnitSupply() > iHighestCost)
-				{
-					uiHighestCostCategory = ui;
-					iHighestCost = pTreasury->GetExpensePerTurnUnitSupply();
 				}
 				break;
 			case COST_BUILDING_MAINTENANCE:
@@ -1178,10 +1170,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_BROKE_AND_GOING_DOWN_UNIT_MAINTENANCE");
 					strLoc << iHighestCost;
 					break;
-				case COST_UNIT_SUPPLY:
-					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_BROKE_AND_GOING_DOWN_UNIT_SUPPLY");
-					strLoc << iHighestCost;
-					break;
 				case COST_BUILDING_MAINTENANCE:
 					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_BROKE_AND_GOING_DOWN_BUILDING_MAINTENANCE");
 					strLoc << iHighestCost;
@@ -1206,10 +1194,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 				case COST_UNIT_MAINTENANCE:
 					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_BROKE_AND_GOING_UP_UNIT_MAINTENANCE");
-					strLoc << iHighestCost;
-					break;
-				case COST_UNIT_SUPPLY:
-					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_BROKE_AND_GOING_UP_UNIT_SUPPLY");
 					strLoc << iHighestCost;
 					break;
 				case COST_BUILDING_MAINTENANCE:
@@ -1244,10 +1228,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 						strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_GOING_BROKE_UNIT_MAINTENANCE");
 						strLoc << iHighestCost;
 						break;
-					case COST_UNIT_SUPPLY:
-						strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_GOING_BROKE_UNIT_SUPPLY");
-						strLoc << iHighestCost;
-						break;
 					case COST_BUILDING_MAINTENANCE:
 						strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_GOING_BROKE_BUILDING_MAINTENANCE");
 						strLoc << iHighestCost;
@@ -1272,10 +1252,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					{
 					case COST_UNIT_MAINTENANCE:
 						strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_LOSING_MONEY_UNIT_MAINTENANCE");
-						strLoc << iHighestCost;
-						break;
-					case COST_UNIT_SUPPLY:
-						strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_LOSING_MONEY_UNIT_SUPPLY");
 						strLoc << iHighestCost;
 						break;
 					case COST_BUILDING_MAINTENANCE:
@@ -1303,10 +1279,6 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 				case COST_UNIT_MAINTENANCE:
 					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_MAKING_MONEY_UNIT_MAINTENANCE");
-					strLoc << iHighestCost;
-					break;
-				case COST_UNIT_SUPPLY:
-					strLoc = Localization::Lookup("TXT_KEY_FINANCESTRATEGY_MAKING_MONEY_UNIT_SUPPLY");
 					strLoc << iHighestCost;
 					break;
 				case COST_BUILDING_MAINTENANCE:

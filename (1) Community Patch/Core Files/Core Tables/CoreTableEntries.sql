@@ -1,3 +1,27 @@
+-- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
+-- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus.
+CREATE TABLE IF NOT EXISTS HistoricEventTypes(
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Type text NOT NULL UNIQUE
+);
+
+INSERT INTO HistoricEventTypes(ID, Type) VALUES ('0','HISTORIC_EVENT_ERA_CHANGE');
+INSERT INTO HistoricEventTypes(Type) VALUES 
+('HISTORIC_EVENT_WORLD_WONDER'), -- 1
+('HISTORIC_EVENT_GREAT_PERSON'), -- 2
+('HISTORIC_EVENT_WON_WAR'), -- 3
+('HISTORIC_EVENT_GOLDEN_AGE'), -- 4
+('HISTORIC_EVENT_DIG'), -- 5
+('HISTORIC_EVENT_TRADE_LAND'), -- 6
+('HISTORIC_EVENT_TRADE_SEA'), -- 7
+('HISTORIC_EVENT_TRADE_CS'), -- 8
+('HISTORIC_EVENT_CITY_FOUND_CAPITAL'), -- 9
+('HISTORIC_EVENT_CITY_FOUND'), -- 10
+('HISTORIC_EVENT_CITY_CONQUEST'), -- 11
+('HISTORIC_EVENT_PLAYER_TURNS_PASSED'), -- 12
+('HISTORIC_EVENT_AI_TURNS_PASSED'); -- 13
+
+
 -- VictoryPursuitTypes table: Used by the Leaders Table. Allows modders to give a hint to the AI about which victory conditions a civ's UA is best suited for.
 CREATE TABLE IF NOT EXISTS VictoryPursuitTypes(
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -204,21 +228,10 @@ ALTER TABLE PolicyBranchTypes ADD COLUMN 'FontIcon' TEXT DEFAULT NULL;
 ALTER TABLE Beliefs ADD COLUMN 'PressureChangeTradeRoute' INTEGER DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
-ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0;
+ALTER TABLE Eras ADD COLUMN 'StartingCityStateDefenseUnits' INTEGER DEFAULT 0;
 
--- New Handicap Values
-ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0; -- Local Happiness Bonus to Capital
-ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' INTEGER DEFAULT 0; -- Bonus Warriors at game start (City-States)
-ALTER TABLE HandicapInfos ADD COLUMN 'BeliefNumOptionsConsidered' INTEGER DEFAULT 90; -- % cutoff threshold when scoring beliefs (AI will randomly choose from options with x% of the top score)
-ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAULT 0; -- % increase to AI perception of human military strength.
-ALTER TABLE HandicapInfos ADD COLUMN 'AICivilianPercent' INTEGER DEFAULT 100; -- Discount on production cost for AI civilian units
-ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0; -- Extra sight for AI units.
-ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against this player (%)
-ALTER TABLE HandicapInfos ADD COLUMN 'AIResistanceCap' INTEGER DEFAULT 0; -- Max. anti-warmonger fervor bonus against the AI at this difficulty level (%)
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0; -- Periodic instant yields bonus when AI players complete certain triggers. Yield Amount = Base * (A + (B * Game Era) + (C * Game Era * Game Era)) / 100
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusC' INTEGER DEFAULT 0;
+-- Increase base unit supply if the game is started later.
+ALTER TABLE Eras ADD COLUMN 'UnitSupplyBase' INTEGER DEFAULT 0;
 
 -- Grants additional starting happiness based on gamespeed.
 ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;

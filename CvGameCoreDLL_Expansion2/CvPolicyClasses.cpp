@@ -4986,10 +4986,6 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iCost *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iCost /= 100;
 
-	// Handicap Mod
-	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
-	iCost /= 100;
-
 	// Adopting Ideology tenets increases the cost of future policies/tenets
 	if (MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
@@ -5021,23 +5017,27 @@ int CvPlayerPolicies::GetNextPolicyCost()
 		iCost /= 100;
 	}
 
-	// Make the number nice and even
-	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
-	iCost /= iDivisor;
-	iCost *= iDivisor;
-	if (MOD_ALTERNATIVE_DIFFICULTY && GetPlayer()->isMajorCiv())
+	if (GetPlayer()->isMajorCiv())
 	{
-		if (GetPlayer()->isHuman())
-		{
-			iCost *= 100 + (GC.getGame().getHandicapInfo().getHumanPerEraMod() * GC.getGame().getCurrentEra());
-			iCost /= 100;
-		}
-		else
+		iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
+		iCost /= 100;
+
+		iCost *= std::max(0, ((m_pPlayer->getHandicapInfo().getPolicyPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+		iCost /= 100;
+
+		if (!GetPlayer()->isHuman())
 		{
 			iCost *= GC.getGame().getHandicapInfo().getAIPolicyPercent();
 			iCost /= 100;
-			iCost *= 100 + (GC.getGame().getHandicapInfo().getAIPolicyPerEraMod() * GC.getGame().getCurrentEra());
-			iCost /= 100;
+			iCost *= std::max(0, ((GC.getGame().getHandicapInfo().getAIPolicyPerEraModifier() * GC.getGame().getCurrentEra()) + 100));
+			iCost /= 100;			
+		}
+
+		int iExtraCatchUP = m_pPlayer->getHandicapInfo().getPolicyCatchUpMod();
+		iExtraCatchUP += m_pPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod();
+
+		if (iExtraCatchUP > 0)
+		{
 			int iHigherPoliciesCount = 0;
 			int iPossibleHigherCount = 0;
 			int iPlayerPolicies = 0;
@@ -5054,10 +5054,15 @@ int CvPlayerPolicies::GetNextPolicyCost()
 					}
 				}
 			}
-			iCost *= 100 - (iHigherPoliciesCount * GC.getGame().getHandicapInfo().getAIPolicyCatchUpMod() * GC.getGame().getCurrentEra()) / max(1, iPossibleHigherCount);
+			iCost *= 100 - (iHigherPoliciesCount * iExtraCatchUP * GC.getGame().getCurrentEra()) / max(1, iPossibleHigherCount);
 			iCost /= 100;
 		}
 	}
+
+	// Make the number nice and even
+	int iDivisor = /*5*/ GD_INT_GET(POLICY_COST_VISIBLE_DIVISOR);
+	iCost /= iDivisor;
+	iCost *= iDivisor;
 
 	return iCost;
 }

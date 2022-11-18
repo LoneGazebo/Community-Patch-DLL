@@ -797,7 +797,7 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 	initFreeUnits(kInitialItemOverrides);
 
-	if (MOD_BALANCE_CORE_DIFFICULTY)
+	if (MOD_BALANCE_VP)
 	{
 		int iBarbReleaseTurn = getHandicapInfo().getEarliestBarbarianReleaseTurn();
 		int iPlusMinus = /*2*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION);
@@ -1464,7 +1464,7 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 			{
 				if((kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false,false) == 0) && (kPlayer.getNumCities() == 0))
 				{
-					kPlayer.initFreeUnits(kOverrides);
+					kPlayer.initFreeUnits();
 				}
 			}
 		}

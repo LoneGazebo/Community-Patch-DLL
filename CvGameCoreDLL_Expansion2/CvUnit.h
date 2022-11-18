@@ -705,9 +705,7 @@ public:
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
 	int GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL) const;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetResistancePower(const CvUnit* pOtherUnit) const;
-#endif
 
 	int GetCombatLimit() const;
 	int GetRangedCombatLimit() const;

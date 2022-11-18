@@ -21,7 +21,6 @@ CvTreasury::CvTreasury():
 	m_iGold(0),
 	m_iGoldPerTurnFromDiplomacy(0),
 	m_iExpensePerTurnUnitMaintenance(0),
-	m_iExpensePerTurnUnitSupply(0),
 	m_iCityConnectionGoldTimes100(0),
 	m_iCityConnectionTradeRouteGoldModifier(0),
 	m_iCityConnectionTradeRouteGoldChange(0),
@@ -34,7 +33,6 @@ CvTreasury::CvTreasury():
 	m_iExpensePerTurnFromVassalTax(0),
 	m_pPlayer(NULL)
 {
-
 }
 
 /// Destructor
@@ -50,7 +48,6 @@ void CvTreasury::Init(CvPlayer* pPlayer)
 	m_iGold = 0;
 	m_iGoldPerTurnFromDiplomacy = 0;
 	m_iExpensePerTurnUnitMaintenance = 0;
-	m_iExpensePerTurnUnitSupply = 0;
 	m_iCityConnectionGoldTimes100 = 0;
 	m_iCityConnectionTradeRouteGoldModifier = 0;
 	m_iCityConnectionTradeRouteGoldChange = 0;
@@ -466,244 +463,150 @@ int CvTreasury::CalculateBaseNetGoldTimes100()
 	if (m_pPlayer->IsAnarchy())
 		return 0;
 
-	return CalculateGrossGoldTimes100() - CalculateInflatedCosts() * 100;
+	return CalculateGrossGoldTimes100() - CalculateTotalCosts() * 100;
 }
 
-/// Compute unit maintenance cost for the turn (returns component info)
-int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost)
+/// Compute unit maintenance cost for the turn
+int CvTreasury::CalculateUnitCost()
 {
 	// If player has 0 Cities then no Unit cost
-	if(m_pPlayer->getNumCities() == 0)
-	{
+	if (m_pPlayer->getNumCities() == 0)
 		return 0;
-	}
-
-	int iSupport = 0;
 
 	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
-	iFreeUnits = playerHandicap.getGoldFreeUnits();
+	int iCostPerUnit = m_pPlayer->getGoldPerUnitTimes100(); // 0.5 GPT per unit
 
-	// Defined in XML by unit info type
-	iFreeUnits += m_pPlayer->GetNumMaintenanceFreeUnits();
-	iFreeUnits += m_pPlayer->getBaseFreeUnits();
+	int iFreeUnits = playerHandicap.getMaintenanceFreeUnits() + m_pPlayer->GetNumMaintenanceFreeUnits() + m_pPlayer->getBaseFreeUnits();
+	iFreeUnits += m_pPlayer->isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIMaintenanceFreeUnits();
 
-	iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
+	int iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
 
-	iBaseUnitCost = iPaidUnits * m_pPlayer->getGoldPerUnitTimes100();
+	int iBaseUnitCost = iPaidUnits * iCostPerUnit;
 
 	// Discount on land unit maintenance?
 	int iLandUnitMod = m_pPlayer->GetPlayerTraits()->GetLandUnitMaintenanceModifier();
-	if(iLandUnitMod != 0)
+	if (iLandUnitMod != 0)
 	{
-		int iLandUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_LAND, true /*bMilitaryOnly*/);
-		int iFreeLandUnits = m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_LAND, true);
-		int iPaidLandUnits = iLandUnits - iFreeLandUnits;
-		iBaseUnitCost += (iLandUnitMod * iPaidLandUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
+		int iPaidLandUnits = max(0, m_pPlayer->GetNumUnitsWithDomain(DOMAIN_LAND, /*bMilitaryOnly*/ true) - m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_LAND, true));
+		int iCost = iPaidLandUnits * iCostPerUnit;
+		int iModifiedCost = iCost * (100 + iLandUnitMod) / 100;
+
+		// Reduce cost based on difference
+		iBaseUnitCost += iModifiedCost - iCost;
 	}
 
 	// Discount on naval unit maintenance?
 	int iNavalUnitMod = m_pPlayer->GetPlayerTraits()->GetNavalUnitMaintenanceModifier();
-	if(iNavalUnitMod != 0)
+	if (iNavalUnitMod != 0)
 	{
-		int iNavalUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_SEA, true /*bMilitaryOnly*/);
-		int iFreeNavalUnits = m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_SEA, true);
-		int iPaidNavalUnits = iNavalUnits - iFreeNavalUnits;
-		iBaseUnitCost += (iNavalUnitMod * iPaidNavalUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
+		int iPaidNavalUnits = max(0, m_pPlayer->GetNumUnitsWithDomain(DOMAIN_SEA, /*bMilitaryOnly*/ true) - m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_SEA, true));
+		int iCost = iPaidNavalUnits * iCostPerUnit;
+		int iModifiedCost = iCost * (100 + iNavalUnitMod) / 100;
+
+		// Reduce cost based on difference
+		iBaseUnitCost += iModifiedCost - iCost;
 	}
 
 	// Discounts for units of certain UnitCombat classes
-	for(int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
+	// FIXME: No consideration for free units?
+	for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++)
 	{
 		const UnitCombatTypes eUnitCombatClass = static_cast<UnitCombatTypes>(iI);
 		CvBaseInfo* pkUnitCombatClassInfo = GC.getUnitCombatClassInfo(eUnitCombatClass);
-		if(pkUnitCombatClassInfo)
+		if (pkUnitCombatClassInfo)
 		{
 			int iModifier = m_pPlayer->GetPlayerTraits()->GetMaintenanceModifierUnitCombat(eUnitCombatClass);
 			if (iModifier != 0)
 			{
-				int iNumUnits = m_pPlayer->GetNumUnitsWithUnitCombat(eUnitCombatClass);
-				int iCost = iNumUnits * m_pPlayer->getGoldPerUnitTimes100(); 
-				int iModifiedCost = iNumUnits * m_pPlayer->getGoldPerUnitTimes100() * (100 + iModifier) / 100; 
+				int iUnitsOfClass = m_pPlayer->GetNumUnitsWithUnitCombat(eUnitCombatClass);
+				int iCost = iUnitsOfClass * iCostPerUnit; 
+				int iModifiedCost = iCost * (100 + iModifier) / 100; 
 				
 				// Reduce cost based on difference
-				iBaseUnitCost += (iModifiedCost - iCost);
+				iBaseUnitCost += iModifiedCost - iCost;
 			}
 		}
 	}
 
-	iExtraCost = m_pPlayer->getExtraUnitCost() * 100;	// In hundreds to avoid rounding errors
-
-	iSupport = iBaseUnitCost + iExtraCost;
-
-	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
-	double fGameProgressFactor = double(GC.getGame().getElapsedGameTurns()) / GC.getGame().getDefaultEstimateEndTurn();
+	// Game progress factor ranges from 0 to 100 based on how far into the game we are
+	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getDefaultEstimateEndTurn();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
+	double fMultiplier = 0.0f;
+	fMultiplier += 1.0f + (iGameProgressFactor * /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
+
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
+	double fExponent = 0.0f;
+	fExponent += 1.0f + (iGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR) / 100);
 
-	double fTempCost = fMultiplyFactor * iSupport;
-	fTempCost /= 100;	// Take this out of hundreds now
+	double dTempCost = 0.00f;
+	dTempCost += fMultiplier * iBaseUnitCost / 100;
 
-	double dFinalCost = pow(fTempCost, fExponentialFactor);
+	double dFinalCost = 0.00f;
+	dFinalCost += pow(dTempCost, fExponent);
+
+	// Inflation mod (difficulty)
+	if (m_pPlayer->isMajorCiv())
+	{
+		double dDifference = 0.00f;
+		dDifference += dFinalCost - dTempCost;
+
+		dDifference *= playerHandicap.getInflationPercent();
+		dDifference /= 100;
+		if (!m_pPlayer->isHuman())
+		{
+			dDifference *= GC.getGame().getHandicapInfo().getAIInflationPercent();
+			dDifference /= 100;
+		}
+
+		dFinalCost = 0.00f;
+		dFinalCost += dTempCost + dDifference;
+	}
+
+	dFinalCost += m_pPlayer->getExtraUnitCost(); // Add extra flat maintenance cost from units
 
 	// A mod at the player level? (Policies, etc.)
-	if(m_pPlayer->GetUnitGoldMaintenanceMod() != 0)
+	if (m_pPlayer->GetUnitGoldMaintenanceMod() != 0)
 	{
-		dFinalCost *= (100 + m_pPlayer->GetUnitGoldMaintenanceMod());
+		dFinalCost *= 100 + m_pPlayer->GetUnitGoldMaintenanceMod();
 		dFinalCost /= 100;
 	}
 
-	// Human bonus for unit maintenance costs
-	if(m_pPlayer->isHuman())
+	// Difficulty bonus for unit maintenance costs
+	if (m_pPlayer->isMajorCiv())
 	{
 		dFinalCost *= playerHandicap.getUnitCostPercent();
 		dFinalCost /= 100;
-	}
-	// AI bonus for unit maintenance costs
-	else
-	{
-		dFinalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
-		dFinalCost /= 100;
+		if (!m_pPlayer->isHuman())
+		{
+			dFinalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
+			dFinalCost /= 100;
+		}
 	}
 
+	// Vassal bonus to unit maintenance costs
 	if (m_pPlayer->IsVassalOfSomeone()) 
 	{
-		// Vassal bonus for unit maintenance costs
-		for (int iI = 0; iI < MAX_TEAMS; iI++)
-		{
-			// Are we the vassal of team?
-			if (GET_TEAM(m_pPlayer->getTeam()).IsVassal((TeamTypes)iI))
-			{
-				dFinalCost *= (100 - /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT));
-				dFinalCost /= 100;
-			}
-		}
+		dFinalCost *= 100 - /*10*/ GD_INT_GET(VASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT);
+		dFinalCost /= 100;
 	}
 
 	return std::max(0, int(dFinalCost));
 }
 
-/// HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
-int CvTreasury::CalculateUnitSupply()
+/// Calculate total maintenance costs
+int CvTreasury::CalculateTotalCosts()
 {
-	if (GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT) <= 0)
-		return 0;
+	m_iExpensePerTurnUnitMaintenance = CalculateUnitCost();
 
-	int iPaidUnits = std::max(0, (m_pPlayer->getNumOutsideUnits() - /*3*/ GD_INT_GET(INITIAL_FREE_OUTSIDE_UNITS)));
-
-	// JON: This is set to 0 right now, which pretty much means it's disabled
-	int iBaseSupplyCost = iPaidUnits * /*0*/ GD_INT_GET(INITIAL_OUTSIDE_UNIT_GOLD_PERCENT);
-	iBaseSupplyCost /= 100;
-
-	int iSupply = iBaseSupplyCost;
-
-	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
-	iSupply *= playerHandicap.getUnitCostPercent();
-	iSupply /= 100;
-
-	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
-	{
-		iSupply *= std::max(0, GC.getGame().getHandicapInfo().getAIPerEraModifier() * m_pPlayer->GetCurrentEra() + 100);
-		iSupply /= 100;
-	}
-
-	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
-	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
-
-	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER));
-	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR));
-
-	double fTempCost = fMultiplyFactor * iSupply;
-	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);
-
-	// A mod at the player level? (Policies, etc.)
-	if (m_pPlayer->GetUnitSupplyMod() != 0)
-	{
-		iFinalCost *= (100 + m_pPlayer->GetUnitSupplyMod());
-		iFinalCost /= 100;
-	}
-
-	return iFinalCost;
-}
-
-/// Costs to the player (prior to applying inflation)
-int CvTreasury::CalculatePreInflatedCosts()
-{
-	int iFreeUnits = 0;
-	int iPaidUnits = 0;
-	int iBaseUnitCost = 0;
-	int iExtraCost = 0;
-
-	m_iExpensePerTurnUnitMaintenance = CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost);
-	m_iExpensePerTurnUnitSupply = CalculateUnitSupply(); // HAS NOTHING TO DO WITH UNIT SUPPLY, this is part of the unit maintenance Gold cost calculation
-
-	int iTotalCosts = 0;
-
-	iTotalCosts += m_iExpensePerTurnUnitMaintenance;
-	iTotalCosts += m_iExpensePerTurnUnitSupply;
+	int iTotalCosts = m_iExpensePerTurnUnitMaintenance;
 	iTotalCosts += GetBuildingGoldMaintenance();
 	iTotalCosts += GetImprovementGoldMaintenance();
-
 	iTotalCosts += GetVassalGoldMaintenance();
 	iTotalCosts += GetExpensePerTurnFromVassalTaxes();
-
-	if (MOD_BALANCE_CORE_JFD)
-	{
-		iTotalCosts += GetContractGoldMaintenance();
-	}
+	iTotalCosts += MOD_BALANCE_CORE_JFD ? GetContractGoldMaintenance() : 0;
 
 	return iTotalCosts;
-}
-
-/// Compute inflation for this part of the game
-int CvTreasury::CalculateInflationRate()
-{
-	CvGame& kGame = GC.getGame();
-
-	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
-	const CvHandicapInfo& gameHandicap = kGame.getHandicapInfo();
-	const CvGameSpeedInfo& gameSpeedInfo = kGame.getGameSpeedInfo();
-
-	int iTurns = ((kGame.getGameTurn() + kGame.getElapsedGameTurns()) / 2);
-	iTurns += gameSpeedInfo.getInflationOffset();
-
-	if(iTurns <= 0)
-	{
-		return 0;
-	}
-
-	int iInflationPerTurnTimes10000 = gameSpeedInfo.getInflationPercent();
-	iInflationPerTurnTimes10000 *= playerHandicap.getInflationPercent();
-	iInflationPerTurnTimes10000 /= 100;
-
-	if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
-	{
-		iInflationPerTurnTimes10000 *= gameHandicap.getAIInflationPercent();
-		iInflationPerTurnTimes10000 /= 100;
-	}
-
-	// Keep up to second order terms in binomial series
-	int iRatePercent = (iTurns * iInflationPerTurnTimes10000) / 100;
-	iRatePercent += (iTurns * (iTurns - 1) * iInflationPerTurnTimes10000 * iInflationPerTurnTimes10000) / 2000000;
-
-	CvAssert(iRatePercent >= 0);
-
-	return iRatePercent;
-}
-
-/// Apply inflation - JON: DISABLED. Inflation bad. Money good.
-int CvTreasury::CalculateInflatedCosts()
-{
-	int iCosts = CalculatePreInflatedCosts();
-
-	//iCosts *= std::max(0, (CalculateInflationRate() + 100));
-	//iCosts /= 100;
-
-	return iCosts;
 }
 
 /// What are our gold maintenance costs because of Buildings?
@@ -711,47 +614,39 @@ int CvTreasury::GetBuildingGoldMaintenance() const
 {
 	int iMaintenance = GetBaseBuildingGoldMaintenance();
 
+	if (MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
+	{
+		int iLoop = 0;
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			if (pLoopCity->GetExtraBuildingMaintenance() > 0)
+			{
+				iMaintenance *= 100 + pLoopCity->GetExtraBuildingMaintenance();
+				iMaintenance /= 100;
+			}
+		}
+	}
+
 	// Player modifier
-	iMaintenance *= (100 + m_pPlayer->GetBuildingGoldMaintenanceMod());
+	iMaintenance *= 100 + m_pPlayer->GetBuildingGoldMaintenanceMod();
 	iMaintenance /= 100;
 
 	// Modifier for difficulty level
-	const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
-	//iMaintenance *= playerHandicap->getBuildingCostPercent();
-	//iMaintenance /= 100;
-
-	// Human bonus for Building maintenance costs
-	if(m_pPlayer->isHuman())
+	if (m_pPlayer->isMajorCiv())
 	{
+		const CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 		iMaintenance *= playerHandicap.getBuildingCostPercent();
 		iMaintenance /= 100;
-	}
-	// AI bonus for Building maintenance costs
-	else
-	{
-		iMaintenance *= GC.getGame().getHandicapInfo().getAIBuildingCostPercent();
-		iMaintenance /= 100;
+		if (!m_pPlayer->isHuman())
+		{
+			iMaintenance *= GC.getGame().getHandicapInfo().getAIBuildingCostPercent();
+			iMaintenance /= 100;
+		}
 	}
 
 	// Start Era mod
 	iMaintenance *= GC.getGame().getStartEraInfo().getBuildingMaintenancePercent();
 	iMaintenance /= 100;
-
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_BUILDING_RESOURCE_MAINTENANCE)
-	{
-		CvCity* pLoopCity = NULL;
-		int iLoop = 0;
-		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		{
-			if(pLoopCity->GetExtraBuildingMaintenance() > 0)
-			{
-				iMaintenance *= (100 + pLoopCity->GetExtraBuildingMaintenance());
-				iMaintenance /= 100;
-			}
-		}
-	}
-#endif
 
 	return iMaintenance;
 }
@@ -765,12 +660,7 @@ int CvTreasury::GetBaseBuildingGoldMaintenance() const
 /// What are our gold maintenance costs because of Buildings?
 void CvTreasury::SetBaseBuildingGoldMaintenance(int iValue)
 {
-	m_iBaseBuildingGoldMaintenance = iValue;
-
-	if(m_iBaseBuildingGoldMaintenance < 0)
-		m_iBaseBuildingGoldMaintenance = 0;
-
-	CvAssertMsg(m_iBaseBuildingGoldMaintenance >= 0, "Building Maintenance is negative somehow. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_iBaseBuildingGoldMaintenance = max(iValue, 0);
 }
 
 /// What are our gold maintenance costs because of Buildings?
@@ -785,12 +675,20 @@ int CvTreasury::GetImprovementGoldMaintenance() const
 	int iMaintenance = m_iBaseImprovementGoldMaintenance;
 
 	// Player modifier
-	iMaintenance *= (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+	iMaintenance *= 100 + m_pPlayer->GetImprovementGoldMaintenanceMod();
 	iMaintenance /= 100;
 
 	// Handicap
-	iMaintenance *= m_pPlayer->getHandicapInfo().getImprovementMaintenancePercent();
-	iMaintenance /= 100;
+	if (m_pPlayer->isMajorCiv())
+	{
+		iMaintenance *= m_pPlayer->getHandicapInfo().getImprovementCostPercent();
+		iMaintenance /= 100;
+		if (!m_pPlayer->isHuman())
+		{
+			iMaintenance *= GC.getGame().getHandicapInfo().getAIImprovementCostPercent();
+			iMaintenance /= 100;
+		}
+	}
 
 	return iMaintenance;
 }
@@ -804,16 +702,11 @@ int CvTreasury::GetBaseImprovementGoldMaintenance() const
 /// What are our gold maintenance costs because of Improvements?
 void CvTreasury::SetBaseImprovementGoldMaintenance(int iValue)
 {
-	if(GetBaseImprovementGoldMaintenance() != iValue)
+	if (GetBaseImprovementGoldMaintenance() != iValue)
 	{
-		m_iBaseImprovementGoldMaintenance = iValue;
+		m_iBaseImprovementGoldMaintenance = max(iValue, 0);
 
-		CvAssertMsg(m_iBaseImprovementGoldMaintenance >= 0, "Improvement Maintenance is negative somehow. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-		if(m_iBaseImprovementGoldMaintenance < 0)
-			m_iBaseImprovementGoldMaintenance = 0;
-
-		if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+		if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 }
@@ -1003,7 +896,6 @@ void CvTreasury::Serialize(Treasury& treasury, Visitor& visitor)
 	visitor(treasury.m_iGold);
 	visitor(treasury.m_iGoldPerTurnFromDiplomacy);
 	visitor(treasury.m_iExpensePerTurnUnitMaintenance);
-	visitor(treasury.m_iExpensePerTurnUnitSupply);
 	visitor(treasury.m_iCityConnectionGoldTimes100);
 	visitor(treasury.m_iCityConnectionTradeRouteGoldModifier);
 	visitor(treasury.m_iCityConnectionTradeRouteGoldChange);

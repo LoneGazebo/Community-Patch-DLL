@@ -656,7 +656,7 @@ int CvLuaLeague::lGetMemberContribution(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
 
-	const int iValue = pLeague->GetMemberContribution(ePlayer, eLeagueProject);
+	const int iValue = pLeague->GetMemberContribution(ePlayer, eLeagueProject, true);
 	lua_pushinteger(L, iValue);
 	return 1;
 }

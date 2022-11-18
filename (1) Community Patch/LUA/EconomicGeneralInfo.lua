@@ -1,4 +1,3 @@
-print("This is the modded EconomicGeneralInfo from CBP")
 -------------------------------------------------
 -- Economic
 -------------------------------------------------
@@ -25,16 +24,6 @@ local m_bSortReverse = false;
 
 local pediaSearchStrings = {};
 
--- fix for DB cache issue, by merill
-local DB_HandicapInfos = {};
-if Game then
-	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
-		DB_HandicapInfos[realHandicap["ID"]] = {};
-		for key,val in pairs(realHandicap) do 
-			DB_HandicapInfos[realHandicap["ID"]][key] = val;
-		end
-	end
-end
 
 -------------------------------------------------
 -------------------------------------------------
@@ -80,24 +69,15 @@ function UpdateDisplay()
         
         local sortEntry = {};
 		m_SortTable[ tostring( instance.Root ) ] = sortEntry;
-
--- COMMUNITY PATCH
-		local iTotalUnhappiness = pCity:GetUnhappinessAggregated();
-
-		sortEntry.Strength = math.floor(iTotalUnhappiness);
+					
+		sortEntry.Strength = math.floor( pCity:GetStrengthValue() / 100 );
         instance.Defense:SetText( sortEntry.Strength );
--- END					
---		sortEntry.Strength = math.floor( pCity:GetStrengthValue() / 100 );
- --       instance.Defense:SetText( sortEntry.Strength );
         
         sortEntry.Production = pCity:GetProductionNameKey();
         ProductionDetails( pCity, instance );
 
 		sortEntry.CityName = pCity:GetName();
         instance.CityName:SetText( sortEntry.CityName );
-
-		instance.CityName:SetToolTipString(pCity:GetCityUnhappinessBreakdown(false));
--- END  
         
         if(pCity:IsCapital())then
 			instance.IconCapital:SetText("[ICON_CAPITAL]");
@@ -351,7 +331,7 @@ function UpdateGPT()
     end
     
     -- Maintenance mod (handicap)
-    local iUnitMaintMod = DB_HandicapInfos[iHandicap].UnitCostPercent;
+    local iUnitMaintMod = GameInfo.HandicapInfos[iHandicap].UnitCostPercent;
     if (iUnitMaintMod ~= 100) then
 		strUnitTT = strUnitTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_HANDICAP_MAINTENANCE_MOD", iUnitMaintMod);
 	end
@@ -359,7 +339,7 @@ function UpdateGPT()
     Controls.UnitExpense:SetToolTipString( strUnitTT );
     
     -- Buildings
-    local iBuildingMaintMod = DB_HandicapInfos[iHandicap].BuildingCostPercent;
+    local iBuildingMaintMod = GameInfo.HandicapInfos[iHandicap].BuildingCostPercent;
     
     local strBuildingsTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_BUILDINGS");
     local strBuildingsModTT = "";
@@ -404,7 +384,7 @@ function UpdateGPT()
     -- Routes
     local strRoutesTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_IMPROVEMENTS");
     
-    local iRouteMaintMod = DB_HandicapInfos[iHandicap].RouteCostPercent;
+    local iRouteMaintMod = GameInfo.HandicapInfos[iHandicap].RouteCostPercent;
     local strRoutesModTT = "";
     
     if (iRouteMaintMod ~= 100) then
@@ -425,6 +405,7 @@ function UpdateGPT()
     
     Controls.GoldScroll:CalculateInternalSize();
 end
+
 
 -- Start hidden
 Controls.CityStack:SetHide( true );

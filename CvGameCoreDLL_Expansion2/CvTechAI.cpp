@@ -171,7 +171,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Make and log our tech choice
 	if (m_ResearchableTechs.size() > 0)
 	{
-		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().GetTechChoiceCutoffThreshold(), &fcn, "Choosing tech from Top Choices");
+		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(), &fcn, "Choosing tech from Top Choices");
 		LogResearchChoice(rtnValue);
 	}
 

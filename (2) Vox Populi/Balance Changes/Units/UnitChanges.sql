@@ -71,6 +71,15 @@ VALUES
 --Replace Starting Warrior with a Pathfinder
 UPDATE Eras SET StartingDefenseUnits = '1', StartingExploreUnits = '1' WHERE Type='ERA_ANCIENT';
 
+--Add +2 unit supply per era
+UPDATE Eras SET UnitSupplyBase = '2' WHERE Type = 'ERA_CLASSICAL';
+UPDATE Eras SET UnitSupplyBase = '4' WHERE Type = 'ERA_MEDIEVAL';
+UPDATE Eras SET UnitSupplyBase = '6' WHERE Type = 'ERA_RENAISSANCE';
+UPDATE Eras SET UnitSupplyBase = '8' WHERE Type = 'ERA_INDUSTRIAL';
+UPDATE Eras SET UnitSupplyBase = '10' WHERE Type = 'ERA_MODERN';
+UPDATE Eras SET UnitSupplyBase = '12' WHERE Type = 'ERA_POSTMODERN';
+UPDATE Eras SET UnitSupplyBase = '14' WHERE Type = 'ERA_FUTURE';
+
 --Assigns UnitCombatInfos to civilian units -- Can now grant production bonuses and free promotions via buildings, traits and policies
 INSERT INTO UnitCombatInfos  	
 			(Type,					Description)

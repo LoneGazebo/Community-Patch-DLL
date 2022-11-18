@@ -1169,9 +1169,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 100;
 		
 		//Higher-level AI should expand more quickly.
-		if (GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
+		if (kPlayer.getHandicapInfo().getDifficultyBonusBase() > 0 || GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() > 0)
 		{
-			iFlavorExpansion += GC.getGame().getHandicapInfo().getAIDifficultyBonusBase() * 10;
+			iFlavorExpansion += (kPlayer.getHandicapInfo().getDifficultyBonusBase() + GC.getGame().getHandicapInfo().getAIDifficultyBonusBase()) * 10;
 		}
 
 		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 4 : 1);
