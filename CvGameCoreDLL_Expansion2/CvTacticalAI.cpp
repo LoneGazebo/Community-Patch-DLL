@@ -7328,6 +7328,23 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 		return (iBestAttackScore / 2 + iVisiblityScore) / 2;
 }
 
+
+bool isOffensiveAssignment(eUnitAssignmentType eAssignmentType)
+{
+	//note: a pillage move does not count as offensive!
+	if (eAssignmentType == A_MELEEATTACK ||
+		eAssignmentType == A_MELEEKILL ||
+		eAssignmentType == A_MELEEKILL_NO_ADVANCE ||
+		eAssignmentType == A_RANGEATTACK ||
+		eAssignmentType == A_RANGEKILL ||
+		eAssignmentType == A_CAPTURE)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
@@ -7502,7 +7519,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		{ -1, 1, 8, 12, -1 }, //thirdline
 		{ -1, 1, 8,  8, -1 }, //support (can happen for damaged melee units)
 	};
-	iMiscScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
+
+	//if we made an attack, assume we are in a great plot
+	//this is very important after killing an enemy because we might end up with -1 otherwise!
+	if (isOffensiveAssignment(unit.eLastAssignment))
+		iMiscScore = 12;
+	else
+		iMiscScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
 	//note: it might happen we call this when all enemies are killed. 
 	//so miscScore will be negative but overall score will still be positive because of bias.
@@ -8766,22 +8789,6 @@ bool CvTacticalPosition::isComplete() const
 	return availableUnits.empty();
 }
 
-bool STacticalAssignment::isOffensive() const
-{
-	//note: a pillage move does not count as offensive!
-	if (eAssignmentType == A_MELEEATTACK ||
-		eAssignmentType == A_MELEEKILL ||
-		eAssignmentType == A_MELEEKILL_NO_ADVANCE ||
-		eAssignmentType == A_RANGEATTACK ||
-		eAssignmentType == A_RANGEKILL ||
-		eAssignmentType == A_CAPTURE)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 //see if all the plots where our units would end their turn are acceptable
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
 bool CvTacticalPosition::addFinishMovesIfAcceptable()
@@ -8820,7 +8827,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		notQuiteFinishedUnits.pop_back();
 	}
 
-	//also check units we didn't move but which might be important to block the enemy
+	//also check units which can still move but which might be important to block the enemy
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(itUnit->iUnitID);
@@ -8828,34 +8835,35 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable()
 		if (!pInitial)
 			continue;
 
-		//ignore units far from the enemy, can use them for other tasks
-		const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
-		if (tactPlot.getEnemyDistance() > max(1, pUnit->GetRange()))
+		//melee only
+		if (pUnit->IsCanAttackWithMove())
 		{
-			assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, 0, A_BLOCKED));
-			continue;
+			//ignore units far from the enemy, can use them for other tasks
+			const CvTacticalPlot& tactPlot = getTactPlot(itUnit->iPlotIndex);
+			if (tactPlot.getEnemyDistance() == 1)
+			{
+				//if the unit is adjacent to the enemy, we want it to stay and provide cover if possible
+				int iNextTurnScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, EM_FINAL).iScore;
+				if (iNextTurnScore > 0)
+				{
+					assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, iNextTurnScore, A_FINISH));
+					iTotalScore += (iNextTurnScore - pInitial->iScore);
+				}
+			}
 		}
-
-		//if the unit is adjacent to the enemy, we want it to stay and provide cover if possible
-		int iNextTurnScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, EM_FINAL).iScore;
-		if (iNextTurnScore < 1)
-			return false;
-
-		assignedMoves.push_back(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, 0, itUnit->eStrategy, iNextTurnScore, A_FINISH));
-		iTotalScore += (iNextTurnScore - pInitial->iScore);
 	}
 
 	return true;
 }
 
 //although we try to pick "positive" moves only sometimes there are only bad choices
-bool CvTacticalPosition::isImprovedPosition() const
+bool CvTacticalPosition::isAttackOrImprovedPosition() const
 {
 	//if we made an attack, that is always good
 	size_t iFirstFinish = assignedMoves.size();
 	for (size_t i = 0; i < assignedMoves.size(); i++)
 	{
-		if (assignedMoves[i].isOffensive())
+		if (isOffensiveAssignment(assignedMoves[i].eAssignmentType))
 			return true;
 		//need this later
 		if (i < iFirstFinish && assignedMoves[i].eAssignmentType == A_FINISH)
@@ -10033,7 +10041,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestDefensiveAssignment(const
 				if (newPos->isComplete())
 				{
 					//order is important here, need to add finish moves first
-					if (newPos->addFinishMovesIfAcceptable() && newPos->isImprovedPosition())
+					if (newPos->addFinishMovesIfAcceptable() && newPos->isAttackOrImprovedPosition())
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -10265,7 +10273,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 				if (newPos->isComplete())
 				{
 					//order is important here, need to add finish moves first
-					if (newPos->addFinishMovesIfAcceptable() && newPos->isImprovedPosition())
+					if (newPos->addFinishMovesIfAcceptable() && newPos->isAttackOrImprovedPosition())
 					{
 						completedPositions.push_back(newPos);
 						iTopScore = max(iTopScore, newPos->getScore());
@@ -10285,7 +10293,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestOffensiveAssignment(
 		{
 			//apparently we're blocked from making further assignments, but maybe this position is still useful
 			//order is important here, need to add finish moves first
-			if (current->addFinishMovesIfAcceptable() && current->isImprovedPosition())
+			if (current->addFinishMovesIfAcceptable() && current->isAttackOrImprovedPosition())
 			{
 				blockedPositions.push_back(current);
 				iTopScore = max(iTopScore, current->getScore());

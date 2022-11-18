@@ -548,7 +548,6 @@ struct STacticalAssignment
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
-	bool isOffensive() const;
 };
 
 struct SAssignmentSummary
@@ -863,7 +862,7 @@ public:
 
 	bool isComplete() const;
 	bool addFinishMovesIfAcceptable();
-	bool isImprovedPosition() const;
+	bool isAttackOrImprovedPosition() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
