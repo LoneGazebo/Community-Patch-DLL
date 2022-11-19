@@ -5761,13 +5761,13 @@
 
 		<!-- Brazil LUA-->
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD">
-			<Text>Carnaval has begun! All Cities will celebrate Carnaval for {1_Num} turns, during which time they will produce +25% [ICON_CULTURE] Culture in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
+			<Text>Carnival has begun! All Cities will celebrate Carnival for {1_Num} turns, during which time [ICON_HAPPINESS_3] Unhappiness from needs is reduced by 50% in addition to the normal 25% [ICON_FOOD] Growth bonus.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CARNAVAL_WLTKD_S">
-			<Text>Carnaval begins!</Text>
+			<Text>Carnival begins!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_TRAIT">
-			<Text>[NEWLINE] [ICON_BULLET]Carnaval Modifier: {1_Num}%</Text>
+			<Text>[NEWLINE] [ICON_BULLET]Carnival Modifier: {1_Num}%</Text>
 		</Row>
 		
 		<!--Revolutions-->

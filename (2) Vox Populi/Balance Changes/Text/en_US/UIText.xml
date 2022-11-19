@@ -720,13 +720,13 @@
 		
 		<!-- Brazil -->
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL">
-			<Text>Carnaval! ({1_Num})</Text>
+			<Text>Carnival! ({1_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA_CARNAVAL">
-			<Text>This City is celebrating Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
+			<Text>This City is celebrating Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA_CARNAVAL">
-			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnaval, which increases [ICON_CULTURE] Culture and [ICON_FOOD] Growth, and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
+			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 
 		<!-- Bully Metric Values -->
@@ -824,7 +824,7 @@
 			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_WLTKD_TRAIT">
-			<Text>+{1_Num}% [ICON_CULTURE] from Carnaval</Text>
+			<Text>+{1_Num}% [ICON_CULTURE] from Carnival</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_WLTKD">
 			<Text>+{1_Num}% [ICON_CULTURE] from "We Love the King Day"</Text>
