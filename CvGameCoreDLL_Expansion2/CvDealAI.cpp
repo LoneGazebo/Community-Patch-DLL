@@ -1621,7 +1621,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			if (GetPlayer()->IsEmpireUnhappy())
 			{
 				if (GetPlayer()->IsEmpireSuperUnhappy())
-					iItemValue += OneGPTScaled * 15;
+					iItemValue += OneGPTScaled * 12;
 				else if (GetPlayer()->IsEmpireVeryUnhappy())
 					iItemValue += OneGPTScaled * 8;
 				else
@@ -1777,6 +1777,10 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					}
 				}
 			}
+
+			// Cap purchase price at 12 GPT
+			if (iItemValue > (OneGPTScaled * 12))
+				iItemValue = OneGPTScaled * 12;
 
 			//How much is THEIR stuff worth?
 			switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer))
