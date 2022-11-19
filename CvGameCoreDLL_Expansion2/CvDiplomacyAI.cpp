@@ -10226,6 +10226,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			}
 
 			int WarScore = GetWarScore(eLoopPlayer);
+			bool bWeAreLosing = WarScore <= -75;
+			bool bTheyAreLosing = WarScore >= 75;
 			if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireVeryUnhappy())
 			{
 				if (WarScore < 0)
@@ -10255,6 +10257,15 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			{
 				if (WarScore > GetWarscoreThresholdNegative() && WarScore < GetWarscoreThresholdPositive())
 					eWarState = WAR_STATE_STALEMATE;
+			}
+
+			// If no override from serious danger and raw score is high/low enough (+/- 75), also ignore danger percent
+			if (eWarState == NO_WAR_STATE_TYPE)
+			{
+				if (bWeAreLosing)
+					eWarState = WAR_STATE_DEFENSIVE;
+				else if (bTheyAreLosing)
+					eWarState = WAR_STATE_OFFENSIVE;
 			}
 
 			// Which of us has more city danger? Also consider the war score!

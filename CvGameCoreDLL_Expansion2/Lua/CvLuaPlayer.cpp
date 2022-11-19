@@ -15477,7 +15477,7 @@ int CvLuaPlayer::lGetTotalValueToMe(lua_State* L)
 	}
 	if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 	{
-		iResult = -1;
+		iResult = -999999;
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

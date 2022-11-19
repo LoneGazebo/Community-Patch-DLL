@@ -1778,10 +1778,6 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				}
 			}
 
-			// Cap purchase price at 12 GPT
-			if (iItemValue > (OneGPTScaled * 12))
-				iItemValue = OneGPTScaled * 12;
-
 			//How much is THEIR stuff worth?
 			switch (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer))
 			{
@@ -1820,7 +1816,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
 			iItemValue += min(iGPTSurcharge, iItemValue / 5);
 
-			return iItemValue;
+			// Cap purchase price at 12 GPT, scaling with era
+			return min(iItemValue, OneGPTScaled * 12);
 		}
 	}
 
@@ -2298,7 +2295,7 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 }
 
 /// How much is a City worth - that is: how much would the buyer pay?
-int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool bPeaceTreatyTrade /* = false */)
+int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 {
 	//can't trade capitals ever
 	if (!pCity || pCity->isCapital())
@@ -2306,6 +2303,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner, bool
 
 	//note that it can also happen that a player pretends to buy a city they already own, just to see the appropriate price
 	CvPlayer& assumedOwner = GET_PLAYER(eAssumedOwner);
+	bool bPeaceTreatyTrade = assumedOwner.IsAtWarWith(pCity->getOwner());
 
 	//if we already own it and trade voluntarily ...
 	if (!bPeaceTreatyTrade && pCity->getOwner() == eAssumedOwner)
@@ -4587,8 +4585,8 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		if (pTheirClosest && pDeal->IsCityTrade(eThem, pTheirClosest->getX(), pTheirClosest->getY()))
 			continue;
 
-		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem, pDeal->IsPeaceTreatyTrade(eThem));
-		int iWhatIWouldPay = GetCityValueForDeal(pLoopCity, m_pPlayer->GetID(), pDeal->IsPeaceTreatyTrade(eThem));
+		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem);
+		int iWhatIWouldPay = GetCityValueForDeal(pLoopCity, m_pPlayer->GetID());
 
 		if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
 		{
@@ -4616,7 +4614,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		// See if we can actually trade it to them
 		if(pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 		{
-			int iItemValue = GetCityValueForDeal(pLoopCity, eThem, pDeal->IsPeaceTreatyTrade(eThem));
+			int iItemValue = GetCityValueForDeal(pLoopCity, eThem);
 			if (iItemValue == INT_MAX)
 				continue;
 
@@ -4667,8 +4665,8 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 		if (pOurClosest && pDeal->IsCityTrade(GetPlayer()->GetID(), pOurClosest->getX(), pOurClosest->getY()))
 			continue;
 
-		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem, pDeal->IsPeaceTreatyTrade(eThem));
-		int iWhatIWouldPay = GetCityValueForDeal(pLoopCity, m_pPlayer->GetID(), pDeal->IsPeaceTreatyTrade(eThem));
+		int iWhatTheyWouldPay = GetCityValueForDeal(pLoopCity, eThem);
+		int iWhatIWouldPay = GetCityValueForDeal(pLoopCity, m_pPlayer->GetID());
 
 		if (iWhatTheyWouldPay == INT_MAX || iWhatIWouldPay == INT_MAX)
 		{
@@ -4696,7 +4694,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 		// See if we can actually trade it to them
 		if (pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 		{
-			int iItemValue = GetCityValueForDeal(pLoopCity, GetPlayer()->GetID(), pDeal->IsPeaceTreatyTrade(eThem));
+			int iItemValue = GetCityValueForDeal(pLoopCity, GetPlayer()->GetID());
 			if (iItemValue == INT_MAX)
 				continue;
 
@@ -5364,7 +5362,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
 		{
 			//do this from the winner's perspective!
-			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer, true);
+			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer);
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 
@@ -5388,7 +5386,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			iSortedCityID = viCityValue.GetElement(iSortedCityIndex);
 			pLoopCity = pLosingPlayer->getCity(iSortedCityID);
 
-			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer, true);
+			int iCurrentCityValue = GetCityValueForDeal(pLoopCity, eWinningPlayer);
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 

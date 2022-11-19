@@ -551,7 +551,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 
 	// -- Happiness we could add through tenets
 	int iHappinessDelta = 0;
-#if defined(MOD_BALANCE_CORE)
+
 	// Loop through adding the adoptable policies
 	for (int iPolicyBranchLoop = 0; iPolicyBranchLoop < GC.getNumPolicyBranchInfos(); iPolicyBranchLoop++)
 	{
@@ -569,7 +569,7 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	stage = "After Tenet Weights and Flavors";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-#endif
+
 	//This was a dumb reason to weigh an ideology branch.
 
 	int iHappinessPoliciesInBranch = 0;
@@ -595,7 +595,6 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	stage = "After Tenet Happiness Boosts";
 	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 
-#if defined(MOD_BALANCE_CORE)
 	bool bFirstIdeology = true;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -612,22 +611,21 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 			}
 		}
 	}
-	if(!bFirstIdeology)
-	{
-#endif
-	// -- Happiness we'd lose through Public Opinion
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eFreedomBranch));
-	iFreedomPriority += iHappinessDelta * iHappinessModifier;
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eAutocracyBranch));
-	iAutocracyPriority += iHappinessDelta * iHappinessModifier;
-	iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eOrderBranch));
-	iOrderPriority += iHappinessDelta * iHappinessModifier;
 
-	stage = "After Public Opinion Happiness";
-	LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
-#if defined(MOD_BALANCE_CORE)
+	if (!bFirstIdeology && pPlayer->IsEmpireUnhappy())
+	{
+		// -- Happiness we'd lose through Public Opinion
+		// Recursive: Due to unhappiness being capped by population and Public Works existing, only consider this if already unhappy
+		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eFreedomBranch));
+		iFreedomPriority += iHappinessDelta * iHappinessModifier;
+		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eAutocracyBranch));
+		iAutocracyPriority += iHappinessDelta * iHappinessModifier;
+		iHappinessDelta = max (0, 250 - pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(eOrderBranch));
+		iOrderPriority += iHappinessDelta * iHappinessModifier;
+
+		stage = "After Public Opinion Happiness (Empire Unhappy)";
+		LogIdeologyChoice(stage, iFreedomPriority, iAutocracyPriority, iOrderPriority);
 	}
-#endif
 
 	// Rule out any branches that are totally out of consideration
 	iFreedomPriority = iFreedomPriority * iFreedomMultiplier;
