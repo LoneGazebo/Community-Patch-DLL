@@ -493,10 +493,10 @@
 			<Description>TXT_KEY_PROMOTION_WOODSMAN</Description>
 			<Help>TXT_KEY_PROMOTION_WOODSMAN_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_3</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
-			<RoughDefense>10</RoughDefense>
+			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_BUFFALO_HORNS</PromotionPrereqOr3>
+			<RoughFromMod>10</RoughFromMod>
 			<OrderPriority>7</OrderPriority>
 			<PortraitIndex>56</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>

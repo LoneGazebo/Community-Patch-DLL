@@ -16306,15 +16306,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eStateReligion = kPlayer.GetReligions()->GetStateReligion();
 
-	// Modifier from difficulty?
-	if (kPlayer.isMajorCiv())
-	{
-		iModifier += kPlayer.getHandicapInfo().getCombatBonus();
-		iModifier += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
-	}
-	else if (kPlayer.isMinorCiv())
-		iModifier += GC.getGame().getHandicapInfo().getCityStateCombatBonus();
-
 	// If the empire is unhappy, then Units get a combat penalty
 	if (kPlayer.IsEmpireUnhappy())
 	{
@@ -17031,15 +17022,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 	// Extra combat percent
 	int iModifier = getExtraCombatPercent() + GetStrategicResourceCombatPenalty();
-
-	// Modifier from difficulty?
-	if (kPlayer.isMajorCiv())
-	{
-		iModifier += kPlayer.getHandicapInfo().getCombatBonus();
-		iModifier += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
-	}
-	else if (kPlayer.isMinorCiv())
-		iModifier += GC.getGame().getHandicapInfo().getCityStateCombatBonus();
 
 	// Kamikaze attack
 	if (getKamikazePercent() != 0)
@@ -22665,9 +22647,22 @@ void CvUnit::changeNearbyEnemyCombatRange(int iChange)
 int CvUnit::getExtraCombatPercent() const
 {
 	VALIDATE_OBJECT
-	return m_iExtraCombatPercent;
-}
+	int iRtnValue = m_iExtraCombatPercent;
 
+	// Add bonus from difficulty level
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	if (kPlayer.isMajorCiv())
+	{
+		iRtnValue += kPlayer.getHandicapInfo().getCombatBonus();
+		iRtnValue += kPlayer.isHuman() ? 0 : GC.getGame().getHandicapInfo().getAICombatBonus();
+	}
+	else if (kPlayer.isMinorCiv())
+	{
+		iRtnValue += GC.getGame().getHandicapInfo().getCityStateCombatBonus();
+	}
+
+	return iRtnValue;
+}
 
 //	--------------------------------------------------------------------------------
 void CvUnit::changeExtraCombatPercent(int iChange)
@@ -23107,7 +23102,7 @@ void CvUnit::changeExtraRoughDefensePercent(int iChange)
 int CvUnit::getExtraRoughFromPercent() const
 {
 	VALIDATE_OBJECT
-		return m_iExtraRoughFromPercent;
+	return m_iExtraRoughFromPercent;
 }
 
 
@@ -23115,12 +23110,12 @@ int CvUnit::getExtraRoughFromPercent() const
 void CvUnit::changeExtraRoughFromPercent(int iChange)
 {
 	VALIDATE_OBJECT
-		if (iChange != 0)
-		{
-			m_iExtraRoughFromPercent = (m_iExtraRoughFromPercent + iChange);
+	if (iChange != 0)
+	{
+		m_iExtraRoughFromPercent = (m_iExtraRoughFromPercent + iChange);
 
-			setInfoBarDirty(true);
-		}
+		setInfoBarDirty(true);
+	}
 }
 
 

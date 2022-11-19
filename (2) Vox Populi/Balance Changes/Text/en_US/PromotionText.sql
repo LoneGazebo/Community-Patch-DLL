@@ -494,7 +494,7 @@
 	-- Amphibious Change
 
 	UPDATE Language_en_US
-	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement.'
+	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river. Crossing a river costs only 1 [ICON_MOVES] Movement. Double [ICON_MOVES] Movement in Marsh tiles.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP';
 
 	-- Medic I/II
