@@ -6181,6 +6181,9 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION_CBP">
 			<Text>Prevented by an active or proposed resolution.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER">
+			<Text>You must be the City-State's current ally in order to propose this.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
 			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
 		</Row>

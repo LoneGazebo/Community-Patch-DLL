@@ -3037,6 +3037,17 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 	}
 	if (pInfo->IsSphereOfInfluence())
 	{
+		PlayerTypes eMinor = (PlayerTypes)iChoice;
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != eProposer)
+		{
+			if (sTooltipSink != NULL)
+			{
+				(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+				(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER").toUTF8();
+				(*sTooltipSink) += "[ENDCOLOR]";
+			}
+			bValid = false;
+		}
 		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 		{
 			if (it->GetEffects()->bOpenDoor && ((PlayerTypes)iChoice == (PlayerTypes)it->GetProposerDecision()->GetDecision()))
