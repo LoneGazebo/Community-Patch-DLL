@@ -781,7 +781,12 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			buildable.m_eBuildableType = CITY_BUILDABLE_UNIT;
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
-			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);		
+			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
+
+			//dirty hack to allow barbarian cities to build units ... barbarians don't use flavors, so their weights are all zero
+			if (m_pCity->getOwner() == BARBARIAN_PLAYER)
+				iTempWeight = max(iTempWeight, 1);
+
 			if(iTempWeight > 0)
 			{
 				m_BuildablesPrecheck.push_back(buildable, iTempWeight);
@@ -2411,7 +2416,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 	std::vector<int> landmasses = pCity->plot()->getAllAdjacentLandmasses();
 	for (std::vector<int>::iterator it=landmasses.begin(); it!=landmasses.end(); ++it)
 	{
-		CvLandmass* pkLandmass = GC.getMap().getLandmass(*it);
+		CvLandmass* pkLandmass = GC.getMap().getLandmassById(*it);
 		if (pkLandmass->isWater())
 		{
 			if (pkLandmass->isLake())
@@ -2436,7 +2441,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	{
 		return false;
 	}
-	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 
 	// If it's a minor with at least 1 worker per city, always return false
 	if(kPlayer.isMinorCiv())
@@ -2512,7 +2517,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 			return false;
 	}
 
-	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 	if(iNumBuilders <= 0)
 	{
 		return true;
@@ -2549,7 +2554,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 		return true;
 	}
 	
-	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 	if (iNumBuilders <= 0)
 		return false;
 
@@ -2670,7 +2675,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 		}
 	}
 
-	int iNumWaterTileImprovers = GET_PLAYER(pCity->getOwner()).GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
+	int iNumWaterTileImprovers = GET_PLAYER(pCity->getOwner()).GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true);
 
 	// Are there more Water Resources we can build an Improvement on than we have Naval Tile Improvers?
 	if(iNumUnimprovedWaterResources > iNumWaterTileImprovers)
@@ -2764,7 +2769,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
 	if (!EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
 	{
-		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
+		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 		//Too many settlers? Stop building them!
 		if(iSettlersOnMapOrBuild >= 2)
 		{

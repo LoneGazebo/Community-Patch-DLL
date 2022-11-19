@@ -548,7 +548,6 @@ struct STacticalAssignment
 	bool isCombatUnit() const { return eMoveType == MS_FIRSTLINE || eMoveType == MS_SECONDLINE || eMoveType == MS_THIRDLINE; }
 	bool isEmbarkedUnit() const { return eMoveType == MS_EMBARKED; }
 	bool isSupportUnit() const { return eMoveType == MS_SUPPORT; }
-	bool isOffensive() const;
 };
 
 struct SAssignmentSummary
@@ -823,7 +822,6 @@ protected:
 	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
 	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
 	CvPlot* pTargetPlot;
-	bool isIsolatedTarget;
 
 	//just for debugging, should be unique
 	unsigned long long iID;
@@ -837,13 +835,12 @@ protected:
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(const SUnitStats& unit) const;
 	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
-	vector<STacticalAssignment> getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
+	void getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
 	CvTacticalPosition* addChild(CvTactPosStorage& storage);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
-	bool canStayInPlotUntilNextTurn(SUnitStats unit, int iInitialScore, int& iNextTurnScore) const;
 	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
 	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
@@ -862,9 +859,10 @@ public:
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
 	void initFromParent(const CvTacticalPosition& parent); 
 
-	bool isComplete() const;
-	bool addFinishMovesIfAcceptable();
-	bool isImprovedPosition() const;
+	bool isExhausted() const;
+	bool isEarlyFinish() const;
+	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
+	bool isAttackOrImprovedPosition() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);

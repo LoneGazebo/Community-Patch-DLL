@@ -132,7 +132,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders, bool bInterruptBuildi
 		{
 			if (IsBestForWonder(pkBuilding->GetBuildingClassType()))
 			{
-				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER) > 0)
+				if (kOwner.GetNumUnitsWithUnitAI(UNITAI_ENGINEER, false) > 0)
 					bBuildWonder = true;
 			}
 		}

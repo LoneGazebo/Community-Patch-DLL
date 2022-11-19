@@ -586,64 +586,64 @@ void CvEconomicAI::DoTurn()
 			else
 			{
 				// Check all of the Strategy Triggers
-				if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON")
+				if (strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedRecon(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughRecon(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_REALLY_NEED_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ReallyNeedReconSea(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON_SEA")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NEED_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedReconSea(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON_SEA")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_RECON_SEA")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughReconSea(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_EARLY_EXPANSION")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_EARLY_EXPANSION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_EXPANSION")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_EXPANSION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappiness(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappinessCritical(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_CITIES_NEED_NAVAL_GROWTH")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_CITIES_NEED_NAVAL_GROWTH")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalGrowth(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_CITIES_NEED_NAVAL_TILE_IMPROVEMENT")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_CITIES_NEED_NAVAL_TILE_IMPROVEMENT")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalTileImprovement(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_FOUND_CITY")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_FOUND_CITY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_FoundCity(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_TRADE_WITH_CITY_STATE")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_TRADE_WITH_CITY_STATE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TradeWithCityState(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_InfluenceCityState(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_FOOD")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedImprovement(m_pPlayer, YIELD_FOOD);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedImprovement(m_pPlayer, YIELD_PRODUCTION);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_ONE_OR_FEWER_COASTAL_CITIES")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_ONE_OR_FEWER_COASTAL_CITIES")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_OneOrFewerCoastalCities(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_LOSING_MONEY")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_LOSING_MONEY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_LosingMoney(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_TOO_MANY_UNITS")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_TOO_MANY_UNITS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TooManyUnits(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_ISLAND_START")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_IslandStart(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(eStrategy, m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_MOSTLY_ON_THE_COAST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_MostlyOnTheCoast(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_CULTURE")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_CULTURE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Culture(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_CONQUEST")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_CONQUEST")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Conquest(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_DIPLOMACY")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_DIPLOMACY")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Diplomacy(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_SPACESHIP")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_SPACESHIP")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH")
+				else if (strStrategyName == "ECONOMICAISTRATEGY_GS_SPACESHIP_HOMESTRETCH")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_GS_SpaceshipHomestretch(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_NAVAL_MAP")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NavalMap(m_pPlayer);
-				else if(strStrategyName == "ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP")
-					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_OffshoreExpansionMap(m_pPlayer);
+				else if (strStrategyName == "ECONOMICAISTRATEGY_NAVAL_MAP")
+					bStrategyShouldBeActive = false; //not used anymore, handled directly in unit production AI
+				else if (strStrategyName == "ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP")
+					bStrategyShouldBeActive = false; //not used anymore; covered by EXPAND_TO_OTHER_CONTINENTS
 				else if(strStrategyName == "ECONOMICAISTRATEGY_DEVELOPING_RELIGION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TECH_LEADER")
@@ -889,7 +889,16 @@ int CvEconomicAI::GetNavalExplorersNeeded() const
 {
 	return m_iNavalExplorersNeeded;
 }
+
 //	---------------------------------------------------------------------------
+bool EconomicAIHelpers::IsPotentialNavalExplorer(UnitAITypes eType)
+{
+	return eType == UNITAI_ATTACK_SEA ||
+		eType == UNITAI_RESERVE_SEA ||
+		eType == UNITAI_ASSAULT_SEA ||
+		(MOD_AI_UNIT_PRODUCTION && eType == UNITAI_SUBMARINE);
+}
+
 //compute score for yet-to-be revealed plots
 int EconomicAIHelpers::ScoreExplorePlot(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
@@ -1091,7 +1100,7 @@ int CvEconomicAI::GetPurchaseSaveAmount(PurchaseType ePurchase)
 /// What is the ratio of workers we have to the number of cities we have?
 double CvEconomicAI::GetWorkersToCitiesRatio()
 {
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false); // includes workers currently being produced
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true); // includes workers currently being produced
 	int iNumCities = m_pPlayer->getNumCities();
 	double fCurrentRatio = iNumWorkers / (double)iNumCities;
 
@@ -2073,7 +2082,7 @@ void CvEconomicAI::DoReconState()
 	// RECON ON OUR HOME CONTINENT
 
 	// How many Units do we have exploring or being trained to do this job?
-	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true, true);
+	int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE, true);
 	int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_LAND).size();
 
 	// estimate one explorer per x open plots, depending on personality (these are only the border plots between known and unknown)
@@ -2162,7 +2171,7 @@ void CvEconomicAI::DoReconState()
 	}
 	else
 	{
-		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true, true);
+		int iNumExploringUnits = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_EXPLORE_SEA, true);
 		int iNumPlotsToExplore = (int)GetExplorationPlots(DOMAIN_SEA).size();
 
 		// estimate one explorer per x open plots (these are only the border plots between known and unknown)
@@ -2186,22 +2195,16 @@ void CvEconomicAI::DoReconState()
 			PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
-				if( pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA && 
-					(pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ATTACK_SEA ||
-					 pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_RESERVE_SEA ||
-
-						pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_ASSAULT_SEA ||
-						 MOD_AI_UNIT_PRODUCTION && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_SUBMARINE))
+				if (pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA &&
+					EconomicAIHelpers::IsPotentialNavalExplorer(pLoopUnit->getUnitInfo().GetDefaultUnitAIType()) &&
+					pLoopUnit->canUseForAIOperation())
 				{
-					if(pLoopUnit->canUseForAIOperation())
-					{
-						int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
+					int iDistance = m_pPlayer->GetCityDistanceInPlots( pLoopUnit->plot() );
 
-						if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
-							eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
-						else
-							eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
-					}
+					if (pLoopUnit->isHasPromotion(ePromotionOceanImpassable))
+						eligibleExplorersCoast.push_back(make_pair(iDistance, pLoopUnit->GetID()));
+					else
+						eligibleExplorersDeepwater.push_back(make_pair(iDistance, pLoopUnit->GetID()));
 				}
 			}
 
@@ -2399,7 +2402,7 @@ CvUnit* CvEconomicAI::FindSettlerToScrap(bool bMayBeInOperation)
 
 void CvEconomicAI::DisbandExtraWorkboats()
 {
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true, true);
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true);
 	int iNumCities = m_pPlayer->getNumCities();
 	if(iNumWorkers <= 0)
 		return;
@@ -2544,7 +2547,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	double fWorstCaseRatio = 0.25; // one worker for four cities
-	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
 	if(iNumWorkers <= 0)
 		return;
 
@@ -3217,28 +3220,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 	return (pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_ENOUGH);
 }
 
-/// "Naval Map" Player Strategy: the map script will dictate this
-bool EconomicAIHelpers::IsTestStrategy_NavalMap(CvPlayer* pPlayer)
-{
-	if(pPlayer->isHuman())
-	{
-		return false;
-	}
-
-	return (GC.getMap().GetAIMapHint() & ciMapHint_Naval);
-}
-
-/// "Offshore Expansion Map" Player Strategy: the map script will dictate this
-bool EconomicAIHelpers::IsTestStrategy_OffshoreExpansionMap(CvPlayer* pPlayer)
-{
-	if(pPlayer->isHuman())
-	{
-		return false;
-	}
-
-	return (GC.getMap().GetAIMapHint() & ciMapHint_Offshore) > 0;
-}
-
 /// "Developing Religion" Player Strategy: planning to create and spread religion
 bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 {
@@ -3257,11 +3238,7 @@ bool EconomicAIHelpers::IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer)
 	// Also true if created a pantheon and there are religions left to create
 	if(pReligions->HasCreatedPantheon(pPlayer->GetID()))
 	{
-#if defined(MOD_BALANCE_CORE)
 		if (pReligions->GetNumReligionsStillToFound() > 0 || pPlayer->GetPlayerTraits()->IsAlwaysReligion())
-#else
-		if(pReligions->GetNumReligionsStillToFound() > 0)
-#endif
 		{
 			return true;
 		}
@@ -4017,7 +3994,7 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 			}
 
 			if((iRevealedCoastalTiles * 100 / (iCoastalTiles + 1)) > /*80*/ GD_INT_GET(AI_STRATEGY_ISLAND_START_COAST_REVEAL_PERCENT) &&
-			        GC.getMap().getLandmass(iStartLandmass)->getNumTiles() < pStrategy->GetWeightThreshold())
+			        GC.getMap().getLandmassById(iStartLandmass)->getNumTiles() < pStrategy->GetWeightThreshold())
 			{
 				return true;
 			}
@@ -4031,19 +4008,13 @@ bool EconomicAIHelpers::IsTestStrategy_IslandStart(EconomicAIStrategyTypes eStra
 bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
-	{
 		return false;
-	}
 
-	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy))
-	{
+	if (pPlayer->IsEmpireUnhappy() || CannotMinorCiv(pPlayer, eStrategy) || !pPlayer->getCapitalCity())
 		return false;
-	}
 
 	if(!pPlayer->CanEmbark())
-	{
 		return false;
-	}
 
 	int iLoopCity = 0;
 	bool bCoastal = false;
@@ -4057,25 +4028,19 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 		}
 	}
 	if(!bCoastal)
-	{
 		return false;
-	}
 
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
-	{
 		return false;
-	}
 
 	// Never run this at the same time as island start
 	EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
 	if(eStrategyIslandStart != NO_ECONOMICAISTRATEGY)
 	{
 		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyIslandStart))
-		{
 			return false;
-		}
 	}
 
 	// we should settle our island first
@@ -4083,38 +4048,46 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(EconomicAIStrateg
 	if(eEarlyExpansion != NO_ECONOMICAISTRATEGY)
 	{
 		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpansion))
-		{
 			return false;
-		}
 	}
 
-	EconomicAIStrategyTypes eOffshoreExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
-	EconomicAIStrategyTypes eNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
-
-	if(eOffshoreExpansion != NO_ECONOMICAISTRATEGY)
-	{
-		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eOffshoreExpansion))
-		{
-			return true;
-		}
-	}
-	if(eNavalMap != NO_ECONOMICAISTRATEGY)
-	{
-		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eNavalMap))
-		{
-			return true;
-		}
-	}
-
-	//do this last, potentially expensive!
+	//don't do it if we already have a lot of cities
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	if(pPlayer->GetNumCitiesFounded()<iFlavorExpansion && pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->plot()->getArea()))
+	if (pPlayer->GetNumCitiesFounded() < iFlavorExpansion * 2)
+		return false;
+
+	//check for sparseley settled areas first
+	CvArea* pStart = pPlayer->getCapitalCity()->plot()->area();
+	for (int i = 0; i < GC.getMap().getNumAreas(); i++)
 	{
-		return true;
+		CvArea* pArea = GC.getMap().getAreaByIndex(i);
+		if (!pArea)
+			continue;
+
+		if (pArea->isWater())
+			continue;
+
+		//make up an arbitrary threshold for islands
+		if (pArea->getNumTiles() < 23)
+			continue;
+
+		//have to know about it
+		if (pArea->getNumRevealedTiles(pPlayer->getTeam()) < 3)
+			continue;
+
+		//assuming 10 tiles per city (some may be water) at most 1/3 of the good plots should be claimed
+		if (pArea->getNumCities() * 10 > (pArea->getNumTiles()-pArea->GetNumBadPlots()) / 3)
+			continue;
+
+		//do this last, potentially expensive!
+		// * note this doesn't guarantee that our settler will actually go there ...
+		// * note this doesn't guarantee that our area is actually on another continent ...
+		//but good enough, this strategy is called only in the mid-game, by then all empty areas are fair game
+		if (pPlayer->HaveGoodSettlePlot(pArea->GetID()) && !pPlayer->HaveGoodSettlePlot(pStart->GetID()))
+			return true;
 	}
 
 	return false;
-
 }
 
 /// Are we mostly on the coast?

@@ -83,7 +83,7 @@ public:
 	void SetAutomated(bool bValue);
 
 	bool IsNoAutoAssignSpecialists() const;
-	void SetNoAutoAssignSpecialists(bool bValue, bool bReallocate = false, bool bReset = false);
+	void SetNoAutoAssignSpecialists(bool bValue, bool bReset = false);
 
 	int GetExcessFoodThreshold100() const;
 	bool IsAvoidGrowth() const;

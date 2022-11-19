@@ -1462,7 +1462,7 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 		{
 			if(kPlayer.isAlive())
 			{
-				if((kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false,false) == 0) && (kPlayer.getNumCities() == 0))
+				if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false) == 0 && kPlayer.getNumCities() == 0)
 				{
 					kPlayer.initFreeUnits();
 				}
@@ -9266,14 +9266,14 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 			continue;
 
 		// Must be land Unit, or Naval Units must be allowed
-		if(!(pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips && (GC.getMap().GetAIMapHint() & ciMapHint_NavalOffshore) != 0)))
-			continue;
+		if (pkUnitInfo->GetDomainType() == DOMAIN_LAND || (pkUnitInfo->GetDomainType() == DOMAIN_SEA && bIncludeShips))
+		{
+			// Must be able to train this thing
+			if (!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, true, false, /*bIgnoreUniqueUnitStatus*/ true))
+				continue;
 
-		// Must be able to train this thing
-		if(!GET_PLAYER(ePlayer).canTrainUnit(eLoopUnit, false, true, false, /*bIgnoreUniqueUnitStatus*/ true))
-			continue;
-
-		veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
+			veUnitRankings.push_back(eLoopUnit, pkUnitInfo->GetPower());
+		}
 	}
 
 	if (veUnitRankings.size() == 0)
@@ -13621,7 +13621,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 			// increase the value if in thematic terrain (desert, jungle, or small island)
 			iBaseWeight *= (pPlot->getTerrainType() == TERRAIN_DESERT) ? 3 : 2;
 			iBaseWeight *= (pPlot->getFeatureType() == FEATURE_JUNGLE) ? 3 : 2;
-			CvArea* pArea = theMap.getArea(pPlot->getArea());
+			CvArea* pArea = theMap.getAreaById(pPlot->getArea());
 			iBaseWeight *= (pArea->getNumTiles() <= 4) ? 3 : 2;
 
 			// lower the value by number of neighbors

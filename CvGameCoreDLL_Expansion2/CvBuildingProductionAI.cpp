@@ -161,6 +161,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 
+	//no buildings for barbarians, pump units instead
+	if (kPlayer.isBarbarian())
+		return SR_IMPOSSIBLE;
+
 	//save the effort for minors
 	if(kPlayer.isMinorCiv())
 		return iValue;

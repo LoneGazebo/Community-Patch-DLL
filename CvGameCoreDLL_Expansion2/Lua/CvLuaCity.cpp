@@ -2645,7 +2645,7 @@ int CvLuaCity::lWaterArea(lua_State* L)
 	for (std::vector<int>::iterator it=areas.begin(); it!=areas.end(); ++it)
 	{
 		//just return the first one ...
-		CvArea* pkArea = GC.getMap().getArea(*it);
+		CvArea* pkArea = GC.getMap().getAreaById(*it);
 		if (pkArea->isWater())
 		{
 			CvLuaArea::Push(L, pkArea);

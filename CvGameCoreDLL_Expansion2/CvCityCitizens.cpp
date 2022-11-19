@@ -572,7 +572,7 @@ bool CvCityCitizens::IsNoAutoAssignSpecialists() const
 }
 
 /// Sets this City's Specialists to be under automation
-void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate, bool bReset)
+void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReset)
 {
 	if (m_bNoAutoAssignSpecialists != bValue || bReset)
 	{
@@ -582,7 +582,9 @@ void CvCityCitizens::SetNoAutoAssignSpecialists(bool bValue, bool bReallocate, b
 		if (!bValue)
 			DoClearForcedSpecialists();
 
-		if (bReallocate)
+		// If we activate auto-assignment do it right now
+		// No auto-assignment after activation of manual mode
+		if (!bValue || bReset)
 			DoReallocateCitizens(true);
 	}
 }
@@ -1135,7 +1137,7 @@ int CvCityCitizens::GetNumUnassignedCitizens() const
 void CvCityCitizens::ChangeNumUnassignedCitizens(int iChange)
 {
 	m_iNumUnassignedCitizens += iChange;
-	CvAssert(m_iNumUnassignedCitizens >= 0);
+	FAssertMsg(m_iNumUnassignedCitizens >= 0, "invalid number of unassigned citizens!");
 }
 
 /// How many Citizens are working Plots?

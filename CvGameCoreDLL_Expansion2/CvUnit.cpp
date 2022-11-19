@@ -5592,7 +5592,7 @@ bool CvUnit::jumpToNearestValidPlot()
 				iValue += 3000;
 
 			//we allowed passage through enemy territory but we don't want to end up there
-			if (!isEnemy(getTeam(),pLoopPlot))
+			if (!GET_PLAYER(getOwner()).IsAtWarWith(pLoopPlot->getOwner()))
 				candidates.push_back(SPlotWithScore(pLoopPlot,iValue));
 		}
 	}
@@ -28595,11 +28595,6 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	if (isDelayedDeath() || !IsHurt())
 		return false;
 
-	//we might lack a resource for healing
-	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
-	int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
-	bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
-
 	//sometimes we should heal but we have to fight instead
 	if (bBeforeAttacks)
 	{
@@ -28607,13 +28602,28 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 		int iHpLimit = GetMaxHitPoints() / 3;
 		return GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
+	else 
+	{
+		if (GetNumEnemyUnitsAdjacent()>0)
+		{
+			//only run away if strictly necessary
+			return isProjectedToDieNextTurn() || GetDanger() > GetCurrHitPoints();
+		}
+		else
+		{
+			//we might lack a resource for healing
+			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+			int iMaxHealRate = pCapital ? healRate(pCapital->plot()) : healRate(plot());
+			bool bAllowMoreDamage = GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged() || IsStrongerDamaged() || IsFightWellDamaged() || isBarbarian();
 
-	//typically want to start healing before health becomes critical
-	int iAcceptableDamage = 20;
-	if (bAllowMoreDamage || iMaxHealRate==0)
-		iAcceptableDamage = 50;
+			//typically want to start healing before health becomes critical
+			int iAcceptableDamage = 20;
+			if (bAllowMoreDamage || iMaxHealRate == 0)
+				iAcceptableDamage = 50;
 
-	return getDamage() > iAcceptableDamage;
+			return getDamage() > iAcceptableDamage;
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -28629,7 +28639,7 @@ void CvUnit::setArmyID(int iNewArmyID)
 {
 	VALIDATE_OBJECT
 
-	if (iNewArmyID!=-1 && shouldHeal())
+	if (iNewArmyID!=-1 && shouldHeal(true))
 	{
 		//shouldn't happen
 		OutputDebugString("warning: damaged unit recruited into army!\n");

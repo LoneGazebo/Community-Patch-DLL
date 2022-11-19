@@ -87,11 +87,6 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvLandmass&);
 FDataStream& operator>>(FDataStream&, CvLandmass&);
 
-const int ciMapHint_Naval = 1;		// 1 for primarily naval (this does NOT do offshore expansion), 
-const int ciMapHint_Raze = 2;		// 2 for raze cities whenever possible,
-const int ciMapHint_Offshore = 4;	// 4 for expand offshore
-const int ciMapHint_NavalOffshore = 5; // combination of 1 and 5
-
 inline int coordRange(int iCoord, int iRange, bool bWrap)
 {
 	if(bWrap)
@@ -292,7 +287,8 @@ public:
 	int getIndexAfterLastArea();
 	int getNumAreas();
 	int getNumLandAreas();
-	CvArea* getArea(int iID);
+	CvArea* getAreaById(int iID);
+	CvArea* getAreaByIndex(int iIndex);
 	CvArea* addArea();
 	void deleteArea(int iID);
 	CvArea* firstArea(int* pIterIdx, bool bRev=false);
@@ -302,10 +298,9 @@ public:
 	void calculateAreas();
 
 	// Landmass
-	int getIndexAfterLastLandmass();
 	int getNumLandmasses();
-	int getNumLandLandmasses();
-	CvLandmass* getLandmass(int iID);
+	CvLandmass* getLandmassById(int iID);
+	CvLandmass* getLandmassByIndex(int iIndex);
 	CvLandmass* addLandmass();
 	void deleteLandmass(int iID);
 	CvLandmass* firstLandmass(int* pIterIdx, bool bRev=false);
@@ -364,11 +359,7 @@ protected:
 	int m_iBottomLatitude;
 	int m_iNumNaturalWonders;
 
-	int m_iAIMapHints;	// currently only:
-						// 0 for normal, 
-						// 1 for primarily naval (this does NOT do offshore expansion), 
-						// 2 for raze cities whenever possible,
-						// 4 for expand offshore (previously 1 was naval and expansion, but I am splitting the behaviors, to get the old behavior use 4+1)
+	int m_iAIMapHints;	//unused on DLL side but exposed to lua
 
 	bool m_bWrapX;
 	bool m_bWrapY;

@@ -1714,13 +1714,9 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 		iNumUnitsWantedOffense += /*6*/ GD_INT_GET(BALANCE_BASIC_ATTACK_ARMY_SIZE);
 
 	// now how many should be naval units?
-	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
-	EconomicAIStrategyTypes eExpandOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	bool bNavalFocus = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNavalMap) || m_pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOtherContinents); 
-
 	int iCoastalPercent = (iNumCoastalCities * 100) / max(1,m_pPlayer->getNumCities());
 	int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-	int iNavalPercent = (iFlavorNaval > 7 ? 30 : 15) + (bNavalFocus ? 10 : 0) + iCoastalPercent/3;
+	int iNavalPercent = range(iFlavorNaval*5,10,50) + iCoastalPercent/3;
 
 	//you don't always get what you want ...
 	iNumUnitsWantedOffense = min(iNumUnitsWantedOffense, iMaxOffensiveUnitsPossible);
@@ -2369,7 +2365,7 @@ void CvMilitaryAI::UpdateOperations()
 	int iLoop = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal())
+		if(pLoopUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && pLoopUnit->getArmyID() == -1 && !pLoopUnit->shouldHeal(false))
 		{
 			//the operation will find it's own target and remain active until indefinitely.
 			//the airplanes rebase independently, they are not part of the operation.
@@ -2534,7 +2530,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 		}
 		for (set<int>::iterator it = landmasses.begin(); it != landmasses.end(); ++it)
 		{
-			CvLandmass* pWaterBody = GC.getMap().getLandmass(*it);
+			CvLandmass* pWaterBody = GC.getMap().getLandmassById(*it);
 			if (MilitaryAIHelpers::NeedShipInArea(m_pPlayer->GetID(), pWaterBody))
 			{
 				bIsUseless = false;
@@ -4174,8 +4170,8 @@ CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckT
 	//don't use the RNG here: too many calls in the log and diplo quirks can lead to desyncs
 	int aiShuffle[3][RING2_PLOTS] = { 
 		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
-		{ 0,4,1,5,2,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
-		{ 0,6,3,5,2,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
+		{ 0,2,1,5,4,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
+		{ 0,6,3,2,5,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
 	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pTarget);
 
 	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
