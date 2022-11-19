@@ -3312,11 +3312,10 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE_BELIEFS)
 		//Random GP spawn/holy city.
 		CvCity* pBestCity = NULL;
-		if(MOD_BALANCE_CORE_BELIEFS)
-		{		
+		if (MOD_BALANCE_CORE_RANDOMIZED_GREAT_PROPHET_SPAWNS)
+		{
 			int iBestWeight = 0;
 
 			int iTempWeight = 0;
@@ -3336,17 +3335,15 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 				}
 			}
 		}
-		if(pBestCity != NULL)
+		if (pBestCity != NULL)
 		{
 			pSpawnCity = pBestCity;
 		}
 		else
 		{
-#endif
-		pSpawnCity = kPlayer.getCapitalCity();
-#if defined(MOD_BALANCE_CORE_BELIEFS)
+			pSpawnCity = kPlayer.getCapitalCity();
 		}
-#endif
+
 		if(pSpawnCity != NULL)
 		{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)

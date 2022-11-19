@@ -44410,6 +44410,10 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeUpgradeCSVassalTerritory(pPolicy->IsUpgradeCSVassalTerritory() * iChange);
 	}
+	if (pPolicy->GetLandmarksTourismPercent() != 0)
+	{
+		ChangeLandmarksTourismPercentGlobal(pPolicy->GetLandmarksTourismPercent() * iChange);
+	}
 	if(pPolicy->GetArchaeologicalDigTourism() != 0)
 	{
 		ChangeArchaeologicalDigTourism(pPolicy->GetArchaeologicalDigTourism() * iChange);

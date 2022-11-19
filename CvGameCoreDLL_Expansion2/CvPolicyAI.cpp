@@ -1684,6 +1684,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetArchaeologicalDigTourism() * pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
 		}
 	}
+	if (PolicyInfo->GetLandmarksTourismPercent() != 0)
+	{
+		if (pPlayerTraits->IsTourism())
+		{
+			yield[YIELD_TOURISM] += 200;
+		}
+		else
+		{
+			yield[YIELD_TOURISM] += 100;
+		}
+	}
 	if (PolicyInfo->GetGoldenAgeTourism() != 0)
 	{
 		if (pPlayerTraits->IsTourism())

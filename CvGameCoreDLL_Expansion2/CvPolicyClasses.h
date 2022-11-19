@@ -104,6 +104,7 @@ public:
 	int GetAdditionalNumFranchisesMod() const;
 	int GetAdditionalNumFranchises() const;
 	bool IsUpgradeCSVassalTerritory() const;
+	int GetLandmarksTourismPercent() const;
 	int GetArchaeologicalDigTourism() const;
 	int GetGoldenAgeTourism() const;
 	int GetExtraCultureandScienceTradeRoutes() const;
@@ -796,6 +797,7 @@ private:
 	int m_iAdditionalNumFranchisesMod;
 	int m_iAdditionalNumFranchises;
 	bool m_bUpgradeCSVassalTerritory;
+	int m_iLandmarksTourismPercent;
 	int m_iArchaeologicalDigTourism;
 	int m_iGoldenAgeTourism;
 	int m_iExtraCultureandScienceTradeRoutes;

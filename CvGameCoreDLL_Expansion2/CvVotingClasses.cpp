@@ -4762,8 +4762,7 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 		iCost *= GC.getGame().getStartEraInfo().getConstructPercent();
 		iCost /= 100;
 
-#if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE)
+		if (MOD_BALANCE_VP)
 		{
 			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
 			if (pkProcessInfo)
@@ -4789,7 +4788,6 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 				}
 			}
 		}
-#endif
 	}
 	return iCost;
 }

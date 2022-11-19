@@ -813,6 +813,8 @@
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
     <!-- The Beliefs and Religion Overhauls of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_BELIEFS" Value="0"/>
+	<!-- Great Prophets spawn in a random city, partially based on Faith generation -->
+	<Row Class="6" Name="BALANCE_CORE_RANDOMIZED_GREAT_PROPHET_SPAWNS" Value="0"/>
 	<!-- The National Wonders require x population part of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_FOLLOWER_POP_WONDER" Value="0"/>
 	<!-- The Policies and Ideololgies COMMUNITY_PATCH -->

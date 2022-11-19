@@ -8825,6 +8825,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 	if (!bEarlyFinish)
 		//order is important here, need to add finish moves first!
 		return isAttackOrImprovedPosition();
+
+	return true;
 }
 
 //although we try to pick "positive" moves only sometimes there are only bad choices

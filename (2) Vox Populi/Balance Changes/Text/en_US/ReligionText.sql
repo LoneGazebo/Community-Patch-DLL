@@ -338,7 +338,7 @@ SET Text = 'Cooperation'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_GARDENS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Receive +5 to all City yields every time a [ICON_CITIZEN] Citizen is born in the City. Bonus scales with Era'
+SET Text = 'Receive +8 to all City yields every time a [ICON_CITIZEN] Citizen is born in the City. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_GARDENS';
 
 

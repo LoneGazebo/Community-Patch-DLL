@@ -285,7 +285,6 @@
 			<OrderPriority>3</OrderPriority>
 			<SameTileHealChange>5</SameTileHealChange>
 			<AdjacentTileHealChange>5</AdjacentTileHealChange>
-			<DefenseMod>-10</DefenseMod>
 			<PortraitIndex>32</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -302,7 +301,6 @@
 			<SameTileHealChange>5</SameTileHealChange>
 			<EnemyHealChange>5</EnemyHealChange>
 			<NeutralHealChange>5</NeutralHealChange>
-			<DefenseMod>-10</DefenseMod>
 			<PortraitIndex>32</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -469,7 +467,6 @@
 			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
-			<DefenseMod>-15</DefenseMod>
 			<PortraitIndex>31</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_HEAL</PediaType>
@@ -3595,7 +3592,6 @@
 			<AlwaysHeal>true</AlwaysHeal>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
 			<MountedOnly>true</MountedOnly>
-			<DefenseMod>-15</DefenseMod>
 			<PortraitIndex>31</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>

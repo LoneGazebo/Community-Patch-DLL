@@ -7806,7 +7806,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				iExtraFriendlyHeal += iReligionMod;
 			}
 		}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
+
 		// Mod for civs keeping their pantheon belief forever
 		if (MOD_RELIGION_PERMANENT_PANTHEON)
 		{
@@ -7824,7 +7824,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 				}
 			}
 		}
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	}
@@ -7876,25 +7875,45 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 
 	// Heal from territory ownership (friendly, enemy, etc.)
 	int iBaseHeal = 0;
-	if(pPlot->isCity())
+	if (pPlot->isCity())
 	{
-		iBaseHeal = /*25 in CP, 20 in VP*/ GD_INT_GET(CITY_HEAL_RATE);
-		iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
-		if(pCity)
+		if (!MOD_BALANCE_VP || !pCity->IsResistance())
 		{
-			iExtraHeal += pCity->getHealRate();
+			iBaseHeal = /*25 in CP, 20 in VP*/ GD_INT_GET(CITY_HEAL_RATE);
+			iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
+			if (pCity)
+			{
+				iExtraHeal += pCity->getHealRate();
+			}
+		}
+		else
+		{
+			iBaseHeal = /*5*/ GD_INT_GET(ENEMY_HEAL_RATE);
+			iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
 		}
 	}
 	else
 	{
 		if(pPlot->IsFriendlyTerritory(getOwner()))
 		{
-			iBaseHeal = /*20 in CP, 15 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
+			CvCity* pOwningCity = pPlot->getOwningCity();
+			if (!MOD_BALANCE_VP || !pOwningCity)
+			{
+				iBaseHeal = /*20 in CP, 15 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
+			}
+			else if (pOwningCity->IsResistance())
+			{
+				iBaseHeal = /*5*/ GD_INT_GET(ENEMY_HEAL_RATE);
+			}
+			else if (pOwningCity->IsRazing())
+			{
+				iBaseHeal = /*20*/ GD_INT_GET(CITY_HEAL_RATE);
+			}
 			iExtraHeal += iExtraFriendlyHeal;
 		}
 		else
 		{
-			if(isEnemy(pPlot->getTeam(), pPlot))
+			if (isEnemy(pPlot->getTeam(), pPlot))
 			{
 				iBaseHeal = /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE);
 				iExtraHeal += iExtraEnemyHeal;
@@ -7906,8 +7925,8 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
 		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
@@ -7920,7 +7939,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			}
 		}
 	}
-#endif
 
 	// Base healing rate mod
 	int iBaseHealMod = GET_PLAYER(getOwner()).getUnitBaseHealModifier();

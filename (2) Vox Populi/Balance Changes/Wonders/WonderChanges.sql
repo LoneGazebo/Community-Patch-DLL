@@ -492,15 +492,15 @@ VALUES
 -- Projects
 
 UPDATE LeagueProjects
-SET CostPerPlayer = '2750'
+SET CostPerPlayer = '8250'
 WHERE Type = 'LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION';
 
 UPDATE LeagueProjects
-SET CostPerPlayer = '1250'
+SET CostPerPlayer = '3750'
 WHERE Type = 'LEAGUE_PROJECT_WORLD_FAIR';
 
 UPDATE LeagueProjects
-SET CostPerPlayer = '2250'
+SET CostPerPlayer = '6750'
 WHERE Type = 'LEAGUE_PROJECT_WORLD_GAMES';
 
 -- NEW DATA

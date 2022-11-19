@@ -2751,13 +2751,23 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		FAssertMsg(eBuilding != NO_BUILDING, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
 
 		int iCities = pAssignedPlayer->getNumCities() - pAssignedPlayer->GetNumPuppetCities();
-		int iActionAmount = 1 + GC.getGame().getSmallFakeRandNum(iCities*2, eBuilding);
-		if (iActionAmount > iCities)
+		int iActionAmount = GC.getGame().getSmallFakeRandNum(4, eBuilding);
+		if (iActionAmount == 1 || pAssignedPlayer->getNumCities() <= 2)
 		{
 			iActionAmount = iCities;
 		}
-		if (iActionAmount < iCities / 2)
+		else if (iActionAmount == 2 || pAssignedPlayer->getNumCities() <= 4)
+		{
 			iActionAmount = iCities / 2;
+		}
+		else
+		{
+			int iSomewhereInBetween = iCities - (iCities / 2) - 1;
+			iActionAmount = (iCities / 2) + GC.getGame().getSmallFakeRandNum(iSomewhereInBetween, pAssignedPlayer->GetPseudoRandomSeed());
+		}
+
+		if (iActionAmount > iCities)
+			iActionAmount = iCities;
 
 		m_iData1 = eBuilding;
 		m_iData2 = iActionAmount;

@@ -95,6 +95,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iAdditionalNumFranchisesMod(0),
 	m_iAdditionalNumFranchises(0),
 	m_bUpgradeCSVassalTerritory(false),
+	m_iLandmarksTourismPercent(0),
 	m_iArchaeologicalDigTourism(0),
 	m_iGoldenAgeTourism(0),
 	m_iExtraCultureandScienceTradeRoutes(0),
@@ -565,6 +566,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iAdditionalNumFranchisesMod = kResults.GetInt("AdditionalNumFranchisesMod");
 	m_iAdditionalNumFranchises = kResults.GetInt("AdditionalNumFranchises");
 	m_bUpgradeCSVassalTerritory = kResults.GetBool("UpgradeCSVassalTerritory");
+	m_iLandmarksTourismPercent = kResults.GetInt("LandmarksTourismPercent");
 	m_iArchaeologicalDigTourism = kResults.GetInt("ArchaeologicalDigTourism");
 	m_iGoldenAgeTourism = kResults.GetInt("GoldenAgeTourism");
 	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
@@ -1790,6 +1792,10 @@ int CvPolicyEntry::GetAdditionalNumFranchises() const
 bool CvPolicyEntry::IsUpgradeCSVassalTerritory() const
 {
 	return m_bUpgradeCSVassalTerritory;
+}
+int CvPolicyEntry::GetLandmarksTourismPercent() const
+{
+	return m_iLandmarksTourismPercent;
 }
 int CvPolicyEntry::GetArchaeologicalDigTourism() const
 {

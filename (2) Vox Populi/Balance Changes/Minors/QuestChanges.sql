@@ -29,7 +29,7 @@ UPDATE SmallAwards SET Influence = '25', Culture = '65', RandomMod = '10' WHERE 
 
 -- Kill CS
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_KILL_CITY_STATE';
-UPDATE SmallAwards SET Influence = '50', Gold = '200', GoldenAgePoints = '200', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_KILL_CITY_STATE';
+UPDATE SmallAwards SET Influence = '50', Gold = '200', GoldenAgePoints = '200', RandomMod = '10', QuestDuration = '60' WHERE Type = 'MINOR_CIV_QUEST_KILL_CITY_STATE';
 
 -- Find Player
 UPDATE SmallAwards SET Influence = '30', Science = '50', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
