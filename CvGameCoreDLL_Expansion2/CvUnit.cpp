@@ -7877,7 +7877,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iBaseHeal = 0;
 	if (pPlot->isCity())
 	{
-		if (!MOD_BALANCE_VP || !pCity->IsResistance())
+		if (!MOD_BALANCE_VP || (!pCity->IsResistance() || pCity->IsRazing()))
 		{
 			iBaseHeal = /*25 in CP, 20 in VP*/ GD_INT_GET(CITY_HEAL_RATE);
 			iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
@@ -7894,20 +7894,20 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	}
 	else
 	{
-		if(pPlot->IsFriendlyTerritory(getOwner()))
+		if (pPlot->IsFriendlyTerritory(getOwner()))
 		{
 			CvCity* pOwningCity = pPlot->getOwningCity();
 			if (!MOD_BALANCE_VP || !pOwningCity)
 			{
 				iBaseHeal = /*20 in CP, 15 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
 			}
-			else if (pOwningCity->IsResistance())
-			{
-				iBaseHeal = /*5*/ GD_INT_GET(ENEMY_HEAL_RATE);
-			}
 			else if (pOwningCity->IsRazing())
 			{
 				iBaseHeal = /*20*/ GD_INT_GET(CITY_HEAL_RATE);
+			}
+			else if (pOwningCity->IsResistance())
+			{
+				iBaseHeal = /*5*/ GD_INT_GET(ENEMY_HEAL_RATE);
 			}
 			iExtraHeal += iExtraFriendlyHeal;
 		}

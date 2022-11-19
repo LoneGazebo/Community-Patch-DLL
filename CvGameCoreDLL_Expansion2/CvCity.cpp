@@ -16331,7 +16331,7 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessBonus();
 			iDifficultyMod += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIProcessPerEraModifier() * GC.getGame().getCurrentEra();
 
-			changeProductionToYieldModifier((YieldTypes)iI, std::max(0, (pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI) + iDifficultyMod) * iChange));
+			changeProductionToYieldModifier((YieldTypes)iI, (pkProcessInfo->getProductionToYieldModifier(iI) + GetYieldFromProcessModifier((YieldTypes)iI) + iDifficultyMod) * iChange);
 
 			UpdateCityYields((YieldTypes)iI);
 		}
@@ -22585,13 +22585,13 @@ int CvCity::GetAllNeedsModifier(bool bForceRecalc) const
 
 int CvCity::GetCitySizeModifier() const
 {
-	return getPopulation() * /*-100*/ GD_INT_GET(CITY_SIZE_NEED_MODIFIER) / 100;
+	return getPopulation() * /*0*/ GD_INT_GET(CITY_SIZE_NEED_MODIFIER) / 100;
 }
 
 int CvCity::GetEmpireSizeModifier() const
 {
 	// x% per city, excluding puppets and the capital
-	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*900*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES) / 100;
+	int iNumCitiesMod = (GET_PLAYER(getOwner()).getNumCities() - GET_PLAYER(getOwner()).GetNumPuppetCities() - 1) * /*500*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_CITIES) / 100;
 	if (iNumCitiesMod < 0)
 		iNumCitiesMod = 0;
 
@@ -22604,7 +22604,7 @@ int CvCity::GetEmpireSizeModifier() const
 
 		iPopMod += pLoopCity->getPopulation();
 	}
-	iPopMod *= /*100*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
+	iPopMod *= /*25*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
 	iPopMod /= 100;
 	if (iPopMod < 0)
 		iPopMod = 0;
