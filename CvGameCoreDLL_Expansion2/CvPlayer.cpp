@@ -2558,7 +2558,7 @@ void CvPlayer::initFreeUnits()
 			addFreeUnitAI(UNITAI_EXPLORE, true, iFreeExplorers);
 
 		// No explorers? Set a defense unit to explore AI, if possible.
-		if (GetNumUnitsWithUnitAI(UNITAI_EXPLORE) == 0)
+		if (GetNumUnitsWithUnitAI(UNITAI_EXPLORE, false) == 0)
 		{
 			int iLoop = 0;
 			for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
@@ -10541,7 +10541,7 @@ bool CvPlayer::HasActiveSettler()
 
 //	--------------------------------------------------------------------------------
 /// Returns number of Units a player has with a particular UnitAI.  The second argument allows you to check whether or not to include Units currently being trained in Cities.
-int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained, bool bIncludeWater)
+int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained)
 {
 	int iNumUnits = 0;
 	int iLoop = 0;
@@ -10549,13 +10549,9 @@ int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingT
 	// Current Units
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		// Don't include Water Units if we don't want them
-		if(pLoopUnit->getDomainType() != DOMAIN_SEA || bIncludeWater)
+		if(pLoopUnit->AI_getUnitAIType() == eUnitAIType)
 		{
-			if(pLoopUnit->AI_getUnitAIType() == eUnitAIType)
-			{
-				iNumUnits++;
-			}
+			iNumUnits++;
 		}
 	}
 
@@ -10570,12 +10566,9 @@ int CvPlayer::GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingT
 				if(pkUnitEntry)
 				{
 					// Don't include Water Units if we don't want them
-					if(pkUnitEntry->GetDomainType() != DOMAIN_SEA || bIncludeWater)
+					if(pkUnitEntry->GetDefaultUnitAIType() == eUnitAIType)
 					{
-						if(pkUnitEntry->GetDefaultUnitAIType() == eUnitAIType)
-						{
-							iNumUnits++;
-						}
+						iNumUnits++;
 					}
 				}
 			}
@@ -49070,7 +49063,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		int iScale = MapToPercent( iRelevantDistance, iMaxSettleDistance, iSettleDropoffThreshold );
 
 		//check for new continent
-		const CvLandmass* pLandmass = GC.getMap().getLandmass(pPlot->getLandmass());
+		const CvLandmass* pLandmass = GC.getMap().getLandmassById(pPlot->getLandmass());
 		const CvCity* pCapital = getCapitalCity();
 
 		//if we want offshore expansion, manipulate the distance scaler
@@ -50389,7 +50382,7 @@ void CvPlayer::checkArmySizeAchievement()
 		}
 		else
 		{
-			numUnits += GetNumUnitsWithUnitAI((UnitAITypes)iI, false, true);
+			numUnits += GetNumUnitsWithUnitAI((UnitAITypes)iI, false);
 		}
 	}
 	gDLL->GetSteamStat(ESTEAMSTAT_STANDINGARMY, &nLargestArmy);
@@ -51796,7 +51789,7 @@ void CvPlayer::updatePlotFoundValues()
 		return;
 
 	//in some mods minors can have settlers ... and they should be able to use them
-	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE)==0)
+	if (isMinorCiv() && GetNumUnitsWithUnitAI(UNITAI_SETTLE, false)==0)
 		return;
 
 	// important preparation
