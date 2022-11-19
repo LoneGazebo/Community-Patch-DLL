@@ -7137,6 +7137,9 @@
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REFUND">
 			<Text>[ICON_PRODUCTION] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_INSTANT_YIELD_FAITH_REFUND">
+			<Text>[ICON_PEACE] Refund from Free Building Replacement:[NEWLINE]{1_YieldString}</Text>
+		</Row>
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">

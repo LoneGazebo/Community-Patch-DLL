@@ -4294,6 +4294,17 @@ void CvBuildingEntry::UpdateUnitTypesUnlocked()
 	}
 }
 
+bool CvBuildingEntry::IsFaithPurchaseOnly() const
+{
+	if (GetFaithCost() > 0 && GetProductionCost() <= -1)
+	{
+		if (IsUnlockedByBelief() || GetPolicyType() != NO_POLICY)
+			return true;
+	}
+
+	return false;
+}
+
 //=====================================
 // CvBuildingXMLEntries
 //=====================================
@@ -6019,21 +6030,12 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 {
 	int iRtnValue = 0;
 
-	for(size_t iI = 0; iI < m_buildingsThatExistAtLeastOnce.size(); iI++)
+	for (size_t iI = 0; iI < m_buildingsThatExistAtLeastOnce.size(); iI++)
 	{
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(m_buildingsThatExistAtLeastOnce[iI]);
-		if (pkBuilding)
+		if (pkBuilding && pkBuilding->IsFaithPurchaseOnly())
 		{
-			if (pkBuilding->GetFaithCost() > 0 && pkBuilding->IsUnlockedByBelief() && pkBuilding->GetProductionCost() == -1)
-			{
-				iRtnValue++;
-			}
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			else if (pkBuilding->GetFaithCost() > 0 && (pkBuilding->GetPolicyType() != NO_POLICY) && pkBuilding->GetProductionCost() == -1)
-			{
-				iRtnValue++;
-			}
-#endif
+			iRtnValue++;
 		}
 	}
 

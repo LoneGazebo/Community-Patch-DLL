@@ -7999,11 +7999,20 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
 					if(eFreeCapitalBuilding != NO_BUILDING)
 					{
-						if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+						CvBuildingEntry* pkFreeCapitalBuildingInfo = GC.getBuildingInfo(eFreeCapitalBuilding);
+						if(pkFreeCapitalBuildingInfo && kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
 						{
+							if (pkFreeCapitalBuildingInfo->IsFaithPurchaseOnly())
+							{
+								int iFaithRefund = kPlayer.getCapitalCity()->GetFaithPurchaseCost(eFreeCapitalBuilding);
+								kPlayer.doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
+							}
+							else
+							{
+								int iProductionRefund = kPlayer.getCapitalCity()->getProductionNeeded(eFreeCapitalBuilding);
+								kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
+							}
 							kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
-							int iProductionValue = kPlayer.getCapitalCity()->getProductionNeeded(eFreeCapitalBuilding);
-							kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity());
 						}
 						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 					}
@@ -8051,11 +8060,20 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 										{
 											if (eBuilding != eReplacedBuilding)
 											{
-												if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eReplacedBuilding) > 0)
+												CvBuildingEntry* pkReplacedBuildingInfo = GC.getBuildingInfo(eReplacedBuilding);
+												if (pkReplacedBuildingInfo && pLoopCity->GetCityBuildings()->GetNumRealBuilding(eReplacedBuilding) > 0)
 												{
+													if (pkReplacedBuildingInfo->IsFaithPurchaseOnly())
+													{
+														int iFaithRefund = pLoopCity->GetFaithPurchaseCost(eReplacedBuilding);
+														kPlayer.doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pLoopCity);
+													}
+													else
+													{
+														int iProductionRefund = pLoopCity->getProductionNeeded(eReplacedBuilding);
+														kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pLoopCity);
+													}
 													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eReplacedBuilding, 0);
-													int iProductionValue = pLoopCity->getProductionNeeded(eReplacedBuilding);
-													kPlayer.doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
 												}
 												if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eReplacedBuilding) <= 0)
 												{

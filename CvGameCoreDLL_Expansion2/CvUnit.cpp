@@ -16927,10 +16927,8 @@ int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 	int iResistance = GET_PLAYER(getOwner()).GetDominationResistance(pOtherUnit->getOwner());
 
 	// Not our territory?
-	if (plot()->IsFriendlyTerritory(getOwner()))
-		return iResistance;
-	else
-		return iResistance/2;
+	if (!plot()->IsFriendlyTerritory(getOwner()))
+		iResistance /= 2;
 
 	return iResistance;
 }

@@ -624,6 +624,7 @@ public:
 	int GetNumThemingBonuses() const { return m_iNumThemingBonuses; }
 	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
 	void UpdateUnitTypesUnlocked();
+	bool IsFaithPurchaseOnly() const;
 
 private:
 	int m_iBuildingClassType;

@@ -708,8 +708,16 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					{
 						if (GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 						{
-							int iProductionValue = getProductionNeeded(eBuilding);
-							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, this);
+							if (pkBuildingInfo->IsFaithPurchaseOnly())
+							{
+								int iFaithRefund = GetFaithPurchaseCost(eBuilding);
+								GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, this);
+							}
+							else
+							{
+								int iProductionRefund = getProductionNeeded(eBuilding);
+								GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, this);
+							}
 							GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 						}
 
@@ -15133,10 +15141,19 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if (eFreeBuildingThisCity != NO_BUILDING)
 				{
-					if (m_pCityBuildings->GetNumRealBuilding(eFreeBuildingThisCity) > 0)
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuildingThisCity);
+					if (pkBuildingInfo && m_pCityBuildings->GetNumRealBuilding(eFreeBuildingThisCity) > 0)
 					{
-						int iProductionValue = getProductionNeeded(eFreeBuildingThisCity);
-						GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, this);
+						if (pkBuildingInfo->IsFaithPurchaseOnly())
+						{
+							int iFaithRefund = GetFaithPurchaseCost(eFreeBuildingThisCity);
+							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, this);
+						}
+						else
+						{
+							int iProductionRefund = getProductionNeeded(eFreeBuildingThisCity);
+							GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, this);
+						}
 						m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
 					}
 					m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);

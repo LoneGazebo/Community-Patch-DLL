@@ -2719,14 +2719,14 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		// Do not spawn additional Settlers for humans in OCC games
 		if (isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
 		{
-			if (GetNumUnitsWithUnitAI(UNITAI_SETTLE) >= 1 || getNumCities() > 0)
+			if (GetNumUnitsWithUnitAI(UNITAI_SETTLE, false) >= 1 || getNumCities() > 0)
 				return NULL;
 		}
 
 		// Venice can only have one city, any Settler they get past the first is replaced with a Merchant of Venice
 		if (GetPlayerTraits()->IsNoAnnexing())
 		{
-			if (GetNumUnitsWithUnitAI(UNITAI_SETTLE) >= 1 || getNumCities() > 0)
+			if (GetNumUnitsWithUnitAI(UNITAI_SETTLE, false) >= 1 || getNumCities() > 0)
 			{
 				for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 				{
@@ -4173,9 +4173,17 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				// If a non-free building of this type exists in the city, remove it!
 				if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eTraitFreeBuilding) > 0)
 				{
+					if (pkLoopBuilding->IsFaithPurchaseOnly())
+					{
+						int iFaithRefund = pNewCity->GetFaithPurchaseCost(eTraitFreeBuilding);
+						doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pNewCity);
+					}
+					else
+					{
+						int iProductionRefund = pNewCity->getProductionNeeded(eTraitFreeBuilding);
+						doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pNewCity);
+					}
 					pNewCity->GetCityBuildings()->SetNumRealBuilding(eTraitFreeBuilding, 0);
-					int iProductionValue = pNewCity->getProductionNeeded(eTraitFreeBuilding);
-					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
 				}
 
 				pNewCity->GetCityBuildings()->SetNumFreeBuilding(eTraitFreeBuilding, 1);
@@ -4201,9 +4209,17 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// If a non-free building of this type exists in the city, remove it!
 			if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eFreeBuilding) > 0)
 			{
+				if (pkLoopBuilding->IsFaithPurchaseOnly())
+				{
+					int iFaithRefund = pNewCity->GetFaithPurchaseCost(eFreeBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pNewCity);
+				}
+				else
+				{
+					int iProductionRefund = pNewCity->getProductionNeeded(eFreeBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pNewCity);
+				}
 				pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
-				int iProductionValue = pNewCity->getProductionNeeded(eFreeBuilding);
-				doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
 			}
 
 			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
@@ -4235,9 +4251,17 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// If a non-free building of this type exists in the city, remove it!
 			if (pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 			{
+				if (pkBuilding->IsFaithPurchaseOnly())
+				{
+					int iFaithRefund = pNewCity->GetFaithPurchaseCost(eBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pNewCity);
+				}
+				else
+				{
+					int iProductionRefund = pNewCity->getProductionNeeded(eBuilding);
+					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pNewCity);
+				}
 				pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
-				int iProductionValue = pNewCity->getProductionNeeded(eBuilding);
-				doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pNewCity);
 			}
 
 			// Award the building!
@@ -12510,10 +12534,19 @@ void CvPlayer::findNewCapital()
 					BuildingTypes eReplacedCapitalBuilding = pOldCapital->GetCityBuildings()->GetBuildingTypeFromClass(eCapitalBuildingClass);
 					if (eReplacedCapitalBuilding != NO_BUILDING)
 					{
-						if (pOldCapital->GetCityBuildings()->GetNumRealBuilding(eReplacedCapitalBuilding) > 0)
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eReplacedCapitalBuilding);
+						if (pkBuildingInfo && pOldCapital->GetCityBuildings()->GetNumRealBuilding(eReplacedCapitalBuilding) > 0)
 						{
-							int iProductionValue = pOldCapital->getProductionNeeded(eReplacedCapitalBuilding);
-							doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pOldCapital);
+							if (pkBuildingInfo->IsFaithPurchaseOnly())
+							{
+								int iFaithRefund = pOldCapital->GetFaithPurchaseCost(eReplacedCapitalBuilding);
+								doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pOldCapital);
+							}
+							else
+							{
+								int iProductionRefund = pOldCapital->getProductionNeeded(eReplacedCapitalBuilding);
+								doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pOldCapital);
+							}
 							pOldCapital->GetCityBuildings()->SetNumRealBuilding(eReplacedCapitalBuilding, 0);
 						}
 					}
@@ -12523,8 +12556,20 @@ void CvPlayer::findNewCapital()
 			{
 				if (pOldCapital->GetCityBuildings()->GetNumRealBuilding(eCapitalBuilding) > 0)
 				{
-					int iProductionValue = pOldCapital->getProductionNeeded(eCapitalBuilding);
-					doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pOldCapital);
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eCapitalBuilding);
+					if (pkBuildingInfo)
+					{
+						if (pkBuildingInfo->IsFaithPurchaseOnly())
+						{
+							int iFaithRefund = pOldCapital->GetFaithPurchaseCost(eCapitalBuilding);
+							doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pOldCapital);
+						}
+						else
+						{
+							int iProductionRefund = pOldCapital->getProductionNeeded(eCapitalBuilding);
+							doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pOldCapital);
+						}
+					}
 					pOldCapital->GetCityBuildings()->SetNumRealBuilding(eCapitalBuilding, 0);
 				}
 			}
@@ -26691,6 +26736,15 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					iValue = iPassYield;
 					break;
 				}
+
+				case INSTANT_YIELD_TYPE_FAITH_REFUND:
+				{
+					if (eYield != YIELD_FAITH)
+						continue;
+
+					iValue = iPassYield;
+					break;
+				}
 				
 				case INSTANT_YIELD_TYPE_ERA_UNLOCK:
 				{
@@ -28028,6 +28082,25 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REFUND");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				else
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+					localizedText << totalyieldString;
+					//We do this at the player level once per turn.
+					addInstantYieldText(iType, localizedText.toUTF8());
+				}
+				return;
+			}
+
+			case INSTANT_YIELD_TYPE_FAITH_REFUND:
+			{
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				{
+					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_REFUND");
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());
@@ -42731,6 +42804,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Refund";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_FAITH_REFUND:
+			{
+				instantYieldName = "Faith Refund";
+				break;
+			}
 	case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
 			{
 				instantYieldName = "Holy City Birth";
@@ -45192,8 +45270,16 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								{
 									if (pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 									{
-										int iProductionValue = pLoopCity->getProductionNeeded(eBuilding);
-										doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionValue, false, NO_PLAYER, NULL, false, pLoopCity);
+										if (pkBuildingInfo->IsFaithPurchaseOnly())
+										{
+											int iFaithRefund = pLoopCity->GetFaithPurchaseCost(eBuilding);
+											doInstantYield(INSTANT_YIELD_TYPE_FAITH_REFUND, false, NO_GREATPERSON, NO_BUILDING, iFaithRefund, false, NO_PLAYER, NULL, false, pLoopCity);
+										}
+										else
+										{
+											int iProductionRefund = pLoopCity->getProductionNeeded(eBuilding);
+											doInstantYield(INSTANT_YIELD_TYPE_REFUND, false, NO_GREATPERSON, NO_BUILDING, iProductionRefund, false, NO_PLAYER, NULL, false, pLoopCity);
+										}
 										pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
 									}
 
