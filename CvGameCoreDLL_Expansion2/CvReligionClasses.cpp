@@ -4032,7 +4032,7 @@ int CvPlayerReligions::GetNumCitiesWithStateReligion(ReligionTypes eReligion)
 	}
 	else
 	{
-		int iLoop = 0;
+			int iLoop = 0;
 			CvCity* pLoopCity = NULL;
 			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 			{
@@ -6076,19 +6076,20 @@ void CvReligionAI::DoTurn()
 		return;
 
 #if defined(MOD_BALANCE_CORE)
-	//buy inquisitors in unprotected cities if an enemy prophet is near
-	DoReligionDefenseInCities();
+	//buy inquisitors in unprotected cities if an enemy prophet is near or buy missionaries to spread our faith
+	bool bSpreadingOrDefending = DoFaithPurchases() || DoReligionDefenseInCities();
+	bool bShouldSaveForFounding = GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() > 0 && m_pPlayer->GetReligions()->GetOwnedReligion() <= RELIGION_PANTHEON;
 
 	//If we have leftover faith, let's look at city purchases.
-	if (!DoFaithPurchases())
+	if (!bSpreadingOrDefending && !bShouldSaveForFounding)
 	{
-		CvWeightedVector<int> m_aFaithPriorities;
+		CvWeightedVector<CvCity*> m_aFaithPriorities;
 
 		//Sort by faith production
 		int iLoop = 0;
 		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			if (pLoopCity && !pLoopCity->IsResistance() && !pLoopCity->isUnderSiege() && pLoopCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
+			if (pLoopCity && !pLoopCity->IsResistance() && !pLoopCity->isUnderSiege())
 			{
 				int iFaith = pLoopCity->getYieldRateTimes100(YIELD_FAITH, false);
 
@@ -6098,23 +6099,13 @@ void CvReligionAI::DoTurn()
 				if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion())
 					iFaith *= 2;
 
-				m_aFaithPriorities.push_back(pLoopCity->GetID(), iFaith);
+				m_aFaithPriorities.push_back(pLoopCity, iFaith);
 			}
 		}
 
-		if (m_aFaithPriorities.size() > 0)
-		{
-			m_aFaithPriorities.SortItems();
-
-			for (int iLoop = 0; iLoop < m_aFaithPriorities.size(); iLoop++)
-			{
-				CvCity* pCity = m_pPlayer->getCity(m_aFaithPriorities.GetElement(iLoop));
-				if (pCity != NULL)
-				{
-					DoFaithPurchasesInCities(pCity);
-				}
-			}
-		}
+		m_aFaithPriorities.SortItems();
+		for (int iLoop = 0; iLoop < m_aFaithPriorities.size(); iLoop++)
+			DoFaithPurchasesInCities(m_aFaithPriorities.GetElement(iLoop));
 	}
 #endif
 }
