@@ -5174,7 +5174,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(const CvTacticalTarget& kTarget)
 				int iSelfDamage = 0;
 				//attacker plot will likely change but this is just an estimation anyway
 				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pTargetPlot, pAttacker->plot(), iSelfDamage, true, 0, true);
-				if (iDamage > iSelfDamage) //exclude suicidal melee attacks
+				if (iDamage > iSelfDamage/3 && pAttacker->GetCurrHitPoints() > iSelfDamage/2) //exclude only the most extreme suicides, we will sort out the details during combat sim
 				{
 					m_CurrentMoveUnits[iI].SetExpectedTargetDamage(iDamage);
 					m_CurrentMoveUnits[iI].SetExpectedSelfDamage(iSelfDamage);
