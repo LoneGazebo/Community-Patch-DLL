@@ -27,6 +27,15 @@ turnsString = Locale.ConvertTextKey("TXT_KEY_TURNS");
 freeString = Locale.ConvertTextKey("TXT_KEY_FREE");
 lockedString = "[ICON_LOCKED]"; --Locale.ConvertTextKey("TXT_KEY_LOCKED");
 
+-- VP/bal: gamespeed is currently only used to calculate chop yields, possibly can be applied in other places too
+local g_GameSpeedBuildPercent = GameInfo.GameSpeeds[Game.GetGameSpeedType()].BuildPercent
+local g_BaseChopYield
+for row in GameInfo.BuildFeatures{BuildType = 'BUILD_REMOVE_FOREST'} do
+	g_BaseChopYield = row.Production
+end
+local g_AdjChopYield = math.floor(g_BaseChopYield / 2 * g_GameSpeedBuildPercent / 100 )
+
+
 function GetTechPedia( void1, void2, button )
 	local searchString = techPediaSearchStrings[tostring(button)];
 	Events.SearchForPediaEntry( searchString );		
@@ -258,7 +267,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier ) );
+			thisButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_BOOST_CHOP", g_AdjChopYield ) );
 			buttonNum = buttonNum + 1;
 		end
 	end

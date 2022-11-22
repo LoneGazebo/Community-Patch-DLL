@@ -391,6 +391,15 @@ UPDATE Language_en_US
 SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Reveals [ICON_RES_ALUMINUM] Aluminum, a resource used for many late-game units. Also allows Cities to build the [COLOR_POSITIVE_TEXT]Stock Exchange[ENDCOLOR], a building which boosts [ICON_GOLD] Gold. Also allows you to build the [COLOR_POSITIVE_TEXT]Hydro Plant[ENDCOLOR], which increases [ICON_PRODUCTION] Production from tiles next to a River.'
 WHERE Tag = 'TXT_KEY_TECH_ELECTRICITY_HELP';
 
+-- Tech Tree small icon fixes
+
+UPDATE Language_en_US
+SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production'
+WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
+
+INSERT INTO Language_en_US (Tag, Text) VALUES
+('TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION', "Removing Forests/Jungles needs {1_Turns} Turn(s) to complete." );
+
 -- Penicilin and Nanotech 
 
 UPDATE Language_en_US
