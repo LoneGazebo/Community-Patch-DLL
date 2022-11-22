@@ -21,7 +21,7 @@
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>-30</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
-			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
+			<MaintenanceFreeUnits>3</MaintenanceFreeUnits>
 			<UnitSupplyBase>10</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
@@ -247,7 +247,7 @@
 			<EmpireSizeUnhappinessMod>0</EmpireSizeUnhappinessMod>
 			<PopulationUnhappinessMod>-15</PopulationUnhappinessMod>
 			<FreeCulturePerTurn>0</FreeCulturePerTurn>
-			<MaintenanceFreeUnits>0</MaintenanceFreeUnits>
+			<MaintenanceFreeUnits>1</MaintenanceFreeUnits>
 			<UnitSupplyBase>9</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
@@ -3265,32 +3265,4 @@
 			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 	</HandicapInfo_Goodies>
-	<PostDefines>
-		<Row Name="STANDARD_HANDICAP">
-			<Key>HANDICAP_WARLORD</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<Row Name="STANDARD_HANDICAP_QUICK">
-			<Key>HANDICAP_WARLORD</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<Row Name="MULTIPLAYER_HANDICAP">
-			<Key>HANDICAP_WARLORD</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<!-- Do not change these values! -->
-		<Row Name="AI_HANDICAP">
-			<Key>HANDICAP_AI_DEFAULT</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<Row Name="MINOR_CIV_HANDICAP">
-			<Key>HANDICAP_AI_DEFAULT</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<Row Name="BARBARIAN_HANDICAP">
-			<Key>HANDICAP_AI_DEFAULT</Key>
-			<Table>HandicapInfos</Table>
-		</Row>
-		<!---->
-	</PostDefines>
 </GameData>

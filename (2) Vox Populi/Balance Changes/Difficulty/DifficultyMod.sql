@@ -1,11 +1,14 @@
 -- Delete the data in the difficulty tables, replaced in DifficultyMod.xml
-DELETE FROM PostDefines WHERE Name = 'STANDARD_HANDICAP';
-DELETE FROM PostDefines WHERE Name = 'STANDARD_HANDICAP_QUICK';
-DELETE FROM PostDefines WHERE Name = 'MULTIPLAYER_HANDICAP';
-DELETE FROM PostDefines WHERE Name = 'AI_HANDICAP';
-DELETE FROM PostDefines WHERE Name = 'BARBARIAN_HANDICAP';
-DELETE FROM PostDefines WHERE Name = 'MINOR_CIV_HANDICAP';
 DELETE FROM HandicapInfo_FreeTechs;
 DELETE FROM HandicapInfo_AIFreeTechs;
 DELETE FROM HandicapInfo_Goodies;
 DELETE FROM HandicapInfos;
+
+CREATE TABLE IDRemapper ( id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT );
+INSERT INTO IDRemapper (Type) SELECT Type FROM HandicapInfos ORDER BY ID;
+UPDATE HandicapInfos SET ID = ( SELECT IDRemapper.id-1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
+DROP TABLE IDRemapper;
+
+UPDATE sqlite_sequence
+SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
+WHERE name = 'HandicapInfos';

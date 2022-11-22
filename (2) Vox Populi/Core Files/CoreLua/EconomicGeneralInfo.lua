@@ -404,7 +404,7 @@ function UpdateGPT()
     -- Routes
     local strRoutesTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_IMPROVEMENTS");
     
-    local iRouteMaintMod = DB_HandicapInfos[iHandicap].RouteCostPercent;
+    local iRouteMaintMod = DB_HandicapInfos[iHandicap].ImprovementCostPercent;
     local strRoutesModTT = "";
     
     if (iRouteMaintMod ~= 100) then

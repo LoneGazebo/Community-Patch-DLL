@@ -24,6 +24,17 @@ local m_bSortReverse = false;
 
 local pediaSearchStrings = {};
 
+-- fix for DB cache issue, by merill
+local DB_HandicapInfos = {};
+if Game then
+	for realHandicap in DB.Query("SELECT * FROM HandicapInfos") do
+		DB_HandicapInfos[realHandicap["ID"]] = {};
+		for key,val in pairs(realHandicap) do 
+			DB_HandicapInfos[realHandicap["ID"]][key] = val;
+		end
+	end
+end
+
 
 -------------------------------------------------
 -------------------------------------------------
@@ -331,7 +342,7 @@ function UpdateGPT()
     end
     
     -- Maintenance mod (handicap)
-    local iUnitMaintMod = GameInfo.HandicapInfos[iHandicap].UnitCostPercent;
+    local iUnitMaintMod = DB_HandicapInfos[iHandicap].UnitCostPercent;
     if (iUnitMaintMod ~= 100) then
 		strUnitTT = strUnitTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_HANDICAP_MAINTENANCE_MOD", iUnitMaintMod);
 	end
@@ -339,7 +350,7 @@ function UpdateGPT()
     Controls.UnitExpense:SetToolTipString( strUnitTT );
     
     -- Buildings
-    local iBuildingMaintMod = GameInfo.HandicapInfos[iHandicap].BuildingCostPercent;
+    local iBuildingMaintMod = DB_HandicapInfos[iHandicap].BuildingCostPercent;
     
     local strBuildingsTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_BUILDINGS");
     local strBuildingsModTT = "";
@@ -384,7 +395,7 @@ function UpdateGPT()
     -- Routes
     local strRoutesTT = Locale.ConvertTextKey("TXT_KEY_EO_EX_IMPROVEMENTS");
     
-    local iRouteMaintMod = GameInfo.HandicapInfos[iHandicap].RouteCostPercent;
+    local iRouteMaintMod = DB_HandicapInfos[iHandicap].ImprovementCostPercent;
     local strRoutesModTT = "";
     
     if (iRouteMaintMod ~= 100) then
