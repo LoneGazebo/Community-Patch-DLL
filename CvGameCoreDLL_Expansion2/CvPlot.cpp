@@ -1070,6 +1070,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 	//or if there is an owned fort, citadel or city on them
 	//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
 	std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
+	TeamTypes eTeam = getTeam();
 	unsigned int iNumPlotsChecked = 0;
 	do
 	{
@@ -1088,7 +1089,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 					continue;
 			}
 			//If land, must be owned city, fort or citadel
-			else if (pAdjacentPlot->isOwned())
+			else if (pAdjacentPlot->getTeam()==eTeam)
 			{
 				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
 					continue;
@@ -1099,7 +1100,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 			}
 			else
 			{
-				//unowned land tile
+				// Land tile not owned by us
 				continue;
 			}
 
