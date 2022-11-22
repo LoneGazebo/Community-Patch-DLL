@@ -28,6 +28,13 @@ local gk_mode = Game.GetReligionName ~= nil
 local bnw_mode = Game.GetActiveLeague ~= nil
 local civ5_bnw_mode = bnw_mode and civ5_mode
 
+-- VP/bal: gamespeed is currently only used to calculate chop yields, possibly can be applied in other places too
+local g_GameSpeedBuildPercent = GameInfo.GameSpeeds[Game.GetGameSpeedType()].BuildPercent
+local g_BaseChopYield
+for row in GameInfo.BuildFeatures{BuildType = 'BUILD_REMOVE_FOREST'} do
+	g_BaseChopYield = row.Production
+end
+local g_AdjChopYield = math.floor(g_BaseChopYield / 2 * g_GameSpeedBuildPercent / 100 )
 -------------------------------
 -- minor lua optimizations
 -------------------------------
@@ -560,24 +567,46 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	end
 
 	for row in GameInfo.Route_TechMovementChanges( thisTechType ) do
-		if not addSmallGenericButton( "TXT_KEY_FASTER_MOVEMENT", (GameInfo.Routes[row.RouteType] or {}).Description or "???" ) then
-			break
+--		if not addSmallGenericButton( "TXT_KEY_FASTER_MOVEMENT", (GameInfo.Routes[row.RouteType] or {}).Description or "???" ) then
+		if row.RouteType == "ROUTE_ROAD" then
+			if not addSmallActionButton( {IconIndex = 24, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT" ) then
+				break
+			end
+		end
+		if row.RouteType == "ROUTE_RAILROAD" then
+			if not addSmallActionButton( {IconIndex = 25, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT" ) then
+				break
+			end
 		end
 	end
 
+	local bAddedForest = false
 	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
+--[[
 		if not addSmallGenericButton( "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100 ) then
 			break
 		end
-	end
-
+]]--
+		if bAddedForest == false and (row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST") then
+			bAddedForest = true
+			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", row.TimeChange/100 ) then
+				break
+			end
+		end
+		if row.BuildType == "BUILD_REMOVE_MARSH" then
+			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100 ) then
+				break
+			end
+		end
+	end 
+	
 
 	local playerID = Game.GetActivePlayer();	
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 
 	if (tonumber(tech.EmbarkedMoveChange) or 0) > 0 then
-		addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "[ICON_MOVES]", "TXT_KEY_FASTER_EMBARKED_MOVEMENT" )
+		addSmallActionButton( {IconIndex = 14, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_EMBARKED_MOVEMENT" )
 	end
 
 	if tech.AllowsEmbarking then
@@ -622,7 +651,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 --CBP
 		if tech.FeatureProductionModifier > 0 then
-			addSmallActionButton( GameInfo.Missions.MISSION_GOLDEN_AGE, "", "TXT_KEY_ABLTY_TECH_BOOST_CHOP", tech.FeatureProductionModifier )
+			addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_ABLTY_TECH_BOOST_CHOP", g_AdjChopYield )
 		end
 
 		if tech.Happiness > 0 then
@@ -635,10 +664,10 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			addSmallActionButton( GameInfo.Missions.MISSION_RANGE_ATTACK, "", "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" )
 		end
 		if tech.CityLessEmbarkCost then
-			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" )
+			addSmallActionButton( {IconIndex = 14, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" )
 		end
 		if tech.CityNoEmbarkCost then
-			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" )
+			addSmallActionButton( {IconIndex = 14, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" )
 		end
 
 		if tech.CorporationsEnabled then
