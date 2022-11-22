@@ -823,7 +823,7 @@ function DoUpdateButtons()
 				local iCurrentValue = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr;
 
-				if (iCurrentValue == -999999) then
+				if (iCurrentValue >= -999999) then
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_IMPOSSIBLE");
 				else
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR", iCurrentValue);
@@ -839,7 +839,7 @@ function DoUpdateButtons()
 				local iCurrentValue = g_pThem:GetTotalValueToMe(g_Deal);
 				local Valuestr;
 
-				if (iCurrentValue == -999999) then
+				if (iCurrentValue >= -999999) then
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR_IMPOSSIBLE");
 				else
 					Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_DEAL_VALUE_STR", iCurrentValue);
@@ -859,7 +859,7 @@ function DoUpdateButtons()
 			if (g_pThem:IsTradeSanctioned(g_iUs)) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO");
 				ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEAL_VALUE_STR_EMBARGO_TT");
-			elseif (iCurrentValue == -999999) then
+			elseif (iCurrentValue >= -999999) then
 				Valuestr = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEAL_VALUE_STR_IMPOSSIBLE");
 				ValuestrTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_DEAL_VALUE_STR_TT");
 			elseif (iCurrentValue == 0) then
