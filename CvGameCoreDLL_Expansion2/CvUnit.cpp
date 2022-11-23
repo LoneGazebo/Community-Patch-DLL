@@ -7877,7 +7877,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iBaseHeal = 0;
 	if (pPlot->isCity())
 	{
-		if (!MOD_BALANCE_VP || (!pCity->IsResistance() || pCity->IsRazing()))
+		if (!MOD_BALANCE_VP || !pCity->IsResistance() || pCity->IsRazing())
 		{
 			iBaseHeal = /*25 in CP, 20 in VP*/ GD_INT_GET(CITY_HEAL_RATE);
 			iExtraHeal += (pPlot->getTeam()==getTeam()) ? iExtraFriendlyHeal : iExtraNeutralHeal;
@@ -9477,7 +9477,7 @@ bool CvUnit::createGreatWork()
 				if (pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-					strText << iWLTKD << kPlayer.GetPlayerTraits()->GetGrowthBoon();
+					strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 				}

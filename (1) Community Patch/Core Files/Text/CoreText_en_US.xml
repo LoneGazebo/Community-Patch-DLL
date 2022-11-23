@@ -6182,7 +6182,7 @@
 			<Text>Prevented by an active or proposed resolution.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_WRONG_SPHERE_PROPOSER">
-			<Text>You must be the City-State's current ally in order to propose this.</Text>
+			<Text>You must be the current ally of a City-State in order to propose this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_TOURISM">
 			<Text>Global [ICON_TOURISM] Tourism Modifiers adjusted by {1_UnitMaintenancePercent}%.</Text>
@@ -7773,7 +7773,7 @@
 			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_1] Happiness estimated to increase by: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GROWTH">
-			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to increase as follows:</Text>
+			<Text>[NEWLINE][NEWLINE]With [ICON_CITIZEN] Growth, [ICON_HAPPINESS_3] Unhappiness from Needs estimated to change as follows:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD">
 			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
@@ -7789,16 +7789,16 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_GOLD_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_GOLD] Poverty: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_SCIENCE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_RESEARCH] Illiteracy: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_CULTURE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_CULTURE] Boredom: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POTENTIAL_UNHAPPINESS_DEFENSE_POS">
-			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]-{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE]   [ICON_BULLET] [ICON_FOOD] and [ICON_PRODUCTION] Distress: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<!-- Great person rate modifiers -->
 		<Row Tag="TXT_KEY_MONOPOLY_GP_MOD">

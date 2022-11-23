@@ -965,7 +965,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	// Encampment - can use unowned resources within 3 tiles; can only spawn adjacent; spawn cap of 2 within 3 tiles
 	// City - can use resources owned by the city and unowned resources within 3 tiles; can use the UU of the player the city was captured from; can only spawn adjacent; spawn cap of 4 within 3 tiles
 	// Uprising or Partisans - can use resources owned by the player being revolted against as well as their UUs; no spawn cap
-	// Horde Quest or City-State capture - can use any resources owned by the City-State; if militaristic and UU is land, can also use their UU; no spawn cap; can't spawn adjacent to city
+	// Horde Quest or City-State capture - can use any resources owned by the City-State; if militaristic and UU is land, can also use their UU; no spawn cap
 	// City Capture - unused by default - can use resources owned by the city and unowned resources within 3 tiles; can use the UU of the player the city was captured from; no spawn cap
 	// Event - cannot use resources; no spawn cap
 	// Non-Barbarian UUs cannot be used in Community Patch only.
@@ -996,11 +996,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	case BARB_SPAWN_UPRISING:
 	case BARB_SPAWN_PARTISANS:
 	case BARB_SPAWN_EVENT:
-		iMaxSpawnRadius = 5;
-		bNotBasePlot = true;
-		break;
 	case BARB_SPAWN_HORDE_QUEST:
-		iMinSpawnRadius = 2;
 		iMaxSpawnRadius = 5;
 		bNotBasePlot = true;
 		break;
@@ -1171,17 +1167,17 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	}
 
 	// Where can we spawn Barbarians?
-	bool bCanSpawnBoats = (eReason == BARB_SPAWN_FROM_ENCAMPMENT || eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_CAPTURE) ? GC.getGame().getGameTurn() >= /*30*/ GD_INT_GET(BARBARIAN_NAVAL_UNIT_START_TURN_SPAWN) : false;
-	int iRingsCompleted = 0;
+	bool bCanSpawnBoats = (eReason == BARB_SPAWN_FROM_ENCAMPMENT || eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_CAPTURE) ? GC.getGame().getGameTurn() >= /*30 in CP, 20 in VP*/ GD_INT_GET(BARBARIAN_NAVAL_UNIT_START_TURN_SPAWN) : false;
+	int iRingsCompleted = iMinSpawnRadius - 1;
 
 	do
 	{
 		int iIteratorStart = iRingsCompleted > 0 ? RING_PLOTS[iRingsCompleted] : 0;
 		int iNextRing = iRingsCompleted + 1;
 
-		// Wrong distance?
-		if (iNextRing < iMinSpawnRadius || iNextRing > iMaxSpawnRadius)
-			continue;
+		// Too far away?
+		if (iNextRing > iMaxSpawnRadius)
+			break;
 
 		std::vector<CvPlot*> vBarbSpawnPlots;
 		for (int iI = iIteratorStart; iI < RING_PLOTS[iNextRing]; iI++)

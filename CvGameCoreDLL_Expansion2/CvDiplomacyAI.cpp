@@ -24242,28 +24242,49 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	}
 
 	////////////////////////////////////
-	// ALLIES WITH MINOR?
+	// PREVIOUSLY CAPTURED OUR CITIES
 	////////////////////////////////////
 
-	PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
+	bool bTheyCapturedFromUs = GetPlayer()->GetNumOurCitiesOwnedBy(ePlayer) > 0;
 
-	if (eAlly == eMyPlayer)
+	// If we can't declare war, ignore any captures for the time being.
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), eMyPlayer) && !IsAtWar(ePlayer))
+		bTheyCapturedFromUs = false;
+
+	// Zero out all approaches except for WAR, and add 10x WAR bias.
+	if (bTheyCapturedFromUs)
 	{
-		// Disfavor conquest and bullying if they are our ally
-		vApproachScores[CIV_APPROACH_WAR] = 0;
+		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 10;
+		vApproachScores[CIV_APPROACH_FRIENDLY] = 0;
+		vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
+		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+	}
+	else
+	{
+		////////////////////////////////////
+		// ALLIES WITH MINOR?
+		////////////////////////////////////
 
-		if (!GetPlayer()->IsCanBullyFriendlyCS())
+		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
+
+		if (eAlly == eMyPlayer)
 		{
+			// Disfavor conquest and bullying if they are our ally
+			vApproachScores[CIV_APPROACH_WAR] = 0;
+
+			if (!GetPlayer()->IsCanBullyFriendlyCS())
+			{
+				vApproachScores[CIV_APPROACH_HOSTILE] = 0;
+			}
+
+			vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 6 : vApproachBias[CIV_APPROACH_FRIENDLY] * 3;
+			vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
+		}
+		else if (AvoidExchangesWithPlayer(eAlly, /*bWarOnly*/ true))
+		{
+			// If we're at war with or planning war against their ally, don't try to bully their City-States
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 		}
-
-		vApproachScores[CIV_APPROACH_FRIENDLY] += bAnyFriendshipBonus ? vApproachBias[CIV_APPROACH_FRIENDLY] * 6 : vApproachBias[CIV_APPROACH_FRIENDLY] * 3;
-		vApproachScores[CIV_APPROACH_NEUTRAL] = 0;
-	}
-	else if (AvoidExchangesWithPlayer(eAlly, /*bWarOnly*/ true))
-	{
-		// If we're at war with or planning war against their ally, don't try to bully their City-States
-		vApproachScores[CIV_APPROACH_HOSTILE] = 0;
 	}
 
 	////////////////////////////////////
@@ -24303,7 +24324,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		}
 	}
 
-	bool bGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer);
+	bool bGoodAttackTarget = GetPlayer()->GetMilitaryAI()->HavePreferredAttackTarget(ePlayer) || bTheyCapturedFromUs;
 	bool bWantsConquest = bAnyAggressionBonus && bGoodAttackTarget;
 
 	switch (GetPlayerTargetValue(ePlayer))
@@ -24382,7 +24403,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	}
 
 	// If we're in bad shape, don't waste time trying to conquer City-States.
-	if (!GetPlayer()->IsNoNewWars())
+	if (GetPlayer()->IsNoNewWars() && (!bTheyCapturedFromUs || GetPlayer()->IsInTerribleShapeForWar()))
 	{
 		vApproachScores[CIV_APPROACH_WAR] = 0;
 	}
@@ -24390,7 +24411,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// If we're already at war with this City-State and the war is going badly, abort!
 	if (IsAtWar(ePlayer))
 	{
-		if (GetWarState(ePlayer) <= WAR_STATE_TROUBLED)
+		if ((bTheyCapturedFromUs && GetStateAllWars() == STATE_ALL_WARS_LOSING) || (!bTheyCapturedFromUs && GetWarState(ePlayer) <= WAR_STATE_TROUBLED))
 		{
 			vApproachScores[CIV_APPROACH_WAR] = 0;
 			vApproachScores[CIV_APPROACH_HOSTILE] = 0;
@@ -24416,7 +24437,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// Teammates & Friends
 	////////////////////////////////////
 
-	if (vApproachScores[CIV_APPROACH_WAR] > 0 || vApproachScores[CIV_APPROACH_HOSTILE] > 0)
+	if (!bTheyCapturedFromUs && (vApproachScores[CIV_APPROACH_WAR] > 0 || vApproachScores[CIV_APPROACH_HOSTILE] > 0))
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -24467,7 +24488,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// Don't sabotage our own embassies!
 	////////////////////////////////////
 
-	if (vApproachScores[CIV_APPROACH_WAR] > 0)
+	if (!bTheyCapturedFromUs && vApproachScores[CIV_APPROACH_WAR] > 0)
 	{
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
@@ -44735,28 +44756,15 @@ int CvDiplomacyAI::GetLandDisputeLevelScore(PlayerTypes ePlayer)
 	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetBoldness();
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() : GC.getGame().getHandicapInfo().getLandDisputePercent();
 			iOpinionWeight /= 750;
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() > 100)
-			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent();
-				iOpinionWeight /= 500;
-			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getLandDisputePercent() > 100)
-			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getLandDisputePercent();
-				iOpinionWeight /= 500;
-			}
-			else
-			{
-				iOpinionWeight /= 5;
-			}
+			iOpinionWeight /= 500;
 		}
 	}
 	
@@ -44802,28 +44810,15 @@ int CvDiplomacyAI::GetWonderDisputeLevelScore(PlayerTypes ePlayer)
 	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetWonderCompetitiveness();
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() : GC.getGame().getHandicapInfo().getWonderDisputePercent();
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() : GC.getGame().getHandicapInfo().getWonderDisputePercent();
 			iOpinionWeight /= 750;
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() > 100)
-			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent();
-				iOpinionWeight /= 500;
-			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getWonderDisputePercent() > 100)
-			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getWonderDisputePercent();
-				iOpinionWeight /= 500;
-			}
-			else
-			{
-				iOpinionWeight /= 5;
-			}
+			iOpinionWeight /= 500;
 		}
 	}
 
@@ -44871,28 +44866,15 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 		if (iOpinionWeight != 0)
 		{
 			iOpinionWeight *= GetMinorCivCompetitiveness();
+			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() : GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
 
 			if (iOpinionWeight > 0)
 			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() : GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
 				iOpinionWeight /= 750;
 			}
 			else
 			{
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() > 200)
-				{
-					iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent();
-					iOpinionWeight /= 500;
-				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getMinorCivDisputePercent() > 200)
-				{
-					iOpinionWeight *= GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
-					iOpinionWeight /= 500;
-				}
-				else
-				{
-					iOpinionWeight /= 5;
-				}
+				iOpinionWeight /= 500;
 			}
 		}
 	}
@@ -44935,28 +44917,15 @@ int CvDiplomacyAI::GetTechBlockLevelScore(PlayerTypes ePlayer)
 	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetDiploBalance();
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() : GC.getGame().getHandicapInfo().getTechBlockPercent();
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() : GC.getGame().getHandicapInfo().getTechBlockPercent();
 			iOpinionWeight /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent() > 100)
-			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getTechBlockPercent();
-				iOpinionWeight /= 500;
-			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getTechBlockPercent() > 100)
-			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getTechBlockPercent();
-				iOpinionWeight /= 500;
-			}
-			else
-			{
-				iOpinionWeight /= 5;
-			}
+			iOpinionWeight /= 500;
 		}
 	}
 	
@@ -44999,28 +44968,15 @@ int CvDiplomacyAI::GetPolicyBlockLevelScore(PlayerTypes ePlayer)
 	if (iOpinionWeight != 0)
 	{
 		iOpinionWeight *= GetDiploBalance();
+		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() : GC.getGame().getHandicapInfo().getPolicyBlockPercent();
 
 		if (iOpinionWeight > 0)
 		{
-			iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() : GC.getGame().getHandicapInfo().getPolicyBlockPercent();
 			iOpinionWeight /= max(500, 1000 - (iBlockEra * 125));
 		}
 		else
 		{
-			if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent() > 100)
-			{
-				iOpinionWeight *= GET_PLAYER(ePlayer).getHandicapInfo().getPolicyBlockPercent();
-				iOpinionWeight /= 500;
-			}
-			else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getPolicyBlockPercent() > 100)
-			{
-				iOpinionWeight *= GC.getGame().getHandicapInfo().getPolicyBlockPercent();
-				iOpinionWeight /= 500;
-			}
-			else
-			{
-				iOpinionWeight /= 5;
-			}
+			iOpinionWeight /= 500;
 		}
 	}
 	

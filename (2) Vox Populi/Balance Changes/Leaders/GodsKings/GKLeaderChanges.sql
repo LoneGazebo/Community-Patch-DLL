@@ -548,30 +548,6 @@ INSERT INTO Building_InstantYield
 VALUES
 	('BUILDING_CEILIDH_HALL', 'YIELD_CULTURE', 150);
 
-INSERT INTO Improvement_Yields
-	(ImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_POLDER_WATER', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_POLDER_WATER', 'YIELD_GOLD', 2),
-	('IMPROVEMENT_POLDER_WATER', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_POLDER', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_POLDER', 'YIELD_GOLD', 2),
-	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
-	('IMPROVEMENT_EKI', 'YIELD_FOOD', 1),
-	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1),
-	('IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 1),
-	('IMPROVEMENT_KUNA', 'YIELD_FAITH', 2);
-
-
-INSERT INTO Improvement_AdjacentImprovementYieldChanges
-	(ImprovementType, OtherImprovementType, YieldType, Yield)
-VALUES
-	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
-	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
-
 INSERT INTO Trait_YieldFromImport
 	(TraitType, YieldType, Yield)
 VALUES
@@ -654,6 +630,11 @@ VALUES
 	('BUILDING_GREAT_COTHON', 'BUILDINGCLASS_LIGHTHOUSE', 'YIELD_CULTURE', 2);
 
 -- New Improvements
+INSERT INTO Improvements
+		(Type,						GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas)
+SELECT	'IMPROVEMENT_POLDER_WATER',	GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas
+FROM Improvements WHERE Type = 'IMPROVEMENT_POLDER';
+
 INSERT INTO Builds
 	(Type, Time, ImprovementType, PrereqTech, Description, Help, Recommendation, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
 VALUES
@@ -683,18 +664,36 @@ VALUES
 	('IMPROVEMENT_EKI', 'TXT_KEY_IMPROVEMENT_EKI', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP', 'ART_DEF_IMPROVEMENT_EKI', 1, 'CIVILIZATION_HUNS', 1, 1, 1, 0, 5, 'TERRAIN_IMPROVEMENT_EKI', 0, 0),
 	('IMPROVEMENT_KUNA', 'TXT_KEY_IMPROVEMENT_KUNA', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT', 'TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP', 'ART_DEF_IMPROVEMENT_KUNA', 1, 'CIVILIZATION_MAYA', 0, 0, 0, 0, 14, 'TERRAIN_IMPROVEMENT_KUNA', 1, 1);
 
-INSERT INTO Improvements
-		(Type,						GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas)
-SELECT	'IMPROVEMENT_POLDER_WATER',	GoldMaintenance, Description, Civilopedia, Help, ArtDefineTag, DestroyedWhenPillaged, Permanent, PillageGold, BuildableOnResources, PortraitIndex, IconAtlas
-FROM Improvements WHERE Type = 'IMPROVEMENT_POLDER';
-
 UPDATE Improvements
-SET	Water = 0,
+SET	Water = 1,
 	CoastMakesValid = 1,
 	RequiresXAdjacentLand = 3,
 	AllowsWalkWater = 1,
 	MakesPassable = 1
 WHERE Type = 'IMPROVEMENT_POLDER_WATER';
+
+INSERT INTO Improvement_Yields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_POLDER_WATER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_POLDER', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_POLDER', 'YIELD_GOLD', 2),
+	('IMPROVEMENT_POLDER', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_FOOD', 1),
+	('IMPROVEMENT_EKI', 'YIELD_CULTURE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_SCIENCE', 1),
+	('IMPROVEMENT_KUNA', 'YIELD_FAITH', 2);
+
+INSERT INTO Improvement_AdjacentImprovementYieldChanges
+	(ImprovementType, OtherImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_POLDER_WATER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_POLDER', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 1),
+	('IMPROVEMENT_POLDER', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 1);
 
 INSERT INTO Improvement_ValidTerrains
 	(ImprovementType, TerrainType)

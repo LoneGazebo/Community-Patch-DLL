@@ -2053,6 +2053,10 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
 		return 0;
 
+	// They captured one of our cities? Do not raise influence; we want to recapture.
+	if (GetNumOurCitiesOwnedBy(kMinor.GetID()) > 0)
+		return 0;
+
 	//Return if we can't embark and they aren't on our landmass.
 	if (!pCity->HasAccessToLandmass(pUnit->plot()->getLandmass()) && !CanEmbark())
 		return 0;

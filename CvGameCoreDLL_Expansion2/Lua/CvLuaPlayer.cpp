@@ -380,6 +380,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetHappinessFromReligion);
 	Method(GetHappinessFromNaturalWonders);
 	Method(GetHappinessFromLeagues);
+	Method(GetHappinessFromMilitaryUnits);
 
 	Method(GetUnhappiness);
 	Method(GetUnhappinessForecast);
@@ -4119,6 +4120,13 @@ int CvLuaPlayer::lGetHappinessFromLeagues(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+//int GetHappinessFromMilitaryUnits() const;
+int CvLuaPlayer::lGetHappinessFromMilitaryUnits(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromMilitaryUnits);
+}
+
+//------------------------------------------------------------------------------
 //int GetUnhappiness() const;
 int CvLuaPlayer::lGetUnhappiness(lua_State* L)
 {
@@ -6428,8 +6436,8 @@ int CvLuaPlayer::lGetHappinessFromMinor(lua_State* L)
 int CvLuaPlayer::lGetBarbarianCombatBonus(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	const bool bResult = pkPlayer->GetBarbarianCombatBonus(false);
-	lua_pushboolean(L, bResult);
+	const int iResult = pkPlayer->GetBarbarianCombatBonus(false);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -12626,7 +12634,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	bool bShowAllValues = bHuman ? false : GC.getGame().IsShowAllOpinionValues();
 	bool bHideDisputes = bShowHiddenModifiers ? false : pDiplo->ShouldHideDisputeMods(ePlayer);
 	bool bHideNegatives = bShowHiddenModifiers ? false : pDiplo->ShouldHideNegativeMods(ePlayer);
-	bool bPretendNoDisputes = bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
+	bool bPretendNoDisputes = GET_PLAYER(ePlayer).isHuman() && bHideDisputes && bHideNegatives && !GC.getGame().IsNoFakeOpinionModifiers();
 	bool bObserver = GET_PLAYER(ePlayer).isObserver() || !pkPlayer->isMajorCiv() || !GET_PLAYER(ePlayer).isMajorCiv() || !pkPlayer->isAlive() || !GET_PLAYER(ePlayer).isAlive() || GC.getGame().IsHideOpinionTable();
 	bool bUNActive = GC.getGame().IsUnitedNationsActive();
 	bool bJustMet = GC.getGame().IsDiploDebugModeEnabled() ? false : (GET_TEAM(pkPlayer->getTeam()).GetTurnsSinceMeetingTeam(GET_PLAYER(ePlayer).getTeam()) == 0); // Don't display certain modifiers if we just met them
@@ -13717,21 +13725,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				}
 
 				iValue *= pDiplo->GetBoldness();
-
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent() > 100)
-				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent();
-					iValue /= 500;
-				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getLandDisputePercent() > 100)
-				{
-					iValue *= GC.getGame().getHandicapInfo().getLandDisputePercent();
-					iValue /= 500;
-				}
-				else
-				{
-					iValue /= 5;
-				}
+				iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getLandDisputePercent();
+				iValue /= 500;
 			}
 			else if (bHideDisputes)
 			{
@@ -13765,21 +13760,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				}
 
 				iValue *= pDiplo->GetWonderCompetitiveness();
-
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent() > 100)
-				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent();
-					iValue /= 500;
-				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getWonderDisputePercent() > 100)
-				{
-					iValue *= GC.getGame().getHandicapInfo().getWonderDisputePercent();
-					iValue /= 500;
-				}
-				else
-				{
-					iValue /= 5;
-				}
+				iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getWonderDisputePercent();
+				iValue /= 500;
 			}
 			else if (bHideDisputes)
 			{
@@ -13813,21 +13795,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 				}
 
 				iValue *= pDiplo->GetMinorCivCompetitiveness();
-
-				if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent() > 100)
-				{
-					iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent();
-					iValue /= 500;
-				}
-				else if (!GET_PLAYER(ePlayer).isHuman() && GC.getGame().getHandicapInfo().getMinorCivDisputePercent() > 100)
-				{
-					iValue *= GC.getGame().getHandicapInfo().getMinorCivDisputePercent();
-					iValue /= 500;
-				}
-				else
-				{
-					iValue /= 5;
-				}
+				iValue *= GET_PLAYER(ePlayer).getHandicapInfo().getMinorCivDisputePercent();
+				iValue /= 500;
 			}
 			else if (bHideDisputes)
 			{

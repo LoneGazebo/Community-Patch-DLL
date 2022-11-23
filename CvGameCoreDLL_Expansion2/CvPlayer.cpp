@@ -3529,7 +3529,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 					if (pNotify)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST");
-						strText << iWLTKD << GetPlayerTraits()->GetGrowthBoon();
+						strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST");
 						pNotify->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), iCityX, iCityY, -1);
 					}
@@ -17673,6 +17673,9 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 /// How much Production is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
+	if (isBarbarian())
+		return 0;
+
 	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
 	if (iUnitsOverSupply > 0)
 	{
@@ -17709,6 +17712,9 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 /// How much Growth is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
+	if (isBarbarian())
+		return 0;
+
 	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
 	if (iUnitsOverSupply > 0)
 	{
@@ -21057,6 +21063,9 @@ void CvPlayer::DoUpdateTotalHappiness()
 
 	// Increase from Vassals
 	m_iHappiness += GetHappinessFromVassals();
+
+	// Increase from military units
+	m_iHappiness += GetHappinessFromMilitaryUnits();
 
 	int iLoop = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -30566,9 +30575,8 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 	}
 
 	// Loop through all units to see if any of them are free!
-	const CvUnit* pLoopUnit = NULL;
 	int iLoop = 0;
-	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		if (eDomain != NO_DOMAIN)
 		{
@@ -30580,22 +30588,22 @@ int CvPlayer::GetNumMaintenanceFreeUnits(DomainTypes eDomain, bool bOnlyCombatUn
 
 		if (bOnlyCombatUnits)
 		{
-			if (!pLoopUnit->IsCombatUnit())
+			if (pLoopUnit->IsCivilianUnit())
 			{
 				continue;
 			}
 		}
 
-		if(pLoopUnit->IsNoMaintenance())
+		if (pLoopUnit->IsNoMaintenance())
 		{
 			iNumFreeUnits++;
 		}
-		else if(IsGarrisonFreeMaintenance() && pLoopUnit->IsGarrisoned())
+		else if (IsGarrisonFreeMaintenance() && pLoopUnit->IsGarrisoned())
 		{
 			iNumFreeUnits++;
 		}
 
-		if(MOD_BALANCE_CORE_JFD && pLoopUnit->isContractUnit())
+		if (MOD_BALANCE_CORE_JFD && pLoopUnit->isContractUnit())
 		{
 			iNumFreeUnits++;
 		}
@@ -30687,6 +30695,24 @@ void CvPlayer::changeHappyPerMilitaryUnit(int iChange)
 	{
 		m_iHappyPerMilitaryUnit = (m_iHappyPerMilitaryUnit + iChange);
 	}
+}
+
+int CvPlayer::GetHappinessFromMilitaryUnits() const
+{
+	int iHappyPerXUnits = getHappyPerMilitaryUnit();
+	if (iHappyPerXUnits <= 0)
+		return 0;
+
+	int iLoop = 0, iCount = 0;
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsCivilianUnit() || pLoopUnit->isDelayedDeath())
+			continue;
+
+		iCount++;
+	}
+
+	return iCount / iHappyPerXUnits;
 }
 
 //	--------------------------------------------------------------------------------
@@ -47947,7 +47973,7 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 
 		if (!isHuman())
 		{
-			iThreshold *= getHandicapInfo().getAIGrowthPercent();
+			iThreshold *= GC.getGame().getHandicapInfo().getAIGrowthPercent();
 			iThreshold /= 100;
 
 			iThreshold *= std::max(0, ((GC.getGame().getHandicapInfo().getAIGrowthPerEraModifier() * GC.getGame().getCurrentEra()) + 100));

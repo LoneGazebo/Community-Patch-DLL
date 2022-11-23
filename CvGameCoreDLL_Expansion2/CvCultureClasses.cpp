@@ -3456,7 +3456,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-					strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
 				}
@@ -3519,7 +3519,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-					strText << iWLTKD << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
 				}
@@ -3579,8 +3579,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
 					strText << iWLTKD;
-					strText << m_pPlayer->GetPlayerTraits()->GetWLTKDGPImprovementModifier();
-					strText << m_pPlayer->GetPlayerTraits()->GetGrowthBoon();
+					strText << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), pPlot->getX(), pPlot->getY(), -1);
 				}

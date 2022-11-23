@@ -5973,7 +5973,7 @@ CvPlot* HomelandAIHelpers::GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity)
 		return NULL;
 
 	//Are we planning on conquering them?
-	if (kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR)
+	if (kPlayer.GetDiplomacyAI()->GetCivApproach(kCityPlayer.GetID()) == CIV_APPROACH_WAR || kPlayer.GetNumOurCitiesOwnedBy(kCityPlayer.GetID()) > 0)
 		return NULL;
 
 	//Danger

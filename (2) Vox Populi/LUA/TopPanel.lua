@@ -815,6 +815,11 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_EVENT", EventHappiness);
 			end
 
+			local MilitaryUnitHappiness = pPlayer:GetHappinessFromMilitaryUnits();
+			if (MilitaryUnitHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_MILITARY_UNITS", MilitaryUnitHappiness);
+			end
+
 			local CityConnectionHappiness = pPlayer:GetHappinessFromTradeRoutes();
 			if (CityConnectionHappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", CityConnectionHappiness);

@@ -1311,6 +1311,7 @@ public:
 
 	int getHappyPerMilitaryUnit() const;
 	void changeHappyPerMilitaryUnit(int iChange);
+	int GetHappinessFromMilitaryUnits() const;
 
 	int getHappinessToCulture() const;
 	void changeHappinessToCulture(int iChange);

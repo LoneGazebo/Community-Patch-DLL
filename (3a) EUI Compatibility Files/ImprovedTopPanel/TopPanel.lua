@@ -1404,6 +1404,7 @@ if civ5_mode then
 			local ReligionHappiness = g_activePlayer:GetHappinessFromReligion();
 			local LeagueHappiness = g_activePlayer:GetHappinessFromLeagues();
 			local EventHappiness = g_activePlayer:GetEventHappiness();
+			local MilitaryUnitHappiness = g_activePlayer:GetHappinessFromMilitaryUnits();
 			local CityConnectionHappiness = g_activePlayer:GetHappinessFromTradeRoutes();
 			local CityStateHappiness = g_activePlayer:GetHappinessFromMinorCivs();
 			local VassalHappiness = g_activePlayer:GetHappinessFromVassals();
@@ -1415,6 +1416,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_STATE_RELIGION_VP", ReligionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", LeagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_EVENT", EventHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_MILITARY_UNITS", MilitaryUnitHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", CityConnectionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness )

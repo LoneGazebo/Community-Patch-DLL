@@ -674,7 +674,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK">
-			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold.</Text>
+			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK">
 			<Text>Mandate of Heaven</Text>
@@ -688,14 +688,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING">
-			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold.</Text>
+			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING">
 			<Text>Mandate of Heaven</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST">
-			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold.</Text>
+			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST">
 			<Text>Mandate of Heaven</Text>
@@ -1090,6 +1090,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_TP_HAPPINESS_CITY_LOCAL">
 			<Text>{1_Num} from Local Sources in Cities (Religion, Buildings, etc).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_MILITARY_UNITS">
+			<Text>{1_Num} from Military Units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_ILLITERACY">
 			<Text>{1_Num} from [ICON_RESEARCH] Illiteracy.</Text>

@@ -1168,7 +1168,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				if (pNotifications)
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING");
-					strText << iWLTKD << owningPlayer.GetPlayerTraits()->GetGrowthBoon();
+					strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING");
 					pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
 				}
@@ -10471,9 +10471,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 	if (pNotifications)
 	{
-#if defined(MOD_BALANCE_CORE)
-
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
 		{
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
 			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
@@ -10483,15 +10481,12 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		}
 		else
 		{
-#endif
 			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
 			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
 			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
 			strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
 			pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
-#if defined(MOD_BALANCE_CORE)
 		}
-#endif
 	}
 
 	// If we're on the debug map it's too small for us to care
@@ -10559,26 +10554,22 @@ void CvCity::DoTestResourceDemanded()
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
 				{
-#if defined(MOD_BALANCE_CORE)
-					if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
+					if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
-						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
+						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE");
 						strSummary << getNameKey();
 						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
 					else
 					{
-#endif
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
 						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
 						strSummary << getNameKey();
 						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
-#if defined(MOD_BALANCE_CORE)
 					}
-#endif
 				}
 			}
 		}
@@ -15195,7 +15186,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if (pNotifications)
 						{
 							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK");
-							strText << iWLTKD << owningPlayer.GetPlayerTraits()->GetGrowthBoon();
+							strText << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK");
 							pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), this->getX(), this->getY(), -1);
 						}
@@ -17684,9 +17675,12 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		// WLTKD Growth Bonus
 		if (GetWeLoveTheKingDayCounter() > 0)
 		{
-			int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
+			int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 			iTotalMod += iMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iMod);
+			else
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 		}
 
 		//Resolution League Bonus	
@@ -23182,77 +23176,14 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		}
 
 		// Need Modifier Breakdown
-		strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS_BREAKDOWN");
-
 		int iCapitalMod = isCapital() ? /*25*/ GD_INT_GET(CAPITAL_NEED_MODIFIER) : 0;
 		int iTechMod = GetCachedTechNeedModifier();
 		int iCitySize = GetCitySizeModifier();
 		int iEmpireSize = GetReducedEmpireSizeModifier(false,false);
 		int iDifficultyMod = kPlayer.isHuman() ? kPlayer.getHandicapInfo().getPopulationUnhappinessMod() : kPlayer.getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-		int iTotalMod = iCapitalMod + iTechMod + iCitySize + iEmpireSize + iDifficultyMod;
-
-		// Is Capital
-		if (iCapitalMod != 0)
-		{
-			if (iCapitalMod > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD_POS", iCapitalMod);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
-		}
-
-		// Technology
-		if (iTechMod != 0)
-		{
-			if (iTechMod > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_UNHAPPINESS_MOD_POS", iTechMod);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_UNHAPPINESS_MOD", iTechMod);
-		}
-
-		// City Size
-		if (iCitySize != 0)
-		{
-			if (iCitySize > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_POP_UNHAPPINESS_MOD_POS", iCitySize);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_POP_UNHAPPINESS_MOD", iCitySize);
-		}
-
-		// Empire Size
-		if (iEmpireSize != 0)
-		{
-			if (iEmpireSize > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_UNHAPPINESS_MOD_POS", iEmpireSize);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_UNHAPPINESS_MOD", iEmpireSize);
-		}
-
-		// Difficulty Level
-		if (iDifficultyMod != 0)
-		{
-			if (iDifficultyMod > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD_POS", iDifficultyMod);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD", iDifficultyMod);
-		}
-
-		// SPECIAL MODIFIERS
-
-		// Carnival (Brazil UA)
-		if (GetWeLoveTheKingDayCounter() > 0 && kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod() != 0)
-		{
-			int iCarnivalModifier = kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod();
-			iTotalMod += iCarnivalModifier;
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CARNIVAL_UNHAPPINESS_MOD", iCarnivalModifier);
-		}
-
-		// Air Units (Policy)
-		if (kPlayer.GetNeedsModifierFromAirUnits() != 0)
-		{
-			int iAirUnitsModifier = plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1;
-			iTotalMod += iAirUnitsModifier;
-			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_AIR_UNITS_UNHAPPINESS_MOD", iAirUnitsModifier);
-		}
+		int iCarnivalMod = GetWeLoveTheKingDayCounter() > 0 ? kPlayer.GetPlayerTraits()->GetWLTKDUnhappinessNeedsMod() : 0;
+		int iAirUnitsMod = kPlayer.GetNeedsModifierFromAirUnits() != 0 ? plot()->countNumAirUnits(getTeam(), true) * kPlayer.GetNeedsModifierFromAirUnits() * -1 : 0;
+		int iTotalMod = iCapitalMod + iTechMod + iCitySize + iEmpireSize + iDifficultyMod + iCarnivalMod + iAirUnitsMod;
 
 		// Process Modifiers
 		int iFarmingModifier = 0, iWealthModifier = 0, iResearchModifier = 0, iArtsModifier = 0, iPrayerModifier = 0;
@@ -23266,21 +23197,6 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				iResearchModifier = (pkProcessInfo->getProductionToYieldModifier(YIELD_SCIENCE) + GetYieldFromProcessModifier(YIELD_SCIENCE)) * -1;
 				iArtsModifier = (pkProcessInfo->getProductionToYieldModifier(YIELD_CULTURE) + GetYieldFromProcessModifier(YIELD_CULTURE)) * -1;
 				iPrayerModifier = (pkProcessInfo->getProductionToYieldModifier(YIELD_FAITH) + GetYieldFromProcessModifier(YIELD_FAITH)) * -1;
-
-				if (iFarmingModifier != 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_FARMING_UNHAPPINESS_MOD", iFarmingModifier);
-
-				if (iWealthModifier != 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_WEALTH_UNHAPPINESS_MOD", iWealthModifier);
-
-				if (iResearchModifier != 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESEARCH_UNHAPPINESS_MOD", iResearchModifier);
-
-				if (iArtsModifier != 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ARTS_UNHAPPINESS_MOD", iArtsModifier);
-
-				if (iPrayerModifier != 0 && strIcon != "")
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", strIcon, iPrayerModifier);
 			}
 		}
 
@@ -23300,51 +23216,136 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		int iExpectedReligiousUnrestMod = iTotalMod + iPrayerModifier;
 		int iExtraReligiousUnrestMod = iTotalReligiousUnrestModifier - iExpectedReligiousUnrestMod;
 
-		// If all modifiers are off by the same %, we assume it's the same cause (probably a spy event, since building/policy median modifiers are disabled in base VP) and use a special text key.
-		if (iExtraDistressMod != 0 && iExtraDistressMod == iExtraPovertyMod && iExtraDistressMod == iExtraIlliteracyMod && iExtraDistressMod == iExtraBoredomMod && iExtraDistressMod == iExtraReligiousUnrestMod)
+		// Only show the breakdown if the modifier is non-zero
+		if (iTotalMod != 0 || iExtraDistressMod != 0 || iExtraIlliteracyMod != 0 || iExtraBoredomMod != 0 || iExtraReligiousUnrestMod != 0
+		|| iFarmingModifier != 0 || iWealthModifier != 0 || iResearchModifier != 0 || iArtsModifier != 0 || iPrayerModifier != 0)
 		{
-			if (iExtraDistressMod > 0)
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_UNHAPPINESS_MOD_POS", iExtraDistressMod);
-			else
-				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_UNHAPPINESS_MOD", iExtraDistressMod);
-		}
-		// Otherwise break it down individually.
-		else
-		{
-			if (iExtraDistressMod != 0)
+			strTooltip += "[NEWLINE][NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_GLOBAL_MEDIAN_MODS_BREAKDOWN");
+
+			// Is Capital
+			if (iCapitalMod != 0)
+			{
+				if (iCapitalMod > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD_POS", iCapitalMod);
+				else
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CAPITAL_UNHAPPINESS_MOD", iCapitalMod);
+			}
+
+			// Technology
+			if (iTechMod != 0)
+			{
+				if (iTechMod > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_UNHAPPINESS_MOD_POS", iTechMod);
+				else
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_TECH_UNHAPPINESS_MOD", iTechMod);
+			}
+
+			// City Size
+			if (iCitySize != 0)
+			{
+				if (iCitySize > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_POP_UNHAPPINESS_MOD_POS", iCitySize);
+				else
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_POP_UNHAPPINESS_MOD", iCitySize);
+			}
+
+			// Empire Size
+			if (iEmpireSize != 0)
+			{
+				if (iEmpireSize > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_UNHAPPINESS_MOD_POS", iEmpireSize);
+				else
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EMPIRE_UNHAPPINESS_MOD", iEmpireSize);
+			}
+
+			// Difficulty Level
+			if (iDifficultyMod != 0)
+			{
+				if (iDifficultyMod > 0)
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD_POS", iDifficultyMod);
+				else
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_DIFFICULTY_UNHAPPINESS_MOD", iDifficultyMod);
+			}
+
+			// SPECIAL MODIFIERS
+
+			// Carnival (Brazil UA)
+			if (iCarnivalMod != 0)
+			{
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_CARNIVAL_UNHAPPINESS_MOD", iCarnivalMod);
+			}
+
+			// Air Units (Policy)
+			if (iAirUnitsMod != 0)
+			{
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_AIR_UNITS_UNHAPPINESS_MOD", iAirUnitsMod);
+			}
+
+			// PROCESS MODIFIERS
+
+			if (iFarmingModifier != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_FARMING_UNHAPPINESS_MOD", iFarmingModifier);
+
+			if (iWealthModifier != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_WEALTH_UNHAPPINESS_MOD", iWealthModifier);
+
+			if (iResearchModifier != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RESEARCH_UNHAPPINESS_MOD", iResearchModifier);
+
+			if (iArtsModifier != 0)
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ARTS_UNHAPPINESS_MOD", iArtsModifier);
+
+			if (iPrayerModifier != 0 && strIcon != "")
+				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", strIcon, iPrayerModifier);
+
+			// OTHER MODIFIERS
+
+			// If all modifiers are off by the same %, we assume it's the same cause (probably a spy event, since building/policy median modifiers are disabled in base VP) and use a special text key.
+			if (iExtraDistressMod != 0 && iExtraDistressMod == iExtraPovertyMod && iExtraDistressMod == iExtraIlliteracyMod && iExtraDistressMod == iExtraBoredomMod && iExtraDistressMod == iExtraReligiousUnrestMod)
 			{
 				if (iExtraDistressMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD_POS", iExtraDistressMod);
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_UNHAPPINESS_MOD_POS", iExtraDistressMod);
 				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD", iExtraDistressMod);
+					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_UNHAPPINESS_MOD", iExtraDistressMod);
 			}
-			if (iExtraPovertyMod != 0)
+			// Otherwise break it down individually.
+			else
 			{
-				if (iExtraPovertyMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD_POS", iExtraPovertyMod);
-				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD", iExtraPovertyMod);
-			}
-			if (iExtraIlliteracyMod != 0)
-			{
-				if (iExtraIlliteracyMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD_POS", iExtraIlliteracyMod);
-				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD", iExtraIlliteracyMod);
-			}
-			if (iExtraBoredomMod != 0)
-			{
-				if (iExtraBoredomMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD_POS", iExtraBoredomMod);
-				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD", iExtraBoredomMod);
-			}
-			if (iExtraReligiousUnrestMod != 0 && strIcon != "")
-			{
-				if (iExtraReligiousUnrestMod > 0)
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", strIcon, iExtraReligiousUnrestMod);
-				else
-					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD", strIcon, iExtraReligiousUnrestMod);
+				if (iExtraDistressMod != 0)
+				{
+					if (iExtraDistressMod > 0)
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD_POS", iExtraDistressMod);
+					else
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_DISTRESS_UNHAPPINESS_MOD", iExtraDistressMod);
+				}
+				if (iExtraPovertyMod != 0)
+				{
+					if (iExtraPovertyMod > 0)
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD_POS", iExtraPovertyMod);
+					else
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_POVERTY_UNHAPPINESS_MOD", iExtraPovertyMod);
+				}
+				if (iExtraIlliteracyMod != 0)
+				{
+					if (iExtraIlliteracyMod > 0)
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD_POS", iExtraIlliteracyMod);
+					else
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_ILLITERACY_UNHAPPINESS_MOD", iExtraIlliteracyMod);
+				}
+				if (iExtraBoredomMod != 0)
+				{
+					if (iExtraBoredomMod > 0)
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD_POS", iExtraBoredomMod);
+					else
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD", iExtraBoredomMod);
+				}
+				if (iExtraReligiousUnrestMod != 0 && strIcon != "")
+				{
+					if (iExtraReligiousUnrestMod > 0)
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", strIcon, iExtraReligiousUnrestMod);
+					else
+						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD", strIcon, iExtraReligiousUnrestMod);
+				}
 			}
 		}
 	}
@@ -24640,13 +24641,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		iModifier += iTempMod;
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_CORPORATION", iTempMod);
-	}
-	if (eIndex == YIELD_FOOD && GetWeLoveTheKingDayCounter() > 0 && GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() != 0)
-	{
-		iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
-		iModifier += iTempMod;
-		if (toolTipSink)
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iTempMod);
 	}
 	if (GetYieldModifierFromHappiness(eIndex) != 0)
 	{

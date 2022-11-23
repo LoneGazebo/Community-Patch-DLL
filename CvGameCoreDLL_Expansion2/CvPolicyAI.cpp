@@ -1543,6 +1543,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetFreeMilitaryUnitsPopulationPercent() * 2;
 		}
 	}
+	if (PolicyInfo->GetHappyPerMilitaryUnit() != 0)
+	{
+		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsExpansionist())
+		{
+			yield[YIELD_FOOD] += (PolicyInfo->GetHappyPerMilitaryUnit() / 5) * 50;
+		}
+		else
+		{
+			yield[YIELD_FOOD] += (PolicyInfo->GetHappyPerMilitaryUnit() / 10) * 50;
+		}
+	}
 	if (PolicyInfo->GetHappinessPerGarrisonedUnit() != 0)
 	{
 		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsExpansionist())

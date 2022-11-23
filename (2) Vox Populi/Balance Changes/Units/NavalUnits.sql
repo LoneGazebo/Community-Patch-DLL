@@ -29,7 +29,7 @@
 	
 	-- Tech Melee
 	
-	UPDATE Units SET PrereqTech = 'TECH_OPTICS' 									WHERE Type = 'UNIT_GALLEY';
+	UPDATE Units SET 							 ObsoleteTech = 'TECH_OPTICS' 		WHERE Type = 'UNIT_GALLEY';
 	UPDATE Units SET PrereqTech = 'TECH_OPTICS', ObsoleteTech = 'TECH_COMPASS'		WHERE Type = 'UNIT_TRIREME';
 	UPDATE Units SET 							 ObsoleteTech = 'TECH_NAVIGATION'	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
 
