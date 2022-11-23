@@ -7909,6 +7909,10 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			{
 				iBaseHeal = /*5*/ GD_INT_GET(ENEMY_HEAL_RATE);
 			}
+			else
+			{
+				iBaseHeal = /*20 in CP, 15 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE);
+			}
 			iExtraHeal += iExtraFriendlyHeal;
 		}
 		else

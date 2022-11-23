@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.0) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.0.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -432,12 +432,12 @@
     <File md5="3D38DD0E413F26530A1842AE0C9B0BEF" import="0">Balance Changes/Terrain/ResourceChanges.sql</File>
     <File md5="E479AB698D8C06EA1A666D7E167003F8" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
-    <File md5="D3850F71E46545A6FD60736A68DDFD8E" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
+    <File md5="D3353E4E4233A365FF5D731A14EFA381" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
     <File md5="BA773E44B4754D14C87A54630E83D7FC" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="549D665A5DFACF3F51270312AD1C2ABE" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="BEB1890736FBB69D9AE344C669F8C058" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="E5D1442E0C0B1AF136319C42E15AC43E" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
-    <File md5="4AAABE3C13A0271A566A44E0774D23E7" import="0">Balance Changes/Text/en_US/UIText.xml</File>
+    <File md5="D53E5EDD84D47C25D247E188D049DBC5" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="ED46B633E374A73B086D6BCFCCBDDA7A" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="43FF7ECEDAB61AF70809165C181A57E7" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="2A37F8E42073C2AB5F183F39E502A1DB" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>

@@ -667,48 +667,48 @@
 		<!-- New -->
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
-			<Text>Entering a new Era has led to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food and [ICON_GOLD] Gold from Mandate of Heaven is halved in all Cities.</Text>
+			<Text>Entering a new Era has led to instability and the rise of a new ruling dynasty. Bonus [ICON_FOOD] Food from Mandate of Heaven is halved in all Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
 			<Text>Dynastic Transition...</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_GREAT_WORK">
-			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
+			<Text>The creation of a [ICON_GREAT_WORK] Great Work causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Growth by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK">
 			<Text>Mandate of Heaven</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The acquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Food by +{4_Num}%!</Text>
+			<Text>The acquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Growth by +{4_Num}%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE">
 			<Text>Mandate of Heaven</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_SETTLING">
-			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
+			<Text>The founding of a new City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Growth by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_SETTLING">
 			<Text>Mandate of Heaven</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_CITY_CONQUEST">
-			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Food by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
+			<Text>The conquest of a City causes all Cities to enter "We Love the Empress Day" for {1_Num} Turns, increasing their [ICON_FOOD] Growth by +{2_Num}%! All Cities gain +2 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_CITY_CONQUEST">
 			<Text>Mandate of Heaven</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_FOODMOD_WLTKD_UA">
-			<Text>[NEWLINE][ICON_BULLET]"We Love the Empress Day" Modifier: +{1_Num}% [ICON_FOOD] Food</Text>
+			<Text>[NEWLINE][ICON_BULLET]"We Love the Empress Day" Modifier: +{1_Num}% [ICON_FOOD] Growth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA">
 			<Text>The City of {1_CityName:textkey} wants {2_ResourceName:textkey}! Connecting that resource to your trade network will cause the city to enter "We Love the Empress Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA">
-			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Food modifier!</Text>
+			<Text>This City is in "We Love the Empress Day", which increases the City's [ICON_FOOD] Growth modifier!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA">
 			<Text>Connecting this Resource to your trade network will cause this City to go into "We Love the Empress Day."</Text>
