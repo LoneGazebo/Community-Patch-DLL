@@ -569,12 +569,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for row in GameInfo.Route_TechMovementChanges( thisTechType ) do
 --		if not addSmallGenericButton( "TXT_KEY_FASTER_MOVEMENT", (GameInfo.Routes[row.RouteType] or {}).Description or "???" ) then
 		if row.RouteType == "ROUTE_ROAD" then
-			if not addSmallActionButton( {IconIndex = 24, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT" ) then
+			if not addSmallActionButton( {IconIndex = 24, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT", GameInfo.Routes[row.RouteType].Description ) then
 				break
 			end
 		end
 		if row.RouteType == "ROUTE_RAILROAD" then
-			if not addSmallActionButton( {IconIndex = 25, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT" ) then
+			if not addSmallActionButton( {IconIndex = 25, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_MOVEMENT", GameInfo.Routes[row.RouteType].Description ) then
 				break
 			end
 		end
