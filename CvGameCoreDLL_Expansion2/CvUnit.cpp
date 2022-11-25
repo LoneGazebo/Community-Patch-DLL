@@ -17749,6 +17749,12 @@ int CvUnit::maxXPValue() const
 		iMaxValue = std::min(iMaxValue, GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
+	if (MOD_BALANCE_CORE_SCALING_XP)
+	{
+		iMaxValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iMaxValue /= 100;
+	}
+
 	return iMaxValue;
 }
 
