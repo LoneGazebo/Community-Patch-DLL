@@ -342,7 +342,7 @@
 			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
@@ -570,7 +570,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. Increases the Military Unit Supply Cap by 4. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+25% [ICON_GOLDEN_AGE] Golden Age duration, and +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -588,7 +588,7 @@
 			<Text>Royal Guardhouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP">
-			<Text>Allows for an Engineer Specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the [COLOR_MAGENTA]Justice[ENDCOLOR] Policy.</Text>
+			<Text>Allows for an Engineer Specialist in your [ICON_CAPITAL] Capital. Military Units Supplied by this City''s population increased by 20%. Can only be constructed via the [COLOR_MAGENTA]Justice[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA">
 			<Text>A Royal Guard describes any group of military bodyguards, soldiers or armed retainers responsible for the protection of a royal person, such as Emperor/Empress, King/Queen, or Prince/Princess. They often are an elite unit of the regular armed forces, or are designated as such, and may maintain special rights or privileges.</Text>
