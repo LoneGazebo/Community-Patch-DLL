@@ -1584,9 +1584,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				break;
 			}
 
-			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
-			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
-			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
+			if (iCurrentNetGoldOfReceivingPlayer > 0) {
+				int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
+				iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			}
 
 			return iItemValue;
 		}
@@ -1812,9 +1814,11 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				break;
 			}
 
-			// Every x gold in net GPT will increase resource value by 1, capped at 20% of the value of the resource itself
-			int iGPTSurcharge = int(0.5*sqrt(iCurrentNetGoldOfReceivingPlayer/1.));
-			iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
+			if (iCurrentNetGoldOfReceivingPlayer > 0) {
+				int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
+				iItemValue += min(iGPTSurcharge, iItemValue / 5);
+			}
 
 			// Cap purchase price at 12 GPT, scaling with era
 			return min(iItemValue, OneGPTScaled * 12);
@@ -1826,17 +1830,19 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 
 	if (bFromMe)
 	{
-		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/3.));
-		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
+		if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			int iGPT = int(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 3.));
+			iItemValue += min(iGPT, iItemValue);
+		}
 	}
 	else
 	{
-		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.25+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
-		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
+		if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			int iGPT = int(0.25 + sqrt(iCurrentNetGoldOfReceivingPlayer / 4.));
+			iItemValue += min(iGPT, iItemValue);
+		}
 	}
 
 	if (bFromMe)
@@ -2061,17 +2067,19 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 	if (bFromMe)
 	{
-		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/4.));
-		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
+		if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			int iGPT = int(0.5 + sqrt(iCurrentNetGoldOfReceivingPlayer / 4.));
+			iItemValue += min(iGPT, iItemValue);
+		}
 	}
 	else
 	{
-		//Every x gold in net GPT will increase resource value by 1, up to the value of the item itself (so never more than double).
-		int iGPT = int(0.5+sqrt(iCurrentNetGoldOfReceivingPlayer/5.));
-		if (iGPT > 0)
-			iItemValue += min(iGPT,iItemValue);
+		// Resource value is increased based on net GPT, up to the value of the item itself (so never more than double).
+		if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			int iGPT = int(0.5 + sqrt(iCurrentNetGoldOfReceivingPlayer / 5.));
+			iItemValue += min(iGPT, iItemValue);
+		}
 	}
 
 	// Uranium is extra valuable
