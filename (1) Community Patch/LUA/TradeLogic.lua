@@ -1764,7 +1764,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
+			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 		else
@@ -1838,7 +1838,7 @@ function ResetDisplay()
 			instance.Button:SetHide(false);
 			
 			pResource = GameInfo.Resources[resType];
-			iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
+			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
 			instance.Button:SetText(strString);
 
@@ -2819,13 +2819,13 @@ function PocketResourceHandler( isUs, resourceId )
 	end
 	
     if( isUs == 1 ) then
-		if (iAmount > g_Deal:GetNumResource(g_iUs, resourceId)) then
-			iAmount = g_Deal:GetNumResource(g_iUs, resourceId);
+		if (iAmount > g_pUs:GetNumResourceAvailable(resourceId, false)) then
+			iAmount = g_pUs:GetNumResourceAvailable(resourceId, false);
 		end
         g_Deal:AddResourceTrade( g_iUs, resourceId, iAmount, g_iDealDuration );
     else
-		if (iAmount > g_Deal:GetNumResource(g_iThem, resourceId)) then
-			iAmount = g_Deal:GetNumResource(g_iThem, resourceId);
+		if (iAmount > g_pThem:GetNumResourceAvailable(resourceId, false)) then
+			iAmount = g_pThem:GetNumResourceAvailable(resourceId, false);
 		end
         g_Deal:AddResourceTrade( g_iThem, resourceId, iAmount, g_iDealDuration );
     end
@@ -2926,8 +2926,8 @@ function ChangeResourceAmount( string, control )
     end
     
     -- Can't offer more than someone has
-    if (iNumResource > g_Deal:GetNumResource(iPlayer, iResourceID)) then
-		iNumResource = g_Deal:GetNumResource(iPlayer, iResourceID);
+    if (iNumResource > pPlayer:GetNumResourceAvailable(iResourceID, false)) then
+		iNumResource = pPlayer:GetNumResourceAvailable(iResourceID, false);
 		control:SetText(iNumResource);
 	end
     
@@ -2936,6 +2936,9 @@ function ChangeResourceAmount( string, control )
     else
         g_Deal:ChangeResourceTrade( g_iThem, iResourceID, iNumResource, g_iDealDuration );
     end
+	--CBP
+	DoUIDealChangedByHuman();
+	--END
 end
 
 
