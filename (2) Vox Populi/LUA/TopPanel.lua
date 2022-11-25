@@ -918,7 +918,7 @@ function HappinessTipHandler( control )
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_RELIGIOUS_UNREST", ReligiousUnrestUnhappiness);
 			end
 
-			local UrbanizationUnhappiness = pPlayer:GetUnhappinessFromCitySpecialists();
+			local UrbanizationUnhappiness = pPlayer:GetUnhappinessFromCitySpecialists() / 100;
 			if (UrbanizationUnhappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SPECIALISTS", UrbanizationUnhappiness);
 			end
