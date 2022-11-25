@@ -810,7 +810,7 @@
 			<Type>BUILDING_HERBALIST</Type>
 			<BuildingClass>BUILDINGCLASS_HERBALIST</BuildingClass>
 			<Cost>65</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<GoldMaintenance>0</GoldMaintenance>
 			<PrereqTech>TECH_CALENDAR</PrereqTech>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<Description>TXT_KEY_BUILDING_HERBALIST</Description>
