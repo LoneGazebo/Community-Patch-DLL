@@ -132,6 +132,7 @@ function ProductionSelected( ePurchaseEnum, iData)
 		return;
 	end
     
+	local cityID = city:GetID();
     if g_IsProductionMode then
 		Game.CityPushOrder(city, eOrder, iData, false, not g_append, true);
     else
@@ -142,6 +143,7 @@ function ProductionSelected( ePurchaseEnum, iData)
 		elseif (eOrder == OrderTypes.ORDER_CONSTRUCT) then
 			if (city:IsCanPurchase(true, true, -1, iData, -1, eYield)) then
 				Game.CityPurchaseBuilding(city, iData, eYield);
+				Network.SendUpdateCityCitizens(cityID);
 			end
 		elseif (eOrder == OrderTypes.ORDER_CREATE) then
 			if (city:IsCanPurchase(true, true, -1, -1, iData, eYield)) then
@@ -158,7 +160,6 @@ function ProductionSelected( ePurchaseEnum, iData)
 		end
     end
      
-	local cityID = city:GetID();
 	local player = city:GetOwner();
     Events.SpecificCityInfoDirty( player, cityID, CityUpdateTypes.CITY_UPDATE_TYPE_BANNER);
     Events.SpecificCityInfoDirty( player, cityID, CityUpdateTypes.CITY_UPDATE_TYPE_PRODUCTION);
