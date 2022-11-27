@@ -657,7 +657,7 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 
 	// Pick a Reformation belief?
 	ReligionTypes eOwnedReligion = GET_PLAYER(ePlayer).GetReligions()->GetOwnedReligion();
-	if (!HasAddedReformationBelief(ePlayer) && (kPlayer.GetPlayerPolicies()->HasPolicyGrantingReformationBelief() || kPlayer.IsReformation()))
+	if (eOwnedReligion != NO_RELIGION && !HasAddedReformationBelief(ePlayer) && (kPlayer.GetPlayerPolicies()->HasPolicyGrantingReformationBelief() || kPlayer.IsReformation()))
 	{
 		if (!kPlayer.isHuman())
 		{
