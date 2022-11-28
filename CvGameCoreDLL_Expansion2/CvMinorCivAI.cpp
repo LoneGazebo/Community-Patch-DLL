@@ -1945,8 +1945,13 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes ePlayer = (PlayerTypes) m_iData1;
 		if(ePlayer != NO_PLAYER)
 		{
+			//City-state dead?
+			if (!GET_PLAYER(ePlayer).isAlive())
+			{
+				return true;
+			}
 			//Failed coup?
-			if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsCoupAttempted(m_eAssignedPlayer))
+			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsCoupAttempted(m_eAssignedPlayer))
 			{
 				if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() != m_eAssignedPlayer)
 				{
@@ -1955,7 +1960,7 @@ bool CvMinorCivQuest::IsExpired()
 			}
 			//already Allied?
 			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
-				return true;
+				return true;		
 		}
 	}
 	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
