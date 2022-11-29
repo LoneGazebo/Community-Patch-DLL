@@ -179,7 +179,6 @@ INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Tem
 
 	-- Misc.
 	('UNITCLASS_CARRIER'),
-	('UNITCLASS_HORSE_ARCHER'),
 	('UNITCLASS_ASSYRIAN_SIEGE_TOWER');
 
 DELETE FROM Civilization_UnitClassOverrides WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND UnitClassType IN (SELECT UnitClassType_Temp FROM Civilization_UnitClassOverrides_BarbarianDisabler);
