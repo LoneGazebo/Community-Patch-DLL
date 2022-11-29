@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.0.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.0.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -374,7 +374,7 @@
     <File md5="DE9A75FD5CE8213F3D5968BB67BC50C8" import="0">Balance Changes/AI/AIChanges.sql</File>
     <File md5="428BE02C9CD0A118191C785744145A27" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
     <File md5="804378EBBE972BC6DD2E5628F8AF3412" import="0">Balance Changes/AI/LeaderFlavors.sql</File>
-    <File md5="316C5388572012A1E691F87119D9CA59" import="0">Balance Changes/Barbarians/BarbarianChanges.sql</File>
+    <File md5="03F569FEDDA69FDFC7FD3272FF71A353" import="0">Balance Changes/Barbarians/BarbarianChanges.sql</File>
     <File md5="7F54EF226DCDE5A58E9BAF8A8507178C" import="0">Balance Changes/Beliefs/Founder.sql</File>
     <File md5="709B0AC38D0DEB2004448CE58F10EE12" import="0">Balance Changes/Beliefs/Follower.sql</File>
     <File md5="EE1590B25BD112A096F15E83BB2B88B2" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
@@ -382,7 +382,7 @@
     <File md5="682C86ED22E221135FAE3E1171BFB2C4" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
     <File md5="2262000F062335EADD082ABE4D6E508B" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
     <File md5="5668360CC4AB31ED170EEB203C11B7DD" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
-    <File md5="FFE3D1EB9378F3ECE3EBDEC5E87B6E88" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
+    <File md5="7E50A49C3D23DAABECD76E39EA32179B" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
     <File md5="9C8070EEF372A4E49676E55956D8ABF5" import="0">Balance Changes/Buildings/BuildingCosts.sql</File>
     <File md5="0FA99E402FF6CADC45C93CE8B956DF39" import="0">Balance Changes/Buildings/BuildingHurryCosts.sql</File>
     <File md5="96388B2FDEC5880997515DB189631358" import="0">Balance Changes/Buildings/CityDefense.sql</File>
@@ -391,14 +391,14 @@
     <File md5="F3289EDDB9B5FC3998DA654FA78BA210" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
     <File md5="5CBE1EDBA34460EAB653FDE90FC93D2B" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="7D267EDC0C4869F533CCA6C1BD979595" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
-    <File md5="B9EF0B4F4E8800BA29FD31C8BC8C4246" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
+    <File md5="8197F0E427F78FC6702BA9AE5699FD8E" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
     <File md5="90386682DAACD053DE43D14E6EAF8830" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
     <File md5="3A49000048418FB89481797090566C29" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
     <File md5="838609CC776810E9697E65C46F099F05" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
     <File md5="C81C29DA0AC0C5C3D47CF54433F9208C" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
     <File md5="046A0B4E2F42CE561FE583129AF9B3B2" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
-    <File md5="E8B28259A48B9D7056D34AC44AC06CD3" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
+    <File md5="246C33D74642C39D293D28792CFAD5D7" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
     <File md5="564361D38198E64CED754C80E995A900" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
     <File md5="4C47D2F6D2238E9C01F62640F2165B6B" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
     <File md5="CF93D53D5C4EE5AC2778AEFC3EF9DF6B" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
@@ -433,7 +433,7 @@
     <File md5="E479AB698D8C06EA1A666D7E167003F8" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="D8944A2F896D10166A22308ADC439457" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="BA773E44B4754D14C87A54630E83D7FC" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="28E82AF51CDAFDA150DF57343A1D94EF" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="3EA88310EEAD637E329E0011DAE43A8B" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="BEB1890736FBB69D9AE344C669F8C058" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="E5D1442E0C0B1AF136319C42E15AC43E" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
@@ -531,7 +531,7 @@
     <File md5="34AC93D11F3AEE31F5FE062307A7FC2B" import="1">LUA/NotificationPanel.lua</File>
     <File md5="F19F8CBF1D8F8A6825ECDE6773DF63E3" import="1">LUA/NotificationPanel.xml</File>
     <File md5="C8D1868CF6223141AC122D2B29E2A8C7" import="1">Core Files/CoreLua/PlotMouseoverInclude.lua</File>
-    <File md5="A30793210DE409ED10CF3DA3D4D46B88" import="1">LUA/ProductionPopup.lua</File>
+    <File md5="E4A55299B743305F55BC2F358A7A0191" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
     <File md5="49CEE47DDA12D40411F4ABC5F9323B69" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
     <File md5="78A02F288AEE95FCE909013000674458" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
