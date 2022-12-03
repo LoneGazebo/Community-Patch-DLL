@@ -3004,6 +3004,16 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
+	// Can a sphere of influence be removed from a City-State?
+	bool bAllowSphereRemoval = false;
+	if (MOD_BALANCE_VP && bConquest && isMajorCiv() && GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 1 && getNumCities() > 0 && GET_PLAYER(eOriginalOwner).getTeam() != getTeam())
+	{
+		// If the prerequisites are met, check if a Sphere of Influence from another team is currently active
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague)
+			bAllowSphereRemoval = pLeague->IsSphereOfInfluenceActive(eOldOwner, m_eID);
+	}
+
 	// Kill all immobile units on the city plot that don't belong to the acquirer's team
 	FFastSmallFixedList<IDInfo, 25, true, c_eCiv5GameplayDLL > oldUnits;
 	IDInfo* pUnitNode = pCityPlot->headUnitNode();
@@ -4703,10 +4713,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		// If the city was originally ours, do nothing
 		else if (pNewCity->getOriginalOwner() != m_eID)
 		{
-			// AI decides what to do with a City
-			if (!isHuman())
+			// Merchant of Venice purchase? Automatically puppeted.
+			if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
 			{
-				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift); // Calling this could delete the pointer...
+				pNewCity->DoCreatePuppet();
+			}
+			// AI decides what to do with a City
+			else if (!isHuman())
+			{
+				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
 
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
@@ -4718,26 +4733,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Human decides what to do with a City
 			else
 			{
-				pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 				CvNotifications* pNotify = GetNotifications();
 
-				if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
+				if (GC.getGame().getActivePlayer() == GetID() && pNotify)
 				{
-					pNewCity->DoCreatePuppet();
-				}
-				else if (GC.getGame().getActivePlayer() == GetID() && pNotify)
-				{
+					pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
-					bool bTemp[2] = { bMinorCivBuyout, bConquest };
+					bool bFirstParameter = MOD_BALANCE_VP ? bAllowSphereRemoval : bMinorCivBuyout;
+					bool bTemp[2] = { bFirstParameter, bConquest };
 					pNewCity->setCaptureData(iTemp, bTemp);
 
 					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
 					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
 					pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
-				}
-				else
-				{
-					pNewCity->SetIgnoreCityForHappiness(false);
 				}
 			}
 		}
@@ -9543,6 +9551,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Who originally took out this team?
 	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
 
+	// If the conqueror team is the same as the liberating team, it's a forced liberation
+	if (eConquerorTeam == eTeam)
+		bForced = true;
+
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 	bool bAlive = GET_PLAYER(ePlayer).isAlive();
 
@@ -9856,9 +9868,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		else
 			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
 
-		UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
-		if (eUnit != NO_UNIT)
-			GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+		if (MOD_BALANCE_VP)
+		{
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			if (eUnit != NO_UNIT)
+				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+		}
 	}
 
 	if (!bForced)

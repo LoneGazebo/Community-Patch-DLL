@@ -74,6 +74,13 @@
 			<Text>The City is instantly destroyed. In a One City Challenge, HUMAN players cannot keep captured cities.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_POPUP_REMOVE_SPHERE_CAPTURED_CITY">
+			<Text>Remove Sphere of Influence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_REMOVE_SPHERE">
+			<Text>Removes the Sphere of Influence placed on {1_CivName}. The city will be returned to the City-State, but they will still be angry with you.</Text>
+		</Row>
+
 		<!-- Tourism Bonus Turns for Tooltip -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
 			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
