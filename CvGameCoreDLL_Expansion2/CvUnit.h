@@ -1556,8 +1556,8 @@ public:
 	{
 		return m_eOwner;
 	}
-	PlayerTypes getVisualOwner(TeamTypes eForTeam = NO_TEAM) const;
-	PlayerTypes getCombatOwner(TeamTypes eForTeam, const CvPlot& pPlot) const;
+	PlayerTypes getVisualOwner(TeamTypes eFromPerspectiveOfTeam = NO_TEAM) const;
+	PlayerTypes getCombatOwner(TeamTypes eFromPerspectiveOfTeam, const CvPlot& assumedUnitPlot) const;
 	TeamTypes getTeam() const;
 
 	PlayerTypes GetOriginalOwner() const;
@@ -1754,7 +1754,8 @@ public:
 	int getSubUnitsAlive() const;
 	int getSubUnitsAlive(int iDamage) const;
 
-	bool isEnemy(TeamTypes eTeam, const CvPlot* pPlot = NULL) const;
+	//some units are always hostile, independent of war/peace, but only outside of cities ...
+	bool isEnemy(TeamTypes eFromPerspectiveOfTeam, const CvPlot* pAssumedUnitPlot = NULL) const;
 
 	bool canRangeStrike() const;
 	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, bool bIgnoreVisibility) const;
