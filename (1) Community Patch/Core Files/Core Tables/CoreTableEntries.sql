@@ -1578,6 +1578,7 @@ ALTER TABLE Policies ADD 'LandmarksTourismPercent' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 
 -- Define a modifier for cities to be able to intercept nukes.
+-- Atomic Bombs are completely destroyed, Nuclear Missiles are converted to Atomic Bombs before detonation.
 ALTER TABLE Buildings ADD 'NukeInterceptionChance' INTEGER DEFAULT 0;
 
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia

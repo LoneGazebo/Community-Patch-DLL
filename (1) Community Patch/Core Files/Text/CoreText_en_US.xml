@@ -7826,18 +7826,32 @@
 			<Text>Nuclear Strike!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NUKE_INTERCEPTED">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuke was intercepted by {2_City}!</Text>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_S">
-			<Text>Nuclear Interception!</Text>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S">
+			<Text>Atomic Bomb Interception!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US">
-			<Text>Defenses in {2_City} intercepted our Nuke, destroying it!</Text>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US">
+			<Text>Defenses in {2_City} intercepted our Atomic Bomb, destroying it!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NUKE_INTERCEPTED_US_S">
-			<Text>Nuclear Attack Intercepted!</Text>
+		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US_S">
+			<Text>Atomic Bomb Intercepted!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED">
+			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S">
+			<Text>Nuke Partial Interception!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US">
+			<Text>Defenses in {2_City} partially intercepted our Nuclear Missile, reducing its damage done!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US_S">
+			<Text>Nuke Partially Intercepted!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_CITY_FATE">

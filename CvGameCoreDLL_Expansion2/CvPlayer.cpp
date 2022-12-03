@@ -2777,7 +2777,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	}
 
 	// To counteract the human first move advantage, try to place one of the AI's defense units on top of their civilians
-	if (MOD_BALANCE_VP && bCombat && bGameStart && !isHuman())
+	if (MOD_BALANCE_VP && bCombat && pkUnitInfo->GetDomainType() == DOMAIN_LAND && bGameStart && !isHuman())
 	{
 		// Check if the starting plot is undefended
 		bool bNoDefender = true;
