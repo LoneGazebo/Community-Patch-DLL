@@ -295,7 +295,7 @@ SET Text = 'Communism'
 WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Communism[ENDCOLOR]: [ICON_GOLD] Gold cost of purchasing buildings reduced by 25%. +20% [ICON_PRODUCTION] Production when building Wonders.'
+SET Text = '[COLOR_POSITIVE_TEXT]Communism[ENDCOLOR]: [ICON_GOLD] Gold cost of investing in buildings reduced by 25%. +20% [ICON_PRODUCTION] Production when building Wonders.'
 WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_HELP';
 
 UPDATE Language_en_US

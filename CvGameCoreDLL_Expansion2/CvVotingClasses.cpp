@@ -5500,6 +5500,48 @@ int CvLeague::GetTourismMod()
 	}
 	return iMod;
 }
+bool CvLeague::IsSphereOfInfluenceActive(PlayerTypes eTargetMinor, PlayerTypes eNotThisMajor)
+{
+	if (eTargetMinor == NO_PLAYER || !GET_PLAYER(eTargetMinor).isMinorCiv() || !GET_PLAYER(eTargetMinor).isAlive())
+		return false;
+
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	{
+		if (it->GetEffects()->bSphereOfInfluence)
+		{
+			PlayerTypes eSphereMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			if (eSphereMinor == eTargetMinor)
+			{
+				PlayerTypes eAlly = GET_PLAYER(eTargetMinor).GetMinorCivAI()->GetPermanentAlly();
+				if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).isAlive() && GET_PLAYER(eAlly).isMajorCiv())
+				{
+					if (eNotThisMajor == NO_PLAYER || GET_PLAYER(eNotThisMajor).getTeam() != GET_PLAYER(eAlly).getTeam())
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool CvLeague::IsOpenDoorActive(PlayerTypes eTargetMinor)
+{
+	if (eTargetMinor == NO_PLAYER || !GET_PLAYER(eTargetMinor).isMinorCiv() || !GET_PLAYER(eTargetMinor).isAlive())
+		return false;
+
+	for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); ++it)
+	{
+		if (it->GetEffects()->bOpenDoor)
+		{
+			PlayerTypes eOpenMinor = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+			if (eOpenMinor == eTargetMinor)
+				return true;
+		}
+	}
+
+	return false;
+}
 void CvLeague::DoEnactResolutionPublic(CvEnactProposal* pProposal)
 {
 	DoEnactResolution(pProposal);

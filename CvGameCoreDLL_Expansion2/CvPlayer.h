@@ -2799,7 +2799,7 @@ public:
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
 
 #if defined(MOD_BALANCE_CORE_EVENTS)

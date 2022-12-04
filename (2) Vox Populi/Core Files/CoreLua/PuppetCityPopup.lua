@@ -8,7 +8,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 	local iCaptureCulture		= popupInfo.Data3;
 	local iCaptureGreatWorks    = popupInfo.Data4;
 	local iLiberatedPlayer		= popupInfo.Data5;
-	local bMinorCivBuyout		= popupInfo.Option1;
+	local bAllowSphereRemoval	= popupInfo.Option1;
 	local bConquest				= popupInfo.Option2;
 	
 	local activePlayer	= Players[Game.GetActivePlayer()];
@@ -63,7 +63,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		if (not activePlayer:MayNotAnnex()) then
 			local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_ANNEX_CITY");
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX");
-			if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
+			if (bConquest) then
 				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 				strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
 			end
@@ -77,7 +77,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		
 		buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_PUPPET_CAPTURED_CITY");
 		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET");
-		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
+		if (bConquest) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
 		end
@@ -102,11 +102,26 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_DESTROY");
 		end
 
-		if (newCity:GetOriginalOwner() ~= Game.GetActivePlayer() and bConquest == true) then
+		if (bConquest) then
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
 		end
 		AddButton(buttonText, OnRazeClicked, strToolTip);
+	end
+
+	if (bAllowSphereRemoval) then
+		-- Remove Sphere of Influence
+		local OnSphereClicked = function()
+			Network.SendLiberateMinor(iPreviousOwner, cityID);
+		end
+
+		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_REMOVE_SPHERE_CAPTURED_CITY");
+		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_REMOVE_SPHERE", Players[iPreviousOwner]:GetNameKey());
+		if (bConquest) then
+			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
+			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
+		end
+		AddButton(buttonText, OnSphereClicked, strToolTip);
 	end
 
 	-- CITY SCREEN CLOSED - Don't look, Marc

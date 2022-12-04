@@ -371,7 +371,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PTP_SAME_MINOR_MIN', '-
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PTP_SAME_MINOR_EACH', '-3'; -- opinion bonus per mutual PtP
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_PTP_SAME_MINOR_DIPLOMAT_MULTIPLIER', '200'; -- diplomat AIs double the amount of mutual PtPs for this calculation if you aren't a "City-State troublemaker" to them
 
--- You have killed City-States under their protection!
+-- You have conquered City-States under their protection!
 UPDATE Defines SET Value = '40' WHERE Name = 'OPINION_WEIGHT_KILLED_PROTECTED_MINOR';
 UPDATE Defines SET Value = '20' WHERE Name = 'OPINION_WEIGHT_KILLED_MANY_PROTECTED_MINORS'; -- killed more than one
 
