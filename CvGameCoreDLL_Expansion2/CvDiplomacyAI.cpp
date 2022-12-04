@@ -26924,7 +26924,7 @@ bool CvDiplomacyAI::DeclareWar(PlayerTypes ePlayer)
 	CvTeam& kMyTeam = GET_TEAM(GetTeam());
 	TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
-	if (!GET_TEAM(GetTeam()).canDeclareWar(eTheirTeam, GetID()))
+	if (!kMyTeam.canDeclareWar(eTheirTeam, GetID()))
 		return false;
 
 	// Only do it if we are not already at war.
