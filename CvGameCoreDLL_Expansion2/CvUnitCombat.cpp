@@ -2512,7 +2512,6 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setUnit(BATTLE_UNIT_DEFENDER, NULL);
 	pkCombatInfo->setPlot(&plot);
 
-#if defined(MOD_EVENTS_BATTLES)
 	if (plot.isCity())
 	{
 		BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
@@ -2525,32 +2524,40 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 
 	// Any interception to be done?
 	CvCity* pInterceptionCity = plot.GetNukeInterceptor(kAttacker.getOwner());
-	int iInterceptionDamage = 0;
+	bool bInterceptionSuccess = false, bPartialInterception = false;
+	CvPlot* pInterceptionCityPlot = NULL;
 
 	if (pInterceptionCity != NULL)
 	{
-		BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
-		pkCombatInfo->setCity(BATTLE_UNIT_DEFENDER, pInterceptionCity);
+		pInterceptionCityPlot = pInterceptionCity->plot();
+		if (pInterceptionCityPlot)
+		{
+			BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
+			pkCombatInfo->setCity(BATTLE_UNIT_DEFENDER, pInterceptionCity);
 
-		// Does the attacker evade?
-		if (GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex() + kAttacker.GetID()) <= pInterceptionCity->getNukeInterceptionChance())
-		{
-			iInterceptionDamage = kAttacker.GetCurrHitPoints();
-		}
-		if (iInterceptionDamage > 0)
-		{
-			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, iInterceptionDamage);		// Damage inflicted this round
-			kAttacker.kill(true, pInterceptionCity->getOwner());
+			if (GC.getGame().getSmallFakeRandNum(100, plot.GetPlotIndex() + kAttacker.GetID()) <= pInterceptionCity->getNukeInterceptionChance())
+			{
+				bInterceptionSuccess = true;
+			}
+			if (bInterceptionSuccess)
+			{
+				if (kAttacker.GetNukeDamageLevel() == 1) // Atomic Bombs are destroyed outright
+				{
+					pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, kAttacker.GetCurrHitPoints());
+					kAttacker.kill(true, pInterceptionCity->getOwner());
+				}
+				else // Nuclear Missiles are converted to Atomic Bombs
+				{
+					bPartialInterception = true;
+				}
+			}
 		}
 	}
-#endif
 
 	//////////////////////////////////////////////////////////////////////
 
-	CvString strBuffer;
 	bool abTeamsAffected[MAX_TEAMS];
-	int iI = 0;
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		abTeamsAffected[iI] = kAttacker.isNukeVictim(&plot, ((TeamTypes)iI));
 	}
@@ -2559,13 +2566,13 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	bool bWar = false;
 	bool bBystander = false;
 
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
-		if(abTeamsAffected[iI])
+		if (abTeamsAffected[iI])
 		{
 			if (!kAttacker.isEnemy((TeamTypes)iI))
 			{
-				if(GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
+				if (GET_TEAM((TeamTypes)iI).IsVassalOfSomeone())
 				{
 					GET_PLAYER((PlayerTypes)kAttacker.getOwner()).GetDiplomacyAI()->DeclareWar(GET_TEAM((TeamTypes)iI).GetMaster());
 				}
@@ -2586,28 +2593,27 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		}
 	}
 
-#if defined(MOD_EVENTS_NUCLEAR_DETONATION)
-	if (MOD_EVENTS_NUCLEAR_DETONATION) {
+	if (MOD_EVENTS_NUCLEAR_DETONATION) 
+	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_NuclearDetonation, kAttacker.getOwner(), plot.getX(), plot.getY(), bWar, bBystander);
-	} else {
-#endif
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem) 
-	{	
-		CvLuaArgsHandle args;
+	} 
+	else
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{	
+			CvLuaArgsHandle args;
 
-		args->Push(kAttacker.getOwner());
-		args->Push(plot.getX());
-		args->Push(plot.getY());
-		args->Push(bWar);
-		args->Push(bBystander);
+			args->Push(kAttacker.getOwner());
+			args->Push(plot.getX());
+			args->Push(plot.getY());
+			args->Push(bWar);
+			args->Push(bBystander);
 
-		bool bResult = false;
-		LuaSupport::CallHook(pkScriptSystem, "NuclearDetonation", args.get(), bResult);
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "NuclearDetonation", args.get(), bResult);
+		}
 	}
-#if defined(MOD_EVENTS_NUCLEAR_DETONATION)
-	}
-#endif
 
 	kAttacker.setReconPlot(&plot);
 
@@ -2630,53 +2636,74 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 	pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner());
 	pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, false);
 
-	if (iInterceptionDamage > 0)
+	if (bInterceptionSuccess)
 	{
-		if (pInterceptionCity != NULL)
+		// Send out notifications to the world
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 		{
-			if (GET_PLAYER(pInterceptionCity->getOwner()).isMajorCiv() && GET_PLAYER(kAttacker.getOwner()).isMajorCiv())
-				GET_PLAYER(pInterceptionCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(kAttacker.getOwner(), 1);
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-			CvPlot* pInterceptionCityPlot = pInterceptionCity->plot();
-
-			// Send out notifications to the world
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+			if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
 			{
-				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-				if (GET_PLAYER(eLoopPlayer).isObserver() || (GET_PLAYER(eLoopPlayer).isHuman() && GET_PLAYER(eLoopPlayer).isAlive()))
+				if (!GET_PLAYER(eLoopPlayer).isObserver())
 				{
-					if (!GET_PLAYER(eLoopPlayer).isObserver())
-					{
-						if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pInterceptionCity->getOwner()).getTeam()))
-							continue;
+					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(pInterceptionCity->getOwner()).getTeam()))
+						continue;
 
-						if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(kAttacker.getOwner()).getTeam()))
-							continue;
-					}
+					if (!GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isHasMet(GET_PLAYER(kAttacker.getOwner()).getTeam()))
+						continue;
+				}
 
-					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
-					if (pNotifications)
+				CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+				if (pNotifications)
+				{
+					if (!bPartialInterception)
 					{
 						if (eLoopPlayer == kAttacker.getOwner())
 						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US_S");
-							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_US");
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED_US");
 							strBuffer << pInterceptionCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
 						}
 						else if (GET_PLAYER(eLoopPlayer).isObserver() || pInterceptionCityPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
 						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
-							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED");
 							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationAdjectiveKey();
 							strBuffer << pInterceptionCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
 						}
 						else
 						{
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED_S");
-							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUKE_INTERCEPTED");
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_ATOMIC_BOMB_INTERCEPTED");
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());							
+						}
+					}
+					else
+					{
+						if (eLoopPlayer == kAttacker.getOwner())
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_US");
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+						}
+						else if (GET_PLAYER(eLoopPlayer).isObserver() || pInterceptionCityPlot->isRevealed(GET_PLAYER(eLoopPlayer).getTeam()))
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED");
+							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationAdjectiveKey();
+							strBuffer << pInterceptionCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), pInterceptionCity->getX(), pInterceptionCity->getY(), (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());
+						}
+						else
+						{
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S");
+							Localization::String strBuffer = Localization::Lookup("TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED");
 							strBuffer << GET_PLAYER(kAttacker.getOwner()).getCivilizationShortDescription();
 							strBuffer << pInterceptionCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_UNIT_DIED, strBuffer.toUTF8(), strSummary.toUTF8(), -1, -1, (int)kAttacker.getUnitType(), pInterceptionCity->getOwner());							
@@ -2685,16 +2712,25 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 				}
 			}
 		}
-		return;
+
+		// If completely intercepted, apply diplomacy penalty and end here.
+		if (!bPartialInterception)
+		{
+			if (GET_PLAYER(pInterceptionCity->getOwner()).isMajorCiv() && GET_PLAYER(kAttacker.getOwner()).isMajorCiv())
+				GET_PLAYER(pInterceptionCity->getOwner()).GetDiplomacyAI()->ChangeNumTimesNuked(kAttacker.getOwner(), 1);
+
+			return;
+		}
 	}
 
+	int iNukeDamageLevel = bPartialInterception ? 1 : kAttacker.GetNukeDamageLevel();
 	pkCombatInfo->setAttackIsBombingMission(true);
 	pkCombatInfo->setDefenderRetaliates(false);
-	pkCombatInfo->setAttackNuclearLevel(kAttacker.GetNukeDamageLevel() + 1);
+	pkCombatInfo->setAttackNuclearLevel(iNukeDamageLevel + 1);
 
 	// Set all of the units in the blast radius to defenders and calculate their damage
 	int iDamageMembers = 0;
-	GenerateNuclearExplosionDamage(&plot, kAttacker.GetNukeDamageLevel(), &kAttacker, pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount());
+	GenerateNuclearExplosionDamage(&plot, iNukeDamageLevel, &kAttacker, pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount());
 	pkCombatInfo->setDamageMemberCount(iDamageMembers);
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);

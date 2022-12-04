@@ -1040,7 +1040,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_DIFFERENT_LATE_POLICY_TREES';
 
 -- Protected Minors
 UPDATE Language_en_US
-SET Text = 'You have killed City-States under their protection!'
+SET Text = 'You have conquered City-States under their protection!'
 WHERE Tag = 'TXT_KEY_DIPLO_PROTECTED_MINORS_KILLED';
 
 UPDATE Language_en_US

@@ -660,6 +660,8 @@ public:
 	bool IsCityStateEmbargo();
 	bool IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 	int GetTourismMod();
+	bool IsSphereOfInfluenceActive(PlayerTypes eTargetMinor, PlayerTypes eNotThisMajor);
+	bool IsOpenDoorActive(PlayerTypes eTargetMinor);
 
 	void DoEnactResolutionPublic(CvEnactProposal* pProposal);
 	void DoRepealResolutionPublic(CvRepealProposal* pProposal);
