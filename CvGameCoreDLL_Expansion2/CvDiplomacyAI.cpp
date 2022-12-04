@@ -26985,51 +26985,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 		if (GET_PLAYER(ePlayer).getTeam() != eTeam)
 			continue;
 
-		CvTeam& kMyTeam = GET_TEAM(GetTeam());
-		TeamTypes eTheirTeam = eTeam;
-
-		if (!kMyTeam.canDeclareWar(eTheirTeam, GetID()))
-			return false;
-
-		// Only do it if we are not already at war.
-		if (!kMyTeam.isAtWar(eTheirTeam))
-		{
-			kMyTeam.declareWar(eTheirTeam, false, GetID());
-			m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
-
-			// Show scene to human
-			if (!GC.getGame().IsAllDiploStatementsDisabled())
-			{
-#if defined(MOD_ACTIVE_DIPLOMACY)
-				if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
-				{
-					// JdH: deciding whether to send a notification or pop up directly is done in SendRequest
-					if (CvPreGame::isHuman(ePlayer))
-					{
-						const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-						CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
-					}
-				}
-				else
-				{
-					if (!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
-					{
-						const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-						gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
-					}
-				}
-#else
-				if (!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == ePlayer)
-				{
-					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOW_ROOT, ePlayer);
-					gDLL->GameplayDiplomacyAILeaderMessage(GetID(), DIPLO_UI_STATE_AI_DECLARED_WAR, strText, LEADERHEAD_ANIM_DECLARE_WAR);
-				}
-#endif
-			}
-
-			LogWarDeclaration(ePlayer);
-			return true;
-		}
+		DeclareWar(ePlayer);
 	}
 	return false;
 }
