@@ -8,10 +8,11 @@
 			<Box Style="PopupLeftSideTreatment"/>
 			<Box Style="PopupRightSideTreatment"/>
 			<Box Style="PopupNotificationTopTreatment"/>
-			
+
 			<Label ID="Message" Anchor="C,T"  Offset="0,112"  WrapWidth="440" String="TXT_KEY_UPDATING_GAME_DATA" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  />
-			<!-- Vox Populi Tips --> 
-			<Label ID="Tips" Anchor="C,T"  Offset= "0,160" WrapWidth="440" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT16" FontStyle="Shadow"/>
+			<!-- Vox Populi Tips -->
+			<Label ID="Title" Anchor="C,T"  Offset= "0,156" WrapWidth="240" Font="TwCenMT14" FontStyle="Shadow"/>
+			<Label ID="Tips" Anchor="C,T"  Offset= "0,180" WrapWidth="360" Font="TwCenMT16" FontStyle="Shadow"/>
         </Grid>
     </Box>
 </Context>

@@ -58,7 +58,8 @@ function( isHide, isInit )
 				local trait = GameInfo.Traits[ GameInfo.Leader_Traits{ LeaderType = leader.Type }().TraitType ];
 				Controls.BonusTitle:LocalizeAndSetText( trait.ShortDescription );
 				Controls.BonusDescription:LocalizeAndSetText( trait.Description );
-				Controls.Tips:SetText("Tip: "..getVPTip())
+				Controls.Title:SetText(VPTipTitle()) -- Vox Populi tip title
+				Controls.Tips:SetText(VPTipText()) -- Vox Populi tip content
 				-- Sets Bonus Icons
 				InitializePopulateUniques();
 				Controls.SubStack:DestroyAllChildren();
