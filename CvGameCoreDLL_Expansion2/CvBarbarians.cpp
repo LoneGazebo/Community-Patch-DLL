@@ -125,6 +125,9 @@ void CvBarbarians::DoBarbSpawnerAttacked(CvPlot* pPlot)
 
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 {
+	if (!pPlot)
+		return false;
+
 	if (GC.getGame().getElapsedGameTurns() < /*10*/ GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN_FROM_SPAWNER))
 		return false;
 
@@ -136,6 +139,9 @@ bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 
 bool CvBarbarians::ShouldSpawnBarbFromCity(CvPlot* pPlot)
 {
+	if (!pPlot)
+		return false;
+
 	if (GC.getGame().getElapsedGameTurns() < /*10*/ GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN_FROM_SPAWNER))
 		return false;
 

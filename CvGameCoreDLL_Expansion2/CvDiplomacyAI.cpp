@@ -26985,7 +26985,7 @@ bool CvDiplomacyAI::DeclareWar(TeamTypes eTeam)
 		if (GET_PLAYER(ePlayer).getTeam() != eTeam)
 			continue;
 
-		DeclareWar(ePlayer);
+		return DeclareWar(ePlayer);
 	}
 	return false;
 }
