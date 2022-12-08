@@ -2192,16 +2192,18 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 	ResourceTypes thisResource = getResourceType( ePlayer!=NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM );
 	// The functionality of this line is different in Civ 4: in that game a "Valid" Resource ALLOWS an Improvement on a Tile.  In Civ 5 this makes a Resource REQUIRE a certain Improvement
-	if(thisResource != NO_RESOURCE &&
-	        !pkImprovementInfo->IsBuildableOnResources() &&	// Some improvements can be built anywhere
-	        !pkImprovementInfo->IsImprovementResourceMakesValid(thisResource))
+	if(thisResource != NO_RESOURCE)
 	{
-		return false;
-	}
-	// If there IS a valid resource here then set validity to true (because something has to)
-	else if(thisResource != NO_RESOURCE)
-	{
-		bValid = true;
+		// If there IS a valid resource here then set validity to true
+		if(pkImprovementInfo->IsImprovementResourceMakesValid(thisResource))
+		{
+			bValid = true;
+		}
+		// Some improvements can ignore resource requirements, but otherwise not satisfying the requirements is an automatic fail
+		else if (!pkImprovementInfo->IsBuildableOnResources())
+		{
+			return false;
+		}
 	}
 
 	if(pkImprovementInfo->IsNoFreshWater() && isFreshWater())
