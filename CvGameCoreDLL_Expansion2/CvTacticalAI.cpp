@@ -4791,6 +4791,9 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				case UNITAI_DEFENSE:
 					iExtraScore += 20;
 					break;
+				default:
+					//nothing
+					break;
 				}
 
 				if (pLoopUnit->canFortify(pTarget))
