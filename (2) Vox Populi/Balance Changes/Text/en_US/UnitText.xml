@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- This file contains text for NEW Promotions, Units, etc. that did not exist in BRAVE NEW WORLD -->
 <GameData>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_GREAT_DIPLOMAT</Type>
+			<Topic>TXT_KEY_CONCEPT_GREAT_DIPLOMAT_TOPIC</Topic>
+			<Description>TXT_KEY_CONCEPT_GREAT_DIPLOMAT_DESCRIPTION</Description>
+			<Summary>TXT_KEY_CONCEPT_GREAT_DIPLOMAT_SUMMARY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_GREAT_DIPLOMAT_QUEST</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_PEOPLE</CivilopediaHeaderType>
+			<InsertAfter>CONCEPT_GREAT_ADMIRAL</InsertAfter>
+		</Row>
+	</Concepts>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_TOPIC">
+			<Text>[COLOR_GREEN]Great Diplomat[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_SUMMARY">
+			<Text>[COLOR_CYAN]Special Ability: Establish Embassy[ENDCOLOR][NEWLINE]You can move a Great Diplomat to a City-State and construct an Embassy on a land tile. This is only possible if no other Embassy has already been established in the City-State. Each Embassy gives 1 additional vote in the World Congress. Establishing an Embassy consumes the Great Diplomat.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Conduct Diplomatic Mission[ENDCOLOR][NEWLINE]You can use a Great Diplomat in the territory of a City-State to conduct a Diplomatic Mission. You will get a large amount of influence with the City-State, and the influence of all other civilizations will decrease by the same amount. In addition, you will permanently get 1 Paper. This action consumes the Great Diplomat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_GREAT_DIPLOMAT_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_QUEST">
+			<Text>What are Great Diplomats?</Text>
+		</Row>
 <!-- Barbarian Promotions -->
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
 			<Text>Marsh Walkers</Text>

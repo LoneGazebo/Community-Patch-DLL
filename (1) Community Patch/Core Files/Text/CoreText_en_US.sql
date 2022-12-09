@@ -663,7 +663,7 @@ SET Text = 'A city''s owner may "garrison" a military unit inside the city to bo
 WHERE Tag = 'TXT_KEY_COMBAT_GARRISONINCITIES_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_YELLOW]Fort[ENDCOLOR]'
+SET Text = '[COLOR_YELLOW]Forts[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_COMBAT_FORT_HEADING3_TITLE';
 
 UPDATE Language_en_US
