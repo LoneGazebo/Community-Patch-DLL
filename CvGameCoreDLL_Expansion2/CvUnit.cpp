@@ -17738,18 +17738,18 @@ int CvUnit::defenseXPValue() const
 int CvUnit::maxXPValue() const
 {
 	VALIDATE_OBJECT
-	int iMaxValue = INT_MAX;
+	int iMaxValue = -1; // negative values mean no XP limit
 
 	if (isBarbarian())
 	{
 		iMaxValue = std::min(iMaxValue, /*30 in CP, 45 in VP*/ GD_INT_GET(BARBARIAN_MAX_XP_VALUE));
 	}
-	if (GET_PLAYER(getOwner()).isMinorCiv() && /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE) != -1)
+	if (GET_PLAYER(getOwner()).isMinorCiv())
 	{
-		iMaxValue = std::min(iMaxValue, GD_INT_GET(MINOR_MAX_XP_VALUE));
+		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (MOD_BALANCE_CORE_SCALING_XP)
+	if (MOD_BALANCE_CORE_SCALING_XP && iMaxValue > 0)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iMaxValue /= 100;
@@ -21357,7 +21357,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
 	VALIDATE_OBJECT
 
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
-	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
+	long long lMaxTimes100 = (iMax < 0) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long) INT_MAX)) ? INT_MAX : (int) lMaxTimes100;
 	
 	if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < iMaxTimes100))
@@ -21425,7 +21425,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 	}
 
 	// Checking limits.h for the values of MAX_INT and MAX_LONG they are the same, so we need to use "long long" and hence MAX_LLONG
-	long long lMaxTimes100 = (iMax == -1) ? INT_MAX : (iMax * 100LL);
+	long long lMaxTimes100 = (iMax < 0) ? INT_MAX : (iMax * 100LL);
 	int iMaxTimes100 = (lMaxTimes100 > ((long long)INT_MAX)) ? INT_MAX : (int)lMaxTimes100;
 	
 	int iUnitExperienceTimes100 = iChangeTimes100;

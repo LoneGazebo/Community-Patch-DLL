@@ -7689,18 +7689,18 @@ void CvCity::ChangeEventHappiness(int iValue)
 int CvCity::maxXPValue() const
 {
 	VALIDATE_OBJECT
-	int iMaxValue = INT_MAX;
+	int iMaxValue = -1;
 
 	if (isBarbarian())
 	{
 		iMaxValue = std::min(iMaxValue, /*30 in CP, 45 in VP*/ GD_INT_GET(BARBARIAN_MAX_XP_VALUE));
 	}
-	if (GET_PLAYER(getOwner()).isMinorCiv() && /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE) != -1)
+	if (GET_PLAYER(getOwner()).isMinorCiv())
 	{
-		iMaxValue = std::min(iMaxValue, GD_INT_GET(MINOR_MAX_XP_VALUE));
+		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (MOD_BALANCE_CORE_SCALING_XP)
+	if (MOD_BALANCE_CORE_SCALING_XP && iMaxValue > 0)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iMaxValue /= 100;
