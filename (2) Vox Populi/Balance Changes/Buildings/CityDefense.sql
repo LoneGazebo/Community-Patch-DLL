@@ -104,6 +104,10 @@ WHERE Type = 'BUILDING_FORTRESS';
 
 UPDATE Buildings
 SET HealRateChange = '5'
+WHERE Type = 'BUILDING_KREPOST';
+
+UPDATE Buildings
+SET HealRateChange = '5'
 WHERE Type = 'BUILDING_ARSENAL';
 
 UPDATE Buildings
@@ -113,4 +117,3 @@ WHERE Type = 'BUILDING_MILITARY_BASE';
 UPDATE Buildings
 SET CityAirStrikeDefense = '5'
 WHERE Type = 'BUILDING_MILITARY_BASE';
-
