@@ -1537,7 +1537,7 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	end
 
 	-- Base Yield from Pop in Empire
-	local iYieldPerPopInEmpire = pCity:GetYieldPerPopTimes100(iYieldType);
+	local iYieldPerPopInEmpire = pCity:GetYieldPerPopInEmpireTimes100(iYieldType);
 	if (iYieldPerPopInEmpire ~= 0) then
 		local iYieldFromPopInEmpire = iYieldPerPopInEmpire * Players[pCity:GetOwner()]:GetTotalPopulation();
 		iYieldFromPopInEmpire = iYieldFromPopInEmpire / 100;
