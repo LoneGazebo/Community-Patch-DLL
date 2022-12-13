@@ -95,7 +95,7 @@ const char* AbortReasonString(AIOperationAbortReason eReason);
 
 struct OperationSlot
 {
-	explicit OperationSlot(int opId=-1, int armyId=-1, int slotId=-1)
+	OperationSlot(int opId=-1, int armyId=-1, int slotId=-1)
 	{
 		m_iOperationID = opId;
 		m_iArmyID = armyId;

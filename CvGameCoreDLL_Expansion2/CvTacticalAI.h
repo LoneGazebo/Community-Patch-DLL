@@ -538,11 +538,12 @@ struct STacticalAssignment
 	int iSelfDamage; //only relevant for melee ...
 
 	//convenience constructor
-	explicit STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnitID_ = 0, int iRemainingMoves_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE, int iScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
+	STacticalAssignment(int iFromPlot = 0, int iToPlot = 0, int iUnitID_ = 0, int iRemainingMoves_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE, int iScore_ = 0, eUnitAssignmentType eType_ = A_FINISH) :
 		iFromPlotIndex(iFromPlot), iToPlotIndex(iToPlot), iUnitID(iUnitID_), iRemainingMoves(iRemainingMoves_), eMoveType(eMoveType_), iScore(iScore_), eAssignmentType(eType_), iDamage(0), iSelfDamage(0) {}
 
 	//sort descending
-	bool operator<(const STacticalAssignment& rhs) { return iScore>rhs.iScore; }
+	bool operator<(const STacticalAssignment& rhs) const { return iScore>rhs.iScore; }
+	bool operator==(const STacticalAssignment& rhs) const;
 };
 
 struct STacticalUnit
@@ -551,18 +552,7 @@ struct STacticalUnit
 	eUnitMovementStrategy eMoveType;
 
 	//convenience constructor
-	explicit STacticalUnit(int iUnitID_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE) : iUnitID(iUnitID_), eMoveType(eMoveType_) {}
-};
-
-struct SAssignmentSummary
-{
-	vector<pair<int,int>> attackedPlots; //plot and damage done 
-	vector<pair<int,int>> unitPlots; //unitid and plot
-
-	bool operator==(const SAssignmentSummary& rhs) const { return attackedPlots == rhs.attackedPlots && unitPlots == rhs.unitPlots; }
-	void clear() { attackedPlots.clear(); unitPlots.clear(); }
-	void addAttack(int iPlotIndex, int iDamage);
-	void setUnitPlot(int iUnitId, int iPlotIndex);
+	STacticalUnit(int iUnitID_ = 0, eUnitMovementStrategy eMoveType_ = MS_NONE) : iUnitID(iUnitID_), eMoveType(eMoveType_) {}
 };
 
 struct SUnitStats
@@ -825,27 +815,25 @@ protected:
 	eAggressionLevel eAggression;
 	unsigned char nOurUnits; //movable units included in sim. only valid for root position.
 	unsigned char nEnemies; //enemy units and cities. ignoring garrisons. not updated after sim-kills!
+	unsigned char nFirstInterestingAssignment; //in case we want to skip INITIALs and BLOCKEDs
 	CvPlot* pTargetPlot;
 
-	//just for debugging, should be unique
+	//should be unique
+	size_t iGeneration;
 	unsigned long long iID;
 
 	//dummy to avoid returning temporaries
 	CvTacticalPlot dummyPlot;
 
-	//for avoiding duplicates
-	SAssignmentSummary summary;
-
 	//------------
 	const ReachablePlots& getReachablePlotsForUnit(const SUnitStats& unit) const;
 	const vector<int>& getRangeAttackPlotsForUnit(const SUnitStats& unit) const;
 	void getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const;
-	CvTacticalPosition* addChild(CvTactPosStorage& storage);
+	size_t addChild(CvTacticalPosition* pChild);
 	bool removeChild(CvTacticalPosition* pChild);
 	bool isMoveBlockedByOtherUnit(const STacticalAssignment& move) const;
 	void getPlotsWithChangedVisibility(const STacticalAssignment& assignment, vector<int>& madeVisible) const;
 	void updateMoveAndAttackPlotsForUnit(SUnitStats unit);
-	const SAssignmentSummary& updateSummary(const STacticalAssignment& newAssignment);
 	vector<CvTacticalPlot>::iterator findTactPlot(int iPlotIndex);
 	vector<CvTacticalPlot>::const_iterator findTactPlot(int iPlotIndex) const;
 
@@ -858,6 +846,37 @@ protected:
 	};
 
 public:
+	struct PrPositionSortHeapGeneration
+	{
+		//this is quite tricky. initially we want to explore all sorts of moves, so go breadth-first
+		//later on we want to finish the most promising positions quickly, so go depth-first
+		bool bDepthFirst;
+
+		PrPositionSortHeapGeneration(bool depthFirst) : bDepthFirst(depthFirst) {}
+
+		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
+		{
+			//tiebreaker
+			if (lhs->getGeneration() == rhs->getGeneration())
+				return lhs->getScoreLastRound() < rhs->getScoreLastRound();
+
+			//we will pop the *last* element from the heap later
+			if (bDepthFirst)
+				return lhs->getGeneration() < rhs->getGeneration();
+			else
+				return lhs->getGeneration() > rhs->getGeneration();
+		}
+	};
+
+	struct PrPositionSortArrayTotalScore
+	{
+		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
+		{
+			//regular descending sort. only makes sense for "completed" positions!
+			return lhs->getScoreTotal() > rhs->getScoreTotal();
+		}
+	};
+
 	CvTacticalPosition();
 
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
@@ -871,11 +890,13 @@ public:
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
-	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage);
+	bool makeNextAssignments(int iMaxBranches, int iMaxChoicesPerUnit, CvTactPosStorage& storage, 
+		vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort);
 	void updateMovePlotsIfRequired();
 	bool findTactPlotRecursive(int iPlotIndex) const;
 	bool addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
+	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
 	vector<STacticalUnit> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
@@ -888,18 +909,21 @@ public:
 	STacticalAssignment* getLatestAssignmentMutable(int iUnitID);
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
-	bool isEquivalent(const CvTacticalPosition& rhs) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);
+	bool isUnique(int levelsToCheck=2) const;
+	void setFirstInterestingAssignment(size_t i);
+	size_t getFirstInterestingAssignment() const;
 
 	const CvTacticalPlot& getTactPlot(int plotindex) const; //get a reference to a local tact plot or higher up in the tree if we didn't modify it
 	CvTacticalPlot& getTactPlotMutable(int plotindex); //this is dangerous! the reference returned by one call may become invalid when calling this a second time
 	void cacheAllTactPlotsLocally();
+	int getGeneration() const { return iGeneration; }
 
 	CvPlot* getTarget() const { return pTargetPlot; }
 	eAggressionLevel getAggressionLevel() const { return eAggression; }
 	PlayerTypes getPlayer() const { return ePlayer; }
-	int getScore() const { return iTotalScore; }
-	int getHeapScore() const { return iScoreOverParent + iTotalScore/12; } //use total score mainly as tiebreaker
+	int getScoreTotal() const { return iTotalScore; }
+	int getScoreLastRound() const { return iScoreOverParent; }
 
 	const CvTacticalPosition* getParent() const { return parentPosition; }
 	const vector<CvTacticalPosition*>& getChildren() const { return childPositions; }
@@ -916,6 +940,8 @@ public:
 	void dumpPlotStatus(const char* filename) const;
 	void exportToDotFile(const char* filename) const;
 	void dumpChildren(ofstream& out) const;
+
+	friend const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition* ref, const CvTacticalPosition* other);
 };
 
 class CvTactPosStorage
@@ -925,7 +951,8 @@ public:
 	~CvTactPosStorage() { delete[] aPositions; }
 	void reset() { iCount = 0; attackCache.clear(); }
 	int getSizeLimit() const { return iSize; }
-	CvTacticalPosition* getNext() {	return (iCount < iSize) ? aPositions + iCount++ : NULL;	}
+	CvTacticalPosition* peekNext() {	return (iCount < iSize) ? aPositions + iCount : NULL;	}
+	int consumeOne() { return iCount++; }
 	CAttackCache& getCache() { return attackCache; }
 
 protected:

@@ -119,7 +119,7 @@ void CvDistanceMapWrapper::SetDirty()
 	m_bDirty = true;
 }
 
-int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
+int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer)
 {
 	if (IsDirty())
 		Update();
@@ -131,13 +131,13 @@ int CvDistanceMapWrapper::GetDistance(const CvPlot& plot, bool bMajorsOnly, Play
 
 	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureDistance(plot);
-	else if (bMajorsOnly)
+	else if (bAllMajorsOnly)
 		return allMajorPlayers.GetClosestFeatureDistance(plot);
 	else
 		return allPlayers.GetClosestFeatureDistance(plot);
 }
 
-int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
+int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer)
 {
 	if (IsDirty())
 		Update();
@@ -149,20 +149,20 @@ int CvDistanceMapWrapper::GetFeatureId(const CvPlot& plot, bool bMajorsOnly, Pla
 
 	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureID(plot);
-	else if (bMajorsOnly)
+	else if (bAllMajorsOnly)
 		return allMajorPlayers.GetClosestFeatureID(plot);
 	else
 		return allPlayers.GetClosestFeatureID(plot);
 }
 
-PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer)
+PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer)
 {
 	if (IsDirty())
 		Update();
 
 	if (eSpecificPlayer!=NO_PLAYER && (size_t)eSpecificPlayer < majorPlayers.size())
 		return majorPlayers[eSpecificPlayer].GetClosestFeatureOwner(plot);
-	else if (bMajorsOnly)
+	else if (bAllMajorsOnly)
 		return allMajorPlayers.GetClosestFeatureOwner(plot);
 	else
 		return allPlayers.GetClosestFeatureOwner(plot);

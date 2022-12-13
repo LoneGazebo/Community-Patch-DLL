@@ -62,9 +62,9 @@ public:
 	void SetDirty();
 	bool IsDirty() const { return m_bDirty;	}
 
-	int GetDistance(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
-	int GetFeatureId(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
-	PlayerTypes GetFeatureOwner(const CvPlot& plot, bool bMajorsOnly, PlayerTypes eSpecificPlayer);
+	int GetDistance(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer);
+	int GetFeatureId(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer);
+	PlayerTypes GetFeatureOwner(const CvPlot& plot, bool bAllMajorsOnly, PlayerTypes eSpecificPlayer);
 };
 
 class CvDistanceMapByPathLength : public CvDistanceMapWrapper
