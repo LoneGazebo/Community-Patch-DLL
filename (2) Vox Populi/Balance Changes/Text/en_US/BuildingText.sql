@@ -8,7 +8,7 @@ SET Text = '+1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in th
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_HELP';
 
 UPDATE Language_en_US
-SET Text = '+25 [ICON_FOOD] Food when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_WHEAT] Wheat: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_MAIZE] Maize: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_RICE] Rice: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +1 [ICON_FOOD] Food.'
+SET Text = '+25 [ICON_FOOD] Food when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this City along trade routes inside your Civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_WHEAT] Wheat: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_MAIZE] Maize: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_RICE] Rice: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BANANA] Bananas: +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRANARY_HELP';
 
 UPDATE Language_en_US
@@ -16,7 +16,7 @@ SET Text = '+1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens 
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Water Mill can only be constructed in a city located next to a river. The Water Mill increases the city''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
+SET Text = 'The Water Mill can only be constructed in a City located next to a river. The Water Mill increases the City''s [ICON_PRODUCTION] Production more efficiently (per Citizen in the City) than the Well.'
 WHERE Tag = 'TXT_KEY_BUILDING_WATERMILL_STRATEGY';
 
 UPDATE Language_en_US
@@ -24,7 +24,7 @@ SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] C
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a city needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time.'
+SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 UPDATE Language_en_US
@@ -32,7 +32,7 @@ SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a city needs to increase in size by 15% and boosts the City''s Science production from specialists. The city needs to have a Hospital in order to construct the Medical Lab.'
+SET Text = 'The Medical Lab is a late-game building which decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15% and boosts the City''s Science production from specialists. The City needs to have a Hospital in order to construct the Medical Lab.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_STRATEGY';
 
 UPDATE Language_en_US
@@ -40,7 +40,7 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. [NEWL
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the city by 25%, and buffs the food output of Oases. Gardens require an Aqueduct in the City in order to be built.'
+SET Text = 'The Garden increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the City by 25%, and buffs the food output of Oases. Gardens require an Aqueduct in the City in order to be built.'
 WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -49,24 +49,24 @@ INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_TEMPLE_HELP', '-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_PEACE] Religious Unrest. +25% Religious Pressure. Contains 1 slot for a Great Work of Music.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE] Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.');
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_MONUMENT_HELP', '[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 25% in this city.');
+VALUES ('TXT_KEY_BUILDING_MONUMENT_HELP', '[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 25% in this City.');
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_AMPHITHEATER_HELP', '+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].');
-	
+
 UPDATE Language_en_US
-SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and grants bonuses to nearby [ICON_RES_DYE] Dye and [ICON_RES_SILK] Silk. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Contains 2 slots for a Great Work of Writing.'
+SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a City and grants bonuses to nearby [ICON_RES_DYE] Dye and [ICON_RES_SILK] Silk. Also boosts the City''s Great Writer rate and the value of Writers'' Guilds. Contains 2 slots for a Great Work of Writing.'
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_OPERA_HOUSE_HELP', '+5% [ICON_CULTURE] Culture in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City, and all Musicians'' Guilds produce +1 [ICON_GOLD] Gold.');
-	
+
 UPDATE Language_en_US
-SET Text = 'The Opera House is a Renaissance-era building which increases the [ICON_CULTURE] Culture of a city. Also boosts the City''s Great Musician rate and the value of Musicians'' Guilds. Contains 1 slot for a Great Work of Music. Requires an Amphitheater in the city before it can be constructed.'
+SET Text = 'The Opera House is a Renaissance-era building which increases the [ICON_CULTURE] Culture of a City. Also boosts the City''s Great Musician rate and the value of Musicians'' Guilds. Contains 1 slot for a Great Work of Music. Requires an Amphitheater in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OPERA_HOUSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Museum is a mid-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output and reduces Boredom. Also boosts the City''s Great Artist rate and the value of Artists'' Guilds. Contains 2 slots for Great Works of Art.  Requires an Opera House in the city before it can be constructed.'
+SET Text = 'The Museum is a mid-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output and reduces Boredom. Also boosts the City''s Great Artist rate and the value of Artists'' Guilds. Contains 2 slots for Great Works of Art.  Requires an Opera House in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUSEUM_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -77,25 +77,25 @@ SET Text = '+1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 2 [IC
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output of the city, and reduces Boredom. Requires a Museum in the city before it can be constructed.'
+SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output of the City, and reduces Boredom. Requires a Museum in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+15 XP for all Units. Increases the Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+15 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_BARRACKS_HELP';
-	
+
 UPDATE Language_en_US
-SET Text = '+20 XP for all Units. Increases the Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+20 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARMORY_HELP';
 
 UPDATE Language_en_US
-SET Text = '+15% [ICON_PRODUCTION] Production towards Land Units, and +25 XP for all Units. Increases the Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+15% [ICON_PRODUCTION] Production towards Land Units, and +25 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_ACADEMY_HELP';
-		
+
 UPDATE Language_en_US
-SET Text = '+33% [ICON_PRODUCTION] Production when building Mounted Melee Units. Increases the Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]City must have at least one of these resources improved with a Pasture.'
+SET Text = '+33% [ICON_PRODUCTION] Production when building Mounted Melee Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]City must have at least one of these resources improved with a Pasture.'
 WHERE Tag = 'TXT_KEY_BUILDING_STABLE_HELP';
-	
+
 UPDATE Language_en_US
 SET Text = 'Mines worked by this City and Engineer Specialists gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP';
@@ -105,26 +105,27 @@ SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COP
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests worked by this City, and +1 [ICON_PRODUCTION] Production for every 10 [ICON_CITIZEN] Citizens in the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.' WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP';
-	
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from all Forests worked by this City, and +1 [ICON_PRODUCTION] Production for every 10 [ICON_CITIZEN] Citizens in the City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Allows [ICON_PRODUCTION] Production to be moved from this City along trade routes inside your Civilization.'
+WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP';
+
 UPDATE Language_en_US
-SET Text = 'Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have at least one of these resources improved.'
+SET Text = 'Allows [ICON_PRODUCTION] Production to be moved from this City along trade routes inside your Civilization.[NEWLINE][NEWLINE]Nearby [ICON_RES_MARBLE] Marble: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_STONE] Stone: +2 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SALT] Salt: +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]City must have at least one of these resources improved.'
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_HELP';
-	
+
 UPDATE Language_en_US
-SET Text = 'Stone Works can only be constructed in a city near an improved [ICON_RES_STONE] Stone, [ICON_RES_SALT] Salt, [ICON_RES_MARBLE] Marble, or [ICON_RES_URANIUM] Uranium resource. Stone Works increase [ICON_PRODUCTION] Production and allow [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
+SET Text = 'Stone Works can only be constructed in a City near an improved [ICON_RES_STONE] Stone, [ICON_RES_SALT] Salt, [ICON_RES_MARBLE] Marble, or [ICON_RES_URANIUM] Uranium resource. Stone Works increase [ICON_PRODUCTION] Production and allow [ICON_PRODUCTION] Production to be moved from this City along trade routes inside your Civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_STRATEGY';
-		
+
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean Tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food. Increases Military Units Supply Cap by 1.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Lighthouses.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
+SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Lighthouses.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_LIGHTHOUSE_HELP';
-		
+
 UPDATE Language_en_US
-SET Text = 'The Lighthouse can only be constructed in a city next to a Coast Tile. It increases the [ICON_FOOD] Food and [ICON_GOLD] Gold output of water tiles. Also allows for City Connections over Water (see Concepts for more details).'
+SET Text = 'The Lighthouse can only be constructed in a City next to a Coast Tile. It increases the [ICON_FOOD] Food and [ICON_GOLD] Gold output of water tiles. Also allows for City Connections over Water (see Concepts for more details).'
 WHERE Tag = 'TXT_KEY_BUILDING_LIGHTHOUSE_STRATEGY';
-		
+
 UPDATE Language_en_US
-SET Text = 'If a city is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your capital city (i.e. both cities have a Lighthouse), that city has a "trade route" with the capital. Each trade route is worth a certain amount of gold each turn, the amount determined by the size of the two cities.'
+SET Text = 'If a City is connected by a road and/or [COLOR_YELLOW]Lighthouse[ENDCOLOR] to your Capital City (i.e. both cities have a Lighthouse), that City has a "trade route" with the Capital. Each trade route is worth a certain amount of gold each turn, the amount determined by the size of the two cities.'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_BODY';
 
 UPDATE Language_en_US
@@ -132,26 +133,26 @@ SET Text = 'City Connections'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'Upon completing a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, increases Military Units Supply Cap by 2, and City Hit Points by 150.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
+SET Text = 'Upon completing a [ICON_INTERNATIONAL_TRADE] Sea Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2, and City Hit Points by 150.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Harbor is a Medieval-era building, requiring a Lighthouse. It improves the range and [ICON_GOLD] Gold yield of sea trade routes, and boosts the value of sea tiles and resources. The Harbor also increases the [ICON_PRODUCTION] Production of Naval units by 15%, and increases Military Units Supplied by this City''s population by 10%.'
+SET Text = 'The Harbor is a Medieval-era building, requiring a Lighthouse. It improves the range and [ICON_GOLD] Gold yield of sea trade routes, and boosts the value of sea tiles and resources. The Harbor also increases the [ICON_PRODUCTION] Production of Naval units by 15%.'
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Coast and Ocean Tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. Increases the Military Unit Supply Cap from Population in the City by 20%.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. Can only be constructed in a Coastal City, and cannot have a [COLOR_NEGATIVE_TEXT]Train Station[ENDCOLOR] in the City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold from all Coast and Ocean tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 20%.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. Can only be constructed in a Coastal City, and cannot have a [COLOR_NEGATIVE_TEXT]Train Station[ENDCOLOR] in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Provides a massive boost to City Production and Sea Resource yields during the Industrial Era. Increases the Military Unit Supply Cap from Population in the City by 10%. Requires a Harbor, and cannot be built in the same City as a Train Station.'
+SET Text = 'Provides a massive boost to City Production and Sea Resource yields during the Industrial Era. Increases Military Units supplied by this City''s population by 20%. Requires a Harbor, and cannot be built in the same City as a Train Station.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_STRATEGY';
-	
+
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_MARKET_HELP', '[ICON_INTERNATIONAL_TRADE] Trade Routes to this City generate +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.');
 
 UPDATE Language_en_US
-SET Text = 'Markets increase the amount of [ICON_GOLD] Gold a city generates, and improves nearby [ICON_RES_SPICES] Cinnamon and [ICON_RES_SUGAR] Sugar. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for Trade Route owner.'
+SET Text = 'Markets increase the amount of [ICON_GOLD] Gold a City generates, and improves nearby [ICON_RES_SPICES] Cinnamon and [ICON_RES_SUGAR] Sugar. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for Trade Route owner.'
 WHERE Tag = 'TXT_KEY_BUILDING_MARKET_STRATEGY';
 
 UPDATE Language_en_US
@@ -171,11 +172,11 @@ SET Text = 'A custom house or customs house was a building housing the offices f
 WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_MINT_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses (or Hanse) in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SET Text = 'When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Bank is a Renaissance-era building which increases the city''s output of [ICON_GOLD] Gold, boosts the value of investments in the City, and reduces Poverty. A city must possess a Market or Bazaar before a Bank may be constructed.'
+SET Text = 'The Bank is a Renaissance-era building which increases the City''s output of [ICON_GOLD] Gold, boosts the value of investments in the City, and reduces Poverty. The City must already possess a Market before a Bank can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_STRATEGY';
 
 UPDATE Language_en_US
@@ -193,29 +194,45 @@ WHERE Tag = 'TXT_KEY_BUILDING_LIBRARY_HELP';
 UPDATE Language_en_US
 SET Text = '+1 [ICON_RESEARCH] Science from Jungle and Snow tiles worked by the City. Gain 25% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.'
 WHERE Tag = 'TXT_KEY_BUILDING_UNIVERSITY_HELP';
-    
+
+UPDATE Language_en_US
+SET Text = 'The University is a Medieval-era building. It increases the [ICON_RESEARCH] Science output of the City, and it''s even more effective if the City is near to Jungle or Snow tiles. The City must already possess a Library before a University can be constructed.'
+WHERE Tag = 'TXT_KEY_BUILDING_UNIVERSITY_STRATEGY';
+
 UPDATE Language_en_US
 SET Text = 'Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.'
 WHERE Tag = 'TXT_KEY_BUILDING_PUBLIC_SCHOOL_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Public School is a mid-game building which increase a City''s output of [ICON_RESEARCH] based on the population of the City.  The City must already possess a Univeristy before a Public School can be constructed.'
+WHERE Tag = 'TXT_KEY_BUILDING_PUBLIC_SCHOOL_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = '+4 [ICON_RESEARCH] Science from [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_URANIUM] Uranium, and Academies worked by this City.[NEWLINE][NEWLINE]+4 [ICON_RESEARCH] Science from Hospitals, Factories, and Medical Labs, and [ICON_GREAT_SCIENTIST] Great Scientists are produced 33% more quickly in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.'
 WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'City gains +1 [ICON_RESEARCH] Science for every Mountain within 3 tiles of the City.[NEWLINE][NEWLINE]Requires [COLOR_MAGENTA]Scientific Revolution[ENDCOLOR] Policy.'
+SET Text = REPLACE(Text, 'city', 'City')
+WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = REPLACE(Text, 'a Public School to construct the Research Laboratory', 'a Public School before Research Laboratory can be constructed')
+WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'City gains +1 [ICON_RESEARCH] Science for every Mountain within the workable tiles.[NEWLINE][NEWLINE]Requires [COLOR_MAGENTA]Scientific Revolution[ENDCOLOR] Policy.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_HELP';
-	
+
 UPDATE Language_en_US
 SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains. Requires ''Scientific Revolution'' Policy to unlock.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+15% [ICON_PRODUCTION] Production when constructing Buildings. Grocers and Granaries in the City produce +1 [ICON_FOOD] Food. Nearby Marshes and Lakes produce +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
+SET Text = '+15% [ICON_PRODUCTION] Production when constructing Buildings. Grocer and Granary in the City produce +1 [ICON_FOOD] Food. Nearby Marshes and Lakes produce +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_WINDMILL_HELP';
-	
+
 UPDATE Language_en_US
-SET Text = 'The Windmill is a Renaissance-era building which increases the [ICON_PRODUCTION] Production output of a city when constructing buildings.'
+SET Text = 'The Windmill is a Renaissance-era building which increases the [ICON_PRODUCTION] Production output of a City when constructing buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_WINDMILL_STRATEGY';
 
 UPDATE Language_en_US
@@ -239,11 +256,11 @@ SET Text = 'Nuclear Power Plant'
 WHERE Tag = 'TXT_KEY_BUILDING_NUCLEAR_PLANT';
 
 UPDATE Language_en_US
-SET Text = 'All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science on every Desert Tile, and +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science on other types of Land Tiles.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be built. City must be built on or next to Desert. City must not contain another energy-producing Plant.'
+SET Text = 'All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science on every Desert Tile, and +1 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science on other types of Land tiles.[NEWLINE][NEWLINE]Requires [ICON_RES_ALUMINUM] Aluminum to be built. City must be built on or next to Desert. City must not contain another energy-producing Plant.'
 WHERE Tag = 'TXT_KEY_BUILDING_SOLAR_PLANT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Solar Power is an Atomic-era electrical system which can only be constructed in a city near a Desert. The Solar Plant increases the [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science output of every land tile the city works, but provides triple yields on Desert tiles. The Solar Plant also increases the efficiency of working processes.'
+SET Text = 'Solar Power is an Atomic-era electrical system which can only be constructed in a City near a Desert. The Solar Farm increases the [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science output of every land tile the City works, but provides triple yields on Desert tiles. The Solar Farm also increases the efficiency of working processes.'
 WHERE Tag = 'TXT_KEY_BUILDING_SOLAR_PLANT_STRATEGY';
 
 UPDATE Language_en_US
@@ -255,34 +272,34 @@ SET Text = 'Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPI
 WHERE Tag = 'TXT_KEY_BUILDING_COURTHOUSE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Walls increase a city Defense Strength and Hit Points, making the city more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Also helps with managing the Empire Size Modifier in this City. Walls are quite useful for cities located along a frontier.'
+SET Text = 'Walls increase a City Defense Strength and Hit Points, making the City more difficult to capture. Increases Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. Also helps with managing the Empire Size Modifier in this City. Walls are quite useful for cities located along a frontier.'
 WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_WALLS_HELP', 'Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Military Units Supplied by this City''s population increased by 10%.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
+VALUES ('TXT_KEY_BUILDING_WALLS_HELP', 'Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
 
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and Hit Points. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. Also helps with managing the Empire Size Modifier in this City. The city must possess Walls before the Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength and Hit Points. Increases Military Units supplied by this City''s population by 10%, and increases Production for all nearby Quarries by 1. Also helps with managing the Empire Size Modifier in this City. The City must already possess Walls before a Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production for Quarries worked by this City. Military Units Supplied by this City''s population increased by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = '+1 [ICON_PRODUCTION] Production for Quarries worked by this City. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Arsenal is a Modern-era military building that increases Defense Strength and Hit Points, making the city more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Increases Military Units supplied by this City''s population by 10%. Also helps with managing the Empire Size Modifier in this City. The city must possess a Bastion Fort before it can construct an Arsenal.'
+SET Text = 'The Arsenal is a Modern-era military building that increases Defense Strength and Hit Points, making the City more difficult to capture. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Garrisoned units receive an additional 5 Health when healing in this City. Increases Military Units supplied by this City''s population by 10%. Also helps with managing the Empire Size Modifier in this City. The City must already possess a Bastion Fort before an Arsenal can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = '[ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_HELP';
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_PRODUCTION] Production of Air Units, +15 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. Improves City [ICON_SPY] Spy Resistance by 50%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Damage by 10%. Military Units Supplied by this City''s population increased by 20%, and garrisoned Units receive an additional 20 Health when healing in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress. [ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = '+25% [ICON_PRODUCTION] Production of Air Units, +15 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City. Improves City [ICON_SPY] Spy Resistance by 50%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Damage by 10%. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 20%, and garrisoned Units receive an additional 20 Health when healing in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress. [ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Military Base is a late-game building which increases Defensive Strength and Hit Points, and improves defense against air units. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 10 Health when healing in this city. Increases Military Units supplied by this City''s population by 25%. Also helps with managing the Empire Size Modifier in this City. City must have an Arsenal.'
+SET Text = 'The Military Base is a late-game building which increases Defensive Strength and Hit Points, and improves defense against air units. Garrisoned units receive an additional 20 Health when healing in this City. Increases Military Units supplied by this City''s population by 20%. Also helps with managing the Empire Size Modifier in this City. The City must already possess an Arsenal before a Military Base can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY';
 
 UPDATE Language_en_US
@@ -290,7 +307,7 @@ SET Text = '50% chance to detonate nuclear weapons [COLOR_POSITIVE_TEXT]early[EN
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Strategic Defense Systems have a 50% chance to detonate nuclear weapons early, which destroys Atomic Bombs outright and makes Nuclear Missiles only as effective as Atomic Bombs. They also reduce population loss from a nuclear attack on this city by 75% if a missile does strike, and deal 10 damage to air units which strike this city. Duck and Cover!'
+SET Text = 'Strategic Defense Systems have a 50% chance to detonate nuclear weapons early, which destroys Atomic Bombs outright and makes Nuclear Missiles only as effective as Atomic Bombs. They also reduce population loss from a nuclear attack on this City by 75% if a missile does strike, and deal 10 Damage to Air Units which strike this City. Duck and Cover!'
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_STRATEGY';
 
 UPDATE Language_en_US
@@ -310,11 +327,11 @@ SET Text = '+50% [ICON_PRODUCTION] Production when building Spaceship Parts.[NEW
 WHERE Tag = 'TXT_KEY_BUILDING_SPACESHIP_FACTORY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Spaceship Factory increases the speed at which a city constructs spaceship parts, and greatly boosts Science in the City. The Spaceship Factory requires one [ICON_RES_ALUMINUM] Aluminum resource, and the city must possess a Factory before it can be constructed.'
+SET Text = 'The Spaceship Factory increases the speed at which a City constructs spaceship parts, and greatly boosts Science in the City. The Spaceship Factory requires one [ICON_RES_ALUMINUM] Aluminum resource, and the City must already possess a Factory before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_SPACESHIP_FACTORY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +25%.'
+SET Text = '25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City. [ICON_TOURISM] Tourism output from Great Works +25%.'
 WHERE Tag = 'TXT_KEY_BUILDING_HOTEL_HELP';
 
 UPDATE Language_en_US
@@ -326,14 +343,14 @@ SET Text = '+100 [ICON_CULTURE] Culture when completed, and starts 10 turns of "
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Circus reduces Boredom in a city and improves the Culture output of [ICON_RES_IVORY] Ivory. It also starts 10 turns of "We Love the King Day" in the City. Build these to combat Unhappiness from Boredom, and gain quick bursts of Culture.'
+SET Text = 'The Circus reduces Boredom in a City and improves the Culture output of [ICON_RES_IVORY] Ivory. It also starts 10 turns of "We Love the King Day" in the City. Build these to combat Unhappiness from Boredom, and gain quick bursts of Culture.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_COLOSSEUM_HELP', '+1 [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.');
 
 UPDATE Language_en_US
-SET Text = 'The Arena generates Tourism, reduces Boredom in a city, and grants additional Culture. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
+SET Text = 'The Arena generates Tourism, reduces Boredom in a City, and grants additional Culture. Build these to combat Unhappiness from Boredom, to increase your Culture, and to improve the production of your military buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY';
 
 UPDATE Language_en_US
@@ -345,11 +362,11 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM';
 
 UPDATE Language_en_US
-SET Text = '+500 [ICON_RESEARCH] Science when completed. Nearby Jungle and Forest Tiles gain +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Upon completing a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
+SET Text = '+500 [ICON_RESEARCH] Science when completed. Nearby Jungle and Forest tiles gain +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Upon completing a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Zoo reduces Boredom in a city, produces additional Culture, and boosts the Culture value of nearby Jungle and Forest tiles.'
+SET Text = 'The Zoo reduces Boredom in a City, produces additional Culture, and boosts the Culture value of nearby Jungle and Forest tiles.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY';
 
 UPDATE Language_en_US
@@ -406,49 +423,49 @@ SET Text = 'Philosophy is the study of general and fundamental problems, such as
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_PEDIA';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder gives all land units built in this city (past and future) the "Morale" promotion, increasing their combat strength by +10%. +1 [ICON_PRODUCTION] Production in the City for every 5 [ICON_CITIZEN] Citizens. Increases the Military Unit Supply Cap from Population in the City by 10%. Also creates a free Great Writer upon completion. The Heroic Epic can be constructed when a city has a barracks.'
+SET Text = 'This National Wonder gives all land units built in this City (past and future) the "Morale" promotion, increasing their combat strength by +10%. +1 [ICON_PRODUCTION] Production in the City for every 5 [ICON_CITIZEN] Citizens. Increases Military Units supplied by this City''s population by 10%. Also creates a free Great Writer upon completion. The City must have a Barracks before it can construct the Heroic Epic.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a city by 25%. Receive [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a policy. It also provides +1 [ICON_CULTURE] Culture. A city must have a monument before it can construct a National Monument.'
+SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a City by 25%. Receive [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a policy. It also provides +1 [ICON_CULTURE] Culture. The City must have a Monument before it can construct the National Monument.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. A city must have an Arena before it can construct a Circus Maximus.'
+SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. The City must have an Arena before it can construct the Circus Maximus.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a city generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a City generates and reduces [ICON_HAPPINESS_3] Poverty. Resource Diversity Modifiers for Trade Routes from this City increase by 25% if positive, and decrease by 25% if negative. You also receive a free copy of all Luxury Resources around the City.[NEWLINE][NEWLINE]Trade routes other players make to a City with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the City owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The School of Philosophy National Wonder produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, especially during [ICON_GOLDEN_AGE] Golden Ages. A city must have a library before it can construct a School of Philosophy.'
+SET Text = 'The School of Philosophy National Wonder produces [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, especially during [ICON_GOLDEN_AGE] Golden Ages. The City must have a Library before it can construct the School of Philosophy.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Ironworks National Wonder provides 2 [ICON_RES_IRON] Iron, increases [ICON_PRODUCTION] Production in a city by 10, and generates [ICON_RESEARCH] Science every time you construct a building. A city must have a Forge before it can construct an Ironworks.'
+SET Text = 'The Ironworks National Wonder provides 2 [ICON_RES_IRON] Iron, increases [ICON_PRODUCTION] Production in a City by 10, and generates [ICON_RESEARCH] Science every time you construct a building. The City must have a Forge before it can construct an Ironworks.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The city must have a university before it can construct Oxford University.'
+SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy. +50 [ICON_CULTURE] Culture every time you research a Technology. The City must have a University before it can construct Oxford University.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City, and +10% [ICON_CULTURE] Culture for the City. It cannot be constructed unless the city has an Opera House.'
+SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City, and +10% [ICON_CULTURE] Culture for the City. The City must have an Opera House before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, levels up all your existing spies, and improves city Spy Resistance by 15%. Empires with a lot of offensive spies will benefit greatly from this building. A city must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, levels up all your existing spies, and improves City Spy Resistance by 15%. Empires with a lot of offensive spies will benefit greatly from this building. The City must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'An important building for a civilization trying to spread their religion world-wide from an empire with few, populous cities. A city must have a Temple before it can construct the Grand Temple.'
+SET Text = 'An important building for a civilization trying to spread their religion world-wide from an empire with few, populous cities. A City must have a Temple before it can construct the Grand Temple.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_STRATEGY';
 
 -- Help Text
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Great Writer in the City in which it is built. All Land Units created by this City (past or future) receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength. Increases the Military Unit Supply Cap from Population in the City by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Writing.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Great Writer in the City in which it is built. All Land Units created by this City (past or future) receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Writing.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP';
 
 UPDATE Language_en_US
@@ -524,11 +541,11 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Garden in the City in
 WHERE Tag = 'TXT_KEY_WONDER_HANGING_GARDEN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Tile improvement construction speed increased by 25%. +10 [ICON_CULTURE] Culture when you destroy an enemy Unit in battle, scaling with Era. Increases the Military Unit Supply Cap by 5.'
+SET Text = 'Tile improvement construction speed increased by 25%. +10 [ICON_CULTURE] Culture when you destroy an enemy Unit in battle, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 5.'
 WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Increases Military Units Supplied by this City''s population by 10%. Contains a prebuilt [ICON_GREAT_WORK] Great Work of Art in one of the [ICON_GREAT_WORK] Great Work slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. +3 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Increases [ICON_SILVER_FIST] Military Units Supplied by this City''s population by 10%. Contains a prebuilt [ICON_GREAT_WORK] Great Work of Art in one of the [ICON_GREAT_WORK] Great Work slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. +3 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP';
 
 UPDATE Language_en_US
@@ -540,7 +557,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Mandir in the City in
 WHERE Tag = 'TXT_KEY_WONDER_ANGKOR_WAT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General and [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Walls in the City in which it is built. Enemy Land Units expend all [ICON_MOVES] Movement when entering your territory. Increases the Military Unit Supply Cap by 3. These bonuses become obsolete upon discovering [COLOR_NEGATIVE_TEXT]Gunpowder[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General and [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Walls in the City in which it is built. Enemy Land Units expend all [ICON_MOVES] Movement when entering your territory. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 3. These bonuses become obsolete upon discovering [COLOR_NEGATIVE_TEXT]Gunpowder[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_WALL_HELP';
 
 UPDATE Language_en_US
@@ -573,7 +590,7 @@ SET Text = 'Can only be built in a Holy City. Receive 2 [COLOR_POSITIVE_TEXT]Fre
 WHERE Tag = 'TXT_KEY_WONDER_BOROBUDUR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Bastion Fort in the City in which it is built. +15% [ICON_STRENGTH] Combat Strength for Units fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR], and +10% [ICON_STRENGTH] Combat Strength for all Cities. Increases the Military Unit Supply Cap by 5.'
+SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Bastion Fort in the City in which it is built. +15% [ICON_STRENGTH] Combat Strength for Units fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR], and +10% [ICON_STRENGTH] Combat Strength for all Cities. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 5.'
 WHERE Tag = 'TXT_KEY_WONDER_HIMEJI_CASTLE_HELP';
 
 UPDATE Language_en_US
@@ -595,17 +612,17 @@ UPDATE Language_en_US
 SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
 
--- Here is in fact the TAJ MAHAL, in the original files is wrong defined 
+-- Here is in fact the TAJ MAHAL, in the original files is wrong defined
 UPDATE Language_en_US
 SET Text = 'The Empire enters a [ICON_GOLDEN_AGE] Golden Age. +1 [ICON_GOLDEN_AGE] Golden Age Points per turn for every 2 [ICON_CITIZEN] Citizens in the City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_PEACE] Faith in the City for every [ICON_RELIGION] Religion present.'
 WHERE Tag = 'TXT_KEY_WONDER_PYRAMIDS_HELP';
 
--- Here is in fact the CHICHEN ITZA, in the original files is wrong defined 
+-- Here is in fact the CHICHEN ITZA, in the original files is wrong defined
 UPDATE Language_en_US
 SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. [ICON_CITY_STATE] Empire Size Modifier is reduced by 10% in all Cities.'
 WHERE Tag = 'TXT_KEY_WONDER_TAJ_MAHAL_HELP';
 
--- Here is in fact the PYRAMIDS, in the original files is wrong defined 
+-- Here is in fact the PYRAMIDS, in the original files is wrong defined
 UPDATE Language_en_US
 SET Text = 'A Settler appears near the City. +50 [ICON_GOLDEN_AGE] Golden Age Points when you expend a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
 WHERE Tag = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP';
@@ -615,7 +632,7 @@ SET Text = '+10% [ICON_CULTURE] Culture in all Cities. Contains 2 slots for [ICO
 WHERE Tag = 'TXT_KEY_WONDER_SISTINE_CHAPEL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of [COLOR_MAGENTA]Fealty[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ENGINEER] Great Engineer and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Arsenal. City [ICON_RANGE_STRENGTH] Ranged Strike Strength and Range increased by 10% and 1, respectively. Greatly increases [ICON_STRENGTH] Strength and HP of the City and increases the Military Unit Supply Cap from population by 5% in all Cities.'
+SET Text = 'Requires completion of [COLOR_MAGENTA]Fealty[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ENGINEER] Great Engineer and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Arsenal. City [ICON_RANGE_STRENGTH] Ranged Strike Strength and Range increased by 10% and 1, respectively. Greatly increases [ICON_STRENGTH] Strength and HP of the City and [ICON_SILVER_FIST] Military Units Supplied by City''s population increased by 5% in all Cities.'
 WHERE Tag = 'TXT_KEY_WONDER_RED_FORT_HELP';
 
 UPDATE Language_en_US
@@ -627,7 +644,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_SCIENTIST]
 WHERE Tag = 'TXT_KEY_WONDER_PORCELAIN_TOWER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General. +15 XP for Units built in all Cities. Increases the Military Unit Supply Cap by 10. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in this City.'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General. +15 XP for Units built in all Cities. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 10. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_BRANDENBURG_GATE_HELP';
 
 UPDATE Language_en_US
@@ -669,7 +686,7 @@ SET Text = 'May only be built collaboratively through the World Congress. +1 [IC
 WHERE Tag = 'TXT_KEY_BUILDING_INTERNATIONAL_SPACE_STATION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of [COLOR_MAGENTA]Imperialism[ENDCOLOR] Branch. Increases the Military Unit Supply Cap by 1, and the Air Unit Cap by 2 in every City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Jet Fighters in the City when completed. +50% [ICON_PRODUCTION] Production of Air Units in the City, and Air Units created in the City gain +20 XP.'
+SET Text = 'Requires completion of [COLOR_MAGENTA]Imperialism[ENDCOLOR] Branch. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1, and the Air Unit Cap by 2 in every City. Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Jet Fighters in the City when completed. +50% [ICON_PRODUCTION] Production of Air Units in the City, and Air Units created in the City gain +20 XP.'
 WHERE Tag = 'TXT_KEY_WONDER_PENTAGON_HELP';
 
 -- here added and updated
@@ -694,15 +711,15 @@ SET Text = 'All Research Labs gain +10 [ICON_RESEARCH] Science. 99.9% reduction 
 WHERE Tag = 'TXT_KEY_BUILDING_GREAT_FIREWALL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the World''s Fair project. Cost goes up based on the number of players in the game, and the current Era.'
+SET Text = 'Contribute this City''s [ICON_PRODUCTION] Production towards the World''s Fair project. Cost goes up based on the number of players in the game, and the current Era.'
 WHERE Tag = 'TXT_KEY_PROCESS_WORLD_FAIR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the International Games project. Cost goes up based on the number of players in the game, and the current Era.'
+SET Text = 'Contribute this City''s [ICON_PRODUCTION] Production towards the International Games project. Cost goes up based on the number of players in the game, and the current Era.'
 WHERE Tag = 'TXT_KEY_PROCESS_WORLD_GAMES_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Contribute this city''s [ICON_PRODUCTION] Production towards the International Space Station project. Cost goes up based on the number of players in the game, and the current Era.'
+SET Text = 'Contribute this City''s [ICON_PRODUCTION] Production towards the International Space Station project. Cost goes up based on the number of players in the game, and the current Era.'
 WHERE Tag = 'TXT_KEY_PROCESS_INTERNATIONAL_SPACE_STATION_HELP';
 
 UPDATE Language_en_US

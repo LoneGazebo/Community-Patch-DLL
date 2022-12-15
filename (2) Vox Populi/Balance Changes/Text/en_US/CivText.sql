@@ -54,7 +54,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 UPDATE Language_en_US
 SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Writing, and comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WORK] Great Work and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Library in the City. Every [ICON_GREAT_WORK] Great Work of Writing you control grants +5 XP to Units created in any City (maximum of 45 XP). 1 Specialist no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
- 
+
 UPDATE Language_en_US
 SET Text = 'In addition to the [ICON_RESEARCH] Science output of the School of Philosophy it replaces, the Royal Library has three Great Work of Writing slots, comes with a free Great Work and Library in the City, and is available earlier. Provides a global bonus to all Libraries, and all owned cities generate extra XP for Units trained in them based on the number of Great Works of Writing in your empire (up to 45 XP). Only the Assyrians may build it.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
@@ -149,10 +149,10 @@ SET Help = 'TXT_KEY_BUILDING_BABYLON_WALLS_HELP'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', 'Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Scientists in this City generate +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
+VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', '[ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Scientists in this City generate +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
 
 UPDATE Language_en_US
-SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a city by 15 and Hit Points by 75, both values much higher than standard Walls. Increases Military Unit Supply Cap from City Population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide a Scientist specialist slot and improve the Gold yields of all Scientist specialists in the City. Also helps with managing the Empire Size Modifier in this City.'
+SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a city by 15 and Hit Points by 75, both values much higher than standard Walls. Increases [ICON_SILVER_FIST] Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide a Scientist specialist slot and improve the Gold yields of all Scientist specialists in the City. Also helps with managing the Empire Size Modifier in this City.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY';
 
 --------------------
@@ -218,11 +218,11 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME';
 --------------------
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_CEILIDH_HALL_HELP', '+150 [ICON_CULTURE] Culture when completed, and starts 15 turns of "We Love the King Day" in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_IVORY] Ivory: +3 [ICON_CULTURE] Culture.');
-    
+
 UPDATE Language_en_US
 SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, replacing the Circus. Reduces [ICON_HAPPINESS_3] Boredom slightly and increases City [ICON_CULTURE] Culture and [ICON_PEACE] Faith. Nearby sources of Ivory gain +3 [ICON_CULTURE] Culture. Provides 1 Musician Specialist slot, and contains a slot for a Great Work of Music.'
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY';
-    
+
 UPDATE Language_en_US
 SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit from. Owned Cities with your [ICON_RELIGION] Religion neither generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon or [ICON_RELIGION] Religion is the majority.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE';
@@ -312,7 +312,7 @@ SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing i
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. The Ship of the Line has a higher [ICON_RANGE_STRENGTH] Ranged Combat Strength than the Frigate, can see further, and deals damage to Enemy Units adjacent to its target.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
+SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas. Only the English may build it. The Ship of the Line has a higher [ICON_RANGE_STRENGTH] Ranged Combat Strength than the Frigate, can see further, and deals damage to Enemy Units adjacent to its target.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal tiles.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHIPOFTHELINE';
 
 UPDATE Language_en_US
@@ -329,7 +329,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH';
 UPDATE Language_en_US
 SET Text = 'Solomonic Wisdom'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH_SHORT';
- 
+
 UPDATE Language_en_US
 SET Text = 'Strong, front-line land Unit that specializes in fighting in Friendly Territory, especially when defending near the Ethiopian capital. Only the Ethiopians may build it.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MEHAL_SEFARI';
@@ -725,7 +725,7 @@ SET Text = 'The Turtle Ship can only be gifted by Minor Civilizations.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, while it can end its movement in Ocean Tiles, the Turtle Ship still travels at half speed through them.'
+SET Text = 'The Turtle Ship has a more powerful attack than the Caravel, and is extremely difficult to destroy due to its Indomitable promotion.  However, while it can end its movement in Ocean tiles, the Turtle Ship still travels at half speed through them.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_STRATEGY';
 
 --------------------
@@ -855,7 +855,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT';
 UPDATE Language_en_US
 SET Text = 'The Janissary is an Ottoman unique unit, replacing the Musketman. The Janissary is stronger than the Musketman, available earlier, and heals every turn. This can give a Janissary army a crushing advantage against an enemy force.'
 WHERE Tag = 'TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY';
- 
+
 UPDATE Language_en_US
 SET Text = 'One of the first gunpowder units of the game. Only the Ottomans may build it. This unit is stronger than the Musketman which it replaces, and is available earlier.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_JANISSARY';
@@ -936,7 +936,7 @@ UPDATE Language_en_US
 SET Text = 'Constructs a Feitoria. If in a City-State''s land, it will provide to you one copy of every Luxury Resource type connected by this City-State, regardless of your relationship with the City-State. Also provides a defensive bonus.'
 WHERE Tag = 'TXT_KEY_BUILD_FEITORIA_HELP';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = 'Melee naval unit which excels at sea exploration. Has higher [ICON_STRENGTH] Combat Strength than the Caravel, and can perform an ability when adjacent to City-States to earn [ICON_GOLD] Gold and XP. This ability is lost on upgrade. May only be built by the Portuguese.[NEWLINE][NEWLINE]If possible, when a Nau sells its Exotic Cargo to a City-State, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PORTUGUESE_NAU';
 
@@ -970,7 +970,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_BALLISTA_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the [COLOR_POSITIVE_TEXT]Cover I[ENDCOLOR] Promotion for free. It can also construct [COLOR_POSITIVE_TEXT]Forts[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Roads[ENDCOLOR] once you have researched the required technologies, and starts with the [COLOR_POSITIVE_TEXT]Pilum[ENDCOLOR] Promotion, which deals 10 damage to all adjacent Enemy Units every turn while fortified.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ROMAN_LEGION';
-    
+
 UPDATE Language_en_US
 SET Text = 'The Legion is the Roman unique unit, replacing the Swordsman. The Legion is more powerful than the Swordsman, making it the one of the most powerful melee units of the Classical Era. The Legion can also construct roads and forts and is the only non-Worker unit able to do so.'
 WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
@@ -979,7 +979,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
 -- Russia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. Military Units Supplied by this City''s population increased by 10%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US
@@ -1024,7 +1024,7 @@ WHERE Tag = 'TXT_KEY_CIV5_SPAIN_TERCIO_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land and at sea. It also has the ability to found new cities, but only on a foreign continent that does not contain the Spanish capital. When founded, cities built by Conquistadors start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Mission[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Conquistadores! The Mission is a special religious and defensive building only granted by settling Conquistadores.[NEWLINE][NEWLINE]The Conquistador is much stronger than the Explorer it replaces, with much higher Combat Strength, and large bonuses to Flanking and attacking Cities. Combined with its great mobility, the Conquistador is a formidable unit, able to augment or replace your existing Medieval military.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
- 
+
 UPDATE Language_en_US
 SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
@@ -1043,11 +1043,11 @@ WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS_STRATEGY';
 UPDATE Language_en_US
 SET Text = 'This unit is excellent at exploring during the early game. Be wary using it to fend off barbarians, however.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_PATHFINDER';
- 
+
 UPDATE Language_en_US
 SET Text = 'The Pathfinder is the game''s first reconnaissance unit. It fights poorly compared to a Warrior, but has better movement and vision.'
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_PATHFINDER_STRATEGY';
- 
+
 UPDATE Language_en_US
 SET Text = 'Founded Cities start with additional territory, and Land Units receive a combat bonus when fighting within their own territory. All Recon Units can choose rewards from Ancient Ruins.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
@@ -1109,7 +1109,7 @@ UPDATE Language_en_US
 SET Text = 'Land Melee Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
-UPDATE Language_en_US 
+UPDATE Language_en_US
 SET Text = 'Strong frontline Land Unit specializing in long marches far from Swedish land. Only Sweden may build it. Starts with [COLOR_POSITIVE_TEXT]March[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Field Works[ENDCOLOR], deals AOE damage to Enemy Units on kills.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SWEDISH_CAROLEAN';
 
@@ -1156,7 +1156,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. Increases the Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP';
 
 UPDATE Language_en_US
