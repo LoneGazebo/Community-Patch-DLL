@@ -25126,11 +25126,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	int iValue = 0;
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
-
-	const SCityExtraYields& yieldChanges = GetYieldChanges(eIndex);
-	for (size_t iI = 0; iI < yieldChanges.forFeature.size(); iI++)
-		iValue += yieldChanges.forFeature[iI].second;
-
 	iValue += GetBaseYieldRateFromBuildings(eIndex);
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
