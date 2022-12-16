@@ -3,6 +3,7 @@
 local L = Locale.ConvertTextKey;
 local math_random = math.random;
 local math_randomseed = math.randomseed;
+local os_time = os.time;
 
 
 local g_TipType = {
@@ -14,8 +15,8 @@ local g_ColorVPTip = {
 };
 
 function GetVPTip()
-	math_randomseed(os.time()) -- random initialize
-	math_random(); math_random(); math_random() -- warming up
+	math_randomseed(os_time()); -- random initialize
+	math_random(); math_random(); math_random(); -- warming up
 
 	local iTipType = math_random(#g_TipType)
 	return g_TipType[iTipType]
@@ -26,19 +27,19 @@ function VPTipTitle()
 end
 
 function VPTipText()
-	local tipText = 0
+	local iTipText = 0
 	if		GetVPTip() == "TIP" then
-		tipText = math_random(1, 32)
+		iTipText = math_random(1, 32)
 --[[
 	elseif	GetVPTip() == "QUOTE" then
-		tipText = math_random(1, 4)
+		iTipText = math_random(1, 4)
 	elseif	GetVPTip() == "FUNFACT" then
-		tipText = math_random(1, 8)
+		iTipText = math_random(1, 8)
 	elseif	GetVPTip() == "HISTORY" then
-		tipText = math_random(1, 16)
+		iTipText = math_random(1, 16)
 --]]
 	end
-	return g_ColorVPTip[GetVPTip()] .. L('TXT_KEY_VPUI_' .. GetVPTip() .. '_' .. tipText) .. '[ENDCOLOR]'
+	return g_ColorVPTip[GetVPTip()] .. L('TXT_KEY_VPUI_' .. GetVPTip() .. '_' .. iTipText) .. '[ENDCOLOR]'
 end
 
 -------------------------------------------------
