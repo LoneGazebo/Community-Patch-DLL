@@ -184,9 +184,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>17</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>23</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>3</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>3</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>7</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>23</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>2</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>2</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>50</LandDisputePercent>
 			<WonderDisputePercent>50</WonderDisputePercent>
@@ -405,9 +410,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>17</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>23</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>3</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>3</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>7</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>23</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>2</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>2</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>60</LandDisputePercent>
 			<WonderDisputePercent>60</WonderDisputePercent>
@@ -626,9 +636,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>70</LandDisputePercent>
 			<WonderDisputePercent>70</WonderDisputePercent>
@@ -847,9 +862,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>85</LandDisputePercent>
 			<WonderDisputePercent>85</WonderDisputePercent>
@@ -1068,9 +1088,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>100</LandDisputePercent>
 			<WonderDisputePercent>100</WonderDisputePercent>
@@ -1289,9 +1314,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>110</LandDisputePercent>
 			<WonderDisputePercent>110</WonderDisputePercent>
@@ -1510,9 +1540,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>125</LandDisputePercent>
 			<WonderDisputePercent>125</WonderDisputePercent>
@@ -1731,9 +1766,14 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
+			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
+			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
+			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
+			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
+			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
+			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
+			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
+			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>134</LandDisputePercent>
 			<WonderDisputePercent>134</WonderDisputePercent>
