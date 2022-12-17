@@ -16353,7 +16353,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
 	}
-	updateExtraSpecialistYield(eSpecialist);
+	updateExtraSpecialistYield();
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
 	// Culture
@@ -27266,7 +27266,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist)
+void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
@@ -27275,15 +27275,11 @@ void CvCity::updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpec
 	int iOldYield = getExtraSpecialistYield(eYield);
 	int iNewYield = 0;
 
-	if (eSpecialist == NO_SPECIALIST)
+
+	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 	{
-		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-		{
-			iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
-		}
+		iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
 	}
-	else
-		iNewYield += getExtraSpecialistYield(eYield, eSpecialist);
 
 	if (iOldYield != iNewYield)
 	{
@@ -27302,15 +27298,6 @@ void CvCity::updateExtraSpecialistYield()
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		updateExtraSpecialistYield((YieldTypes)iI);
-	}
-}
-
-void CvCity::updateExtraSpecialistYield(SpecialistTypes eSpecialist)
-{
-	VALIDATE_OBJECT
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		updateExtraSpecialistYield((YieldTypes)iI, eSpecialist);
 	}
 }
 
