@@ -1189,7 +1189,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		for (int iI = iIteratorStart; iI < RING_PLOTS[iNextRing]; iI++)
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
-			if (!pLoopPlot || pLoopPlot == pPlot || pLoopPlot->isIce() || pLoopPlot->isLake())
+			if (!pLoopPlot || pLoopPlot == pPlot || pLoopPlot->isCity() || pLoopPlot->isIce() || pLoopPlot->isLake())
 				continue;
 
 			if (!bCanSpawnBoats && pLoopPlot->isWater())
