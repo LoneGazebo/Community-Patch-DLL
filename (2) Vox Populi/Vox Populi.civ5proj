@@ -920,11 +920,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Compatibility/MoreLuxuries/Text/Text_en_US.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Mapscripts/EMP/EMP_Maps.xml</FileName>
       </Action>
     </ModActions>
@@ -4856,10 +4851,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Compatibility\MoreLuxuries\MoreLuxuries.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Compatibility\MoreLuxuries\Text\Text_en_US.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

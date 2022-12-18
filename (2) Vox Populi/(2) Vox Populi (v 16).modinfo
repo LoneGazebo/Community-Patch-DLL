@@ -933,7 +933,6 @@
     <File md5="C44788E96BF96666D8D2D42F68A9FD3B" import="0">Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</File>
     <File md5="A129F05262465F8D149ED1B08965635C" import="0">Compatibility/CSD/CSDCompatibility.sql</File>
     <File md5="E0635CA37CA0F94F3E08245215D67479" import="0">Compatibility/MoreLuxuries/MoreLuxuries.sql</File>
-    <File md5="E23F9646589BDE84D8F42BC35E50CD99" import="0">Compatibility/MoreLuxuries/Text/Text_en_US.sql</File>
   </Files>
   <Actions>
     <OnModActivated>
@@ -1116,7 +1115,6 @@
       <UpdateDatabase>Compatibility/Corporations/Text/CorpText_en_US.xml</UpdateDatabase>
       <UpdateDatabase>Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</UpdateDatabase>
       <UpdateDatabase>Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</UpdateDatabase>
-      <UpdateDatabase>Compatibility/MoreLuxuries/Text/Text_en_US.sql</UpdateDatabase>
       <UpdateDatabase>Mapscripts/EMP/EMP_Maps.xml</UpdateDatabase>
     </OnModActivated>
   </Actions>
