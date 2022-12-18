@@ -885,7 +885,7 @@ public:
 	bool isExhausted() const;
 	bool isEarlyFinish() const;
 	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
-	bool isAttackOrImprovedPosition() const;
+	bool isKillOrImprovedPosition() const;
 	void countEnemies();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
