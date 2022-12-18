@@ -1336,9 +1336,8 @@ public:
 
 	int getExtraSpecialistYield(YieldTypes eIndex) const;
 	int getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpecialist) const;
-	void updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist = NO_SPECIALIST);
+	void updateExtraSpecialistYield(YieldTypes eYield);
 	void updateExtraSpecialistYield();
-	void updateExtraSpecialistYield(SpecialistTypes eSpecialist);
 
 	int getProductionToYieldModifier(YieldTypes eIndex) const;
 	void changeProductionToYieldModifier(YieldTypes eIndex, int iChange);
