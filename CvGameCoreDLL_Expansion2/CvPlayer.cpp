@@ -49074,10 +49074,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//prefer settling close in the beginning
 	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
-	//basic search area around existing cities. 
+	//theoritical maximum distance for onshore settling
 	int iMaxSettleDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE) + iTimeOffset; //plot value at max distance or greater is scaled to zero
 	if(IsCramped())
 		iMaxSettleDistance += iTimeOffset;
+
+	//score start tapering towards zero if we exceed this (except if we want to expand offshore)
 	int iSettleDropoffThreshold = min(iMaxSettleDistance,/*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER));
 
 	//if we want to go to other continents, we need a very large search radius
@@ -49181,7 +49183,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		//if we want offshore expansion, manipulate the distance scaler
 		bool bOffshore = (pLandmass && pCapital && pLandmass->GetID() != pCapital->plot()->getLandmass());
 		if (bWantOffshore && bOffshore)
-			iScale = max(42, iScale);
+			iScale = max(67, iScale);
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pLandmass && pLandmass->getCitiesPerPlayer(GetID()) == 0);
