@@ -1334,8 +1334,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	// Restriction removed by advanced options?
-	if (GC.getGame().IsPermanentForTemporaryTradingAllowed() || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	// No backstabbing is possible if war can't be declared!
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return false;
 
 	// Certain items are irrelevant
@@ -1345,6 +1345,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 		return false;
 
 	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman(), bToHuman = GET_PLAYER(eToPlayer).isHuman();
+	bool bNoHumans = !bFromHuman && !bToHuman;
 
 	// Humans can handle their own dealmaking
 	if (bFromHuman && bToHuman)
@@ -1352,6 +1353,10 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 
 	// Teammates can't backstab each other, so all trades are OK
 	if (GET_PLAYER(eFromPlayer).getTeam() == GET_PLAYER(eToPlayer).getTeam())
+		return false;
+
+	// Restriction for human-to-AI trading removed via advanced options?
+	if (!bNoHumans && GC.getGame().IsPermanentForTemporaryTradingAllowed())
 		return false;
 
 	// Can AI players trade their temporary items for humans' permanent items?
@@ -1388,7 +1393,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is temporary - it cannot be traded for a permanent item
 	if (bTemporary)
 	{
-		if (!bToHuman)
+		if (!bToHuman || bNoHumans)
 		{
 			vector<TradeableItems> vProhibitedItems;
 			vProhibitedItems.push_back(TRADE_ITEM_GOLD);
@@ -1405,7 +1410,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is permanent - it cannot be traded for a temporary item
 	else
 	{
-		if (!bCanTradeHumanPermanentForAITemporary || !bFromHuman)
+		if (!bCanTradeHumanPermanentForAITemporary || !bFromHuman || bNoHumans)
 		{
 			vector<TradeableItems> vProhibitedItems;
 			vProhibitedItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
