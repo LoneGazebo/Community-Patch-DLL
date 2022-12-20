@@ -2688,7 +2688,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 		if (HasUnusedGreatWork())
 		{
-			CUSTOMLOG("Killing a Great Writer, Artist or Musician who didn't create their Great Work!");
 			GC.getGame().removeGreatPersonBornName(getGreatName());
 		}
 	}
@@ -5702,7 +5701,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 			if (!pLoopPlot || !pLoopPlot->isVisible(getTeam()))
 				continue;
 
-			if (isNativeDomain(pLoopPlot) && !pLoopPlot->isEnemyUnit(getOwner(), true, false) && !pLoopPlot->isNeutralUnit(getOwner(), true, false))
+			if (!pLoopPlot->isEnemyUnit(getOwner(), true, false) && !pLoopPlot->isNeutralUnit(getOwner(), true, false))
 			{
 				//need to check for invisible units as well ...
 				if (canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
@@ -5711,15 +5710,15 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 
 					//avoid putting ships on lakes etc
 					if (getDomainType() == DOMAIN_SEA && pLoopPlot->area()->getCitiesPerPlayer(getOwner()) == 0)
-						iValue += 12;
+						iValue += 54;
 
 					//avoid embarkation
 					if (getDomainType() == DOMAIN_LAND && pLoopPlot->needsEmbarkation(this))
-						iValue += 6;
+						iValue += 23;
 
 					//try to stay within the same area
 					if (pLoopPlot->getArea() != plot()->getArea())
-						iValue += 5;
+						iValue += 11;
 
 					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
 					{
@@ -25112,16 +25111,18 @@ void CvUnit::SetNotConverting(bool bNewValue)
 	}
 }
 
-//	--------------------------------------------------------------------------------
-PlayerTypes CvUnit::getVisualOwner(TeamTypes eForTeam) const
+// --------------------------------------------------------------------------------
+// some units 'camouflage' as barbarians visually
+// --------------------------------------------------------------------------------
+PlayerTypes CvUnit::getVisualOwner(TeamTypes eFromPerspectiveOfTeam) const
 {
 	VALIDATE_OBJECT
-	if(NO_TEAM == eForTeam)
+	if(NO_TEAM == eFromPerspectiveOfTeam)
 	{
-		eForTeam = GC.getGame().getActiveTeam();
+		eFromPerspectiveOfTeam = GC.getGame().getActiveTeam();
 	}
 
-	if(getTeam() != eForTeam && eForTeam != BARBARIAN_TEAM)
+	if(getTeam() != eFromPerspectiveOfTeam && eFromPerspectiveOfTeam != BARBARIAN_TEAM)
 	{
 		if(isHiddenNationality())
 		{
@@ -25136,13 +25137,15 @@ PlayerTypes CvUnit::getVisualOwner(TeamTypes eForTeam) const
 }
 
 
-//	--------------------------------------------------------------------------------
-PlayerTypes CvUnit::getCombatOwner(TeamTypes eForTeam, const CvPlot& whosePlot) const
+// --------------------------------------------------------------------------------
+// some units 'camouflage' as barbarians for combat (ie war state)
+// --------------------------------------------------------------------------------
+PlayerTypes CvUnit::getCombatOwner(TeamTypes eFromPerspectiveOfTeam, const CvPlot& assumedUnitPlot) const
 {
 	VALIDATE_OBJECT
-	if(eForTeam != NO_TEAM && getTeam() != eForTeam && eForTeam != BARBARIAN_TEAM)
+	if(eFromPerspectiveOfTeam != NO_TEAM && getTeam() != eFromPerspectiveOfTeam && eFromPerspectiveOfTeam != BARBARIAN_TEAM)
 	{
-		if(isAlwaysHostile(whosePlot))
+		if(isAlwaysHostile(assumedUnitPlot))
 		{
 			return BARBARIAN_PLAYER;
 		}
@@ -28536,19 +28539,18 @@ bool CvUnit::attemptGroundAttacks(const CvPlot& pPlot)
 }
 
 //	---------------------------------------------------------------------------
-bool CvUnit::isEnemy(TeamTypes eTeam, const CvPlot* pPlot) const
+bool CvUnit::isEnemy(TeamTypes eFromPerspectiveOfTeam, const CvPlot* pAssumedUnitPlot) const
 {
 	VALIDATE_OBJECT
-	if(NULL == pPlot)
-	{
-		pPlot = plot();
-	}
+	if(!pAssumedUnitPlot)
+		pAssumedUnitPlot = plot();
 
-	if(! pPlot)
-	{
+	//failsafe ...
+	if(!pAssumedUnitPlot)
 		return false;
-	}
-	return (atWar(GET_PLAYER(getCombatOwner(eTeam, *pPlot)).getTeam(), eTeam));
+
+	PlayerTypes ePretendOwner = getCombatOwner(eFromPerspectiveOfTeam, *pAssumedUnitPlot);
+	return atWar(GET_PLAYER(ePretendOwner).getTeam(), eFromPerspectiveOfTeam);
 }
 
 //	--------------------------------------------------------------------------------

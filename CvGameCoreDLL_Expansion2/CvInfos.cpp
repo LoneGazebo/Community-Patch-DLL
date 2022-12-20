@@ -3125,14 +3125,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iPolicyChoiceCutoffThreshold(0),
 	m_iBeliefChoiceCutoffThreshold(0),
 	// Tactical AI
-	m_iTacticalOffenseMinCompletedPositions(0),
-	m_iTacticalOffenseMaxCompletedPositions(0),
-	m_iTacticalOffenseMaxBranches(0),
-	m_iTacticalOffenseMaxChoicesPerUnit(0),
-	m_iTacticalDefenseMinCompletedPositions(0),
-	m_iTacticalDefenseMaxCompletedPositions(0),
-	m_iTacticalDefenseMaxBranches(0),
-	m_iTacticalDefenseMaxChoicesPerUnit(0),
+	m_iTacticalSimMaxCompletedPositions(23),
+	m_iTacticalSimMaxBranches(3),
+	m_iTacticalSimMaxChoicesPerUnit(3),
 	// Diplomacy AI
 	m_iLandDisputePercent(0),
 	m_iWonderDisputePercent(0),
@@ -3988,44 +3983,19 @@ int CvHandicapInfo::getBeliefChoiceCutoffThreshold() const
 
 /// TACTICAL AI
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalOffenseMinCompletedPositions() const
+int CvHandicapInfo::getTacticalSimMaxCompletedPositions() const
 {
-	return m_iTacticalOffenseMinCompletedPositions;
+	return m_iTacticalSimMaxCompletedPositions;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalOffenseMaxCompletedPositions() const
+int CvHandicapInfo::getTacticalSimMaxBranches() const
 {
-	return m_iTacticalOffenseMaxCompletedPositions;
+	return m_iTacticalSimMaxBranches;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalOffenseMaxBranches() const
+int CvHandicapInfo::getTacticalSimMaxChoicesPerUnit() const
 {
-	return m_iTacticalOffenseMaxBranches;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalOffenseMaxChoicesPerUnit() const
-{
-	return m_iTacticalOffenseMaxChoicesPerUnit;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalDefenseMinCompletedPositions() const
-{
-	return m_iTacticalDefenseMinCompletedPositions;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalDefenseMaxCompletedPositions() const
-{
-	return m_iTacticalDefenseMaxCompletedPositions;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalDefenseMaxBranches() const
-{
-	return m_iTacticalDefenseMaxBranches;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getTacticalDefenseMaxChoicesPerUnit() const
-{
-	return m_iTacticalDefenseMaxChoicesPerUnit;
+	return m_iTacticalSimMaxChoicesPerUnit;
 }
 
 /// DIPLOMACY AI
@@ -4461,15 +4431,10 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iTechChoiceCutoffThreshold = kResults.GetInt("TechChoiceCutoffThreshold");
 	m_iPolicyChoiceCutoffThreshold = kResults.GetInt("PolicyChoiceCutoffThreshold");
 	m_iBeliefChoiceCutoffThreshold = kResults.GetInt("BeliefChoiceCutoffThreshold");
-	// Tactical AI
-	m_iTacticalOffenseMinCompletedPositions = kResults.GetInt("TacticalOffenseMinCompletedPositions");
-	m_iTacticalOffenseMaxCompletedPositions = kResults.GetInt("TacticalOffenseMaxCompletedPositions");
-	m_iTacticalOffenseMaxBranches = kResults.GetInt("TacticalOffenseMaxBranches");
-	m_iTacticalOffenseMaxChoicesPerUnit = kResults.GetInt("TacticalOffenseMaxChoicesPerUnit");
-	m_iTacticalDefenseMinCompletedPositions = kResults.GetInt("TacticalDefenseMinCompletedPositions");
-	m_iTacticalDefenseMaxCompletedPositions = kResults.GetInt("TacticalDefenseMaxCompletedPositions");
-	m_iTacticalDefenseMaxBranches = kResults.GetInt("TacticalDefenseMaxBranches");
-	m_iTacticalDefenseMaxChoicesPerUnit = kResults.GetInt("TacticalDefenseMaxChoicesPerUnit");
+	// Tactical AI - using old names in the database, don't break compatibility
+	m_iTacticalSimMaxCompletedPositions = kResults.GetInt("TacticalOffenseMaxCompletedPositions");
+	m_iTacticalSimMaxBranches = kResults.GetInt("TacticalOffenseMaxBranches");
+	m_iTacticalSimMaxChoicesPerUnit = kResults.GetInt("TacticalOffenseMaxChoicesPerUnit");
 	// Diplomacy AI
 	m_iLandDisputePercent = kResults.GetInt("LandDisputePercent");
 	m_iWonderDisputePercent = kResults.GetInt("WonderDisputePercent");

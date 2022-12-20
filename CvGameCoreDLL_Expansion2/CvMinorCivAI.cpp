@@ -11220,12 +11220,8 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 /// Update Best Relations Resource Bonus
 void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes eOldAlly)
 {
-	FAssertMsg(eNewAlly != NO_PLAYER || eOldAlly != NO_PLAYER, "MINOR CIV AI: Updating Allied resource bonus and both players are not defined!");
-
-	// Change gifted Resources
-	ResourceTypes eResource;
-	ResourceUsageTypes eUsage;
-	int iResourceQuantity = 0;
+	if (eNewAlly == eOldAlly)
+		return; //nothing to do
 
 	PlayerTypes TechTestPlayer = NO_PLAYER;
 	if (eNewAlly != NO_PLAYER)
@@ -11235,7 +11231,7 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
+		ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if (pkResourceInfo == NULL)
@@ -11244,7 +11240,7 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 		if (TechTestPlayer != NO_PLAYER && pPlayer && !pPlayer->IsResourceRevealed(eResource))
 			continue;
 
-		eUsage = pkResourceInfo->getResourceUsage();
+		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 
 		if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
@@ -11261,7 +11257,7 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 				// Someone is losing the bonus :(
 				if (eOldAlly != NO_PLAYER)
 				{
-					iResourceQuantity = GetPlayer()->getResourceExport(eResource);
+					int iResourceQuantity = GetPlayer()->getResourceExport(eResource);
 
 					if (iResourceQuantity > 0)
 					{
@@ -11273,7 +11269,7 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 				// Someone new is getting the bonus :D
 				if (eNewAlly != NO_PLAYER)
 				{
-					iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
+					int iResourceQuantity = GetPlayer()->getNumResourceTotal(eResource);
 
 					if (iResourceQuantity > 0)
 					{

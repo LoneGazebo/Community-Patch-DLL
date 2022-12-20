@@ -1115,14 +1115,9 @@ public:
 	int getPolicyChoiceCutoffThreshold() const;
 	int getBeliefChoiceCutoffThreshold() const;
 	// Tactical AI
-	int getTacticalOffenseMinCompletedPositions() const;
-	int getTacticalOffenseMaxCompletedPositions() const;
-	int getTacticalOffenseMaxBranches() const;
-	int getTacticalOffenseMaxChoicesPerUnit() const;
-	int getTacticalDefenseMinCompletedPositions() const;
-	int getTacticalDefenseMaxCompletedPositions() const;
-	int getTacticalDefenseMaxBranches() const;
-	int getTacticalDefenseMaxChoicesPerUnit() const;
+	int getTacticalSimMaxCompletedPositions() const;
+	int getTacticalSimMaxBranches() const;
+	int getTacticalSimMaxChoicesPerUnit() const;
 	// Diplomacy AI
 	int getLandDisputePercent() const;
 	int getWonderDisputePercent() const;
@@ -1344,14 +1339,9 @@ protected:
 	int m_iPolicyChoiceCutoffThreshold;
 	int m_iBeliefChoiceCutoffThreshold;
 	// Tactical AI
-	int m_iTacticalOffenseMinCompletedPositions;
-	int m_iTacticalOffenseMaxCompletedPositions;
-	int m_iTacticalOffenseMaxBranches;
-	int m_iTacticalOffenseMaxChoicesPerUnit;
-	int m_iTacticalDefenseMinCompletedPositions;
-	int m_iTacticalDefenseMaxCompletedPositions;
-	int m_iTacticalDefenseMaxBranches;
-	int m_iTacticalDefenseMaxChoicesPerUnit;
+	int m_iTacticalSimMaxCompletedPositions;
+	int m_iTacticalSimMaxBranches;
+	int m_iTacticalSimMaxChoicesPerUnit;
 	// Diplomacy AI
 	int m_iLandDisputePercent;
 	int m_iWonderDisputePercent;
