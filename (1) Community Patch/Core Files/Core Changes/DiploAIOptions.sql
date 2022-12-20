@@ -108,12 +108,14 @@ SELECT 'DIPLOAI_HIDE_OPINION_TABLE', '0';
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
 
--- [ENABLE LUMP SUM GOLD TRADES]
--- If set to 1, enables human players to trade/demand lump sum Gold with AI players at all times.
--- If set to 2, enables all players to trade/demand lump sum Gold with each other at all times.
--- This is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
+-- [ENABLE TEMPORARY FOR PERMANENT TRADING]
+-- If set to 0, humans cannot trade temporary items (gold per turn, resources, etcetera) for permanent items (lump sum gold, cities, etcetera) with AI players.
+-- If set to 1 (default), AI players can trade their temporary items for the human's permanent items, but not vice versa.
+-- If set to 2, there are no restrictions on trading temporary items for permanent items.
+-- Option 2 is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
+-- Human-to-human trades, trades with "Permanent Peace" or "Permanent War or Peace" enabled, and trades between teammates are always unrestricted.
 INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_ENABLE_LUMP_GOLD_TRADES', '0';
+SELECT 'DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING', '1';
 
 -- [CUSTOMIZE WARSCORE THRESHOLD FOR THIRD PARTY PEACE]
 -- The minimum warscore required before someone can make a third party peace offer to the winner of a war.
