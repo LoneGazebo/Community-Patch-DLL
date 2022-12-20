@@ -8808,7 +8808,7 @@ bool CvTacticalPosition::isExhausted() const
 //this is a deferred check because in the beginning it's not clear how many enemy units we can eliminate
 bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 { 
-	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else wil hopefully pick up the pieces
+	//only units which have exhausted their moves are in this array! if the sim was aborted, somebody else will hopefully pick up the pieces
 	for (size_t i=0; i<notQuiteFinishedUnits.size(); i++)
 	{
 		const SUnitStats& unit = notQuiteFinishedUnits[i];
@@ -10073,7 +10073,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//now associate our units with their initial plots (after we know the plot types)
 	initialPosition->addInitialAssignments();
 
-	//number of enemies influences how agressive we can be
+	//number of enemies influences how aggressive we can be
 	//note that for defensive positioning we do not require any enemies to be nearby
 	initialPosition->countEnemies();
 

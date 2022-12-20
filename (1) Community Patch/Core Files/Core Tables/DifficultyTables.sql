@@ -136,14 +136,9 @@ ALTER TABLE HandicapInfos ADD COLUMN 'TechChoiceCutoffThreshold' INTEGER DEFAULT
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyChoiceCutoffThreshold' INTEGER DEFAULT 90;
 ALTER TABLE HandicapInfos ADD COLUMN 'BeliefChoiceCutoffThreshold' INTEGER DEFAULT 90;
 -- Tactical AI
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalOffenseMinCompletedPositions' INTEGER DEFAULT 23;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalOffenseMaxCompletedPositions' INTEGER DEFAULT 54;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalOffenseMaxBranches' INTEGER DEFAULT 5;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalOffenseMaxChoicesPerUnit' INTEGER DEFAULT 5;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalDefenseMinCompletedPositions' INTEGER DEFAULT 13;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalDefenseMaxCompletedPositions' INTEGER DEFAULT 54;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalDefenseMaxBranches' INTEGER DEFAULT 3;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalDefenseMaxChoicesPerUnit' INTEGER DEFAULT 3;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 54;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxBranches' INTEGER DEFAULT 5;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxChoicesPerUnit' INTEGER DEFAULT 5;
 -- Diplomacy AI
 ALTER TABLE HandicapInfos ADD COLUMN 'LandDisputePercent' INTEGER DEFAULT 100;
 ALTER TABLE HandicapInfos ADD COLUMN 'WonderDisputePercent' INTEGER DEFAULT 100;

@@ -4431,10 +4431,10 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iTechChoiceCutoffThreshold = kResults.GetInt("TechChoiceCutoffThreshold");
 	m_iPolicyChoiceCutoffThreshold = kResults.GetInt("PolicyChoiceCutoffThreshold");
 	m_iBeliefChoiceCutoffThreshold = kResults.GetInt("BeliefChoiceCutoffThreshold");
-	// Tactical AI - using old names in the database, don't break compatibility
-	m_iTacticalSimMaxCompletedPositions = kResults.GetInt("TacticalOffenseMaxCompletedPositions");
-	m_iTacticalSimMaxBranches = kResults.GetInt("TacticalOffenseMaxBranches");
-	m_iTacticalSimMaxChoicesPerUnit = kResults.GetInt("TacticalOffenseMaxChoicesPerUnit");
+	// Tactical AI
+	m_iTacticalSimMaxCompletedPositions = kResults.GetInt("TacticalSimMaxCompletedPositions");
+	m_iTacticalSimMaxBranches = kResults.GetInt("TacticalSimMaxBranches");
+	m_iTacticalSimMaxChoicesPerUnit = kResults.GetInt("TacticalSimMaxChoicesPerUnit");
 	// Diplomacy AI
 	m_iLandDisputePercent = kResults.GetInt("LandDisputePercent");
 	m_iWonderDisputePercent = kResults.GetInt("WonderDisputePercent");
