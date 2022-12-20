@@ -29,10 +29,6 @@ SET Yield = '2'
 WHERE YieldType = 'YIELD_PRODUCTION' AND ImprovementType = 'IMPROVEMENT_KASBAH';
 
 UPDATE Improvements
-SET Cityside = '1'
-WHERE Type = 'IMPROVEMENT_KASBAH';
-
-UPDATE Improvements
 SET DefenseModifier = '30'
 WHERE Type = 'IMPROVEMENT_KASBAH';
 
@@ -43,6 +39,13 @@ WHERE Type = 'IMPROVEMENT_KASBAH';
 UPDATE Improvements
 SET NearbyEnemyDamage = '5'
 WHERE Type = 'IMPROVEMENT_KASBAH';
+
+UPDATE Improvements
+SET Cityside = '1'
+WHERE Type = 'IMPROVEMENT_KASBAH';
+
+DELETE FROM Improvement_ValidTerrains
+WHERE ImprovementType = 'IMPROVEMENT_KASBAH';
 
 UPDATE Builds
 SET PrereqTech = 'TECH_CHIVALRY'
@@ -379,9 +382,14 @@ VALUES
 	('BUILDING_CANDI', 'YIELD_FAITH', 15),
 	('BUILDING_CANDI', 'YIELD_CULTURE', 15);
 
--- all terrains are valid for these improvements
-DELETE FROM Improvement_ValidTerrains
-WHERE ImprovementType IN ('IMPROVEMENT_KASBAH', 'IMPROVEMENT_ENCAMPMENT_SHOSHONE');
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'TERRAIN_GRASS'),
+	('IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'TERRAIN_PLAINS'),
+	('IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'TERRAIN_TUNDRA'),
+	('IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'TERRAIN_SNOW'),
+	('IMPROVEMENT_ENCAMPMENT_SHOSHONE', 'TERRAIN_DESERT');
 
 INSERT INTO Building_DomainFreeExperiencePerGreatWorkGlobal
 	(BuildingType, DomainType, Experience)
