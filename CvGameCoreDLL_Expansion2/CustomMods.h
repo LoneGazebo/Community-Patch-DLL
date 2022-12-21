@@ -333,6 +333,8 @@
 #define MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON	gCustomMods.isTRAITS_TRADE_ROUTE_PRODUCTION_SIPHON()
 // Enables trait for yield from route movement in foreign territory, intended for Colonialist Legacies' - Phillipine Republic for VP (Trait_YieldFromRouteMovementInForeignTerritory)
 #define MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY	gCustomMods.isTRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY()
+// Replace double movement effects with "no penalty" and half movement with "costs one extra move"
+#define MOD_SANE_UNIT_MOVEMENT_COST					gCustomMods.isSANE_UNIT_MOVEMENT_COST()
 
 // Permits cities to work more rings - AFFECTS SAVE GAME DATA FORMAT
 #define MOD_POLICIES_CITY_WORKING                   gCustomMods.isPOLICIES_CITY_WORKING()
@@ -1392,6 +1394,7 @@ public:
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_BONUSES);
 	MOD_OPT_DECL(TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON);
 	MOD_OPT_DECL(TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY);
+	MOD_OPT_DECL(SANE_UNIT_MOVEMENT_COST);
 
 	MOD_OPT_DECL(POLICIES_CITY_WORKING);
 	MOD_OPT_DECL(POLICIES_CITY_AUTOMATON_WORKERS);
