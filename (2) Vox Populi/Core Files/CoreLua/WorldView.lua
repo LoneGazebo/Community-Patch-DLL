@@ -45,6 +45,7 @@ local attackPathBorderStyle = "AMRBorder"; -- attack move
 
 -- VP/bal : for ctrl + click action
 local WaypointPathColor = Vector4( 1, 1, 0, 1 ); -- Yellow
+local AlternativeMoveColor = Vector4( 0, 1, 0, 1 ); -- Green
 
 local buildAcademy = GameInfoTypes["BUILD_ACADEMY"];
 local buildArchaeology = GameInfoTypes["BUILD_ARCHAEOLOGY_DIG"];
@@ -94,7 +95,7 @@ function UpdatePathFromWaypointToMouse()
 
 	if (pUnit:GetX() ~= pPlot:GetX() or pUnit:GetY() ~= pPlot:GetY()) and rButtonDown then
 		local path = pUnit:GeneratePathToNextWaypoint(pPlot)
-		for i = 1, #path, 1 do 
+		for i = 1, #path, 1 do
 			local node = path[i]
 --			print("i :"..tostring(i)..", X: "..tostring(node.X)..", Y: "..tostring(node.Y))
 			Events.SerialEventHexHighlight(ToHexFromGrid({x = node.X, y = node.Y}), true, WaypointPathColor)
@@ -656,11 +657,73 @@ end
 --InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_REBASE][MouseEvents.LButtonUp] = missionTypeLButtonUpHandler;
 --
 
+function canUnitMoveToPlotSameTurn(unit, targetPlot)
+	local path = unit:GeneratePath(targetPlot, 1)
+	for i = 1, #path, 1 do
+		return true;
+	end
+	return false;
+end
 
+function canChangeTradeHomeCity(unit, targetPlot)
+	return (unit:GetUnitClassType() == GameInfoTypes["UNITCLASS_CARAVAN"]
+	      or (unit:GetUnitClassType() == GameInfoTypes["UNITCLASS_CARGO_SHIP"]) and targetPlot:IsCoastalLand())
+		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit)
+end
+
+function canChangeHomePort(unit, targetPlot)
+	return unit:GetUnitClassType() == GameInfoTypes["UNITCLASS_GREAT_ADMIRAL"]                     -- must be great admiral
+		and unit:GetPlot():IsCity()                                                                -- must be in a city
+		and targetPlot:IsCity() and targetPlot:IsFriendlyCity(unit) and targetPlot:IsCoastalLand() -- must be targeting a friendly coastal city
+		and (not canUnitMoveToPlotSameTurn(unit, targetPlot));                                     -- sailing is faster, don't use up whole turn to get there
+end
+
+function isAirliftFastestTravelToPlot(unit, targetPlot)
+	return unit:CanAirliftAt(targetPlot, unit:GetPlot():GetX(), unit:GetPlot():GetY())
+		and (not canUnitMoveToPlotSameTurn(unit, targetPlot))
+		and unit:CanMoveOrAttackInto(targetPlot)
+end
+
+function highlightAlternativeMove(targetPlot)
+	Events.DisplayMovementIndicator(false);
+	Events.ShowMovementRange();
+	OnClearUnitMoveHexRange();
+
+	Events.SerialEventHexHighlight(ToHexFromGrid({x = targetPlot:GetX(), y = targetPlot:GetY()}), true, AlternativeMoveColor, "GroupBorder");
+end
+
+
+-- Returns true if unit can move to targetPlot without pathfinder
+function showAlternativeMoveHighlights(unit, targetPlot)
+	Events.ClearHexHighlightStyle("GroupBorder");
+	if canChangeHomePort(unit, targetPlot) 
+		or canChangeTradeHomeCity(unit, targetPlot) 
+		or isAirliftFastestTravelToPlot(unit, targetPlot) then
+
+		highlightAlternativeMove(targetPlot)
+		return true;
+	end
+
+	return false;
+end
 
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonDown] =
 function()
 	local bShift = UIManager:GetShift();
+	local plot = Map.GetPlot( UI.GetMouseOverHex() );
+	if not plot then
+		return true;
+	end
+
+	local plotX = plot:GetX();
+	local plotY = plot:GetY();
+	local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
+	local pUnitClass = pHeadSelectedUnit:GetUnitClassType()
+
+	if pHeadSelectedUnit ~= nil and showAlternativeMoveHighlights(pHeadSelectedUnit, plot) then
+		return;
+	end
+
 	ShowMovementRangeIndicator();
 	UI.SendPathfinderUpdate();
 	if bShift then
@@ -718,7 +781,7 @@ function MovementRButtonUp()
 --	else
 --		UpdatePathFromSelectedUnitToMouse();
 --	end
-			
+
 	if pHeadSelectedUnit then
 		if UI.IsCameraMoving() and not Game.GetAllowRClickMovementWhileScrolling() then
 			print("Blocked by moving camera");
@@ -747,34 +810,82 @@ function MovementRButtonUp()
 			return true;
 		end
 
-		-- rebase with RCLICK
-		if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and pHeadSelectedUnit:CanRebaseAt(0, plotX, plotY) then
-			Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);				
-		end
 
-		-- Visible enemy... bombardment?
-		if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
+		if bShift and pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR then
 
-			local bNoncombatAllowed = false;
-
-			if plot:IsFighting() then
-				return true;		-- Already some combat going on in there, just exit
+			-- Try to Mass Forward Rebase
+			for aircraft in getOrderedAircraft(pHeadSelectedUnit:GetPlot(), pUnitClass, highHpThenHighLevelFirst) do
+				if aircraft:CanRebaseAt(0, plotX, plotY) then
+					UI.SelectUnit(aircraft);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);
+				end
 			end
 
-			if pHeadSelectedUnit:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) then
+			-- Visible enemy... bombardment?
+			if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
 
-				local iMission;
-				if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR then
-					iMission = MissionTypes.MISSION_MOVE_TO;		-- Air strikes are moves... yep
-				else
-					iMission = MissionTypes.MISSION_RANGE_ATTACK;
+				local bNoncombatAllowed = false;
+
+				if plot:IsFighting() then
+					return true;	-- Already some combat going on in there, just exit
 				end
 
-				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, iMission, plotX, plotY, 0, false, bShift);
-				UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-				--Events.ClearHexHighlights();
-				ClearAllHighlights();
-				return true;
+				-- Massed Strike Mode
+				for aircraft in getOrderedAircraft(pHeadSelectedUnit:GetPlot(), pUnitClass, highHpThenHighLevelFirst) do
+					UI.SelectUnit(aircraft);
+
+					if aircraft:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) then
+						-- The state accessed by CanRangeStrikeAt() doesn't seem to update until this function returns,
+						-- so issue two missions per aircraft in case they have logistics. Even though this issues
+						-- invalid missions the game doesn't carry them out so it works as intended from testing
+						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, false);
+						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, false);
+					end
+
+					UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
+					ClearAllHighlights();
+				end
+			end
+
+		-- Fallback Rebase
+		elseif bAlt and pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR then
+
+			for aircraft in getOrderedAircraft(pHeadSelectedUnit:GetPlot(), pUnitClass, lowHpFirst) do
+				if aircraft:CanRebaseAt(0, plotX, plotY) and aircraft:GetCurrHitPoints() < aircraft:GetMaxHitPoints() then
+					UI.SelectUnit(aircraft);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);
+				end
+			end
+		else
+			-- rebase with RCLICK
+			if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and pHeadSelectedUnit:CanRebaseAt(0, plotX, plotY) then
+				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REBASE, plotX, plotY);
+			end
+
+			-- Visible enemy... bombardment?
+			if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
+
+				local bNoncombatAllowed = false;
+
+				if plot:IsFighting() then
+					return true;		-- Already some combat going on in there, just exit
+				end
+
+				if pHeadSelectedUnit:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) then
+
+					local iMission;
+					if pHeadSelectedUnit:GetDomainType() == DomainTypes.DOMAIN_AIR then
+						iMission = MissionTypes.MISSION_MOVE_TO;		-- Air strikes are moves... yep
+					else
+						iMission = MissionTypes.MISSION_RANGE_ATTACK;
+					end
+
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, iMission, plotX, plotY, 0, false, bShift);
+					UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
+					--Events.ClearHexHighlights();
+					ClearAllHighlights();
+					return true;
+				end
 			end
 		end
 
@@ -800,19 +911,19 @@ function MovementRButtonUp()
 				--print("Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);");
 				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_DO_COMMAND, CommandTypes.COMMAND_CANCEL_ALL);
 
-			-- VP: QoL key+click combinations 
+			-- VP: QoL key+click combinations
 			elseif bShift and not bCtrl then -- VP/bal: holding down shift queues move orders
-				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, true);				
+				Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, true);
 
-			elseif bCtrl then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues 
+			elseif bCtrl then --VP/bal: ctrl+click gives move&activate orders (e.g. move&alert, move&improve resource). ctrl+shift+click queues
 				if pHeadSelectedUnit:IsCanAttack() then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_ALERT, plotX, plotY, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_ALERT, plotX, plotY, 0, false, true);
 
 				elseif pUnitClass == GameInfoTypes["UNITCLASS_ARCHAEOLOGIST"] and pHeadSelectedUnit:CanBuild(plot, buildArchaeology) then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, buildArchaeology, pUnitID, 0, false, true);				
-		
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, buildArchaeology, pUnitID, 0, false, true);
+
 				elseif pUnitClass == GameInfoTypes["UNITCLASS_WORKER"] or pUnitClass == GameInfoTypes["UNITCLASS_WORKBOAT"] then
 					local build = nil
 					if plot:IsImprovementPillaged() or plot:IsRoutePillaged() then
@@ -820,20 +931,20 @@ function MovementRButtonUp()
 					elseif plot:GetResourceType() ~= NO_RESOURCE then
 						build = plot:GetBuildTypeNeededToImproveResource()
 					end
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
 
 				elseif pUnitClass == GameInfoTypes["UNITCLASS_MISSIONARY"] then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_SPREAD_RELIGION, plotX, plotY, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_SPREAD_RELIGION, plotX, plotY, 0, false, true);
 
 				elseif pUnitClass == GameInfoTypes["UNITCLASS_INQUISITOR"] then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REMOVE_HERESY, plotX, plotY, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_REMOVE_HERESY, plotX, plotY, 0, false, true);
 
 				elseif pHeadSelectedUnit:GetUnitCombatType() == GameInfoTypes["UNITCOMBAT_DIPLOMACY"] then
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_TRADE, plotX, plotY, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_TRADE, plotX, plotY, 0, false, true);
 
 				elseif pHeadSelectedUnit:IsGreatPerson() then
 					local build = nil
@@ -841,7 +952,7 @@ function MovementRButtonUp()
 						build = buildManufactory
 					elseif pUnitClass == GameInfoTypes["UNITCLASS_SCIENTIST"] then
 						build = buildAcademy
-					elseif pUnitClass == GameInfoTypes["UNITCLASS_PROPHET"] then	
+					elseif pUnitClass == GameInfoTypes["UNITCLASS_PROPHET"] then
 						build = buildHolySite
 					elseif pUnitClass == GameInfoTypes["UNITCLASS_GREAT_GENERAL"] then
 						if pHeadSelectedUnit:GetUnitType() ==  GameInfoTypes["UNIT_MONGOLIAN_KHAN"] then
@@ -854,15 +965,25 @@ function MovementRButtonUp()
 					elseif pUnitClass == GameInfoTypes["UNITCLASS_GREAT_DIPLOMAT"] then
 						build = buildEmbassy
 					else
-						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
+						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
 					end
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);				
-					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);				
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, bShift);
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_BUILD, build, pUnitID, 0, false, true);
 				end -- VP end
 
 			else--if plot == UI.GetGotoPlot() then
-				--print("Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);");
-				Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
+				if canChangeHomePort(pHeadSelectedUnit, plot) then
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_ADMIRAL_PORT, plotX, plotY, 0, false, bShift);
+				elseif canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_TRADE_UNIT_HOME_CITY, plotX, plotY, 0, false, bShift);
+				elseif isAirliftFastestTravelToPlot(pHeadSelectedUnit, plot) then
+					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_AIRLIFT, plotX, plotY, 0, false, bShift);
+				else
+					Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
+        end
+
+
+				-- Game.SelectionListMove(plot,  bAlt, bShift, bCtrl);
 				--UI.SetGotoPlot(nil);
 			end
 			--Events.ClearHexHighlights();
@@ -871,6 +992,44 @@ function MovementRButtonUp()
 		end
 	end
 end
+
+function getOrderedAircraft(airbasePlot, unitClass, comparator)
+	local aircraft = {}
+	local j = 0;
+
+	local unitCount = airbasePlot:GetNumUnits();
+	for i = 0, unitCount - 1 do
+		local unit = airbasePlot:GetUnit(i);
+		if unit:GetUnitClassType() == unitClass then
+			print(string.format("Inserting unit %s of type %s", unit:GetName(), unit:GetUnitClassType()));
+			j = j + 1;
+			aircraft[j] = unit;
+		end
+	end
+
+	table.sort(aircraft, comparator)
+
+	local i = 0;
+	return function()
+		i = i + 1;
+		if aircraft[i] then
+			return aircraft[i];
+		end
+	end
+end
+
+function lowHpFirst(unitA, unitB)
+	return unitA:GetCurrHitPoints() < unitB:GetCurrHitPoints();
+end
+
+function highHpThenHighLevelFirst(unitA, unitB)
+	if unitA:GetCurrHitPoints() ~= unitB:GetCurrHitPoints() then
+		return unitA:GetCurrHitPoints() > unitB:GetCurrHitPoints()
+	end
+
+	return unitA:GetLevel() > unitB:GetLevel()
+end
+
 
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_SELECTION][MouseEvents.RButtonUp] = MovementRButtonUp;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_MOVE_TO][MouseEvents.RButtonUp] = MovementRButtonUp;
@@ -964,7 +1123,15 @@ function OnMouseMoveHex()
 	local interfaceMode = UI.GetInterfaceMode();
 	local bShift = UIManager:GetShift();
 	if not bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
-		UI.SendPathfinderUpdate();
+		local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
+		local plot = Map.GetPlot( UI.GetMouseOverHex() );
+
+		if pHeadSelectedUnit ~= nil and plot ~= nil and showAlternativeMoveHighlights(pHeadSelectedUnit, plot) then
+			return;
+		else
+			UI.SendPathfinderUpdate();
+		end
+
 	elseif bShift and rButtonDown and interfaceMode == InterfaceModeTypes.INTERFACEMODE_SELECTION or interfaceMode == InterfaceModeTypes.INTERFACEMODE_MOVE_TO then
 		UpdatePathFromWaypointToMouse()
 	end
