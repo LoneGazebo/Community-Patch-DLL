@@ -2110,7 +2110,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
 
 	int iMoveUnitsAlreadyInZone = 0;
-	bool bHaveSupportUnit = false;
 	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked( it->iPlotIndex );
@@ -2137,6 +2136,11 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 					continue;
 
+				//don't send generals / admirals across the map in an uncontrolled and potentially unescorted manner
+				//it's enough if we recruit them for armies or combat sim
+				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+					continue;
+
 				// Proper domain of unit?
 				// Note that coastal cities have two zones, so we will call this method twice
 				if ((pTargetZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA) ||
@@ -2154,15 +2158,6 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 
 					if (bHaveFarTarget)
 						continue;
-
-					//don't use multiple generals
-					if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
-					{
-						if (bHaveSupportUnit)
-							continue;
-						else
-							bHaveSupportUnit = true;
-					}
 
 					CvTacticalUnit unit(pUnit->GetID());
 					unit.SetMovesToTarget(it->iPathLength);
@@ -7387,13 +7382,14 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		if (!bIsFrontlineCitadel)
 			return INT_MAX;
 
-	//extra careful with siege units
-	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
-		return INT_MAX;
-
-	//extra careful with carriers
-	if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA && iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
-		return INT_MAX;
+	//extra careful with siege units / carries
+	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
+	{
+		if (iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())
+			return INT_MAX;
+		if (iNumAdjFriendlies == 0 && iDanger > 3*pUnit->GetMaxHitPoints())
+			return INT_MAX;
+	}
 
 	//can happen with garrisons, catch this case as it messes up the math
 	if (iDanger == INT_MAX)
@@ -8379,6 +8375,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return;
 
+	//allow one default "pass" move for units we cannot find a good use for. no guarantees it will be picked though ...
+	if (unit.eLastAssignment == A_INITIAL)
+		gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
+
 	//what is the score for simply staying put and doing nothing?
 	//important not to pass zero moves left, otherwise we might ignore possible attacks
 	//do not score danger so we compare apples to apples below
@@ -8505,11 +8505,16 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		}
 	}
 
-	//note: we don't filter out blocked moves. the unit will be considered blocked in this case, even if we have valid but bad moves
+	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
-	if (gPossibleMoves.size()>(size_t)nMaxCount)
-		gPossibleMoves.erase( gPossibleMoves.begin()+nMaxCount, gPossibleMoves.end() );
+	//oops we're blocked with no valid move or only bad moves
+	if (gPossibleMoves.empty() || gPossibleMoves.front().iScore < 0)
+		gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
+
+	//don't return more than requested
+	if (gPossibleMoves.size() > (size_t)nMaxCount)
+		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
 }
 
 //if we have many units we won't look at all of them (for performance reasons)
@@ -8616,12 +8621,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
 	{
 		getPreferredAssignmentsForUnit(*itUnit, iMaxChoicesPerUnit);
-
-		//oops we're blocked with no valid move or we only have bad moves.
-		//also allow one default "pass" move for units we cannot use. this is important because blocked units do not make the finished position invalid!
-		if (gPossibleMoves.empty() || gPossibleMoves.front().iScore<0 || itUnit->eLastAssignment==A_INITIAL)
-			gPossibleMoves.push_back( STacticalAssignment(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,0,itUnit->eStrategy,0,A_BLOCKED) );
-
 		gChoicePerUnit[itUnit->iUnitID] = gPossibleMoves;
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
@@ -8827,7 +8826,7 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		//make sure we don't leave a unit in an impossible position
 		const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
 		int iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex), *this, EM_FINAL).iScore;
-		if (iNextTurnScore == TACTICAL_COMBAT_IMPOSSIBLE_SCORE && pInitial->iScore>TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
+		if (iNextTurnScore <= TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 			return false;
 
 		//everyone ends their turn unless the unit is blocked, then we may use them for other tasks
@@ -9372,38 +9371,20 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	assignedMoves.push_back(newAssignment);
 
 	//now deal with the consequences
+	bool bAffectsScore = true;
 	switch (newAssignment.eAssignmentType)
 	{
 	case A_INITIAL:
 		getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment);
+		bAffectsScore = false;
 		break;
-	case A_MOVE:
-#ifdef TACTDEBUG
-		{
-			//plausi checks
-			vector<STacticalUnit> fromBlocks = findBlockingUnitsAtPlot(newAssignment.iFromPlotIndex, newAssignment);
-			vector<STacticalUnit> toBlocks = findBlockingUnitsAtPlot(newAssignment.iToPlotIndex, newAssignment);
-
-			bool bFound = false;
-			for (vector<STacticalUnit>::iterator itBlock = fromBlocks.begin(); itBlock != fromBlocks.end(); ++itBlock)
-				if (itBlock->iUnitID == newAssignment.iUnitID)
-					bFound = true;
-
-			if (!bFound)
-				OutputDebugString("inconsistent origin\n");
-
-			if (!toBlocks.empty())
-				OutputDebugString("inconsistent destination\n");
-
-			if (newAssignment.iRemainingMoves > itUnit->iMovesLeft)
-				OutputDebugString("inconsistent moves!\n");
-		}
-#endif
-		//fall through!
 	case A_MOVE_FORCED:
-	case A_CAPTURE:
-	case A_MOVE_SWAP:
 	case A_MOVE_SWAP_REVERSE:
+		bAffectsScore = false;
+		//fall through!
+	case A_MOVE:
+	case A_MOVE_SWAP:
+	case A_CAPTURE:
 	{
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
@@ -9486,6 +9467,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		OutputDebugString("this should not happen\n");
 	case A_FINISH_TEMP:
 	case A_BLOCKED:
+		bAffectsScore = false;
 		itUnit->iMovesLeft = 0;
 		//todo: mark end turn plot? as opposed to transient blocks
 		break;
@@ -9508,15 +9490,15 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	}
 
 	//forced moves don't even affect the score
-	if (newAssignment.eAssignmentType != A_MOVE_FORCED && newAssignment.eAssignmentType != A_MOVE_SWAP_REVERSE)
+	if (bAffectsScore)
 	{
 		iScoreOverParent += newAssignment.iScore;
 		iTotalScore += newAssignment.iScore;
-	}
 
-	//when in doubt, increasing our visibility is good
-	iScoreOverParent += visibilityResult.first;
-	iTotalScore += visibilityResult.first;
+		//when in doubt, increasing our visibility is good
+		iScoreOverParent += visibilityResult.first;
+		iTotalScore += visibilityResult.first;
+	}
 
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0)

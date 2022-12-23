@@ -112,8 +112,8 @@ UPDATE Defines SET Value = '20' WHERE Name = 'PERMANENT_WAR_OTHER_AT_WAR';
 
 
 -- Settler Stuff
-UPDATE Defines SET Value = '4' WHERE Name = 'SETTLER_DISTANCE_DROPOFF_MODIFIER'; -- Start of settle plot devaluation (prefer close settling)
-UPDATE Defines SET Value = '8' WHERE Name = 'SETTLER_EVALUATION_DISTANCE'; -- Max range for settling (time offset will be added)
+UPDATE Defines SET Value = '5' WHERE Name = 'SETTLER_DISTANCE_DROPOFF_MODIFIER'; -- Start of settle plot devaluation (prefer close settling)
+UPDATE Defines SET Value = '10' WHERE Name = 'SETTLER_EVALUATION_DISTANCE'; -- Max range for settling (unless offshore; time offset will be added)
 UPDATE Defines SET Value = '6' WHERE Name = 'CITY_RING_1_MULTIPLIER'; -- there are 6 ring1 plots but don't overemphasize the very short term
 UPDATE Defines SET Value = '6' WHERE Name = 'CITY_RING_2_MULTIPLIER'; -- there are 12 ring2 plots, workable soon
 UPDATE Defines SET Value = '3' WHERE Name = 'CITY_RING_3_MULTIPLIER'; -- there are 18 ring3 plots, workable late and often conflicted
