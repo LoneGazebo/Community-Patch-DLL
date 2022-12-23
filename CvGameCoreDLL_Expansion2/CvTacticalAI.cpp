@@ -7382,7 +7382,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		if (!bIsFrontlineCitadel)
 			return INT_MAX;
 
-	//extra careful with siege units / carries
+	//extra careful with siege units / carriers
 	if (pUnit->AI_getUnitAIType() == UNITAI_CITY_BOMBARD || pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
 	{
 		if (iNumAdjEnemies > 0 && iDanger > pUnit->GetMaxHitPoints())

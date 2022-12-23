@@ -49089,7 +49089,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//prefer settling close in the beginning
 	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
-	//theoritical maximum distance for onshore settling
+	//theoretical maximum distance for onshore settling
 	int iMaxSettleDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE) + iTimeOffset; //plot value at max distance or greater is scaled to zero
 	if(IsCramped())
 		iMaxSettleDistance += iTimeOffset;
