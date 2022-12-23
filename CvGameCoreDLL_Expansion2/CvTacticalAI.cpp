@@ -1633,6 +1633,11 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
 			if (pUnit)
 			{
+				//do not switch a low HP unit against a high HP unit while under siege ...
+				//happens relatively often if a damaged city produces a unit!
+				if (pGarrison && pUnit->GetCurrHitPoints() < pGarrison->GetCurrHitPoints() && pCity->isUnderSiege())
+					continue;
+
 				//move out old garrison
 				if (pGarrison && pUnit->CanSafelyReachInXTurns(pPlot, 0))
 				{
