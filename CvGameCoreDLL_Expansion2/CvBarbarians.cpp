@@ -369,6 +369,11 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	if (pCity->HasGarrison())
 		return false;
 
+	// if city is very low on health, try to take it over outright
+	// this also prevents attempts to steal from a 0 HP city
+	if (pCity->getDamage() >= (pCity->GetMaxHitPoints() - 20))
+		return false;
+
 	//pretend the unit attacks this city
 	//city pays them off so they don't do damage
 	int iAttackerDamage = 0;
