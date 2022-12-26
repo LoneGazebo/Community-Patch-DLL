@@ -11,11 +11,44 @@
 
 	UPDATE Language_en_US SET Text = 'The Great Merchant can construct the special Town improvement which, when worked, produces [ICON_GOLD] Gold and [ICON_FOOD] Food. The Great Merchant can also journey to a city-state and perform a "trade mission" which produces a large sum of [ICON_GOLD] Gold and starts a "We Love the King Day" in all owned cities, increased by 25% per Town created and owned. The Great Merchant is expended when used in either of these ways.[NEWLINE][NEWLINE]Towns receive +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if built on a Road that connects two owned Cities, and +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if a Railroad. Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+1 for Roads, +2 for Railroads) if a Trade Route, either internal or international, passes over this Town.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_MERCHANT_STRATEGY';
 
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Improvement: Town[ENDCOLOR][NEWLINE]You can expend a Great Merchant to create the special Town improvement which, when worked, produces [ICON_GOLD] Gold [COLOR_YELLOW]and [ICON_FOOD] Food.[ENCDOLOR][NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Trade Mission[ENDCOLOR][NEWLINE]If the Great Merchant is inside City-State territory that you are not at war with, you can expend it to conduct a Trade Mission.[NEWLINE][NEWLINE]You will receive a large amount of [ICON_GOLD] Gold [COLOR_YELLOW]and an instant "We Love the King Day" in all owned cities. Every Town you''ve created and own increases the gold and length of the "We Love the King Day" by 25%.[ENDCOLOR] This action will consume the unit.[ENDCOLOR][NEWLINE][NEWLINE]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Merchant[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMERCHANT_HEADING3_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CUSTOMS_HOUSE';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CUSTOMS_HOUSE' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CUSTOMS_HOUSE';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TRADE_MISSION';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TRADE_MISSION' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TRADE_MISSION';
+
 	-- Great Engineer Text
 
 	UPDATE Language_en_US SET Text = 'This order will hurry production on the city''s current effort. Every owned Manufactory you''ve created and own increases the amount of production gained by 25%. It consumes the Great Person.' WHERE Tag = 'TXT_KEY_MISSION_HURRY_PRODUCTION_HELP';
 
 	UPDATE Language_en_US SET Text = 'Great Engineers can construct the special Manufactory improvement. When worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 25% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_ENGINEER_STRATEGY';
+
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Improvement: Manufactory[ENDCOLOR][NEWLINE]You can expend a Great Engineer to create a Manufactory. A Manufactory produces huge amounts of production (hammers) for the city, if it is worked.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Hurry Production[ENDCOLOR][NEWLINE]You can expend a Great Engineer to hurry production on the city''s current effort. [COLOR_YELLOW]The amount of Production is equal to 5 turns of the best city''s average recent output. Every owned Manufactory you''ve created and own increases it by 25%.[ENDCOLOR][NEWLINE][NEWLINE]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Engineer[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATENGINEER_HEADING3_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MANUFACTORY';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MANUFACTORY' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MANUFACTORY';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_HURRY_PRODUCTION';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_HURRY_PRODUCTION' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_HURRY_PRODUCTION';
+
 
 	-- Great Scientist Text
 
@@ -23,30 +56,203 @@
 
 	UPDATE Language_en_US SET Text = 'The Great Scientist can construct the special Academy improvement which, when worked, produces lots of [ICON_RESEARCH] Science. Further, a Great Scientist can give you a considerable boost towards your next tech, increased by 10% per Academy created and owned. The Great Scientist is expended when used in any of these ways.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_SCIENTIST_STRATEGY';
 
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Improvement: Academy[ENDCOLOR][NEWLINE]You can expend a Great Scientist to create an Academy. While worked, the Academy will give your city a big science boost.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Free Science[ENDCOLOR][NEWLINE]You can expend your Great Scientist to immediately gain a lump sum of science. [COLOR_YELLOW]Every owned Academy you''ve created and own increases the amount of science gained by 10%.[ENDCOLOR][NEWLINE][NEWLINE]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Scientist[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATSCIENTIST_HEADING3_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ACADEMY';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ACADEMY' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ACADEMY';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LEARN_NEW_TECH';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LEARN_NEW_TECH' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LEARN_NEW_TECH';
 
 	-- Changed how Musician Great Tour Works
 	UPDATE Language_en_US SET Text = 'When you perform a Concert Tour, your [ICON_TOURISM] Tourism with the target Civilization increases by 100% for [COLOR_POSITIVE_TEXT]10[ENDCOLOR] Turns (plus 1 additional Turn for every owned [ICON_GREAT_WORK] Great Work of Music). You also receive 2 [ICON_HAPPINESS_1] Happiness in your Capital. This action consumes the unit.[NEWLINE][NEWLINE]Cannot perform this action if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.' WHERE Tag = 'TXT_KEY_MISSION_ONE_SHOT_TOURISM_HELP';
 
 	UPDATE Language_en_US SET Text = 'A Great Musician can create a Great Work of Music (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower).[NEWLINE][NEWLINE]A Great Musician can also travel to another civilization and perform a [COLOR_POSITIVE_TEXT]Concert Tour[ENDCOLOR], increasing your [ICON_TOURISM] Tourism with the target Civilization for 10 Turns, plus 1 additional Turn for every owned [ICON_GREAT_WORK] Great Work of Music. You also receive 2 Happiness in your Capital. This action consumes the unit.[NEWLINE][NEWLINE]You cannot perform a Concert Tour if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [COLOR_MAGENTA]Influential[ENDCOLOR] or greater.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_MUSICIAN_STRATEGY';
 
-	-- Artist
-	UPDATE Language_en_US SET Text = '+{1_Num} [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE][NEWLINE]This order will consume the Great Artist and produce Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). Scales based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 10 turns, and is increased by 20% for every owned [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] Great Work set.' WHERE Tag = 'TXT_KEY_MISSION_START_GOLDENAGE_HELP';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Great Work[ENDCOLOR][NEWLINE]A Great Musician can create a Great Work of Music that is placed in the nearest city that has an appropriate building with an empty slot (like an Opera House or Broadcast Tower). The Great Musician is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Concert Tour[ENDCOLOR][NEWLINE]A Great Musician can travel to another civilization and perform a Concert Tour, [COLOR_YELLOW]which will increase Tourism with the target Civilization by 100% for 10 Turns (plus 1 additional Turn for every owned [ICON_GREAT_WORK] Great Work of Music). You also receive 2 [ICON_HAPPINESS_1] Happiness in your Capital. You cannot perform this action if at war with the target Civilization, or if your [ICON_TOURISM] Cultural Influence over the Civilization is [ENDCOLOR][COLOR_MAGENTA]Influential[ENDCOLOR][COLOR_YELLOW] or greater.[ENDCOLOR] This action consumes the Great Musician.[NEWLINE][NEWLINE]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMUSICIAN_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Musician[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATMUSICIAN_HEADING3_TITLE';
 
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MUSICIAN_CREATEGW';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MUSICIAN_CREATEGW' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MUSICIAN_CREATEGW';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CONCERT_TOUR';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CONCERT_TOUR' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CONCERT_TOUR';
+
+	-- Great Artist
 	UPDATE Language_en_US SET Text = 'A Great Artist can create a Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). A Great Artist can also generate a large sum of Golden Age Points, scaling with [ICON_GOLDEN_AGE] Golden Age Point output, [ICON_TOURISM] Tourism output, and the number of [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] sets of [ICON_GREAT_WORK] Great Works. Great Artists are expended when used either of these ways.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_ARTIST_STRATEGY';
-	UPDATE Language_en_US SET Text = '+{1_Num} [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE][NEWLINE]This order will consume the Great Artist and create a Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). Scales based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 15 turns, and is increased by 20% for every owned [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] Great Work set.' WHERE Tag = 'TXT_KEY_MISSION_START_GOLDENAGE_HELP';
+	UPDATE Language_en_US SET Text = '+{1_Num} [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE][NEWLINE]This order will consume the Great Artist and create Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). Scales based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 15 turns, and is increased by 20% for every owned [COLOR_POSITIVE_TEXT]themed[ENDCOLOR] Great Work set.' WHERE Tag = 'TXT_KEY_MISSION_START_GOLDENAGE_HELP';
 
-	-- Writer
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Great Work[ENDCOLOR][NEWLINE]A Great Artist can create a Great Work of Art (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like the Palace, a Museum, or a Cathedral). The Great Artist is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Golden Age Points[ENDCOLOR][NEWLINE]A Great Artist can be expended to [COLOR_YELLOW]generate Golden Age Points, which may trigger a [ICON_GOLDEN_AGE] Golden Age (extra [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture). The amount of Golden Age Points generated is based on the [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Point output of the past 15 turns, and is increased by 20% for every owned themed Great Work set.[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Artist[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATARTIST_HEADING3_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ART_CREATEGW';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ART_CREATEGW' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_ART_CREATEGW';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LANDMARK';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LANDMARK' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_LANDMARK';
+
+	-- Great Writer
 	UPDATE Language_en_US SET Text = 'A Great Writer can create a Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). A Great Writer can also write a Political Treatise, which grants the player an amount of Culture that scales with the number of owned [ICON_GREAT_WORK] Great Works. Great Writers are expended when used either of these ways.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_WRITER_STRATEGY';
 	UPDATE Language_en_US SET Text = 'This order will consume the Great Person and will grant a large amount of [ICON_CULTURE] Culture, scaling by 3% for every owned Great Work.' WHERE Tag = 'TXT_KEY_MISSION_GIVE_POLICIES_HELP';
 
-	-- Admiral 
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Great Work[ENDCOLOR][NEWLINE]A Great Writer can create a Great Work of Writing (generates both [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism) that is placed in the nearest city that has an appropriate building with an empty slot (like an Amphitheater, National Epic, Heroic Epic, or Royal Library). The Great Writer is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Political Treatise[ENDCOLOR][NEWLINE]A Great Writer can write a Political Treatise, which grants the player a large amount of [ICON_CULTURE] Culture, [COLOR_YELLOW]scaling by 3% for every owned Great Work[ENDCOLOR]. The Great Writer is expended when used this way.'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Writer[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATWRITER_HEADING3_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_WRITER_CREATEGW';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_WRITER_CREATEGW' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_WRITER_CREATEGW';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TREATISE';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TREATISE' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_TREATISE';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CULTURE_BOMB';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CULTURE_BOMB' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CULTURE_BOMB';
+	
+	-- Great Admiral 
 
 	UPDATE Language_en_US SET Text = 'The Great Admiral can immediately cross oceans for free, making it a useful (if vulnerable) exploration vessel. Furthermore, while in owned territory, the Great Admiral can be sent on a [COLOR_POSITIVE_TEXT]Voyage of Discovery[ENDCOLOR] that expends the Unit and gives you two copies of a Luxury Resource not available on the current map.[NEWLINE][NEWLINE]The Great Admiral has the ability to instantly [COLOR_POSITIVE_TEXT]Repair[ENDCOLOR] every Naval and Embarked Unit in the same hex, as well as in adjacent hexes. The Great Admiral is consumed when performing this action. The Great Admiral also provides +15% [ICON_STRENGTH] Combat Strength to all player-owned Naval Units within 2 tiles. The Great Admiral is NOT consumed when he provides this bonus. When the Great Admiral is expended for a [COLOR_POSITIVE_TEXT]Voyage of Discovery[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Repair[ENDCOLOR], it increases your Military Unit Supply Cap by 1.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_ADMIRAL_STRATEGY';
 
 	UPDATE Language_en_US SET Text = 'This order will consume the Great Admiral and heal all of your Naval Units and Embarked Units in this tile and all adjacent tiles. It also increases your Military Unit Supply Cap by 1.' WHERE Tag = 'TXT_KEY_MISSION_REPAIR_FLEET_HELP';
 
-	-- General
-	UPDATE Language_en_US SET Text = 'The Great General can construct the special [COLOR_POSITIVE_TEXT]Citadel[ENDCOLOR] improvement which gives a big defensive bonus to any Unit occupying it, damages Enemy Units that finish their turn in tiles adjacent to it, puts all adjacent tiles into your territory, and increases your Military Unit Supply Cap by 1. The Great General is consumed when it builds the [COLOR_POSITIVE_TEXT]Citadel[ENDCOLOR]. The Great General provides +15% [ICON_STRENGTH] Combat Strength to all player-owned Land Units within 2 tiles. The Great General is NOT consumed when he provides this bonus.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_GENERAL_STRATEGY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Combat Bonus[ENDCOLOR][NEWLINE]A Great Admiral provides a 15% combat bonus to all friendly naval units within 2 tiles. This combat bonus applies to all forms of naval combat: melee, ranged, defense, and so forth.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Repair Fleet[ENDCOLOR][NEWLINE]You can expend the Great Admiral to heal all of your Naval Units and Embarked Units in this tile and all adjacent tiles. [COLOR_YELLOW]This order also increases your Military Unit Supply Cap by 1.[ENDCOLOR] The Great Admiral is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Voyage of Discovery[ENDCOLOR][NEWLINE][COLOR_GREEN]You can send the Great Admiral on a Voyage of Discovery, which will provide you with two copies of a Luxury Resource not available on the current map. This order also increases your Military Unit Supply Cap by 1. The Great Admiral is expended when used this way.[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATADMIRAL_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great Admiral[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATADMIRAL_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_GREAT_ADMIRAL_ABILITY';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_GREAT_ADMIRAL_ABILITY' OR RelatedConcept = 'CONCEPT_GREAT_ADMIRAL_ABILITY';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_GREAT_ADMIRAL_ABILITY2';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_GREAT_ADMIRAL_ABILITY2' OR RelatedConcept = 'CONCEPT_GREAT_ADMIRAL_ABILITY2';
+
+	-- Great General
+	UPDATE Language_en_US
+	SET Text = 'The Great General can construct the special [COLOR_POSITIVE_TEXT]Citadel[ENDCOLOR] improvement which gives a big defensive bonus to any Unit occupying it, damages Enemy Units that finish their turn in tiles adjacent to it, puts all adjacent tiles into your territory, and increases your Military Unit Supply Cap by 1. The Great General is consumed when it builds the [COLOR_POSITIVE_TEXT]Citadel[ENDCOLOR]. The Great General provides +15% [ICON_STRENGTH] Combat Strength to all player-owned Land Units within 2 tiles. The Great General is NOT consumed when he provides this bonus.'
+	WHERE Tag = 'TXT_KEY_UNIT_GREAT_GENERAL_STRATEGY';
+
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Combat Bonus[ENDCOLOR][NEWLINE]A Great General provides a 15% combat bonus to all friendly land units within 2 tiles. This combat bonus applies to all forms of land combat: melee, ranged, defense, and so forth.[NEWLINE][NEWLINE][COLOR_CYAN]Special Improvement: Citadel[ENDCOLOR][NEWLINE]Placing a Citadel gives you ownership of all adjacent tiles, as your Culture borders will expand to surround the Citadel. Additionally, the Citadel provides a big defensive bonus to any unit occupying it. Further, it damages any enemy unit that ends its turn next to the Citadel (damage does not stack with other Citadels). Note that a Citadel functions only when it''s in your territory. If it were to change hands when a nearby city is conquered, it will only be effective for the new owner. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. When a Citadel is placed, the Great General is consumed [COLOR_YELLOW] and your Military Unit Supply Cap is increased by 1[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATGENERAL_HEADING3_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great General[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATGENERAL_HEADING3_TITLE';
+	
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CITADEL';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CITADEL' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_CITADEL';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_COMBAT_BONUS';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_COMBAT_BONUS' OR RelatedConcept = 'CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_COMBAT_BONUS';
+
+	-- Great Prophet
+
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Special Ability: Found Religion[ENDCOLOR][NEWLINE]If you haven''t founded a religion yet and there are still religions to be founded, you can use the Great Prophet to found a religion and choose religious beliefs for it. The city in which the religion is founded will be converted to your new religion. The Great Prophet is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Enhance Religion[ENDCOLOR][NEWLINE]You can use the Great Prophet to enhance your religion with two additional religious beliefs. The Great Prophet is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Improvement: Holy Site[ENDCOLOR][NEWLINE]A Great Prophet can construct the special Holy Site improvement which, when worked, produces additional [ICON_PEACE] Faith. The Great Prophet is expended when used this way.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Spread Religion[ENDCOLOR][NEWLINE]The Great Prophet can spread your religion 4 times, displacing any previous religions in the target cities. The Great Prophet is expended when used this way.'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATPROPHET_BODY';
+	UPDATE Language_en_US
+	SET Text = 'Great Prophet'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATPROPHET_TITLE';
+
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_GREAT_PROPHET_IMPROVEMENT';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_GREAT_PROPHET_IMPROVEMENT' OR RelatedConcept = 'CONCEPT_GREAT_PROPHET_IMPROVEMENT';
+	DELETE FROM Concepts
+	WHERE Type = 'CONCEPT_GREAT_PROPHET_ABILITY';
+	DELETE FROM Concepts_RelatedConcept
+	WHERE ConceptType = 'CONCEPT_GREAT_PROPHET_ABILITY' OR RelatedConcept = 'CONCEPT_GREAT_PROPHET_ABILITY';
+
+
+	-- Ordering of Concepts
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MOVING_GREAT_PEOPLE",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ARTIST"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_WRITER";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_MOVING_GREAT_PEOPLE",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ARTIST"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_WRITER";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_WRITER",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ENGINEER"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ARTIST";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ARTIST",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_MUSICIAN"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ENGINEER";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_ENGINEER",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_SCIENTIST"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_MUSICIAN";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_MUSICIAN",
+		InsertBefore = "CONCEPT_GREAT_PROPHET"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_SCIENTIST";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_SCIENTIST",
+		InsertBefore = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_GENERAL"
+	WHERE Type = "CONCEPT_GREAT_PROPHET";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_GREAT_PROPHET",
+		InsertBefore = "CONCEPT_GREAT_ADMIRAL"
+	WHERE Type = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_GENERAL";
+
+	UPDATE Concepts
+	SET InsertAfter = "CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_GREAT_PEOPLE_GREAT_GENERAL",
+		InsertBefore = "CONCEPT_GREAT_DIPLOMAT"
+	WHERE Type = "CONCEPT_GREAT_ADMIRAL";
+
+	-- Great People Generation
+	UPDATE Language_en_US
+	SET Text = '[COLOR_CYAN]Great Writers, Artists, Musicians, Engineers, Scientists, Merchants and Diplomats[ENDCOLOR] are created in Cities by Specialists and Wonders which generate "Great People" (GP) points. Each City''s GP points are kept track of separately, points for different types of Great People are not pooled.[NEWLINE][NEWLINE]When a City has enough of a specific type of GP points, the points are expended to generate a Great Person of that type. Great People points in other Cities are not expended. Once a Great Person is generated, the amount required for the next Great Person of that type increases in all of the player''s Cities. Some buildings and policies increase the rate at which you generate Great People.[NEWLINE][NEWLINE][COLOR_CYAN]Great Generals and Admirals[ENDCOLOR] are generated somewhat differently from other Great People. Instead of being generated in cities by specialists, Great Generals and Admirals are generated by combat. Whenever one of your land units gains XPs, your civilization generates Great General points (except when fighting against barbarians). Whenever one of your navals units gains XPs, your civilization generates Great Admiral points. When you''ve got enough points, you earn a Great Person, and the amount of points needed for the next Great Person is increased.[NEWLINE][NEWLINE][COLOR_CYAN]Great Prophets[ENDCOLOR] are earned as the result of collecting [ICON_PEACE] Faith, and are the only unit that can found or enhance a religion. Once you''ve accumulated enough [ICON_PEACE] Faith (at least [COLOR_YELLOW]800[ENDCOLOR] in a standard speed game), you have a chance to spawn a Great Prophet. The amount of Faith needed increases for each subsequent Great Prophet. [COLOR_YELLOW]The first Great Prophet you receive will always spawn in the Capital, subsequent Great Prophets spawn in the city with the highest Faith generation.[ENDCOLOR] After reaching the Industrial Era, Great Prophets are no longer spawned automatically, but can instead be purchased with Faith in cities.[NEWLINE][NEWLINE]Additionally, once you advance into the Industrial Age, you will be able to expend unused Faith to purchase Great People, depending on what Social Policy branches you have open.'
+	WHERE Tag="TXT_KEY_SPECIALISTSANDGP_GENERATING_HEADING3_BODY";
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Generating Great People[ENDCOLOR]'
+	WHERE Tag="TXT_KEY_SPECIALISTSANDGP_GENERATING_HEADING3_TITLE";
+        
 
 	-- Inquisitor
 	UPDATE Language_en_US SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove other religions from your cities (expending the Inquisitor) or be placed inside a city to reduce Missionary and Prophet spread power in that City by 50%. Removing Heresy causes 1 turn of [ICON_RESISTANCE] Resistance in the City.' WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
@@ -83,24 +289,30 @@
 	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_CUSTOMSHOUSE_HEADING4_TITLE';
 
 	UPDATE Language_en_US
-	SET Text = '[COLOR_GREEN]Specialist Yields[ENDCOLOR]'
-	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_HEADING1_TITLE';
-
-	UPDATE Language_en_US
-	SET Text = '[COLOR_GREEN]Great People Improvement Yields[ENDCOLOR]'
+	SET Text = '[COLOR_YELLOW]Specialists and City Growth[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_BUILDINGS_SPECIALISTS_HEADING2_TITLE';
 
 	UPDATE Language_en_US
-	SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Specialists consume variable amounts of food, based on your current Era.[ENDCOLOR][NEWLINE][NEWLINE]    [COLOR_CYAN]Ancient-Medieval[ENDCOLOR]: Specialists consume [ICON_FOOD] 3 Food.[NEWLINE]    [COLOR_CYAN]Renaissance[ENDCOLOR]: Specialists consume [ICON_FOOD] 4 Food.[NEWLINE]    [COLOR_CYAN]Industrial[ENDCOLOR]: Specialists consume [ICON_FOOD] 5 Food.[NEWLINE]    [COLOR_CYAN]Modern[ENDCOLOR]: Specialists consume [ICON_FOOD] 6 Food.[NEWLINE]    [COLOR_CYAN]Atomic:[ENDCOLOR]: Specialists consume [ICON_FOOD] 7 Food.[NEWLINE]    [COLOR_CYAN]Information[ENDCOLOR]: Specialists consume [ICON_FOOD] 8 Food.[NEWLINE][NEWLINE]All Specialists begin the game with a base set of yields. These yields change as the game progresses based on Technologies, Policies, Buildings, and Beliefs.'
-	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_HEADING1_BODY';
-
-	UPDATE Language_en_US
-	SET Text = 'All Great Person Improvements begin the game with a base set of yields. These yields change as the game progresses based on Technologies, Policies, Buildings, and Beliefs.'
+	SET Text = 'Certain buildings allow you to create "specialists" out of your citizens to work those buildings. Specialists improve the output of the building, and they also increase the city''s output of Great People. [COLOR_YELLOW] However, they reduce the city''s growth because Specialists don''t produce food and also consume more food than other citizens. The amount of food a specialist consumes is based on your current Era.[ENDCOLOR][NEWLINE][NEWLINE]    [COLOR_CYAN]Ancient-Medieval[ENDCOLOR]: Specialists consume [ICON_FOOD] 3 Food.[NEWLINE]    [COLOR_CYAN]Renaissance[ENDCOLOR]: Specialists consume [ICON_FOOD] 4 Food.[NEWLINE]    [COLOR_CYAN]Industrial[ENDCOLOR]: Specialists consume [ICON_FOOD] 5 Food.[NEWLINE]    [COLOR_CYAN]Modern[ENDCOLOR]: Specialists consume [ICON_FOOD] 6 Food.[NEWLINE]    [COLOR_CYAN]Atomic[ENDCOLOR]: Specialists consume [ICON_FOOD] 7 Food.[NEWLINE]    [COLOR_CYAN]Information[ENDCOLOR]: Specialists consume [ICON_FOOD] 8 Food.'
 	WHERE Tag = 'TXT_KEY_BUILDINGS_SPECIALISTS_HEADING2_BODY';
 
 	UPDATE Language_en_US
 	SET Text = 'Time and again throughout history, there have arisen men and women who have profoundly changed the world around them - artists, scientists, generals, merchants and others, whose genius sets them head and shoulders above the rest. In this game such visionaries are called "Great People."[NEWLINE][NEWLINE]There are five different kinds of great people in the game: Great Merchants, Great Artists, Great Scientists, Great Engineers, and Great Generals (a sixth, the Great Diplomat, is added in CSD). Each has a special ability.[NEWLINE][NEWLINE]Your civilization acquires Great People by constructing certain buildings and wonders, and then staffing them with "specialists", citizens from your cities who have given up working in the field or the mines. While specialists do not work city tiles, they do greatly speed the arrival of Great People. Balancing the need for food and the desire for Great People is an important challenge of city management.[NEWLINE][NEWLINE]{TXT_KEY_SPECIALISTSANDGP_HEADING1_BODY}'
 	WHERE Tag = 'TXT_KEY_PEDIA_SPEC_HELP_TEXT';
+
+	UPDATE Language_en_US
+	SET Text = 'Each Great Person type can be expended to create a Special Improvement on a tile within your civilization''s borders. The Special Improvement''s effects depend upon which Great Person is creating it - a Great Engineer''s Special Improvement generates production, for example, while a Great Merchant''s generates cash. [COLOR_YELLOW]The yields of Special Improvements increase as the game progresses based on Technologies, Policies, Buildings and Beliefs.[ENDCOLOR][NEWLINE][NEWLINE]A Special Improvement must be worked in order to have any effect. Further, a Special Improvement can be pillaged and repaired like any other Improvement. If constructed atop a resource, the Special Improvement will only provide access to it if that resource is a strategic resource.[NEWLINE][NEWLINE]Note that you have to move the Great Person out of the city and into your territory to construct a Special Improvement.'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_SPECIALIMPROVEMENT_HEADING4_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Special Improvements[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_SPECIALIMPROVEMENT_HEADING4_TITLE';
+
+	UPDATE Language_en_US
+	SET Text = 'There are [COLOR_YELLOW]ten[ENDCOLOR] types of Great People: Great Artists, Great Musicians, Great Writers, Great Engineers, Great Merchants, Great Scientists, [COLOR_YELLOW]Great Diplomats[ENDCOLOR], Great Generals, Great Admirals, and Great Prophets. The first seven types are quite similar in functionality, each having abilities related to their areas of expertise, while Great Generals, Great Admirals, and Great Prophets are rather different: they are generated differently and they have different effects upon play. Great Generals and Great Admirals provide bonuses related to land and naval combat, and Great Prophets allow you to found a religion.'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATPEOPLE_HEADING2_BODY';
+	UPDATE Language_en_US
+	SET Text = '[COLOR_YELLOW]Great People[ENDCOLOR]'
+	WHERE Tag = 'TXT_KEY_SPECIALISTSANDGP_GREATPEOPLE_HEADING2_TITLE';
 
 	UPDATE Language_en_US
 	SET Text = 'During a game, you will create "workers" - non-military units who will "improve" the land around your cities, increasing the land''s productivity or providing access to a nearby "resource." Improvements include farms, trading posts, lumber mills, logging camps, quarries, mines, and more. During wartime your enemy may "pillage" (destroy) your improvements. Pillaged improvements are ineffective until a worker has "repaired" them.[NEWLINE][NEWLINE]{TXT_KEY_BUILDINGS_SPECIALISTS_HEADING2_BODY}'

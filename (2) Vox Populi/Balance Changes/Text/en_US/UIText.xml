@@ -113,6 +113,17 @@
 			<CivilopediaHeaderType>HEADER_HAPPINESS</CivilopediaHeaderType>
 			<InsertAfter>CONCEPT_HAPPINESS_PUPPET_CITIES</InsertAfter>
 		</Row>
+		<Row>
+			<Type>CONCEPT_CANALS</Type>
+			<Topic>TXT_KEY_TOPIC_COMBAT</Topic>
+			<Description>TXT_KEY_CONCEPT_CANALS_TITLE</Description>
+			<Summary>TXT_KEY_CONCEPT_CANALS_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_CANALS_ADV_QUEST</AdvisorQuestion>
+			<Advisor>MILITARY</Advisor>
+			<CivilopediaHeaderType>HEADER_COMBAT</CivilopediaHeaderType>
+			<InsertAfter>CONCEPT_COMBAT_BONUSES_FORT</InsertAfter>
+			<InsertBefore>CONCEPT_COMBAT_FORTIFICATION_EXPLANATION</InsertBefore>
+		</Row>
 	</Concepts>
 	<Concepts_RelatedConcept>
 		<Row>
@@ -198,6 +209,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
 			<Text>What is Military Supply?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_TITLE">
+			<Text>[COLOR_GREEN]Canals[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_BODY">
+			<Text>Owned Forts and Citadels that are built next to a water tile count as Canals and can be accessed by your military ships. You can build Canals to connect Lakes (and Cities next to them) to the Ocean. It is not possible to have two adjacent Forts or two adjacent Citadels, but one Fort and one Citadel can be built next to each other. A City next to a Lake that is connected to the Ocean by a Canal can construct military ships (but not coastal buildings), and Canals can also be used by owned and foreign cargo ships.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_ADV_QUEST">
+			<Text>What are canals?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE">
