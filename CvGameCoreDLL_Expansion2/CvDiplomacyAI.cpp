@@ -42722,6 +42722,142 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 		}
 	}
 
+	// Regardless of whether we'd like to denounce a friend, it will give us a fairly hefty backstabbing penalty
+	// So only use this option rather than ending the DoF early if we'd benefit from doing so
+	// Look at the geopolitical situation.
+	bool bAnyoneWouldCare = false;
+	int iWeDenouncedFriendCount = GetWeDenouncedFriendCount() + 1; // +1 because we'd be denouncing this friend
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer& kPlayer = GET_PLAYER(eLoopPlayer);
+
+		if (!kPlayer.isAlive() || !kPlayer.isMajorCiv() || kPlayer.getNumCities() <= 0)
+			continue;
+
+		// Not this guy or anyone on our team
+		if (eLoopPlayer == ePlayer || kPlayer.getTeam() == GetTeam())
+			continue;
+
+		// Does this guy already consider us a backstabber?
+		if (kPlayer.GetDiplomacyAI()->IsUntrustworthy(GetID()))
+			continue;
+
+		// Relations already terrible? Doesn't really matter, then.
+		if (kPlayer.IsAtWarWith(GetID()) || IsDenouncedPlayer(eLoopPlayer) || IsDenouncedByPlayer(eLoopPlayer))
+			continue;
+
+		// Do we care about this person's opinion? Must be friends, wanting to be friends, strategic trade partner, or stronger than us.
+		bool bDeterrent = IsWantsDoFWithPlayer(eLoopPlayer) || IsFriendOrAlly(eLoopPlayer) || GetPrimeLeagueAlly() == eLoopPlayer || IsStrategicTradePartner(eLoopPlayer);
+		if (!bDeterrent)
+		{
+			StrengthTypes eStrength = GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer);
+			PlayerProximityTypes eProximity = kPlayer.GetProximityToPlayer(GetID());
+
+			// Let's not anger people much stronger than us, that won't end well.
+			if (eStrength >= STRENGTH_POWERFUL)
+				bDeterrent = true;
+
+			// Let's also not anger people of our strength who are nearby.
+			if (eStrength  >= STRENGTH_AVERAGE && eProximity >= PLAYER_PROXIMITY_CLOSE)
+				bDeterrent = true;
+		}
+
+		// Do they like us more than the friend we're denouncing?
+		if (kPlayer.isHuman())
+		{
+			// If the human is at war with them or has denounced them, assume they'll support us.
+			if (kPlayer.IsAtWarWith(ePlayer) || kPlayer.GetDiplomacyAI()->IsDenouncedPlayer(ePlayer))
+			{
+				bAnyoneWouldCare = true;
+			}
+			else
+			{
+				// We can't tell what humans think, so just assume they'll care if we backstab their friends, DPs, and vassals, and not otherwise
+				if (kPlayer.GetDiplomacyAI()->IsDoFAccepted(ePlayer) || kPlayer.GetDiplomacyAI()->IsHasDefensivePact(ePlayer) || kPlayer.GetDiplomacyAI()->IsMaster(ePlayer))
+				{
+					if (bDeterrent)
+						return false;
+					else
+						continue;
+				}
+
+				// Assume they won't care about what we think if we've previously backstabbed them or vice versa
+				if (WasEverBackstabbedBy(eLoopPlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
+					continue;
+
+				// Assume that our human friends, and humans who have been denounced or previously backstabbed by the target, would care about what we say.
+				if (IsFriendOrAlly(eLoopPlayer) || kPlayer.GetDiplomacyAI()->IsDenouncedByPlayer(ePlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(ePlayer))
+					bAnyoneWouldCare = true;
+			}
+		}
+		else
+		{
+			// AI players won't care about people who backstabbed them, or who they backstabbed
+			if (!kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(ePlayer) && !GET_PLAYER(ePlayer).GetDiplomacyAI()->WasEverBackstabbedBy(eLoopPlayer))
+			{
+				// For AI players - cheat a bit here, use the cached opinion weights
+				if (kPlayer.GetDiplomacyAI()->GetCachedOpinionWeight(ePlayer) <= kPlayer.GetDiplomacyAI()->GetCachedOpinionWeight(GetID()) || kPlayer.GetDiplomacyAI()->IsFriendOrAlly(ePlayer))
+				{
+					if (bDeterrent)
+						return false;
+					else
+						continue;
+				}
+
+				// Careful! Other AI players might care if we denounce one friend, but will view us as the problem if we denounce too many friends.
+				// What is their backstabbing tolerance?
+				if (!kPlayer.GetDiplomacyAI()->WasResurrectedBy(GetID()))
+				{
+					int iFriendDenounceTolerance = (kPlayer.GetDiplomacyAI()->GetLoyalty() < 5) ? 2 : 1;
+
+					if (kPlayer.GetDiplomacyAI()->GetForgiveness() > 8)
+						iFriendDenounceTolerance++;
+
+					int iNumCivsEver = GC.getGame().countMajorCivsEverAlive();
+					bool bDangerous = (GC.getGame().countMajorCivsAlive() <= (iNumCivsEver / 2));
+					bDangerous |= (GetPlayerNumMajorsConquered(GetID()) >= (iNumCivsEver / 3));
+
+					if (bDangerous)
+						iFriendDenounceTolerance = 1;
+					else if (kPlayer.GetDiplomacyAI()->IsBackstabber()) // If not dangerous and they're a backstabber, they won't care.
+						continue;
+
+					if (kPlayer.GetDiplomacyAI()->IsLiberator(GetID(), true, true))
+						iFriendDenounceTolerance++;
+
+					if (iWeDenouncedFriendCount > iFriendDenounceTolerance)
+					{
+						if (bDeterrent)
+							return false;
+						else
+							continue;
+					}
+				}
+
+				// Assume they won't care about what we think if we've previously backstabbed them or vice versa
+				if (WasEverBackstabbedBy(eLoopPlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
+					continue;
+
+				bAnyoneWouldCare = true;
+			}
+			else
+			{
+				// Assume they won't care about what we think if we've previously backstabbed them or vice versa
+				if (WasEverBackstabbedBy(eLoopPlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
+					continue;
+
+				// They'll only care if they like us more than them
+				// Cheat a bit here, use the cached opinion weights
+				if (kPlayer.GetDiplomacyAI()->GetCachedOpinionWeight(GetID()) < kPlayer.GetDiplomacyAI()->GetCachedOpinionWeight(ePlayer))
+					bAnyoneWouldCare = true;
+			}
+		}
+	}
+
+	if (!bAnyoneWouldCare)
+		return false;
+
 	if (IsUntrustworthy(ePlayer))
 		return true;
 
@@ -46928,10 +47064,6 @@ int CvDiplomacyAI::GetResearchAgreementScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetFriendDenouncementScore(PlayerTypes ePlayer)
 {
 	int iTraitorOpinion = 0;
-	
-	// If we don't view them as untrustworthy, disregard this
-	if (!IsUntrustworthy(ePlayer))
-		return 0;
 	
 	// How many of their friends have denounced them?
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

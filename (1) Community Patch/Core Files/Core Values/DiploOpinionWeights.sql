@@ -451,7 +451,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_RA_SCIENTIFIC_MOD', '-1
 --	//////////////////////////////////////
 
 -- NOTE 1: The highest of these penalties is applied.
--- NOTE 2: None of these penalties are applied if the player isn't considered "untrustworthy" yet.
+-- NOTE 2: None of these penalties are applied if the player isn't considered "untrustworthy" yet, except for "Your friends found reason to denounce you!"
 
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_BETRAYED_OUR_FRIEND_MULTIPLIER', '200'; -- multiplier to all traitor opinion penalties wherein the player betrayed or was betrayed by AI's friend
 
