@@ -278,6 +278,10 @@
 	<!-- Enables the trait table Trait_YieldFromRouteMovementInForeignTerritory -->
 	<Row Class="6" Name="TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY" Value="0"/>
 
+    <!-- Interprets double movement as "no extra cost" and half movement as "one extra cost" -->
+    <!-- Also disables fake roads in woodland -->
+    <Row Class="2" Name="SANE_UNIT_MOVEMENT_COST" Value="0"/>
+
     <!-- Permits cities to work more rings (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="2" Name="POLICIES_CITY_WORKING" Value="0"/>

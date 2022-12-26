@@ -8474,6 +8474,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//ranged attacks (also if aggression level is NONE!)
 	if (pUnit->IsCanAttackRanged() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
+		bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(assumedUnitPlot.getPlot(), getPlayer()) && assumedUnitPlot.getEnemyDistance() < 3;
 		const vector<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit);
 		for (vector<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
 		{
@@ -8491,8 +8492,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				{
 					int iNumFriendlies = assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1);
 					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit.iSelfDamage);
-					if (iDanger > 2 * pUnit->GetCurrHitPoints() * (iNumFriendlies+1))
-						bSuicide = true;
+					if (iDanger > 2 * pUnit->GetCurrHitPoints() * (iNumFriendlies + 1))
+						bSuicide = !(bIsFrontlineCitadel && newAssignment.iDamage > 10); //allow attacks in citadels if damage is higher than healing
 				}
 
 				if (newAssignment.iScore > 0 && !bSuicide)
@@ -8887,30 +8888,43 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 		{
 			const STacticalAssignment* initial = getInitialAssignment(final.iUnitID);
 			const SUnitStats* unit = root->getUnitStats(final.iUnitID);
+			const CvTacticalPlot& initialPlot = root->getTactPlot(initial->iFromPlotIndex);
 			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
 
-			int iInitialDistance = root->getTactPlot(initial->iFromPlotIndex).getEnemyDistance();
+			//which domain to use here? fixme
+			int iInitialDistance = initialPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);
 			int iFinalDistance = finalPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);
-			bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer()) && finalPlot.getEnemyDistance() < 3;
+			bool bIsFrontlineCitadelInitial = false;
+			bool bIsFrontlineCitadelFinal = false;
+
+			if (TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer()))
+			{
+				bIsFrontlineCitadelInitial = initialPlot.getEnemyDistance() < 3;
+				bIsFrontlineCitadelFinal = finalPlot.getEnemyDistance() < 3;
+			}
 
 			switch (unit->eStrategy)
 			{
 			case MS_NONE:
 				UNREACHABLE(); // Units are always supposed to be assigned a strategy.
 			case MS_FIRSTLINE:
-				if (iInitialDistance != 1 && iFinalDistance == 1)
+				if (bIsFrontlineCitadelInitial && bIsFrontlineCitadelFinal)
+					iPositive++; //occupying a citadel is always fine
+				else if (iInitialDistance != 1 && iFinalDistance == 1)
 					iPositive++;
-				if (iInitialDistance == 1 && iFinalDistance != 1 && !bIsFrontlineCitadel)
+				else if (iInitialDistance == 1 && iFinalDistance != 1)
 					iNegative++;
 				break;
 			case MS_SECONDLINE:
-				if (iInitialDistance != 2 && iFinalDistance == 2)
+				if (bIsFrontlineCitadelInitial && bIsFrontlineCitadelFinal)
+					iPositive++; //occupying a citadel is always fine
+				else if (iInitialDistance != 2 && iFinalDistance == 2)
 					iPositive++;
-				if (iInitialDistance == 2 && iFinalDistance != 2 && !bIsFrontlineCitadel)
+				else if (iInitialDistance == 2 && iFinalDistance != 2)
 					iNegative++;
 				break;
 			case MS_THIRDLINE:
-				//thirdline is a bit different
+				//thirdline is a bit different, ignore citadels
 				if (iInitialDistance == 1 && iFinalDistance > 1)
 					iPositive++;
 				if (iInitialDistance > 1 && iFinalDistance == 1)

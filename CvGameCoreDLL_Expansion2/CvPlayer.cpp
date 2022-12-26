@@ -51,9 +51,7 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include <sstream>
-#if defined(MOD_BALANCE_CORE)
 #include <iomanip>
-#endif
 
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
