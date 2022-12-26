@@ -54,12 +54,8 @@
     <!-- Ships may enter coastal forts/citadels (v19) -->
     <!-- GLOBAL_PASSABLE_FORTS=0 ships may only enter player cities or pass through allied CS cities -->
     <!-- GLOBAL_PASSABLE_FORTS=1 ships may additionally enter coastal forts in player, allied CS or no-mans land -->
-    <!-- GLOBAL_PASSABLE_FORTS_ANY=1 ships may additionally enter inland forts in player, allied CS or no-mans land -->
     <!-- See also: "Global - Passable Forts" -->
     <Row Class="6" Name="GLOBAL_PASSABLE_FORTS" Value="0" DbUpdates="1"/>
-    <!-- Ships may enter ANY forts/citadels (requires GLOBAL_PASSABLE_FORTS=1) -->
-    <!-- See also: "Global - Passable Forts" -->
-    <Row Class="6" Name="GLOBAL_PASSABLE_FORTS_ANY" Value="0"/>
 
     <!-- Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22) -->
     <!-- See also: "Goody Huts - No Auto-Mapping" -->

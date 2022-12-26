@@ -42835,7 +42835,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 					}
 				}
 
-				// Assume they won't care about what we think if we've previously backstabbed them or vice versa
+				// They won't care about what we think if we've previously backstabbed them or vice versa
 				if (WasEverBackstabbedBy(eLoopPlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
 					continue;
 
@@ -42843,7 +42843,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 			}
 			else
 			{
-				// Assume they won't care about what we think if we've previously backstabbed them or vice versa
+				// They won't care about what we think if we've previously backstabbed them or vice versa
 				if (WasEverBackstabbedBy(eLoopPlayer) || kPlayer.GetDiplomacyAI()->WasEverBackstabbedBy(GetID()))
 					continue;
 
