@@ -1491,7 +1491,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	// VP calculation
 	if (MOD_BALANCE_VP)
 	{
-		int iEra = GC.getGame().getCurrentEra();
+		int iEra = GetPlayer()->GetCurrentEra();
 		int OneGPT = iNumTurns;
 		int OneGPTScaled = iNumTurns * max(iEra, 1);
 
@@ -1585,7 +1585,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 
 			// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
-			if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			if (iCurrentNetGoldOfReceivingPlayer > 0)
+			{
 				int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
 				iItemValue += min(iGPTSurcharge, iItemValue / 5);
 			}
@@ -1815,7 +1816,8 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 			}
 
 			// Resource value is increased based on net GPT, capped at 20% of the value of the resource itself
-			if (iCurrentNetGoldOfReceivingPlayer > 0) {
+			if (iCurrentNetGoldOfReceivingPlayer > 0)
+			{
 				int iGPTSurcharge = int(0.5 * sqrt(iCurrentNetGoldOfReceivingPlayer / 1.));
 				iItemValue += min(iGPTSurcharge, iItemValue / 5);
 			}
@@ -5806,11 +5808,14 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		}
 
 		// Don't go out of our way to buy luxuries unless we have a reason to desire them.
-		int iEra = GC.getGame().getCurrentEra();
-		int OneGPT = GC.getGame().GetDealDuration();
-		int OneGPTScaled = OneGPT * max(iEra, 1);
-		if (iBestValue < (OneGPTScaled + OneGPT + OneGPT))
-			return false;
+		if (MOD_BALANCE_VP)
+		{
+			int iEra = GetPlayer()->GetCurrentEra();
+			int OneGPT = GC.getGame().GetDealDuration();
+			int OneGPTScaled = OneGPT * max(iEra, 1);
+			if (iBestValue < (OneGPTScaled + OneGPT + OneGPT))
+				return false;
+		}
 
 		// Seed the deal with the item we want
 		pDeal->AddResourceTrade(eOtherPlayer, eLuxuryFromThem, 1, GC.getGame().GetDealDuration());

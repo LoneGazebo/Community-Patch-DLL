@@ -1058,64 +1058,64 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 					return true;
 			}
 		}
-	}
 
-	// Not adjacent to water or not adjacent to enough water? If not checking for canals, abort!
-	// Also, water tiles are not land, so always return false
-	if (!bCheckCanals || !MOD_GLOBAL_PASSABLE_FORTS || isWater())
-		return false;
 
-	//check for areas of water connected by canals
-	//starting with the plot itself, we loop through all adjacent plots and add them to a list if they are water tiles
-	//or if there is an owned fort, citadel or city on them
-	//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
-	std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
-	TeamTypes eTeam = getTeam();
-	unsigned int iNumPlotsChecked = 0;
-	do
-	{
-		const CvPlot* pPlotBeingChecked = vAccessibleWaterPlots[iNumPlotsChecked];
-		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlotBeingChecked);
-		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+		//If not checking for canals, abort!
+		// Also, water tiles are not land, so always return false
+		if (!bCheckCanals || !MOD_GLOBAL_PASSABLE_FORTS || isWater())
+			return false;
+
+		//check for areas of water connected by canals
+		//starting with the plot itself, we loop through all adjacent plots and add them to a list if they are water tiles
+		//or if there is an owned fort, citadel or city on them
+		//we do this repeatedly until we reach the required amount of plots or until every item of the list is checked
+		std::vector<const CvPlot*> vAccessibleWaterPlots(1, this);
+		TeamTypes eTeam = getTeam();
+		unsigned int iNumPlotsChecked = 0;
+		do
 		{
-			const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if (!pAdjacentPlot)
-				continue;
-
-			// If water, must not be unowned ice
-			if (pAdjacentPlot->isWater())
+			const CvPlot* pPlotBeingChecked = vAccessibleWaterPlots[iNumPlotsChecked];
+			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlotBeingChecked);
+			for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 			{
-				if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
-					continue;
-			}
-			//If land, must be owned city, fort or citadel
-			else if (pAdjacentPlot->getTeam()==eTeam)
-			{
-				if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
+				const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+				if (!pAdjacentPlot)
 					continue;
 
-				// Must be adjacent to water
-				if (!pAdjacentPlot->isAdjacentToWater())
-					continue;
-			}
-			else
-			{
-				// Land tile not owned by us
-				continue;
-			}
+				// If water, must not be unowned ice
+				if (pAdjacentPlot->isWater())
+				{
+					if (pAdjacentPlot->getFeatureType() == FEATURE_ICE && !pAdjacentPlot->isOwned())
+						continue;
+				}
+				//If land, must be owned city, fort or citadel
+				else if (pAdjacentPlot->getTeam()==eTeam)
+				{
+					if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
+						continue;
 
-			// add the plot to the list if it's not already in it
-			if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end()) 
-			{
-				vAccessibleWaterPlots.push_back(pAdjacentPlot);
-				if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot from which we started
-					return true;
+					// Must be adjacent to water
+					if (!pAdjacentPlot->isAdjacentToWater())
+						continue;
+				}
+				else
+				{
+					// Land tile not owned by us
+					continue;
+				}
+
+				// add the plot to the list if it's not already in it
+				if (std::find(vAccessibleWaterPlots.begin(), vAccessibleWaterPlots.end(), pAdjacentPlot) == vAccessibleWaterPlots.end())
+				{
+					vAccessibleWaterPlots.push_back(pAdjacentPlot);
+					if (static_cast<int>(vAccessibleWaterPlots.size())-1 >= iMinWaterSize) // minus 1 because the first element in the list is the plot from which we started
+						return true;
+				}
 			}
-		}
-		iNumPlotsChecked++;
+			iNumPlotsChecked++;
+		} 
+		while (iNumPlotsChecked != vAccessibleWaterPlots.size());
 	}
-	while (iNumPlotsChecked != vAccessibleWaterPlots.size());
-
 	return false;
 }
 
@@ -2192,16 +2192,18 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 
 	ResourceTypes thisResource = getResourceType( ePlayer!=NO_PLAYER ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM );
 	// The functionality of this line is different in Civ 4: in that game a "Valid" Resource ALLOWS an Improvement on a Tile.  In Civ 5 this makes a Resource REQUIRE a certain Improvement
-	if(thisResource != NO_RESOURCE &&
-	        !pkImprovementInfo->IsBuildableOnResources() &&	// Some improvements can be built anywhere
-	        !pkImprovementInfo->IsImprovementResourceMakesValid(thisResource))
+	if(thisResource != NO_RESOURCE)
 	{
-		return false;
-	}
-	// If there IS a valid resource here then set validity to true (because something has to)
-	else if(thisResource != NO_RESOURCE)
-	{
-		bValid = true;
+		// If there IS a valid resource here then set validity to true
+		if(pkImprovementInfo->IsImprovementResourceMakesValid(thisResource))
+		{
+			bValid = true;
+		}
+		// Some improvements can ignore resource requirements, but otherwise not satisfying the requirements is an automatic fail
+		else if (!pkImprovementInfo->IsBuildableOnResources())
+		{
+			return false;
+		}
 	}
 
 	if(pkImprovementInfo->IsNoFreshWater() && isFreshWater())
@@ -13382,7 +13384,8 @@ bool CvPlot::canTrain(UnitTypes eUnit) const
 		if (thisUnitDomain == DOMAIN_SEA)
 		{
 			//fast check for ocean (-1)
-			if (!isCoastalLand(-1, true, true) || !isCoastalLand(thisUnitEntry.GetMinAreaSize(), true, true))
+			//check for canals only in Vox Populi
+			if (!isCoastalLand(-1, true, MOD_BALANCE_VP) || !isCoastalLand(thisUnitEntry.GetMinAreaSize(), true, MOD_BALANCE_VP))
 			{
 				return false;
 			}

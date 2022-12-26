@@ -1062,9 +1062,9 @@ VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'SIHEYUAN');
 ------------------------------
 INSERT INTO ArtDefine_Landmarks
 			(Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour)
-VALUES 		('Any', 'UnderConstruction', 1.10, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN_HB.fxsxml', 1),
-			('Any', 'Constructed', 1.10, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN.fxsxml', 1),
-			('Any', 'Pillaged', 1.10, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Siheyuan_PL.fxsxml', 1);
+VALUES 		('Any', 'UnderConstruction', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN_HB.fxsxml', 1),
+			('Any', 'Constructed', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN.fxsxml', 1),
+			('Any', 'Pillaged', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Siheyuan_PL.fxsxml', 1);
 ------------------------------
 -- ArtDefine_StrategicView
 ------------------------------

@@ -48,7 +48,8 @@
                     </Stack>
                     <Image Anchor="C,C" Offset="0,0" Texture="bar340x2.dds" Size="340.1"/>
 					<Container Size="6,6"/>
-					<Label ID="Tips" Anchor="C,C" WrapWidth="460" BranchAlpha="1.5" LeadingOffset="-4" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT16" FontStyle="Shadow"/>
+                    <Label ID="Title" Anchor="C,T" WrapWidth="460" BranchAlpha="1.5" LeadingOffset="-4" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Shadow"/>
+					<Label ID="Tips" Anchor="C,C" WrapWidth="460" Offset= "0,-2" BranchAlpha="1.5" LeadingOffset="-6" Color1="0,0,0,200" Font="TwCenMT16" FontStyle="Shadow"/>
                 </Stack>
             </Grid>
         </SlideAnim>

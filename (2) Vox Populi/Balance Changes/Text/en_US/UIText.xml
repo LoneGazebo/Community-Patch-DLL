@@ -148,7 +148,7 @@
 		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_ADVISOR_QUESTION">
 			<Text>What are Yields Scaling with Era?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC">
 			<Text>[COLOR_GREEN]City State Embassies[ENDCOLOR]</Text>
 		</Row>
@@ -210,7 +210,7 @@
 		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
 			<Text>What is Military Supply?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CONCEPT_CANALS_TITLE">
 			<Text>[COLOR_GREEN]Canals[ENDCOLOR]</Text>
 		</Row>
@@ -220,7 +220,7 @@
 		<Row Tag="TXT_KEY_CONCEPT_CANALS_ADV_QUEST">
 			<Text>What are canals?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE">
 			<Text>[COLOR_GREEN]Local Happiness in Cities[ENDCOLOR]</Text>
 		</Row>
@@ -230,7 +230,7 @@
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_ADV_QUEST">
 			<Text>How is Local City Happiness determined?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_TITLE">
 			<Text>[COLOR_GREEN]Calculation of Needs Thresholds[ENDCOLOR]</Text>
 		</Row>
@@ -252,7 +252,7 @@
 		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_ADV_QUEST">
 			<Text>What causes Unhappiness in Puppet Cities?</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIED_CITIES_TITLE">
 			<Text>[COLOR_GREEN]Occupied and Resisting Cities[ENDCOLOR]</Text>
 		</Row>
@@ -262,8 +262,8 @@
 		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIEDCITIES_ADV_QUEST">
 			<Text>What causes Unhappiness in Occupied and Resisting Cities?</Text>
 		</Row>
-		
-		
+
+
 
 		<Row Tag="TXT_KEY_DUDE_8">
 			<Text>Herodotus</Text>
@@ -422,7 +422,7 @@
 		<Row Tag="TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING">
 			<Text>Every [ICON_PUPPET] non-Puppet owned city (excluding [ICON_CAPITAL] Capital) decreases the [ICON_TOURISM] Tourism you produce from Cities and Historic Events by {1_Num}% (up to 75%).</Text>
 		</Row>
-		
+
 		<!-- City-State Protection Prompt -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
 			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR].</Text>
@@ -475,7 +475,7 @@
 		<Row Tag="TXT_KEY_TECH_SUPPLY">
 			<Text>Tech Reduction</Text>
 		</Row>
-		
+
 
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
 			<Text>Number of Military Units: {2_Num}[NEWLINE]Current Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
@@ -526,7 +526,7 @@
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_GAIN_CS">
 			<Text>Total: {1_Num} [ICON_CULTURE] Culture (due to [ICON_INFLUENCE] Influence over this City-State)</Text>
 		</Row>
-	
+
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_GAIN">
 			<Text>THEIR CULTURE GAIN</Text>
 		</Row>
@@ -587,7 +587,7 @@
 		</Row>
 		<!-- Tooltip for Top Panel Happiness -->
 		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
-			<Text>{1_Happiness} from Luxuries (Bonus)</Text>
+			<Text>{1_Happiness} from Luxuries (Bonus).</Text>
 		</Row>
 
 		<!-- Tooltips for EU Panel -->
@@ -613,7 +613,7 @@
 		<Row Tag="TXT_KEY_EUPANEL_BONUS_MULTI_ATTACK_BONUS">
 			<Text>Multi-Attack Bonus</Text>
 		</Row>
-	
+
 		<Row Tag="TXT_KEY_EUPANEL_ATTACK_CS_ALLIANCE_STRENGTH">
 			<Text>Hellenic League</Text>
 		</Row>
@@ -656,7 +656,7 @@
 		<Row Tag="TXT_KEY_UPANEL_REPAIR_CHARGES_TT">
 			<Text>The number of times you can use the Fleet Repair ability. At zero, the unit is consumed.</Text>
 		</Row>
-		
+
 		<!-- Assyria UA Text -->
 		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
 			<Text>Your soldiers found information worth {1_Num} [ICON_RESEARCH] Science during the conquest of {2_Name}!</Text>
@@ -684,7 +684,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA">
 			<Text>{1_CityName:textkey} loves the Empress!</Text>
 		</Row>
-		
+
 		<!-- New -->
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_ERA_CHANGE">
@@ -700,7 +700,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_GREAT_WORK">
 			<Text>Mandate of Heaven</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
 			<Text>The acquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Growth by +{4_Num}%!</Text>
 		</Row>
@@ -737,8 +737,8 @@
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA">
 			<Text>"We Love The Empress Day"! ({1_Num})</Text>
 		</Row>
-		
-		
+
+
 		<!-- Brazil -->
 		<Row Tag="TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA_CARNAVAL">
 			<Text>Carnival! ({1_Num})</Text>
@@ -769,7 +769,7 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
 			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take exact heavy tribute from them. Doing so will net you [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, or [ICON_FOOD] Food, depending on the City-State being targeted.[NEWLINE][NEWLINE]The amount you can exact in tribute is based on Game Speed and the Yield output of your Capital. Local Yields, like [ICON_FOOD] Food or [ICON_PRODUCTION] Production, will be delivered to your Capital.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
 		</Row>
-		
+
 		<!-- City-State Diplo Popup -->
 		<Row Tag="TXT_KEY_POP_CSTATE_LABEL_CONTENDER">
 			<Text>Contender:</Text>
@@ -1074,7 +1074,7 @@
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Reformation Belief</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CULTURE_FROM_GWS">
 			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GREAT_WORK] Great Works</Text>
 		</Row>
@@ -1087,7 +1087,7 @@
 		<Row Tag="TXT_KEY_FAITH_FROM_SPIES">
 			<Text>+{1_Num}% [ICON_PEACE] from [ICON_SPY] Active Spies</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
 			<Text>{1_Num} [ICON_CULTURE] from City-States</Text>
 		</Row>
@@ -1530,7 +1530,7 @@
 		<Row Tag="TXT_KEY_GREAT_WORK_FLOOD_TABLET">
 			<Text>The Flood Tablet</Text>
 		</Row>
-		
+
 		<!-- Warscore Autocracy UI -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_WARSCORE_BONUS">
 			<Text>+{1_Num}% of Highest Warscore with:[NEWLINE]</Text>
@@ -1630,9 +1630,9 @@
 		<Row Tag="TXT_KEY_HAPPY_RELIGION_CBO">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] from Religion</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_TP_HAPPINESS_RESOURCE_CITY">
-			<Text>{1_Num} from Imported and Controlled Luxuries (Avg. {2_Num} per Luxury)</Text>
+			<Text>{1_Num} from Imported and Controlled Luxuries (Avg. {2_Num} per Luxury).</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_TOTAL_EMPIRE_UNHAPPINESS_TT">
@@ -1657,11 +1657,11 @@
 		<Row Tag="TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS_FLAT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS">
 			<Text>Your approval rating is less than 35% - your Empire is in open rebellion! Cities may abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS">
 			<Text>Your approval rating is less than 20% - your Empire is fracturing! Cities will rapidly abandon your Empire and flip to the Civilization that is most culturally influential over your people!</Text>
 		</Row>

@@ -6481,10 +6481,10 @@ bool CvGame::IsHideOpinionTable() const
 	return false;
 }
 
-/// Enable Lump Sum Gold Trading
-bool CvGame::IsLumpGoldTradingHumanOnly() const
+/// Enables human permanent items (e.g., lump Gold) to be traded for AI temporary items (e.g., resources), but not the other way around
+bool CvGame::IsHumanPermanentForAITemporaryTradingAllowed() const
 {
-	if (GD_INT_GET(DIPLOAI_ENABLE_LUMP_GOLD_TRADES) == 1)
+	if (GD_INT_GET(DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING) == 1)
 	{
 		return true;
 	}
@@ -6492,9 +6492,10 @@ bool CvGame::IsLumpGoldTradingHumanOnly() const
 	return false;
 }
 
-bool CvGame::IsLumpGoldTradingEnabled() const
+/// Removes restrictions on permanent-for-temporary item trading
+bool CvGame::IsPermanentForTemporaryTradingAllowed() const
 {
-	if (GD_INT_GET(DIPLOAI_ENABLE_LUMP_GOLD_TRADES) > 1)
+	if (GD_INT_GET(DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING) > 1)
 	{
 		return true;
 	}

@@ -1334,6 +1334,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
+	// No backstabbing is possible if war can't be declared!
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		return false;
+
 	// Certain items are irrelevant
 	if (eItemType == TRADE_ITEM_PEACE_TREATY || eItemType == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP)
 		return false;
@@ -1341,6 +1345,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 		return false;
 
 	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman(), bToHuman = GET_PLAYER(eToPlayer).isHuman();
+	bool bNoHumans = !bFromHuman && !bToHuman;
 
 	// Humans can handle their own dealmaking
 	if (bFromHuman && bToHuman)
@@ -1350,9 +1355,12 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	if (GET_PLAYER(eFromPlayer).getTeam() == GET_PLAYER(eToPlayer).getTeam())
 		return false;
 
-	// Diplo AI Option to allow lump Gold trading
-	bool bLumpGoldEnabled = GC.getGame().IsLumpGoldTradingEnabled() || (GC.getGame().IsLumpGoldTradingHumanOnly() && (bFromHuman || bToHuman));
-	bool bExempted = eItemType == TRADE_ITEM_GOLD && bLumpGoldEnabled;
+	// Restriction for human-to-AI trading removed via advanced options?
+	if (!bNoHumans && GC.getGame().IsPermanentForTemporaryTradingAllowed())
+		return false;
+
+	// Can AI players trade their temporary items for humans' permanent items?
+	bool bCanTradeHumanPermanentForAITemporary = GC.getGame().IsHumanPermanentForAITemporaryTradingAllowed();
 
 	bool bTemporary = false;
 	switch (eItemType)
@@ -1385,37 +1393,41 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is temporary - it cannot be traded for a permanent item
 	if (bTemporary)
 	{
-		vector<TradeableItems> vProhibitedItems;
-		vProhibitedItems.push_back(TRADE_ITEM_CITIES);
-		vProhibitedItems.push_back(TRADE_ITEM_TECHS);
-		vProhibitedItems.push_back(TRADE_ITEM_MAPS);
-		vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE);
-		vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
-
-		if (!bLumpGoldEnabled)
+		if (!bToHuman || bNoHumans)
+		{
+			vector<TradeableItems> vProhibitedItems;
 			vProhibitedItems.push_back(TRADE_ITEM_GOLD);
+			vProhibitedItems.push_back(TRADE_ITEM_CITIES);
+			vProhibitedItems.push_back(TRADE_ITEM_TECHS);
+			vProhibitedItems.push_back(TRADE_ITEM_MAPS);
+			vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE);
+			vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
 
-		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
-			return true;
+			if (ContainsItemTypes(vProhibitedItems, eToPlayer))
+				return true;
+		}
 	}
 	// This item is permanent - it cannot be traded for a temporary item
-	else if (!bExempted)
+	else
 	{
-		vector<TradeableItems> vProhibitedItems;
-		vProhibitedItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
-		vProhibitedItems.push_back(TRADE_ITEM_RESOURCES);
-		vProhibitedItems.push_back(TRADE_ITEM_OPEN_BORDERS);
-		vProhibitedItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
-		vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
-		vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
-		vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
-		vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+		if (!bCanTradeHumanPermanentForAITemporary || !bFromHuman || bNoHumans)
+		{
+			vector<TradeableItems> vProhibitedItems;
+			vProhibitedItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
+			vProhibitedItems.push_back(TRADE_ITEM_RESOURCES);
+			vProhibitedItems.push_back(TRADE_ITEM_OPEN_BORDERS);
+			vProhibitedItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
+			vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
+			vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
+			vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
+			vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
 
-		if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
-			vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
+			if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
+				vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
 
-		if (ContainsItemTypes(vProhibitedItems, eToPlayer))
-			return true;
+			if (ContainsItemTypes(vProhibitedItems, eToPlayer))
+				return true;
+		}
 	}
 
 	return false;

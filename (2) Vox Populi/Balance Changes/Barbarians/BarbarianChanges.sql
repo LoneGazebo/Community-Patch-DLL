@@ -115,13 +115,9 @@ VALUES
 
 CREATE TABLE IF NOT EXISTS Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp TEXT NOT NULL);
 
-INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp) VALUES
-	-- Barbarians cannot spawn the unit classes below!
-	-- Civilians
-	('UNITCLASS_SETTLER'),
-	('UNITCLASS_PIONEER'),
-	('UNITCLASS_COLONIST'),
-	('UNITCLASS_WORKER'),
+INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp) VALUE
+	-- Barbarians cannot spawn any civilian units
+	-- The civilian units below also cannot be captured from Barbarians
 	('UNITCLASS_WORKBOAT'),
 	('UNITCLASS_CARAVAN'),
 	('UNITCLASS_CARGO_SHIP'),
@@ -135,13 +131,12 @@ INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Tem
 	('UNITCLASS_ENGINEER'),
 	('UNITCLASS_ARCHAEOLOGIST'),
 	('UNITCLASS_PROPHET'),
-	('UNITCLASS_MISSIONARY'),
-	('UNITCLASS_INQUISITOR'),
 	('UNITCLASS_SS_COCKPIT'),
 	('UNITCLASS_SS_STASIS_CHAMBER'),
 	('UNITCLASS_SS_ENGINE'),
 	('UNITCLASS_SS_BOOSTER'),
 
+	-- Combat units that cannot be spawned by Barbarians
 	-- Slingers, since they have a unique Archer
 	('UNITCLASS_VP_SLINGER'),
 
@@ -179,7 +174,6 @@ INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Tem
 
 	-- Misc.
 	('UNITCLASS_CARRIER'),
-	('UNITCLASS_HORSE_ARCHER'),
 	('UNITCLASS_ASSYRIAN_SIEGE_TOWER');
 
 DELETE FROM Civilization_UnitClassOverrides WHERE CivilizationType = 'CIVILIZATION_BARBARIAN' AND UnitClassType IN (SELECT UnitClassType_Temp FROM Civilization_UnitClassOverrides_BarbarianDisabler);

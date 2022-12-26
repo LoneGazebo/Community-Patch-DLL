@@ -286,7 +286,7 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 }
 
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift, bool bAllowSphereRemoval)
 {
 	if (isHuman())
 		return;
@@ -458,6 +458,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 				pCity->DoCreatePuppet();
 				return;
 			}
+		}
+
+		// Remove sphere of influence? AI will only do this as a last resort.
+		if (bAllowSphereRemoval)
+		{
+			DoLiberatePlayer(pCity->getPreviousOwner(), pCity->GetID(), true);
+			return;
 		}
 
 		// Insufficient value or too unhappy? Burn, baby, burn!

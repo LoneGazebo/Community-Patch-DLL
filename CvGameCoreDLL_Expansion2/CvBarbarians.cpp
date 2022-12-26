@@ -125,6 +125,9 @@ void CvBarbarians::DoBarbSpawnerAttacked(CvPlot* pPlot)
 
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 {
+	if (!pPlot)
+		return false;
+
 	if (GC.getGame().getElapsedGameTurns() < /*10*/ GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN_FROM_SPAWNER))
 		return false;
 
@@ -136,6 +139,9 @@ bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot* pPlot)
 
 bool CvBarbarians::ShouldSpawnBarbFromCity(CvPlot* pPlot)
 {
+	if (!pPlot)
+		return false;
+
 	if (GC.getGame().getElapsedGameTurns() < /*10*/ GD_INT_GET(BARBARIAN_INITIAL_SPAWN_TURN_FROM_SPAWNER))
 		return false;
 
@@ -361,6 +367,11 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 
 	//can't steal if guarded
 	if (pCity->HasGarrison())
+		return false;
+
+	// if city is very low on health, try to take it over outright
+	// this also prevents attempts to steal from a 0 HP city
+	if (pCity->getDamage() >= (pCity->GetMaxHitPoints() - 20))
 		return false;
 
 	//pretend the unit attacks this city
@@ -1184,6 +1195,9 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 		{
 			CvPlot* pLoopPlot = iterateRingPlots(pPlot,iI);
 			if (!pLoopPlot || pLoopPlot == pPlot || pLoopPlot->isIce() || pLoopPlot->isLake())
+				continue;
+
+			if (pLoopPlot->isCity() && pLoopPlot->getOwner() != BARBARIAN_PLAYER)
 				continue;
 
 			if (!bCanSpawnBoats && pLoopPlot->isWater())

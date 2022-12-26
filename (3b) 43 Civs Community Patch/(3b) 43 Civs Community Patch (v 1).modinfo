@@ -2,7 +2,7 @@
 <Mod id="6521c02b-1c78-4826-a5b0-faed86235e98" version="1">
   <Properties>
     <Name>(3b) 43 Civs Community Patch</Name>
-    <Teaser>(3.0.3) Supports up to 43 Major Civilizations</Teaser>
+    <Teaser>(3.0.4) Supports up to 43 Major Civilizations</Teaser>
     <Description>This version of the Community Patch supports up to 43 major civilizations. The maximum number of total players (civilizations and City-States) is 63.[NEWLINE][NEWLINE]
 If you downloaded this mod manually, see MANUAL INSTALL.txt for installation instructions.</Description>
     <Authors>Gazebo, Ilteroi</Authors>
@@ -24,6 +24,6 @@ If you downloaded this mod manually, see MANUAL INSTALL.txt for installation ins
   <Blocks />
   <Files>
     <File md5="314F159E85D3C21731FFB7FDBE86433A" import="1">AdvancedSetup.lua</File>
-    <File md5="9A27E5BF71424B9816A70D1A2F1442BD" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="D8AFF9658399BF5A000A5C5E4808F25A" import="1">CvGameCore_Expansion2.dll</File>
   </Files>
 </Mod>

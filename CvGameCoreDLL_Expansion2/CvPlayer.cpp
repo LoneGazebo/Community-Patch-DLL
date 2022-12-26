@@ -51,9 +51,7 @@
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
 #include <sstream>
-#if defined(MOD_BALANCE_CORE)
 #include <iomanip>
-#endif
 
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
@@ -2777,7 +2775,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	}
 
 	// To counteract the human first move advantage, try to place one of the AI's defense units on top of their civilians
-	if (MOD_BALANCE_VP && bCombat && bGameStart && !isHuman())
+	if (MOD_BALANCE_VP && bCombat && pkUnitInfo->GetDomainType() == DOMAIN_LAND && bGameStart && !isHuman())
 	{
 		// Check if the starting plot is undefended
 		bool bNoDefender = true;
@@ -3002,6 +3000,16 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		{
 			ePlayerToLiberate = NO_PLAYER;
 		}
+	}
+
+	// Can a sphere of influence be removed from a City-State?
+	bool bAllowSphereRemoval = false;
+	if (MOD_BALANCE_VP && bConquest && isMajorCiv() && GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 1 && getNumCities() > 0 && GET_PLAYER(eOriginalOwner).getTeam() != getTeam())
+	{
+		// If the prerequisites are met, check if a Sphere of Influence from another team is currently active
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague)
+			bAllowSphereRemoval = pLeague->IsSphereOfInfluenceActive(eOldOwner, m_eID);
 	}
 
 	// Kill all immobile units on the city plot that don't belong to the acquirer's team
@@ -4703,10 +4711,15 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		// If the city was originally ours, do nothing
 		else if (pNewCity->getOriginalOwner() != m_eID)
 		{
-			// AI decides what to do with a City
-			if (!isHuman())
+			// Merchant of Venice purchase? Automatically puppeted.
+			if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
 			{
-				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift); // Calling this could delete the pointer...
+				pNewCity->DoCreatePuppet();
+			}
+			// AI decides what to do with a City
+			else if (!isHuman())
+			{
+				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
 
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
@@ -4718,26 +4731,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Human decides what to do with a City
 			else
 			{
-				pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 				CvNotifications* pNotify = GetNotifications();
 
-				if (GetPlayerTraits()->IsNoAnnexing() && bMinorCivBuyout)
+				if (GC.getGame().getActivePlayer() == GetID() && pNotify)
 				{
-					pNewCity->DoCreatePuppet();
-				}
-				else if (GC.getGame().getActivePlayer() == GetID() && pNotify)
-				{
+					pNewCity->SetIgnoreCityForHappiness(true); // Used to display info for annex/puppet/raze popup - turned off in DoCreatePuppet and DoAnnex
 					int iTemp[5] = { pNewCity->GetID(), iCaptureGold, iCaptureCulture, iCaptureGreatWorks, ePlayerToLiberate };
-					bool bTemp[2] = { bMinorCivBuyout, bConquest };
+					bool bFirstParameter = MOD_BALANCE_VP ? bAllowSphereRemoval : bMinorCivBuyout;
+					bool bTemp[2] = { bFirstParameter, bConquest };
 					pNewCity->setCaptureData(iTemp, bTemp);
 
 					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE", pNewCity->getNameKey());
 					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_CITY_CAPTURE_TT", pNewCity->getNameKey());
 					pNotify->Add((NotificationTypes)FString::Hash("NOTIFICATION_CITY_CAPTURE"), strSummary.c_str(), strBuffer.c_str(), pNewCity->getX(), pNewCity->getY(), -1);
-				}
-				else
-				{
-					pNewCity->SetIgnoreCityForHappiness(false);
 				}
 			}
 		}
@@ -9543,6 +9549,10 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Who originally took out this team?
 	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
 
+	// If the conqueror team is the same as the liberating team, it's a forced liberation
+	if (eConquerorTeam == eTeam)
+		bForced = true;
+
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 	bool bAlive = GET_PLAYER(ePlayer).isAlive();
 
@@ -9856,9 +9866,12 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		else
 			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
 
-		UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
-		if (eUnit != NO_UNIT)
-			GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+		if (MOD_BALANCE_VP)
+		{
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			if (eUnit != NO_UNIT)
+				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
+		}
 	}
 
 	if (!bForced)
@@ -41702,16 +41715,12 @@ int CvPlayer::GetCityDistanceInPlots(const CvPlot* pPlot) const
 
 CvCity* CvPlayer::GetClosestCityByPlots(const CvPlot* pPlot) const
 {
-	// Optimization for players with only one city.
-	// `CvPlayer::firstCity` does not work here because it will return a const city pointer.
-	if (m_cities.GetCount() == 1)
-	{
-		return m_cities.GetAt(0);
-	}
-	else
-	{
+	//careful, player-specific GetClosestCity only works for majors (because of performance)
+	if (isMajorCiv())
 		return GC.getGame().GetClosestCityByPlots(pPlot, GetID());
-	}
+
+	//for minors just assume they have only one city (99% correct)
+	return getCapitalCity();
 }
 
 CvCity* CvPlayer::GetClosestCityToUsByPlots(PlayerTypes eOtherPlayer) const
@@ -49078,10 +49087,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//prefer settling close in the beginning
 	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
-	//basic search area around existing cities. 
+	//theoretical maximum distance for onshore settling
 	int iMaxSettleDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE) + iTimeOffset; //plot value at max distance or greater is scaled to zero
 	if(IsCramped())
 		iMaxSettleDistance += iTimeOffset;
+
+	//score start tapering towards zero if we exceed this (except if we want to expand offshore)
 	int iSettleDropoffThreshold = min(iMaxSettleDistance,/*4*/ GD_INT_GET(SETTLER_DISTANCE_DROPOFF_MODIFIER));
 
 	//if we want to go to other continents, we need a very large search radius
@@ -49185,7 +49196,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		//if we want offshore expansion, manipulate the distance scaler
 		bool bOffshore = (pLandmass && pCapital && pLandmass->GetID() != pCapital->plot()->getLandmass());
 		if (bWantOffshore && bOffshore)
-			iScale = max(42, iScale);
+			iScale = max(67, iScale);
 
 		//on a new continent we want to settle along the coast
 		bool bNewContinent = (pLandmass && pLandmass->getCitiesPerPlayer(GetID()) == 0);

@@ -973,6 +973,7 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	//destination will be handled later once we know whether we would like to end the turn here
 	//attack only applies to the true (non-approximate) destination or to any plot if we don't have a destination (reachable plots)
 	int iMoveFlags = finder->GetData().iFlags & ~CvUnit::MOVEFLAG_ATTACK & ~CvUnit::MOVEFLAG_DESTINATION;
+	//note that in approximate mode it's *not* guaranteed we will stop before reachinig the destination, we cannot end the turn everywhere! 
 	if (bIsDestination && (finder->GetData().iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) == 0 && (finder->GetData().iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING2)==0)
 	{
 		//special checks for attack flag
@@ -1000,8 +1001,16 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	kToNodeCacheData.bCanEnterTerritoryPermanent = finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(ePlotTeam, true);
 
 	//precompute this. it only depends on this one plot, so we don't have to do this in PathCost()
-	kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit,pPlot);
-	kToNodeCacheData.plotMovementCostAdder = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit,pPlot);
+	if (MOD_SANE_UNIT_MOVEMENT_COST)
+	{
+		kToNodeCacheData.plotMovementCostMultiplier = GD_INT_GET(MOVE_DENOMINATOR); //will be ignored!
+		kToNodeCacheData.plotMovementCostAdder = CvUnitMovement::GetMovementCostChangeFromPromotions(pUnit, pPlot);
+	}
+	else
+	{
+		kToNodeCacheData.plotMovementCostMultiplier = CvUnitMovement::GetMovementCostMultiplierFromPromotions(pUnit, pPlot);
+		kToNodeCacheData.plotMovementCostAdder = CvUnitMovement::GetMovementCostAdderFromPromotions(pUnit, pPlot);
+	}
 
 	//done!
 	kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
@@ -1252,13 +1261,16 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 
 		if (pUnit->IsCombatUnit())
 		{
+			//be extra careful if requested but don't really abort, else we might not find a path at all
+			int iScale = bAbortInDanger ? 2 : 1;
+
 			//combat units can still tolerate some danger
 			//embarkation is handled implicitly because danger value will be higher
-			if (iPlotDanger >= pUnit->GetCurrHitPoints()*3)
+			if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints()*3)
 				iCost += PATH_END_TURN_MORTAL_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger >= pUnit->GetCurrHitPoints())
+			else if (iPlotDanger*iScale >= pUnit->GetCurrHitPoints())
 				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*iFutureFactor;
-			else if (iPlotDanger > pUnit->GetCurrHitPoints()/3)
+			else if (iPlotDanger*iScale > pUnit->GetCurrHitPoints()/3)
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}
 		else //civilian
@@ -1266,7 +1278,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 			if (iPlotDanger == INT_MAX && iTurnsInFuture < 2 && bAbortInDanger)
 				return -1; //don't ever do this
 			else if (iPlotDanger > pUnit->GetCurrHitPoints())
-				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT*4*iFutureFactor;
+				iCost += PATH_END_TURN_HIGH_DANGER_WEIGHT * 4 * iFutureFactor;
 			else if (iPlotDanger > 0) //note that fog will cause some danger on adjacent plots
 				iCost += PATH_END_TURN_LOW_DANGER_WEIGHT*iFutureFactor;
 		}

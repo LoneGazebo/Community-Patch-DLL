@@ -718,7 +718,7 @@ WHERE Type = 'BUILDING_ARSENAL';
 
 UPDATE Building_ClassesNeededInCity
 SET BuildingClassType = 'BUILDINGCLASS_FORTRESS'
-WHERE BuildingType = 'BUILDING_THEATRE';
+WHERE BuildingType = 'BUILDING_ARSENAL';
 
 -- Military Base
 

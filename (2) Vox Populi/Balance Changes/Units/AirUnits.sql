@@ -78,7 +78,17 @@ UPDATE Units
 SET Special = 'SPECIALUNIT_FIGHTER'
 WHERE Type = 'UNIT_STEALTH_BOMBER';
 
-	
+
+-- Double nuclear missile range, halve resource cost
+UPDATE Units
+SET Range = '24'
+WHERE Type = 'UNIT_NUCLEAR_MISSILE';
+
+UPDATE Unit_ResourceQuantityRequirements
+SET Cost = '1'
+WHERE UnitType = 'UNIT_NUCLEAR_MISSILE';
+
+
 UPDATE Units
 SET RangedCombatLimit = '300'
 WHERE Type IN 

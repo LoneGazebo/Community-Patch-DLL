@@ -9,8 +9,8 @@
 
   <DecisionTree file="StaticLandmarkDecisionTree.ddtxml" source="Tool" />
   <BoneUsage>
-    <Bone name="Point01" />
+    <Bone name="siheyuan.001" />
   </BoneUsage>
-  <TimedTrigger file="fx_triggers_Siheyuan.ftsxml" source="Tool" model="siheyuan" state="0,1,2,3"/>
+  <TimedTrigger file="fx_triggers_Siheyuan.ftsxml" source="Tool" model="siheyuan.001" state="0,1,2,3"/>
 </Asset>
 

@@ -358,8 +358,8 @@ public:
 
 	// Advanced Options
 	bool IsHideOpinionTable() const;
-	bool IsLumpGoldTradingHumanOnly() const;
-	bool IsLumpGoldTradingEnabled() const;
+	bool IsHumanPermanentForAITemporaryTradingAllowed() const;
+	bool IsPermanentForTemporaryTradingAllowed() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects AI messages sent to humans
 	bool IsGiftOffersDisabled() const; // Only affects AI messages sent to humans
 	bool IsCoopWarRequestsDisabled() const; // Only affects AI messages sent to humans

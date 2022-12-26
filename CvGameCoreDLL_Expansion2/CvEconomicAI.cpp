@@ -3614,7 +3614,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 
 	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	bool bIsEarlyExpansion = (eEarlyExpand != NO_ECONOMICAISTRATEGY) && pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-	bool bStartedOp = false;
 
 	for (size_t i=0; i<vSettlers.size(); i++)
 	{
@@ -3639,11 +3638,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrate
 			}
 		}
 
-		if (pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, NULL, NULL)!=NULL)
-			bStartedOp = true;
-	}
+		pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, 1, NO_PLAYER, NULL, NULL);
+;	}
 
-	return bStartedOp;
+	//always return false! this strategy never starts, but we try each turn
+	return false;
 }
 
 

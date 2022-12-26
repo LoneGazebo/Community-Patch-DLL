@@ -1008,7 +1008,9 @@
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
-	<!-- BUILDING: Allows you to define a building to grant +1 yield based on the # of tiles of terrain type in the city's working radius Yield value = divisor (so 3 = for every 3 tiles, get +1 of a yield) -->
+	<!-- BUILDING: Allows you to define a building to grant +1 yield based on the # of tiles of terrain type being worked by the city.
+		Exceptions: Snow - must be inside city territory but can be unworked; Mountain - must be within 3 tiles and not a NW
+		Yield value = divisor (so 3 = for every 3 tiles, get +1 of a yield) -->
 	<Table name="Building_YieldPerXTerrainTimes100">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>

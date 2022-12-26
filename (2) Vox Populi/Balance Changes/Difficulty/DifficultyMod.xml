@@ -173,14 +173,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>17</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>23</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>3</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>3</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>7</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>23</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>2</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>2</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>50</LandDisputePercent>
 			<WonderDisputePercent>50</WonderDisputePercent>
@@ -399,14 +394,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>17</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>23</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>3</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>3</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>7</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>23</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>2</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>2</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>60</LandDisputePercent>
 			<WonderDisputePercent>60</WonderDisputePercent>
@@ -625,14 +615,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>70</LandDisputePercent>
 			<WonderDisputePercent>70</WonderDisputePercent>
@@ -851,14 +836,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>80</LandDisputePercent>
 			<WonderDisputePercent>80</WonderDisputePercent>
@@ -1077,14 +1057,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>90</LandDisputePercent>
 			<WonderDisputePercent>90</WonderDisputePercent>
@@ -1303,14 +1278,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>100</LandDisputePercent>
 			<WonderDisputePercent>100</WonderDisputePercent>
@@ -1529,14 +1499,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>115</LandDisputePercent>
 			<WonderDisputePercent>115</WonderDisputePercent>
@@ -1755,14 +1720,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalOffenseMinCompletedPositions>23</TacticalOffenseMinCompletedPositions>
-			<TacticalOffenseMaxCompletedPositions>54</TacticalOffenseMaxCompletedPositions>
-			<TacticalOffenseMaxBranches>5</TacticalOffenseMaxBranches>
-			<TacticalOffenseMaxChoicesPerUnit>5</TacticalOffenseMaxChoicesPerUnit>
-			<TacticalDefenseMinCompletedPositions>13</TacticalDefenseMinCompletedPositions>
-			<TacticalDefenseMaxCompletedPositions>54</TacticalDefenseMaxCompletedPositions>
-			<TacticalDefenseMaxBranches>3</TacticalDefenseMaxBranches>
-			<TacticalDefenseMaxChoicesPerUnit>3</TacticalDefenseMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>125</LandDisputePercent>
 			<WonderDisputePercent>125</WonderDisputePercent>
@@ -1881,941 +1841,1019 @@
 			<DifficultyBonusC>0</DifficultyBonusC>
 		</Row>
 	</HandicapInfos>
-   	<HandicapInfo_DifficultyBonus>
-        	<!-- Human player handicap triggers, yield types and multipliers -->
+	<HandicapInfo_Goodies>
+		<!-- Settler -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_POPULATION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_CULTURE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_GOLD</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_MAP</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_TECH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_TILES</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+		</Row>
+		<!-- Rewards exclusive to Settler -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_WORKER</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<GoodyType>GOODY_SETTLER</GoodyType>
+		</Row>
+		<!-- Chieftain -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_POPULATION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_CULTURE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_GOLD</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_MAP</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_TECH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_TILES</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+		</Row>
+		<!-- Warlord -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_POPULATION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_CULTURE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_GOLD</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_MAP</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_TECH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_TILES</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+		</Row>
 		<!-- Prince -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_POPULATION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_CULTURE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLD</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_MAP</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TECH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TILES</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- King -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_POPULATION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_CULTURE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLD</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_MAP</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TECH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TILES</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Emperor -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_POPULATION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_CULTURE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLD</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_MAP</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TECH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TILES</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Immortal -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_POPULATION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_CULTURE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>300</Multiplier>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLD</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_CITY_FOUND -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_MAP</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TECH</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WON_WAR -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_TILES</GoodyType>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_WORLD_WONDER -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_GREAT_PERSON -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_DIG -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_LAND -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_SEA -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<!-- HISTORIC_EVENT_TRADE_CS -->
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
 		</Row>
 		<!-- Deity -->
-		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_POPULATION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_CULTURE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_GOLD</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_MAP</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_TECH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_TILES</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+		</Row>
+		<!-- AI Players -->
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_POPULATION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_CULTURE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_GOLD</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_MAP</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_TECH</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_PRODUCTION</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_TILES</GoodyType>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
+			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+		</Row>
+	</HandicapInfo_Goodies>
+	<HandicapInfo_AIDifficultyBonus>
+		<!-- AI player handicap triggers, yield types and multipliers -->
+		<!-- Yields are not awarded below Prince, but the same triggers are specified anyway in case modders want to change the difficulty. -->
+		<!-- Settler -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_WON_WAR -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_WORLD_WONDER -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_TRADE_LAND -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_TRADE_SEA -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_TRADE_CS -->
 		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-	</HandicapInfo_DifficultyBonus>
-	<HandicapInfo_AIDifficultyBonus>
-		<!-- AI player handicap triggers, yield types and multipliers -->
+		<!-- Chieftain -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- Warlord -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
 		<!-- Prince -->
 		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
@@ -3747,456 +3785,1496 @@
 			<Multiplier>100</Multiplier>
 		</Row>
 	</HandicapInfo_AIDifficultyBonus>
-	<HandicapInfo_Goodies>
+	<HandicapInfo_DifficultyBonus>
+		<!-- Human player handicap triggers, yield types and multipliers -->
+		<!-- Yields are not normally awarded for humans, but the same values as for the AI are specified by default in case modders want to change the difficulty. -->
 		<!-- Settler -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
-		</Row>
-		<!-- Rewards exclusive to Settler -->
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_WORKER</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_SETTLER</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_SETTLER</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Chieftain -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Warlord -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_WARLORD</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Prince -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_PRINCE</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- King -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_KING</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Emperor -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_EMPEROR</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Immortal -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WON_WAR -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- Deity -->
+		<!-- HISTORIC_EVENT_ERA_CHANGE -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>300</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>300</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND_CAPITAL -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_CITY_FOUND -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
-		<!-- AI Players -->
+		<!-- HISTORIC_EVENT_WON_WAR -->
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_POPULATION</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_CULTURE</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PANTHEON_FAITH</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PROPHET_FAITH</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_GOLD</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_MAP</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GOLDEN_AGE -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_PRODUCTION</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_GOLDEN_AGE</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GOLDEN_AGE</HistoricEventType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_WORLD_WONDER -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_TILES</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_GREAT_PERSON -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Multiplier>100</Multiplier>
 		</Row>
-	</HandicapInfo_Goodies>
+		<!-- HISTORIC_EVENT_DIG -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_DIG</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_LAND -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_LAND</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_SEA -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_SEA</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+		<!-- HISTORIC_EVENT_TRADE_CS -->
+		<Row>
+			<HandicapType>HANDICAP_DEITY</HandicapType>
+			<HistoricEventType>HISTORIC_EVENT_TRADE_CS</HistoricEventType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Multiplier>100</Multiplier>
+		</Row>
+	</HandicapInfo_DifficultyBonus>
 </GameData>

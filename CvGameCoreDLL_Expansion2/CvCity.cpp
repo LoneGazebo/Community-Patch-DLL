@@ -7689,18 +7689,18 @@ void CvCity::ChangeEventHappiness(int iValue)
 int CvCity::maxXPValue() const
 {
 	VALIDATE_OBJECT
-	int iMaxValue = INT_MAX;
+	int iMaxValue = -1;
 
 	if (isBarbarian())
 	{
 		iMaxValue = std::min(iMaxValue, /*30 in CP, 45 in VP*/ GD_INT_GET(BARBARIAN_MAX_XP_VALUE));
 	}
-	if (GET_PLAYER(getOwner()).isMinorCiv() && /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE) != -1)
+	if (GET_PLAYER(getOwner()).isMinorCiv())
 	{
-		iMaxValue = std::min(iMaxValue, GD_INT_GET(MINOR_MAX_XP_VALUE));
+		iMaxValue = std::min(iMaxValue, /*-1 in CP, 70 in VP*/ GD_INT_GET(MINOR_MAX_XP_VALUE));
 	}
 
-	if (MOD_BALANCE_CORE_SCALING_XP)
+	if (MOD_BALANCE_CORE_SCALING_XP && iMaxValue > 0)
 	{
 		iMaxValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 		iMaxValue /= 100;
@@ -16353,7 +16353,7 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange, CvCity:
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
 	}
-	updateExtraSpecialistYield(eSpecialist);
+	updateExtraSpecialistYield();
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
 	// Culture
@@ -25126,11 +25126,6 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	int iValue = 0;
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
-
-	const SCityExtraYields& yieldChanges = GetYieldChanges(eIndex);
-	for (size_t iI = 0; iI < yieldChanges.forFeature.size(); iI++)
-		iValue += yieldChanges.forFeature[iI].second;
-
 	iValue += GetBaseYieldRateFromBuildings(eIndex);
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
@@ -27271,7 +27266,7 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpecialist)
+void CvCity::updateExtraSpecialistYield(YieldTypes eYield)
 {
 	VALIDATE_OBJECT
 	CvAssertMsg(eYield >= 0, "eYield expected to be >= 0");
@@ -27280,15 +27275,11 @@ void CvCity::updateExtraSpecialistYield(YieldTypes eYield, SpecialistTypes eSpec
 	int iOldYield = getExtraSpecialistYield(eYield);
 	int iNewYield = 0;
 
-	if (eSpecialist == NO_SPECIALIST)
+
+	for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 	{
-		for (int iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
-		{
-			iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
-		}
+		iNewYield += getExtraSpecialistYield(eYield, ((SpecialistTypes)iI));
 	}
-	else
-		iNewYield += getExtraSpecialistYield(eYield, eSpecialist);
 
 	if (iOldYield != iNewYield)
 	{
@@ -27307,15 +27298,6 @@ void CvCity::updateExtraSpecialistYield()
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		updateExtraSpecialistYield((YieldTypes)iI);
-	}
-}
-
-void CvCity::updateExtraSpecialistYield(SpecialistTypes eSpecialist)
-{
-	VALIDATE_OBJECT
-	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-	{
-		updateExtraSpecialistYield((YieldTypes)iI, eSpecialist);
 	}
 }
 
