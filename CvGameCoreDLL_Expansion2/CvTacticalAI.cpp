@@ -2099,7 +2099,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (pZoneCity->getTeam() != m_pPlayer->getTeam() && !m_pPlayer->IsAtWarWith(pZoneCity->getOwner()))
 		return;
 
-	//sometimes we do not need further reinforcement
+	//sometimes we do not need further reinforcement - should we check whether we still need siege units specifically?
 	if (pTargetZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY && pTargetZone->GetRangedDominanceFlag(100) == TACTICAL_DOMINANCE_FRIENDLY)
 		return;
 
@@ -8487,16 +8487,23 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
 
 				//sanity check
-				bool bSuicide = false;
+				bool bCanEndTurnHere = true;
 				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
 				{
 					int iNumFriendlies = assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1);
 					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit.iSelfDamage);
 					if (iDanger > 2 * pUnit->GetCurrHitPoints() * (iNumFriendlies + 1))
-						bSuicide = !(bIsFrontlineCitadel && newAssignment.iDamage > 10); //allow attacks in citadels if damage is higher than healing
+					{
+						//danger too high ...
+						bCanEndTurnHere = false;
+
+						//but allow attacks in citadels if damage is higher than healing
+						if (bIsFrontlineCitadel && (newAssignment.iDamage > 10 || pUnit->getDamage() < 10))
+							bCanEndTurnHere = true;
+					}
 				}
 
-				if (newAssignment.iScore > 0 && !bSuicide)
+				if (newAssignment.iScore > 0 && bCanEndTurnHere)
 				{
 					//if we're not looking to pick a fight, de-emphasize attacks
 					if (eAggression == AL_NONE)
@@ -8891,33 +8898,30 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 			const CvTacticalPlot& initialPlot = root->getTactPlot(initial->iFromPlotIndex);
 			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
 
-			//which domain to use here? fixme
-			int iInitialDistance = initialPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);
-			int iFinalDistance = finalPlot.getEnemyDistance(CvTacticalPlot::TD_BOTH);
-			bool bIsFrontlineCitadelInitial = false;
-			bool bIsFrontlineCitadelFinal = false;
+			//which domain to use here? for simplicity assume firstline is melee and in-domain, everything else cross-domain
+			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eStrategy== MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;
+			int iInitialDistance = initialPlot.getEnemyDistance(eRelevantDomain);
+			int iFinalDistance = finalPlot.getEnemyDistance(eRelevantDomain);
 
-			if (TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer()))
-			{
-				bIsFrontlineCitadelInitial = initialPlot.getEnemyDistance() < 3;
-				bIsFrontlineCitadelFinal = finalPlot.getEnemyDistance() < 3;
-			}
+			//occupying a citadel is always fine
+			bool bIsStayingInFrontlineCitadel = (initialPlot.getPlotIndex() == finalPlot.getPlotIndex()) && 
+				finalPlot.getEnemyDistance() < 3 && TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer());
 
 			switch (unit->eStrategy)
 			{
 			case MS_NONE:
 				UNREACHABLE(); // Units are always supposed to be assigned a strategy.
 			case MS_FIRSTLINE:
-				if (bIsFrontlineCitadelInitial && bIsFrontlineCitadelFinal)
-					iPositive++; //occupying a citadel is always fine
+				if (bIsStayingInFrontlineCitadel)
+					iPositive++; 
 				else if (iInitialDistance != 1 && iFinalDistance == 1)
 					iPositive++;
 				else if (iInitialDistance == 1 && iFinalDistance != 1)
 					iNegative++;
 				break;
 			case MS_SECONDLINE:
-				if (bIsFrontlineCitadelInitial && bIsFrontlineCitadelFinal)
-					iPositive++; //occupying a citadel is always fine
+				if (bIsStayingInFrontlineCitadel)
+					iPositive++;
 				else if (iInitialDistance != 2 && iFinalDistance == 2)
 					iPositive++;
 				else if (iInitialDistance == 2 && iFinalDistance != 2)
