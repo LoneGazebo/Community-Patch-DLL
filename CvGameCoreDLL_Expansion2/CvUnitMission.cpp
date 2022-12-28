@@ -480,8 +480,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 			if(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO())
 			{
-				//need to declare war first
-				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2))
+				// check if we need to declare war first
+				// show a DOW popup only if the enemy unit is visible when the move order is given
+				if(hUnit->CheckDOWNeededForMove(pkMissionData->iData1, pkMissionData->iData2, iSteps == 0 && pkMissionData->iPushTurn == GC.getGame().getGameTurn()))
 				{
 					hUnit->ClearMissionQueue();
 					return;
@@ -1486,10 +1487,9 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 			{
 				//make sure the path cache is current (not for air units, their movement is actually an airstrike)
 				CvPlot* pDestPlot = GC.getMap().plot(pkQueueData->iData1, pkQueueData->iData2);
-				if (hUnit->getDomainType()!=DOMAIN_AIR && !hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags))
+				if (hUnit->getDomainType()!=DOMAIN_AIR)
 				{
-					//uh? problem ... abort mission
-					bDelete = true;
+					hUnit->GeneratePath(pDestPlot, pkQueueData->iFlags);
 				}
 
 				if(pkQueueData->eMissionType == CvTypes::getMISSION_ROUTE_TO())
