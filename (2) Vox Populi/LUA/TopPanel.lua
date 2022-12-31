@@ -1375,39 +1375,31 @@ function UnitSupplyHandler(control)
 	local pPlayer = Players[iPlayerID];
 
 	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
-	if (iUnitSupplyMod ~= 0) then
-		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
-		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
-		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
-		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
-		local iWarWearinessReduction = pPlayer:GetWarWeariness();
-		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
-		local iTechReduction = pPlayer:GetTechSupplyReduction();
-		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
+	local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+	local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
+	local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+	local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+	local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+	local iWarWearinessReduction = pPlayer:GetWarWeariness();
+	local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+	local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+	local iTechReduction = pPlayer:GetTechSupplyReduction();
+	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
-		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+	local strUnitSupplyToolTip = "";
+	if(iUnitsOver > 0) then
 		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
-
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
-
-		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
-	else
-		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
-		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
-		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
-		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
-		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
-		local iWarWearinessReduction = pPlayer:GetWarWeariness();
-		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
-		local iTechReduction = pPlayer:GetTechSupplyReduction();
-		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
-
-		strUnitSupplyToolTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessReduction, iWarWearinessActualReduction, iTechReduction, iSupplyFromGreatPeople);
 	end
 
+	local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
+
+	if(strUnitSupplyToolTip ~= "") then
+		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
+	else
+		strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
+	end
 	if(strUnitSupplyToolTip ~= "") then
 		tipControlTable.TopPanelMouseover:SetHide(false);
 		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
