@@ -4960,72 +4960,95 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT
-	CvAssert(isHuman());
+		CvAssert(isHuman());
 
-	if(getDomainType() != DOMAIN_AIR)
+	if (getDomainType() != DOMAIN_AIR)
 	{
+		// trying to enter foreign territory without open borders?
 		TeamTypes eRevealedTeam = plot.getRevealedTeam(getTeam(), false);
-
-		if(eRevealedTeam != NO_TEAM)
+		if (eRevealedTeam != NO_TEAM)
 		{
-			if(!canEnterTerritory(eRevealedTeam))
+			if (!canEnterTerritory(eRevealedTeam))
 			{
-				if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
+				if (GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
 				{
 					return eRevealedTeam;
 				}
 			}
 		}
 
-		if(plot.getNumUnits() > 0)
+		if (plot.isActiveVisible())
 		{
-			int iPeaceCivilians = 0;
-			bool bWarCity = false;
-			bool bWarUnit = false;
-			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
+			TeamTypes eTeamAttack = NO_TEAM;
+			if (plot.isCity())
 			{
-				bWarCity = true;
+				eTeamAttack = plot.getTeam();
 			}
-
-			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+			else
 			{
-				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
-				if(loopUnit != NULL)
+				//can't attack if not in native domain or plot not accessible
+				if (isNativeDomain(&plot) && canMoveInto(plot, MOVEFLAG_IGNORE_ENEMIES))
 				{
-					if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+					// do not declare war if plot can be entered peacefully
+					if (!canMoveInto(plot, MOVEFLAG_DESTINATION))
 					{
-						bWarUnit = true;
-					}
-					else if(loopUnit->IsCivilianUnit())
-					{
-						iPeaceCivilians++;
+						if (IsCanAttackWithMove())
+						{
+							// check which units are on the tile
+							// there can only be one land unit, one naval unit and one embarked unit on each tile
+							// civilian units are ignored
+							if (plot.getNumUnits() > 0)
+							{
+								TeamTypes eLandUnitTeam = NO_TEAM;
+								TeamTypes eNavalUnitTeam = NO_TEAM;
+								TeamTypes eEmbarkedUnitTeam = NO_TEAM;
+
+								for (int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+								{
+									CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+									if (loopUnit != NULL)
+									{
+										if (loopUnit->IsCombatUnit())
+										{
+											if (loopUnit->isEmbarked())
+											{
+												eEmbarkedUnitTeam = loopUnit->getTeam();
+											}
+											else if (loopUnit->getDomainType() == DOMAIN_LAND)
+											{
+												eLandUnitTeam = loopUnit->getTeam();
+											}
+											else
+											{
+												eNavalUnitTeam = loopUnit->getTeam();
+											}
+										}
+									}
+								}
+
+								// attack priority: first land unit, than naval unit, than embarked unit
+								if (eLandUnitTeam != NO_TEAM) {
+									eTeamAttack = eLandUnitTeam;
+								}
+								else
+								{
+									if (eNavalUnitTeam != NO_TEAM) {
+										eTeamAttack = eNavalUnitTeam;
+									}
+									else
+									{
+										eTeamAttack = eEmbarkedUnitTeam;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
-
-			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian
-			//return NO_TEAM (don't need to declare war again!)
-			if(iPeaceCivilians > 0 && (bWarCity || bWarUnit))
-			{
-				return NO_TEAM;
-			}
-
-			//If there are only civilians here, don't require a declaration of war (can do so manually if intended)
-			if (iPeaceCivilians==plot.getNumUnits())
-			{
-				return NO_TEAM;
-			}
-		}
-
-		if(plot.isActiveVisible())
-		{
-			if(canMoveInto(plot, MOVEFLAG_ATTACK))
-			{
-				const CvUnit* pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
-
-				if(pUnit != NULL)
+			if (eTeamAttack != NO_TEAM) {
+				if (GET_TEAM(getTeam()).canDeclareWar(eTeamAttack, getOwner()))
 				{
-					return pUnit->getTeam();
+					return eTeamAttack;
 				}
 			}
 		}
@@ -5039,67 +5062,71 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 TeamTypes CvUnit::GetDeclareWarRangeStrike(const CvPlot& plot) const
 {
 	VALIDATE_OBJECT
-	CvAssert(isHuman());
+		CvAssert(isHuman());
 
-	if(plot.isActiveVisible())
+	if (plot.isActiveVisible())
 	{
-		if(canRangeStrikeAt(plot.getX(), plot.getY(), false))
+		if (canRangeStrikeAt(plot.getX(), plot.getY(), false))
 		{
-			if(plot.getNumUnits() > 0)
+			TeamTypes eTeamAttack = NO_TEAM;
+			if (plot.isCity())
 			{
-				const CvUnit* pUnit = NULL;
-				int iPeaceUnits = 0;
-				bool bWarCity = false;
-				if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
-				{
-					bWarCity = true;
-				}
-				for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
-				{
-					CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
-
-					//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
-					if(loopUnit != NULL)
-					{
-						if(loopUnit->IsCombatUnit())
-						{
-							if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
-							{
-								//There can be only one military unit on a tile, so one check is good enough.
-								pUnit = plot.getUnitByIndex(iUnitLoop);
-							}
-						}
-						else if(loopUnit->IsCivilianUnit())
-						{
-							//Only need one to trigger.
-							if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
-							{
-								iPeaceUnits++;
-							}
-						}
-					}
-				}
-				//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
-				if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
-				{
-					return NO_TEAM;
-				}
+				eTeamAttack = plot.getTeam();
 			}
-
-			CvUnit* pUnit = plot.plotCheck(PUF_canDeclareWar, getOwner(), isAlwaysHostile(plot), NO_PLAYER, NO_TEAM, PUF_isVisible, getOwner());
-			if(pUnit != NULL)
-			{
-				return pUnit->getTeam();
-			}
-			// Check for City as well
 			else
 			{
-				if(plot.isCity())
+				// check which units are on the tile
+				// there can only be one land unit, one naval unit and one embarked unit on each tile
+				// civilian units are ignored
+				if (plot.getNumUnits() > 0)
 				{
-					if(GET_TEAM(getTeam()).canDeclareWar(plot.getTeam(), getOwner()))
+					TeamTypes eLandUnitTeam = NO_TEAM;
+					TeamTypes eNavalUnitTeam = NO_TEAM;
+					TeamTypes eEmbarkedUnitTeam = NO_TEAM;
+
+					for (int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 					{
-						return plot.getTeam();
+						CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+						if (loopUnit != NULL)
+						{
+							if (loopUnit->IsCombatUnit())
+							{
+								if (loopUnit->isEmbarked())
+								{
+									eEmbarkedUnitTeam = loopUnit->getTeam();
+								}
+								else if (loopUnit->getDomainType() == DOMAIN_LAND)
+								{
+									eLandUnitTeam = loopUnit->getTeam();
+								}
+								else
+								{
+									eNavalUnitTeam = loopUnit->getTeam();
+								}
+							}
+						}
 					}
+
+					// attack priority: first land unit, than naval unit, than embarked unit
+					if (eLandUnitTeam != NO_TEAM) {
+						eTeamAttack = eLandUnitTeam;
+					}
+					else
+					{
+						if (eNavalUnitTeam != NO_TEAM) {
+							eTeamAttack = eNavalUnitTeam;
+						}
+						else
+						{
+							eTeamAttack = eEmbarkedUnitTeam;
+						}
+					}
+				}
+			}
+			if (eTeamAttack != NO_TEAM) {
+				if (GET_TEAM(getTeam()).canDeclareWar(eTeamAttack, getOwner()))
+				{
+					return eTeamAttack;
 				}
 			}
 		}
@@ -29177,48 +29204,49 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	return IsCachedPathValid();
 }
 
-bool CvUnit::CheckDOWNeededForMove(int iX, int iY)
+bool CvUnit::CheckDOWNeededForMove(int iX, int iY, bool bPopup)
 {
 	CvMap& kMap = GC.getMap();
 	CvPlot* pDestPlot = kMap.plot(iX, iY);
 
 	// Important
-	if (at(iX,iY))
+	if (at(iX, iY))
 		return false;
 
 	// No war declarations from automated units
-	if(IsAutomated())
+	if (IsAutomated())
 		return false;
 
 	// Test if this attack requires war to be declared first
-	if(pDestPlot && isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
+	if (pDestPlot && isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
 	{
 		TeamTypes eRivalTeam = GetDeclareWarMove(*pDestPlot);
 
-		if(eRivalTeam != NO_TEAM)
+		if (eRivalTeam != NO_TEAM)
 		{
-			CvPopupInfo kPopup(BUTTONPOPUP_DECLAREWARMOVE);
-			kPopup.iData1 = eRivalTeam;
-			kPopup.iData2 = pDestPlot->getX();
-			kPopup.iData3 = pDestPlot->getY();
-			kPopup.bOption1 = false;
-			kPopup.bOption2 = pDestPlot->getTeam() != eRivalTeam;
-			if(pDestPlot->isCity())
-			{
-				kPopup.iFlags = DOW_MOVE_ONTO_CITY;
+			if (bPopup) {
+				CvPopupInfo kPopup(BUTTONPOPUP_DECLAREWARMOVE);
+				kPopup.iData1 = eRivalTeam;
+				kPopup.iData2 = pDestPlot->getX();
+				kPopup.iData3 = pDestPlot->getY();
+				kPopup.bOption1 = false;
+				kPopup.bOption2 = pDestPlot->getTeam() != eRivalTeam;
+				if (pDestPlot->isCity())
+				{
+					kPopup.iFlags = DOW_MOVE_ONTO_CITY;
+				}
+				// If a unit was present, put up the standard DOW message
+				else if (pDestPlot->isVisibleOtherUnit(m_eOwner))
+				{
+					kPopup.iFlags = DOW_MOVE_ONTO_UNIT;
+				}
+				// Otherwise put out one about entering enemy territory
+				else
+				{
+					kPopup.iFlags = DOW_MOVE_INTO_TERRITORY;
+				}
+				DLLUI->AddPopup(kPopup);
 			}
-			// If a unit was present, put up the standard DOW message
-			else if(pDestPlot->isVisibleOtherUnit(m_eOwner))
-			{
-				kPopup.iFlags = DOW_MOVE_ONTO_UNIT;
-			}
-			// Otherwise put out one about entering enemy territory
-			else
-			{
-				kPopup.iFlags = DOW_MOVE_INTO_TERRITORY;
-			}
-			DLLUI->AddPopup(kPopup);
-
 			return true;
 		}
 	}

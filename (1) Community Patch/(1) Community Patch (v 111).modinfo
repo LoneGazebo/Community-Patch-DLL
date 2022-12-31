@@ -176,6 +176,7 @@
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/CoreLua/SaveMenu.lua</File>
     <File md5="FB5ADB053B50EFAC805CCB9EE0425137" import="1">Core Files/CoreLua/SaveMenu.xml</File>
     <File md5="F4BD8D98536B2532C02E1CA4EC1732CF" import="1">Core Files/CoreLua/StagingRoom.lua</File>
+    <File md5="F4630AA3D9462EBDAEC9A2FC5398F0D2" import="1">Core Files/CoreLua/WorldView.lua</File>
     <File md5="8335771F2F933D06C126C246A481A978" import="0">Core Files/PNM Mods DB/API/Achievements.xml</File>
     <File md5="2F0CA9C27CCDF3A00B38107099EC5742" import="0">Core Files/PNM Mods DB/API/Espionage.xml</File>
     <File md5="232B281E961C2031E95F462EA7375099" import="0">Core Files/PNM Mods DB/API/Extensions.sql</File>

@@ -1997,7 +1997,7 @@ protected:
 	void PublishQueuedVisualizationMoves();
 
 	bool EmergencyRebase();
-	bool CheckDOWNeededForMove(int iX, int iY);
+	bool CheckDOWNeededForMove(int iX, int iY, bool bPopup = true);
 	MoveResult UnitAttackWithMove(int iX, int iY, int iFlags);
 	int UnitPathTo(int iX, int iY, int iFlags);
 	bool UnitMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUnit, bool bEndMove = false);

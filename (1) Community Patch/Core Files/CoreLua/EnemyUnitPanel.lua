@@ -3547,7 +3547,7 @@ function OnMouseOverHex( hexX, hexY )
 								pUnit = pPlot:GetUnit(i);
 								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
 
-									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_LAND);
+									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and not pPlot:IsWater();
 									local validSeaAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pUnit:IsEmbarked());
 									local validAirAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_AIR);
 
@@ -3575,7 +3575,7 @@ function OnMouseOverHex( hexX, hexY )
 					end
 				end
 			-- ranged attack, need to check correct domain etc
-			elseif (pHeadUnit:CanEverRangeStrikeAt(pPlot:GetX(), pPlot:GetY())) then
+			elseif (pHeadUnit:CanEverRangeStrikeAt(pPlot:GetX(), pPlot:GetY()) and not pHeadUnit:IsEmbarked()) then
 
 				local iTeam = Game.GetActiveTeam()
 				local pTeam = Teams[iTeam]
