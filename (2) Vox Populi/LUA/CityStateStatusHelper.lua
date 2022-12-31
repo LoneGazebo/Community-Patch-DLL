@@ -129,32 +129,32 @@ function UpdateCityStateStatusBar(iMajor, iMinor, posBarCtrl, negBarCtrl, barMar
 	if (pMajor == nil or pMinor == nil) then
 		print("Lua error - invalid player index");
 	end
-	
+
 	local info = GetCityStateStatusRow(iMajor, iMinor);
 	local iInf = pMinor:GetMinorCivFriendshipWithMajor(iMajor);
-	
-	if (info.PositiveStatusMeter ~= nil) then
+
+	if iInf >= 0 then
 		local percentFull = math.abs(iInf) / kPosInfRange;
 		local xOffset = math.min(percentFull * kPosBarRange, kPosBarRange);
 		barMarkerCtrl:SetOffsetX(xOffset);
-		posBarCtrl:SetTexture(info.PositiveStatusMeter);
+		if pMinor:CanMajorBullyGold(iMajor) then
+			posBarCtrl:SetTexture(info.NegativeStatusMeter);
+		else
+			posBarCtrl:SetTexture(info.PositiveStatusMeter);
+		end	
 		posBarCtrl:SetPercent(percentFull);
 		posBarCtrl:SetHide(false);
+		negBarCtrl:SetHide(true);
 	else
-		posBarCtrl:SetHide(true);
-	end
-	
-	if (info.NegativeStatusMeter ~= nil) then
 		local percentFull = math.abs(iInf) / kNegInfRange;
 		local xOffset = -1 * math.min(percentFull * kNegBarRange, kNegBarRange);
 		barMarkerCtrl:SetOffsetX(xOffset);
 		negBarCtrl:SetTexture(info.NegativeStatusMeter);
 		negBarCtrl:SetPercent(percentFull);
 		negBarCtrl:SetHide(false);
-	else
-		negBarCtrl:SetHide(true);
+		posBarCtrl:SetHide(true);
 	end
-	
+
 	-- Bubble icon for meter
 	local size = barMarkerCtrl:GetSize().x;
 	-- Special case when INF = 0
@@ -199,7 +199,7 @@ function GetCityStateStatusText(iMajor, iMinor)
 	
 	if (pMinor:IsAllies(iMajor)) then		-- Allies
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_ALLIES");
-		strStatusText = "[COLOR_POSITIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
+		strStatusText = "[COLOR_CYAN]" .. strStatusText .. "[ENDCOLOR]";
 		
 	elseif (pMinor:IsFriends(iMajor)) then		-- Friends
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_FRIENDS");
@@ -221,15 +221,16 @@ function GetCityStateStatusText(iMajor, iMinor)
 		-- Afraid
 		if (bCanBully) then
 			strStatusText = Locale.ConvertTextKey("TXT_KEY_AFRAID");
+			strStatusText = "[COLOR_PLAYER_LIGHT_ORANGE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		-- Angry
 		else
 			strStatusText = Locale.ConvertTextKey("TXT_KEY_ANGRY");
+			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		end
-		strStatusText = "[COLOR_NEGATIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
 		
 	else		-- Neutral
 		strStatusText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL");
-		strStatusText = "[COLOR_POSITIVE_TEXT]" .. strStatusText .. "[ENDCOLOR]";
+		strStatusText = "[COLOR_WHITE]" .. strStatusText .. "[ENDCOLOR]";
 	end
 	
 	return strStatusText;
