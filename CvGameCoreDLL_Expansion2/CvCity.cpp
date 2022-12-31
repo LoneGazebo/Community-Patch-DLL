@@ -18643,15 +18643,10 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if (MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetXPopulationConscription() > 0 && !IsRazing())
 			{
-				int iDiff = foodDifference(true, true);
-
-				if (iDiff >= 0)
+				int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetXPopulationConscription());
+				if (iRemainder == 0)
 				{
-					int iRemainder = (getPopulation() % GET_PLAYER(getOwner()).GetXPopulationConscription());
-					if (iRemainder == 0)
-					{
-						GET_PLAYER(getOwner()).DoXPopulationConscription(this);
-					}
+					GET_PLAYER(getOwner()).DoXPopulationConscription(this);
 				}
 			}
 #endif
