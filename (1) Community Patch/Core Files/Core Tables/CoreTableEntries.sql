@@ -1101,11 +1101,14 @@ ALTER TABLE Builds ADD COLUMN 'KillOnlyCivilian' BOOLEAN DEFAULT 0;
 -- Grants obsoletion tech to improvement (tie to build above for AI)
 ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
 
--- Improvements can be made valid by being adjacent to a lake
-ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
+-- Improvement can not be built adjacent to a city
+ALTER TABLE Improvements ADD COLUMN 'NoAdjacentCity' BOOLEAN DEFAULT 0;
 
 -- Improvements can be made valid by being adjacent to a city
 ALTER TABLE Improvements ADD COLUMN 'Cityside' BOOLEAN DEFAULT 0;
+
+-- Improvements can be made valid by being adjacent to a lake
+ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
 
 -- Improvements can be made valid by being adjacent to X of the same improvement
 ALTER TABLE Improvements ADD COLUMN 'XSameAdjacentMakesValid' INTEGER DEFAULT 0;

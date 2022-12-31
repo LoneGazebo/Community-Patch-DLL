@@ -142,8 +142,9 @@ public:
 	bool IsEmbassy() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetObsoleteTech() const;
-	bool IsAdjacentLake() const;
+	bool IsNoAdjacentCity() const;
 	bool IsAdjacentCity() const;
+	bool IsAdjacentLake() const;
 	int GetGrantsVision() const;
 #endif
 	bool IsNoTwoAdjacent() const;
@@ -316,8 +317,9 @@ protected:
 	bool m_bIsEmbassy;
 #if defined(MOD_BALANCE_CORE)
 	int m_iGetObsoleteTech;
-	bool m_bAdjacentLake;
+	bool m_bNoAdjacentCity;
 	bool m_bAdjacentCity;
+	bool m_bAdjacentLake;
 	int m_iGrantsVision;
 #endif
 	bool m_bNoTwoAdjacent;
