@@ -84,6 +84,16 @@ UPDATE Language_en_US
 SET Text = 'If they have [COLOR_POSITIVE_TEXT]two[ENDCOLOR] Tier 3 Tenets of an Ideology, and their population is Content, an unmet civilization only needs their culture to become Influential with 2 more civilizations to construct the Citizen Earth Protocol and win a Culture Victory.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_UNMET_TT';
 
+-- Healing
+
+UPDATE Language_en_US
+SET Text = 'To heal damage, a unit must remain inactive for a turn. The amount of damage that a unit heals depends upon the unit''s location.[NEWLINE][NEWLINE]In a Friendly City: A unit heals [COLOR_YELLOW]20[ENDCOLOR] HPs per turn.[NEWLINE]In Friendly Territory: [COLOR_YELLOW]15[ENDCOLOR] HP per turn.[NEWLINE]In Neutral Territory: [COLOR_YELLOW]10[ENDCOLOR] HP per turn.[NEWLINE]In Enemy Territory: [COLOR_YELLOW]5[ENDCOLOR] HP per turn.[NEWLINE][NEWLINE][COLOR_YELLOW]Units within the borders of a City that is in Resistance heal only 5HP per turn. Units within the borders of a City that is being razed heal 20HP per turn (looting).[ENDCOLOR][NEWLINE][NEWLINE]Note that certain promotions will accelerate a unit''s healing rate.'
+WHERE Tag = 'TXT_KEY_COMBAT_HEALTINGDAMAGE_HEADING3_BODY';		
+
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Healing[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_COMBAT_HEALTINGDAMAGE_HEADING3_TITLE';
+		
 -- Difficulty Level Tooltips
 UPDATE Language_en_US
 SET Text = 'Beginner. The AI is at a significant disadvantage.'
@@ -469,11 +479,11 @@ SET Text = 'Sort By Unhappiness'
 WHERE Tag = 'TXT_KEY_EO_SORT_STRENGTH';
 
 UPDATE Language_en_US
-SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} turn(s)! While being Razed, 100% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} turn(s)! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
 WHERE Tag = 'TXT_KEY_CITY_BURNING';
 
 UPDATE Language_en_US
-SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While in Resistance, a City cannot do anything useful and 100% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
