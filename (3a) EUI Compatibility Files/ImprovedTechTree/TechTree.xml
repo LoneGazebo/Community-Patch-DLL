@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black_Alpha" >
+
+    <!--Black background-->
+    <Box Anchor="C,C" Size="Full,Full" Color="0,0,0,220" ConsumeMouse="1"/>
+
+    <Box Anchor="C,C" Size="Full,740" Color="0,0,0,0" >
+        <Box Anchor="C,B" AnchorSide="O.I" Size="Full,18" Color="0,0,0,255" />
+        <Box Anchor="C,B" AnchorSide="O.O" Size="Full,Full" Color="0,0,0,255" />
+        <Box Anchor="C,T" AnchorSide="O.O" Size="Full,Full" Color="0,0,0,255" />
+    </Box>
+
+    <ScrollPanel Anchor="L,C" Size="Full,705" Vertical="0" ID="TechTreeScrollPanel">
+
+        <!--Stack of Era boxes-->
+        <Stack Anchor="L,C" StackGrowth="Right" Padding="0" ID="EraStack" />
+
+        <!--The legend-->
+        <Grid Size="230,200" Anchor="L,B" Offset="64,48" Style="WindowGridBlack">
+
+            <Stack Anchor="C,C" Offset="0,0"   Size="128,128" StackGrowth="Bottom" Padding="12" >
+
+                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" >
+                    <GridData Style="Grid9BlackTint8" />
+                    <Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                    <ShowOnMouseOver>
+                        <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                            <Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                        </AlphaAnim>
+                        <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                        <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    </ShowOnMouseOver>
+                    <Label Anchor="C,C" AnchorSide="I.O" Offset="0,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_TECH_NOT_YET_AVAILABLE"/>
+                </GridButton>
+
+                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" >
+                    <GridData Style="Grid9Green8" />
+                    <Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                    <ShowOnMouseOver>
+                        <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                            <Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                        </AlphaAnim>
+                        <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                        <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    </ShowOnMouseOver>
+                    <Label Anchor="C,C" AnchorSide="I.O" Offset="0,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_TECH_AVAILABLE"/>
+                </GridButton>
+
+                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" >
+                    <GridData Style="Grid9DarkBlue8Button" />
+                    <Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="200,32" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".75" Hidden="0">
+                        <Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                    </AlphaAnim>
+                    <ScrollAnim  Offset="0,0"  Size="200.32" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
+                    <ShowOnMouseOver>
+                        <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                            <Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                        </AlphaAnim>
+                        <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                        <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    </ShowOnMouseOver>
+                    <Label Anchor="C,C"  Offset="0,0" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_TECH_CURR_RESEARCH"/>
+                </GridButton>
+
+                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,230"  Offset="0,0" StateOffsetIncrement="0,0" >
+                    <GridData Style="Grid9Gold8" />
+                    <Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9FrameGold" Hidden="0" />
+                    <ScrollAnim  Offset="0,0"  Size="200.32" Speed="0.07    " Texture="TechGoldShine.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
+                    <ShowOnMouseOver>
+                        <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd=".0" Hidden="0">
+                            <Grid  Size="200,32" Anchor="C,C" Offset="0,0" Style="Grid9Gold8" />
+                        </AlphaAnim>
+                        <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                        <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsidesgold.dds" Size="8,16" />
+                        <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsidesgold.dds" Size="8,16" />
+                    </ShowOnMouseOver>
+                    <Label Anchor="C,C" AnchorSide="I.O" Offset="0,0" Font="TwCenMT20" Color0="111.51.0.222" Color1="255.222.22.255" Color2="229.118.22.255" FontStyle="SoftShadow" String="TXT_KEY_TECH_RESEARCHED"/>
+                </GridButton>
+
+            </Stack>
+        </Grid>
+
+
+        <GridButton Anchor="L,B" AnchorSide="i,o" Size="100,32" Offset="7,-13" String="TXT_KEY_CLOSE" ID="CloseButton" Style="BaseButton" ConsumeMouse="1" />
+        <UpButton   Offset="114,0"  Anchor="L,B"  AnchorSide="i,o"  Style="ScrollBarLeft"   />
+        <DownButton Offset="2,0"    Anchor="R,B"  AnchorSide="i,o"  Style="ScrollBarRight"  />
+        <ScrollBar  Offset="19,0"   Anchor="R,B"  AnchorSide="i,o"  Style="ScrollBar"       Length="900" ID="TechTreeScrollBar"/>
+
+    </ScrollPanel>
+
+
+
+
+
+
+
+    <Instance Name="TechButtonInstance" >
+        <Button Anchor="L,C" Size="270,60" Color="0,0,0,0" StateOffsetIncrement="0,0" ID="TechButton" >
+
+            <!--The already researched style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,255" Style="Grid9Gold8" ID="AlreadyResearched" Hidden="1">
+                <ScrollAnim  Offset="0,0"  Size="270.60" Speed="0.07" Texture="TechGoldShine.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
+                <ShowOnMouseOver>
+                    <AlphaAnim  Anchor="C,C" Offset="0,0"  Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".5" AlphaEnd=".0" Hidden="0">
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" />
+                    </AlphaAnim>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsidesgold.dds" Size="8,16" />
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsidesgold.dds" Size="8,16" />
+                </ShowOnMouseOver>
+
+
+                <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="Assets/UI/Art/Icons/IconFrameGold64.dds" />
+                <!--<Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="Assets/UI/Art/Icons/IconFrameGold64.dds" />-->
+                <Label Anchor="L,T"  Offset="64,4" Font="TwCenMT18" Color0="111.51.0.222" Color1="255.222.22.255" Color2="229.118.22.255" FontStyle="SoftShadow" ID="AlreadyResearchedTechName" Hidden="0"/>
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9FrameGold" Hidden="0" />
+
+            </Grid>
+
+            <!--The currently being researched style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" Style="Grid9DarkBlue8Button" ID="CurrentlyResearching" Hidden="1">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                <AlphaAnim  Anchor="C,C" Offset="0,0" Size="375,90" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".75" Hidden="0">
+                    <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                </AlphaAnim>
+                <ScrollAnim  Offset="0,0"  Size="270.60" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
+                <ShowOnMouseOver>
+                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                    </AlphaAnim>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                </ShowOnMouseOver>
+                <Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CurrentlyResearchingTechName"/>
+                <Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="CurrentlyResearchingTurns"/>
+                <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="Assets/UI/Art/Icons/IconFrame64.dds" />
+            </Grid>
+
+            <!--The available to be researched style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Green8" ID="Available" Hidden="1">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                <ShowOnMouseOver>
+                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                    </AlphaAnim>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                </ShowOnMouseOver>
+                <Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="AvailableTechName"/>
+                <Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="AvailableTurns"/>
+                <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="IconFrame64.dds" />
+            </Grid>
+
+            <!--The unavailable to be researched style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="GridBlack8" ID="Unavailable" Hidden="0">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+                <ShowOnMouseOver>
+                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="GridDarkBlue8" />
+                    </AlphaAnim>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="Assets/UI/Art/Controls/buttonsides.dds" Size="8,16" />
+                </ShowOnMouseOver>
+                <Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  ID="UnavailableTechName"/>
+                <Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="UnavailableTurns"/>
+                <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="IconFrame64.dds" />
+            </Grid>
+
+            <!--The locked style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Red8" ID="Locked" Hidden="1">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+                <ShowOnMouseOver>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16,0" Texture="buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0,0" Texture="buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8,0" AnchorSide="O.O"  Texture="buttonsides.dds" Size="8,16" />
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0,0" AnchorSide="O.O"  Texture="buttonsides.dds" Size="8,16" />
+                </ShowOnMouseOver>
+                <Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"  ID="LockedTechName"/>
+                <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="IconFrame64.dds" />
+            </Grid>
+
+            <!--The free style-->
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Production8" ID="FreeTech" Hidden="1">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+                <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0">
+                    <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Production8" />
+                </AlphaAnim>
+                <ScrollAnim  Offset="0,0"  Size="270,60" Speed="0.25" Texture="Bubbles256Orange.dds" MaskTexture="BubblesMask375x90.dds" />
+                <ShowOnMouseOver>
+                    <ScrollAnim  Offset="0,0"  Size="270,60" Speed="0.25" Texture="Bubbles256Orange.dds" MaskTexture="BubblesMask375x90.dds" />
+                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0">
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" />
+                    </AlphaAnim>
+                    <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+                    <Image Anchor="R,C" Offset="0,0" TextureOffset="8.0" AnchorSide="O.O"  Texture="buttonsides.dds" Size="8,16" ID="FreeRightSideDoodad"/>
+                    <Image Anchor="L,C" Offset="0,0" TextureOffset="0.0" AnchorSide="O.O"  Texture="buttonsides.dds" Size="8,16" />
+                </ShowOnMouseOver>
+                <Label Anchor="L,T" Offset="64,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FreeTechName" />
+                <Label Anchor="R,T" Offset="8,4" Font="TwCenMT16" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="FreeTurns" />
+                <Image Anchor="L,C" Offset="0,0" Size="64,64" Texture="IconFrame64.dds" />
+            </Grid>
+
+            <!--The box full of stuff we can gain from this tech-->
+            <Grid Anchor="L,C" Offset="64,8" Size="200,38" Padding="0,0" Style="GridBlackIndent8">
+                <Stack Anchor="L,C" Offset="0,1" Padding="-7" StackGrowth="Right"  >
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B1"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B2"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B3"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B4"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B5"/>
+                </Stack>
+            </Grid>
+
+            <!--The queue number-->
+            <Grid Anchor="L,C" Offset="3,0"  AnchorSide="O.I" Size="42,30" Color="255,255,255,230" Style="GridBlack8" Hidden="1" ID="TechQueue">
+                <Grid Anchor="C,C" Offset="0,0" Size="45,34" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                <Label Anchor="C,C" Offset="0,0" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_LOCKED" ID="TechQueueLabel" />
+            </Grid>
+
+            <!--<Image Anchor="R,T"  Offset="-15,-40" Texture="AdvisorSymbolEconomic.dds" Size="64,64" ToolTip="Economic Advisor Approves" Hidden="1" ID="AdvisorIcon"/>-->
+
+            <!--The tech image-->
+            <Image Anchor="L,C" Offset="0,0" Texture="TechnologyAtlas512.dds" Size="64,64" ID="TechPortrait"/>
+
+            <!--The progress meter-->
+            <!--
+      <Image Anchor="L,C" Offset="-64.0" Color="White.200" Texture="TechTreeMeterBack.dds" Size="128.128" ID="ProgressMeter" Hidden="1" >
+        <Meter Anchor="C,C"   Size="128.128" Texture="TechTreeMeter.dds" HasShadow="1" Color="255,255,255,255" ShadowColor="255,255,255,100" ID="ProgressMeterInternal"/>
+        <Image Anchor="L,C" Texture="TechTreeMeterFrame.dds" Size="128.128" />
+      </Image>
+      -->
+
+        </Button>
+    </Instance>
+
+
+
+
+    <Instance Name="TechPipeInstance" >
+        <Image Anchor="L,C" Color="White,255" Texture="TechBranches.dds" Size="32,42" ID="TechPipeIcon"/>
+    </Instance>
+
+
+
+
+    <Instance Name="EraBlockInstance" >
+        <Box Anchor="C,C" Size="1650,740" Color="0,0,0,0" ID="EraBlock">
+
+            <Image Anchor="R,T" AnchorSide="I,I" Offset="-1,0" Color="White.32" Texture="Assets/UI/Art/Controls/9 Grids/Divider4.dds" Size="4,722" Hidden="0"/>
+
+            <!-- Old Gold style-->
+            <Grid Anchor="L,T" Offset="0,0" Color="White.32" Size="1650,722" Padding="0,0" Style="GridGlassGold16" Hidden="1" ID="OldBar">
+                <Grid Anchor="C,T" AnchorSide="I,I" Offset="0,0"  Style="WindowGridGold"  Size="1650,20" ID="OldBlock">
+                    <Label Anchor="C,C" AnchorSide="I,O" Offset="0,-3" Font="TwCenMT18" Color0="111,51,0,222" Color1="255,222,22,255" Color2="229,118,22,255" FontStyle="SoftShadow" String="TXT_KEY_ANCIENT_ERA" ID="OldLabel"/>
+                </Grid>
+            </Grid>
+
+            <!--Current Blue style-->
+            <AlphaAnim  Anchor="C,T" Offset="0,0" Size="1650,736" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed=".5" AlphaStart=".25" AlphaEnd=".75" Hidden="0" ID="CurrentBlock">
+                <Grid Anchor="C,T" Offset="0,0" Color="White.255" Size="1650,722" Padding="0,0" Style="GridGlass16" ID="CurrentBlock2"/>
+            </AlphaAnim>
+
+            <Grid Anchor="C,T" AnchorSide="I,I" Offset="0,0" Style="WindowGrid" Size="1650.20" Hidden="0" ID="CurrentTop">
+                <AlphaAnim  Anchor="C,T" Offset="0,0" Size="1650,736" Pause="0" Cycle="Bounce" Speed=".5" AlphaStart=".25" AlphaEnd=".99" ID="CurrentTop1">
+                    <Grid Anchor="C,T" AnchorSide="I,I" Offset="0,0" Style="WindowHLGrid" Size="1650.20" Hidden="0" ID="CurrentTop2"/>
+                </AlphaAnim>
+                <Label Anchor="C,C" AnchorSide="I.O" Offset="0,-1" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" String="TXT_KEY_CLASSICAL_ERA" ID="CurrentLabel"/>
+            </Grid>
+
+            <!--Future Black Style-->
+            <Grid Anchor="C,T" AnchorSide="I.I" Offset="0,0" Style="WindowGridBlack" Size="1650.20" Hidden="1" ID="FutureBlock">
+                <Label Anchor="C,C" AnchorSide="I.O" Offset="0,-1" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" String="TXT_KEY_FUTURE_ERA" ID="FutureLabel"/>
+            </Grid>
+
+            <!--STUFF THAT NEEDS TO BE DELETED-->
+
+            <Image Anchor="C,T" AnchorSide="I,I" Offset="0,0" Texture="Assets/UI/Art/Controls/9 Grids/FrameTopBottomGold44.dds" Size="1650,32" ID="CurrentBlock1" Hidden="1"/>
+            <Image Anchor="R,T" AnchorSide="I,I" Offset="-13,0" Texture="Assets/UI/Art/Controls/9 Grids/FrameTopBottomCenter44.dds" Size="32,32" Hidden="1" />
+            <Image Anchor="C,B" AnchorSide="I,I" Offset="0,27" Texture="HorizontalTrim.dds" Size="1650,5" ID="FrameBottom" Hidden="1"/>
+        </Box>
+    </Instance>
+
+</Context>
