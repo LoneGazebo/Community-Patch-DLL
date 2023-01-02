@@ -4,7 +4,7 @@
 
 -- Ancestor Worship
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 5 [ICON_CITIZEN] Citizens in a City. +2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Councils'
+SET Text = '+1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Citizens in a City. +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith from Councils'
 WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP';
 
 
@@ -202,7 +202,7 @@ SET Text = 'Tutelary Gods'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PRODUCTION] Production, +2 [ICON_GOLD] Gold, and +1 [ICON_PEACE] Faith in Cities with at least 3 [ICON_CITIZEN] Citizens. +1 [ICON_PRODUCTION] Production and [ICON_PEACE] Faith from Engineer Specialists' 
+SET Text = '+3 [ICON_PRODUCTION] Production, +2 [ICON_GOLD] Gold, and +1 [ICON_PEACE] Faith in Cities with at least 3 [ICON_CITIZEN] Citizens. +1 [ICON_PRODUCTION] Production and [ICON_PEACE] Faith from Engineer Specialists'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE';
 
 
@@ -220,7 +220,7 @@ SET Text = '+20 [ICON_FOOD] Food in Holy City when you spread this [ICON_RELIGIO
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE';
 
 
--- Ceremonial Burial 
+-- Ceremonial Burial
 UPDATE Language_en_US
 SET Text = 'When a [ICON_GREAT_PEOPLE] Great Person is expended, gain 10 [ICON_PEACE] Faith and [ICON_CULTURE] Culture for every City following your [ICON_RELIGION] Religion (max 25 Cities), scaling with Era.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Mausoleum National Wonder[ENDCOLOR] (+5 [ICON_PEACE] Faith, and gain [ICON_PEACE] Faith when an owned unit is killed in battle, +5 [ICON_PEACE] Faith from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_CEREMONIAL_BURIAL';
@@ -315,7 +315,7 @@ UPDATE Language_en_US
 SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty and boosts the [ICON_GOLD] Gold yield of nearby farms and pastures. Gain [ICON_GOLD] Gold in the City when its borders expand.'
 WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY';
 
-INSERT INTO Language_en_US (Tag, Text) 
+INSERT INTO Language_en_US (Tag, Text)
 SELECT 'TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP', '+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD]Gold[NEWLINE]1 [ICON_GREAT_WORK] Great Work of Art Slot[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_CATHEDRAL_HELP}';
 
 
@@ -371,7 +371,7 @@ UPDATE Language_en_US
 SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP';
 
-INSERT INTO Language_en_US (Tag, Text) 
+INSERT INTO Language_en_US (Tag, Text)
 SELECT 'TXT_KEY_BUILDING_MANDIR_TOOLTIP', '+3 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food[NEWLINE]+10% [ICON_FOOD] Food[NEWLINE]1 [ICON_GREAT_WORK] Great Work of Music Slot[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MANDIR_HELP}';
 
 
