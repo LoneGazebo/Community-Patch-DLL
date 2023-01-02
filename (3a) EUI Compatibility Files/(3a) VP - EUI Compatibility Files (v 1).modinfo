@@ -23,6 +23,7 @@
   <References />
   <Blocks>
     <Mod id="17498aae-f116-4961-83cf-2fc270dc56dc" minversion="0" maxversion="999" title="(UI) Promotion Flags EUI (for VP)" />
+    <Mod id="e5cc542a-1580-4ca1-b44f-c29c985cf990" minversion="0" maxversion="999" title="(UI) Improved TechTree Screen for VP/EUI" />
   </Blocks>
   <Files>
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
@@ -74,6 +75,9 @@
     <File md5="4422D10FF5171FD8FD620535E7A62AE0" import="0">ImprovedTopPanel/Text.xml</File>
     <File md5="52233B83E6908B46118E35310F82F103" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="DEAAD04AD0476211B7FA8FF47E846A30" import="1">ImprovedTopPanel/TopPanel.xml</File>
+    <File md5="853361CE36726447BF7C31A74F3991D9" import="0">ImprovedTechTree/UpdateTechGrid.sql</File>
+    <File md5="5865F1D926DED76F3788BDED968461D2" import="1">ImprovedTechTree/TechTree.lua</File>
+    <File md5="5AAAC1FD52775AF649A6EEC04A6BE0C7" import="1">ImprovedTechTree/TechTree.xml</File>
   </Files>
   <Actions>
     <OnModActivated>
@@ -83,6 +87,7 @@
       <UpdateDatabase>PromotionFlags/PromotionBaseData.sql</UpdateDatabase>
       <UpdateDatabase>ImprovedTopPanel/Text.xml</UpdateDatabase>
       <UpdateDatabase>ImprovedTopPanel/FontIconsITP.xml</UpdateDatabase>
+      <UpdateDatabase>ImprovedTechTree/UpdateTechGrid.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
 </Mod>

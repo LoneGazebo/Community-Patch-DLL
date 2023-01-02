@@ -51,6 +51,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>ImprovedTopPanel/FontIconsITP.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>ImprovedTechTree/UpdateTechGrid.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -81,7 +86,14 @@
         <Id>17498aae-f116-4961-83cf-2fc270dc56dc</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
-      </Association>    
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(UI) Improved TechTree Screen for VP/EUI</Name>
+        <Id>e5cc542a-1580-4ca1-b44f-c29c985cf990</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -295,8 +307,21 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="ImprovedTechTree/UpdateTechGrid.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTechTree/TechTree.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="ImprovedTechTree/TechTree.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="ImprovedTechTree\" />
     <Folder Include="ImprovedTopPanel\" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />
