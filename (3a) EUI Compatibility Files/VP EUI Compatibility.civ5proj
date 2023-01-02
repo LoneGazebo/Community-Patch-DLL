@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(3.0.4) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -61,7 +61,7 @@
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>111</MinVersion>
+        <MinVersion>112</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>

@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.0.4) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.1) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="111" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="112" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="16" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -28,7 +28,7 @@
     <File md5="AA054B5262980CCA9648C4C1C8599E76" import="1">EUI/DC45_EventsOverview.dds</File>
     <File md5="9AE69E7FD299CA9C0CD4E574C5D2DE3B" import="1">EUI/DC45_UnitPromotions.dds</File>
     <File md5="CD9F2334872FB51C97AD44078F851621" import="1">EUI/DC45_VassalOverview.dds</File>
-    <File md5="43CFF7ADF01EEA0B9949FF34B84EEFBB" import="0">EUI/EUI_text_en_us.xml</File>
+    <File md5="66941C8BE0223E859491D7B321F3693D" import="0">EUI/EUI_text_en_us.xml</File>
     <File md5="5F8FA7777A5C59A1D8B6670592B98463" import="0">EUI/NeededText.xml</File>
     <File md5="B7318EC4324FC16AD7A1CF53E1669063" import="1">PromotionFlags/expansion1-16.dds</File>
     <File md5="D94FA2099F79AC2F705713062A85962A" import="1">PromotionFlags/expansion2_promotion16.dds</File>
@@ -52,8 +52,8 @@
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="A175817D0764E0D2D387381DE53B2CA1" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="B9AEF2178F780FF72B0E4B6B9D859742" import="1">LUA/LeaderHeadRoot.xml</File>
-    <File md5="63BD76FB6DCF4B6C9B99A9294F58673D" import="1">LUA/LoadScreen.xml</File>
-    <File md5="15F1E2CE62FDD3D34471058B0ABA08C1" import="1">LUA/LoadScreen.lua</File>
+    <File md5="1703629C4CC87BC00CC86932CFA2EA49" import="1">LUA/LoadScreen.xml</File>
+    <File md5="DDFA8E7A86D2D0FE975610B0E6A1BD60" import="1">LUA/LoadScreen.lua</File>
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">LUA/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
     <File md5="96291197216EDD8B6E4D5CEB83749300" import="1">LUA/NotificationPanel.lua</File>

@@ -115,7 +115,7 @@ VALUES
 
 CREATE TABLE IF NOT EXISTS Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp TEXT NOT NULL);
 
-INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp) VALUE
+INSERT INTO Civilization_UnitClassOverrides_BarbarianDisabler (UnitClassType_Temp) VALUES
 	-- Barbarians cannot spawn any civilian units
 	-- The civilian units below also cannot be captured from Barbarians
 	('UNITCLASS_WORKBOAT'),
