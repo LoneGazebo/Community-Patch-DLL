@@ -53,6 +53,7 @@ struct CvUnitCaptureDefinition
 	int iY;
 	bool bEmbarked;
 	bool bAsIs;
+	bool bConscript;
 	int iScenarioData;
 	ReligionTypes eReligion;
 	int iReligiousStrength;
@@ -69,6 +70,7 @@ struct CvUnitCaptureDefinition
 		, iY(-1)
 		, bEmbarked(false)
 		, bAsIs(false)
+		, bConscript(false)
 		, iScenarioData(0)
 		, eReligion(NO_RELIGION)
 		, iReligiousStrength(0)
@@ -894,6 +896,10 @@ public:
 	int GetRoughTerrainEndsTurnCount() const;
 	void ChangeRoughTerrainEndsTurnCount(int iValue);
 
+	bool IsCapturedUnitsConscripted() const;
+	int GetCapturedUnitsConscriptedCount() const;
+	void ChangeCapturedUnitsConscriptedCount(int iValue);
+
 	bool IsHoveringUnit() const;
 	int GetHoveringUnitCount() const;
 	void ChangeHoveringUnitCount(int iValue);
@@ -1570,6 +1576,8 @@ public:
 	void setCapturingPlayer(PlayerTypes eNewValue);
 	bool IsCapturedAsIs() const;
 	void SetCapturedAsIs(bool bSetValue);
+	bool IsCapturedAsConscript() const;
+	void SetCapturedAsConscript(bool bSetValue);
 
 	const UnitTypes getUnitType() const;
 	CvUnitEntry& getUnitInfo() const;
@@ -2224,6 +2232,7 @@ protected:
 	int m_iNumRepairCharges;
 	int m_iMilitaryCapChange;
 	int m_iRoughTerrainEndsTurnCount;
+	int m_iCapturedUnitsConscriptedCount;
 	int m_iEmbarkAbilityCount;
 	int m_iHoveringUnitCount;
 	int m_iFlatMovementCostCount;
@@ -2298,6 +2307,7 @@ protected:
 
 	PlayerTypes m_eCapturingPlayer;
 	bool m_bCapturedAsIs;
+	bool m_bCapturedAsConscript;
 	UnitTypes m_eLeaderUnitType;
 	InvisibleTypes m_eInvisibleType;
 	InvisibleTypes m_eSeeInvisibleType;
@@ -2652,6 +2662,7 @@ SYNC_ARCHIVE_VAR(int, m_iAuraEffectChange)
 SYNC_ARCHIVE_VAR(int, m_iNumRepairCharges)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryCapChange)
 SYNC_ARCHIVE_VAR(int, m_iRoughTerrainEndsTurnCount)
+SYNC_ARCHIVE_VAR(int, m_iCapturedUnitsConscriptedCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkAbilityCount)
 SYNC_ARCHIVE_VAR(int, m_iHoveringUnitCount)
 SYNC_ARCHIVE_VAR(int, m_iFlatMovementCostCount)
@@ -2717,6 +2728,7 @@ SYNC_ARCHIVE_VAR(int, m_iDamageTakenThisTurn)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenLastTurn)
 SYNC_ARCHIVE_VAR(PlayerTypes, m_eCapturingPlayer)
 SYNC_ARCHIVE_VAR(bool, m_bCapturedAsIs)
+SYNC_ARCHIVE_VAR(bool, m_bCapturedAsConscript)
 SYNC_ARCHIVE_VAR(UnitTypes, m_eLeaderUnitType)
 SYNC_ARCHIVE_VAR(InvisibleTypes, m_eInvisibleType)
 SYNC_ARCHIVE_VAR(InvisibleTypes, m_eSeeInvisibleType)

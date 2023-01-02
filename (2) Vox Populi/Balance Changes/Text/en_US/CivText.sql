@@ -540,7 +540,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY_STRATEGY';
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units capture defeated Units. Claims adjacent unowned land tiles when Cities earn a tile of the same type.'
+SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units may capture defeated Units, and captured Units don''t consume Unit Supply. Adjacent unowned land tiles are claimed when Cities earn a tile of the same type.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US

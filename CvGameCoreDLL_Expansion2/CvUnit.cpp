@@ -267,6 +267,7 @@ CvUnit::CvUnit() :
 	, m_iGGFromBarbariansCount()
 #endif
 	, m_iRoughTerrainEndsTurnCount()
+	, m_iCapturedUnitsConscriptedCount()
 	, m_iEmbarkAbilityCount()
 	, m_iHoveringUnitCount()
 	, m_iFlatMovementCostCount()
@@ -340,6 +341,7 @@ CvUnit::CvUnit() :
 	, m_eGiftedByPlayer()
 	, m_eCapturingPlayer()
 	, m_bCapturedAsIs()
+	, m_bCapturedAsConscript()
 	, m_eUnitType()
 	, m_eLeaderUnitType()
 	, m_eInvisibleType()
@@ -1623,6 +1625,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iGGFromBarbariansCount = 0;
 #endif
 	m_iRoughTerrainEndsTurnCount = 0;
+	m_iCapturedUnitsConscriptedCount = 0;
 	m_iEmbarkAbilityCount = 0;
 	m_iHoveringUnitCount = 0;
 	m_iFlatMovementCostCount = 0;
@@ -1697,6 +1700,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eGiftedByPlayer = NO_PLAYER;
 	m_eCapturingPlayer = NO_PLAYER;
 	m_bCapturedAsIs = false;
+	m_bCapturedAsConscript = false;
 	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
@@ -2944,6 +2948,12 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		kCaptureDef.eCaptureUnitType = getUnitType();
 	}
 
+	// Captured as conscripted unit?
+	if (IsCapturedAsConscript())
+	{
+		kCaptureDef.bConscript = true;
+	}
+
 	// Barbs captured this unit, or a player capturing this unit from the barbs
 	else if(isBarbarian() || (kCaptureDef.eCapturingPlayer != NO_PLAYER && GET_PLAYER(kCaptureDef.eCapturingPlayer).isBarbarian()))
 	{
@@ -3012,6 +3022,17 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PRISONER_WAR");
 		if (ePromotionForced != NO_PROMOTION && !pkCapturedUnit->HasPromotion(ePromotionForced))
 		{
+			pkCapturedUnit->setHasPromotion(ePromotionForced, true);
+		}
+	}
+
+	if (pkCapturedUnit->IsCombatUnit() && kCaptureDef.bConscript)
+	{
+		PromotionTypes ePromotionForced = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_CONSCRIPT");
+		if (ePromotionForced != NO_PROMOTION)
+		{
+			kCapturingPlayer.changeNumUnitsSupplyFree(1);
+			pkCapturedUnit->changeNoSupply(1);
 			pkCapturedUnit->setHasPromotion(ePromotionForced, true);
 		}
 	}
@@ -18644,6 +18665,30 @@ void CvUnit::ChangeRoughTerrainEndsTurnCount(int iValue)
 	}
 }
 
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsCapturedUnitsConscripted() const
+{
+	VALIDATE_OBJECT
+		return GetCapturedUnitsConscriptedCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetCapturedUnitsConscriptedCount() const
+{
+	VALIDATE_OBJECT
+		return m_iCapturedUnitsConscriptedCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCapturedUnitsConscriptedCount(int iValue)
+{
+	VALIDATE_OBJECT
+		if (iValue != 0)
+		{
+			m_iCapturedUnitsConscriptedCount += iValue;
+		}
+}
+
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHoveringUnit() const
@@ -25214,6 +25259,20 @@ void CvUnit::SetCapturedAsIs(bool bSetValue)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::IsCapturedAsConscript() const
+{
+	VALIDATE_OBJECT
+		return m_bCapturedAsConscript;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetCapturedAsConscript(bool bSetValue)
+{
+	VALIDATE_OBJECT
+		m_bCapturedAsConscript = bSetValue;
+}
+
+//	--------------------------------------------------------------------------------
 const UnitTypes CvUnit::getUnitType() const
 {
 	VALIDATE_OBJECT
@@ -27050,6 +27109,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		}
 #endif
 		ChangeRoughTerrainEndsTurnCount((thisPromotion.IsRoughTerrainEndsTurn()) ? iChange : 0);
+		ChangeCapturedUnitsConscriptedCount((thisPromotion.IsCapturedUnitsConscripted()) ? iChange : 0);
 		ChangeHoveringUnitCount((thisPromotion.IsHoveringUnit()) ? iChange : 0);
 		changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
 		changeCanMoveImpassableCount((thisPromotion.IsCanMoveImpassable()) ? iChange : 0);
@@ -27802,6 +27862,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iNumRepairCharges);
 	visitor(unit.m_iMilitaryCapChange);
 	visitor(unit.m_iRoughTerrainEndsTurnCount);
+	visitor(unit.m_iCapturedUnitsConscriptedCount);
 	visitor(unit.m_iEmbarkAbilityCount);
 	visitor(unit.m_iHoveringUnitCount);
 	visitor(unit.m_iFlatMovementCostCount);
@@ -27867,6 +27928,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iDamageTakenLastTurn);
 	visitor(unit.m_eCapturingPlayer);
 	visitor(unit.m_bCapturedAsIs);
+	visitor(unit.m_bCapturedAsConscript);
 	visitor(unit.m_eLeaderUnitType);
 	visitor(unit.m_eInvisibleType);
 	visitor(unit.m_eSeeInvisibleType);

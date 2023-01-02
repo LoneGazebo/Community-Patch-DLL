@@ -1075,6 +1075,9 @@ ALTER TABLE UnitPromotions ADD 'ChangeDamageValue' INTEGER DEFAULT 0;
 -- A unit cannot be captured by another player (i.e. from prize ships, etc.). Does not apply to civilians.
 ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT 0;
 
+-- Units captured by a unit with this promotion gain the conscript promotion (don't count for military supply). Only used together with CaptureDefeatedEnemy
+ALTER TABLE UnitPromotions ADD COLUMN 'CapturedUnitsConscripted' BOOLEAN DEFAULT 0;
+
 -- A unit gains a combat bonus VS barbarians
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianCombatBonus' INTEGER DEFAULT 0;
 

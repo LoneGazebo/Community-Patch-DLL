@@ -203,6 +203,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bGGFromBarbarians(false),
 #endif
 	m_bRoughTerrainEndsTurn(false),
+	m_bCapturedUnitsConscripted(false),
 	m_bHoveringUnit(false),
 	m_bFlatMovementCost(false),
 	m_bCanMoveImpassable(false),
@@ -468,6 +469,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	}
 #endif
 	m_bRoughTerrainEndsTurn = kResults.GetBool("RoughTerrainEndsTurn");
+	m_bCapturedUnitsConscripted = kResults.GetBool("CapturedUnitsConscripted");
 	m_bHoveringUnit = kResults.GetBool("HoveringUnit");
 	m_bFlatMovementCost = kResults.GetBool("FlatMovementCost");
 	m_bCanMoveImpassable = kResults.GetBool("CanMoveImpassable");
@@ -2274,6 +2276,12 @@ bool CvPromotionEntry::IsGGFromBarbarians() const
 bool CvPromotionEntry::IsRoughTerrainEndsTurn() const
 {
 	return m_bRoughTerrainEndsTurn;
+}
+
+/// Accessor: Units captured by a unit with this promotion get the conscript promotion and don't count for military supply
+bool CvPromotionEntry::IsCapturedUnitsConscripted() const
+{
+	return m_bCapturedUnitsConscripted;
 }
 
 /// Accessor: Unit may pass over coast and Mountains

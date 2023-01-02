@@ -3143,6 +3143,7 @@
 			<OrderPriority>97</OrderPriority>
 			<CannotBeChosen>true</CannotBeChosen>
 			<CaptureDefeatedEnemy>true</CaptureDefeatedEnemy>
+			<CapturedUnitsConscripted>true</CapturedUnitsConscripted>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
