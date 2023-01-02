@@ -491,14 +491,14 @@
 			<Text>Covering Fire I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
-			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR], [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR], and [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR], [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR], and [COLOR_NEGATIVE_TEXT]Armored Units[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
 			<Text>Covering Fire II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
-			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -10% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Fortified Units[ENDCOLOR] and [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+10% [ICON_STRENGTH] Combat Strength when defending.[NEWLINE]Enemy Land Units within 2 tiles suffer -15% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 	<!-- Ranged Mounted Line -->
 		<Row Tag="TXT_KEY_PROMOTION_ROUGH_TERRAIN_HALF_TURN">

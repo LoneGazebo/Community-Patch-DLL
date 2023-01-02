@@ -55,10 +55,12 @@
 	-- Gatling Gun, Machine Gun, Bazooka - make Range 2 (instead of 1) to help AI
 	UPDATE Units SET Range = '2', DefaultUnitAI = 'UNITAI_RANGED' WHERE Type IN 
 	('UNIT_GATLINGGUN',
-	'UNIT_MACHINE_GUN',
-	'UNIT_BAZOOKA');
+	'UNIT_MACHINE_GUN');
 
-	-- Make Rocket Artillery cost oil, not aluminum:
+	-- Proposal 2-56: make Bazooka range 3
+	UPDATE Units SET Range = '3', DefaultUnitAI = 'UNITAI_RANGED' WHERE Type = 'UNIT_BAZOOKA';
+
+	-- Make Rocket Artillery cost iron, not aluminum:
 	UPDATE Unit_ResourceQuantityRequirements SET ResourceType = 'RESOURCE_IRON' WHERE UnitType = 'UNIT_ROCKET_ARTILLERY';
 
 	-- Cannons and Artillery should cost Iron

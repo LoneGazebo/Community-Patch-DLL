@@ -171,7 +171,7 @@ UPDATE Units SET RangedCombat = '52' WHERE Type = 'UNIT_ANTI_TANK_GUN';
 UPDATE Units SET RangedCombat = '58' WHERE Type = 'UNIT_MACHINE_GUN';
 
 -- Atomic --
-UPDATE Units SET RangedCombat = '70' WHERE Type = 'UNIT_BAZOOKA';
+UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
 UPDATE Units SET RangedCombat = '75' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
@@ -319,20 +319,20 @@ UPDATE Units SET Combat = '58' WHERE Type = 'UNIT_ANTI_TANK_GUN';
 
 -- Atomic --
 -- Melee
-UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_INFANTRY';
-UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
+UPDATE Units SET Combat = '62' WHERE Type = 'UNIT_INFANTRY';
+UPDATE Units SET Combat = '62' WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
 -- UPDATE Units SET Combat = '65' WHERE Type = 'UNIT_GUERILLA'; -- Mercenaries, Entry in NewUnits.sql
 
 UPDATE Units SET Combat = '75' WHERE Type = 'UNIT_TANK';
 UPDATE Units SET Combat = '82' WHERE Type = 'UNIT_GERMAN_PANZER';
 -- Ranged
-UPDATE Units SET Combat = '50' WHERE Type = 'UNIT_BAZOOKA';
+UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
 -- Melee
 UPDATE Units SET Combat = '65' WHERE Type = 'UNIT_MARINE';
 UPDATE Units SET Combat = '55' WHERE Type = 'UNIT_MOBILE_SAM';
-UPDATE Units SET Combat = '75' WHERE Type = 'UNIT_MECHANIZED_INFANTRY';
+UPDATE Units SET Combat = '80' WHERE Type = 'UNIT_MECHANIZED_INFANTRY';
 UPDATE Units SET Combat = '75' WHERE Type = 'UNIT_XCOM_SQUAD';
 UPDATE Units SET Combat = '100' WHERE Type = 'UNIT_MODERN_ARMOR';
 UPDATE Units SET Combat = '125' WHERE Type = 'UNIT_MECH';

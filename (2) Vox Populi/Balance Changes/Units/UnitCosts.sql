@@ -130,7 +130,6 @@
 --- Atomic ---
 
 	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_INFANTRY';
-	UPDATE Units SET Cost = '1300', FaithCost = '800' WHERE Type = 'UNIT_BAZOOKA';
 	UPDATE Units SET Cost = '1800', FaithCost = '800' WHERE Type = 'UNIT_TANK';
 	UPDATE Units SET Cost = '1800', FaithCost = '800' WHERE Type = 'UNIT_GERMAN_PANZER';
 	
@@ -159,6 +158,9 @@
 	UPDATE Units SET Cost = '2500', FaithCost = '1000' WHERE Type = 'UNIT_MODERN_ARMOR';
 	UPDATE Units SET Cost = '2600', FaithCost = '1000' WHERE Type = 'UNIT_XCOM_SQUAD';
 	UPDATE Units SET Cost = '3000', FaithCost = '1250' WHERE Type = 'UNIT_MECH';
+
+	-- Bazooka is now an Information era unit, and should have its costs raised accordingly
+	UPDATE Units SET Cost = '1800', FaithCost = '1000' WHERE Type = 'UNIT_BAZOOKA';
 
 	UPDATE Units SET Cost = '2100', FaithCost = '1000' WHERE Type = 'UNIT_JET_FIGHTER';
 	UPDATE Units SET Cost = '2200', FaithCost = '1000' WHERE Type = 'UNIT_STEALTH_BOMBER';

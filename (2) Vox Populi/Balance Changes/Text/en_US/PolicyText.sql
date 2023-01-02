@@ -335,7 +335,7 @@ WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_TEXT';
 
 -- Five Year Plan
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +3 [ICON_PRODUCTION] Production for every Mine, Quarry, Lumber Mill, Logging Camp, and Unique Improvement.'
+SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +3 [ICON_PRODUCTION] Production for every Mine, Quarry, Lumber Mill, Logging Camp, Oil Well, and Unique Improvement.'
 WHERE Tag = 'TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP';
 
 --------------------

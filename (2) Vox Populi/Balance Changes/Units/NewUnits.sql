@@ -129,7 +129,7 @@ VALUES
 INSERT INTO Units
 	(Class, Type, PrereqTech, Combat, Cost, FaithCost, PurchaseOnly, RequiresFaithPurchaseEnabled, Moves, CombatClass, Domain, MoveAfterPurchase, DefaultUnitAI, Description, Civilopedia, Strategy, Help, MilitarySupport, MilitaryProduction, Pillage, PolicyType, IgnoreBuildingDefense, AdvancedStartCost, XPValueAttack, XPValueDefense, Conscription, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, IconAtlas, PortraitIndex)
 VALUES
-('UNITCLASS_GUERILLA', 		'UNIT_GUERILLA', 'TECH_PENICILIN', 65, 	1300,	0, 			1, 				0, 						2, 		'UNITCOMBAT_GUN',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 	'TXT_KEY_UNIT_GUERILLA', 	'TXT_KEY_CIV5_GUERILLA_TEXT',	'TXT_KEY_UNIT_GUERILLA_STRATEGY', 	'TXT_KEY_UNIT_HELP_GUERILLA', 	1, 					1, 					1, 			'POLICY_HONOR_FINISHER',	1,						40, 				3, 				3,				3, 				'ART_DEF_UNIT_MERC',	'MERC_FLAG_ATLAS',	0,					'COMMUNITY_ATLAS',	52);
+('UNITCLASS_GUERILLA', 		'UNIT_GUERILLA', 'TECH_PENICILIN', 66, 	1300,	0, 			1, 				0, 						2, 		'UNITCOMBAT_GUN',	'DOMAIN_LAND', 	1, 					'UNITAI_ATTACK', 	'TXT_KEY_UNIT_GUERILLA', 	'TXT_KEY_CIV5_GUERILLA_TEXT',	'TXT_KEY_UNIT_GUERILLA_STRATEGY', 	'TXT_KEY_UNIT_HELP_GUERILLA', 	1, 					1, 					1, 			'POLICY_HONOR_FINISHER',	1,						40, 				3, 				3,				3, 				'ART_DEF_UNIT_MERC',	'MERC_FLAG_ATLAS',	0,					'COMMUNITY_ATLAS',	52);
 
 INSERT INTO Unit_ClassUpgrades
 	(UnitType, UnitClassType)

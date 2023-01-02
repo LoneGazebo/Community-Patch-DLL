@@ -10840,7 +10840,7 @@ function AssignStartingPlots:AdjustTiles()
 					else
 						-- Add some jungle or forest.
 						if self:IsTropical(y) then
-							if res_ID ~= self.deer_ID and res_ID ~= self.fur_ID then
+							if res_ID ~= self.fur_ID then
 								plot:SetFeatureType(FeatureTypes.FEATURE_JUNGLE, -1)
 							else
 								plot:SetFeatureType(FeatureTypes.FEATURE_FOREST, -1)
@@ -10859,7 +10859,7 @@ function AssignStartingPlots:AdjustTiles()
 					else
 						-- Add some jungle or forest.
 						if self:IsTropical(y) then
-							if res_ID ~= self.deer_ID and res_ID ~= self.fur_ID then
+							if res_ID ~= self.fur_ID then
 								plot:SetFeatureType(FeatureTypes.FEATURE_JUNGLE, -1)
 							else
 								plot:SetFeatureType(FeatureTypes.FEATURE_FOREST, -1)
@@ -11235,6 +11235,14 @@ function AssignStartingPlots:PlaceBonusResources()
 		{self.deer_ID, 1, 100, 0, 2} };
 		self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 		-- 12
+		resources_to_place = {
+		{self.deer_ID, 1, 100, 0, 1} };
+		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
+		-- none
+		resources_to_place = {
+		{self.deer_ID, 1, 100, 0, 1} };
+		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_jungle_list, resources_to_place)
+		-- none
 		
 		resources_to_place = {
 		{self.wheat_ID, 1, 100, 1, 2} };
@@ -11405,6 +11413,14 @@ function AssignStartingPlots:PlaceBonusResources()
 		{self.deer_ID, 1, 100, 0, 2} };
 		self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 		-- 12
+		resources_to_place = {
+		{self.deer_ID, 1, 100, 0, 1} };
+		self:ProcessResourceList(15 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
+		-- none
+		resources_to_place = {
+		{self.deer_ID, 1, 100, 0, 1} };
+		self:ProcessResourceList(15 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_jungle_list, resources_to_place)
+		-- none
 		
 		resources_to_place = {
 		{self.wheat_ID, 1, 100, 0, 2} };
