@@ -20,7 +20,7 @@ INSERT INTO Resource_TerrainBooleans (ResourceType, TerrainType) VALUES
 ( 'RESOURCE_MAIZE',  'TERRAIN_PLAINS'),
 ( 'RESOURCE_RICE',  'TERRAIN_GRASS');
 
-INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES 
+INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES
 ('RESOURCE_MAIZE', 'YIELD_FOOD', 1),
 ('RESOURCE_RICE', 'YIELD_FOOD', 1);
 
@@ -42,6 +42,6 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 
 INSERT INTO Improvement_ResourceType_Yields	(ResourceType, ImprovementType, YieldType, Yield) VALUES
 ('RESOURCE_RICE',	'IMPROVEMENT_FARM',	'YIELD_FOOD',		-1),
-('RESOURCE_RICE',	'IMPROVEMENT_FARM',	'YIELD_GOLD',		1),
-('RESOURCE_WHEAT',	'IMPROVEMENT_FARM',	'YIELD_FOOD',		-1),
-('RESOURCE_WHEAT',	'IMPROVEMENT_FARM',	'YIELD_PRODUCTION',	1);
+('RESOURCE_RICE',	'IMPROVEMENT_FARM',	'YIELD_PRODUCTION', 1),
+('RESOURCE_MAIZE',	'IMPROVEMENT_FARM',	'YIELD_FOOD',		-1),
+('RESOURCE_MAIZE',	'IMPROVEMENT_FARM',	'YIELD_GOLD',       1);
