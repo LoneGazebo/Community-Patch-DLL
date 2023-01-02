@@ -6,7 +6,7 @@
 
 	-- Caravans moved to Pottery
 	UPDATE Units SET PrereqTech = 'TECH_HORSEBACK_RIDING', MilitarySupport = '0', ProductionCostAddedPerEra = '75' WHERE Type = 'UNIT_CARAVAN';
-	
+
 	-- Cargo Ship -- Move to Optics
 
 	UPDATE Units SET PrereqTech = 'TECH_OPTICS', MilitarySupport = '0', ProductionCostAddedPerEra = '75', MinAreaSize = '10' WHERE Type = 'UNIT_CARGO_SHIP';
@@ -17,8 +17,8 @@
 	-- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units SET WorkRate = '90' WHERE Type = 'UNIT_WORKER';
 
-	-- Great Prophets no longer capturable
-	UPDATE Units Set Capture = NULL WHERE Type = 'UNIT_PROPHET';
+	-- Great Prophets no longer capturable, also has 4 movement points
+	UPDATE Units Set Capture = NULL, Moves = '4' WHERE Type = 'UNIT_PROPHET';
 
 	-- Great Writer culture boost lowered slightly, added scaling bonus for num owned GWS
 	UPDATE Units SET BaseCultureTurnsToCount = '5', ScaleFromNumGWs = '3' WHERE Type = 'UNIT_WRITER';
@@ -81,9 +81,9 @@ UPDATE Eras SET UnitSupplyBase = '12' WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET UnitSupplyBase = '14' WHERE Type = 'ERA_FUTURE';
 
 --Assigns UnitCombatInfos to civilian units -- Can now grant production bonuses and free promotions via buildings, traits and policies
-INSERT INTO UnitCombatInfos  	
+INSERT INTO UnitCombatInfos
 			(Type,					Description)
-VALUES		
+VALUES
 	('UNITCOMBAT_SETTLER',	'TXT_KEY_UNITCOMBAT_SETTLER'),
 	('UNITCOMBAT_WORKER',	'TXT_KEY_UNITCOMBAT_WORKER'),
 	('UNITCOMBAT_WORKBOAT',	'TXT_KEY_UNITCOMBAT_WORKBOAT'),
@@ -91,7 +91,7 @@ VALUES
 	('UNITCOMBAT_CARAVAN',	'TXT_KEY_UNITCOMBAT_CARAVAN'),
 	('UNITCOMBAT_INQUISITOR',	'TXT_KEY_UNITCOMBAT_INQUISITOR'),
 	('UNITCOMBAT_MISSIONARY',	'TXT_KEY_UNITCOMBAT_MISSIONARY');
-	
+
 UPDATE Units SET CombatClass = 'UNITCOMBAT_SETTLER' WHERE Type IN ('UNIT_SETTLER', 'UNIT_PIONEER', 'UNIT_COLONIST');
 UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKER' WHERE Type = 'UNIT_WORKER';
 UPDATE Units SET CombatClass = 'UNITCOMBAT_WORKBOAT' WHERE Type = 'UNIT_WORKBOAT';
