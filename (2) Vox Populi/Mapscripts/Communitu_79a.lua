@@ -1527,6 +1527,14 @@ function MapGlobals:New()
 				{self.deer_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
+				resources_to_place = {
+				{self.deer_ID, 1, 100, 0, 1} };
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
+				-- none
+				resources_to_place = {
+				{self.deer_ID, 1, 100, 0, 1} };
+				self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_jungle_list, resources_to_place)
+				-- none
 				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
@@ -1697,6 +1705,14 @@ function MapGlobals:New()
 				{self.deer_ID, 1, 100, 0, 2} };
 				self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
 				-- 12
+				resources_to_place = {
+				{self.deer_ID, 1, 100, 0, 1} };
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
+				-- none
+				resources_to_place = {
+				{self.deer_ID, 1, 100, 0, 1} };
+				self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_jungle_list, resources_to_place)
+				-- none
 				
 				resources_to_place = {
 				{self.wheat_ID, 1, 100, 1, 2} };
@@ -1857,8 +1873,8 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.5.0",
-		Description = "Communitas mapscript for Vox Populi (version 2.7+)",
+		Name = "Communitu_79a v2.6.0",
+		Description = "Communitas mapscript for Vox Populi (version 3.1+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 1,
