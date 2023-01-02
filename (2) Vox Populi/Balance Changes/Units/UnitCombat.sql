@@ -171,9 +171,9 @@ UPDATE Units SET RangedCombat = '52' WHERE Type = 'UNIT_ANTI_TANK_GUN';
 UPDATE Units SET RangedCombat = '58' WHERE Type = 'UNIT_MACHINE_GUN';
 
 -- Atomic --
-UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
+UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_BAZOOKA';
 UPDATE Units SET RangedCombat = '75' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
 UPDATE Units SET RangedCombat = '70' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 
@@ -326,7 +326,6 @@ UPDATE Units SET Combat = '62' WHERE Type = 'UNIT_BRAZILIAN_PRACINHA';
 UPDATE Units SET Combat = '75' WHERE Type = 'UNIT_TANK';
 UPDATE Units SET Combat = '82' WHERE Type = 'UNIT_GERMAN_PANZER';
 -- Ranged
-UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
 -- Melee
@@ -337,6 +336,7 @@ UPDATE Units SET Combat = '75' WHERE Type = 'UNIT_XCOM_SQUAD';
 UPDATE Units SET Combat = '100' WHERE Type = 'UNIT_MODERN_ARMOR';
 UPDATE Units SET Combat = '125' WHERE Type = 'UNIT_MECH';
 -- Ranged
+UPDATE Units SET Combat = '60' WHERE Type = 'UNIT_BAZOOKA';
 UPDATE Units SET Combat = '55' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
 UPDATE Units SET Combat = '70' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 
@@ -385,7 +385,6 @@ UPDATE Units SET BaseLandAirDefense = '8' WHERE Type = 'UNIT_GUERILLA'; -- Merce
 UPDATE Units SET BaseLandAirDefense = '3' WHERE Type = 'UNIT_TANK';
 UPDATE Units SET BaseLandAirDefense = '3' WHERE Type = 'UNIT_GERMAN_PANZER';
 -- Ranged
-UPDATE Units SET BaseLandAirDefense = '15' WHERE Type = 'UNIT_BAZOOKA';
 
 -- Information --
 -- Melee
@@ -396,6 +395,7 @@ UPDATE Units SET BaseLandAirDefense = '25' WHERE Type = 'UNIT_XCOM_SQUAD';
 UPDATE Units SET BaseLandAirDefense = '30' WHERE Type = 'UNIT_MECH';
 UPDATE Units SET BaseLandAirDefense = '40' WHERE Type = 'UNIT_MOBILE_SAM';
 -- Ranged
+UPDATE Units SET BaseLandAirDefense = '15' WHERE Type = 'UNIT_BAZOOKA';
 UPDATE Units SET BaseLandAirDefense = '10' WHERE Type = 'UNIT_HELICOPTER_GUNSHIP';
 UPDATE Units SET BaseLandAirDefense = '35' WHERE Type = 'UNIT_ROCKET_ARTILLERY';
 

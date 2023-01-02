@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>16</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(3.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.1.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
@@ -921,6 +921,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Mapscripts/EMP/EMP_Maps.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Text/en_US/VPUI_tips_en_us.xml</FileName>
       </Action>
     </ModActions>
     <ModReferences />

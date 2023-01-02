@@ -226,7 +226,6 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_WORKSHOP', 'FLAVOR_GREAT_PEOPLE', 2),
 ('BUILDING_WORKSHOP', 'FLAVOR_I_LAND_TRADE_ROUTE', 5),
 ('BUILDING_WORKSHOP', 'FLAVOR_I_SEA_TRADE_ROUTE', 5),
-('BUILDING_WORKSHOP', 'FLAVOR_GREAT_PEOPLE', 2),
 -----------------------------------------
 ------------ Renaissance
 ('BUILDING_BANK', 'FLAVOR_GOLD', 25),
