@@ -2814,7 +2814,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<AttackFortifiedMod>-50</AttackFortifiedMod>
-			<DefenseMod>20</DefenseMod>
+			<DefenseMod>10</DefenseMod>
 			<CityAttack>-50</CityAttack>
 			<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
 			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
@@ -2834,7 +2834,7 @@
 			<AttackFortifiedMod>-25</AttackFortifiedMod>
 			<DefenseMod>10</DefenseMod>
 			<CityAttack>-25</CityAttack>
-			<NearbyEnemyCombatMod>-10</NearbyEnemyCombatMod>
+			<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
 			<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
 			<OrderPriority>95</OrderPriority>
 			<LostWithUpgrade>true</LostWithUpgrade>
