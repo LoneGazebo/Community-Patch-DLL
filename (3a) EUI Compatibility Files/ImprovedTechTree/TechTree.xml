@@ -20,8 +20,8 @@
 
             <Stack Anchor="C,C" Offset="0,0"   Size="128,128" StackGrowth="Bottom" Padding="12" >
 
-                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" >
-                    <GridData Style="Grid9BlackTint8" />
+                <GridButton Anchor="C,C" Size="200,32" Color="255,255,255,75"  Offset="0,0" StateOffsetIncrement="0,0" >
+                    <GridData Style="Grid9Red8" />
                     <Grid Anchor="C,C" Offset="0,0" Size="204,36" Padding="0,0" Style="Grid9Frame" Hidden="0" />
                     <ShowOnMouseOver>
                         <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
@@ -104,13 +104,13 @@
 
     <Instance Name="TechButtonInstance" >
         <Button Anchor="L,C" Size="270,60" Color="0,0,0,0" StateOffsetIncrement="0,0" ID="TechButton" >
-
+            <Grid Anchor="C,T" Offset="0,0" Size="274,102" Padding="0,0" Style="Grid9Frame" Hidden="1" ID="ExtraFrame"/>
             <!--The already researched style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,255" Style="Grid9Gold8" ID="AlreadyResearched" Hidden="1">
                 <ScrollAnim  Offset="0,0"  Size="270.60" Speed="0.07" Texture="TechGoldShine.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
                 <ShowOnMouseOver>
                     <AlphaAnim  Anchor="C,C" Offset="0,0"  Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".5" AlphaEnd=".0" Hidden="0">
-                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" />
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" ID="AlreadyResearchedAnim3" />
                     </AlphaAnim>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -122,20 +122,20 @@
                 <Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="Assets/UI/Art/Icons/IconFrameGold64.dds" />
                 <!--<Image Anchor="L,C" Offset="0,0"  Size="64,64" Texture="Assets/UI/Art/Icons/IconFrameGold64.dds" />-->
                 <Label Anchor="L,T"  Offset="64,4" Font="TwCenMT18" Color0="111.51.0.222" Color1="255.222.22.255" Color2="229.118.22.255" FontStyle="SoftShadow" ID="AlreadyResearchedTechName" Hidden="0"/>
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9FrameGold" Hidden="0" />
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9FrameGold" Hidden="0" ID="AlreadyResearchedFrame" />
 
             </Grid>
 
             <!--The currently being researched style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,200"  Offset="0,0" StateOffsetIncrement="0,0" Style="Grid9DarkBlue8Button" ID="CurrentlyResearching" Hidden="1">
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="CurrentlyResearchingFrame" />
                 <AlphaAnim  Anchor="C,C" Offset="0,0" Size="375,90" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".25" AlphaEnd=".75" Hidden="0">
-                    <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                    <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" ID="CurrentlyResearchingAnim1" />
                 </AlphaAnim>
-                <ScrollAnim  Offset="0,0"  Size="270.60" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" />
+                <ScrollAnim  Offset="0,0"  Size="270.60" Speed="0.25" Texture="assets\UI\Art\Notification\Bubbles256.dds" MaskTexture="assets\UI\Art\Notification\BubblesMask375x90.dds" ID="CurrentlyResearchingAnim2"/>
                 <ShowOnMouseOver>
                     <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
-                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" ID="CurrentlyResearchingAnim3"/>
                     </AlphaAnim>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -149,10 +149,10 @@
 
             <!--The available to be researched style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Green8" ID="Available" Hidden="1">
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" />
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="AvailableFrame"/>
                 <ShowOnMouseOver>
                     <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
-                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" />
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Science8" ID="AvailableAnim3" />
                     </AlphaAnim>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -165,11 +165,11 @@
             </Grid>
 
             <!--The unavailable to be researched style-->
-            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="GridBlack8" ID="Unavailable" Hidden="0">
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+            <Grid Anchor="L,T" Size="270,60" Color="255,255,255,75" Style="Grid9Red8" ID="Unavailable" Hidden="0">
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" ID="UnavailableFrame" />
                 <ShowOnMouseOver>
-                    <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
-                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="GridDarkBlue8" />
+ 			<AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0">
+                         <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="GridBlack8" ID="UnavailableAnim3" />
                     </AlphaAnim>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0.0" Texture="Assets/UI/Art/Controls/buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -183,7 +183,7 @@
 
             <!--The locked style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Red8" ID="Locked" Hidden="1">
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" ID="LockedFrame"/>
                 <ShowOnMouseOver>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16,0" Texture="buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0,0" Texture="buttonsidesred.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -196,7 +196,7 @@
 
             <!--The free style-->
             <Grid Anchor="L,T" Size="270,60" Color="255,255,255,230" Style="Grid9Production8" ID="FreeTech" Hidden="1">
-                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" />
+                <Grid Anchor="C,C" Offset="0,0" Size="274,64" Padding="0,0" Style="Grid9Frame" ID="FreeTechFrame"/>
                 <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0.0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0">
                     <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Production8" />
                 </AlphaAnim>
@@ -204,7 +204,7 @@
                 <ShowOnMouseOver>
                     <ScrollAnim  Offset="0,0"  Size="270,60" Speed="0.25" Texture="Bubbles256Orange.dds" MaskTexture="BubblesMask375x90.dds" />
                     <AlphaAnim  Anchor="C,C" Offset="0,0" Size="48,48" TextureOffset="0,0"  Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0">
-                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" />
+                        <Grid  Size="270,60" Anchor="C,C" Offset="0,0" Style="Grid9Yellow8" ID="FreeTechAnim3"/>
                     </AlphaAnim>
                     <AlphaAnim  Anchor="R,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="16,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
                     <AlphaAnim  Anchor="L,C"  AnchorSide="O.O"  Offset="0,0" Size="16,32" TextureOffset="0,0" Texture="buttonsidesglowgold.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
@@ -217,13 +217,18 @@
             </Grid>
 
             <!--The box full of stuff we can gain from this tech-->
-            <Grid Anchor="L,C" Offset="64,8" Size="200,38" Padding="0,0" Style="GridBlackIndent8">
-                <Stack Anchor="L,C" Offset="0,1" Padding="-7" StackGrowth="Right"  >
+            <Grid Anchor="L,T" Offset="64,20" Size="200,38" Padding="0,0" Style="GridBlackIndent8" ID="StuffBox">
+                <Stack Anchor="L,T" Offset="0,-22" Padding="-7" StackGrowth="Right" WrapGrowth="Down" WrapWidth="200" WrapPadding="-7">
                     <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B1"/>
                     <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B2"/>
                     <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B3"/>
                     <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B4"/>
                     <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B5"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B6"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B7"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B8"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B9"/>
+                    <Button NoStateChange="1"  Anchor="L,C" Size="45,45"  ID="B10"/>
                 </Stack>
             </Grid>
 
@@ -236,8 +241,9 @@
             <!--<Image Anchor="R,T"  Offset="-15,-40" Texture="AdvisorSymbolEconomic.dds" Size="64,64" ToolTip="Economic Advisor Approves" Hidden="1" ID="AdvisorIcon"/>-->
 
             <!--The tech image-->
-            <Image Anchor="L,C" Offset="0,0" Texture="TechnologyAtlas512.dds" Size="64,64" ID="TechPortrait"/>
-
+            <Image Anchor="L,C" Offset="0,0" Texture="TechnologyAtlas512.dds" Size="64,64" ID="TechPortrait">
+				<Label Anchor="C,C" Offset="0,0" Font="TwCenMT24" FontStyle="Stroke" Color0="255,0,0,255" Color1="0,0,0,255" ID="Discovered" />
+			</Image>
             <!--The progress meter-->
             <!--
       <Image Anchor="L,C" Offset="-64.0" Color="White.200" Texture="TechTreeMeterBack.dds" Size="128.128" ID="ProgressMeter" Hidden="1" >

@@ -1,5 +1,6 @@
 -------------------------------------------------
 -- Tech Tree Popup
+-- updated by psparky for VP - requires EUI 1.28g, as used with VP (changes marked afw)
 -- coded by bc1 from Civ V 1.0.3.276 code
 -- capture choose tech & steal tech popup events
 -- fix escape/enter popup exit code
@@ -8,13 +9,18 @@
 -- decreased code size by over 1/3 and still do more :lol:
 -------------------------------------------------
 Events.SequenceGameInitComplete.Add(function()
-print("Loading EUI tech tree",ContextPtr,os.clock(),[[ 
- _____         _   _____              
-|_   _|__  ___| |_|_   _| __ ___  ___ 
+-- print("Loading EUI tech tree",ContextPtr,os.clock(),[[
+print("Loading Improved TechTree Screen - VP EUI tech tree",ContextPtr,os.clock(),[[
+ _____         _   _____
+|_   _|__  ___| |_|_   _| __ ___  ___
   | |/ _ \/ __| '_ \| || '__/ _ \/ _ \
   | |  __/ (__| | | | || | |  __/  __/
   |_|\___|\___|_| |_|_||_|  \___|\___|
 ]])
+
+-- Options for VP
+local showDiscoveredBy = false -- afw Show number of met civs who have discovered this tech
+local showTotalTurns = true	-- afw Show total turns when techs queued
 
 g_UseSmallIcons = true
 
@@ -34,6 +40,7 @@ local GetHelpTextForTech = GetHelpTextForTech
 local math_abs = math.abs
 local math_max = math.max
 local math_min = math.min
+local math_ceil = math.ceil
 
 local ButtonPopupTypes = ButtonPopupTypes
 local ContextPtr = ContextPtr
@@ -69,7 +76,7 @@ local g_techButtons = {}
 local g_eraBlocks = {}
 local g_eraColumns = {}
 
-local g_maxSmallButtons = 5
+local g_maxSmallButtons = 10 -- Original: 5
 
 local g_activePlayerID, g_activePlayer, g_activeCivType, g_activeTeamID, g_activeTeam, g_activeTeamTechs
 
@@ -80,7 +87,7 @@ local g_connectorYshift = 15	-- vertical connector texture shift
 local g_blockSizeX = 270	-- tech block width
 local g_blockOffsetX = 64
 local g_blockSpacingY = 68	-- tech block vertical spacing
-local g_blockOffsetY = 32 - 5*g_blockSpacingY
+local g_blockOffsetY = 0 - 5*g_blockSpacingY -- Original: 32 - 5*g_blockSpacingY
 local g_blockSpacingX = g_blockSizeX + 96
 local g_branchOffsetY1 = g_blockOffsetY + 12
 local g_branchOffsetY2 = g_branchOffsetY1 - g_connectorYshift
@@ -95,7 +102,8 @@ local g_coloredPipe = { x=1.0, y=1.0, z=0.0, w=0.5 }
 local g_maxTechNameLength = 22 - Locale.Length(L"TXT_KEY_TURNS")
 
 local CloseTechTree
-
+local g_queueInfo = {} --afw
+local g_blockedTechs = {} --afw
 -------------------------------------------------
 -- Tech Pipe Management
 -------------------------------------------------
@@ -180,7 +188,7 @@ end
 -------------------------------------------------
 
 local function TechSelected( techID )
-	if not g_RefreshRequested and GameInfo.Technologies[ techID ] then
+	if GameInfo.Technologies[ techID ] then
 		local shift = UIManager:GetShift()
 		if g_stealingTechTargetPlayer then
 			if g_activePlayer:CanResearch( techID )
@@ -214,11 +222,43 @@ end
 
 local function RefreshDisplayOfSpecificTech( tech )
 	local techID = tech.ID
+--  print("RefreshDisplayOfSpecificTech:", techID, L(tech.Description), "  ", g_NeedsFullRefresh)
 	local thisTechButton = g_techButtons[ techID ]
 	local canResearchThisTech = g_activePlayer:CanResearch( techID )
 	local turnText = L( "TXT_KEY_STR_TURNS", g_activePlayer:GetResearchTurnsLeft( techID, true ) )
 	local researchPerTurn = g_activePlayer:GetScience()
 
+	if showDiscoveredBy then --afw
+--		local modifier = g_activePlayer:CalculateResearchModifier(techID)
+--		turnText = turnText .. modifier
+		local alive = 0
+		local met = 0
+		local discovered = 0
+		for playerID, player in ipairs(Players) do
+			if player:IsEverAlive() and player:IsAlive() and playerID < GameDefines.MAX_MAJOR_CIVS then
+				alive = alive + 1
+				local team = player:GetTeam()
+				if playerID ~= g_activePlayerID and g_activeTeam:IsHasMet( team ) then
+					met = met + 1
+					if (Teams[team]:IsHasTech(techID)) then
+						discovered = discovered + 1
+					end
+				end
+			end
+		end
+		if discovered > 0 then
+			thisTechButton.Discovered:SetText(discovered)
+		end
+	end
+	if showTotalTurns then --afw
+		if g_activePlayer:GetLengthResearchQueue() > 1 then
+			local pos = g_activePlayer:GetQueuePosition( techID )
+			if pos > 1 then
+				turnText = turnText .. " (" .. g_queueInfo[pos] .. ")"
+			end
+		end
+	end
+	--print("RefreshDisplayOfSpecificTech afw Stuff done")
 	-- Rebuild the small buttons if needed
 	if g_NeedsFullRefresh then
 		AddSmallButtonsToTechButton( thisTechButton, tech, g_maxSmallButtons, 45 )
@@ -235,7 +275,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 
 	elseif g_stealingTechTargetPlayer or g_activePlayer:GetNumFreeTechs() > 0 then
 	-- Stealing a tech or Choosing a free tech
-		if canResearchThisTech and ( 
+		if canResearchThisTech and (
 			( g_stealingTechTargetPlayer and Teams[ g_stealingTechTargetPlayer:GetTeam() ]:IsHasTech( techID ) )
 			or (not g_stealingTechTargetPlayer and (not gk_mode or g_activePlayer:CanResearchForFree( techID ))) )
 		then
@@ -277,6 +317,39 @@ local function RefreshDisplayOfSpecificTech( tech )
 	else
 		showLocked = true
 	end
+	local showLarge = g_maxSmallButtons > 5 and thisTechButton["B6"] and not thisTechButton["B6"]:IsHidden() --afw
+	if showLarge then
+		if g_blockedTechs[techID] then
+			print("Couldn't expand", techID, L(tech.Description))
+			if thisTechButton["B6"] then thisTechButton["B6"]:SetHide(true) end
+			if thisTechButton["B7"] then thisTechButton["B7"]:SetHide(true) end
+			if thisTechButton["B8"] then thisTechButton["B8"]:SetHide(true) end
+			if thisTechButton["B9"] then thisTechButton["B9"]:SetHide(true) end
+			if thisTechButton["B10"] then thisTechButton["B10"]:SetHide(true) end
+		else -- Magic numbers? Well, thy replace similar in the xml!
+			thisTechButton.TechButton:SetSizeY(102)
+			thisTechButton.AlreadyResearched:SetSizeY(102)
+			thisTechButton.AlreadyResearchedFrame:SetSizeY(106)
+			thisTechButton.AlreadyResearchedAnim3:SetSizeY(102)
+			thisTechButton.CurrentlyResearching:SetSizeY(102)
+			thisTechButton.CurrentlyResearchingFrame:SetSizeY(106)
+			thisTechButton.CurrentlyResearchingAnim1:SetSizeY(102)
+			thisTechButton.CurrentlyResearchingAnim2:SetSizeY(102)
+			thisTechButton.CurrentlyResearchingAnim3:SetSizeY(102)
+			thisTechButton.Available:SetSizeY(102)
+			thisTechButton.AvailableFrame:SetSizeY(106)
+			thisTechButton.AvailableAnim3:SetSizeY(102)
+			thisTechButton.Unavailable:SetSizeY(102)
+			thisTechButton.UnavailableFrame:SetSizeY(106)
+			thisTechButton.UnavailableAnim3:SetSizeY(102)
+			thisTechButton.Locked:SetSizeY(102)
+			thisTechButton.LockedFrame:SetSizeY(106)
+			thisTechButton.FreeTech:SetSizeY(102)
+			thisTechButton.FreeTechFrame:SetSizeY(106)
+			thisTechButton.FreeTechAnim3:SetSizeY(102)
+			thisTechButton.StuffBox:SetSizeY(76)
+		end
+	end
 	thisTechButton.AlreadyResearched:SetHide( not showAlreadyResearched )
 	thisTechButton.FreeTech:SetHide( not showFreeTech )
 	thisTechButton.CurrentlyResearching:SetHide( not showCurrentlyResearching )
@@ -295,6 +368,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 		thisTechButton.TechQueueLabel:SetText( queueText )
 	end
 	thisTechButton.TechQueue:SetHide( not queueText )
+	--print("RefreshDisplayOfSpecificTech Click stuff next")
 	if isClickable then
 		thisTechButton.TechButton:RegisterCallback( Mouse.eLClick, TechSelected )
 		for buttonNum = 1, g_maxSmallButtons do
@@ -316,21 +390,54 @@ local function RefreshDisplayOfSpecificTech( tech )
 	end
 end
 
-local function RefreshDisplayNow()
-	g_RefreshRequested = false
-	ContextPtr:ClearUpdate()
+local function QueueInfo() -- afw
+	g_queueInfo = {}
+	local researchPerTurn = g_activePlayer:GetScience()
+	local overflow = g_activePlayer:GetOverflowResearch()
+	for tech in GameInfo.Technologies() do
+		local techID = tech.ID
+		local pos = g_activePlayer:GetQueuePosition( techID )
+		if pos > 0 then
+			local currentResearchProgress = g_activePlayer:GetResearchProgress( techID )
+			local researchNeeded = g_activePlayer:GetResearchCost( techID )
+			local remaining = researchNeeded + overflow - currentResearchProgress
+--			print("AFW Tech:", pos, techID, currentResearchProgress, researchNeeded, overflow, remaining, tech.Description )
+			g_queueInfo[pos] = remaining
+		end
+	end
+	g_queueInfo[1] = g_queueInfo[1] - overflow
+	local totalcost = 0
+	for pos,cost in ipairs(g_queueInfo) do
+		totalcost = totalcost + cost
+		local turns = math_ceil(totalcost / math_max(researchPerTurn, 1))
+		g_queueInfo[pos] = turns
+		--print("AFW Queue:", pos, cost, totalcost, turns)
+	end
+end
 
+local function RefreshDisplayNow()
+	--print("TechTree - RefreshDisplayNow Start - Full refresh=", g_NeedsFullRefresh)
+	--g_RefreshRequested = false
+	ContextPtr:ClearUpdate()
+	--print("TechTree - RefreshDisplayNow(1)")
+
+	if g_activePlayer:GetLengthResearchQueue() > 1 and showTotalTurns then
+		QueueInfo()
+	end
+	--print("TechTree - RefreshDisplayNow(2)")
 	for tech in GameInfo.Technologies() do
 		RefreshDisplayOfSpecificTech( tech )
 	end
 
 	-- update the era panels
 	local highestEra = 0
+	--print("TechTree - RefreshDisplayNow(3)")
 	for thisEra = 0, #g_eraBlocks do
 		if g_eraColumns[thisEra] and g_eraColumns[thisEra].researched then
 			highestEra = thisEra
 		end
 	end
+	--print("TechTree - RefreshDisplayNow(4)")
 	for thisEra = 0, #g_eraBlocks do
 		local thisEraBlockInstance = g_eraBlocks[thisEra]
 		thisEraBlockInstance.OldBar:SetHide( thisEra >= highestEra )
@@ -340,13 +447,18 @@ local function RefreshDisplayNow()
 	end
 
 	g_NeedsFullRefresh = false
+	--print("TechTree - RefreshDisplayNow End")
 end
 
-local function RefreshDisplay()
+local function RefreshDisplay(x)
+	--print("RefreshDisplay:",x)
+	RefreshDisplayNow() --afw
+	--[[
 	if not g_RefreshRequested then
 		g_RefreshRequested = true
 		ContextPtr:SetUpdate( RefreshDisplayNow )
 	end
+	--]]
 end
 
 
@@ -479,6 +591,12 @@ Controls.CloseButton:RegisterCallback( Mouse.eLClick, CloseTechTree )
 -------------------------------------------------
 Events.SerialEventGameMessagePopup.Add(
 function( popupInfo )
+	--print("Popup Type:", (popupInfo and popupInfo.Type or "none"))
+	--[[
+	for a,b in pairs(popupInfo) do
+		print(a,b)
+	end
+	--]]
 	if popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH then
 		g_stealingTechTargetPlayerID = -1
 	elseif popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_TECH_TREE or popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_CHOOSE_TECH_TO_STEAL then
@@ -491,6 +609,7 @@ function( popupInfo )
 	Events.SerialEventGameMessagePopupShown(popupInfo)
 
 	if g_popupInfoType then
+	--print("Closing from Popup")
 		return CloseTechTree()
 	else
 		g_popupInfoType = popupInfo.Type
@@ -511,7 +630,7 @@ function( popupInfo )
 				Controls.TechTreeScrollPanel:SetScrollValue( math_min(1,math_max(0,( (x + dx)*g_blockSpacingX/Controls.TechTreeScrollPanel:GetSizeX() - 0.5) / math_max(1,1/Controls.TechTreeScrollPanel:GetRatio() - 1) ) ) )
 			end
 		end
-		return RefreshDisplay()
+		return RefreshDisplay("Popup")
 	end
 end)
 
@@ -529,12 +648,33 @@ function ( uiMsg, wParam )--, lParam )
 	end
 end)
 
-Events.SerialEventResearchDirty.Add( RefreshDisplay )
+local function ProcessEvent()
+	if g_popupInfoType then
+		RefreshDisplay("Event")
+	else
+		--print("Event ignored")
+	end
+end
+
+Events.SerialEventResearchDirty.Add( ProcessEvent )
+
+-------------------------------------------------
+-- Find techs without space to grow (must be before InitActivePlayerData)
+-------------------------------------------------
+for tech in GameInfo.Technologies() do --afw
+	for tech2 in GameInfo.Technologies() do
+		if tech.GridX == tech2.GridX and ( tech.GridY == tech2.GridY + 1 or tech.GridY == tech2.GridY - 1) then
+			g_blockedTechs[tech.ID] = true
+			print("Can't expand tech", tech.ID, L(tech.Description))
+		end
+	end
+end
 
 -------------------------------------------------
 -- Initialize active player data
 -------------------------------------------------
 local function InitActivePlayerData()
+	--print("TechTree - InitActivePlayerData")
 	g_activePlayerID = Game.GetActivePlayer()
 	g_activePlayer = Players[g_activePlayerID]
 	g_activeCivType = GameInfo.Civilizations[g_activePlayer:GetCivilizationType()].Type
@@ -546,14 +686,14 @@ local function InitActivePlayerData()
 	GatherInfoAboutUniqueStuff( g_activeCivType )
 
 	g_NeedsFullRefresh = true
-	return RefreshDisplay()
+	return RefreshDisplay("Init")
 end
 InitActivePlayerData()
 
 local function UpdateOptions()
 --	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
 	g_isAutoClose = not ( g_options and g_options.GetValue and g_options.GetValue( "AutoClose" ) == 0 )
-	return RefreshDisplay()
+	return RefreshDisplay("Options")
 end
 UpdateOptions()
 Events.GameOptionsChanged.Add( UpdateOptions )
@@ -565,6 +705,13 @@ Events.GameplaySetActivePlayer.Add( function()
 	end
 	InitActivePlayerData()
 end)
+local function OnConstruction( ePlayer, eCity, eBuilding) --afw
+	local pBuilding = GameInfo.Buildings[eBuilding]
+	if GameInfo.BuildingClasses[pBuilding.BuildingClass].MaxGlobalInstances == 1 then
+		g_NeedsFullRefresh = true
+	end
+end
+GameEvents.CityConstructed.Add(OnConstruction)
 
-print("Finished loading EUI tech tree",os.clock())
+print("Finished loading Improved TechTree Screen - VP EUI tech tree",os.clock())
 end)
