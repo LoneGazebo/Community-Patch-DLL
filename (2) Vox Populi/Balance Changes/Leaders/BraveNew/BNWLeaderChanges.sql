@@ -163,12 +163,12 @@ UPDATE Traits
 SET UniqueLuxuryCities = '100'
 WHERE Type = 'TRAIT_SPICE';
 
-UPDATE Traits 
-SET MonopolyModFlat = 2 WHERE 
+UPDATE Traits
+SET MonopolyModFlat = 2 WHERE
 Type = 'TRAIT_SPICE';
 
-UPDATE Traits 
-SET MonopolyModPercent = 5 
+UPDATE Traits
+SET MonopolyModPercent = 5
 WHERE Type = 'TRAIT_SPICE';
 
 UPDATE Buildings
@@ -350,8 +350,8 @@ UPDATE Traits
 SET CSBullyValueModifier = '0'
 WHERE Type = 'TRAIT_BUFFALO_HORNS';
 
-UPDATE Traits 
-SET IgnoreBullyPenalties = 1 
+UPDATE Traits
+SET IgnoreBullyPenalties = 1
 WHERE Type = 'TRAIT_BUFFALO_HORNS';
 
 -- New BNW Leader Data and Yields
@@ -433,12 +433,6 @@ INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
 	('BUILDING_ROYAL_LIBRARY', 'BUILDINGCLASS_LIBRARY', 'YIELD_SCIENCE', 3);
-
-INSERT INTO Building_SpecialistYieldChangesLocal
-		(BuildingType, 		SpecialistType, 		YieldType, 			Yield)
-VALUES	('BUILDING_CANDI', 'SPECIALIST_ARTIST', 	'YIELD_TOURISM', 	1),
-		('BUILDING_CANDI', 'SPECIALIST_MUSICIAN', 	'YIELD_TOURISM', 	1),
-		('BUILDING_CANDI', 'SPECIALIST_WRITER', 	'YIELD_TOURISM', 	1);
 
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
