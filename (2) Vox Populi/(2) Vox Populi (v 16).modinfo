@@ -447,7 +447,6 @@
     <File md5="8540FBEC660FD41EFC67A2531E3BDFA7" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
     <File md5="0E8A0D90A4C7EE00A7CC0FBD45A4BA0B" import="0">Balance Changes/Text/en_US/NewText.xml</File>
     <File md5="FDE6C3DA536FC9A008469FF543E59DA8" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
-    <File md5="29BF6D7B901758521B4CAF083814D9CC" import="0">Balance Changes/Text/en_US/VPUI_tips_en_us.xml</File>
     <File md5="BCBD2A7CBF040ADC215A93971895E083" import="0">Balance Changes/Units/AirUnits.sql</File>
     <File md5="0EDC12569568258A9F8FDFB58AC9F69F" import="0">Balance Changes/Units/NewUnits.sql</File>
     <File md5="8EEA3079244F38AD51CF87447ED5D384" import="0">Balance Changes/Units/PromotionChanges.xml</File>
@@ -1117,7 +1116,6 @@
       <UpdateDatabase>Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</UpdateDatabase>
       <UpdateDatabase>Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</UpdateDatabase>
       <UpdateDatabase>Mapscripts/EMP/EMP_Maps.xml</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Text/en_US/VPUI_tips_en_us.xml</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
