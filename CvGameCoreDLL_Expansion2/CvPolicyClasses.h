@@ -315,6 +315,7 @@ public:
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGrowthGA() const;
 	bool GetDoubleBorderGrowthWLTKD() const;
+	bool GetKeepConqueredBuildings() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetGreatEngineerHurryModifier() const;
@@ -758,6 +759,7 @@ private:
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGrowthGA;
 	bool m_bDoubleBorderGrowthWLTKD;
+	bool m_bKeepConqueredBuildings;
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerHurryModifier;
 	int m_iTechCostXCitiesMod;

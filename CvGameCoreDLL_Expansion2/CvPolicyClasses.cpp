@@ -297,6 +297,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGrowthGA(false),
 	m_bDoubleBorderGrowthWLTKD(false),
+	m_bKeepConqueredBuildings(false),
 	m_iIncreasedQuestInfluence(0),
 	m_iGreatScientistBeakerModifier(0),
 	m_iGreatEngineerHurryModifier(0),
@@ -745,6 +746,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGrowthGA = kResults.GetBool("DoubleBorderGrowthGA");
 	m_bDoubleBorderGrowthWLTKD = kResults.GetBool("DoubleBorderGrowthWLTKD");
+	m_bKeepConqueredBuildings = kResults.GetBool("KeepConqueredBuildings");
 	m_iIncreasedQuestInfluence = kResults.GetInt("IncreasedQuestRewards");
 	m_iGreatScientistBeakerModifier = kResults.GetInt("GreatScientistBeakerModifier");
 	m_iGreatEngineerHurryModifier = kResults.GetInt("GreatEngineerHurryModifier");
@@ -3019,6 +3021,11 @@ bool CvPolicyEntry::GetDoubleBorderGrowthGA() const
 bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
 {
 	return m_bDoubleBorderGrowthWLTKD;
+}
+/// Are all buildings kept on city conquest?
+bool CvPolicyEntry::GetKeepConqueredBuildings() const
+{
+	return m_bKeepConqueredBuildings;
 }
 /// Increased influence from quests?
 int CvPolicyEntry::GetIncreasedQuestInfluence() const

@@ -956,7 +956,7 @@ WHERE Tag = 'TXT_KEY_MISSION_SELL_EXOTIC_GOODS_HELP';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = 'When you conquer a City, the City retains all Buildings (including Unique Buildings of other Civilizations) and you immediately acquire additional territory around the City. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
+SET Text = 'City-States can be forcefully annexed if Heavy Tribute can be demanded from them.​ Conquered City States continue to provide rewards. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US

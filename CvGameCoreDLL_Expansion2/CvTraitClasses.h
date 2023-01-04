@@ -234,6 +234,7 @@ public:
 	int GetSharedReligionTourismModifier() const;
 	int GetExtraMissionaryStrength() const;
 	bool IsCanGoldInternalTradeRoutes() const;
+	bool IsAnnexedCityStatesGiveYields() const;
 	int GetExtraTradeRoutesPerXOwnedCities() const;
 	int GetExtraTradeRoutesPerXOwnedVassals() const;
 	int GetMinorInfluencePerGiftedUnit() const;
@@ -594,6 +595,7 @@ protected:
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 	bool m_bCanGoldInternalTradeRoutes;
+	bool m_bAnnexedCityStatesGiveYields;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
@@ -1381,6 +1383,10 @@ public:
 	bool IsCanGoldInternalTradeRoutes() const
 	{
 		return m_bCanGoldInternalTradeRoutes;
+	};
+	bool IsAnnexedCityStatesGiveYields() const
+	{
+		return m_bAnnexedCityStatesGiveYields;
 	};
 	int GetExtraTradeRoutesPerXOwnedCities() const
 	{
@@ -2206,6 +2212,7 @@ private:
 	int m_iSharedReligionTourismModifier;
 	int m_iExtraMissionaryStrength;
 	bool m_bCanGoldInternalTradeRoutes;
+	bool m_bAnnexedCityStatesGiveYields;
 	int m_iExtraTradeRoutesPerXOwnedCities;
 	int m_iExtraTradeRoutesPerXOwnedVassals;
 	int m_iMinorInfluencePerGiftedUnit;
