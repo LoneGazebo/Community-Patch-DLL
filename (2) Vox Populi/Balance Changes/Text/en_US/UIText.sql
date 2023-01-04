@@ -678,10 +678,15 @@ UPDATE Language_en_US
 SET Text = 'Found in the Earth''s crust and upper mantle, stone is perhaps the most crucial element in human construction efforts throughout history. There are three major classifications of stone - Sedimentary, Igneous, and Metamorphic - each differing in their origin.[NEWLINE][NEWLINE]+10% [ICON_PRODUCTION] Production when building pre-Renaissance Wonders in the City where it is worked.'
 WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_STONE_TEXT';
 
+-- Lumber Mill
 
 UPDATE Language_en_US
-SET Text = 'A Lumbermill allows you to improve the Production output of forest tiles. Gains additional Production for every two adjacent Lumbermills, so try to build them in clusters of three if possible.'
+SET Text = 'A Lumber Mill allows you to improve the Production and Gold output of forest and jungle tiles. Gains additional Gold and Production for every two adjacent Lumber Mills, so try to build them in clusters of three if possible.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'It will increase the amount of [ICON_PRODUCTION] Production (Forest) or [ICON_GOLD] Gold (Jungle) provided by this tile, while keeping the Forest/Jungle intact. A Lumber Mill adjacent to two other Lumber Mills gains +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
+WHERE Tag = 'TXT_KEY_BUILD_LUMBERMILL_REC';
 
 -- We Love the King Day
 

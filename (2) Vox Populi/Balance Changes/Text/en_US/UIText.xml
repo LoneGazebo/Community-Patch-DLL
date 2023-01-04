@@ -1022,22 +1022,6 @@
 			<Text>{2_Unit} conscripted by {1_CityName:textkey}!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_JUNGLE">
-			<Text>Logging Camp</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE">
-			<Text>A Logging Camp allows you to improve the Gold output of Jungle tiles. Gains additional Gold for every two adjacent Logging Camps, so try to build them in clusters of three if possible.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_JUNGLE">
-			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Logging Camp[\LINK]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE">
-			<Text>It will increase the amount of [ICON_PRODUCTION] Production provided by this tile, while keeping the Jungle intact.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE">
-			<Text>Logging Camp</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_SCIENCE_FROM_RELIGION">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from your [ICON_RELIGION] Religion.</Text>
 		</Row>

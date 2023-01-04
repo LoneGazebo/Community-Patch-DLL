@@ -575,7 +575,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 		CvAssertMsg(iNumFeatures > 0, "Num Feature Infos <= 0");
 		kUtility.Initialize2DArray(m_ppiAdjacentFeatureYieldChanges, iNumFeatures, iNumYields);
 
-		std::string strKey = "Features - FeatureYieldChanges";
+		std::string strKey = "Features - AdjacentFeatureYieldChanges";
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
