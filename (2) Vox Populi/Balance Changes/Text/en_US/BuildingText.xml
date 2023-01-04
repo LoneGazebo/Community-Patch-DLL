@@ -814,7 +814,7 @@
 			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all Museums and Research Labs, and +2 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all World Wonders. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in all Cities on Empire. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_STRATEGY">
-			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards culture and scienge generation on empire, giving powerful theming for Great Artifacts, and boosting the power of Museums.</Text>
+			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards culture and science generation on empire, giving powerful theming for Great Artifacts, and boosting the power of Museums.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT">
 			<Text>West Point</Text>
