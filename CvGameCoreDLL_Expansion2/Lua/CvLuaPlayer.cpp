@@ -3600,7 +3600,7 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	if (pkCity && pkCivInfo)
 	{
 		int iBuilding = -1;
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -6230,7 +6230,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -12539,7 +12539,7 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 			if (!pkBuildingClassInfo)
 				continue;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
 				{

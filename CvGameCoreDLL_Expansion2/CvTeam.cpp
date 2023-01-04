@@ -5301,8 +5301,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 									if(pCapital == NULL)
 										continue;
 
-									bool bRome = GET_PLAYER((PlayerTypes)iJ).GetPlayerTraits()->IsKeepConqueredBuildings();
-									if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES || bRome) && pCapital->HasBuildingClass(eBuildingClass))
+									if ((MOD_BUILDINGS_THOROUGH_PREREQUISITES) && pCapital->HasBuildingClass(eBuildingClass))
 									{
 										eBuilding = pCapital->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 									}
@@ -8047,7 +8046,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 								{
 									bool bHasBuildingClass = pLoopCity->HasBuildingClass((BuildingClassTypes)iI);
 									BuildingTypes eReplacedBuilding = eBuilding;
-									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || kPlayer.GetPlayerTraits()->IsKeepConqueredBuildings())
+									if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 									{
 										if (bHasBuildingClass)
 										{

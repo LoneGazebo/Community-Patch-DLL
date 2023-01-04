@@ -1976,6 +1976,9 @@ public:
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;
 
+	void ChangeKeepConqueredBuildings(int iValue);
+	bool IsKeepConqueredBuildings() const;
+
 	void ChangeBullyGlobalCSReduction(int iValue);
 	int GetBullyGlobalCSReduction() const;
 #endif
@@ -3004,6 +3007,7 @@ protected:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iIsNoCSDecayAtWar;
 	int m_iCanBullyFriendlyCS;
+	int m_iKeepConqueredBuildings;
 	int m_iBullyGlobalCSReduction;	
 #endif
 	int m_iIsVassalsNoRebel;
@@ -3826,6 +3830,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessFromMinorCivs)
 SYNC_ARCHIVE_VAR(int, m_iPositiveWarScoreTourismMod)
 SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
 SYNC_ARCHIVE_VAR(int, m_iCanBullyFriendlyCS)
+SYNC_ARCHIVE_VAR(int, m_iKeepConqueredBuildings)
 SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)
 SYNC_ARCHIVE_VAR(int, m_iIsVassalsNoRebel)
 SYNC_ARCHIVE_VAR(int, m_iVassalYieldBonusModifier)

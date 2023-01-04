@@ -315,7 +315,7 @@ public:
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGrowthGA() const;
 	bool GetDoubleBorderGrowthWLTKD() const;
-	bool GetKeepConqueredBuildings() const;
+	bool IsKeepConqueredBuildings() const;
 	int GetIncreasedQuestInfluence() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetGreatEngineerHurryModifier() const;

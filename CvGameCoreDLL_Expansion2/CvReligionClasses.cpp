@@ -8473,7 +8473,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 
 			BuildingTypes eBuilding = NO_BUILDING;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)jJ);
 			}
@@ -10158,9 +10158,8 @@ bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, boo
 					continue;
 				}
 
-				//Exception for new Rome UA, because civ type doesn't help you here.
-				//Also use this if the option to check for all buildings in a class is enabled.
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+				//Exception if the option to check for all buildings in a class is enabled
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
 					if (!pLoopCity->HasBuildingClass(eFaithBuildingClass))
 					{

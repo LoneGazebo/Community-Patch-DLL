@@ -1185,7 +1185,7 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 			{
 				BuildingTypes ePrereqBuilding = NO_BUILDING;
 
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
 					if (pkCity->HasBuildingClass(eBuildingClass))
 					{
@@ -2452,7 +2452,7 @@ int CvLuaCity::lGetNumBuildingClass(lua_State* L)
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(pkCity->getOwner()).getCivilizationInfo();
 		BuildingTypes eBuilding = NO_BUILDING;
 		int iResult = 0;
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			iResult = pkCity->GetCityBuildings()->GetNumBuildingClass(eBuildingClassType);
 		}
@@ -2477,7 +2477,7 @@ int CvLuaCity::lIsHasBuildingClass(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 	if(eBuildingClassType != NO_BUILDINGCLASS)
 	{
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->IsKeepConqueredBuildings())
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			const bool bResult = pkCity->HasBuildingClass(eBuildingClassType);
 			lua_pushboolean(L, bResult);

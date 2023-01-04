@@ -3023,7 +3023,7 @@ bool CvPolicyEntry::GetDoubleBorderGrowthWLTKD() const
 	return m_bDoubleBorderGrowthWLTKD;
 }
 /// Are all buildings kept on city conquest?
-bool CvPolicyEntry::GetKeepConqueredBuildings() const
+bool CvPolicyEntry::IsKeepConqueredBuildings() const
 {
 	return m_bKeepConqueredBuildings;
 }
@@ -5794,7 +5794,7 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 				const CvCivilizationInfo& playerCivilizationInfo = kCityPlayer.getCivilizationInfo();
 				BuildingTypes eBuilding = NO_BUILDING;
 
-				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+				if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 				{
 					eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 				}
