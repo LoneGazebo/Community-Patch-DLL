@@ -2154,7 +2154,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 
-	int iTempWeight = 0;
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
@@ -2165,79 +2164,79 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			case NO_YIELD:
 				UNREACHABLE();
 			case YIELD_FOOD:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
+						iYieldScore += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
 					}
 				}
 
 				break;
 			case YIELD_PRODUCTION:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
+						iYieldScore += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
 					}
 				}
 
 				break;
 			case YIELD_GOLD:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
+						iYieldScore += pFeature->getYieldChange(iI) * /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
 					}
 				}
 
 				break;
 			case YIELD_SCIENCE:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
+						iYieldScore += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
 					}
 				}
 
 				break;
 			case YIELD_CULTURE:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
+						iYieldScore += pFeature->getYieldChange(iI) * /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
 					}
 				}
 
 				break;
 			case YIELD_FAITH:
-				iTempWeight = pImprovement->GetYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+				iYieldScore += pImprovement->GetYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
 					CvFeatureInfo* pFeature = GC.getFeatureInfo(pImprovement->GetCreatedFeature());
 					if (pFeature)
 					{
-						iTempWeight += pFeature->getYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+						iYieldScore += pFeature->getYieldChange(iI) * /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
 					}
 				}
 
