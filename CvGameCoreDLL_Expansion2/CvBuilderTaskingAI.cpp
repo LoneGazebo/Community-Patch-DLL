@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2158,6 +2158,15 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
+
+		// Simplification - errata yields not worth considering.
+		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
+		// Moved outside to allow adjacent same type improvements to give yields of types not included in base yield
+		int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
+		int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+
 		if (pImprovement->GetYieldChange(iI) > 0)
 		{
 			switch (eYield)
@@ -2256,8 +2265,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				break; // TODO: These yields have no baseline.
 			}
 
-			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
-			int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 			int iAdjacentOtherValue = 0;
 			int iAdjacentResourceValue = 0;
 			int iAdjacentTerrainValue = 0;
