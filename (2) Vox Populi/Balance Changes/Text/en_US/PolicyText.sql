@@ -335,7 +335,7 @@ WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_TEXT';
 
 -- Five Year Plan
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +3 [ICON_PRODUCTION] Production for every Mine, Quarry, Lumber Mill, Logging Camp, Oil Well, and Unique Improvement.'
+SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR]: +20% [ICON_PRODUCTION] Production towards Buildings in all Cities. +3 [ICON_PRODUCTION] Production for every Mine, Quarry, Lumber Mill, Oil Well, and Unique Improvement.'
 WHERE Tag = 'TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP';
 
 --------------------
@@ -482,7 +482,7 @@ WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP';
 
 -- Entrepreneurship
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]+25% Yields when you expend [ICON_GREAT_MERCHANT] Great Merchants or [ICON_GREAT_ENGINEER] Great Engineers for their Instant Yield abilities. +1 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production from every Mine, Quarry, Lumber Mill and Logging Camp, and +1 [ICON_HAPPINESS_1] Happiness from Workshops.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]+25% Yields when you expend [ICON_GREAT_MERCHANT] Great Merchants or [ICON_GREAT_ENGINEER] Great Engineers for their Instant Yield abilities. +1 [ICON_GOLD] Gold and +2 [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumber Mill, and +1 [ICON_HAPPINESS_1] Happiness from Workshops.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP';
 
 --Protectionism

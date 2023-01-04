@@ -172,10 +172,9 @@ INSERT INTO Technology_Flavors (TechType, FlavorType, Flavor) VALUES
 ("TECH_COMPASS", "FLAVOR_NAVAL_GROWTH", 10),
 ("TECH_COMPASS", "FLAVOR_I_SEA_TRADE_ROUTE", 10),
 
-("TECH_MACHINERY", "FLAVOR_RANGED", 10), -- Units: Crossbow, Buildings: Ironworks, Wonders: NotreDame, Process: PublicWorks, Improvement: LoggingCamp, FasterChop, Ability: Faster move on Road, higher land TR range, Yields: Engineer&Quaary +1P
+("TECH_MACHINERY", "FLAVOR_RANGED", 10), -- Units: Crossbow, Buildings: Ironworks, Wonders: NotreDame, Process: PublicWorks, Improvement: FasterChop, Ability: Faster move on Road, higher land TR range, Yields: Engineer&Quaary +1P
 ("TECH_MACHINERY", "FLAVOR_I_LAND_TRADE_ROUTE", 10),
 ("TECH_MACHINERY", "FLAVOR_PRODUCTION", 15),
-("TECH_MACHINERY", "FLAVOR_TILE_IMPROVEMENT", 10),
 ("TECH_MACHINERY", "FLAVOR_WONDER", 10),
 ("TECH_MACHINERY", "FLAVOR_HAPPINESS", 5),
 
