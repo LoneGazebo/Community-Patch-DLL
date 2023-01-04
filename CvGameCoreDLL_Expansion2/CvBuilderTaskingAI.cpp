@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2255,72 +2255,72 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			case YIELD_JFD_SOVEREIGNTY:
 				break; // TODO: These yields have no baseline.
 			}
-
-			int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
-			int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
-			int iAdjacentOtherValue = 0;
-			int iAdjacentResourceValue = 0;
-			int iAdjacentTerrainValue = 0;
-			int iAdjacentFeatureValue = 0;
-			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
-			{
-				ImprovementTypes eImprovement = (ImprovementTypes)iJ;
-				if(eImprovement != NO_IMPROVEMENT)
-				{
-					iAdjacentOtherValue += pImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
-				}
-			}
-			for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
-			{
-				ResourceTypes eResource = (ResourceTypes)iJ;
-				if(eResource != NO_RESOURCE)
-				{
-					iAdjacentResourceValue += pImprovement->GetAdjacentResourceYieldChanges(eResource, eYield);
-				}
-			}
-			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
-			{
-				TerrainTypes eTerrain = (TerrainTypes)iJ;
-				if(eTerrain != NO_TERRAIN)
-				{
-					iAdjacentTerrainValue += pImprovement->GetAdjacentTerrainYieldChanges(eTerrain, eYield);
-				}
-			}
-			for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
-			{
-				FeatureTypes eFeature = (FeatureTypes)iJ;
-				if (eFeature != NO_FEATURE)
-				{
-					iAdjacentFeatureValue += pImprovement->GetAdjacentFeatureYieldChanges(eFeature, eYield);
-				}
-			}
-
-			if(iAdjacentValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
-			}
-			if(iAdjacentTwoValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
-			}
-			if(iAdjacentOtherValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
-			}
-			if(iAdjacentTerrainValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
-			}
-			if(iAdjacentResourceValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield, GET_PLAYER(m_pPlayer->GetID()).getTeam()));
-			}
-			if (iAdjacentFeatureValue > 0)
-			{
-				iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
-			}
-
 		}
+
+		int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
+		int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
+		int iAdjacentOtherValue = 0;
+		int iAdjacentResourceValue = 0;
+		int iAdjacentTerrainValue = 0;
+		int iAdjacentFeatureValue = 0;
+		for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+		{
+			ImprovementTypes eImprovement = (ImprovementTypes)iJ;
+			if(eImprovement != NO_IMPROVEMENT)
+			{
+				iAdjacentOtherValue += pImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield);
+			}
+		}
+		for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
+		{
+			ResourceTypes eResource = (ResourceTypes)iJ;
+			if(eResource != NO_RESOURCE)
+			{
+				iAdjacentResourceValue += pImprovement->GetAdjacentResourceYieldChanges(eResource, eYield);
+			}
+		}
+		for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes)iJ;
+			if(eTerrain != NO_TERRAIN)
+			{
+				iAdjacentTerrainValue += pImprovement->GetAdjacentTerrainYieldChanges(eTerrain, eYield);
+			}
+		}
+		for(int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+		{
+			FeatureTypes eFeature = (FeatureTypes)iJ;
+			if (eFeature != NO_FEATURE)
+			{
+				iAdjacentFeatureValue += pImprovement->GetAdjacentFeatureYieldChanges(eFeature, eYield);
+			}
+		}
+
+		if(iAdjacentValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+		}
+		if(iAdjacentTwoValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
+		}
+		if(iAdjacentOtherValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromOtherAdjacentImprovement(*pImprovement, eYield));
+		}
+		if(iAdjacentTerrainValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentTerrain(*pImprovement, eYield));
+		}
+		if(iAdjacentResourceValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentResource(*pImprovement, eYield, GET_PLAYER(m_pPlayer->GetID()).getTeam()));
+		}
+		if (iAdjacentFeatureValue > 0)
+		{
+			iYieldScore += (100 * pPlot->ComputeYieldFromAdjacentFeature(*pImprovement, eYield));
+		}
+
 	}
 	if(pImprovement->GetCultureBombRadius() > 0)
 	{
