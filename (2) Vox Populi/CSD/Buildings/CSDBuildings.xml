@@ -574,16 +574,6 @@
 			<Flavor>6</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_CHANCERY</BuildingType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>6</Flavor>
-		</Row>
-<!--		<Row>
-			<BuildingType>BUILDING_CHANCERY</BuildingType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>6</Flavor>
-		</Row> -->
-		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
 			<Flavor>35</Flavor>
@@ -593,15 +583,10 @@
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>12</Flavor>
 		</Row>
-<!--		<Row>
-			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>12</Flavor>
-		</Row> -->
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>12</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<!--National Wonder Flavors-->
 		<Row>
@@ -1072,17 +1057,17 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
+			<BuildingType>BUILDING_CHANCERY</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldPerFriend>
 	<Building_YieldPerAlly>
-		<Row>
-			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
 		<Row>
 			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
@@ -1095,13 +1080,8 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldPerAlly>
 </GameData>
