@@ -1996,13 +1996,10 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 			pSettler->GeneratePath(pBetterTarget,iFlags);
 		}
 
-		// make sure we're not heading for disaster
+		// is the path good?
 		CvPlot* pWaypoint = pSettler->GetPathEndFirstTurnPlot();
 		if (!pWaypoint && pSettler->plot()!=pBetterTarget)
 			return AI_ABORT_LOST_PATH;
-
-		if (pSettler->IsCurrentPathUnsafe())
-			return AI_ABORT_TOO_DANGEROUS;
 
 		return NO_ABORT_REASON;
 	}

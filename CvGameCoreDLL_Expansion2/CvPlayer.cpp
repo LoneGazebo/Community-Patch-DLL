@@ -10372,7 +10372,7 @@ void CvPlayer::killUnits()
 	for (std::vector<int>::iterator it = unitsToKill.begin(); it != unitsToKill.end(); ++it)
 	{
 		if (std::count(unitsToKill.begin(), unitsToKill.end(),*it)>1)
-			OutputDebugString("inconsistent state: non-unique unit ID to kill!\n");
+			CUSTOMLOG("inconsistent state: non-unique unit ID to kill!\n");
 	}
 
 	for (std::vector<int>::iterator it=unitsToKill.begin(); it!=unitsToKill.end(); ++it)
@@ -41766,6 +41766,12 @@ bool CvPlayer::unlockedGrowthAnywhereThisTurn() const
 	return m_bUnlockedGrowthAnywhereThisTurn;
 }
 
+bool CvPlayer::IsEarlyExpansionPhase() const
+{
+	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	return GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {
@@ -41888,7 +41894,7 @@ CvUnit* CvPlayer::addUnit()
 	for (int iIdx = 0; iIdx < m_units.GetCount()-1; iIdx++)
 	{
 		if (m_units.GetAt(iIdx)==pResult)
-			OutputDebugString("inconsistent state: double unit pointer!\n");
+			CUSTOMLOG("inconsistent state: double unit pointer!\n");
 	}
 
 	return pResult;
@@ -48855,18 +48861,6 @@ bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 
 	return false;
 }
-
-bool CvPlayer::IsPlotUnsafe(CvPlot * pPlot)
-{
-	CvTacticalDominanceZone* pZone = GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
-	if (!pZone)
-		return false;
-	
-	if (pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY || pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
-		return pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY;
-	else //neutral zone, even dominance is ok (few units)
-		return pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY;
-}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -49070,7 +49064,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	}
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (12 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
+	int iTimeOffset = (17 * GC.getGame().getElapsedGameTurns()) / max(512, GC.getGame().getMaxTurns());
 
 	//theoritical maximum distance for onshore settling
 	int iMaxSettleDistance = /*8*/ GD_INT_GET(SETTLER_EVALUATION_DISTANCE) + iTimeOffset; //plot value at max distance or greater is scaled to zero
@@ -49121,7 +49115,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		}
 
 		CvTacticalDominanceZone* pZone = GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pPlot);
-		if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
+		if (pZone && pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY) //check territory not dominance, the latter is too volatile
 		{
 			//--------------
 			if (bLogging) 
@@ -49250,23 +49244,44 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 	//look at the best two and see if maybe the second one is much closer ...
 	if (pUnit && vSettlePlots.size() > 1)
 	{
-		//see where our settler can go
-		//worst case in jungle one turn equals one plot ...
-		SPathFinderUserData data(pUnit,0,iMaxSettleDistance);
-		ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-
-		CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
-		CvPlot* pTestPlotB = vSettlePlots[1].pPlot;
-		int iScoreA = vSettlePlots[0].score;
-		int iScoreB = vSettlePlots[1].score;
-		ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
-		ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
-
-		if (itA != reachablePlots.end() && itB != reachablePlots.end())
+		//find the top non-adjacent candidate pair
+		size_t indexB = 1;
+		while (indexB < vSettlePlots.size())
 		{
-			//if B is at least 80% as good but less than 80% of the distance
-			if (iScoreB * 10 > iScoreA * 8 && itB->iNormalizedDistanceRaw * 10 < itA->iNormalizedDistanceRaw * 8)
-				pTestPlot = pTestPlotB;
+			if (plotDistance(*vSettlePlots[indexB].pPlot, *vSettlePlots[0].pPlot) < 2)
+				indexB++;
+			else
+				break;
+		}
+
+		if (indexB < vSettlePlots.size())
+		{
+			//see where our settler can go: worst case in jungle one turn equals one plot ...
+			//problem is: iMaxSettleDistance is plots relative to our cities, here we need a turn limit for performance!
+			SPathFinderUserData data(pUnit, 0, iMaxSettleDistance);
+			ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+
+			CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
+			CvPlot* pTestPlotB = vSettlePlots[indexB].pPlot;
+			int iScoreA = vSettlePlots[0].score;
+			int iScoreB = vSettlePlots[indexB].score;
+			ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
+			ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
+
+			//some candidates may be so far away that we don't have a path (for performance reasons)
+			//so make up some high numbers in that case
+			int iPathLengthA = (itA == reachablePlots.end()) ? iMaxSettleDistance*5 : itA->iPathLength;
+			int iPathLengthB = (itB == reachablePlots.end()) ? iMaxSettleDistance*5 : itB->iPathLength;
+			int iNormDistA = (itA == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itA->iNormalizedDistanceRaw;
+			int iNormDistB = (itB == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itB->iNormalizedDistanceRaw;
+
+			//if both paths are very short, this becomes unstable
+			if (iPathLengthA > 4 || iPathLengthB > 4)
+			{
+				//if B is at least 80% as good but less than 80% of the distance
+				if (iScoreB * 10 > iScoreA * 8 && iNormDistB * 10 < iNormDistA * 8)
+					pTestPlot = pTestPlotB;
+			}
 		}
 	}
 

@@ -728,6 +728,10 @@ bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
 
 bool CvMilitaryAI::IsExposedToEnemy(CvCity * pCity, PlayerTypes eOtherPlayer) const
 {
+	//minors don't really explore, so they don't know what's exposed ... just assume all their cities are
+	if (m_pPlayer->isMinorCiv())
+		return true;
+
 	for (size_t i = 0; i < m_exposedCities.size(); i++)
 		if (eOtherPlayer==NO_PLAYER || m_exposedCities[i].first == eOtherPlayer)
 			if (pCity == NULL || m_exposedCities[i].second == pCity->GetID())

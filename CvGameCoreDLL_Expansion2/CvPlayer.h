@@ -2542,7 +2542,6 @@ public:
 
 	//to check whether peace is a good idea
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
-	bool IsPlotUnsafe(CvPlot* pPlot);
 
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
@@ -2870,6 +2869,8 @@ public:
 
 	void setUnlockedGrowthAnywhereThisTurn(bool bValue);
 	bool unlockedGrowthAnywhereThisTurn() const;
+
+	bool IsEarlyExpansionPhase() const;
 
 protected:
 	class ConqueredByBoolField

@@ -348,9 +348,6 @@ void CvCityCitizens::DoTurn()
 				}
 			}
 
-			EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-			bool bWantSettlers = thisPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
-
 			int iPotentialUnhappiness = m_pCity->getPotentialUnhappinessWithGrowthVal() - m_pCity->GetPotentialHappinessWithGrowthVal();
 			if (iPotentialUnhappiness > 0 && thisPlayer.IsEmpireUnhappy())
 			{
@@ -358,7 +355,7 @@ void CvCityCitizens::DoTurn()
 				int iLockThreshold = -20;
 				if (MOD_BALANCE_CORE_HAPPINESS)
 				{
-					if (bWantSettlers)
+					if (thisPlayer.IsEarlyExpansionPhase())
 						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
 						iLockThreshold = /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD);
 					else

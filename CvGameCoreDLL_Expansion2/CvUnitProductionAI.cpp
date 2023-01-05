@@ -1079,12 +1079,20 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		}
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
-		bool bRunningEarlyExpand = false;
-		EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
+		if (kPlayer.IsEarlyExpansionPhase())
 		{
 			iFlavorExpansion += 120;
-			bRunningEarlyExpand = true;
+		}
+		else
+		{
+			if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
+			{
+				iFlavorExpansion -= 25;
+			}
+			else if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+			{
+				iFlavorExpansion -= 25;
+			}
 		}
 
 		AICityStrategyTypes eFeeder = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
@@ -1137,19 +1145,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion -= 50;
 		}
 
-		//check victory conditions
-		if (!bRunningEarlyExpand)
-		{
-			if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-			{
-				iFlavorExpansion -= 25;
-			}
-			else if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
-			{
-				iFlavorExpansion -= 25;
-			}
-		}
-
 		if (iFlavorExpansion <= 0)
 			return SR_STRATEGY;
 
@@ -1166,7 +1161,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion += GC.getGame().getHandicapInfo().getAggressionIncrease() * 10;
 		}
 
-		iBonus += iFlavorExpansion * (bRunningEarlyExpand ? 4 : 1);
+		iBonus += iFlavorExpansion * (kPlayer.IsEarlyExpansionPhase() ? 4 : 1);
 	}
 
 	if(!kPlayer.isMinorCiv())

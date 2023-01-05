@@ -151,6 +151,7 @@ void CvDangerPlots::UpdateDanger(bool bKeepKnownUnits)
 #endif
 }
 
+//fog of war is dangerous, but we don't know whether we will take the damage or not ...
 void CvDangerPlots::AddFogDanger(CvPlot* pOrigin, TeamTypes eEnemyTeam, int iRange, bool bCheckOwnership)
 {
 	if (m_DangerPlots.empty()) //nothing to do
@@ -231,7 +232,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if (UpdateDangerSingleUnit(pLoopUnit, false, plotsToIgnoreForZOC))
 			{
 				m_knownUnits.insert(std::make_pair(pLoopUnit->getOwner(), pLoopUnit->GetID()));
-				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 1, false);
+				AddFogDanger(pLoopUnit->plot(), eLoopTeam, 3, false);
 			}
 		}
 
@@ -265,7 +266,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
-			AddFogDanger(pLoopCity->plot(), eLoopTeam, 2, true);
+			AddFogDanger(pLoopCity->plot(), eLoopTeam, 4, true);
 		}
 	}
 
@@ -323,6 +324,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 				}
 			}
 
+			//will we take damage here for sure?
 			m_DangerPlots[iPlotLoop].m_bFlatPlotDamage = (iPlotDamage>0);
 
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
@@ -342,10 +344,10 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 					}
 				}
 
-				//if we know there's a camp there but we can't see it, assume some danger
+				//if we know there's a camp with units there but we can't see it, assume some danger
 				ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 				if (eImprovement == eCamp && !pPlot->isVisible(thisTeam))
-					AddFogDanger(pPlot, BARBARIAN_TEAM, 1, false);
+					AddFogDanger(pPlot, BARBARIAN_TEAM, 3, false);
 			}
 		}
 	}
