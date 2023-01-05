@@ -28,6 +28,9 @@ local kiGiftedGold = 4;
 local kiPledgedToProtect = 5;
 local kiDeclaredWar = 6;
 local kiRevokedProtection = 7;
+-- CBP
+local kiBullyAnnexed = 8
+-- END
 local m_iLastAction = kiNoAction;
 local m_iPendingAction = kiNoAction; -- For bullying dialog popups
 
@@ -1117,28 +1120,24 @@ function PopulateTakeChoices()
 	local iTheftValue = 0;
 	local pMajor = Players[iActivePlayer];
 	local sBullyUnit = GameInfo.Units[pPlayer:GetBullyUnit()].Description; --antonjs: todo: XML or fn
-	if(pMajor:IsBullyAnnex()) then
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
+	if(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+		iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FOOD);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+	elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+		iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_CULTURE);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+	elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+		iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_SCIENCE);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+	elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+		iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_PRODUCTION);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+	elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+		iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FAITH);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
 	else
-		if(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
-			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FOOD);
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
-		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
-			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_CULTURE);
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
-		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
-			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_SCIENCE);
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
-		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
-			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_PRODUCTION);
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
-		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
-			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FAITH);
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
-		else
-			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
-		end	
-	end
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
+	end	
 -- END
 	ttText = pPlayer:GetMajorBullyUnitDetails(iActivePlayer);
 	if (not pPlayer:CanMajorBullyUnit(iActivePlayer)) then
@@ -1151,6 +1150,23 @@ function PopulateTakeChoices()
 	Controls.UnitTributeButton:SetToolTipString(ttText);
 	SetButtonSize(Controls.UnitTributeLabel, Controls.UnitTributeButton, Controls.UnitTributeAnim, Controls.UnitTributeButtonHL);
 	
+-- CBP: Forced Annex
+	if(pMajor:IsBullyAnnex()) then
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
+		Controls.BullyAnnexButton:SetHide(false);
+		if not pPlayer:CanMajorBullyUnit(activePlayerID) then
+			buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
+			Controls.BullyAnnexAnim:SetHide(true)
+		else
+			Controls.BullyAnnexAnim:SetHide(false)
+		end
+		Controls.BullyAnnexLabel:SetText(buttonText)
+		Controls.BullyAnnexButton:SetToolTipString(ttText)
+		SetButtonSize(Controls.BullyAnnexLabel, Controls.BullyAnnexButton, Controls.BullyAnnexAnim, Controls.BullyAnnexButtonHL)
+	else
+		Controls.BullyAnnexButton:SetHide(true);
+	end
+-- END
 	UpdateButtonStack();
 end
 
@@ -1200,6 +1216,17 @@ function OnBullyButtonClicked ()
 end
 
 ----------------------------------------------------------------
+-- Forced Annex confirmation
+----------------------------------------------------------------
+function OnBullyAnnexButtonClicked ()
+	local cityStateName = Locale.Lookup(pMinor:GetCivilizationShortDescriptionKey());
+	local bullyConfirmString = Locale.ConvertTextKey("TXT_KEY_CONFIRM_BULLYANNEX", cityStateName);
+	Controls.BullyConfirmLabel:SetText( bullyConfirmString );
+	Controls.BullyConfirm:SetHide(false);
+	Controls.BGBlock:SetHide(true);
+end
+
+----------------------------------------------------------------
 -- Take Gold
 ----------------------------------------------------------------
 function OnGoldTributeButtonClicked()
@@ -1228,6 +1255,21 @@ function OnUnitTributeButtonClicked()
 	end
 end
 Controls.UnitTributeButton:RegisterCallback( Mouse.eLClick, OnUnitTributeButtonClicked );
+
+----------------------------------------------------------------
+-- CBP: Forced Annex (Rome UA)
+----------------------------------------------------------------
+function OnBullyAnnexButtonClicked()
+	local pPlayer = Players[g_iMinorCivID];
+	local iActivePlayer = Game.GetActivePlayer();
+	
+	if (pPlayer:CanMajorBullyUnit(iActivePlayer)) then
+		m_iPendingAction = kiBullyAnnexed;
+		OnForcedAnnexButtonClicked();
+		OnCloseTake();
+	end
+end
+Controls.BullyAnnexButton:RegisterCallback( Mouse.eLClick, OnBullyAnnexButtonClicked );
 
 ----------------------------------------------------------------
 -- Close Take Submenu

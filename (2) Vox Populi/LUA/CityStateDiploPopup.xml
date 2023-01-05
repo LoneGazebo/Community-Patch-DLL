@@ -314,6 +314,16 @@
               </AlphaAnim>
             </ShowOnMouseOver>
           </Button>
+		  <!-- FORCED ANNEX BUTTON-->
+          <Button Size="500,32" Anchor="C,C" Offset="0,0" ID="BullyAnnexButton" ToolTip="">
+            <Label Anchor="C,C" Offset="0,0" ID="BullyAnnexLabel" />
+            <Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1"/>
+            <ShowOnMouseOver>
+              <AlphaAnim ID="BullyAnnexAnim" Anchor="C,C" Offset="0,0" Size="500,35" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+                <Grid ID="BullyAnnexButtonHL" Size="500,35" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+              </AlphaAnim>
+            </ShowOnMouseOver>
+          </Button>
           <!-- EXIT TAKE BUTTON (Back to Main Menu)-->
           <Button Size="500,32" Hidden="0" Anchor="C,C" Offset="0,0" ID="ExitTakeButton">
             <Label Anchor="C,C" Offset="0,0" String="TXT_KEY_BACK_BUTTON"/>

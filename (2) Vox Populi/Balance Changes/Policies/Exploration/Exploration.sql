@@ -101,7 +101,7 @@ UPDATE Policies
 SET
 	SeaTradeRouteGoldChange = 0,
 	ConquestPerEraBuildingProductionMod = 10,
-	KeepConqueredBuildings = 1;
+	KeepConqueredBuildings = 1
 WHERE Type = 'POLICY_TREASURE_FLEETS';
 
 INSERT INTO Policy_ConquerorYield
