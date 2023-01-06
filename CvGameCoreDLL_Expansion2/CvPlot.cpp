@@ -9810,12 +9810,13 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, int iCurrentYield, Play
 	if (ePlayer != NO_PLAYER)
 	{
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
 		int iAdjacentYield = pImprovement->GetYieldAdjacentSameType(eYield);
 		if (iAdjacentYield > 0)
 		{
 			iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
 		}
-	
+
 		int iTwoAdjacentYield = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 		if (iTwoAdjacentYield > 0)
 		{
