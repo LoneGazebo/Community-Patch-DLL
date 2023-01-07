@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/23/2015 12:21:44 AM -->
+<GameData>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_SHORTCUTS_INTRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_SHORTCUT_INTRODUCTION</Topic>
+			<Description>TXT_KEY_SHORTCUT_INTRODUCTION_TITLE</Description>
+			<Summary>TXT_KEY_SHORTCUT_INTRODUCTION_BODY</Summary>
+			<CivilopediaHeaderType>HEADER_SHORTCUTS</CivilopediaHeaderType>
+			<Advisor>ECONOMIC</Advisor>
+		</Row>
+		<Row>
+			<Type>CONCEPT_SHORTCUTS_CITY_VIEW</Type>
+			<Topic>TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW</Topic>
+			<Description>TXT_KEY_SHORTCUT_CITY_VIEW_TITLE</Description>
+			<Summary>TXT_KEY_SHORTCUT_CITY_VIEW_BODY</Summary>
+			<CivilopediaHeaderType>HEADER_SHORTCUTS</CivilopediaHeaderType>
+			<Advisor>ECONOMIC</Advisor>
+		</Row>
+		<Row>
+			<Type>CONCEPT_SHORTCUTS_WORLD_VIEW</Type>
+			<Topic>TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW</Topic>
+			<Description>TXT_KEY_SHORTCUT_WORLD_VIEW_TITLE</Description>
+			<Summary>TXT_KEY_SHORTCUT_WORLD_VIEW_BODY</Summary>
+			<CivilopediaHeaderType>HEADER_SHORTCUTS</CivilopediaHeaderType>
+			<Advisor>ECONOMIC</Advisor>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_28">
+			<Text>[COLOR_GREEN]Input Shortcuts[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_INTRODUCTION">
+			<Text>Input Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_INTRODUCTION_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_INTRODUCTION}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_INTRODUCTION_BODY">
+			<Text>A number of mouse and keyboard shortcuts are available in Vox Populi to streamline many tasks! See [COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW}[ENDCOLOR] for shortcuts pertaining to unit control in the main map view. See [COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW}[ENDCOLOR] for shortcuts related to building construction and city management. </Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW">
+			<Text>City View Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_CITY_VIEW_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_CITY_VIEW_BODY">
+			<Text>
+				[COLOR_POSITIVE_TEXT]Building Construction Modifiers:[ENDCOLOR] While left-clicking a building will place it at the bottom of the current cities construction queue, other actions can be accomplished with the use of modifier keys.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Top[ENDCOLOR]: [COLOR_YELLOW]CTRL+LCLICK[ENDCOLOR] an item to add it to the top of the current cities construction queue.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Replace[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] an item to replace the current cities construction queue with this item.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Repeat[ENDCOLOR]: [COLOR_YELLOW]ALT+LCLICK[ENDCOLOR] an item to repeat production of that item.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Bottom All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+ALT+LCLICK[ENDCOLOR] an item to add it to the bottom of every eligible cities construction queues.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Top All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+CTRL+LCLICK[ENDCOLOR] an item to add it to the top of every eligible owned cities construction queues.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Invest All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] a buildings invest button to invest in every copy of this building in any cities active construction queue.[NEWLINE]
+			</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW">
+			<Text>World View Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_WORLD_VIEW_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_WORLD_VIEW_BODY">
+			<Text>
+				[COLOR_POSITIVE_TEXT]Special Movement Actions:[ENDCOLOR] Most special movement actions such as rebasing can be executed by selecting the unit and [COLOR_YELLOW]right-clicking[ENDCOLOR] on a valid destination tile.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Airlift[ENDCOLOR]: With a land unit eligible to airlift selected, right click on an eligible airlift destination tile to airlift.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Change Home City[ENDCOLOR]: With a trade unit selected, right click on a city to change home city.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Change Port[ENDCOLOR]: With a Great Admiral in a city selected, right click on a coastal city to change port.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Rebase[ENDCOLOR]: With an air unit selected, right click on an eligible airlift destination tile to perform an airlift action.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Move and Act Orders:[ENDCOLOR] [COLOR_YELLOW]CTRL+RCLICK[ENDCOLOR] issues a 'Move and Act' order, instructing a unit to move to the destination tile then perform their action.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Archaeologists[ENDCOLOR]: Archeological Dig.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Combat Units[ENDCOLOR]: Alert/Fortify Mode.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Diplomatic Units[ENDCOLOR]: Conduct Diplomatic Mission.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Great People[ENDCOLOR]: Construct Tile Improvement.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Inquisitors[ENDCOLOR]: Remove Heresy.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Missionaries[ENDCOLOR]: Spread Religion.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Workers/Workboats[ENDCOLOR]: Repair/Improve Resources.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Queued Movement:[ENDCOLOR] Issue move orders with [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] to create waypoints.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Aircraft Group Commands:[ENDCOLOR] With an aircraft unit selected, modifier keys can be used to issue commands to all aircraft of the same type in the same airbase.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Forward Rebase[ENDCOLOR]: [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] on an airbase will move all aircraft to that airbase until no more slots are available or all aircraft have rebased. Higher HP aircraft are prioritized, with ties broken by unit level.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Fallback Rebase[ENDCOLOR]: [COLOR_YELLOW]ALT+RCLICK[ENDCOLOR] on an airbase will move all damaged aircraft to target airbase until no more slots are available or all aircraft have rebased. Lower HP aircraft are prioritized.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Strike Mode[ENDCOLOR]: [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] on an enemy will air strike the unit on the target hex until all aircraft have attacked or the target is dead. Attack order prioritizes higher HP aircraft, with ties being broken by unit level. Aircraft that can attack twice will do so before the next aircraft begins attacking. [NEWLINE]
+			</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

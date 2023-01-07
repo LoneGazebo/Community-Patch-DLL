@@ -104,5 +104,8 @@
 		<Row Tag="TXT_KEY_VPUI_TIP_32">
 			<Text>Check the Monopoly Overview before building the East India Company. An extra luxury from the right city might give you a new monopoly.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VPUI_TIP_33">
+			<Text>Vox Populi has many shortcuts to simplify repetitive tasks! Check the Civilopedia Game Concepts "Input Shortcuts" section to learn more.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
