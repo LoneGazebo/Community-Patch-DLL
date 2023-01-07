@@ -713,7 +713,7 @@ public:
 	int GetBuyoutCost(PlayerTypes eMajor);
 
 	void DoBuyout(PlayerTypes eMajor);
-	int TransferUnitsAndCitiesToMajor(PlayerTypes eMajor); // also used by Merchant of Venice
+	int TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced = false); // also used by Merchant of Venice and Rome
 
 	// ************************************
 	// ***** Bullying *****
@@ -735,6 +735,9 @@ public:
 	void DoMajorBullyGold(PlayerTypes eBully, int iGold);
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);
 
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	void DoMajorBullyAnnex(PlayerTypes eBully);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling = false);
 #endif

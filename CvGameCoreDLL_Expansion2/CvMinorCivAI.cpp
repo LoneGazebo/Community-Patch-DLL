@@ -14646,7 +14646,10 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	if (bMarriage)
 		SetMajorMarried(eMajor, true);
 	else
+	{
+		SetMajorBoughtOutBy(eMajor);
 		iNumUnits = TransferUnitsAndCitiesToMajor(eMajor);
+	}
 
 	// Send out notifications to everyone
 	TeamTypes eBuyerTeam = GET_PLAYER(eMajor).getTeam();
@@ -14723,11 +14726,9 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	}
 }
 
-/// Transfers all of this City-State's units and cities to eMajor. Called by an Austrian buyout (see above) as well as by the Merchant of Venice's buyout mission.
-int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor)
+/// Transfers all of this City-State's units and cities to eMajor. Called by an Austrian buyout (see above) as well as by the Merchant of Venice's buyout mission and the Rome forced annex.
+int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced)
 {
-	SetMajorBoughtOutBy(eMajor);
-
 	// Transfer all units
 	int iLoop = 0;
 	int iNumUnits = 0;
@@ -14747,7 +14748,7 @@ int CvMinorCivAI::TransferUnitsAndCitiesToMajor(PlayerTypes eMajor)
 
 	for (uint iI = 0; iI < vpCitiesToAcquire.size(); iI++)
 	{
-		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], false, true);
+		CvCity* pNewCity = GET_PLAYER(eMajor).acquireCity(vpCitiesToAcquire[iI], bForced, true);
 
 		// Reduce the resistance to 0 turns because we bought it fairly
 		if (pNewCity)
@@ -15337,15 +15338,6 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 		sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP");
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	{
-		if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsBullyAnnex())
-		{
-			sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX");
-		}
-	}
-#endif
 	sResult << sFear.toUTF8() << sFactors << pUnitInfo->GetDescriptionKey();
 
 	return sResult.toUTF8();
@@ -15360,20 +15352,6 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ false);
 	bool bSuccess = CanMajorBullyGold(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	//Do we get a bonus from unit bullying? Do that instead.
-	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-	{
-		if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex() && !GET_PLAYER(eBully).isHuman())
-		{
-			if(CanMajorBullyUnit(eBully))
-			{
-				DoMajorBullyUnit(eBully, NO_UNIT);
-				return;
-			}
-		}
-	}
-#endif
 	if (bSuccess)
 	{
 		CvAssertMsg(iGold >= 0, "iGold is expected to be non-negative. Please send Anton your save file and version.");
@@ -15489,6 +15467,84 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
+{
+	CvAssertMsg(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eBully < MAX_MAJOR_CIVS, "eBully is expected to be within maximum bounds (invalid Index)");
+	if (eBully < 0 || eBully >= MAX_MAJOR_CIVS) return;
+
+	int iBullyMetric = CalculateBullyScore(eBully, /*bForUnit*/ false);
+	bool bSuccess = CanMajorBullyUnit(eBully, iBullyMetric);
+	if (bSuccess)
+	{
+		if (GetPlayer()->getCapitalCity() != NULL)
+		{
+			PlayerTypes ePlayer;
+			const char* strMinorsNameKey = GetPlayer()->getNameKey();
+			const char* strBullyName = NULL;
+			Localization::String strMessageOthers;
+			Localization::String strSummaryOthers;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				ePlayer = (PlayerTypes)iPlayerLoop;
+				if (GET_PLAYER(ePlayer).GetID() == eBully)
+				{
+					// Notify player has met the bully
+					strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS");
+					strMessageOthers << strMinorsNameKey;
+					strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY");
+					strSummaryOthers << strMinorsNameKey;
+					AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+				}
+				else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
+				{
+					if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
+					{
+						// Notify player has met the bully
+						strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN");
+						strMessageOthers << strBullyName << strMinorsNameKey;
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+						strSummaryOthers << strMinorsNameKey;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+					}
+					else
+					{
+						// Notify player has not met the bully
+						strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN");
+						strMessageOthers << strMinorsNameKey;
+						strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN_SUMMARY");
+						strSummaryOthers << strMinorsNameKey;
+						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+					}
+				}
+				else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
+				{
+					// Notify player has met the bully
+					strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
+					strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN");
+					strMessageOthers << strBullyName;
+					strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+					strSummaryOthers << strBullyName;
+					AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+				}
+			}
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				// Logging
+				CvString strLogString;
+				strLogString.Format("%s annexed by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+				GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
+
+			GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
+			TransferUnitsAndCitiesToMajor(eBully, true);
+		}
+	}
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {
@@ -15628,81 +15684,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				}
 			}
 		}
-		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-		{
-			if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex())
-			{
-				if(GetPlayer()->getCapitalCity() != NULL)
-				{
-					PlayerTypes ePlayer;
-					const char* strMinorsNameKey = GetPlayer()->getNameKey();
-					const char* strBullyName = NULL;
-					Localization::String strMessageOthers;
-					Localization::String strSummaryOthers;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						ePlayer = (PlayerTypes) iPlayerLoop;
-						if(GET_PLAYER(ePlayer).GetID() == eBully)
-						{
-							// Notify player has met the bully
-							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS");
-							strMessageOthers << strMinorsNameKey;
-							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY");
-							strSummaryOthers << strMinorsNameKey;
-							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-						}
-						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
-							{							
-								// Notify player has met the bully
-								strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
-								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN");
-								strMessageOthers << strBullyName << strMinorsNameKey;
-								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
-								strSummaryOthers << strMinorsNameKey;
-								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-							}
-							else
-							{
-								// Notify player has not met the bully
-								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN");
-								strMessageOthers << strMinorsNameKey;
-								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN_SUMMARY");
-								strSummaryOthers << strMinorsNameKey;
-								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-							}
-						}
-						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
-						{
-							// Notify player has met the bully
-							strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
-							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN");
-							strMessageOthers << strBullyName;
-							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
-							strSummaryOthers << strBullyName;
-							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-						}
-					}
-					
-					//int iGoldenAge = GetPlayer()->getCapitalCity()->getPopulation() * 20;
-					//GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iGoldenAge);
-					
-					if(GC.getLogging() && GC.getAILogging())
-					{			
-						// Logging
-						CvString strLogString;
-						strLogString.Format("%s annexed by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
-						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
-					}
 
-					GC.getGame().SetLastTurnCSAnnexed(GC.getGame().getGameTurn());
-
-					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, true);
-					return;
-				}
-			}
-		}
 #endif
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		// Minor must have Capital

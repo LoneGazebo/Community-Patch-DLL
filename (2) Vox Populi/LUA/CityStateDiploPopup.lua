@@ -1218,7 +1218,8 @@ end
 ----------------------------------------------------------------
 -- Forced Annex confirmation
 ----------------------------------------------------------------
-function OnBullyAnnexButtonClicked ()
+function OnForcedAnnexButtonClicked ()
+    local pMinor = Players[g_iMinorCivID];
 	local cityStateName = Locale.Lookup(pMinor:GetCivilizationShortDescriptionKey());
 	local bullyConfirmString = Locale.ConvertTextKey("TXT_KEY_CONFIRM_BULLYANNEX", cityStateName);
 	Controls.BullyConfirmLabel:SetText( bullyConfirmString );
@@ -1302,8 +1303,14 @@ function OnYesBully( )
 		m_iLastAction = kiBulliedUnit;
 -- END
 		Game.DoMinorBullyUnit(iActivePlayer, g_iMinorCivID);
+-- CBP
+	elseif (m_iPendingAction == kiBullyAnnexed) then
+		OnCloseButtonClicked();
+		m_iPendingAction = kiNoAction;
+		m_iLastAction = kiBullyAnnexed;
+		Game.DoMinorBullyAnnex(iActivePlayer, g_iMinorCivID);
 	else
-		print("Scripting error - Selected Yes for bully confrirmation dialog, but invalid PendingAction type");
+		print("Scripting error - Selected Yes for bully confirmation dialog, but invalid PendingAction type");
 	end
 
 	Controls.BullyConfirm:SetHide(true);

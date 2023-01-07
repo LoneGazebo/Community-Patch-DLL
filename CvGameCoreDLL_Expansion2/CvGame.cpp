@@ -12722,6 +12722,17 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 
 	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+//	--------------------------------------------------------------------------------
+/// Do the action of a major buying out a minor and acquiring it
+void CvGame::DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor)
+{
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
+
+	GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(eMajor);
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Do the action of a major buying out a minor and marrying it
 void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)

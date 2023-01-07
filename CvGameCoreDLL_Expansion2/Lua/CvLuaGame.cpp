@@ -279,6 +279,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoMinorGiftTileImprovement);
 	Method(DoMinorBullyGold);
 	Method(DoMinorBullyUnit);
+	Method(DoMinorBullyAnnex);
 	Method(DoMinorBuyout);
 	Method(DoMinorMarriage);
 
@@ -1920,6 +1921,15 @@ int CvLuaGame::lDoMinorBullyUnit(lua_State* L)
 	const int iBully = lua_tointeger(L, 1);
 	const int iMinor = lua_tointeger(L, 2);
 	GC.getGame().DoMinorBullyUnit((PlayerTypes)iBully, (PlayerTypes)iMinor);
+
+	return 1;
+}
+//void DoMinorBullyAnnex(int iBullyCivID, int iMinorCivID);
+int CvLuaGame::lDoMinorBullyAnnex(lua_State* L)
+{
+	const int iBully = lua_tointeger(L, 1);
+	const int iMinor = lua_tointeger(L, 2);
+	GC.getGame().DoMinorBullyAnnex((PlayerTypes)iBully, (PlayerTypes)iMinor);
 
 	return 1;
 }

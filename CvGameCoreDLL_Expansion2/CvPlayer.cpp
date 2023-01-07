@@ -11127,25 +11127,6 @@ void CvPlayer::doTurn()
 		//Reset for reevaluation of citystrategy AI
 		countCitiesNeedingTerrainImprovements(true);
 #endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-		{
-			if(GetPlayerTraits()->IsBullyAnnex() && !IsEmpireVeryUnhappy() && !isHuman())
-			{
-				for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
-					{
-						if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->CanMajorBullyUnit(GetID()))
-						{
-							GC.getGame().DoMinorBullyUnit(GetID(), eLoopPlayer);
-						}
-					}
-				}
-			}
-		}
-#endif
 		if(GetPlayerTraits()->IsEndOfMayaLongCount())
 		{
 			ChangeNumMayaBoosts(1);
