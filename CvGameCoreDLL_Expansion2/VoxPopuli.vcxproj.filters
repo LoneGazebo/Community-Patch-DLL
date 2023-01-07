@@ -1,0 +1,664 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CustomMods.cpp" />
+    <ClCompile Include="CvAchievementInfo.cpp" />
+    <ClCompile Include="CvAchievementUnlocker.cpp" />
+    <ClCompile Include="CvAdvisorCounsel.cpp" />
+    <ClCompile Include="CvAdvisorRecommender.cpp" />
+    <ClCompile Include="CvAIOperation.cpp" />
+    <ClCompile Include="CvArea.cpp" />
+    <ClCompile Include="CvArmyAI.cpp" />
+    <ClCompile Include="CvAStar.cpp" />
+    <ClCompile Include="CvAStarNode.cpp" />
+    <ClCompile Include="CvBarbarians.cpp" />
+    <ClCompile Include="CvBeliefClasses.cpp" />
+    <ClCompile Include="CvBuilderTaskingAI.cpp" />
+    <ClCompile Include="CvBuildingClasses.cpp" />
+    <ClCompile Include="CvBuildingProductionAI.cpp" />
+    <ClCompile Include="CvCity.cpp" />
+    <ClCompile Include="CvCityAI.cpp" />
+    <ClCompile Include="CvCityCitizens.cpp" />
+    <ClCompile Include="CvCityConnections.cpp" />
+    <ClCompile Include="CvCityManager.cpp" />
+    <ClCompile Include="CvCitySpecializationAI.cpp" />
+    <ClCompile Include="CvCityStrategyAI.cpp" />
+    <ClCompile Include="CvContractClasses.cpp" />
+    <ClCompile Include="CvCorporationClasses.cpp" />
+    <ClCompile Include="CvCultureClasses.cpp" />
+    <ClCompile Include="CvDangerPlots.cpp" />
+    <ClCompile Include="CvDatabaseUtility.cpp" />
+    <ClCompile Include="CvDealAI.cpp" />
+    <ClCompile Include="CvDealClasses.cpp" />
+    <ClCompile Include="CvDiplomacyAI.cpp" />
+    <ClCompile Include="CvDiplomacyRequests.cpp" />
+    <ClCompile Include="CvDistanceMap.cpp" />
+    <ClCompile Include="CvEconomicAI.cpp" />
+    <ClCompile Include="CvEmphasisClasses.cpp" />
+    <ClCompile Include="CvEspionageClasses.cpp" />
+    <ClCompile Include="CvEventLog.cpp" />
+    <ClCompile Include="CvFlavorManager.cpp" />
+    <ClCompile Include="CvFractal.cpp" />
+    <ClCompile Include="CvGame.cpp" />
+    <ClCompile Include="CvGameCoreDLL.cpp" />
+    <ClCompile Include="CvGameCoreEnumSerialization.cpp" />
+    <ClCompile Include="CvGameCoreStructs.cpp" />
+    <ClCompile Include="CvGameCoreUtils.cpp" />
+    <ClCompile Include="CvGameQueries.cpp" />
+    <ClCompile Include="CvGameTextMgr.cpp" />
+    <ClCompile Include="CvGlobals.cpp" />
+    <ClCompile Include="CvGoodyHuts.cpp" />
+    <ClCompile Include="CvGrandStrategyAI.cpp" />
+    <ClCompile Include="CvGreatPersonInfo.cpp" />
+    <ClCompile Include="CvHomelandAI.cpp" />
+    <ClCompile Include="CvImprovementClasses.cpp" />
+    <ClCompile Include="CvInfos.cpp" />
+    <ClCompile Include="CvInfosSerializationHelper.cpp" />
+    <ClCompile Include="CvInternalGameCoreUtils.cpp" />
+    <ClCompile Include="CvLoggerCSV.cpp" />
+    <ClCompile Include="CvMap.cpp" />
+    <ClCompile Include="CvMapGenerator.cpp" />
+    <ClCompile Include="CvMilitaryAI.cpp" />
+    <ClCompile Include="CvMinorCivAI.cpp" />
+    <ClCompile Include="CvNotificationClasses.cpp" />
+    <ClCompile Include="CvNotifications.cpp" />
+    <ClCompile Include="CvPlayer.cpp" />
+    <ClCompile Include="CvPlayerAI.cpp" />
+    <ClCompile Include="CvPlayerManager.cpp" />
+    <ClCompile Include="CvPlot.cpp" />
+    <ClCompile Include="CvPlotInfo.cpp" />
+    <ClCompile Include="CvPlotManager.cpp" />
+    <ClCompile Include="CvPolicyAI.cpp" />
+    <ClCompile Include="CvPolicyClasses.cpp" />
+    <ClCompile Include="CvPopupInfoSerialization.cpp" />
+    <ClCompile Include="CvPreGame.cpp" />
+    <ClCompile Include="CvProcessProductionAI.cpp" />
+    <ClCompile Include="CvProjectClasses.cpp" />
+    <ClCompile Include="CvProjectProductionAI.cpp" />
+    <ClCompile Include="CvPromotionClasses.cpp" />
+    <ClCompile Include="CvRandom.cpp" />
+    <ClCompile Include="CvReligionClasses.cpp" />
+    <ClCompile Include="CvReplayInfo.cpp" />
+    <ClCompile Include="CvReplayMessage.cpp" />
+    <ClCompile Include="CvSerialize.cpp" />
+    <ClCompile Include="CvSiteEvaluationClasses.cpp" />
+    <ClCompile Include="CvStartPositioner.cpp" />
+    <ClCompile Include="cvStopWatch.cpp" />
+    <ClCompile Include="CvTacticalAI.cpp" />
+    <ClCompile Include="CvTacticalAnalysisMap.cpp" />
+    <ClCompile Include="CvTargeting.cpp" />
+    <ClCompile Include="CvTeam.cpp" />
+    <ClCompile Include="CvTechAI.cpp" />
+    <ClCompile Include="CvTechClasses.cpp" />
+    <ClCompile Include="CvTradeClasses.cpp" />
+    <ClCompile Include="CvTraitClasses.cpp" />
+    <ClCompile Include="CvTreasury.cpp" />
+    <ClCompile Include="CvTypes.cpp" />
+    <ClCompile Include="CvUnit.cpp" />
+    <ClCompile Include="CvUnitClasses.cpp" />
+    <ClCompile Include="CvUnitCombat.cpp" />
+    <ClCompile Include="CvUnitCycler.cpp" />
+    <ClCompile Include="CvUnitMission.cpp" />
+    <ClCompile Include="CvUnitMovement.cpp" />
+    <ClCompile Include="CvUnitProductionAI.cpp" />
+    <ClCompile Include="CvVotingClasses.cpp" />
+    <ClCompile Include="CvWonderProductionAI.cpp" />
+    <ClCompile Include="CvWorldBuilderMapLoader.cpp" />
+    <ClCompile Include="stackwalker\StackWalker.cpp" />
+    <ClCompile Include="_precompile.cpp" />
+    <ClCompile Include="CvDllBuildInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllBuildingInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllCity.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllCivilizationInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllColorInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllCombatInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllContext.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllDatabaseUtility.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllDeal.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllDealAI.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllDiplomacyAI.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllDlcPackageInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllEraInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllFeatureInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllGame.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllGameAsynch.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllGameDeals.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllGameOptionInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllGameSpeedInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllHandicapInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllImprovementInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllInterfaceModeInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllLeaderheadInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllMap.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllMinorCivInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllMissionData.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllMissionInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllNetInitInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllNetLoadGameInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllNetMessageExt.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllNetMessageHandler.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllNetworkSyncronization.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPathFinderUpdate.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPlayer.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPlayerColorInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPlayerOptionInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPlot.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPolicyInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPreGame.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllPromotionInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllRandom.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllResourceInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllScriptSystemUtility.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllTeam.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllTechInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllTerrainInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllUnit.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllUnitCombatClassInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllUnitInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllVictoryInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllWorldBuilderMapLoader.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllWorldInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaArea.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaArgsHandle.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaCity.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaDeal.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaEnums.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaFractal.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaGame.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaGameInfo.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaLeague.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaMap.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaPlayer.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaPlot.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaSupport.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaTeam.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaTeamTech.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="lua\CvLuaUnit.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
+    <ClInclude Include="CustomMods.h" />
+    <ClInclude Include="CvAchievementInfo.h" />
+    <ClInclude Include="CvAchievementUnlocker.h" />
+    <ClInclude Include="CvAdvisorCounsel.h" />
+    <ClInclude Include="CvAdvisorRecommender.h" />
+    <ClInclude Include="CvAIOperation.h" />
+    <ClInclude Include="CvAlignedStorage.h" />
+    <ClInclude Include="CvArea.h" />
+    <ClInclude Include="CvArmyAI.h" />
+    <ClInclude Include="CvAStar.h" />
+    <ClInclude Include="CvAStarNode.h" />
+    <ClInclude Include="CvBarbarians.h" />
+    <ClInclude Include="CvBeliefClasses.h" />
+    <ClInclude Include="CvBitfield.h" />
+    <ClInclude Include="CvBuilderTaskingAI.h" />
+    <ClInclude Include="CvBuildingClasses.h" />
+    <ClInclude Include="CvBuildingProductionAI.h" />
+    <ClInclude Include="CvCity.h" />
+    <ClInclude Include="CvCityAI.h" />
+    <ClInclude Include="CvCityCitizens.h" />
+    <ClInclude Include="CvCityConnections.h" />
+    <ClInclude Include="CvCityManager.h" />
+    <ClInclude Include="CvCitySpecializationAI.h" />
+    <ClInclude Include="CvCityStrategyAI.h" />
+    <ClInclude Include="CvContractClasses.h" />
+    <ClInclude Include="CvCorporationClasses.h" />
+    <ClInclude Include="CvCultureClasses.h" />
+    <ClInclude Include="CvDangerPlots.h" />
+    <ClInclude Include="CvDatabaseUtility.h" />
+    <ClInclude Include="CvDealAI.h" />
+    <ClInclude Include="CvDealClasses.h" />
+    <ClInclude Include="CvDefines.h" />
+    <ClInclude Include="CvDiplomacyAI.h" />
+    <ClInclude Include="CvDiplomacyAIEnums.h" />
+    <ClInclude Include="CvDiplomacyRequests.h" />
+    <ClInclude Include="CvDistanceMap.h" />
+    <ClInclude Include="CvEconomicAI.h" />
+    <ClInclude Include="CvEmphasisClasses.h" />
+    <ClInclude Include="CvEnumMapSerialization.h" />
+    <ClInclude Include="CvEspionageClasses.h" />
+    <ClInclude Include="CvEventLog.h" />
+    <ClInclude Include="CvFlavorManager.h" />
+    <ClInclude Include="CvFractal.h" />
+    <ClInclude Include="CvGame.h" />
+    <ClInclude Include="CvGameCoreDLL.h" />
+    <ClInclude Include="CvGameCoreDLLPCH.h" />
+    <ClInclude Include="CvGameCoreEnums.h" />
+    <ClInclude Include="CvGameCoreEnumSerialization.h" />
+    <ClInclude Include="CvGameCoreStructs.h" />
+    <ClInclude Include="CvGameCoreUtils.h" />
+    <ClInclude Include="CvGameQueries.h" />
+    <ClInclude Include="CvGameTextMgr.h" />
+    <ClInclude Include="CvGlobals.h" />
+    <ClInclude Include="CvGoodyHuts.h" />
+    <ClInclude Include="CvGrandStrategyAI.h" />
+    <ClInclude Include="CvGreatPersonInfo.h" />
+    <ClInclude Include="CvHomelandAI.h" />
+    <ClInclude Include="CvImprovementClasses.h" />
+    <ClInclude Include="CvInfos.h" />
+    <ClInclude Include="CvEnumMap.h" />
+    <ClInclude Include="CvEnumsUtil.h" />
+    <ClInclude Include="CvInfosSerializationHelper.h" />
+    <ClInclude Include="CvInternalGameCoreUtils.h" />
+    <ClInclude Include="CvLoggerCSV.h" />
+    <ClInclude Include="CvMap.h" />
+    <ClInclude Include="CvMapGenerator.h" />
+    <ClInclude Include="CvMeta.h" />
+    <ClInclude Include="CvMilitaryAI.h" />
+    <ClInclude Include="CvMinorCivAI.h" />
+    <ClInclude Include="CvNotificationClasses.h" />
+    <ClInclude Include="CvNotifications.h" />
+    <ClInclude Include="CvPlayer.h" />
+    <ClInclude Include="CvPlayerAI.h" />
+    <ClInclude Include="CvPlayerManager.h" />
+    <ClInclude Include="CvPlot.h" />
+    <ClInclude Include="CvPlotInfo.h" />
+    <ClInclude Include="CvPlotManager.h" />
+    <ClInclude Include="CvPolicyAI.h" />
+    <ClInclude Include="CvPolicyClasses.h" />
+    <ClInclude Include="CvPopupInfoSerialization.h" />
+    <ClInclude Include="CvPreGame.h" />
+    <ClInclude Include="CvProcessProductionAI.h" />
+    <ClInclude Include="CvProjectClasses.h" />
+    <ClInclude Include="CvProjectProductionAI.h" />
+    <ClInclude Include="CvPromotionClasses.h" />
+    <ClInclude Include="CvRandom.h" />
+    <ClInclude Include="CvReligionClasses.h" />
+    <ClInclude Include="CvReplayInfo.h" />
+    <ClInclude Include="CvReplayMessage.h" />
+    <ClInclude Include="CvSerialize.h" />
+    <ClInclude Include="CvSiteEvaluationClasses.h" />
+    <ClInclude Include="CvSpan.h" />
+    <ClInclude Include="CvSpanSerialization.h" />
+    <ClInclude Include="CvStartPositioner.h" />
+    <ClInclude Include="cvStopWatch.h" />
+    <ClInclude Include="CvTacticalAI.h" />
+    <ClInclude Include="CvTacticalAnalysisMap.h" />
+    <ClInclude Include="CvTargeting.h" />
+    <ClInclude Include="CvTeam.h" />
+    <ClInclude Include="CvTechAI.h" />
+    <ClInclude Include="CvTechClasses.h" />
+    <ClInclude Include="CvTradeClasses.h" />
+    <ClInclude Include="CvTraitClasses.h" />
+    <ClInclude Include="CvTreasury.h" />
+    <ClInclude Include="CvTypes.h" />
+    <ClInclude Include="CvUnit.h" />
+    <ClInclude Include="CvUnitClasses.h" />
+    <ClInclude Include="CvUnitCombat.h" />
+    <ClInclude Include="CvUnitCycler.h" />
+    <ClInclude Include="CvUnitMission.h" />
+    <ClInclude Include="CvUnitMovement.h" />
+    <ClInclude Include="CvUnitProductionAI.h" />
+    <ClInclude Include="CvVotingClasses.h" />
+    <ClInclude Include="CvWonderProductionAI.h" />
+    <ClInclude Include="CvWorldBuilderMapLoader.h" />
+    <ClInclude Include="HHMods.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="stackwalker\StackWalker.h" />
+    <ClInclude Include="TContainer.h" />
+    <ClInclude Include="CvDllBuildInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllBuildingInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllCity.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllCivilizationInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllColorInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllCombatInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllContext.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllDatabaseUtility.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllDeal.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllDealAI.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllDiplomacyAI.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllDlcPackageInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllEraInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDLLFAStarIFaceBase.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllFeatureInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllGame.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllGameAsynch.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllGameDeals.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllGameOptionInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllGameSpeedInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllHandicapInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllImprovementInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllInterfaceModeInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllLeaderheadInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllMap.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllMinorCivInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllMissionData.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllMissionInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllNetInitInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllNetLoadGameInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllNetMessageExt.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllNetMessageHandler.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllNetworkSyncronization.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPathFinderUpdate.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPlayerColorInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPlayerOptionInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPlot.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPolicyInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPreGame.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllPromotionInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllRandom.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllResourceInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllScriptSystemUtility.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllTeam.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllTechInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllTerrainInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllUnit.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllUnitCombatClassInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllUnitInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllVersion.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllVictoryInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllWorldBuilderMapLoader.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllWorldInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaUnit.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaArea.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaArgsHandle.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaCity.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaDeal.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaEnums.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaFractal.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaGame.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaGameInfo.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaLeague.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaMap.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaPlayer.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaPlot.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaScopedIndirectInstance.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaScopedInstance.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaSupport.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaTeam.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="lua\CvLuaTeamTech.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CvGameCoreDLL.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CvGameCoreDLL.def" />
+    <None Include="NatvisFile.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="interface">
+      <UniqueIdentifier>{09218e5e-5258-4d86-9df3-0a1916f36324}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

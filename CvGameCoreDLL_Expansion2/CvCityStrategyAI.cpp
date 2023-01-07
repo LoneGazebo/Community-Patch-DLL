@@ -27,6 +27,8 @@
 
 #include "CvEnumMapSerialization.h"
 
+#define NO_WORKER_AFTER_DISBAND_DURATION 12
+
 //=====================================
 // CvAICityStrategyEntry
 //=====================================
@@ -2441,7 +2443,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
-	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 40)
+	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= NO_WORKER_AFTER_DISBAND_DURATION)
 	{
 		return false;
 	}
@@ -2509,7 +2511,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
-	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 10)
+	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= NO_WORKER_AFTER_DISBAND_DURATION)
 	{
 		return false;
 	}
@@ -2553,7 +2555,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	int iLastTurnWorkerDisbanded = kPlayer.GetEconomicAI()->GetLastTurnWorkerDisbanded();
-	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= 20)
+	if(iLastTurnWorkerDisbanded >= 0 && GC.getGame().getGameTurn() - iLastTurnWorkerDisbanded <= NO_WORKER_AFTER_DISBAND_DURATION)
 	{
 		return true;
 	}

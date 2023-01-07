@@ -3317,6 +3317,9 @@ int ArmyCheckTerritory(CvPlot* pToPlot, const CvPlayer& kPlayer, PlayerTypes eTa
 	if (pToPlot->getOwner() == eTargetPlayer) //typically the enemy but we may be still at peace
 		return TRUE;
 
+	if (finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
+		return TRUE;
+
 	CvTeam& plotTeam = GET_TEAM(pToPlot->getTeam());
 	if (plotTeam.isAtWar(kPlayer.getTeam()))
 	{
@@ -3324,19 +3327,16 @@ int ArmyCheckTerritory(CvPlot* pToPlot, const CvPlayer& kPlayer, PlayerTypes eTa
 			return TRUE;
 	}
 
-	if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
+	if (plotTeam.isMajorCiv())
 	{
-		if (plotTeam.isMajorCiv())
-		{
-			if (plotTeam.IsAllowsOpenBordersToTeam(kPlayer.getTeam()))
-				return TRUE;
-		}
-		else
-		{
-			CvMinorCivAI* pMinorAI = GET_PLAYER(plotTeam.getLeaderID()).GetMinorCivAI();
-			if (pMinorAI->IsPlayerHasOpenBorders(kPlayer.GetID()))
-				return TRUE;
-		}
+		if (plotTeam.IsAllowsOpenBordersToTeam(kPlayer.getTeam()))
+			return TRUE;
+	}
+	else
+	{
+		CvMinorCivAI* pMinorAI = GET_PLAYER(plotTeam.getLeaderID()).GetMinorCivAI();
+		if (pMinorAI->IsPlayerHasOpenBorders(kPlayer.GetID()))
+			return TRUE;
 	}
 
 	return FALSE;

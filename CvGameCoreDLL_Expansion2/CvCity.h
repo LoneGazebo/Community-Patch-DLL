@@ -222,7 +222,7 @@ public:
 	bool IsIndustrialRouteToCapitalConnected() const;
 	void SetIndustrialRouteToCapitalConnected(bool bValue);
 
-	void SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate = false);
+	void SetRouteToCapitalConnected(bool bValue, bool bSuppressReligionYieldUpdate = false);
 	bool IsRouteToCapitalConnected(void) const;
 
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)

@@ -734,12 +734,12 @@ void CvTacticalAI::ProcessDominanceZones()
 			}
 		}
 
-		//now mid prio moves like capturing barb camps, civilians
-		AssignGlobalMidPrioMoves();
-
 		//second pass: bring in reinforcements
 		for (int iI = 0; iI < GetTacticalAnalysisMap()->GetNumZones(); iI++)
 			PlotReinforcementMoves(GetTacticalAnalysisMap()->GetZoneByIndex(iI));
+
+		//now mid prio moves like capturing barb camps, pillaging
+		AssignGlobalMidPrioMoves();
 
 		//finally arrange our remaining idle units for defense
 		AssignGlobalLowPrioMoves();
@@ -801,7 +801,7 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 	ExtractTargetsForZone(NULL);
 
 	//defense preparation for next turn
-	PlotGuardImprovementMoves(1);
+	PlotGuardImprovementMoves(2);
 
 	//do this last after the units in need have already moved
 	PlotNavalEscortMoves();
@@ -2096,8 +2096,8 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 	if (!pZoneCity)
 		return;
 	
-	//don't try to reinforce neutral zones
-	if (pZoneCity->getTeam() != m_pPlayer->getTeam() && !m_pPlayer->IsAtWarWith(pZoneCity->getOwner()))
+	//don't try to reinforce neutral zones if there are no enemies
+	if (pZoneCity->getTeam() != m_pPlayer->getTeam() && pTargetZone->GetTotalEnemyUnitCount()==0)
 		return;
 
 	//sometimes we do not need further reinforcement - should we check whether we still need siege units specifically?
@@ -2110,7 +2110,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, GetRecruitRange());
+	SPathFinderUserData data(NO_PLAYER, PT_ARMY_MIXED, -1, GetRecruitRange());
 	CvPlot* pTargetPlot = pTargetZone->GetZoneCity()->plot();
 
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
@@ -8637,7 +8637,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	{
 		gMovesToAdd.clear();
 
-		//blocks don't change anything in the simulation so let's add them together with another move
+		//blocks don't change anything in the simulation so let's add them together with another move - so we use our allowed branches for "interesting" moves
 		while (gOverAllChoices[i].eAssignmentType == A_BLOCKED && i < gOverAllChoices.size()-1)
 			gMovesToAdd.push_back(gOverAllChoices[i++]);
 
@@ -8698,7 +8698,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!gMovesToAdd.empty())
 		{
-			//maybe we have even more blocks following our "primary" move. consume them as well
+			//maybe we have even more blocks following our "primary" move. consume them as well - this should reduce our total search depth
 			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED)
 				gMovesToAdd.push_back(gOverAllChoices[++i]);
 
@@ -10110,6 +10110,14 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 		//here the magic happens!
 		current->makeNextAssignments(iMaxBranchesNow, iMaxChoicesPerUnitNow, storage, openPositionsHeap, completedPositions, heapSort);
+
+		//be a good citizen and let the UI run in between ... stupid design
+		if ((iUsedPositions % 1000) == 999 && gDLL->HasGameCoreLock())
+		{
+			gDLL->ReleaseGameCoreLock();
+			Sleep(1);
+			gDLL->GetGameCoreLock();
+		}
 
 		//did we run out of resources?
 		if (storage.peekNext() == NULL)

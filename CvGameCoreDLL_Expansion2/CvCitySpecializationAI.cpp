@@ -334,9 +334,11 @@ void CvCitySpecializationAI::DoTurn()
 	int iCityLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		if (pLoopCity->isUnderSiege())
+		//we want an event, ie the beginning of the siege, so look at the damage taken as well; during the siege it should be > 0
+		if (pLoopCity->isUnderSiege() && pLoopCity->getDamageTakenLastTurn()==0)
 		{
 			SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE);
+			pLoopCity->AI_setChooseProductionDirty(true);
 			break;
 		}
 	}
@@ -405,10 +407,8 @@ void CvCitySpecializationAI::SetSpecializationsDirty(CitySpecializationUpdateTyp
 			m_bInterruptWonders = true;
 			break;
 		case SPECIALIZATION_UPDATE_CITIES_UNDER_SIEGE:
-#if defined(MOD_BALANCE_CORE)
 			m_bInterruptBuildings = true;
 			m_bInterruptWonders = true;
-#endif
 			break;
 		case SPECIALIZATION_UPDATE_WONDER_BUILT_BY_RIVAL:
 			m_bChooseNewWonder = true;
