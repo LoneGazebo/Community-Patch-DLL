@@ -170,8 +170,8 @@ UPDATE Leader_MajorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_AU
 UPDATE Leader_MajorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_IGNORE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_PROTECTIVE';
-UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
-UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
+UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
+UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Bismarck (Germany)
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_BISMARCK';
