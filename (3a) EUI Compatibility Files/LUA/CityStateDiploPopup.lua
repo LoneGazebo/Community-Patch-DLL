@@ -1272,7 +1272,7 @@ function BullyAction( action )
 		else
 			bullyConfirmString = cityStateName .. ": " .. L("TXT_KEY_CONFIRM_WAR")
 		end
-	else if action == kiBullyAnnexed then
+	elseif action == kiBullyAnnexed then
 		bullyConfirmString = L("TXT_KEY_CONFIRM_BULLYANNEX", cityStateName) 
 	else
 		if #listofProtectingCivs == 1 then
@@ -1365,7 +1365,7 @@ function OnYesBully( )
 		if not gk_mode then
 			Network.SendPledgeMinorProtection( g_minorCivID, false ) -- does not seem to work in 1.0.3.144
 		end
-	elseif (m_iPendingAction == kiBullyAnnexed) then
+	elseif m_pendingAction == kiBullyAnnexed then
 		OnCloseButtonClicked();
 		Game.DoMinorBullyAnnex(activePlayerID, g_minorCivID);
 	else
