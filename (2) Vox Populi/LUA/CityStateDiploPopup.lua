@@ -1217,7 +1217,7 @@ function OnBullyButtonClicked ()
 end
 
 ----------------------------------------------------------------
--- Forced Annex confirmation
+-- CBP: Forced Annex confirmation
 ----------------------------------------------------------------
 function OnForcedAnnexButtonClicked ()
     local pMinor = Players[g_iMinorCivID];
@@ -1310,6 +1310,7 @@ function OnYesBully( )
 		m_iPendingAction = kiNoAction;
 		m_iLastAction = kiBullyAnnexed;
 		Game.DoMinorBullyAnnex(iActivePlayer, g_iMinorCivID);
+-- END
 	else
 		print("Scripting error - Selected Yes for bully confirmation dialog, but invalid PendingAction type");
 	end

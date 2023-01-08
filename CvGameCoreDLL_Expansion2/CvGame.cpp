@@ -12724,7 +12724,7 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 }
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 //	--------------------------------------------------------------------------------
-/// Do the action of a major buying out a minor and acquiring it
+/// Do the action of a major annexing a minor using tribute (Rome UA)
 void CvGame::DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;

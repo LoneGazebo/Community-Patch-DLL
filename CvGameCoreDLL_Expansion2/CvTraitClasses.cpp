@@ -2415,7 +2415,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
-	m_bAnnexedCityStatesGiveYields =	kResults.GetBool("AnnexedCityStatesGiveYields");
+	m_bAnnexedCityStatesGiveYields			= kResults.GetBool("AnnexedCityStatesGiveYields");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");

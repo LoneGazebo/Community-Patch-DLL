@@ -1183,6 +1183,7 @@ function CultureTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", iCultureFromAnnexedMinors);
 		end
+-- END
 
 		-- Culture from Religion
 		local iCultureFromReligion = pPlayer:GetCulturePerTurnFromReligion();

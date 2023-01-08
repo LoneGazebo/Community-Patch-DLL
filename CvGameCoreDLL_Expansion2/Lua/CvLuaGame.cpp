@@ -279,7 +279,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoMinorGiftTileImprovement);
 	Method(DoMinorBullyGold);
 	Method(DoMinorBullyUnit);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	Method(DoMinorBullyAnnex);
+#endif
 	Method(DoMinorBuyout);
 	Method(DoMinorMarriage);
 
@@ -1924,6 +1926,7 @@ int CvLuaGame::lDoMinorBullyUnit(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 //void DoMinorBullyAnnex(int iBullyCivID, int iMinorCivID);
 int CvLuaGame::lDoMinorBullyAnnex(lua_State* L)
 {
@@ -1933,6 +1936,7 @@ int CvLuaGame::lDoMinorBullyAnnex(lua_State* L)
 
 	return 1;
 }
+#endif
 //------------------------------------------------------------------------------
 //void DoMinorBuyout(int iMajorCivID, int iMinorCivID);
 int CvLuaGame::lDoMinorBuyout(lua_State* L)

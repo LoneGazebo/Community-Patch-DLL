@@ -31813,7 +31813,13 @@ void CvDiplomacyAI::DoContactMinorCivs()
 
 	PlayerTypes eID = GetID();
 
-	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iOffenseFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iHappinessFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
+	int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
 
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
@@ -32007,13 +32013,38 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						iValue += -150; //antonjs: todo: xml
 
 					// Bonuses from Annexed City-States
-					MinorCivTraitTypes eTrait = pMinorCivAI->GetTrait();
 					if (GetPlayer()->GetPlayerTraits()->IsAnnexedCityStatesGiveYields()) {
-						//if (eTrait == MINOR_CIV_TRAIT_CULTURED && IsGoingForCultureVictory())
-						//{
-							//iValue += 70; //antonjs: todo: xml
-						//}
-						// todo...
+						MinorCivTraitTypes eTrait = pMinorCivAI->GetTrait();
+						if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+						{
+							iValue += (iScienceFlavor + iOffenseFlavor);
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
+						{
+							iValue += iHappinessFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+						{
+							iValue += iCultureFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+						{
+							iValue += iFaithFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+						{
+							iValue += iGrowthFlavor * 2;
+						}
+					}
+
+					// Annexing the Ally of another player?
+					PlayerTypes eAlly = pMinorCivAI->GetAlly();
+					if (eAlly != NO_PLAYER)
+					{
+						if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlly) != NO_CIV_OPINION)
+						{
+							iValue -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlly) - CIV_OPINION_NEUTRAL) * 10;
+						}
 					}
 					// Time to decide - Do we want it enough?
 					if (iValue > 100)  //antonjs: todo: xml
@@ -32374,32 +32405,26 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID, MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING ? iValue - 25 : 0))
 					{
 						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-						{
-							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
-							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) / 2;
-							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
-
+						{		
 							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE) * iScienceFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE) * iScienceFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION) * iProductionFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION) * iProductionFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE) * iCultureFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE) * iCultureFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH) * iFaithFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH) * iFaithFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD) * iGrowthFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD) * iGrowthFlavor) / 10;
 							}
 							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->GetPseudoRandomSeed()+GC.getGame().GetCultureMedian());
 						}

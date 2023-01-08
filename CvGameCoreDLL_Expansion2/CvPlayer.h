@@ -3049,10 +3049,10 @@ protected:
 	int m_iConversionModifier;
 #endif
 	int m_iFoodInCapitalFromAnnexedMinors;
-	int	m_iFoodInOtherCitiesFromAnnexedMinors;
-	int	m_iCulturePerTurnFromAnnexedMinors;
-	int	m_iSciencePerTurnFromAnnexedMinors;
-	int	m_iFaithPerTurnFromAnnexedMinors;
+	int m_iFoodInOtherCitiesFromAnnexedMinors;
+	int m_iCulturePerTurnFromAnnexedMinors;
+	int m_iSciencePerTurnFromAnnexedMinors;
+	int m_iFaithPerTurnFromAnnexedMinors;
 	int	m_iHappinessFromAnnexedMinors;
 	int m_iExtraLeagueVotes;
 	int m_iImprovementLeagueVotes;

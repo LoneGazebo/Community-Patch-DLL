@@ -11087,10 +11087,6 @@ void CvPlayer::doTurn()
 
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
-		if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
-		{
-
-		}
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
 #endif

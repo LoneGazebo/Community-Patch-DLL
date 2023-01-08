@@ -1365,9 +1365,11 @@ function OnYesBully( )
 		if not gk_mode then
 			Network.SendPledgeMinorProtection( g_minorCivID, false ) -- does not seem to work in 1.0.3.144
 		end
+-- CBP
 	elseif m_pendingAction == kiBullyAnnexed then
 		OnCloseButtonClicked();
 		Game.DoMinorBullyAnnex(activePlayerID, g_minorCivID);
+-- END
 	else
 		print("Scripting error - Selected Yes for bully confirmation dialog, with invalid PendingAction type")
 	end
