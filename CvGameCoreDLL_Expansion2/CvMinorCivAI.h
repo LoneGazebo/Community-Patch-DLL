@@ -694,9 +694,9 @@ public:
 	bool IsUnitSpawningAllowed(PlayerTypes ePlayer);
 	bool IsUnitSpawningDisabled(PlayerTypes ePlayer) const;
 	void SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue);
-	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false);
+	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false, bool bCityStateAnnexed = false);
 	void DoUnitSpawnTurn();
-	int GetSpawnBaseTurns(PlayerTypes ePlayer);
+	int GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed = false);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
 	// Austria UA Stuff
@@ -731,6 +731,9 @@ public:
 	bool CanMajorBullyUnit(PlayerTypes ePlayer);
 	bool CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
 	CvString GetMajorBullyUnitDetails(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	CvString GetMajorBullyAnnexDetails(PlayerTypes ePlayer);
+#endif
 
 	void DoMajorBullyGold(PlayerTypes eBully, int iGold);
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);

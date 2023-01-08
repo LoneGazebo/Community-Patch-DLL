@@ -150,6 +150,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iSharedReligionTourismModifier(0),
 	m_iExtraMissionaryStrength(0),
 	m_bCanGoldInternalTradeRoutes(false),
+	m_bAnnexedCityStatesGiveYields(false),
 	m_iExtraTradeRoutesPerXOwnedCities(0),
 	m_iExtraTradeRoutesPerXOwnedVassals(0),
 	m_iMinorInfluencePerGiftedUnit(0),
@@ -920,6 +921,11 @@ int CvTraitEntry::GetExtraMissionaryStrength() const
 bool CvTraitEntry::IsCanGoldInternalTradeRoutes() const
 {
 	return m_bCanGoldInternalTradeRoutes;
+}
+/// Conquered City-States continue to give bonus yields
+bool CvTraitEntry::IsAnnexedCityStatesGiveYields() const
+{
+	return m_bAnnexedCityStatesGiveYields;
 }
 int CvTraitEntry::GetExtraTradeRoutesPerXOwnedCities() const
 {
@@ -2409,6 +2415,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iSharedReligionTourismModifier		= kResults.GetInt("SharedReligionTourismModifier");
 	m_iExtraMissionaryStrength				= kResults.GetInt("ExtraMissionaryStrength");
 	m_bCanGoldInternalTradeRoutes			= kResults.GetBool("CanGoldInternalTradeRoutes");
+	m_bAnnexedCityStatesGiveYields =	kResults.GetBool("AnnexedCityStatesGiveYields");
 	m_iExtraTradeRoutesPerXOwnedCities		= kResults.GetInt("TradeRoutesPerXOwnedCities");
 	m_iExtraTradeRoutesPerXOwnedVassals		= kResults.GetInt("TradeRoutesPerXOwnedVassals");
 	m_iMinorInfluencePerGiftedUnit			= kResults.GetInt("MinorInfluencePerGiftedUnit");
@@ -3925,6 +3932,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		IsCanPurchaseNavalUnitsFaith() ||
 		IsBullyAnnex() ||
 		IgnoreBullyPenalties() ||
+		IsAnnexedCityStatesGiveYields() ||
 		GetBullyYieldMultiplierAnnex() != 0 ||
 		(GetPuppetPenaltyReduction() != 0 && !IsNoAnnexing()) || // puppet & annexing - Warmonger, puppet & no annexing - Smaller
 		IsFightWellDamaged() ||
@@ -4498,6 +4506,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			if (trait->IsCanGoldInternalTradeRoutes())
 			{
 				m_bCanGoldInternalTradeRoutes = true;
+			}
+			if (trait->IsAnnexedCityStatesGiveYields())
+			{
+				m_bAnnexedCityStatesGiveYields = true;
 			}
 			m_iExtraTradeRoutesPerXOwnedCities += trait->GetExtraTradeRoutesPerXOwnedCities();
 			m_iExtraTradeRoutesPerXOwnedVassals += trait->GetExtraTradeRoutesPerXOwnedVassals();
@@ -5296,6 +5308,7 @@ void CvPlayerTraits::Reset()
 	m_iSharedReligionTourismModifier = 0;
 	m_iExtraMissionaryStrength = 0;
 	m_bCanGoldInternalTradeRoutes = false;
+	m_bAnnexedCityStatesGiveYields = false;
 	m_iExtraTradeRoutesPerXOwnedCities = 0;
 	m_iExtraTradeRoutesPerXOwnedVassals = 0;
 	m_iMinorInfluencePerGiftedUnit = 0;
@@ -7517,6 +7530,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iSharedReligionTourismModifier);
 	visitor(playerTraits.m_iExtraMissionaryStrength);
 	visitor(playerTraits.m_bCanGoldInternalTradeRoutes);
+	visitor(playerTraits.m_bAnnexedCityStatesGiveYields);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedCities);
 	visitor(playerTraits.m_iExtraTradeRoutesPerXOwnedVassals);
 	visitor(playerTraits.m_iMinorInfluencePerGiftedUnit);

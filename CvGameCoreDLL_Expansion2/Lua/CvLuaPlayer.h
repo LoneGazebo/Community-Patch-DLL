@@ -852,6 +852,9 @@ protected:
 	static int lGetMajorBullyGoldDetails(lua_State* L);
 	static int lCanMajorBullyUnit(lua_State* L);
 	static int lGetMajorBullyUnitDetails(lua_State* L);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	static int lGetMajorBullyAnnexDetails(lua_State* L);
+#endif
 	static int lGetMajorBullyValue(lua_State* L);
 	static int lCanMajorBuyout(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
@@ -1191,6 +1194,10 @@ protected:
 	static int lIsCarnaval(lua_State* L);
 	static int lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L);
 #endif
+	static int lGetCulturePerTurnFromAnnexedMinors(lua_State* L);
+	static int lGetFaithPerTurnFromAnnexedMinors(lua_State* L);
+	static int lGetSciencePerTurnFromAnnexedMinors(lua_State* L);
+	static int lGetHappinessFromAnnexedMinors(lua_State* L);
 	static int lIsUsingMayaCalendar(lua_State* L);
 	static int lGetMayaCalendarString(lua_State* L);
 	static int lGetMayaCalendarLongString(lua_State* L);

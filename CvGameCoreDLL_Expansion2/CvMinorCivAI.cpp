@@ -14157,20 +14157,34 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Create a unit
-CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore)
+CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
+
+	if (bCityStateAnnexed && !GET_PLAYER(eMajor).GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+		return NULL;
 
 	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
 		return NULL;
 
 	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
 	bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
-	if (!bCanSupply || IsUnitSpawningDisabled(eMajor))
+	if (!bCanSupply || (IsUnitSpawningDisabled(eMajor) && !bCityStateAnnexed))
 		return NULL;
 
 	// Minor has no capital
-	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMinorCapital = NULL;
+	if (!bCityStateAnnexed)
+	{
+		pMinorCapital = GetPlayer()->getCapitalCity();
+	}
+	else
+	{
+		CvPlot* pStartingPlot = GC.getMap().plotCheckInvalid(GetPlayer()->GetOriginalCapitalX(), GetPlayer()->GetOriginalCapitalY());
+		if(pStartingPlot)
+			pMinorCapital = pStartingPlot->getPlotCity();
+	}
+
 	if (!pMinorCapital)
 		return NULL;
 
@@ -14189,30 +14203,39 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	// What's their closest city? If they have at least one coastal city, allow spawning naval units
 	CvCity* pClosestCity = NULL;
-	CvCity* pClosestCoastalCity = bBoatsAllowed ? OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pMinorCapital->plot(), /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)) : NULL;
-
-	int iLowestDistance = MAX_INT;
-	int iLowestCoastalDistance = MAX_INT;
-	// If we are coastal, but we can't find a connection, then keep track of *any* city that is connected to an ocean (otherwise, don't bother checking)
-	if (!bBoatsAllowed || pClosestCoastalCity != NULL)
-		iLowestCoastalDistance = MIN_INT;
-
-	int iCityLoop = 0;
-	for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
+	CvCity* pClosestCoastalCity = NULL;
+	if (bCityStateAnnexed)
 	{
-		if (pLoopCity->plot() == NULL)
-			continue;
+		pClosestCity = pMinorCapital;
+		pClosestCoastalCity = pMinorCapital;
+	}
+	else
+	{
+		pClosestCoastalCity = bBoatsAllowed ? OperationalAIHelpers::GetClosestFriendlyCoastalCity(eMajor, pMinorCapital->plot(), /*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)) : NULL;
 
-		int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
-		if (iDistance < iLowestDistance)
+		int iLowestDistance = MAX_INT;
+		int iLowestCoastalDistance = MAX_INT;
+		// If we are coastal, but we can't find a connection, then keep track of *any* city that is connected to an ocean (otherwise, don't bother checking)
+		if (!bBoatsAllowed || pClosestCoastalCity != NULL)
+			iLowestCoastalDistance = MIN_INT;
+
+		int iCityLoop = 0;
+		for (CvCity* pLoopCity = GET_PLAYER(eMajor).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eMajor).nextCity(&iCityLoop))
 		{
-			iLowestDistance = iDistance;
-			pClosestCity = pLoopCity;
+			if (pLoopCity->plot() == NULL)
+				continue;
 
-			if (iDistance < iLowestCoastalDistance && pLoopCity->isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+			int iDistance = plotDistance(*pMinorCapital->plot(), *pLoopCity->plot());
+			if (iDistance < iLowestDistance)
 			{
-				iLowestCoastalDistance = iDistance;
-				pClosestCoastalCity = pLoopCity;
+				iLowestDistance = iDistance;
+				pClosestCity = pLoopCity;
+
+				if (iDistance < iLowestCoastalDistance && pLoopCity->isCoastal(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+				{
+					iLowestCoastalDistance = iDistance;
+					pClosestCoastalCity = pLoopCity;
+				}
 			}
 		}
 	}
@@ -14227,7 +14250,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	UnitTypes eUnit = NO_UNIT;
 
 	// If they're our ally, should we give our unique unit?
-	if (GetAlly() == eMajor)
+	if (GetAlly() == eMajor || bCityStateAnnexed)
 	{
 		UnitTypes eUniqueUnit = GetUniqueUnit();
 		if (eUniqueUnit != NO_UNIT)
@@ -14333,18 +14356,33 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 		pXPCity->addProductionExperience(pNewUnit);
 
-		// Reseed counter
-		DoSeedUnitSpawnCounter(eMajor);
-
-		// Notify the player
-		if (GET_PLAYER(eMajor).GetNotifications())
+		if (!bCityStateAnnexed)
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-			strSummary << GetPlayer()->getNameKey();
+			// Reseed counter
+			DoSeedUnitSpawnCounter(eMajor);
 
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+			// Notify the player
+			if (GET_PLAYER(eMajor).GetNotifications())
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+				strMessage << GetPlayer()->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+				strSummary << GetPlayer()->getNameKey();
+
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+			}
+		}
+		else
+		{
+			if (GET_PLAYER(eMajor).GetNotifications())
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_ANNEXED_CITY_STATE_UNIT_SPAWN");
+				strMessage << GetPlayer()->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_ANNEXED_CITY_STATE_UNIT_SPAWN");
+				strSummary << GetPlayer()->getNameKey();
+
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+			}
 		}
 	}
 	else
@@ -14386,14 +14424,24 @@ void CvMinorCivAI::DoUnitSpawnTurn()
 }
 
 /// What is the base number of turns between unit spawns, before randomness is applied?
-int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer)
+int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed)
 {
-	// Not friends
-	if (!IsFriends(ePlayer))
-		return 0;
-
 	// This guy isn't militaristic
 	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
+		return 0;
+
+	// Rome Exception: Annexed Militaristic City-States continue to give units at an allied level
+	if (bCityStateAnnexed)
+	{
+		int iNumTurns = 100 * (/*19*/ GD_INT_GET(FRIENDS_BASE_TURNS_UNIT_SPAWN) + /*-3*/ GD_INT_GET(ALLIES_EXTRA_TURNS_UNIT_SPAWN));
+		// Modify for Game Speed
+		iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+		iNumTurns /= 100;
+		return iNumTurns / 100;
+	}
+
+	// Not friends
+	if (!IsFriends(ePlayer))
 		return 0;
 
 	int iNumTurns = 100 * /*19*/ GD_INT_GET(FRIENDS_BASE_TURNS_UNIT_SPAWN);
@@ -15342,6 +15390,56 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 
 	return sResult.toUTF8();
 }
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return "";
+
+	CvString sFactors = "";
+	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ true, &sFactors);
+	bool bCanBully = CanMajorBullyUnit(ePlayer, iScore);
+	UnitClassTypes eUnitClassType = GetBullyUnit();
+	if (eUnitClassType == NO_UNITCLASS)
+	{
+		return "";
+	}
+	UnitTypes eUnitType = NO_UNIT;
+	CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClassType);
+	if (pkUnitClassInfo != NULL)
+	{
+		eUnitType = (GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClassType));
+	}
+	if (eUnitType == NO_UNIT)
+	{
+		return "";
+	}
+	CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnitType);
+	CvAssert(pUnitInfo);
+	if (!pUnitInfo)
+		return "";
+
+	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
+	if (!bCanBully)
+	{
+		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+	}
+	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
+	{
+		if (iScore < 0)
+			iScore *= -1;
+		sFear << iScore;
+	}
+	else
+		sFear << iScore;
+
+	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX");
+	sResult << sFear.toUTF8() << sFactors << pUnitInfo->GetDescriptionKey();
+
+	return sResult.toUTF8();
+}
+#endif
 
 void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 {
@@ -15467,7 +15565,6 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 {
 	CvAssertMsg(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
@@ -15544,7 +15641,6 @@ void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 		}
 	}
 }
-#endif
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
 {

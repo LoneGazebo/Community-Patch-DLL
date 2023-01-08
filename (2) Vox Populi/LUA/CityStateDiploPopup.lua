@@ -1152,6 +1152,7 @@ function PopulateTakeChoices()
 	
 -- CBP: Forced Annex
 	if(pMajor:IsBullyAnnex()) then
+		ttText = pPlayer:GetMajorBullyAnnexDetails(iActivePlayer);
 		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
 		Controls.BullyAnnexButton:SetHide(false);
 		if not pPlayer:CanMajorBullyUnit(activePlayerID) then

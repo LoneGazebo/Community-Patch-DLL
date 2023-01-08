@@ -8886,9 +8886,25 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				//specialist food consumption changed, set all cities dirty
 				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					pLoopCity->GetCityCitizens()->SetDirty(true);
+
 			}
 		}
 #endif
+		// Update Yields from Annexed City-States (Rome UA)
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes)iPlayerLoop;
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+			if (kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+			{
+				kPlayer.UpdateFoodInCapitalPerTurnFromAnnexedMinors();
+				kPlayer.UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+				kPlayer.UpdateCulturePerTurnFromAnnexedMinors();
+				kPlayer.UpdateSciencePerTurnFromAnnexedMinors();
+				kPlayer.UpdateFaithPerTurnFromAnnexedMinors();
+				kPlayer.UpdateHappinessFromAnnexedMinors();
+			}
+		}
 #if defined(MOD_BALANCE_CORE)
 		updateYield();
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)

@@ -749,6 +749,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
 	Method(GetMajorBullyUnitDetails);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX);
+	Method(GetMajorBullyAnnexDetails);
+#endif
 	Method(GetMajorBullyValue);
 	Method(CanMajorBuyout);
 	Method(CanMajorMarry);
@@ -1092,6 +1095,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(GetCulturePerTurnFromAnnexedMinors);
+	Method(GetFaithPerTurnFromAnnexedMinors);
+	Method(GetSciencePerTurnFromAnnexedMinors);
+	Method(GetHappinessFromAnnexedMinors);
 	Method(GetTraitConquestOfTheWorldCityAttackMod);
 	Method(IsUsingMayaCalendar);
 	Method(GetMayaCalendarString);
@@ -8955,6 +8962,19 @@ int CvLuaPlayer::lGetMajorBullyUnitDetails(lua_State* L)
 	lua_pushstring(L, sResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+//------------------------------------------------------------------------------
+//bool GetMajorBullyAnnexDetails(PlayerTypes eMajor);
+int CvLuaPlayer::lGetMajorBullyAnnexDetails(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+
+	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyAnnexDetails(eMajor);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //bool GetMajorBullyUnitDetails(PlayerTypes eMajor);
@@ -12212,6 +12232,59 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetCulturePerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFaithPerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetFaithPerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetSciencePerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetSciencePerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetHappinessFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetHappinessFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsUsingMayaCalendar(lua_State* L)
 {
