@@ -1039,6 +1039,8 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 				tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", g_activePlayer:GetScienceRateFromLeagueAid() )
 			end
 -- CBP 
+			-- Science from Annexed Minors
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
 			-- Putmalk
 			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
 			-- Science from Religion
@@ -1407,6 +1409,7 @@ if civ5_mode then
 			local MilitaryUnitHappiness = g_activePlayer:GetHappinessFromMilitaryUnits();
 			local CityConnectionHappiness = g_activePlayer:GetHappinessFromTradeRoutes();
 			local CityStateHappiness = g_activePlayer:GetHappinessFromMinorCivs();
+			local HappinessFromAnnexedMinors = g_activePlayer:GetHappinessFromAnnexedMinors();
 			local VassalHappiness = g_activePlayer:GetHappinessFromVassals();
 			local HandicapHappiness = g_activePlayer:GetHandicapHappiness();
 
@@ -1419,6 +1422,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_MILITARY_UNITS", MilitaryUnitHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", CityConnectionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS__FROM_ANNEXED_MINORS", HappinessFromAnnexedMinors )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness )
     		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", HandicapHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", LocalCityHappiness )
@@ -1833,6 +1837,12 @@ g_toolTipHandler.CultureString = function()-- control )
 			local culturePerTurnFromMinorCivs = g_activePlayer:GetCulturePerTurnFromMinorCivs()
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_MINORS", culturePerTurnFromMinorCivs )
 
+-- CBP
+			-- Culture from Annexed Minors
+			local culturePerTurnFromAnnexedMinors = g_activePlayer:GetCulturePerTurnFromAnnexedMinors()
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", culturePerTurnFromAnnexedMinors )
+-- END
+
 			-- Culture from Religion
 			local culturePerTurnFromReligion = gk_mode and g_activePlayer:GetCulturePerTurnFromReligion() or 0
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_RELIGION", culturePerTurnFromReligion )
@@ -1915,7 +1925,11 @@ if civ5_mode and gk_mode then
 
 			-- Faith from Minor Civs
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetFaithPerTurnFromMinorCivs() )
-
+			
+-- CBP
+			-- Faith from Minor Civs
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetFaithPerTurnFromAnnexedMinors() )
+-- END
 			-- Faith from Religion
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
 

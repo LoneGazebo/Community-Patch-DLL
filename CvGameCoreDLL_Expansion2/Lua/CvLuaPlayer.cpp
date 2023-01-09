@@ -749,6 +749,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
 	Method(GetMajorBullyUnitDetails);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX);
+	Method(GetMajorBullyAnnexDetails);
+#endif
 	Method(GetMajorBullyValue);
 	Method(CanMajorBuyout);
 	Method(CanMajorMarry);
@@ -1092,6 +1095,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(GetCulturePerTurnFromAnnexedMinors);
+	Method(GetFaithPerTurnFromAnnexedMinors);
+	Method(GetSciencePerTurnFromAnnexedMinors);
+	Method(GetHappinessFromAnnexedMinors);
 	Method(GetTraitConquestOfTheWorldCityAttackMod);
 	Method(IsUsingMayaCalendar);
 	Method(GetMayaCalendarString);
@@ -3600,7 +3607,7 @@ int CvLuaPlayer::lGetBuildingOfClosestGreatWorkSlot(lua_State* L)
 	if (pkCity && pkCivInfo)
 	{
 		int iBuilding = -1;
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			iBuilding = (int)pkCity->GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
 		}
@@ -6230,7 +6237,7 @@ int CvLuaPlayer::lGetGreatWorks(lua_State* L)
 			const CvCivilizationInfo& playerCivilizationInfo = pkPlayer->getCivilizationInfo();
 			BuildingTypes eBuilding = NO_BUILDING;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 			}
@@ -8955,6 +8962,19 @@ int CvLuaPlayer::lGetMajorBullyUnitDetails(lua_State* L)
 	lua_pushstring(L, sResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+//------------------------------------------------------------------------------
+//bool GetMajorBullyAnnexDetails(PlayerTypes eMajor);
+int CvLuaPlayer::lGetMajorBullyAnnexDetails(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes)lua_tointeger(L, 2);
+
+	const CvString sResult = pkPlayer->GetMinorCivAI()->GetMajorBullyAnnexDetails(eMajor);
+	lua_pushstring(L, sResult);
+	return 1;
+}
+#endif
 
 //------------------------------------------------------------------------------
 //bool GetMajorBullyUnitDetails(PlayerTypes eMajor);
@@ -12213,6 +12233,59 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 }
 #endif
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetCulturePerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetFaithPerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetFaithPerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetSciencePerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetSciencePerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetHappinessFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetHappinessFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lIsUsingMayaCalendar(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -12539,7 +12612,7 @@ int CvLuaPlayer::lGetPlayerBuildingClassHappiness(lua_State* L)
 			if (!pkBuildingClassInfo)
 				continue;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || pkPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				if (pkPlayer->getBuildingClassCount(eParentBuildingClass) > 0)
 				{

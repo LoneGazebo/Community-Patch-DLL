@@ -344,6 +344,27 @@
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_GAIN_CS">
 			<Text>Total: {1_Num} [ICON_RESEARCH] Science (due to [ICON_INFLUENCE] Influence over this City-State)</Text>
 		</Row>
+		
+		<!-- Annexed City States -->
+		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Annexed City-States.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Annexed City-States.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Annexed City-States.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_HAPPINESS_FROM_ANNEXED_MINORS">
+			<Text>+{1_Num} from Annexed City-States.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_ANNEXED_CITY_STATE_UNIT_SPAWN">
+			<Text>The annexed City-State of {1_CivName:textkey} has given you a new Unit!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ANNEXED_CITY_STATE_UNIT_SPAWN">
+			<Text>New Unit from {1_CivName:textkey}!</Text>
+		</Row>
 
 		<!-- WLTKD LUA -->
 		<Row Tag="TXT_KEY_PRODUCTION_WLTKD_BUILDING">
@@ -767,7 +788,7 @@
 			<Text>Demand Relics worth {1_Value} [ICON_PEACE] Faith (-{2_NumInfluence} [ICON_INFLUENCE])</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
-			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take exact heavy tribute from them. Doing so will net you [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, or [ICON_FOOD] Food, depending on the City-State being targeted.[NEWLINE][NEWLINE]The amount you can exact in tribute is based on Game Speed and the Yield output of your Capital. Local Yields, like [ICON_FOOD] Food or [ICON_PRODUCTION] Production, will be delivered to your Capital.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
+			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, or [ICON_FOOD] Food, depending on the City-State being targeted.[NEWLINE][NEWLINE]The amount you can exact in tribute is based on Game Speed and the Yield output of your Capital. Local Yields, like [ICON_FOOD] Food or [ICON_PRODUCTION] Production, will be delivered to your Capital.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
 		</Row>
 
 		<!-- City-State Diplo Popup -->

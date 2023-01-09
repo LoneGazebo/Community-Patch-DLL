@@ -801,6 +801,20 @@ public:
 	void ChangeConversionModifier(int iChange);
 #endif
 
+	// Extra Yields from Annexed Minors
+	int GetFoodInCapitalPerTurnFromAnnexedMinors() const;
+	void UpdateFoodInCapitalPerTurnFromAnnexedMinors();
+	int GetFoodInOtherCitiesPerTurnFromAnnexedMinors() const;
+	void UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+	int GetCulturePerTurnFromAnnexedMinors() const;
+	void UpdateCulturePerTurnFromAnnexedMinors();
+	int GetSciencePerTurnFromAnnexedMinors() const;
+	void UpdateSciencePerTurnFromAnnexedMinors();
+	int GetFaithPerTurnFromAnnexedMinors() const;
+	void UpdateFaithPerTurnFromAnnexedMinors();
+	int GetHappinessFromAnnexedMinors() const;
+	void UpdateHappinessFromAnnexedMinors();
+
 	int GetExtraLeagueVotes() const;
 	int GetImprovementLeagueVotes() const;
 	void ChangeImprovementLeagueVotes(int iChange);
@@ -1852,6 +1866,9 @@ public:
 	int getGoldenAgeYieldMod(YieldTypes eIndex)	const;
 	void changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
+	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
+	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
+
 	int getYieldFromNonSpecialistCitizens(YieldTypes eIndex)	const;
 	void changeYieldFromNonSpecialistCitizens(YieldTypes eIndex, int iChange);
 
@@ -1975,6 +1992,9 @@ public:
 
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;
+
+	void ChangeKeepConqueredBuildings(int iValue);
+	bool IsKeepConqueredBuildings() const;
 
 	void ChangeBullyGlobalCSReduction(int iValue);
 	int GetBullyGlobalCSReduction() const;
@@ -2432,6 +2452,10 @@ public:
 
 	int getUnitExtraCost(UnitClassTypes eUnitClass) const;
 	void setUnitExtraCost(UnitClassTypes eUnitClass, int iCost);
+
+	void addAnnexedMilitaryCityStates(PlayerTypes eMinor);
+	void removeAnnexedMilitaryCityStates(PlayerTypes eMinor);
+	void updateTimerAnnexedMilitaryCityStates();
 
 	void launch(VictoryTypes victoryType);
 
@@ -3005,6 +3029,7 @@ protected:
 	int m_iPositiveWarScoreTourismMod;
 	int m_iIsNoCSDecayAtWar;
 	int m_iCanBullyFriendlyCS;
+	int m_iKeepConqueredBuildings;
 	int m_iBullyGlobalCSReduction;	
 #endif
 	int m_iIsVassalsNoRebel;
@@ -3024,6 +3049,12 @@ protected:
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
+	int m_iFoodInCapitalFromAnnexedMinors;
+	int m_iFoodInOtherCitiesFromAnnexedMinors;
+	int m_iCulturePerTurnFromAnnexedMinors;
+	int m_iSciencePerTurnFromAnnexedMinors;
+	int m_iFaithPerTurnFromAnnexedMinors;
+	int	m_iHappinessFromAnnexedMinors;
 	int m_iExtraLeagueVotes;
 	int m_iImprovementLeagueVotes;
 	int m_iFaithToVotes;
@@ -3450,6 +3481,8 @@ protected:
 	std::vector<int> m_aiRelicYieldBonus;
 	std::vector<int> m_aiReligionYieldRateModifier;
 	std::vector<int> m_aiGoldenAgeYieldMod;
+	std::vector<int> m_aiNumAnnexedCityStates;
+	std::vector< std::pair<PlayerTypes, int> > m_AnnexedMilitaryCityStatesUnitSpawnTurns;
 	std::vector<int> m_aiYieldFromNonSpecialistCitizens;
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
@@ -3827,6 +3860,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessFromMinorCivs)
 SYNC_ARCHIVE_VAR(int, m_iPositiveWarScoreTourismMod)
 SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
 SYNC_ARCHIVE_VAR(int, m_iCanBullyFriendlyCS)
+SYNC_ARCHIVE_VAR(int, m_iKeepConqueredBuildings)
 SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)
 SYNC_ARCHIVE_VAR(int, m_iIsVassalsNoRebel)
 SYNC_ARCHIVE_VAR(int, m_iVassalYieldBonusModifier)
@@ -3843,6 +3877,12 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
+SYNC_ARCHIVE_VAR(int, m_iFoodInCapitalFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iFoodInOtherCitiesFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iCulturePerTurnFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iSciencePerTurnFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iHappinessFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iExtraLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iImprovementLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iFaithToVotes)
@@ -4222,6 +4262,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiFilmYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiRelicYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiReligionYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumAnnexedCityStates)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizens)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)

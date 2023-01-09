@@ -216,6 +216,9 @@ ALTER TABLE Policies ADD COLUMN 'XCSAlliesLowersPolicyNeedWonders' INTEGER DEFAU
 ALTER TABLE Policies ADD COLUMN 'StealGWSlowerModifier' INTEGER DEFAULT 0;
 -- Policy - increase speed of your Great Work theft rate.
 ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
+-- Policy - conquered cities keep all their buildings (except for those with NeverCapture==true).
+ALTER TABLE Policies ADD COLUMN 'KeepConqueredBuildings' BOOLEAN DEFAULT 0;
+
 
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
@@ -266,6 +269,9 @@ ALTER TABLE Traits ADD COLUMN 'WonderProductionModGA' INTEGER DEFAULT 0;
 
 -- TRAIT: Changes the food (times 100) consumed by each non-specialist citizen. --
 ALTER TABLE Traits ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
+
+-- TRAIT: Annexed City States continue to give yields. --
+ALTER TABLE Traits ADD COLUMN 'AnnexedCityStatesGiveYields' BOOLEAN DEFAULT 0;
 
 -- Abnormal scaler. Works for:
 ---- Trait_SpecialistYieldChanges (specialist yield change x2/x3/x4 in medieval/industrial/atomic eras)

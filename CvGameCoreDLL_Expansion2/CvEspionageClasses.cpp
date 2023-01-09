@@ -4507,8 +4507,8 @@ std::vector<int> CvPlayerEspionage::BuildGWList(CvCity* pCity)
 	{
 		const CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
 		BuildingTypes eBuilding = NO_BUILDING;
-		// If Rome, or if the option to check for all buildings in a class is enabled, we loop through all buildings in the city
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || GET_PLAYER(ePlayer).GetPlayerTraits()->IsKeepConqueredBuildings())
+		// If the option to check for all buildings in a class is enabled, we loop through all buildings in the city
+		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 		{
 			eBuilding = pCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iBuildingClassLoop);
 		}

@@ -543,18 +543,18 @@ WHERE TraitType = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES 
 ("BUILDING_SIEGE_WORKSHOP", "SPECIALIST_ENGINEER", "YIELD_PRODUCTION", 2);
 
--- Rome -- Unique Monument (Flavian Amphitheater) -- Receive Culture boost when you conquer a City.
+-- Rome -- Production Bonus in Capital, can annex city-states instead of demanding heavy tribute, conquered city-states continue to give yields
 
 UPDATE Traits
 SET CapitalBuildingModifier = '15'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Traits
-SET ExtraConqueredCityTerritoryClaimRange = '4'
+SET AnnexedCityStatesGiveYields = '1'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Traits
-SET KeepConqueredBuildings = '1'
+SET BullyAnnex = '1'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 -- Siam -- adjust Wat

@@ -798,7 +798,7 @@ INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX', 'Forcefully Annex City-State');
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX', 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can annex the City-State. Doing so will net you [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, or [ICON_FOOD] Food, depending on the City-State being targeted. {1_FearLevel}{2_FactorDetails}');
+VALUES ('TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX', 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can annex the City-State. {1_FearLevel}{2_FactorDetails}');
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY', 'You intimidated {1_CS}!');
@@ -956,7 +956,7 @@ WHERE Tag = 'TXT_KEY_MISSION_SELL_EXOTIC_GOODS_HELP';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = 'When you conquer a City, the City retains all Buildings (including Unique Buildings of other Civilizations) and you immediately acquire additional territory around the City. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
+SET Text = 'City-States can be forcefully annexed if Heavy Tribute can be demanded from them.​ Conquered City States continue to provide rewards. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US

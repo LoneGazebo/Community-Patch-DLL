@@ -23611,11 +23611,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	bool bIsGoodWarTarget = false;
 	bool bCheckIfGoodWarTarget = true;
-	
+
 	////////////////////////////////////
 	// EASY TARGET
 	////////////////////////////////////
-	
+
 	if (bEasyTarget)
 	{
 		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
@@ -31695,6 +31695,16 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bWantsToBuyout = GetPlayer()->GetPlayerTraits()->IsDiplomaticMarriage() || GetPlayer()->IsAbleToAnnexCityStates();
 
 	// **************************
+	// Would we like to forcefully annex a minor this turn?  (Rome UA)
+	// **************************
+
+	bool bWantsToBullyAnnex = false;
+	if (MOD_BALANCE_CORE_AFRAID_ANNEX)
+	{
+		bWantsToBullyAnnex = GetPlayer()->GetPlayerTraits()->IsBullyAnnex();
+	}
+
+	// **************************
 	// Would we like to give a gold gift this turn?
 	// **************************
 
@@ -31792,6 +31802,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	}
 
 	CvWeightedVector<PlayerTypes> veMinorsToBuyout; // Austria UA
+	CvWeightedVector<PlayerTypes> veMinorsToBullyAnnex; //Rome UA
 	CvWeightedVector<MinorGoldGiftInfo> veMinorsToGiveGold;
 	CvWeightedVector<PlayerTypes> veMinorsToBullyGold;
 	CvWeightedVector<PlayerTypes> veMinorsToBullyUnit;
@@ -31802,19 +31813,16 @@ void CvDiplomacyAI::DoContactMinorCivs()
 
 	PlayerTypes eID = GetID();
 
-	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+	int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+	int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+	int iOffenseFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+	int iHappinessFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_HAPPINESS"));
+	int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
 
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
-		if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
-		{
-			if(!GetPlayer()->IsEmpireUnhappy())
-			{
-				bWantsToBullyUnit = true;
-				bWantsToBullyGold = false;
-				bWantsToMakeGoldGift = false;
-			}
-		}
 		if (GetPlayer()->GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0 || GetPlayer()->GetPlayerTraits()->GetBullyValueModifier() != 0)
 		{
 			if (!GetPlayer()->IsEmpireUnhappy())
@@ -31852,6 +31860,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		bool bWantsToBullyUnitFromThisMinor = false;
 		bool bWantsToBullyGoldFromThisMinor = false;
 		bool bWantsToBuyoutThisMinor = false;
+		bool bWantsToBullyAnnexThisMinor = false;
 
 		if(IsPlayerValid(eMinor))
 		{
@@ -31880,6 +31889,168 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					else if (pMinorCivAI->IsActiveQuestForPlayer(eID, MINOR_CIV_QUEST_ROUTE))
 					{
 						bWantsToConnect = true;
+					}
+				}
+			}
+
+			// Calculate desirability to forcefully annex this minor
+			if (bWantsToBullyAnnex)
+			{
+				int iValue = 100; //antonjs: todo: xml
+				// Only bother if we actually can annex
+				CvCity* pMinorCapital = pMinor->getCapitalCity();
+				if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID) && pMinorCapital != NULL)
+				{
+					// Determine presence of player cities on this continent
+					CvArea* pMinorArea = pMinorCapital->plot()->area();
+					bool bPresenceInArea = false;
+					int iMajorCapitalsInArea = 0;
+					if (pMinorArea)
+					{
+						// Do we have a city here?
+						if (pMinorArea->getCitiesPerPlayer(eID) > 0)
+							bPresenceInArea = true;
+
+						// Does another major civ have their capital here? (must be visible)
+						for (int iMajorRivalLoop = 0; iMajorRivalLoop < MAX_MAJOR_CIVS; iMajorRivalLoop++)
+						{
+							PlayerTypes eMajorRivalLoop = (PlayerTypes)iMajorRivalLoop;
+							if (eMajorRivalLoop == eID)
+								continue;
+
+							if (GET_PLAYER(eMajorRivalLoop).isAlive())
+							{
+								CvCity* pCapital = GET_PLAYER(eMajorRivalLoop).getCapitalCity();
+								if (pCapital && pCapital->plot())
+								{
+									CvPlot* pPlot = pCapital->plot();
+									if (pPlot->isVisible(GetTeam()))
+										iMajorCapitalsInArea++;
+								}
+							}
+						}
+					}
+					else
+					{
+						CvAssertMsg(false, "Could not lookup minor civ's area! Please send Anton your save file and version.");
+					}
+
+					// How many units does the city-state have?
+					int iMinorMilitaryUnits = 0;
+					int iMinorUnits = 0;
+					int iLoop = 0;
+					for (CvUnit* pLoopUnit = pMinor->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = pMinor->nextUnit(&iLoop))
+					{
+						if (pLoopUnit->IsCanAttack() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE_SEA)
+						{
+							iMinorMilitaryUnits++;
+						}
+						iMinorUnits++;
+					}
+
+					// Foreign continent
+					if (!bPresenceInArea)
+					{
+						// Military foothold to attack other majors
+						if (IsGoingForWorldConquest() && iMajorCapitalsInArea > 0)
+						{
+							iValue += 100; //antonjs: todo: xml
+						}
+						// Expansion
+						else if (bExpandToOtherContinents)
+						{
+							iValue += 60; //antonjs: todo: xml
+						}
+						else
+						{
+							iValue += -50; //antonjs: todo: xml
+						}
+					}
+					// Continent we have presence on
+					else
+					{
+						// Proximity plays a large factor, since we don't want a remote, isolated city
+						if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
+						{
+							iValue += 100; //antonjs: todo: xml
+							// Military units could come to our rescue quickly
+							if (GetStateAllWars() == STATE_ALL_WARS_LOSING)
+							{
+								if (iMinorMilitaryUnits > 0)  //antonjs: todo: xml
+								{
+									iValue += (iMinorMilitaryUnits) * 10; //antonjs: todo: xml
+								}
+								else
+								{
+									iValue -= 50; //antonjs: todo: xml
+								}
+							}
+						}
+						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_CLOSE)
+						{
+							iValue += 10; //antonjs: todo: xml
+						}
+						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_FAR)
+						{
+							iValue += -50; //antonjs: todo: xml
+						}
+						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_DISTANT)
+						{
+							iValue += -100; //antonjs: todo: xml
+						}
+					}
+
+					// Military units - How many, and can we support them?
+					if (GetPlayer()->GetNumUnitsSupplied() >= GetPlayer()->getNumUnits() + iMinorUnits)
+					{
+						iValue += (iMinorMilitaryUnits) * 5;
+					}
+
+					// Happiness
+					if (bNeedHappiness)
+						iValue += -50; //antonjs: todo: xml
+					if (bNeedHappinessCritical)
+						iValue += -150; //antonjs: todo: xml
+
+					// Bonuses from Annexed City-States
+					if (GetPlayer()->GetPlayerTraits()->IsAnnexedCityStatesGiveYields()) {
+						MinorCivTraitTypes eTrait = pMinorCivAI->GetTrait();
+						if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC)
+						{
+							iValue += (iScienceFlavor + iOffenseFlavor);
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_MERCANTILE)
+						{
+							iValue += iHappinessFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_CULTURED)
+						{
+							iValue += iCultureFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
+						{
+							iValue += iFaithFlavor * 2;
+						}
+						else if (eTrait == MINOR_CIV_TRAIT_MARITIME)
+						{
+							iValue += iGrowthFlavor * 2;
+						}
+					}
+
+					// Annexing the Ally of another player?
+					PlayerTypes eAlly = pMinorCivAI->GetAlly();
+					if (eAlly != NO_PLAYER)
+					{
+						if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlly) != NO_CIV_OPINION)
+						{
+							iValue -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlly) - CIV_OPINION_NEUTRAL) * 10;
+						}
+					}
+					// Time to decide - Do we want it enough?
+					if (iValue > 100)  //antonjs: todo: xml
+					{
+						veMinorsToBullyAnnex.push_back(eMinor, iValue);
+						bWantsToBullyAnnexThisMinor = true;
 					}
 				}
 			}
@@ -32033,7 +32204,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to give this minor gold
-			if (bWantsToMakeGoldGift && !bWantsToBuyoutThisMinor)
+			if (bWantsToMakeGoldGift && !bWantsToBuyoutThisMinor && !bWantsToBullyAnnexThisMinor)
 			{
 				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsNoAlly())
 				{
@@ -32219,7 +32390,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to bully a unit from this minor
-			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToGiveGoldToThisMinor)  //antonjs: todo: xml
+			if (bWantsToBullyUnit && !bWantsToBuyoutThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor)  //antonjs: todo: xml
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
@@ -32234,32 +32405,26 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID, MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING ? iValue - 25 : 0))
 					{
 						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-						{
-							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
-							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION")) / 2;
-							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
-
+						{		
 							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE) * iScienceFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE) * iScienceFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION) * iProductionFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION) * iProductionFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE) * iCultureFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE) * iCultureFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH) * iFaithFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH) * iFaithFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD) * iGrowthFlavor) / 5;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD) * iGrowthFlavor) / 10;
 							}
 							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->GetPseudoRandomSeed()+GC.getGame().GetCultureMedian());
 						}
@@ -32298,22 +32463,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						else
 						{
 							iValue += 25;
-						}
-
-						//Do we get a bonus from this?
-						if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-						{
-							if (GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
-							{
-								if(!GetPlayer()->IsEmpireUnhappy())
-								{
-									iValue += 100;
-								}
-								else
-								{
-									iValue -= 50;
-								}
-							}
 						}
 
 						//Do we get a bonus from this?
@@ -32357,7 +32506,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			}
 
 			// Calculate desirability to bully gold from this minor
-			if(bWantsToBullyGold && !bWantsToBuyoutThisMinor && !bWantsToGiveGoldToThisMinor && !bWantsToBullyUnitFromThisMinor)
+			if(bWantsToBullyGold && !bWantsToBuyoutThisMinor && !bWantsToBullyAnnexThisMinor && !bWantsToGiveGoldToThisMinor && !bWantsToBullyUnitFromThisMinor)
 			{
 				int iValue = 100; //antonjs: todo: XML, bully threshold
 				if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
@@ -32494,6 +32643,27 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					LogMinorCivBuyout(eLoopMinor, iBuyoutCost, /*bSaving*/ true);
 					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iBuyoutCost, /*350*/ GD_INT_GET(AI_GOLD_PRIORITY_BUYOUT_CITY_STATE));
 				}
+			}
+		}
+	}
+
+	// Do we want to annex a minor?
+	if (veMinorsToBullyAnnex.size() > 0)
+	{
+		veMinorsToBullyAnnex.SortItems();
+		PlayerTypes eLoopMinor = NO_PLAYER;
+		for (int i = 0; i < veMinorsToBullyAnnex.size(); i++)
+		{
+			eLoopMinor = veMinorsToBullyAnnex.GetElement(i);
+			CvAssertMsg(eLoopMinor != NO_PLAYER, "Trying to bully-annex NO_PLAYER!");
+			if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorBullyUnit(eID))
+			{
+				GC.getGame().DoMinorBullyAnnex(eID, eLoopMinor);
+				break; // Don't annex more than one city-state in a single turn
+			}
+			else
+			{
+				CvAssertMsg(false, "Chose a minor to bully-annex that cannot actually be bullied!");
 			}
 		}
 	}

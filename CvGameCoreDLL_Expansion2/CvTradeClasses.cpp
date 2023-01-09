@@ -5315,7 +5315,7 @@ int CvPlayerTrade::GetTradeRouteTurnMod(CvCity* pOriginCity) const
 		{
 			BuildingTypes eBuilding = NO_BUILDING;
 
-			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+			if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 			{
 				eBuilding = pLoopCity->GetCityBuildings()->GetBuildingTypeFromClass((BuildingClassTypes)iI);
 			}
@@ -6592,7 +6592,7 @@ CvTradeAI::TRSortElement CvTradeAI::ScoreInternationalTR(const TradeConnection& 
 					{
 						BuildingTypes eOfficeBuilding = NO_BUILDING;
 
-						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES || m_pPlayer->GetPlayerTraits()->IsKeepConqueredBuildings())
+						if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
 						{
 							if (pFromCity->HasBuildingClass(eOffice))
 							{

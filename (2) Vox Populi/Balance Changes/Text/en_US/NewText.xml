@@ -164,5 +164,10 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_RESET_PLOT_COST">
 			<Text>Manifest Destiny!</Text>
 		</Row>
+		
+		<!-- Forced City-State Annex (Rome UA) -->
+		<Row Tag="TXT_KEY_CONFIRM_BULLYANNEX">
+			<Text>Are you sure you want to forcefully annex {1_MinorCivName:textkey}?</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

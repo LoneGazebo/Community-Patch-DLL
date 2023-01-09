@@ -694,9 +694,9 @@ public:
 	bool IsUnitSpawningAllowed(PlayerTypes ePlayer);
 	bool IsUnitSpawningDisabled(PlayerTypes ePlayer) const;
 	void SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue);
-	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false);
+	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false, bool bCityStateAnnexed = false);
 	void DoUnitSpawnTurn();
-	int GetSpawnBaseTurns(PlayerTypes ePlayer);
+	int GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed = false);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
 	// Austria UA Stuff
@@ -713,7 +713,7 @@ public:
 	int GetBuyoutCost(PlayerTypes eMajor);
 
 	void DoBuyout(PlayerTypes eMajor);
-	int TransferUnitsAndCitiesToMajor(PlayerTypes eMajor); // also used by Merchant of Venice
+	int TransferUnitsAndCitiesToMajor(PlayerTypes eMajor, bool bForced = false); // also used by Merchant of Venice and Rome
 
 	// ************************************
 	// ***** Bullying *****
@@ -731,10 +731,16 @@ public:
 	bool CanMajorBullyUnit(PlayerTypes ePlayer);
 	bool CanMajorBullyUnit(PlayerTypes ePlayer, int iSpecifiedBullyMetric);
 	CvString GetMajorBullyUnitDetails(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	CvString GetMajorBullyAnnexDetails(PlayerTypes ePlayer);
+#endif
 
 	void DoMajorBullyGold(PlayerTypes eBully, int iGold);
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);
 
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	void DoMajorBullyAnnex(PlayerTypes eBully);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling = false);
 #endif

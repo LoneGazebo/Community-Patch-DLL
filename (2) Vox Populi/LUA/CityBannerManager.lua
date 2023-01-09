@@ -108,9 +108,9 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 	local bHasDiplomat = false;
 	local strSpyName = nil;
 	local strSpyRank = nil;
-	local isAutomated = city:IsProductionAutomated() and player:IsHuman() and not city:IsPuppet();
 	
 	if(city ~= nil) then
+		local isAutomated = city:IsProductionAutomated() and player:IsHuman() and not city:IsPuppet();
 		local cityX = city:GetX();
 		local cityY = city:GetY();
 		

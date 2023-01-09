@@ -543,7 +543,22 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
 		end
-
+		
+-- CBP
+		-- Science from Annexed Minors
+		local iScienceFromAnnexedMinors = pPlayer:GetSciencePerTurnFromAnnexedMinors();
+		if (iScienceFromAnnexedMinors ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", iScienceFromAnnexedMinors);
+		end
+-- END
 		-- Science from Funding from League (CSD MOD)
 		local iScienceFromLeague = pPlayer:GetScienceRateFromLeagueAid();
 		if (iScienceFromLeague ~= 0) then
@@ -828,6 +843,11 @@ function HappinessTipHandler( control )
 			local CityStateHappiness = pPlayer:GetHappinessFromMinorCivs();
 			if (CityStateHappiness ~= 0) then
 				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness);
+			end
+			
+			local AnnexedMinorsHappiness = pPlayer:GetHappinessFromAnnexedMinors();
+			if (AnnexedMinorsHappiness ~= 0) then
+				strText = strText .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_FROM_ANNEXED_MINORS", AnnexedMinorsHappiness);
 			end
 
 			local VassalHappiness = pPlayer:GetHappinessFromVassals();
@@ -1148,6 +1168,22 @@ function CultureTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_MINORS", iCultureFromMinors);
 		end
+		
+-- CBP
+		-- Culture from Annexed Minors
+		local iCultureFromAnnexedMinors = pPlayer:GetCulturePerTurnFromAnnexedMinors();
+		if (iCultureFromAnnexedMinors ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				strText = strText .. "[NEWLINE]";
+				bFirstEntry = false;
+			end
+
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", iCultureFromAnnexedMinors);
+		end
+-- END
 
 		-- Culture from Religion
 		local iCultureFromReligion = pPlayer:GetCulturePerTurnFromReligion();
@@ -1286,6 +1322,14 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_MINORS", iFaithFromMinorCivs);
 		end
+-- CBP
+		-- Faith from Annexed Minors
+		local iFaithFromAnnexedMinors = pPlayer:GetFaithPerTurnFromAnnexedMinors();
+		if (iFaithFromAnnexedMinors ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", iFaithFromAnnexedMinors);
+		end
+-- END
 
 		-- Faith from Religion
 		local iFaithFromReligion = pPlayer:GetFaithPerTurnFromReligion();
