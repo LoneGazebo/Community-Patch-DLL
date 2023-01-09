@@ -59,7 +59,7 @@ WHERE Type = 'BUILDING_AQUEDUCT';
 
 -- Hospital
 UPDATE Building_ClassesNeededInCity
-SET BuildingClassType= 'BUILDINGCLASS_GROCER'
+SET BuildingClassType = 'BUILDINGCLASS_GROCER'
 WHERE BuildingType = 'BUILDING_HOSPITAL';
 
 UPDATE Buildings
@@ -77,7 +77,14 @@ WHERE Type = 'BUILDING_HOSPITAL';
 INSERT INTO Building_YieldFromYieldPercent
 	(BuildingType, YieldIn, YieldOut, Value)
 VALUES
+	('BUILDING_HOSPITAL', 'YIELD_FOOD', 'YIELD_SCIENCE', 5);
+
+-- Agribusiness
+INSERT INTO Building_YieldFromYieldPercent
+	(BuildingType, YieldIn, YieldOut, Value)
+VALUES
 	('BUILDING_STOCKYARD', 'YIELD_FOOD', 'YIELD_GOLD', 10);
+
 -- Medical Lab
 
 UPDATE Buildings
