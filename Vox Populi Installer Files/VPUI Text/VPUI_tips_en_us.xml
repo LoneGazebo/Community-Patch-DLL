@@ -75,7 +75,7 @@
 			<Text>Missionaries lose strength if they end their turn in another civilization's territory, unless you have an Open Borders treaty. Try to end their turn just outside your rival's borders.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_23">
-			<Text>When you expend a Great Writer, make sure you do it in a city where you want to grab new tiles from border gReplaceth.</Text>
+			<Text>When you expend a Great Writer, make sure you do it in a city where you want to grab new tiles from border growth.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_24">
 			<Text>Issue move orders with SHIFT+RCLICK to create waypoints.</Text>
@@ -99,7 +99,7 @@
 			<Text>Landmarks you build give you Happiness, no matter where you build them. Building a landmark for another civ will give you happiness and a nice relationship boost.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_31">
-			<Text>If all units are given orders, you can press W to deselect the currently selected unit. This will keep you from accidentally issuing a move order while bReplacesing the map.</Text>
+			<Text>If all units are given orders, you can press W to deselect the currently selected unit. This will keep you from accidentally issuing a move order while browsing the map.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_VPUI_TIP_32">
 			<Text>Check the Monopoly Overview before building the East India Company. An extra luxury from the right city might give you a new monopoly.</Text>
