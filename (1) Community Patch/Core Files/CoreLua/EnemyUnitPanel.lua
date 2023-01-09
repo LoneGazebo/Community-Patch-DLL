@@ -2464,18 +2464,18 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusSum = bonusSum + iModifier;
 						bonusCount = bonusCount + 1;
 					end
-				else
-					iModifier = pTheirUnit:GetDefenseModifier();
-					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-						controlTable = g_TheirCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-						bonusCount = bonusCount + 1;
-					elseif (iModifier ~= 0) then
-						bonusSum = bonusSum + iModifier;
-						bonusCount = bonusCount + 1;
-					end
 				end
+				iModifier = pTheirUnit:GetDefenseModifier();
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+					bonusCount = bonusCount + 1;
+				elseif (iModifier ~= 0) then
+					bonusSum = bonusSum + iModifier;
+					bonusCount = bonusCount + 1;
+				end
+				
 
 				-- UnitClassModifier & UnitClassDefenseModifier
 				iModifier = pTheirUnit:GetUnitClassModifier(pMyUnit:GetUnitClassType()) + pTheirUnit:UnitClassDefenseModifier(pMyUnit:GetUnitClassType());
