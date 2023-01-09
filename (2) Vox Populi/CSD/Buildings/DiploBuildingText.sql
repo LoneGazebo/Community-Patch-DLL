@@ -1,6 +1,6 @@
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and +1 [ICON_PEACE] Faith for every Ally.';
+SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP', '+1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food in City for every City-State Friend, and additionally +1 [ICON_PEACE] Faith for every Ally.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
@@ -8,7 +8,7 @@ SELECT 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY', 'This National Wonder is unique
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold in City for every City-State Friend, and +2 [ICON_PRODUCTION] Production for every Ally.';
+SELECT 'TXT_KEY_BUILDING_CHANCERY_HELP', '+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]Royal Signet[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+2 [ICON_PRODUCTION] Production for every City-State Ally.';
 
 INSERT INTO Language_en_US (
   Tag, Text)
@@ -20,4 +20,4 @@ SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY', 'Increases Diplomatic Unit prod
 
 INSERT INTO Language_en_US (
   Tag, Text)
-SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture in City for every City-State Friend, and +2 [ICON_RESEARCH] Science for every Ally.';
+SELECT 'TXT_KEY_BUILDING_WIRE_SERVICE_HELP', '+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]Wire Service[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture in City for every City-State Friend, and additionally +1 [ICON_RESEARCH] Science for every Ally.';
