@@ -556,6 +556,10 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			{
 				pkDefender->setCapturingPlayer(pkAttacker->getOwner());
 				pkDefender->SetCapturedAsIs(true);
+				if (pkAttacker->GetCapturedUnitsConscriptedCount() > 0)
+				{
+					pkDefender->SetCapturedAsConscript(true);
+				}
 			}
 		}
 		// Nobody died

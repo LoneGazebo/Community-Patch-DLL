@@ -113,7 +113,7 @@
 			<Text>Coercion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
-			<Text>Defeated land units may join your side.</Text>
+			<Text>Defeated land units may join your side as conscripted, supply-free units. </Text>
 		</Row>
 	<!-- Japan -->
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
@@ -228,7 +228,7 @@
 			<Text>Conscript</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_CONSCRIPT_HELP">
-			<Text>Conscripted from Policies, consuming no [ICON_WAR] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>Conscripted Unit, consuming no [ICON_WAR] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
 	<!-- Imperialism -->
