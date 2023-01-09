@@ -632,9 +632,7 @@ public:
 	void DoMinorBullyGold(PlayerTypes eBully, PlayerTypes eMinor);
 	void DoMinorBullyUnit(PlayerTypes eBully, PlayerTypes eMinor);
 	void DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor);
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	void DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor);
-#endif
 	void DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor);
 
 	void DoDefensivePactNotification(PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer);

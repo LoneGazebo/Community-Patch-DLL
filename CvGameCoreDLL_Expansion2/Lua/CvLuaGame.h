@@ -264,9 +264,7 @@ protected:
 	static int lDoMinorGiftTileImprovement(lua_State* L);
 	static int lDoMinorBullyGold(lua_State* L);
 	static int lDoMinorBullyUnit(lua_State* L);
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	static int lDoMinorBullyAnnex(lua_State* L);
-#endif
 	static int lDoMinorBuyout(lua_State* L);
 	static int lDoMinorMarriage(lua_State* L);
 

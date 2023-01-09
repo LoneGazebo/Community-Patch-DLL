@@ -15390,7 +15390,7 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 
 	return sResult.toUTF8();
 }
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+
 CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -15439,7 +15439,6 @@ CvString CvMinorCivAI::GetMajorBullyAnnexDetails(PlayerTypes ePlayer)
 
 	return sResult.toUTF8();
 }
-#endif
 
 void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 {

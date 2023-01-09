@@ -1084,9 +1084,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_TRAITS_ANY_BELIEF)
 	Method(IsTraitAnyBelief);
 #endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	Method(IsBullyAnnex);
-#endif
 	Method(IsTraitBonusReligiousBelief);
 	Method(GetHappinessFromLuxury);
 	Method(IsAbleToAnnexCityStates);
@@ -8960,7 +8958,7 @@ int CvLuaPlayer::lGetMajorBullyUnitDetails(lua_State* L)
 	lua_pushstring(L, sResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+
 //------------------------------------------------------------------------------
 //bool GetMajorBullyAnnexDetails(PlayerTypes eMajor);
 int CvLuaPlayer::lGetMajorBullyAnnexDetails(lua_State* L)
@@ -8972,7 +8970,6 @@ int CvLuaPlayer::lGetMajorBullyAnnexDetails(lua_State* L)
 	lua_pushstring(L, sResult);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //bool GetMajorBullyUnitDetails(PlayerTypes eMajor);
