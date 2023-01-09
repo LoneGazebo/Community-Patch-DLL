@@ -93,7 +93,7 @@
 			<Text>Specialists can be locked in Vox Populi by clicking on an empty Specialist slot in the city screen.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VPUI_TIP_29">
-			<Text>Farms, Lumber Mills, Logging Camps, and the Hunnic Eki gain additional yields when adjacent to two of themselves. Build them in triangle formations to maximize their output.</Text>
+			<Text>Farms, Lumber Mills, and the Hunnic Eki gain additional yields when adjacent to two of themselves. Build them in triangle formations to maximize their output.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VPUI_TIP_30">
 			<Text>Landmarks you build give you Happiness, no matter where you build them. Building a landmark for another civ will give you happiness and a nice relationship boost.</Text>

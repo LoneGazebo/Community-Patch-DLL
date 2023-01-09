@@ -408,7 +408,7 @@ SET Text = '[COLOR_GREEN]The Village[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'During a game, you will create "workers" - non-military units who will "improve" the land around your cities, increasing productivity or providing access to a nearby "resource." Improvements include farms, villages, lumber mills, logging camps, quarries, mines, and more. During wartime your enemy may "pillage" (destroy) your improvements. Pillaged improvements are ineffective until a worker has "repaired" them.'
+SET Text = 'During a game, you will create "workers" - non-military units who will "improve" the land around your cities, increasing productivity or providing access to a nearby "resource." Improvements include farms, villages, lumber mills, quarries, mines, and more. During wartime your enemy may "pillage" (destroy) your improvements. Pillaged improvements are ineffective until a worker has "repaired" them.'
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENT_HELP_TEXT';
 
 UPDATE Language_en_US
@@ -678,10 +678,15 @@ UPDATE Language_en_US
 SET Text = 'Found in the Earth''s crust and upper mantle, stone is perhaps the most crucial element in human construction efforts throughout history. There are three major classifications of stone - Sedimentary, Igneous, and Metamorphic - each differing in their origin.[NEWLINE][NEWLINE]+10% [ICON_PRODUCTION] Production when building pre-Renaissance Wonders in the City where it is worked.'
 WHERE Tag = 'TXT_KEY_CIV5_RESOURCE_STONE_TEXT';
 
+-- Lumber Mill
 
 UPDATE Language_en_US
-SET Text = 'A Lumbermill allows you to improve the Production output of forest tiles. Gains additional Production for every two adjacent Lumbermills, so try to build them in clusters of three if possible.'
+SET Text = 'A Lumber Mill allows you to improve the Production and Gold output of forest and jungle tiles. Gains additional Gold and Production for every two adjacent Lumber Mills, so try to build them in clusters of three if possible.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'It will increase the amount of [ICON_PRODUCTION] Production (Forest) or [ICON_GOLD] Gold (Jungle) provided by this tile, while keeping the Forest/Jungle intact. A Lumber Mill adjacent to two other Lumber Mills gains +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold.'
+WHERE Tag = 'TXT_KEY_BUILD_LUMBERMILL_REC';
 
 -- We Love the King Day
 
