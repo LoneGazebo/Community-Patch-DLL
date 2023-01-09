@@ -3,6 +3,10 @@
 INSERT INTO Defines(Name, Value) SELECT 'MAJORS_CAN_MOVE_STARTING_SETTLER', '1';
 INSERT INTO Defines(Name, Value) SELECT 'CS_CAN_MOVE_STARTING_SETTLER', '0';
 
+-- Victory conditions
+-- Two thirds of original capitals under control is enough
+INSERT INTO Defines (Name, Value) SELECT 'VICTORY_DOMINATION_CONTROL_PERCENT', '100';
+
 -- Number of rings a new city starts with
 INSERT INTO Defines (Name, Value) SELECT 'CITY_STARTING_RINGS', '1';
 INSERT INTO Defines (Name, Value) SELECT 'MAXIMUM_WORK_PLOT_DISTANCE', '3';

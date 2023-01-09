@@ -27,9 +27,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 
-	//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain
-	//difference to flat movement cost is that flat movement units don't get any bonuses
-	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
 	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
 	bool bHover = pUnit ? pUnit->IsHoveringUnit() : false;
 
@@ -157,22 +154,6 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	 if (pUnit->flatMovementCost())
 		return iMoveDenominator;
 
-	//in some cases we ignore terrain / feature cost
-	if (bHover)
-		bIgnoreTerrainCost = true;
-
-	if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
-		bIgnoreTerrainCost = true;
-
-	if (!bRiverCrossing || bAmphibious)
-	{
-		if (pTraits->IsFasterInHills() && pToPlot->isHills())
-			bIgnoreTerrainCost = true;
-
-		if (pTraits->IsMountainPass() && pToPlot->isMountain())
-			bIgnoreTerrainCost = true;
-	}
-
 	//check border obstacle - great wall ends the turn
 	TeamTypes eToTeam = pToPlot->getTeam();
 	TeamTypes eFromTeam = pFromPlot->getTeam();
@@ -218,7 +199,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		return INT_MAX;
 	}
-	//case with route is already handled above
+	//a city always counts as flat open terrain. case with route is already handled above!
 	else if (pToPlot->isCity() && !kUnitTeam.isAtWar(pToPlot->getTeam()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
@@ -231,8 +212,20 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		iRegularCost = 0;
 	}
 #endif
-	else
+	else //normal case, check terrain and features
 	{
+		//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain!
+		//difference to flat movement cost is that flat movement units don't get any bonuses
+		bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
+
+		//in some cases we ignore terrain / feature cost
+		if (MOD_BALANCE_CORE && bAmphibious && bRiverCrossing)
+			bIgnoreTerrainCost = true;
+		else if (pTraits->IsFasterInHills() && pToPlot->isHills())
+			bIgnoreTerrainCost = true;
+		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
+			bIgnoreTerrainCost = true;
+
 		if (MOD_SANE_UNIT_MOVEMENT_COST)
 		{
 			if (iTerrainFeatureCostAdderFromPromotions == INT_MAX)
@@ -247,8 +240,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			}
 		}
 
-		//if the unit ignores terrain cost, it can still profit from feature bonuses
-		if (bIgnoreTerrainCost)
+		//river crossings override ignore terrain cost, unless special promotions
+		if (bIgnoreTerrainCost && (!bRiverCrossing || bHover || bAmphibious))
 			iRegularCost = 1;
 		else
 		{
@@ -274,6 +267,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		//now switch to high-precision costs
 		iRegularCost *= iMoveDenominator;
 
+		//even if the unit ignores terrain cost, it can still profit from terrain/feature bonuses
 		if (!MOD_SANE_UNIT_MOVEMENT_COST)
 		{
 			if (iTerrainFeatureCostMultiplierFromPromotions == INT_MAX)

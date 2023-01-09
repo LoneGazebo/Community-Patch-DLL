@@ -7330,12 +7330,12 @@ bool CvUnit::canUseForAIOperation() const
 	if (IsCivilianUnit() && !canUseForTacticalAI())
 		return true;
 
-	//Is it a garrison we can spare?
-	if (IsGarrisoned())
+	//Is it a garrison we can spare? the border score check is a problem early on, so only do it once we have our core cities established
+	if (IsGarrisoned() && !GET_PLAYER(getOwner()).IsEarlyExpansionPhase())
 	{
 		CvCity* pCity = GetGarrisonedCity();
 		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
 		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
 			return false;
 		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
@@ -21813,7 +21813,7 @@ int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextK
 			continue;
 
 		//splash damage only for range-attackable plots around the target
-		//if the target is the current unit plot (for roman pilum) check is not needed
+		//if the target is the current unit plot (for roman pilum / overrun promo) check is not needed
 		if (!at(pWhere->getX(),pWhere->getY()) && !canEverRangeStrikeAt(pSplashPlot->getX(), pSplashPlot->getY(), plot(), false))
 			continue;
 
@@ -30398,27 +30398,6 @@ const CvPathNodeArray& CvUnit::GetLastPath() const
 {
 	return m_kLastPath;
 }
-
-bool CvUnit::IsCurrentPathUnsafe() const
-{
-	//no info ...
-	if (!IsCachedPathValid() || m_kLastPath.empty())
-		return false;
-
-	for (size_t i = m_kLastPath.size() - 1; i > 0; i--)
-	{
-		//check all plots where we would end the turn
-		if (m_kLastPath[i].m_iMoves == 0)
-		{
-			CvPlot* pPlot = m_kLastPath.GetPlotByIndex(i);
-			if ( GET_PLAYER(getOwner()).IsPlotUnsafe(pPlot) )
-				return true;
-		}
-	}
-	
-	return false;
-}
-
 
 // PRIVATE METHODS
 

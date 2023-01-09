@@ -934,6 +934,10 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 					int iNewWeight = GetUnitProductionAI()->CheckUnitBuildSanity(eUnitType, true, m_BuildablesPrecheck.GetWeight(iI), false, false);
 					if (iNewWeight > 0)
 					{
+						//hack, bump up the weight for our very first escort!
+						if (GET_PLAYER(m_pCity->getOwner()).IsEarlyExpansionPhase())
+							iNewWeight *= 3;
+
 						selection.m_iValue = iNewWeight;
 						m_Buildables.push_back(selection, iNewWeight);
 					}

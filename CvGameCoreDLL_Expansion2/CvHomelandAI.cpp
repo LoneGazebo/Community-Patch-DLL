@@ -2590,8 +2590,8 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		//see if we can make an easy kill (AI only - automated units cannot attack!)
 		if (!pUnit->IsAutomated())
 		{
-			CvUnit* pEnemyUnit = pEvalPlot->getVisibleEnemyDefender(pUnit->getOwner());
-			if (pEnemyUnit && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, pEnemyUnit))
+			std::vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pEvalPlot, m_pPlayer->getTeam());
+			if (vAttackers.size()==1 && TacticalAIHelpers::KillLoneEnemyIfPossible(pUnit, vAttackers[0]))
 			{
 				if (GC.getLogging() && GC.getAILogging())
 				{
@@ -2780,7 +2780,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (!pUnit)
 			continue;
 
-		SPathFinderUserData data(pUnit, 0, 5);
+		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 5);
 		allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
@@ -2793,7 +2793,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		{
 			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
 			{
-				SPathFinderUserData data(pLoopUnit, 0, 5);
+				SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 5);
 				allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
 
 				workersToIgnore.insert(pLoopUnit->GetID());
@@ -2832,7 +2832,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 		if (iTurnLimit >= iBuildTimeLeft)
 		{
-			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY, iTurnLimit-iBuildTimeLeft);
+			SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY| CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, iTurnLimit-iBuildTimeLeft);
 			ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pUnit->getX(), pUnit->getY(), data);
 	
 			// add offset for fair comparison
@@ -5382,7 +5382,7 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 
 	//pretend there are no other workers ...
 	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
-	SPathFinderUserData data(pUnit, 0, 13);
+	SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 13);
 	allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	return ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 }

@@ -12844,20 +12844,17 @@ void CvGame::DoTestConquestVictory()
 	}
 
 	// Find out how many original capitals there are
-	int iNumOriginalCapitals = 0;
-	std::vector<CvCity*> OriginalCapitals;
+	std::vector<CvCity*> originalCapitals;
 	CvMap& kMap = GC.getMap();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-
 		if (!kLoopPlayer.isEverAlive())
 			continue;
 
 		const int iOriginalCapitalX = kLoopPlayer.GetOriginalCapitalX();
 		const int iOriginalCapitalY = kLoopPlayer.GetOriginalCapitalY();
-
 		if (iOriginalCapitalX == -1 || iOriginalCapitalY == -1)
 			continue;
 
@@ -12866,42 +12863,35 @@ void CvGame::DoTestConquestVictory()
 		{
 			CvCity* pCapital = pCapitalPlot->getPlotCity();
 			if (pCapital)
-			{
-				iNumOriginalCapitals++;
-				OriginalCapitals.push_back(pCapital);
-			}
+				originalCapitals.push_back(pCapital);
 		}
 	}
 
-	if (iNumOriginalCapitals == 0)
+	if (originalCapitals.empty())
 		return;
 
-	// Go through all capitals and see if they are all owned by the same major team
-	TeamTypes ePossibleWinner = NO_TEAM;
-	for (size_t i = 0; i < OriginalCapitals.size(); i++)
+	// go through all capitals and see which team controls how many
+	std::map<TeamTypes, int> countPerTeam;
+	for (size_t i = 0; i < originalCapitals.size(); i++)
 	{
-		// Note: For Domination Victories, City-States' allies control their capitals, and vassals' masters control their capitals.
-		PlayerTypes eCapitalOwner = OriginalCapitals[i]->GetOwnerForDominationVictory();
-
-		// If effectively owned by Barbarians or City-States, Domination Victory is impossible!
-		if (!GET_PLAYER(eCapitalOwner).isMajorCiv())
-			return;
-
-		// First loop?
-		if (ePossibleWinner == NO_TEAM)
-		{
-			ePossibleWinner = GET_PLAYER(eCapitalOwner).getTeam();
-			continue;
-		}
-
-		// Subsequent loop? If this team isn't the first team, no one has won.
-		if (GET_PLAYER(eCapitalOwner).getTeam() != ePossibleWinner)
-			return;
+		//indirect ownership through vassalage or allied city states is also acceptable
+		PlayerTypes eCapitalOwner = originalCapitals[i]->GetOwnerForDominationVictory();
+		countPerTeam[GET_PLAYER(eCapitalOwner).getTeam()]++;
 	}
 
-	// The winner wins!
-	CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", ePossibleWinner, eConquestVictory);
-	setWinner(ePossibleWinner, eConquestVictory);
+	int iMinPercent = range(GD_INT_GET(VICTORY_DOMINATION_CONTROL_PERCENT), 51, 100);
+	int iThreshold = max(2, int(originalCapitals.size() * iMinPercent) / 100);
+	for (std::map<TeamTypes, int>::iterator it = countPerTeam.begin(); it != countPerTeam.end(); ++it)
+	{
+		//must have at least two to win because you start out with one ...
+		if (it->second >= iThreshold)
+		{
+			// The winner wins!
+			CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", it->first, eConquestVictory);
+			setWinner(it->first, eConquestVictory);
+			return;
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

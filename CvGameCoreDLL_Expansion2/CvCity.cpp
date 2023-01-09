@@ -25241,9 +25241,7 @@ void CvCity::ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange)
 	if (iChange != 0)
 	{
 		if (m_aiBaseYieldRateFromTerrain[eIndex] + iChange < 0)
-		{
-			OutputDebugString("houston, we have a problem!\n");
-		}
+			CUSTOMLOG("houston, we have a problem! inconsistent yield in %s\n", getNameKey());
 
 		m_aiBaseYieldRateFromTerrain[eIndex] += iChange;
 
@@ -30203,7 +30201,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 			UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
 			if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
 			{
-				pUnit->DoUpgrade(true);
+				pUnit = pUnit->DoUpgrade(true);
 			}
 		}
 		SetUnitInvestment(pUnit->getUnitClassType(), false);
@@ -30329,6 +30327,8 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 				}
 			}
 		}
+
+		//whoever invented this should be crucified
 		if (kOwner.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
 		{
 			UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
@@ -30341,6 +30341,7 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 					UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
 					CvUnit* pZuluImpi = kOwner.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
 					pZuluImpi->convert(pUnit, true);
+					pUnit = pZuluImpi;
 				}
 			}
 		}
@@ -30417,6 +30418,10 @@ void CvCity::produce(UnitTypes eTrainUnit, UnitAITypes eTrainAIUnit, bool bCanOv
 			pNotifications->Add(NOTIFICATION_GENERIC, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
 		}
 	}
+
+	//immediately check if the AI should start a found city operation so we can queue up the escort for production
+	if (!GET_PLAYER(m_eOwner).isHuman() && pUnit->isFound())
+		EconomicAIHelpers::IsTestStrategy_FoundCity(NO_ECONOMICAISTRATEGY,&GET_PLAYER(m_eOwner));
 }
 
 //	--------------------------------------------------------------------------------

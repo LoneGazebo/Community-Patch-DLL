@@ -495,7 +495,6 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 /// Called every turn to see what Strategies this player should using (or not)
 void CvEconomicAI::DoTurn()
 {
-
 	LogMonitor();
 	LogCityMonitor();
 
@@ -4651,7 +4650,7 @@ bool EconomicAIHelpers::IsTestStrategy_StartedPiety(CvPlayer* pPlayer)
 
 bool EconomicAIHelpers::CannotMinorCiv(CvPlayer* pPlayer, EconomicAIStrategyTypes eStrategy)
 {
-	if(!pPlayer->isMinorCiv())
+	if(!pPlayer->isMinorCiv() || eStrategy==NO_ECONOMICAISTRATEGY)
 	{
 		return false;
 	}
