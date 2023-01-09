@@ -337,8 +337,12 @@
 	-- Nuclear Missile
 	
 	UPDATE Language_en_US
-	SET Text = 'Unleash nuclear destruction upon your foes. Does great damage to Cities and damages any Unit caught in the blast radius.[NEWLINE][NEWLINE]Requires [COLOR_POSITIVE_TEXT]Manhattan Project[ENDCOLOR] and 2 [ICON_RES_URANIUM] Uranium.'
+	SET Text = 'Unleash nuclear destruction upon your foes. Does great damage to Cities and damages any Unit caught in the blast radius.[NEWLINE][NEWLINE]Requires [COLOR_POSITIVE_TEXT]Manhattan Project[ENDCOLOR] and 1 [ICON_RES_URANIUM] Uranium.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_NUCLEAR_MISSILE';
+	
+	UPDATE Language_en_US
+	SET Text = 'The Nuclear Missile is an upgraded, more powerful Atomic Bomb. The Nuclear Missile can be based in any city you own or aboard a Nuclear Submarine or Missile Cruiser. It can move from base to base or attack a target within its range of 24 tiles. When it detonates, a Nuclear Missile will damage (and possibly destroy) cities and destroy all units within its blast radius of 2 tiles. It is automatically destroyed when it attacks. See the rules on Nuclear Weapons for more details.'
+	WHERE Tag = 'TXT_KEY_UNIT_NUCLEAR_MISSILE_STRATEGY';
 
 	UPDATE Language_en_US
 	SET Text = 'Bomber'
