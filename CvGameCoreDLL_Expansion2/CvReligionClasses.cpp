@@ -9496,124 +9496,130 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 	int iDiploTemp = 0;
 	if (!m_pPlayer->GetPlayerTraits()->IsBullyAnnex() && !m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
 	{
-		int iNumCS = 0;
-
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		if (pEntry->GetCityStateMinimumInfluence() != 0)
 		{
-			CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-			if (kLoopPlayer.isAlive() && kLoopPlayer.isMinorCiv())
+			int iNumCS = 0;
+
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
-				iNumCS++;
-				if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+				CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+				if (kLoopPlayer.isAlive() && kLoopPlayer.isMinorCiv())
 				{
 					iNumCS++;
+					if (kLoopPlayer.GetProximityToPlayer(m_pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+					{
+						iNumCS++;
+					}
 				}
 			}
+
+			iDiploTemp += (pEntry->GetCityStateMinimumInfluence() * iNumCS) / 10;
 		}
+	}
 
-		iDiploTemp += (pEntry->GetCityStateMinimumInfluence() * GC.getGame().GetNumMinorCivsAlive()) / 10;
-
+	if (pEntry->GetHappinessFromForeignSpies() != 0)
+	{
 		iDiploTemp += pEntry->GetHappinessFromForeignSpies() * max(2, m_pPlayer->GetEspionage()->GetNumSpies() * 25);
+	}
 
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-		{
-			if (!bForeignSpreadImmune && !bNoNaturalSpread)
-				iDiploTemp += pEntry->GetYieldPerOtherReligionFollower(iI) * 2;
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		if (!bForeignSpreadImmune && !bNoNaturalSpread)
+			iDiploTemp += pEntry->GetYieldPerOtherReligionFollower(iI) * 2;
 
-			if (pEntry->GetYieldFromKnownPantheons(iI) > 0)
-			{
-				int iPantheonValue = (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() * pEntry->GetYieldFromKnownPantheons(iI)) / 100;
-				iDiploTemp += iPantheonValue * (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() / 2);
-			}
-			if (pEntry->GetYieldFromHost(iI) > 0)
-			{
-				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-				if (pLeague != NULL)
-				{
-					if (pEntry->GetYieldFromHost(iI) != 0)
-					{
-						iDiploTemp += (pEntry->GetYieldFromHost(iI) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
-					}
-					if (pLeague->GetHostMember() == m_pPlayer->GetID())
-					{
-						iDiploTemp *= 10;
-					}
-				}
-				else
-				{
-					if (pEntry->GetYieldFromHost(iI) != 0)
-					{
-						iDiploTemp += (pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSFriends());
-					}
-				}
-			}
-			if (pEntry->GetYieldFromProposal(iI) > 0)
-			{
-				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-				if (pLeague != NULL)
-				{
-					iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
-				}
-				else
-				{
-					iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2)  * m_pPlayer->GetNumCSFriends());
-				}
-			}
-		}
-		if (pEntry->GetCSYieldBonus() > 0)
+		if (pEntry->GetYieldFromKnownPantheons(iI) > 0)
 		{
-			iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSFriends()) / 2;
+			int iPantheonValue = (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() * pEntry->GetYieldFromKnownPantheons(iI)) / 100;
+			iDiploTemp += iPantheonValue * (GC.getGame().GetGameReligions()->GetNumPantheonsCreated() / 2);
 		}
-
-		int iNumImprovementInfos = GC.getNumImprovementInfos();
-		pair<int, int> fVoteRatio = make_pair(0, 1);
-		for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
-		{
-			int potentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
-			if (potentialVotes > 0)
-			{
-				int numImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
-				AddFractionToReference(fVoteRatio, make_pair(numImprovements, potentialVotes));
-			}
-		}
-		iDiploTemp += 80 * fVoteRatio.first / fVoteRatio.second;
-		
-		if (pEntry->GetCityStateInfluenceModifier() > 0)
-		{
-			iDiploTemp += (pEntry->GetCityStateInfluenceModifier() * m_pPlayer->GetNumCSFriends()) / 2;
-		}
-
-		if (pEntry->GetExtraVotes() > 0)
+		if (pEntry->GetYieldFromHost(iI) > 0)
 		{
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 			if (pLeague != NULL)
 			{
-				iDiploTemp += (pEntry->GetExtraVotes() * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID()) * 2);
+				if (pEntry->GetYieldFromHost(iI) != 0)
+				{
+					iDiploTemp += (pEntry->GetYieldFromHost(iI) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
+				}
+				if (pLeague->GetHostMember() == m_pPlayer->GetID())
+				{
+					iDiploTemp *= 10;
+				}
 			}
 			else
 			{
-				iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSFriends() * 2);
+				if (pEntry->GetYieldFromHost(iI) != 0)
+				{
+					iDiploTemp += (pEntry->GetYieldFromHost(iI) * m_pPlayer->GetNumCSFriends());
+				}
 			}
 		}
-
-		DomainTypes eDomain;
-		for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+		if (pEntry->GetYieldFromProposal(iI) > 0)
 		{
-			eDomain = (DomainTypes)iI;
-
-			for (int i = 0; i < NUM_YIELD_TYPES; i++)
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague != NULL)
 			{
-				YieldTypes eYield = (YieldTypes)i;
-				if (pEntry->GetTradeRouteYieldChange(eDomain, eYield) != 0)
+				iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2) * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID())) / 2;
+			}
+			else
+			{
+				iDiploTemp += ((pEntry->GetYieldFromProposal(iI) / 2)  * m_pPlayer->GetNumCSFriends());
+			}
+		}
+	}
+	if (pEntry->GetCSYieldBonus() > 0)
+	{
+		iDiploTemp += (pEntry->GetCSYieldBonus() * m_pPlayer->GetNumCSFriends()) / 2;
+	}
+
+	int iNumImprovementInfos = GC.getNumImprovementInfos();
+	pair<int, int> fVoteRatio = make_pair(0, 1);
+	for (int jJ = 0; jJ < iNumImprovementInfos; jJ++)
+	{
+		int potentialVotes = pEntry->GetImprovementVoteChange((ImprovementTypes)jJ);
+		if (potentialVotes > 0)
+		{
+			int numImprovements = max(m_pPlayer->getImprovementCount((ImprovementTypes)jJ), 1);
+			AddFractionToReference(fVoteRatio, make_pair(numImprovements, potentialVotes));
+		}
+	}
+	iDiploTemp += 80 * fVoteRatio.first / fVoteRatio.second;
+		
+	if (pEntry->GetCityStateInfluenceModifier() > 0)
+	{
+		iDiploTemp += (pEntry->GetCityStateInfluenceModifier() * m_pPlayer->GetNumCSFriends()) / 2;
+	}
+
+	if (pEntry->GetExtraVotes() > 0)
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL)
+		{
+			iDiploTemp += (pEntry->GetExtraVotes() * pLeague->CalculateStartingVotesForMember(m_pPlayer->GetID()) * 2);
+		}
+		else
+		{
+			iDiploTemp += (pEntry->GetExtraVotes() * m_pPlayer->GetNumCSFriends() * 2);
+		}
+	}
+
+	DomainTypes eDomain;
+	for (int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
+	{
+		eDomain = (DomainTypes)iI;
+
+		for (int i = 0; i < NUM_YIELD_TYPES; i++)
+		{
+			YieldTypes eYield = (YieldTypes)i;
+			if (pEntry->GetTradeRouteYieldChange(eDomain, eYield) != 0)
+			{
+				if (pPlayerTraits->IsExpansionist())
 				{
-					if (pPlayerTraits->IsExpansionist())
-					{
-						iDiploTemp += pEntry->GetTradeRouteYieldChange(eDomain, eYield) * 4;
-					}
-					else
-					{
-						iDiploTemp += pEntry->GetTradeRouteYieldChange(eDomain, eYield) * 2;
-					}
+					iDiploTemp += pEntry->GetTradeRouteYieldChange(eDomain, eYield) * 4;
+				}
+				else
+				{
+					iDiploTemp += pEntry->GetTradeRouteYieldChange(eDomain, eYield) * 2;
 				}
 			}
 		}
