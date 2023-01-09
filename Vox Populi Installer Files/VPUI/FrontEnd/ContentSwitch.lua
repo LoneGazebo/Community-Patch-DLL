@@ -61,8 +61,8 @@ function OnShowHide( isHide, isInit )
 	Controls.Tips:SetText(VPTipText()) -- Vox Populi tip content
 	Controls.ContentSwitchGrid:SetSizeY( 290 ) -- Reset the size every time this UI appears
 	local contentsize = Controls.Tips:GetSize().y
-	if contentsize > tips_count then
-		Controls.ContentSwitchGrid:SetSizeY( 290 + contentsize )
+	if contentsize > 32 then -- This is the Tips box Y size, if the Tips box Y size is more than 32 pixel
+		Controls.ContentSwitchGrid:SetSizeY( 290 + contentsize ) -- Resize the ContentSwitchGrid Y size with the Tips box Y size
 	end
 end
 ContextPtr:SetShowHideHandler( OnShowHide );
