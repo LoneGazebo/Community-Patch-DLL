@@ -18696,24 +18696,24 @@ void CvUnit::ChangeRoughTerrainEndsTurnCount(int iValue)
 bool CvUnit::IsCapturedUnitsConscripted() const
 {
 	VALIDATE_OBJECT
-		return GetCapturedUnitsConscriptedCount() > 0;
+	return GetCapturedUnitsConscriptedCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
 int CvUnit::GetCapturedUnitsConscriptedCount() const
 {
 	VALIDATE_OBJECT
-		return m_iCapturedUnitsConscriptedCount;
+	return m_iCapturedUnitsConscriptedCount;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeCapturedUnitsConscriptedCount(int iValue)
 {
 	VALIDATE_OBJECT
-		if (iValue != 0)
-		{
-			m_iCapturedUnitsConscriptedCount += iValue;
-		}
+	if (iValue != 0)
+	{
+		m_iCapturedUnitsConscriptedCount += iValue;
+	}
 }
 
 
@@ -25289,14 +25289,14 @@ void CvUnit::SetCapturedAsIs(bool bSetValue)
 bool CvUnit::IsCapturedAsConscript() const
 {
 	VALIDATE_OBJECT
-		return m_bCapturedAsConscript;
+	return m_bCapturedAsConscript;
 }
 
 //	--------------------------------------------------------------------------------
 void CvUnit::SetCapturedAsConscript(bool bSetValue)
 {
 	VALIDATE_OBJECT
-		m_bCapturedAsConscript = bSetValue;
+	m_bCapturedAsConscript = bSetValue;
 }
 
 //	--------------------------------------------------------------------------------
