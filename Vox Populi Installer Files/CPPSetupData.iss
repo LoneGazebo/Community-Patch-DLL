@@ -25,7 +25,7 @@ VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
 VersionInfoCopyright=2022
 OutputBaseFilename={#MyAppName} ({#MyAppVersion})
-DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\MODS\
+DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\
 LicenseFile=License.rtf
 InfoBeforeFile=Opener.rtf
 SetupIconFile=installer.ico
@@ -46,18 +46,19 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 FinishedLabel=Setup has finished installing [name] on your computer. To launch the mod, open Civilization V and enable all installed mods in the MODS menu, and click 'Next.' Have fun!
 
 [Files]
-Source: "(1) Community Patch\*"; DestDir: "{app}\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
-Source: "(2) Vox Populi\*"; DestDir: "{app}\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
-Source: "(3a) VP - EUI Compatibility Files\*"; DestDir: "{app}\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
-Source: "(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
-Source: "(4a) Promotion Icons for VP\*"; DestDir: "{app}\(4a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "(4b) UI - Promotion Tree for VP\*"; DestDir: "{app}\(4b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
-Source: "LUA for (1) CP\LUA\*"; DestDir: "{app}\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly     
-Source: "LUA for (2) VP\LUA\*"; DestDir: "{app}\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
+Source: "(1) Community Patch\*"; DestDir: "{app}\MODS\(1) Community Patch"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "(2) Vox Populi\*"; DestDir: "{app}\MODS\(2) Vox Populi"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI FullNoEUI Civ43EUI Civ43NoEUI
+Source: "(3a) VP - EUI Compatibility Files\*"; DestDir: "{app}\MODS\(3a) VP - EUI Compatibility Files"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
+Source: "(3b) 43 Civs Community Patch\(3b) 43 Civs Community Patch (v 1).modinfo"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "(3b) 43 Civs Community Patch (v 1).modinfo"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(3b) 43 Civs Community Patch\AdvancedSetup.lua"; DestDir: "{app}\MODS\(3b) 43 Civs Community Patch\"; DestName: "AdvancedSetup.lua"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(3b) 43 Civs Community Patch\CvGameCore_Expansion2.dll"; DestDir: "{app}\MODS\(1) Community Patch\"; DestName: "CvGameCore_Expansion2.dll"; Flags: ignoreversion; Components: Civ43CPOnly Civ43EUI Civ43NoEUI
+Source: "(4a) Promotion Icons for VP\*"; DestDir: "{app}\MODS\(4a) Promotion Icons for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "(4b) UI - Promotion Tree for VP\*"; DestDir: "{app}\MODS\(4b) UI - Promotion Tree for VP"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI FullEUI Civ43EUI Civ43NoEUI
+Source: "LUA for (1) CP\LUA\*"; DestDir: "{app}\MODS\(1) Community Patch\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: Core Civ43CPOnly
+Source: "LUA for (2) VP\LUA\*"; DestDir: "{app}\MODS\(2) Vox Populi\LUA"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullNoEUI Civ43NoEUI
 Source: "UI_bc1\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\UI_bc1"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI
 Source: "VPUI\*"; DestDir: "{code:GetCIVDir}\Assets\DLC\VPUI"; Flags: ignoreversion createallsubdirs recursesubdirs; Components: FullEUI Civ43EUI FullNoEUI Civ43NoEUI
+Source: "VPUI Text\VPUI_tips_en_us.xml"; DestDir: "{app}\Text"; Flags: ignoreversion; Components: Civ43EUI Civ43NoEUI FullEUI FullNoEUI
 
 [Components]
 Name: "FullEUI"; Description: "Full Version (EUI)"; Types: FullEUI; Flags: exclusive disablenouninstallwarning
@@ -79,6 +80,7 @@ Name: "43CivEUI"; Description: "43 Civ Vox Populi (with EUI)"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\UI_bc1"
 Type: filesandordirs; Name: "{code:GetCIVDir}\Assets\DLC\VPUI"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\cache"
+Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\Text\VPUI_tips_en_us.xml"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(1) Community Patch"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(2) Vox Populi"
 Type: filesandordirs; Name: "{userdocs}\My Games\Sid Meier's Civilization 5\MODS\(3a) VP - EUI Compatibility Files"

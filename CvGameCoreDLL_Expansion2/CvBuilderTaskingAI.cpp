@@ -2162,10 +2162,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 			break;
 
-		// Moved outside to allow adjacent same type improvements to give yields of types not included in base yield
-		int iAdjacentValue = pImprovement->GetYieldAdjacentSameType(eYield);
-		int iAdjacentTwoValue = pImprovement->GetYieldAdjacentTwoSameType(eYield);
-
 		if (pImprovement->GetYieldChange(iI) > 0)
 		{
 			switch (eYield)

@@ -749,9 +749,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
 	Method(GetMajorBullyUnitDetails);
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX);
 	Method(GetMajorBullyAnnexDetails);
-#endif
 	Method(GetMajorBullyValue);
 	Method(CanMajorBuyout);
 	Method(CanMajorMarry);

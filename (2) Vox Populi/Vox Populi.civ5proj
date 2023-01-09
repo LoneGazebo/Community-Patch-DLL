@@ -925,12 +925,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Text/en_US/VPUI_tips_en_us.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Text/en_US/UIShortcutsCivolopedia_en_US.xml</FileName>
+        <FileName>Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</FileName>
       </Action>
     </ModActions>
     <ModReferences />
@@ -2876,7 +2871,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Text\en_US\UIShortcutsCivolopedia_en_US.xml">
+    <Content Include="Balance Changes\Text\en_US\UIShortcutsCivilopedia.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -2921,10 +2916,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Text\en_US\TextChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Text\en_US\VPUI_tips_en_us.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
