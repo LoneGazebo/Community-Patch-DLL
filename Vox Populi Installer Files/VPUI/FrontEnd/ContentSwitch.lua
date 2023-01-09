@@ -1,4 +1,7 @@
 -- Table of Vox Populi tips
+-- Update this when adding new tips
+local tips_count = 33;
+
 -- Localize stuff for performance reason
 local L = Locale.ConvertTextKey;
 local math_random = math.random;
@@ -29,7 +32,7 @@ end
 function VPTipText()
 	local iTipText = 0
 	if		GetVPTip() == "TIP" then
-		iTipText = math_random(1, 32)
+		iTipText = math_random(1, tips_count)
 --[[
 	elseif	GetVPTip() == "QUOTE" then
 		iTipText = math_random(1, 4)
@@ -58,7 +61,7 @@ function OnShowHide( isHide, isInit )
 	Controls.Tips:SetText(VPTipText()) -- Vox Populi tip content
 	Controls.ContentSwitchGrid:SetSizeY( 290 ) -- Reset the size every time this UI appears
 	local contentsize = Controls.Tips:GetSize().y
-	if contentsize > 32 then
+	if contentsize > tips_count then
 		Controls.ContentSwitchGrid:SetSizeY( 290 + contentsize )
 	end
 end

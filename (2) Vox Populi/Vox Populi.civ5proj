@@ -927,6 +927,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/en_US/VPUI_tips_en_us.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Text/en_US/UIShortcutsCivolopedia_en_US.xml</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -2868,6 +2873,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Text\en_US\EspionageEventText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Text\en_US\UIShortcutsCivolopedia_en_US.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

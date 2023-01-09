@@ -416,6 +416,8 @@ public:
 	void SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingInvestment(BuildingClassTypes eBuildingClass) const;
 
+	bool IsProcessInternationalProject(ProcessTypes eProcess) const;
+
 	void SetUnitInvestment(UnitClassTypes eUnitClass, bool bValue);
 	bool IsUnitInvestment(UnitClassTypes eUnitClass) const;
 

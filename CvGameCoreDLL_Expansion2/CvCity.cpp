@@ -1,4 +1,4 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
+/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
@@ -11933,7 +11933,19 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 
 	m_abBuildingInvestment[eBuildingClass] = bNewValue;
 }
-
+//	--------------------------------------------------------------------------------
+bool CvCity::IsProcessInternationalProject(ProcessTypes eProcess) const
+{
+	for (int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
+	{
+		LeagueProjectTypes eLeagueProject = (LeagueProjectTypes)iI;
+		CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
+		if (pInfo && pInfo->GetProcess() == eProcess) {
+			return true;
+		}
+	}
+	return false;
+}
 //	--------------------------------------------------------------------------------
 bool CvCity::IsUnitInvestment(UnitClassTypes eUnitClass) const
 {
@@ -29719,6 +29731,19 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 	if (bAppend)
 	{
 		m_orderQueue.insertAtEnd(&order);
+
+		if (order.eOrderType != ORDER_MAINTAIN || IsProcessInternationalProject((ProcessTypes)order.iData1))
+		{
+			// Bubble down non-process orders to in front of all processes at end of queue
+			uint32 currOrderIdx = uint32(m_orderQueue.getLength()) - 1;
+			while (currOrderIdx > 0
+			  && m_orderQueue.getAt(currOrderIdx - 1)->eOrderType == ORDER_MAINTAIN
+			  && !IsProcessInternationalProject((ProcessTypes)m_orderQueue.getAt(currOrderIdx - 1)->iData1))
+			{
+				m_orderQueue.swapUp(currOrderIdx - 1);
+				currOrderIdx--;
+			}
+		}
 	}
 	else
 	{
