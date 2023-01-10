@@ -41,6 +41,7 @@ if IsDX11 then
 	Controls.CultureTurns:SetAlpha( 1.0 )
 	Controls.FaithTurns:SetAlpha( 1.0 )
 	Controls.GoldPerTurn:SetAlpha( 1.0 )
+	Controls.HappinessString:SetAlpha( 1.0 )
 	Controls.HappyTurns:SetAlpha( 1.0 )
 	Controls.UnitSupplyString:SetAlpha( 1.0 )
 	Controls.NavalSupplyString:SetAlpha( 1.0 )
